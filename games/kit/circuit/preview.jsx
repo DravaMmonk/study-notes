@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
+import SampleCircuit from './SampleCircuit.jsx'
 import { L, tr } from '../shell/i18n.js'
 import { evalSettings } from '../engine/parts/define.js'
 import PartFace from '../shell/parts/PartFace.jsx'
@@ -84,7 +85,10 @@ export function preview(piece, { game, scene, edit = null, state = [undefined, (
   // piece on: a built piece's board, a bench.
   if (scene !== 'detail' || (!entry && !piece.inside)) return null
   const shown = entry ?? game.parts?.all.find((p) => p.piece === piece.type) ?? { key: piece.type, piece: piece.type }
-  return game.parts?.demo?.(shown, { phone, progress }) ?? null
+  const board = game.parts?.demo?.(shown, { phone, progress })
+  const example = game.parts?.example?.(shown, { progress })
+  if (example || board) return <>{example && <SampleCircuit example={example} defined={game.defined} phone={phone} />}{board}</>
+  return faced(piece, game) ? <Face piece={piece} game={game} scene={scene} edit={edit} state={state} /> : null
 }
 
 /** The fields no scene draws: a faced piece's rows of fields and what it computes, or a built piece's sheet. */

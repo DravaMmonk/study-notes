@@ -22,9 +22,16 @@ function Row({ got, want, curve, tolerance, lo, hi, at, x, along, width, height,
   const y = (v) => PAD_Y + (1 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo || 1)) * (height - 2 * PAD_Y)
   const zero = y(0)
   const path = (list) => list.map((v, j) => `${j ? 'L' : 'M'}${x(j).toFixed(1)},${y(v).toFixed(1)}`).join('')
+  const band = want && tolerance > 0 && Number.isFinite(tolerance)
+    ? path(want.map((v) => v + tolerance)) + want.map((_, j) => {
+      const i = want.length - 1 - j
+      return `L${x(i).toFixed(1)},${y(want[i] - tolerance).toFixed(1)}`
+    }).join('') + 'Z'
+    : null
   return (
     <g>
       <line className="pl-zero" x1={0} x2={width} y1={zero} y2={zero} />
+      {band && <path className="pl-band" d={band} />}
       {want && <path className="pl-want-line" d={path(want)} />}
       {curve && <path className="pl-curve" d={along.map((t, i) => `${i ? 'L' : 'M'}${x(t).toFixed(1)},${y(curve(t)).toFixed(1)}`).join('')} />}
       {got && <path className="pl-line" d={path(got)} />}

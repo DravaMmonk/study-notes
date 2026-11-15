@@ -15,3 +15,9 @@ export function rangeOf(img) {
   }
   return { lo: 0, hi: Math.max(max, 1e-6) }
 }
+
+// CSS grey for annotations on a bench's artwork.
+export const grey = (v) => {
+  const byte = Math.round(Math.max(0, Math.min(1, v)) * 255)
+  return `rgb(${byte}, ${byte}, ${byte})`
+}

@@ -1,4 +1,4 @@
-import { BOARD_PLAY } from './board-play.js'
+import { BOARD_PLAY, SIMULATION_PLAY } from './board-play.js'
 import { hidden } from './judge.js'
 import { S, validate } from './schema.js'
 
@@ -12,10 +12,11 @@ const fields = {
 export const PLAY = S.by('editor', {
   board: BOARD_PLAY,
   circuit: S.by('judge', {
+    simulation: SIMULATION_PLAY,
     cases: S.obj({ editor: S.oneOf(['circuit']), judge: S.oneOf(['cases']), target: S.oneOf(['shown', 'hidden']) }),
     outputs: S.obj({
       editor: S.oneOf(['circuit']), judge: S.oneOf(['outputs']), checks: S.oneOf(['afterPass']),
-      layout: S.str(), results: S.obj({ title: S.str(), body: S.str(), aside: S.list(S.str()) }),
+      layout: S.str(),
     }),
   }),
   workshop: S.obj({

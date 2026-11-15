@@ -63,6 +63,7 @@
 .pl-dot { fill: var(--accent); }
 .pl-dot.is-miss { fill: var(--fail); }
 .pl-want { fill: none; stroke: var(--ink); stroke-width: 1.2; opacity: 0.55; }
+.pl-band { fill: var(--accent); opacity: 0.12; }
 .pl-want-line { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.3; }
 .pl-at { stroke: var(--ink); stroke-width: 1; opacity: 0.3; }
 /* The reading: one line just above the plot, from its left edge (the column pointed at is the line across the plot). */

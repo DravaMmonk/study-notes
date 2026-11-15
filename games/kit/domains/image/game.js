@@ -12,21 +12,21 @@ import { imageCourse } from './course.js'
 import { playFor } from '../../engine/plays.js'
 import { workshopScreen } from '../../shell/WorkshopPlay.jsx'
 import { plays } from './plays.js'
-import ImageCircuit from './ui/CircuitPlay.jsx'
+import { BuiltBoard, partsFor } from '../../shell/CircuitScreen.jsx'
+import { imageCircuitScreen } from './ui/circuit.js'
+import { imageBoards } from './engine/board-view.js'
+import { imagePreview } from './engine/preview.js'
 import ProbeLevel from './ui/ProbeLevel.jsx'
-import PartDemo from './ui/PartDemo.jsx'
-import Hero from './ui/Hero.jsx'
-import IntroFigure from './ui/IntroFigure.jsx'
-import { IMAGE_WIDGETS } from './ui/PartWidgets.jsx'
+import { imageHero, imageIntroduction } from './ui/intro.js'
+import WeightGrid from '../../shell/parts/WeightGrid.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
 const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
-const screens = { outputs: ImageCircuit, exercise: workshopScreen({ parameters: BenchLevel, probe: ProbeLevel }) }
+const Workshop = workshopScreen({ parameters: BenchLevel, probe: ProbeLevel })
 
-function ImagePlay(screen) {
-  const play = playFor(plays, screen.level)
-  return createElement(screens[play.judge], { ...screen, play })
+function ImageExercise(screen) {
+  return createElement(Workshop, { ...screen, play: playFor(plays, screen.level) })
 }
 
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
@@ -46,8 +46,7 @@ const OPTION_NAMES = {
 
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, power, eras, primitives, concept, replaces, views,
- * box: { sample, inLevel,
- * boards } how the parts box tries a part (ui/PartDemo.jsx), levels, glossary }.
+ * levels, glossary }.
  */
 export default function imageGame(content) {
   const image = imageCourse(content)
@@ -56,7 +55,7 @@ export default function imageGame(content) {
   const PART_OF_FLAG = partOfFlag(types)
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
-    if (type && types[type]) return { key: flag, ...(image.pieces[type] ? { piece: type } : {}), label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
+    if (type && types[type]) return { key: flag, ...((image.pieces[type] || kit.defs[type]) ? { piece: type } : {}), label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
@@ -64,14 +63,13 @@ export default function imageGame(content) {
   const shownUnlocks = (level) => level.unlocks.filter((flag) => !level.tasks.slice(0, -1).some((task) => task.opens.includes(flag)))
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
-  // The boards the parts box tries a part on, where a level's own reference (its last task's) spells it out in smaller
-  // parts.
-  const box = {
-    sample: content.box.sample,
-    inLevel: content.box.inLevel,
-    boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]].tasks.at(-1))])),
-  }
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
+  const boards = imageBoards(image)
+  const cards = Object.fromEntries(Object.keys(types).map((type) => [type, {
+    name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types),
+  }]))
+  const Graph = imageCircuitScreen(image, boards, cards)
+  const levels = LEVELS.map((level) => ({ ...level, tasks: level.tasks.map((task) => ({ ...task, source: task })) }))
   const labels = levelLabels(content.eras, { notes: course.notes })
   const game = defineGame({
     id: content.id,
@@ -81,26 +79,37 @@ export default function imageGame(content) {
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,
-    Hero,
+    Hero: imageHero,
     power: content.power,
     chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
-    levels: LEVELS,
+    levels,
     intro: (level) => image.intros[level.id],
-    IntroFigure,
+    IntroFigure: imageIntroduction,
     kinds: {
-      graph: { Screen: ImagePlay, icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
-      board: { Screen: ImagePlay, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-      probe: { Screen: ImagePlay, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
+      graph: { Screen: Graph, icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
+      board: { Screen: ImageExercise, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
+      probe: { Screen: ImageExercise, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
     },
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,
-    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], phone, levels: LEVELS, box }) },
+    parts: {
+      all: [...primitives, ...allFlags.map(unlockOf)],
+      example: (part, { progress }) => {
+        const made = imagePreview(image, content.box, part, progress)
+        return made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {} }) }
+      },
+      demo: (part, { progress }) => {
+        if (!boards.BUILT[part.piece]) return null
+        if (progress?.solved) image.syncOwn(progress)
+        return createElement(BuiltBoard, { course: boards, type: part.piece, cards })
+      },
+    },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,
   })
   game.image = image
-  game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: IMAGE_WIDGETS }
+  game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: { imageKernel: WeightGrid } }
   return game
 }

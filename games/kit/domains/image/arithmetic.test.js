@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { imageCourse } from './course.js'
 import { outputImages } from './engine/graph.js'
 import { image } from './engine/image.js'
-import { pruneUnavailableWires, setParam } from './ui/parameters.js'
+import { tidyImageBoard } from './engine/board.js'
 
 const text = (s) => ({ zh: s, en: s })
 const course = imageCourse({
@@ -47,14 +47,19 @@ test('arithmetic reports missing input when a needed operand has no wire or cons
 
 test('switching constant sides removes only the occupied wire and restores ports when disabled', () => {
   const original = kit.fromText(['n = arith[op=sub](in, in)', 'out <- n'])
-  const right = setParam(kit, original, 'n', 'constantSide', 'b')
+  const constantSide = (board, side) => tidyImageBoard(kit, {
+    ...board, nodes: board.nodes.map((node) => node.id === 'n'
+      ? { ...node, params: { ...node.params, constantSide: side } }
+      : node),
+  })
+  const right = constantSide(original, 'b')
   const node = right.nodes.find((n) => n.id === 'n')
   assert.deepEqual(kit.BOARD_PARTS.inputs(node), ['a'])
   assert.deepEqual(right.wires.filter((w) => w.to === 'n').map((w) => w.port), ['a'])
-  assert.deepEqual(pruneUnavailableWires(kit, { ...right, wires: original.wires }).wires, right.wires)
-  const left = setParam(kit, right, 'n', 'constantSide', 'a')
+  assert.deepEqual(tidyImageBoard(kit, { ...right, wires: original.wires }).wires, right.wires)
+  const left = constantSide(right, 'a')
   assert.deepEqual(kit.BOARD_PARTS.inputs(left.nodes.find((n) => n.id === 'n')), ['b'])
   assert.equal(left.wires.filter((w) => w.to === 'n').length, 0)
-  const off = setParam(kit, left, 'n', 'constantSide', 'none')
+  const off = constantSide(left, 'none')
   assert.deepEqual(kit.BOARD_PARTS.inputs(off.nodes.find((n) => n.id === 'n')), ['a', 'b'])
 })

@@ -10,11 +10,11 @@ import { measure, rawStyles } from './styles.js'
 
 const CEILING = {
   kit: { sizes: 15, colours: 19 },
-  shell: { sizes: 207, colours: 21 },
-  circuit: { sizes: 70, colours: 20 },
+  shell: { sizes: 209, colours: 21 },
+  circuit: { sizes: 68, colours: 20 },
   views: { sizes: 1, colours: 2 },
   strip: { sizes: 6, colours: 0 },
-  image: { sizes: 67, colours: 24 },
+  image: { sizes: 41, colours: 22 },
   logic: { sizes: 38, colours: 22 },
   table: { sizes: 97, colours: 5 },
 }

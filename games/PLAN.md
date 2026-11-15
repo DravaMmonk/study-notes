@@ -5,19 +5,13 @@
 ## 现状（2026-11-15）
 
 - 《证明完毕》：全部玩法在内核的屏上，`logic` 自写组件 0 行；门、推理规则、证明助手的元件、引理、等式都是 `games/qed/pieces.json` 的件。
-- 《视觉完备》：件在 `pieces.json`；玩法已登记在 `domains/image/plays.js`（图像电路 `graph`、参数台 `board`、探针 `probe`），共用内核的关卡布局。领域还自写 2828 行组件：电路关（`ui/CircuitPlay.jsx`、`ui/TestPanel.jsx`、`ui/useImageCards.jsx`、`ui/phone/Editors.jsx`）、件的演示（`ui/PartDemo.jsx`）、图像视图（`ui/views/`）、参数台（`ui/benches/`）。
+- H.3 已完成。《视觉完备》和 COMP90086 的图像电路（`graph`）使用内核的 `CircuitScreen`；元件箱和 Studio 使用图像编辑器的预览。图像领域剩 1196 行组件，服务于本轮保留的参数台和探针。
 - 《状态之图》：件和思路在 `pieces.json`；玩法已登记在 `domains/table/plays.js`，手动棋盘和机器人电路共用棋盘界面。领域还自写 2187 行组件：机器人电路（`ui/modes/Circuit.jsx`）、八种玩法屏（`ui/modes/`）、件的演示（`ui/PartDemo.jsx`）、`ui/BoardView.jsx`、`ui/RobotView.jsx`。
 - H.2 已完成。COMP90086 的 `pieces.json` 登记一维三点核和相加两个基础件。课内检验结果与基线一致，英译覆盖从 43/43 增至 53/53。
 - 编辑器的预览已接入 studio 和元件箱，接口是 `preview(piece, { game, scene })`，`scene` 取 `card`、`tile` 或 `detail`。
 - H.1：移除了旧演示专用的场景图、无头场景钩子、反应世界和电路重复量度。三个脚手架保留，电路预设和逐拍寄存器继续由脚手架使用。
 
 ## 阶段 H
-
-### H.3 《视觉完备》的图像电路关上内核的电路屏
-
-- 照 D.5 对《证明完毕》的做法：`graph` 玩法换成内核的 `CircuitScreen`，领域只交值怎么比、怎么读（图像值的显示方法补进内核的显示系统）、运行和这门学科的性质；`CircuitPlay`、`TestPanel`、`useImageCards`、`phone/Editors` 删掉，件的演示走图像编辑器的 `preview`。
-- 参数台（`board`）和探针（`probe`）照「不在这份计划里」的第一条留着现有逻辑。
-- 验收：`domains/image` 的自写组件只剩参数台和探针用的，数字写进 `engine/components.test.js` 并在提交说明里说明为什么留；检查输出只在译文计数和措辞上可以不同，按类别列出；桌面和手机各走通一关到过关、一关到失败，元件箱打开一个搭出的件。
 
 ### H.4 《状态之图》的玩法上内核的基础件
 
@@ -101,4 +95,3 @@
 ## 没把握的地方
 
 - 《状态之图》八种玩法的屏里，`Seam`（剪缝）、`Breach`（找破绽）、`Policy` 的交互是不是都落得进规则行、值表、玩家检验这几样基础件，是按数据形状判断的，H.4 动手时可能要调整，缺的基础件先在内核补。
-- 《视觉完备》的图像值（图、热力图、斜率场）在内核结果区里怎么画：内核的显示系统（`views`）按「数据结构 × 显示方法 × 场景」取，H.3 要补图像这类数据结构的显示方法，画法本身可能仍由领域给成无头的数据。

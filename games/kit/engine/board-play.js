@@ -19,3 +19,11 @@ export const BOARD_PLAY = S.obj({
     panelClass: S.opt(S.str()),
   }),
 })
+/** The circuit is tested by its effects in a simulation over several steps. */
+export const SIMULATION_PLAY = S.obj({
+  editor: S.oneOf(['circuit']),
+  judge: S.oneOf(['simulation']),
+  resources: S.str(),
+  label,
+  layout: S.str(),
+})

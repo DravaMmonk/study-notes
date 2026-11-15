@@ -1,5 +1,5 @@
 import { tr } from '../../../../shell/i18n.js'
-import { grey } from '../views/views.js'
+import { grey } from '../display.js'
 import './apple-light.css'
 
 // Each grayscale image uses the same 0–1 scale, so channels remain comparable as the light changes.

@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 import { components } from './components.js'
 
 const CEILING = {
-  'domains/image': 2828,
+  'domains/image': 1196,
   'domains/table': 2187,
 }
 

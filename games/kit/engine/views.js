@@ -109,7 +109,7 @@ const sampleOf = (entry) => entry.want ?? entry.given ?? entry.got
 export function rowsOf(results, entries, defaults) {
   const by = new Map(entries.map((e) => [e.of, e]))
   const rows = results ? results.map((r) => ({ ...r, entry: by.get(r.of) })).filter((r) => r.entry) : entries.filter((e) => e.shown !== false).map((entry) => ({ entry }))
-  return rows.map(({ entry, views, label }) => ({ entry: label ? { ...entry, label } : entry, views: usable(views ?? viewsFor(entry.shape, defaults), sampleOf(entry)) }))
+  return rows.map(({ entry, views, label }) => ({ entry: label ? { ...entry, label } : entry, views: usable(views ?? entry.views ?? viewsFor(entry.shape, defaults), sampleOf(entry)) }))
 }
 
 const undrawn = (views, shape, where) => views.filter((v) => !VIEWS[v].shapes.includes(shape)).map((v) => `${where} is ${shape}, which ${v} does not draw`)

@@ -124,3 +124,9 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
 
   return { BOARD_TEXT, BOARD_PARTS, toText, fromText }
 }
+
+// The available ports follow the currently selected operation and settings.
+export function tidyImageBoard(kit, board) {
+  const nodes = new Map(board.nodes.map((node) => [node.id, node]))
+  return { ...board, wires: board.wires.filter((wire) => nodes.has(wire.to) && kit.BOARD_PARTS.inputs(nodes.get(wire.to)).includes(wire.port)) }
+}

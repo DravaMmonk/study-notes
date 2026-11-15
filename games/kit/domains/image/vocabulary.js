@@ -36,7 +36,7 @@ for (const spec of Object.values(NODE_TYPES)) {
   }
 }
 const UNLOCKS = Object.fromEntries([...FLAGS].map(([flag, about]) => [flag, { about }]))
-// The ways a picture is drawn (ui/views/views.js draws them).
+// The ways a picture can be shown by the shared view system.
 const VIEWS = {
   pixels: { about: t('像素：亮度显示为灰度') },
   terrain: { about: t('地形：亮度显示为高度') },

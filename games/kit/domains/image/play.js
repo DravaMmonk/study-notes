@@ -1,5 +1,5 @@
 // The image domain's play hook for a blind session (../../engine/play/): a circuit level of 《视觉完备》 as its screen
-// (ui/CircuitPlay.jsx) shows it, in words — the level's inputs and outputs, the parts it holds with their settings,
+// (ui/circuit.js) shows it, in words — the level's inputs and outputs, the parts it holds with their settings,
 // and every test's pictures (each input and the output it should become) — and an attempt run as the Run button runs
 // it: every test, then the level's budget (its constraint), the hidden tests with it.
 //

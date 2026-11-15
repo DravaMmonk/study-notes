@@ -42,7 +42,8 @@ export function definedParts(base, of, ops = {}) {
     const def = of(node.type)
     if (!def) return base[name]?.(node, ...rest) ?? fallback
     const v = definedCard(def, node, ops)[name]
-    return typeof v === 'function' ? v(...rest) : v ?? fallback
+    const value = typeof v === 'function' ? v(...rest) : v ?? fallback
+    return name === 'inputs' && base.availableInputs ? base.availableInputs(node, value) : value
   }
   return {
     ...base,

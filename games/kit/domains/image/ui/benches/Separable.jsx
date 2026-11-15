@@ -1,5 +1,5 @@
 import { tr } from '../../../../shell/i18n.js'
-import { grey } from '../views/views.js'
+import { grey } from '../display.js'
 import './separable.css'
 
 export function SeparableKernels({ ctx }) {

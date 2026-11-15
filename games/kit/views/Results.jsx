@@ -1,7 +1,7 @@
 import { isGrid, pixel } from '../engine/grid.js'
 import { numberText } from '../engine/number.js'
 import { VIEWS } from '../engine/views.js'
-import { L } from '../shell/i18n.js'
+import { L, T } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
 import { WORDS } from '../shell/words.js'
 import { useViewPicks } from './choice.js'
@@ -34,7 +34,7 @@ export function same(a, b, tolerance = 0) {
 }
 
 const isOutput = (entry) => !('given' in entry)
-const wrong = (entry) => isOutput(entry) && entry.got !== undefined && entry.want !== undefined && !TRACK.has(entry.shape) && !same(entry.got, entry.want, entry.tolerance)
+const wrong = (entry) => isOutput(entry) && (entry.pass === undefined ? entry.got !== undefined && entry.want !== undefined && !TRACK.has(entry.shape) && !same(entry.got, entry.want, entry.tolerance) : entry.pass === false)
 
 /** One value on a line: its label, then the value given, or the result against the value wanted. */
 function Chip({ entry, text }) {
@@ -44,22 +44,33 @@ function Chip({ entry, text }) {
   if (!isOutput(entry)) shown = t(given)
   else if (got === undefined) shown = <i className="rv-want">{t(want)}</i>
   else if (want === undefined) shown = t(got)
+  else if (entry.pass === null) shown = <>{t(got)}<i className="rv-want">{L(WORDS.wanted)} {t(want)}</i></>
   else shown = wrong(entry) ? <><span className="is-fail">{t(got)}</span><i className="rv-want">{L(WORDS.wanted)} {t(want)}</i></> : <span className="is-pass">{t(got)}</span>
   return <span className="rv-chip"><b>{L(label)}</b>{shown}</span>
 }
 
 const cellText = (p) => (Array.isArray(p) ? p.map((v, k) => `${'RGB'[k]} ${numberText(v)}`).join(' · ') : numberText(p))
 
+function linkedReading(readings, source, x, y) {
+  return readings.map(({ key, label, grid }) => {
+    const col = Math.floor(((x + 0.5) * grid.w) / source.w)
+    const row = Math.floor(((y + 0.5) * grid.h) / source.h)
+    const at = grid.w === source.w && grid.h === source.h ? '' : ` (${col}, ${row})`
+    return <span key={key}>{label}{at} {cellText(pixel(grid, col, row))}</span>
+  })
+}
+
 /** A grid: the value given, or the result beside the value wanted, the cells that differ marked on the result. */
-function GridRow({ entry, view, text, tool }) {
+function GridRow({ entry, view, text, tool, linked }) {
   const { label, given, got, want, tolerance = 0 } = entry
   const shown = !isOutput(entry) ? [[null, given]] : got === undefined ? [[WORDS.wanted, want]] : [[WORDS.result, got], [WORDS.wanted, want]]
   const paired = isGrid(got) && isGrid(want) && got.w === want.w && got.h === want.h && (got.c ?? 1) === (want.c ?? 1)
   // One size for the row when its grids share it, written once beside its label; arrows in the plane show it as they are.
   const grids = shown.map(([, v]) => v).filter(isGrid)
   const size = sized(view) && grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
-  const differs = paired ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
-  const read = paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
+  const differs = paired && entry.pass !== null ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
+  const read = (grid) => linked.length ? (x, y) => linkedReading(linked, grid, x, y)
+    : paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
   const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
   // A plot draws the result and the value wanted on one set of axes; other drawn views and the cells side by side.
   const Drawn = DRAWN[view]
@@ -67,11 +78,19 @@ function GridRow({ entry, view, text, tool }) {
     ? <Drawn value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} />
     : shown.map(([word, v], k) => (!isGrid(v) ? plain(word, v, k)
       : Drawn ? <figure key={k} className="rv-drawn"><figcaption>{word && L(word)}</figcaption><Drawn value={v} size={SIZE.results} /></figure>
-      : <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />))
+      : <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read(v)} />))
+  const error = paired && entry.difference && !overlays(view, got) && {
+    w: got.w, h: got.h,
+    data: Array.from({ length: got.w * got.h }, (_, k) => {
+      const c = got.c ?? 1
+      const at = k * c
+      return Math.max(...Array.from({ length: c }, (_, i) => Math.abs(got.data[at + i] - want.data[at + i])))
+    }),
+  }
   return (
     <section className="rv-row" data-fail={wrong(entry) || undefined}>
       <h4>{L(label)}{size && <small>{size}</small>}{tool}</h4>
-      <div className="rv-pair">{body}</div>
+      <div className="rv-pair">{body}{error && <GridInspector value={error} view="pixels" label={L(T('误差'))} fit dense showSize={!size} cellClass={differs} inspectPixel={read(error)} />}</div>
     </section>
   )
 }
@@ -128,6 +147,13 @@ function groups(rows) {
 
 export default function Results({ rows, text, verdict = [], at = -1, count = 0, marks = [] }) {
   const picks = useViewPicks()
+  const linked = rows.some(({ entry }) => entry.difference) ? rows.flatMap(({ entry }, k) => {
+    const label = L(entry.label)
+    const series = isOutput(entry)
+      ? [[`${label} · ${L(WORDS.wanted)}`, entry.want], [`${label} · ${L(WORDS.result)}`, entry.got]]
+      : [[label, entry.given]]
+    return series.flatMap(([label, grid], i) => isGrid(grid) ? [{ key: `${k}:${i}`, label, grid }] : [])
+  }) : []
   const drawn = rows.map((r) => {
     const view = picks.of(r.entry.of, r.views)
     const pick = r.views.length > 1 && picks.pick(r.entry.of)
@@ -139,7 +165,7 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
       {groups(drawn).map((g, k) => {
         if (g.kind === 'track') return <Track key={k} rows={g.rows} text={text} at={at} count={count} marks={marks} />
         if (g.kind === 'line') return <p key={k} className="rv-line">{g.rows.map((r) => <Chip key={r.entry.of} entry={r.entry} text={text} />)}</p>
-        return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
+        return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} linked={linked} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
       })}
     </div>
   )
