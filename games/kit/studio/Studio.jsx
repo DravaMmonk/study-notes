@@ -23,6 +23,7 @@ import { mountBarMenus } from '../menu.js'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
+import { localized } from '../engine/i18n.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { blank, boardsOf, placesOf, pushOp, referenceFor } from './form.js'
@@ -32,7 +33,7 @@ import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList from './PartsList.jsx'
-import { itemOf, marksOf } from './worklist.js'
+import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
 import { usePref } from './prefs.js'
@@ -235,6 +236,7 @@ export default function Studio() {
   const content = shown?.content ?? null
   // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
+  const sidebarContent = useMemo(() => content && vocab ? localized(content, vocab.vocabulary) : null, [content, vocab])
   const atPart = at?.part !== undefined || at?.preset !== undefined
   const fresh = checked?.key === key
   // The check's lines: the whole check's when it is of these changes, else the quick one's (the content against its
@@ -246,7 +248,6 @@ export default function Studio() {
   }, [checked, fresh, shown])
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
-  const marks = useMemo(() => (content && vocab ? marksOf(content, vocab.vocabulary, items, fresh) : null), [content, vocab, items, fresh])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
     part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
@@ -304,6 +305,10 @@ export default function Studio() {
       setPlay({ level: next.level, seed: null, take: null })
       setPageTask(0)
     }
+  }
+  const openTreeItem = (next, keep) => {
+    select(next, keep)
+    pickField(next.era === undefined ? [] : ['eras', next.era])
   }
   /** Go to a field: of a level, of game.json (an era's, or the game's) — in the side panel — or of the encyclopedia (the copy table). */
   const jump = (level, path, file = null) => {
@@ -654,10 +659,10 @@ export default function Studio() {
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
+              ? <PartsList content={sidebarContent} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
-              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}
+              : <Tree game={game} content={sidebarContent} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
           </aside>
           <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">

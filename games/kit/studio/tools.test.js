@@ -1,5 +1,5 @@
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
-// palette's index and ranking (palette.js), the check's lines as a worklist and the tree's marks (worklist.js), the copy
+// palette's index and ranking (palette.js), the check's lines as a worklist (worklist.js), the copy
 // table's rows (copy.js); and on every domain's starter game (kit/domains/<d>/starter, copied to a temp folder), that
 // bulk operations, the palette's index and the copy rows hold up.
 import { test } from 'node:test'
@@ -16,7 +16,7 @@ import { openGame } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
 import { bulkAdds, bulkMove, bulkPatch, bulkSet, bulkUnset, commonFields } from './bulk.js'
 import { paletteIndex, rankPalette, scoreOf } from './palette.js'
-import { filterItems, itemOf, marksOf, ruleOf, stepIn, tally, testsOf } from './worklist.js'
+import { filterItems, itemOf, ruleOf, stepIn, tally } from './worklist.js'
 import { copyRows } from './copy.js'
 
 const VOCAB = defineVocabulary({
@@ -113,7 +113,7 @@ test('the palette indexes levels, eras, fields, entries, findings, recent fields
   assert.ok(scoreOf('Search', 'se') > scoreOf('the search', 'se') && scoreOf('the search', 'se') > scoreOf('lose', 'se') && scoreOf('lose', 'se') > scoreOf('s-x-e', 'se'))
 })
 
-test('the check’s lines as a worklist: severity, rule, levels; filtered, stepped through; the tree’s marks', () => {
+test('the check’s lines as a worklist: severity, rule, levels; filtered and stepped through', () => {
   assert.equal(ruleOf('content: levels/a.json.title: is not a text'), 'content')
   assert.equal(ruleOf('text levels.1.hint[0] has no English'), 'copy')
   assert.equal(ruleOf('course: more than one new part in one level (1): x@a'), 'many-new')
@@ -135,29 +135,16 @@ test('the check’s lines as a worklist: severity, rule, levels; filtered, stepp
   assert.deepEqual(filterItems(items, { query: 'SPIKE' }).length, 1)
   assert.deepEqual([...tally(items).severities], [['pass', 1], ['fail', 2], ['report', 1], ['open', 1]])
   assert.deepEqual([stepIn(3, -1, 1), stepIn(3, -1, -1), stepIn(3, 2, 1), stepIn(3, 0, -1), stepIn(0, -1, 1)], [0, 2, 0, 2, -1])
-  assert.equal(testsOf(VOCAB.level, LEVELS[0], VOCAB), 3, 'visible and hidden tests')
-  const marks = marksOf(CONTENT, VOCAB, items, true)
-  assert.deepEqual(marks.get('a'), { fails: 1, open: 1, domain: 'pass', tests: 3 })
-  assert.deepEqual(marks.get('b'), { fails: 1, open: 1, domain: 'fail', tests: 1 })
-  assert.equal(marks.get('c').domain, 'pass', 'the whole check in, nothing failing: its answers pass')
-  assert.equal(marksOf(CONTENT, VOCAB, [], false).get('c').domain, null, 'not checked yet')
 })
 
-test('on every starter: the palette indexes every level and entry, and the tree’s marks count every test', async () => {
+test('on every starter: the palette indexes every level and entry', () => {
   assert.ok(STARTERS.length > 0)
-  let tests = 0
   for (const game of STARTERS) {
     const content = starter(game)
-    const { vocabulary } = await domainOf(content)
     const items = paletteIndex({ content })
     assert.equal(items.filter((it) => it.kind === 'level').length, content.levels.length, game)
     assert.equal(items.filter((it) => it.kind === 'entry').length, content.glossary.entries.length, game)
-    const marks = marksOf(content, vocabulary, [], false)
-    for (const { id, ...level } of content.levels) assert.equal(marks.get(id).tests, testsOf(vocabulary.level, level, vocabulary), `${game} ${id}`)
-    tests += [...marks.values()].reduce((n, m) => n + m.tests, 0)
   }
-  // A truth circuit's rows are its tests, which no field lists; the starters together hold some.
-  assert.ok(tests > 0)
 })
 
 test('on every starter: the copy table’s rows: an era’s own texts and its levels’, the whole game, the encyclopedia; each with its copy rule', async () => {

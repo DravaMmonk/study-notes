@@ -246,9 +246,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   const all = [...new Set([...textFindings({ [lang]: draft }, field, names), ...findings])]
   return (
     <div onFocus={onFocus} onBlur={onBlur} className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
-      <div className="text-sides">
-        <Side value={draft} onChange={set} names={names} lang={lang} label={label} placeholder={placeholder} api={box} onLink={setLinking} />
-      </div>
+      <Side value={draft} onChange={set} names={names} lang={lang} label={label} placeholder={placeholder} api={box} onLink={setLinking} />
       {names && (
         <div className="text-tools">
           <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>

@@ -49,6 +49,8 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const body = useRef(null)
   // A field picked by a finding, the palette or a search takes the caret.
   useEffect(() => {
+    const panel = body.current?.closest('.studio-side')
+    if (panel) panel.scrollTop = 0
     if (!field?.focus) return
     window.setTimeout(() => body.current?.querySelector('input, textarea, [contenteditable="true"], select, button:not(.insp-crumb)')?.focus({ preventScroll: true }))
   }, [field])
@@ -105,7 +107,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
         ) : (
           <>
             {(hit.entry?.about ?? hit.field.about) && <p className="insp-about">{L(hit.entry?.about ?? hit.field.about)}</p>}
-            <Field field={hit.field} label={null} onEdit={edit} ctx={ctxHere} />
+            <Field key={JSON.stringify([at, path])} field={hit.field} label={null} onEdit={edit} ctx={ctxHere} />
           </>
         )}
       </div>

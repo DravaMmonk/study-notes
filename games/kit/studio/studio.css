@@ -39,7 +39,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .studio-tree { grid-area: 1 / 1 / 4 / 2; background: var(--rail); }
 .studio-resize.is-tree { grid-area: 1 / 2 / 4 / 3; }
 .studio-resize.is-side { grid-area: 1 / 4 / 4 / 5; }
-.studio-side { grid-area: 1 / 5 / 4 / 6; background: var(--paper); container-type: inline-size; }
+.studio-side { grid-area: 1 / 5 / 4 / 6; background: var(--paper); }
 .studio-body.no-side > .studio-side { visibility: hidden; }
 .studio-body > .studio-main { grid-area: 1 / 3; position: relative; overflow: hidden; background: var(--canvas); }
 .studio-resize.is-audit { grid-area: 2 / 3; height: 5px; }
@@ -71,55 +71,31 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .side-tabs button.is-on { color: var(--ink); background: var(--hover); }
 
 .tree { padding: 4px 4px 32px; display: grid; gap: 6px; }
-.tree-game { justify-self: start; padding: 2px 6px; border: 0; border-radius: 5px; color: var(--heading); background: none; font: 500 14px/1.3 var(--serif); text-align: left; cursor: pointer; }
-.tree-game.is-on, .tree-game:hover { background: var(--hover); }
-.tree-era { display: grid; gap: 0; }
+.tree-era, .tree-levels, .tree-run { display: grid; min-width: 0; }
+.tree-levels { margin-left: 16px; }
 .tree-era-head { display: flex; align-items: center; gap: 2px; border-radius: 5px; }
 .tree-era-head.is-on { background: var(--hover); }
 .tree-fold { width: 16px; height: 22px; display: grid; place-items: center; padding: 0; border: 0; color: var(--faint); background: none; cursor: pointer; }
 .tree-fold > svg { transition: transform 120ms ease; transform: rotate(90deg); }
 .tree-era.is-folded .tree-fold > svg { transform: none; }
 .tree-era-name { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; padding: 3px 4px 3px 0; border: 0; color: var(--ink); background: none; font: 600 12px/1.3 var(--sans); text-align: left; cursor: pointer; }
-.tree-era-name small { color: var(--muted); font: var(--fs-mini)/1 var(--mono); }
 .tree-era-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tree-era-head > .mk-fail { margin-right: 6px; }
-.tree-path, .tree-side, .tree-run, .tree-branch { display: grid; }
-.tree-set { display: grid; gap: 2px; margin: 2px 0 2px 6px; }
-.tree-branch, .tree-side { padding-left: 6px; border-left: 2px solid var(--line); }
-.tree-side { margin: 2px 0 0 6px; border-left-style: dashed; }
-.tree-role { padding: 3px 4px 1px; color: var(--faint); font: var(--fs-mini)/1.2 var(--mono); letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-level { min-width: 0; height: 22px; padding: 0 4px 0 6px; display: flex; align-items: center; gap: 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; font: 12px/1 var(--sans); text-align: left; cursor: pointer; }
-.tree-level b { flex: none; min-width: 2.6em; color: var(--muted); font: 600 var(--fs-mini)/1 var(--mono); }
-.tree-level > span:not(.mk) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tree-level:hover { background: var(--hover); }
+.tree-level > span, .tree-task > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-level:hover, .tree-task:hover { background: var(--hover); }
 .tree-level.is-picked { background: color-mix(in srgb, var(--select) 16%, transparent); box-shadow: inset 2px 0 0 var(--select); }
-.tree-level.is-on { color: var(--select-ink); background: var(--select); box-shadow: none; }
-.tree-level.is-on b { color: inherit; opacity: .8; }
+.tree-level.is-on, .tree-task.is-on { color: var(--select-ink); background: var(--select); box-shadow: none; }
 .tree-level.is-moving { opacity: .45; }
-.tree-tasks { display: grid; margin: 0 0 2px 2.9em; padding-left: 6px; border-left: 1px solid var(--line); }
+.tree-optional { flex: none; margin-left: auto; padding: 1px 4px; border: 1px solid currentColor; border-radius: 4px; color: inherit; opacity: .75; font: var(--fs-mini)/1.1 var(--sans); }
+.tree-tasks { display: grid; margin: 0 0 2px 7px; padding-left: 9px; border-left: 1px solid var(--line); }
 .tree-task { min-width: 0; height: 19px; display: flex; align-items: center; gap: 5px; padding: 0 4px; border: 0; border-radius: 4px; color: var(--muted); background: none; font: 11.5px/1 var(--sans); text-align: left; cursor: grab; }
-.tree-task i { flex: none; color: var(--faint); font: 600 var(--fs-mini)/1 var(--mono); font-style: normal; }
-.tree-task span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tree-task:hover { color: var(--ink); background: var(--hover); }
 .tree-task.is-moving { opacity: .45; }
 .tree-level[data-over], .tree-task[data-over] { box-shadow: inset 0 -2px 0 var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.tree-gap { height: 0; }
 .tree-slot { height: 3px; margin: 0; padding: 0; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--accent) 35%, transparent); cursor: pointer; transition: height 120ms ease; }
 .studio.is-moving .tree-slot { height: 12px; margin: 1px 0; }
 .tree-slot.is-over, .tree-slot:hover { background: var(--accent); }
 
-/* A level's marks: failing findings, open ones, the domain's answers, its tests, blind play's cost. */
-.mk { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 3px; }
-/* The first place holds the failing count or the open dot, the same width on every row, so the squares line up. */
-.mk-slot { width: 16px; display: inline-grid; place-items: center; }
-.mk i { font-style: normal; }
 .mk-fail { min-width: 14px; height: 14px; padding: 0 3px; display: inline-grid; place-items: center; border-radius: 7px; color: #fff; background: var(--fail); font: 700 9.5px/1 var(--mono); font-style: normal; }
-.mk-open { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-.mk-ref { width: 7px; height: 7px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--rule); }
-.mk-ref.is-pass { background: var(--status); box-shadow: none; }
-.mk-ref.is-fail { background: var(--fail); box-shadow: none; }
-.mk-n { min-width: 1.4em; color: var(--faint); font: var(--fs-mini)/1 var(--mono); text-align: right; }
-.tree-level.is-on .mk-n, .tree-level.is-on .mk-ref { color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
 
 /* Search and replace. */
 .search { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 6px 6px 32px; }
@@ -235,9 +211,8 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
   .editor-section > .field-obj > .field.has-head:only-child, .li-body > .field > .field-body > .field-obj > .field.has-head:only-child { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Text: two sides, links as chips. */
-.field-text { position: relative; display: grid; gap: 2px; }
-.text-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+/* Each editor shows one language. The translation table places the source next to it. */
+.field-text { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
 .rich { min-height: var(--row); white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--serif); cursor: text; }
 .rich[data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--muted); pointer-events: none; }
 .rich[lang='zh'] { font-size: 14px; }
@@ -391,7 +366,7 @@ select.cell { width: auto; min-width: 46px; }
 .board-svg.is-thumb:hover .board-edit, .board-svg.is-thumb:focus-visible .board-edit { opacity: 1; }
 .board-text { height: 22px; }
 
-/* The copy table: a row a text, its level and field, its two sides. */
+/* Copy rows pair the field name with an editor; translation rows pair the source with an editor. */
 .editor.is-wide { padding-top: 6px; }
 .copy-table { margin-top: 10px; display: grid; gap: 4px; }
 .editor.is-wide > .copy-table { margin-top: 0; }
@@ -415,6 +390,11 @@ select.cell { width: auto; min-width: 46px; }
 .i18n-unused { display: flex; align-items: start; gap: 4px; color: var(--faint); }
 .i18n-unused span { flex: 1; padding: 3px 2px; overflow-wrap: anywhere; }
 .copy-bar .i18n-lang { width: 5em; }
+
+@container (max-width: 440px) {
+  .copy-row { grid-template-columns: minmax(0, 1fr); }
+  .copy-row .text-tools { top: 2px; right: 2px; left: auto; }
+}
 
 /* Comparing levels; a bulk edit. */
 .compare { max-width: 1360px; margin: 0 auto; padding: 6px 16px 80px; display: grid; gap: 8px; align-content: start; }
@@ -558,13 +538,14 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 @media (max-width: 760px) {
   .editor, .review, .compare { padding: 8px var(--gutter) 60px; }
   .editor-head { margin: 0 calc(-1 * var(--gutter)) 8px; padding: 6px var(--gutter); }
-  .text-sides, .diff-text { grid-template-columns: 1fr; }
+  .diff-text { grid-template-columns: 1fr; }
   .text-tools { top: -22px; right: 0; }
   .text-link { opacity: 1; }
   .studio-scroll { height: auto; overflow: visible; }
   .studio-body > .studio-main { overflow: visible; }
   .studio-play.is-sheet { position: fixed; margin: 0; border-radius: 0; }
-  .copy-row { grid-template-columns: 1fr; }
+  .copy-row { grid-template-columns: minmax(0, 1fr); }
+  .copy-row .text-tools { top: 2px; right: 2px; left: auto; }
 }
 
 /* A field's tools (remove it, switch its shape; an item's copy and remove) show where the pointer or focus is; always on a touch screen. */
@@ -610,8 +591,6 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-about { margin: 0 0 6px; color: var(--muted); font: 12px/1.45 var(--sans); }
 .insp-note { margin: 0; padding: 10px; color: var(--muted); line-height: 1.5; }
 .insp-absent { display: grid; justify-items: start; gap: 6px; }
-/* In a narrow side panel a text's two sides go one under the other. */
-@container (max-width: 520px) { .insp-body .text-sides { grid-template-columns: minmax(0, 1fr); } }
 .insp-tools.is-task { flex-wrap: wrap; row-gap: 4px; }
 .insp-move { flex-basis: 100%; display: flex; align-items: center; gap: 6px; }
 .insp-move small { font: var(--fs-mini)/1 var(--mono); }
