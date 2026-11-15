@@ -174,16 +174,27 @@ export function replaceAtoms(f, map) {
   return f
 }
 
-/**
- * f with the sentence letter R replaced by `by` where it is free (not under another ∀R). R may take things too (∀P. P(a)
- * → …, a property): then `by` is a sentence about x, and each R(t) becomes it with t in x's place.
- */
+/** Replace free occurrences of a sentence or unary property, without capturing names in the replacement. */
 export function substSentence(f, R, by) {
-  if (f.op === 'atom') return f.pred !== R ? f : f.args.length ? subst(by, 'x', f.args[0]) : by
-  if (f.op === '¬') return not(substSentence(f.a, R, by))
-  if (f.op === '∀' || f.op === '∃') return f.prop && f.v === R ? f : { ...f, body: substSentence(f.body, R, by) }
-  if (f.a) return bin(f.op, substSentence(f.a, R, by), substSentence(f.b, R, by))
-  return f
+  const freeThings = freeVars(by)
+  const freePredicates = signature([by]).preds
+  const used = new Set([...allVars(f), ...allVars(by), ...signature([f]).preds.keys(), ...freePredicates.keys()])
+  const walk = (g) => {
+    if (g.op === 'atom') return g.pred !== R ? g : g.args.length ? subst(by, 'x', g.args[0]) : by
+    if (g.op === '¬') return not(walk(g.a))
+    if (g.op === '∀' || g.op === '∃') {
+      if (g.prop && g.v === R) return g
+      const free = g.prop ? freePredicates : freeThings
+      if (!free.has(g.v) || !mentionsSentence(g.body, R)) return { ...g, body: walk(g.body) }
+      const v = fresh(g.v, used)
+      used.add(v)
+      const body = g.prop ? replaceAtoms(g.body, { [g.v]: atom(v) }) : subst(g.body, g.v, tvar(v))
+      return { ...g, v, body: walk(body) }
+    }
+    if (g.a) return bin(g.op, walk(g.a), walk(g.b))
+    return g
+  }
+  return walk(f)
 }
 
 /** Whether the sentence or property letter R occurs free in f. */

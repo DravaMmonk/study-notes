@@ -741,6 +741,26 @@ test('a ∀ over sentences: R is bound, a test case leaves it, a sentence goes i
   assert.equal(holds(def, { domain: [0], preds: { A: true, B: false }, fns: {} }), false)
 })
 
+test('choosing a sentence instance keeps the inserted names free', async () => {
+  const { mentionsSentence, freeVars, substSentence } = await import('./formula.js')
+  const proof = (text) => ({ formula: parse(text), hyps: new Map(), term: { k: 'const', name: 'h' } })
+  const choose = (text, instance) => RULES.allE.run([proof(text)], {}, { node: { params: { t: instance } } }).formula
+
+  const sentence = choose('∀R. ∀S. R', 'S')
+  assert.ok(mentionsSentence(sentence, 'S'))
+  assert.ok(same(sentence, parse('∀T. S')))
+  const individual = choose('∀R. ∀x. R', 'Human(x)')
+  assert.deepEqual([...freeVars(individual)], ['x'])
+  assert.ok(same(individual, parse('∀y. Human(x)')))
+
+  const shadowed = substSentence(parse('∀R. R'), 'R', parse('S'))
+  assert.ok(same(shadowed, parse('∀R. R')))
+  const property = substSentence(parse('∀x. R(x)'), 'R', parse('Human(x)'))
+  assert.ok(same(property, parse('∀y. Human(y)')))
+  const nested = substSentence(parse('∀S. ∀S1. R ∧ S'), 'R', parse('S'))
+  assert.ok(same(nested, parse('∀T. ∀U. S ∧ T')))
+})
+
 test('a ∀ over properties: P(t) takes a sentence about x with t in its place, and it holds when its body does for every set', async () => {
   const { parse, same, show, signature, substSentence } = await import('./formula.js')
   const { holds } = await import('./models.js')
