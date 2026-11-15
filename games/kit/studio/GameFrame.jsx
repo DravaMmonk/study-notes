@@ -84,7 +84,7 @@ export default function GameFrame({ visible, content, play, part, task, go, edit
         {play?.take && <code>{play.take.label}</code>}
         <span className="kit-spacer" />
         {part === undefined && play?.level && reference && !play.take && (
-          <button type="button" className="kit-btn is-label" onClick={() => onReference(play.level)}>
+          <button type="button" className="kit-btn is-label" onClick={() => onReference(play.level, reference)}>
             <CirclePlay size={14} aria-hidden="true" />{tr('载入参考解')}
           </button>
         )}

@@ -13,7 +13,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { domainOf, readContent } from '../engine/content-node.js'
 import {
-  blank, boardsOf, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
+  blank, boardPaths, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
@@ -117,9 +117,9 @@ test('an edit is the operation that makes it, and edits of one field coalesce', 
 test('a level’s boards, its reference, its texts; which schemas hold levels', () => {
   assert.equal(holdsLevels(S.list(S.either(S.level(), S.obj({ parallel: S.list(S.obj({ levels: S.list(S.level()) })) })))), true)
   assert.equal(holdsLevels(S.obj({ title: S.text(), n: S.int() })), false)
-  const { paths, reference } = boardsOf(VOCAB, { id: 'a', ...LEVEL, naive: ['out <- in'] })
-  assert.deepEqual(paths, [['solution'], ['naive']])
-  assert.deepEqual(reference, ['solution'])
+  const level = { id: 'a', ...LEVEL, naive: ['out <- in'] }
+  assert.deepEqual(boardPaths(VOCAB, level), [['solution'], ['naive']])
+  assert.deepEqual(referenceFor(VOCAB, level, []), ['solution'])
   assert.deepEqual(textsOf(VOCAB.level, { ...LEVEL, hint: [{ en: '提示' }] }, VOCAB).map((t) => t.path), [['title'], ['hint', 0]])
 })
 
@@ -191,7 +191,7 @@ test('every level of every starter reads as a form: each text a text pair, each 
       }
       walk(formOf(vocabulary.level, level, { vocabulary, levels }))
       for (const { path } of textsOf(vocabulary.level, level, vocabulary)) assert.equal(kinds.get(JSON.stringify(path)), 'text', `${game} ${id} ${path.join('.')}`)
-      for (const path of boardsOf(vocabulary, level).paths) assert.equal(kinds.get(JSON.stringify(path)), 'board', `${game} ${id} ${path.join('.')}`)
+      for (const path of boardPaths(vocabulary, level)) assert.equal(kinds.get(JSON.stringify(path)), 'board', `${game} ${id} ${path.join('.')}`)
     }
   }
 })
@@ -283,10 +283,11 @@ test('the check’s findings land on the fields they are about', () => {
 test('a field put back, a test list’s reference, the copy rules on one text', () => {
   assert.deepEqual(revertOf(3), { set: 3 })
   assert.deepEqual(revertOf(undefined), { unset: true })
-  const level = { id: 'x', ...LEVEL, tasks: [{ solution: ['a'], tests: [] }] }
+  const level = { id: 'x', ...LEVEL, tasks: [{ solution: ['a'], tests: [] }, { tests: [] }] }
   const vocab = { ...VOCAB, level: S.obj({ ...VOCAB.level.cases.board.fields, tasks: S.list(S.obj({ solution: S.board(), tests: S.list(S.any()) })) }) }
-  assert.deepEqual(referenceFor(vocab, level, ['tasks', 0, 'tests']), ['tasks', 0, 'solution'], 'a task’s tests run its own reference')
-  assert.deepEqual(referenceFor(vocab, level, ['tests']), ['solution'], 'the level’s tests its own')
+  assert.deepEqual(referenceFor(vocab, level, ['tasks', 0]), ['tasks', 0, 'solution'], 'a task’s tests run its own reference')
+  assert.deepEqual(referenceFor(vocab, level, []), ['solution'], 'the level’s tests its own')
+  assert.equal(referenceFor(vocab, level, ['tasks', 1]), null, 'a task without a reference cannot run another task’s board')
   assert.deepEqual(lintText('brief', { zh: '因为要搞定它' }).map((f) => f.rule), ['copy-banned', 'copy-brief-why'])
   assert.deepEqual(lintText('after', { en: '<part-ref to="a"></part-ref>' }).map((f) => f.rule), ['copy-after-part'])
   assert.deepEqual(lintText('title', { en: '好' }), [])

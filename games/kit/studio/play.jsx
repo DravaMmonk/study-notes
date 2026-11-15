@@ -57,7 +57,6 @@ function seeded(game, level, seed) {
   const p = { ...game.store.load(), all: true, seenPower: true }
   const at = game.byId[level]
   if (!seed || !at) return game.store.save(p)
-  if (seed.task === null) return game.store.save(saved(p, at, 0, seed.data))
   return game.store.save(saved(openAt(game, p, level, seed.task), at, seed.task, seed.data))
 }
 

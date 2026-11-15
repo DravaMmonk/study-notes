@@ -74,6 +74,16 @@ async function contentAfter(game, changeset) {
   return r.content
 }
 
+/** The board at a content path and the task whose rules it uses. */
+function boardAt(content, level, path, vocabulary) {
+  const value = levelIn(content, level)
+  const keys = parsePath(path)
+  if (shapeAt(vocabulary.level, value, keys, { vocabulary })?.type !== 'board') return null
+  const lines = getAt(value, keys)
+  if (!Array.isArray(lines) || !lines.every((line) => typeof line === 'string')) return null
+  return { lines, task: keys[0] === 'tasks' ? Number(keys[1]) : 0 }
+}
+
 /** Every board (blueprint text) a level holds: [{ path, text }]. */
 async function boardsOf(content, level) {
   const { vocabulary } = await domainOf(content)
@@ -212,14 +222,13 @@ export const TOOLS = {
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
     async run({ game, level, path = 'tasks[0].solution', changeset = null }) {
       const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
-      const lines = getAt(levelIn(content, level), path)
       const domain = await domainOf(content)
       if (!domain.play) return { covered: false, why: `the ${content.domain} domain gives no play hook` }
-      if (!Array.isArray(lines)) return { covered: false, why: `${level} has no board at ${path}` }
+      const board = boardAt(content, level, path, domain.vocabulary)
+      if (!board) return { covered: false, why: `${level} has no board at ${path}` }
+      const { lines, task } = board
       const shown = await gameOf(content)
       const at = shown.byId[level]
-      const keys = parsePath(path)
-      const task = keys[0] === 'tasks' ? keys[1] : 0
       // Every part met before the level is in the tray, as the studio's game plays it (unlock all).
       const progress = { ...fresh(), all: true }
       const ctx = { game: shown, level: { ...at, ...at.tasks[task] }, flags: flagsIn(shown, progress, at, task), progress, solved: false, task, fails: 0 }
@@ -242,20 +251,19 @@ export const TOOLS = {
   seed: {
     about: 'What a level’s screen keeps of one of its boards (path, default its first task’s solution), as a changeset would leave it: put data in a save’s progress.data under that task’s id (task: its index in the level) and the level opens on that board.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
-    async run({ game, level, path = 'tasks[0].solution', changeset = { ops: [] } }) {
-      const content = await contentAfter(game, changeset)
-      const keys = parsePath(path)
-      const lines = getAt(levelIn(content, level), keys)
+    async run({ game, level, path = 'tasks[0].solution', changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
       const domain = await domainOf(content)
-      const task = keys[0] === 'tasks' ? keys[1] : null
-      const read = (domain.spec(content).blueprints ?? []).filter((b) => b.level === level)
-      // The board the domain read from these very lines, else these lines read as the level (its task, where the
-      // domain says which) reads its reference.
-      const bp = read.find((b) => JSON.stringify(b.write(b.board)) === JSON.stringify(lines))
-      const reference = read.filter((b) => !b.naive && (task === null || b.task === undefined || b.task === task)).at(-1)
-      if (!bp && !reference) return { note: `${level} has no board its domain reads` }
-      const board = bp ? bp.board : reference.read(lines)
-      return { data: board, task }
+      const board = boardAt(content, level, path, domain.vocabulary)
+      if (!board) return { note: `${level} has no board at ${path}` }
+      const { lines, task } = board
+      const blueprint = domain.spec(content).blueprints?.find((entry) => entry.level === level && entry.task === task)
+      if (!blueprint) return { note: `${level} task ${task + 1} has no blueprint reader` }
+      try {
+        return { data: blueprint.read(lines), task }
+      } catch (error) {
+        throw new Error(`${level} ${path}: ${error.en ?? error.message}`, { cause: error })
+      }
     },
   },
   search: {

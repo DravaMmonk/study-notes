@@ -25,7 +25,7 @@ import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
-import { blank, boardsOf, placesOf, pushOp, referenceFor } from './form.js'
+import { blank, placesOf, pushOp, referenceFor } from './form.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { findTask } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
@@ -355,12 +355,12 @@ export default function Studio() {
   const playLevel = async (level, path = null, take = false) => {
     const seed = path ? await call('seed', { game, level, path, changeset: { ops } }) : null
     setPlay({ level, seed: seed?.data !== undefined ? seed : null, take: take ? { path, label: tr(`用作 ${path}`, `Use as ${path}`) } : null })
-    if (seed?.task !== null && seed?.task !== undefined) setPageTask(seed.task)
+    if (seed?.task !== undefined) setPageTask(seed.task)
   }
-  // The path of a level's reference board, or null for a level without boards.
   const referenceOf = (level) => {
     const value = content?.levels.find((l) => l.id === level)
-    const ref = value && boardsOf(vocab.vocabulary, value).reference
+    const task = level === play?.level ? pageTask : 0
+    const ref = value && referenceFor(vocab.vocabulary, value, ['tasks', task])
     return ref ? showPath(ref) : null
   }
   const playFrom = (level, reference) => {
@@ -519,7 +519,7 @@ export default function Studio() {
     run: async (level, path) => {
       const k = `${level}|${showPath(path)}`
       const value = content.levels.find((l) => l.id === level)
-      const board = referenceFor(vocab.vocabulary, value, path)
+      const board = referenceFor(vocab.vocabulary, value, path.slice(0, -1))
       if (!board) return setRuns((r) => ({ ...r, [k]: { covered: false, why: tr('这一关没有参考解') } }))
       setRuns((r) => ({ ...r, [k]: { running: true } }))
       const answer = await call('run_tests', { game, level, path: showPath(board), changeset }).catch((error) => ({ covered: false, why: error.message }))
@@ -695,7 +695,7 @@ export default function Studio() {
             )}
             <GameFrame
               visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.preset !== undefined ? `presets/${at.preset}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
-              reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
+              reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined && <Flow game={game} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />
           </main>

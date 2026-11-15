@@ -503,23 +503,17 @@ export function pushOp(ops, op) {
  */
 export const revertOf = (before) => (before === undefined ? { unset: true } : { set: before })
 
-/**
- * The boards a level holds (paths of its board fields) and its reference answer: the last board in a solution or an
- * answer field (the fields the contract reads as references, ../engine/contract.js), else its first board.
- */
-export function boardsOf(vocabulary, { id: _, ...level }) {
-  const paths = find(vocabulary.level, level, 'board', { vocabulary }).map((b) => b.path)
-  return { paths, reference: paths.filter((p) => ['solution', 'answer'].includes(p.at(-1))).at(-1) ?? paths[0] ?? null }
+/** The paths of a level's blueprint fields, in schema order. */
+export function boardPaths(vocabulary, { id: _, ...level }) {
+  return find(vocabulary.level, level, 'board', { vocabulary }).map((b) => b.path)
 }
 
-/** The reference board a list of tests at `path` is run with: the one beside it (a task's own), else the level's. */
-export function referenceFor(vocabulary, level, path) {
-  const { paths, reference } = boardsOf(vocabulary, level)
-  const home = path.slice(0, -1)
-  const near = paths.filter((p) => home.every((k, i) => p[i] === k) && p.length === home.length + 1 && ['solution', 'answer'].includes(p.at(-1)))
-  return near.at(-1) ?? reference
+/** The reference blueprint in a particular level or task object. */
+export function referenceFor(vocabulary, level, owner) {
+  return boardPaths(vocabulary, level).filter((path) =>
+    path.length === owner.length + 1 && owner.every((key, i) => path[i] === key) && ['solution', 'answer'].includes(path.at(-1)),
+  ).at(-1) ?? null
 }
-
 
 /** Every text a value holds under its schema: [{ path, value }], in the schema's order. */
 export const textsOf = (schema, value, vocabulary) => find(schema, value, 'text', { vocabulary })

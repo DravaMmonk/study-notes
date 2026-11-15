@@ -82,6 +82,31 @@ test('a board seeded for the game, drawn as SVG', async () => {
   assert.match(boards[0].svg, /^<svg/)
 })
 
+test('blueprint preview, seed, and tests use the requested task', async () => {
+  const level = 'given'
+  const data = JSON.parse(onDisk('levels/given.json'))
+  const first = data.tasks[0]
+  const second = { ...first, id: 'given_2', tests: [{ premises: { p: 'A', spare: 'A' }, goal: 'A' }] }
+  const changeset = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, second] } }] }
+  const request = { game: GAME, level, path: 'tasks[1].solution', changeset }
+
+  const seed = (await post('seed', request)).body
+  assert.equal(seed.task, 1)
+  assert.ok(seed.data.nodes.some((node) => node.id === 'spare'))
+  const draw = (await post('render', request)).body
+  assert.equal(draw.text, second.solution.join('\n'))
+  const gate = { id: second.id, kind: 'gates', target: 'B', brief: second.brief, solution: ['out <- B'] }
+  const gateChange = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, gate] } }] }
+  const run = (await post('run_tests', { ...request, changeset: gateChange })).body
+  assert.equal(run.task, 1, JSON.stringify(run))
+  assert.equal(run.pass, true, JSON.stringify(run))
+  assert.match(run.tests[0].shows.en, /^B\b/)
+
+  const wrong = { ...request, path: 'tasks[1].hint' }
+  assert.match((await post('seed', wrong)).body.note, /has no board/)
+  assert.match((await post('run_tests', wrong)).body.why, /has no board/)
+})
+
 test('apply, read the log, undo: the content comes back as it was', async () => {
   const before = onDisk('levels/given.json')
   const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', lang: 'en', value: 'Assume “Today is Saturday” and prove the claim.' }]
