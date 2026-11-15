@@ -247,6 +247,8 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
 .pick-about { min-width: 0; color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pick-pop { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: min(460px, 86vw); display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 360px; border-radius: 8px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--hairline); }
 .pick-pop.is-floating { position: fixed; right: auto; }
+.pick-pop.is-list-only { grid-template-rows: minmax(0, 1fr); padding-top: 4px; }
+.pick-pop.is-list-only .pick-list:focus { outline: none; }
 .pick-search { margin: 6px; height: 26px; padding: 0 8px; border: 0; border-radius: 6px; color: var(--ink); background: var(--hover); font: 12.5px/1 var(--sans); }
 .pick-search:focus { outline: 2px solid var(--accent); }
 .pick-list { margin: 0; padding: 0 4px 4px; list-style: none; overflow: auto; }
