@@ -36,7 +36,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 /* ---- the columns: the tree, and the form over the audit drawer ---- */
 .studio-body { flex: 1; display: grid; grid-template-columns: var(--tree-w) 5px minmax(0, 1fr) 5px var(--side-w); grid-template-rows: minmax(0, 1fr) auto auto; min-height: 0; }
 .studio-body > * { min-height: 0; overflow: auto; }
-.studio-tree { grid-area: 1 / 1 / 4 / 2; background: var(--rail); }
+.studio-tree { grid-area: 1 / 1 / 4 / 2; background: var(--rail); scrollbar-gutter: stable; }
 .studio-resize.is-tree { grid-area: 1 / 2 / 4 / 3; }
 .studio-resize.is-side { grid-area: 1 / 4 / 4 / 5; }
 .studio-side { grid-area: 1 / 5 / 4 / 6; background: var(--paper); }
@@ -248,6 +248,9 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
 .pick-pop { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: min(460px, 86vw); display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 360px; border-radius: 8px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--hairline); }
 .pick-pop.is-floating { position: fixed; right: auto; }
 .pick-pop.is-list-only { grid-template-rows: minmax(0, 1fr); padding-top: 4px; }
+.pick-pop.is-list-only .pick-list { padding: 0 3px 3px; }
+.pick-pop.is-list-only .pick-item { padding: 3px 7px; }
+.pick-pop.is-list-only .pick-name b { overflow: hidden; text-overflow: ellipsis; }
 .pick-pop.is-list-only .pick-list:focus { outline: none; }
 .pick-search { margin: 6px; height: 26px; padding: 0 8px; border: 0; border-radius: 6px; color: var(--ink); background: var(--hover); font: 12.5px/1 var(--sans); }
 .pick-search:focus { outline: 2px solid var(--accent); }
@@ -596,7 +599,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .setting-users { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini) var(--mono); }
 .setting-users button { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: none; cursor: pointer; }
 .setting-users button:hover { background: var(--hover); }
-.parts-list { display: grid; gap: 1px; padding: 6px; }
+.parts-list { display: grid; gap: 1px; padding: 4px; }
 .parts-row { min-height: var(--row); display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; font-size: var(--fs); cursor: pointer; }
 .parts-row:hover { background: var(--hover); }
 .parts-row.is-on { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
