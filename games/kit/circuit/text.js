@@ -448,7 +448,7 @@ export function read(text, graph, parts, types) {
     errors.push(say(line, PRESET_PORT_REFUSAL.zh, PRESET_PORT_REFUSAL.en))
   }
   if (errors.length) return { errors }
-  flowSpots(out, fresh)
+  flowSpots(out, fresh, parts.role)
   return { graph: { ...graph, nodes: out.nodes, wires: out.wires } }
 }
 

@@ -71,7 +71,7 @@ test('a wire never runs behind a card: a constant stands in the column before wh
 })
 test('a blueprint’s cards are placed where its wires lead',()=>{
  const g={nodes:[{id:'x',x:20,y:40},{id:'y',x:20,y:180},{id:'out',x:980,y:40},{id:'s'},{id:'k'},{id:'m'},{id:'n'}],wires:[{from:'x',to:'s',port:'a'},{from:'y',to:'s',port:'b'},{from:'s',to:'m',port:'a'},{from:'k',to:'m',port:'b'},{from:'m',to:'n',port:'a'},{from:'n',to:'out',port:'in'}]}
- flowSpots(g,g.nodes.slice(3))
+ flowSpots(g,g.nodes.slice(3),roleOf)
  const at=(id)=>g.nodes.find(n=>n.id===id)
  assert(at('s').x<at('m').x&&at('m').x<at('n').x,'a column a depth')
  assert.equal(at('k').x,at('s').x,'a constant stands just left of what it feeds')
@@ -79,6 +79,26 @@ test('a blueprint’s cards are placed where its wires lead',()=>{
  assert.equal(at('s').y,110,'between the two cards that feed it')
  assert.equal(at('out').x,980)
 })
+test('a blueprint moves a displaced output before placing new cards in its old column', () => {
+  const input = { id: 'in', x: 20, y: 40 }
+  const output = { id: 'out', type: 'out', x: 320, y: 40 }
+  const part = { id: 'part' }
+  const g = { nodes: [input, output, part], wires: [{ from: 'in', to: 'part' }, { from: 'part', to: 'out' }] }
+  flowSpots(g, [part], roleOf)
+  assert.deepEqual([part.x, part.y], [240, 40])
+  assert.deepEqual([output.x, output.y], [440, 40])
+})
+
+test('new blueprint cards make room for one another while retaining a placed card', () => {
+  const input = { id: 'in', x: 20, y: 40 }
+  const retained = { id: 'retained', x: 320, y: 40 }
+  const a = { id: 'a' }, b = { id: 'b' }
+  const g = { nodes: [input, retained, a, b], wires: [{ from: 'in', to: 'a' }, { from: 'in', to: 'b' }, { from: 'a', to: 'retained' }] }
+  flowSpots(g, [a, b], roleOf)
+  assert.deepEqual(retained, { id: 'retained', x: 320, y: 40 })
+  assert.deepEqual([a.y, b.y], [150, 260])
+})
+
 test('a card stands clear of a wire that passes its column',()=>{
  // x feeds n two columns on; s and m stand in the columns between, fed from y.
  const g={nodes:[{id:'x',type:'in'},{id:'y',type:'in'},{id:'s'},{id:'m'},{id:'n'},{id:'out',type:'out'}],wires:[{from:'y',to:'s',port:'a'},{from:'s',to:'m',port:'a'},{from:'x',to:'n',port:'a'},{from:'m',to:'n',port:'b'},{from:'n',to:'out',port:'in'}]}

@@ -229,11 +229,15 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
-    if (resized && !blocks && !drag && !readOnly && given) {
+    if (resized && !groups.length && !drag && !readOnly && given) {
+      const drawn = painting ? { ...graph, nodes: graph.nodes.map((node) => (
+        painting.nodes.has(node.id) ? { ...node, ...painting.nodes.get(node.id) } : node
+      )) } : graph
       const opening = !Object.keys(geoRef.current.sizes).length
-      const aligned = opening ? alignTerminals(graph, sizes, parts.role) : graph
+      const aligned = opening && !blocks ? alignTerminals(drawn, sizes, parts.role) : drawn
       const spaced = spaceNodes(aligned, sizes)
-      if (spaced !== graph) {
+      if (spaced !== drawn) {
+        if (painting) setPresentation(null)
         onChange(spaced, { keep: true })
         return
       }

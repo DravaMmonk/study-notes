@@ -1,6 +1,7 @@
 import { srcKey, srcNode, wireEdges } from '../engine/wire-source.js'
 import { curve } from '../wires.js'
 import { dependencyOrder, indexEdges } from '../graph.js'
+import { spaceNodes } from './spacing.js'
 
 /** The fields that position or fold a card without changing what it computes. */
 export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'span', 'fold'].filter((key) => node?.[key] !== undefined).map((key) => [key, node[key]]))
@@ -302,7 +303,7 @@ export function layoutMetrics(graph, plan, { sizeOf, portY = () => 48 }) {
  *
  * Cells are those of a card dropped by hand (model.js spotIn): the canvas spaces cards by what it measures after.
  */
-export function flowSpots(graph, fresh, { x0 = 240, y0 = 40, dx = 200, dy = 150 } = {}) {
+export function flowSpots(graph, fresh, roleOf, { x0 = 240, y0 = 40, dx = 200, dy = 150 } = {}) {
   if (!fresh.length) return
   const mine = new Set(fresh.map((n) => n.id))
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
@@ -328,9 +329,15 @@ export function flowSpots(graph, fresh, { x0 = 240, y0 = 40, dx = 200, dy = 150 
       }
     }
   }
-  // Clear of a card that was there before, a row down at a time.
+  // Move outputs before reserving the space taken by the cards already on the board.
   const rest = graph.nodes.filter((n) => !mine.has(n.id) && !n.in && Number.isFinite(n.x))
-  for (const n of fresh) while (rest.some((o) => Math.abs(o.x - n.x) < dx - 30 && Math.abs(o.y - n.y) < dy - 40)) n.y += dy
   const reach = x0 + columns.length * dx
-  for (const n of rest) if (n.x < reach && n.x > x0 && into(n.id).some((src) => mine.has(src)) && !outOf(n.id).length) n.x = reach
+  for (const n of rest) {
+    if (roleOf(n) === 'sink' && n.x < reach && n.x > x0 && into(n.id).some((src) => mine.has(src))) n.x = reach
+  }
+  const sizes = Object.fromEntries([...rest, ...fresh].map(({ id }) => [id, [dx - 30, dy - 40]]))
+  const clear = spaceNodes(graph, sizes, { gapX: 0, gapY: 0, moves: (node) => mine.has(node.id) })
+  for (const node of clear.nodes) {
+    if (mine.has(node.id)) byId.get(node.id).y = node.y
+  }
 }
