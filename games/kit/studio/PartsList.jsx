@@ -3,6 +3,7 @@ import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { useState } from 'react'
 import SidebarListTools from './SidebarListTools.jsx'
+import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 import { taskOptionsOf } from './form.js'
@@ -16,9 +17,11 @@ export const freeName = (taken, stem) => {
   return `${stem}${k}`
 }
 
-export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, found, onSelect, onEdit }) {
+export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, activeTray, found, onSelect, onTray, onEdit }) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = usePref('piece-list-sort', 'tray')
+  const { folded, toggle } = useSidebarFolds('folded-trays', content.id)
+  const filtering = Boolean(query.trim())
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
@@ -43,6 +46,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const shown = parts.filter(([id, def]) => matches(id, L(def.name))).map(([id]) => id)
   const groups = sort === 'tray'
     ? pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+      .filter(({ types }) => !filtering || types.length)
     : [{ tray: null, types: sortSidebarIds(shown, sort, (id) => L(file.parts[id].name)) }]
 
   const row = (type) => {
@@ -62,11 +66,16 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
     <nav className="parts-list" aria-label={tr('件', 'Pieces')}>
       <SidebarListTools addOptions={choices} onAdd={create} query={query} onQuery={setQuery}
         sortOptions={[{ value: 'tray', label: tr('按托盘', 'By tray') }, ...sidebarSortOptions()]} sort={sort} onSort={setSort} />
-      {groups.map((g) => (
-        <section key={g.tray ?? ''} className="parts-group">
-          {g.tray ? <span className="parts-tray">{g.tray}</span> : groups.length > 1 && <hr className="parts-rule" />}
-          {g.types.map(row)}
-        </section>
+      {groups.map(({ tray, types }) => tray === null ? (
+        <div key="loose" className="parts-group">
+          {groups.length > 1 && <hr className="parts-rule" />}
+          {types.map(row)}
+        </div>
+      ) : (
+        <SidebarSection key={`tray:${tray}`} title={tray} name={tray} active={activeTray === tray} collapsed={!filtering && folded.has(tray)}
+          onSelect={() => onTray(tray)} onToggle={() => toggle(tray)}>
+          {types.map(row)}
+        </SidebarSection>
       ))}
     </nav>
   )

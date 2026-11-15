@@ -1,10 +1,10 @@
 // The studio's three-level course tree. Course placement still supplies drop targets for moving levels and tasks.
 import { Fragment, useMemo, useState } from 'react'
-import { ChevronRight } from 'lucide-react'
 import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { courseTree, stays } from './tree.js'
 import SidebarListTools from './SidebarListTools.jsx'
+import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 
@@ -22,14 +22,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     era.levels.filter((entry) => entry.optional).map(({ id }) => id))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
-  const [folds, setFolds] = usePref('folded-eras', {})
-  const folded = new Set(folds[game] ?? [])
-  const fold = (id) => setFolds((f) => {
-    const mine = new Set(f[game] ?? [])
-    if (mine.has(id)) mine.delete(id)
-    else mine.add(id)
-    return { ...f, [game]: [...mine] }
-  })
+  const { folded, toggle: fold } = useSidebarFolds('folded-eras', game)
   const [over, setOver] = useState(null)
 
   const matches = sidebarSearch(filtering ? query : '')
@@ -177,19 +170,10 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
         const shut = folded.has(String(value.id)) && !filtering && !moving
         const title = L(value.title ?? value.chapter?.title) ?? String(value.id)
         return (
-          <section key={value.id} className={`tree-era ${shut ? 'is-folded' : ''}`}>
-            <div className={`tree-era-head ${at?.era === e ? 'is-on' : ''}`}>
-              <button type="button" className="tree-fold" onClick={() => fold(String(value.id))} aria-expanded={!shut} aria-label={tr('折叠', 'Fold')}><ChevronRight size={12} aria-hidden="true" /></button>
-              <button type="button" className="tree-era-name" onClick={() => onSelect({ era: e })} title={String(value.id)}>
-                <span>{title}</span>
-              </button>
-            </div>
-            {!shut && (
-              <div className="tree-levels">
-                {list(eraLevels(value), slots, title)}
-              </div>
-            )}
-          </section>
+          <SidebarSection key={value.id} title={title} name={String(value.id)} active={at?.era === e} collapsed={shut}
+            onSelect={() => onSelect({ era: e })} onToggle={() => fold(String(value.id))}>
+            {list(eraLevels(value), slots, title)}
+          </SidebarSection>
         )
       })}
     </nav>

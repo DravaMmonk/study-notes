@@ -18,7 +18,7 @@ export function pieceGroups(types, { trays = null, at = () => null, order = [], 
     const own = [...new Set(items.map((item) => readItem(item).part))].filter((type) => types.includes(type) && !placed.has(type))
     own.forEach((type) => placed.add(type))
     return { tray, types: sorted(own) }
-  }).filter((g) => g.types.length)
+  })
   const rest = types.filter((type) => !placed.has(type))
   return rest.length ? [...groups, { tray: null, types: sorted(rest) }] : groups
 }
