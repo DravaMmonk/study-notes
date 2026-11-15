@@ -13,7 +13,7 @@ import { workshopNodes } from '../../engine/workshop.js'
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
 import { MISSING, PartError } from '../../engine/circuit.js'
-import { formed } from '../../engine/forms.js'
+import { formOf, formed } from '../../engine/forms.js'
 import { runBoard } from '../../engine/boards.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { circuitBoard } from '../../engine/board-cards.js'
@@ -473,6 +473,12 @@ const lemmaPart = (l) => {
   if (!lemmaParts.has(l)) lemmaParts.set(l, lemma(l))
   return lemmaParts.get(l)
 }
+/** The proof a lemma card's selected form runs. Cards backed by a primitive have no proof dependency. */
+export function lemmaReference(node, lemmas, proofs) {
+  if (!Object.hasOwn(lemmas, node.type) || lemmas[node.type].card) return undefined
+  return proofs[node.type]?.[formOf(lemmaPart(lemmas[node.type]), node) ?? '']
+}
+
 /** The resource a lemma's card runs (lemmaPieces): the proof that proved the shape it is in, on the card's inputs. */
 export const LEMMA = {
   about: T('引理：照证出它的那段证明来推', 'A lemma: runs the proof that proved it'),

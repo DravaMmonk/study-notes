@@ -251,8 +251,16 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   // alone.
   const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
   const [left, right] = level('half').tasks
-  syncOwn({ half_r: empty(right) })
+  const [useLeft, useRight] = level('useHalf').tasks
+  const selected = (task, work = task.solution) => course.proofBoards.runtimeReferences(task, work)
+  const brokenRight = empty(right)
+  syncOwn({ half_r: brokenRight })
   assert.equal(course.proofs.half.left.board(), left.pieceSolution)
+  assert.deepEqual(selected(useLeft), [{ key: 'half_l', task: left, work: left.pieceSolution }])
+  assert.deepEqual(selected(useRight), [{ key: 'half_r', task: right, work: brokenRight }])
+  assert.deepEqual(course.workReferences(useRight, useRight.solution), selected(useRight))
+  const obsolete = { ...useRight.solution, nodes: useRight.solution.nodes.map((n) => n.type === 'half' ? { ...n, params: { ...n.params, form: 'obsolete' } } : n) }
+  assert.deepEqual(selected(useRight, obsolete), selected(useLeft))
   assert.equal(run('useHalf', 0).pass, true)
   assert.equal(run('useHalf', 1).pass, false)
   syncOwn({ half_l: empty(left) })

@@ -31,7 +31,7 @@ import { packed } from './boards.js'
 import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
-import { fitsCircuit, previousCircuitTask } from './board-view.js'
+import { fitsCircuit, packedWorkReferences, previousCircuitTask } from './board-view.js'
 import { keptBoards } from './kept-boards.js'
 import { workView } from '../circuit/workshop-view.js'
 import { trayIn } from './trays.js'
@@ -340,12 +340,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       return chain
     },
     workReferences(task, work) {
-      if (!task || !work?.nodes) return []
-      const here = forTask(task)
-      return work.nodes.flatMap((node) => {
-        const open = here.BUILT[node.type]?.opens?.(node.params)
-        return open ? [{ key: open.level.taskId, task: open.level, work: open.circuit }] : []
-      })
+      return task ? packedWorkReferences(forTask(task), work) : []
     },
     views: content.views ?? null,
     // The shell keeps boards by task (../shell/progress.js), including the task each form publishes.

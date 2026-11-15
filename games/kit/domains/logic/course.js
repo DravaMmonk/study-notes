@@ -24,10 +24,10 @@ import { T } from '../../shell/i18n.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
-import { PROOF_BOARD } from './proof.js'
+import { lemmaReference, PROOF_BOARD } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
-import { boardView, fitsCircuit } from '../../engine/board-view.js'
+import { boardView, fitsCircuit, packedWorkReferences } from '../../engine/board-view.js'
 import { keptBoards } from '../../engine/kept-boards.js'
 import { workView } from '../../circuit/workshop-view.js'
 import { GATE_BOARD, builtGates, gateCourse, gateTests } from './gates.js'
@@ -567,7 +567,10 @@ export function logicCourse(content) {
   // The truth circuits as the kernel's circuit screen reads them (gates.js gateCourse).
   const truthCircuits = gateCourse({ built: gatePieces, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
   // The proofs, the same way: their parts are the proof rules and the lemmas (proofParts).
-  const proofBoards = boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks })
+  const proofBoards = {
+    ...boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks }),
+    runtimeReferences: proofWorkReferences,
+  }
   // The machines: the parts the player built as packed parts, a task's rule parts registered for it.
   const machineBoards = boardView({
     board: MACHINE_BOARD,
@@ -584,6 +587,13 @@ export function logicCourse(content) {
       return withPreset(from && fitsCircuit(from, task, viewOf(task)) ? from : startMachine(task), presetFor(task))
     },
   })
+  function proofWorkReferences(task, work) {
+    if (task.kind !== 'proof') return []
+    return (work?.nodes ?? []).flatMap((node) => {
+      const proof = lemmaReference(node, lemmas, lemmaPieces)
+      return proof ? [{ key: proof.level.taskId, task: proof.level, work: proof.board() }] : []
+    })
+  }
   function workReferences(task, work) {
     if (!task) return []
     const source = tasksOf.get(task.id)?.[task.task]
@@ -597,13 +607,8 @@ export function logicCourse(content) {
       const work = entry.value?.() ?? facts[entry.type]?.statement ?? builder?.pieceSolution
       return { key: source.taskId, task: builder, work }
     })
-    const boards = (work?.nodes ?? []).flatMap((node) => {
-      const open = (task.built?.[node.type] ?? gatePieces[node.type])?.opens?.()
-      if (open) return [{ key: open.level.taskId, task: open.level, work: open.circuit }]
-      const proof = lemmaPieces[node.type]?.[node.params?.form ?? (lemmas[node.type]?.forms?.[0]?.key ?? '')]
-      return proof && !lemmas[node.type]?.card ? [{ key: proof.level.taskId, task: proof.level, work: proof.board() }] : []
-    })
-    return [...named, ...boards]
+    const view = circuitFor(task)?.forTask(task)
+    return [...named, ...packedWorkReferences(view, work), ...proofWorkReferences(task, work)]
   }
   return { machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

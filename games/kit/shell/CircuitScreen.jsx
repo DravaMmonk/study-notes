@@ -27,7 +27,7 @@ import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
 import Workshop from './Workshop.jsx'
 import { useCircuitWorkshop } from './useCircuitWorkshop.js'
-import { lookupBoard, packedWorkStamp } from '../circuit/packed-boards.js'
+import { circuitWorkStamp, lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
@@ -142,7 +142,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     ...runTestGroups(level, revealed, (task, traceCount) => runOn(task, drawn, base.partOf, {
       traced: true, traceCount, ...(hasPersonal(drawn) && { workshopParts: resolve }),
     })),
-    signature: packedWorkStamp({ level, circuit: drawn, parts }, packed.open),
+    signature: circuitWorkStamp({ level, circuit: drawn, parts }, packed.open, course.runtimeReferences),
   }), [level, revealed, board.version, base, progress.built, library])
   const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, {

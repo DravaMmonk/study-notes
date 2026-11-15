@@ -1,4 +1,5 @@
 import { workView } from './workshop-view.js'
+import { openPackedPart } from '../engine/board-view.js'
 import { solutionStamp, workSignature } from '../engine/stamp.js'
 
 /** Resolve packed parts and open their boards with the workshop versions captured on the work. */
@@ -7,7 +8,7 @@ export function packedBoards(course, draw) {
   const drawOpened = (opened) => opened ? draw(opened, workView(opened.circuit, inTask(opened))) : null
   return {
     root: (type) => drawOpened(course.BUILT[type]?.opens?.()),
-    open: (node, at) => drawOpened(inTask(at).BUILT[node.type]?.opens?.(node.params)),
+    open: (node, at) => drawOpened(openPackedPart(inTask(at), node)),
     builder: (node, at) => inTask(at).builtBy(node.type, node.params),
   }
 }
@@ -28,11 +29,15 @@ export function lookupBoard(top, open) {
   return at
 }
 
-/** Identify a circuit and the actual implementations of its packed parts in their own scopes. */
-export function packedWorkStamp(top, open) {
-  const entry = (at, type) => ({ key: `${type}:${at.level.taskId}`, work: workSignature(at.circuit), at })
-  return solutionStamp(entry(top, ''), ({ at }) => at.circuit.nodes.flatMap((node) => {
-    const child = open(node, at)
-    return child?.circuit ? [entry(child, node.type)] : []
-  })).stamp
+/** Identify the circuit and the work it runs through packed parts or domain references. */
+export function circuitWorkStamp(top, open, references) {
+  const entry = (at, key) => ({ key, work: workSignature(at.circuit), at })
+  return solutionStamp(entry(top, top.level.taskId), ({ at }) => [
+    ...(at.circuit?.nodes ?? []).flatMap((node) => {
+      const child = open(node, at)
+      return child?.circuit ? [entry(child, `${node.type}:${child.level.taskId}`)] : []
+    }),
+    ...(references?.(at.level, at.circuit) ?? []).map(({ key, task, work }) =>
+      entry({ level: task, circuit: work, parts: at.parts }, key)),
+  ]).stamp
 }
