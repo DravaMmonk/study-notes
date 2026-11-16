@@ -16,16 +16,16 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros, kit, course, packagePreview?, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
+/** spec: { levels, intros, kit, course, packageTarget?, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
  *  pieces a task runs inside). Returns [{ text, fail?, level? }]: a line
- *  about one level names it. Notes editions and generated package previews may omit introductions. */
-export function validate({ levels, intros, kit, course, publishedBy, packagePreview = false, memo = (_id, _name, f) => f() }) {
+ *  about one level names it. Notes editions and independent package levels may omit introductions. */
+export function validate({ levels, intros, kit, course, publishedBy, packageTarget = false, memo = (_id, _name, f) => f() }) {
   const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
 
   for (const level of levels) {
-    if ((course.notes || packagePreview) && !intros[level.id]?.length) continue
+    if ((course.notes || packageTarget) && !intros[level.id]?.length) continue
     for (const problem of introProblems(intros[level.id], level, FIGURES, kit.types)) failAt(`${level.id}: 引言：${problem}`, level.id)
   }
 

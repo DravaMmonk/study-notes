@@ -1,3 +1,4 @@
+import { packageLevel, packageLevelOrder } from '../package-play.js'
 import { runtimeIds } from '../runtime.js'
 /* global process */
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
@@ -80,7 +81,7 @@ const logOf = (game, scope, layer) => {
   return { log: readLog(ws), head: headOf(ws), undoable: lastUndoable(ws)?.seq ?? null, drift: driftOf(ws, ws.onDisk()) }
 }
 
-// A game target edits its game layer. A package target generates its own course and edits only its package layer.
+// A game target edits its game layer. A package target reads objects and edits only its package layer.
 const SCOPES = ['package', 'game']
 const scoped = (scope) => {
   if (scope !== undefined && !SCOPES.includes(scope)) throw new Error(`scope is ${SCOPES.join(' or ')}, not ${scope}`)
@@ -187,7 +188,8 @@ const tools = {
     about: 'Run a level’s reference and naive answers against its tests through its domain’s checks; the lines that name the level, and whether any fails.',
     params: { game: 'string', level: 'string' },
     async run({ game, level }) {
-      const content = readTarget(game)
+      const source = readTarget(game)
+      const content = source.packageTarget ? packageLevel(source, level) : source
       levelIn(content, level)
       const domain = await runtimeOf(content)
       const lines = await domain.validate(domain.spec(content))
@@ -246,7 +248,17 @@ const tools = {
     about: 'A game’s part dependency graph as Mermaid (dot: DOT), drawn from its course data; levels: draw the levels too.',
     params: { game: 'string', dot: 'boolean?', levels: 'boolean?' },
     async run({ game, dot = false, levels = false }) {
-      return { text: await drawDeps(readTarget(game), { dot, levels }) }
+      const content = readTarget(game)
+      if (content.packageTarget) throw new Error('a package has no course dependency graph; read its relations with objects')
+      return { text: await drawDeps(content, { dot, levels }) }
+    },
+  },
+  play_level: {
+    about: 'Open one package level without chapters, prerequisites or progress. Returns runtime shell content for GameFrame; never checked as a course.',
+    params: { package: 'string', level: 'string', changeset: 'object?' },
+    async run({ package: id, level, changeset = null }) {
+      const source = await contentAfter({ package: id }, changeset)
+      return { content: packageLevel(source, level) }
     },
   },
   preview: {
@@ -257,7 +269,7 @@ const tools = {
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).
-      const ids = !content ? [] : !check || r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await runtimeOf(content)).spec(content).levels.map((l) => l.id)
+      const ids = !content ? [] : content.packageTarget ? packageLevelOrder(content) : !check || r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await runtimeOf(content)).spec(content).levels.map((l) => l.id)
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
@@ -270,6 +282,7 @@ const tools = {
     params: { game: 'string', piece: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, piece, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
+      if (content.packageTarget) return { events: [] }
       const domain = await runtimeOf(content)
       return { events: pieceFlow(domain.spec(content).course, content, piece) }
     },
@@ -279,6 +292,11 @@ const tools = {
     params: { game: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
+      if (content.packageTarget) return {
+        levels: packageLevelOrder(content).map(id => ({ id, label: id, title: levelIn(content, id).title })),
+        parts: Object.entries(content.partDefs?.parts ?? {}).map(([key, p]) => ({ key, name: p.name, piece: key, at: null })),
+        entries: content.glossary.entries.map(e => ({ id: e.id, title: e.title })), quotes: [],
+      }
       const shown = await gameOf(content)
       const domain = await runtimeOf(content)
       return {
@@ -295,7 +313,8 @@ const tools = {
     about: 'Run one of a level’s boards (path, default its first task’s reference) on its visible and hidden tests as the level’s screen runs them, through its domain’s play hook (as a changeset would leave it): each test as the screen shows it (what it gives and expects), whether it passes and what the screen says. A level whose play the hook does not cover says why.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
-      const content = await contentAfter(game, changeset, scope)
+      const source = await contentAfter(game, changeset, scope)
+      const content = source.packageTarget ? packageLevel(source, level) : source
       const domain = await runtimeOf(content)
       if (!domain.play) return { covered: false, why: 'the selected runtime gives no play hook' }
       const board = boardAt(content, level, path, domain.vocabulary)
@@ -326,7 +345,8 @@ const tools = {
     about: 'What a level’s screen keeps of one of its boards (path, default its first task’s solution), as a changeset would leave it: put data in a save’s progress.data under that task’s id (task: its index in the level) and the level opens on that board.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
-      const content = await contentAfter(game, changeset, scope)
+      const source = await contentAfter(game, changeset, scope)
+      const content = source.packageTarget ? packageLevel(source, level) : source
       const domain = await runtimeOf(content)
       const board = boardAt(content, level, path, domain.vocabulary)
       if (!board) return { note: `${level} has no board at ${path}` }

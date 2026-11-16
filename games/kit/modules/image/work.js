@@ -130,7 +130,7 @@ export function* prepareImageWorks(config) {
   for (const { board } of references.values()) board()
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
   // The intros of the levels the course places: the rest of the package is not in the game.
-  const intros = Object.fromEntries(levels.filter((level) => chapterOf.has(level.id)).map((level) => [level.id, level.intro]))
+  const intros = Object.fromEntries(levels.filter((level) => config.standalone || chapterOf.has(level.id)).map((level) => [level.id, level.intro]))
   const { requires } = plan
 
   // Pictures start out drawn as pixels; every other way of drawing them comes in with a level, as parts do.

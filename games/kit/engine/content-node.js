@@ -8,7 +8,6 @@ import { OBJECT_SCHEMAS } from './objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
 import { catalogReader } from './catalogs.js'
-import { packageCourse } from './package-course.js'
 import { runtimeIds } from './runtime.js'
 import { contentKindSchemas } from './content-kinds.js'
 import { vocabularyFor } from './kernel.js'
@@ -174,10 +173,9 @@ export function readPackageLayers(packageIds, root = PROJECT_DIR) {
 export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
-  let game = Object.assign({}, ...configurations)
+  const game = Object.assign({}, ...configurations)
   delete game.uses
   const packageFields = Object.keys(game).filter((key) => key !== 'vocabulary')
-  if (packageId) game = packageCourse(packageId, r, game, schemas)
   const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [name, value, name.split('/')[0]])
   const overridden = {}
   for (const event of overrideHistory) if (event.kind === 'i18n') {
@@ -188,7 +186,7 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
   return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
     levels: entries('level'), tags: entries('tag'), relations: entries('relation'), layouts: entries('layout'),
     contentObjects: Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, r[kind]])), partDefs: { parts: r.piece }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
-    blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packagePreview: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
+    blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packageTarget: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })
 }
 

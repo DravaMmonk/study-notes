@@ -1,5 +1,6 @@
 // The authored, knowledge and reference edges used to open a course. Only authored links live in the course file.
 import { dependencyCycle, eraLevels, itemOf, layout } from '../course.js'
+import { standalonePlan } from './package-play.js'
 import { parse } from '../circuit/text.js'
 
 const idOf = (game, level) => `${game}:${level}`
@@ -60,7 +61,7 @@ function providersOf(content) {
 export function courseDependencies(content) {
   const { eras = [], levels = [] } = content
   const links = eras.flatMap((era) => (era.links ?? []).map((link) => ({ ...link, source: 'course', detail: String(era.id) })))
-  if (content.mode === 'notes' || content.packagePreview) return { links, problems: [] }
+  if (content.mode === 'notes' || content.packageTarget) return { links, problems: [] }
   const placed = new Set(eras.flatMap(eraLevels))
   const problems = []
   const bindings = new Map()
@@ -122,6 +123,7 @@ export function courseDependencies(content) {
 /** Build the same local plan the domains use, with cross-game gates kept outside the local course topology. */
 export function courseLayout(content) {
   if (content.coursePlan) return content.coursePlan
+  if (content.standalone) return standalonePlan(content)
   const { links, problems } = courseDependencies(content)
   const notes = content.mode === 'notes'
   const plan = layout(content.eras ?? [], { notes, links })

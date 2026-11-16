@@ -271,7 +271,9 @@ export function* prepareLogicWorks(content) {
   const isBuilt = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
   const plan = courseLayout(content)
   const given = new Map(levels.map((l) => [l.id, l]))
-  const rawTasks = [...tasksOf.values()].flat()
+  const rawTasks = content.libraryLevels
+    ? content.libraryLevels.flatMap(level => readTasks(level, wordSets))
+    : [...tasksOf.values()].flat()
   const declaredWorks = rawTasks.flatMap((task) => [
     ...(task.datatype ? [{ kind: 'type', type: task.datatype.type, form: null, task, value: () => typeOf(task) }] : []),
     ...(playFor(plays, task)?.gives === 'reference' ? [{ kind: 'function', type: task.fn, form: null, task, value: () => equations(task, task.solution) }] : []),
@@ -389,7 +391,7 @@ export function* prepareLogicWorks(content) {
   // The proofs each lemma's shapes run: the proof tasks its references name.
   const taskById = new Map(TASKS.map((task) => [task.taskId, task]))
   const standalone = (id, reference, circuit) => {
-    const task = { ...reference, id, task: 0, taskId: id }
+    const task = { ...reference, id, task: 0, taskId: id, ...(reference.kind === 'logic:proof' && { schema: reference.tests[0] }) }
     try {
       return { ...task, pieceSolution: circuit.board.fromText(reference.solution, task, circuit) }
     } catch (error) {
@@ -425,7 +427,7 @@ export function* prepareLogicWorks(content) {
       return l.editor !== 'strip' && task?.kind === 'logic:machine'
         ? [...ruleTypes(task).keys()].filter((p) => !machineParts[p]) : []
     },
-    machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
+    machine: (l) => eras[eraOf.get(l.id)]?.machine ?? null,
     needed: (l) => { const answers = answersOf(l); return answers.length ? answers.flatMap(rulesIn) : null },
     declares: (l) => (byId.get(l.id).declare ? references.resolve(keyOf(byId.get(l.id).declare), null, null, { kind: 'declaration', reference: true })?.value ?? [] : []),
     references, boards: answersOf,
@@ -457,7 +459,7 @@ export function* prepareLogicWorks(content) {
     const source = tasksOf.get(one.id).find(task => task.task === one.task)
     for (const [kind, names, action] of [['type', source.types, 'declared'], ['function', source.defs, 'defined']]) {
       for (const type of names ?? []) {
-        if (!references.prior(kind, one).some((entry) => entry === declaration(kind, type, one.id))) {
+        if (!content.standalone && !references.prior(kind, one).some((entry) => entry === declaration(kind, type, one.id))) {
           throw new Error(`level ${one.id} names the ${kind} ${type} before it is ${action}`)
         }
       }
@@ -473,16 +475,16 @@ export function* prepareLogicWorks(content) {
   // work), in every shape it proves.
   for (const level of LEVELS.filter((l) => l.tasks.some((t) => t.kind === 'logic:machine' || t.kind === 'logic:script'))) {
     // The equations proved before it (by the levels it comes after), and in a later task its own.
-    const proven = Object.keys(facts).filter((type) => references.prior('fact', { id: level.id, task: 0 }).some((entry) => entry.type === type))
+    const proven = content.standalone ? Object.keys(facts) : Object.keys(facts).filter((type) => references.prior('fact', { id: level.id, task: 0 }).some((entry) => entry.type === type))
     for (const one of level.tasks) {
       const later = one.task > 0
       // A task has what the tasks before it in its level proved.
       const before = references.prior('fact', one).filter(({ task }) => task.id === one.id).map(({ type }) => type)
       one.rulePieces = piecesForResource
-      one.holds = met(course, { id: level.id, task: one.task })
+      one.holds = content.standalone ? Object.keys(content.registries.piece) : met(course, { id: level.id, task: one.task })
       one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       const has = holds(course, { id: level.id, task: one.task }, new Set())
-      one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, l.forms.map((f) => f.key).filter((key) => has(type, 'form', key))]))
+      one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, l.forms.map((f) => f.key).filter((key) => content.standalone || has(type, 'form', key))]))
     }
   }
   // A built machine part's ports are the inputs of the board of the first task it refers to.
@@ -496,7 +498,7 @@ export function* prepareLogicWorks(content) {
   // A machine's answers are read now that its rule book, and so its rule parts, are known.
   for (const one of TASKS.filter((t) => t.kind === 'logic:machine')) Object.assign(one, readAnswers(one, machineBlueprint(one)))
   for (const { type, variant, task, reference } of built.machineRefs) if (!taskById.has(task)) {
-    const one = { ...reference, ...declarations(reference, type), lemmas, facts }
+    const one = { ...reference, ...declarations(reference, type), lemmas, facts, rulePieces: piecesForResource, partDefs: defs }
     references.register([{ kind: 'logic:machine', type, form: null, task: standalone(`${type}:${variant}`, one, machineBlueprint(one)) }])
   }
   // The gates the levels build run their boards (gates.js builtGates).

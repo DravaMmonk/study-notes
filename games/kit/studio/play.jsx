@@ -66,7 +66,7 @@ function look({ theme, lang }) {
 async function gameOf(content, stamp) {
   const [{ default: defineGame }] = await DOMAINS[runtimeIds(content)[0]]()
   const game = defineGame(content)
-  game.store = createProgress({ id: `studio.${content.id}` })
+  game.store = createProgress({ id: `studio.${content.id}`, persist: !content.standalone })
   game.stamp = stamp
   game.partDefs = content.partDefs
   return game

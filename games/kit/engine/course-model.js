@@ -3,6 +3,7 @@
 import { defineCourse, itemOf, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
 import { referenceResolver } from './objects.js'
+import { standaloneItems, standalonePieces } from './package-play.js'
 import { trayIn } from './trays.js'
 
 const unique = (items) => [...new Set(items)]
@@ -48,7 +49,8 @@ export function contentCourse(content, {
       && !content.levels.some((level) => defaultAdds(level).includes(part) && !localAt(part, level))
 
   const course = defineCourse({
-    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
+    available: content.standalone ? (at) => standalonePieces(content, at) : null,
+    availableItems: content.standalone ? (at) => standaloneItems(content, at) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: levels.map((level) => ({ id: level.id, unlocks: unique([...(level.unlocks ?? []), ...unlocked(level)]) })),
     eras: content.eras, plan, trays: content.trays ?? {},

@@ -8,6 +8,7 @@ import { dirname, resolve } from 'node:path'
 import { contentTargets, runtimeOf, readContent, readPackage } from './content-node.js'
 import { checkGame } from './checks.js'
 import { closeGames, gameOf } from './games.mjs'
+import { packageLevel, packageLevelOrder } from './package-play.js'
 import { holds, usable } from '../course.js'
 import { openGame, openPackage } from './ops/workspace.js'
 import { adopt, readLog, runChangeset, undo } from './ops/changeset.js'
@@ -19,7 +20,7 @@ after(async () => {
   roots.forEach((root) => rmSync(root, { recursive: true, force: true }))
 })
 const fixture = () => {
-  const root = mkdtempSync(resolve(tmpdir(), 'package-course-'))
+  const root = mkdtempSync(resolve(tmpdir(), 'package-content-'))
   roots.push(root)
   const put = (file, value) => {
     const path = resolve(root, file)
@@ -31,18 +32,16 @@ const fixture = () => {
   return { root, put }
 }
 
-test('a pieces-only package opens, generates a course, checks and writes its own log without a game', async () => {
+test('a pieces-only package opens without a course, checks and writes its own log without a game', async () => {
   const { root } = fixture()
   const ws = openPackage('library', root)
   const content = ws.content()
   assert.deepEqual(ws.changes(), [])
   assert.deepEqual(content.levels, [])
-  assert.deepEqual(content.eras.map((era) => era.levels), [[]])
-  assert.ok(content.primitives.includes('library/apply'))
+  assert.equal('eras' in content, false)
+  assert.equal('chapters' in content, false)
   const domain = await runtimeOf(content)
   assert.deepEqual((await checkGame(content, { domain, root })).filter((line) => line.fail), [])
-  const game = await gameOf(content)
-  assert.deepEqual(game.levels, [])
   adopt(ws, 'Start the independent library log.')
   const result = await runChangeset(ws, { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'Use the implication rule.' }] }, { write: true })
   assert.equal(result.ok, true, result.problems.join('\n'))
@@ -59,31 +58,52 @@ test('a pieces-only package opens, generates a course, checks and writes its own
   assert.match(checked, /all games ok/)
 })
 
-test('tag chapters retain titles, nesting, layouts, cross-chapter relations and all available pieces', async () => {
+test('single-level play uses task trays, ignores prerequisites and opens settings without progress', async () => {
   const { root, id } = proofsRoot()
   roots.push(root)
-  const put = (folder, name, value) => {
-    mkdirSync(resolve(root, 'packages', id, folder), { recursive: true })
-    writeFileSync(resolve(root, 'packages', id, folder, `${name}.json`), JSON.stringify(value))
-  }
-  put('tags/level', 'a', { title: 'First tag', values: ['#nested'] })
-  put('tags/level', 'nested', { title: 'Nested tag', values: ['given'] })
-  put('tags/level', 'b', { title: 'Second tag', values: ['apply'] })
-  put('tags/entry', 'terms', { title: 'Terms', values: ['term'] })
-  put('entries', 'term', { title: 'Term', body: ['A named expression used in a proof.'] })
-  put('tags/item', 'tools', { values: ['impI'] })
-  put('layouts', 'map', { of: '#a', rows: [['given']] })
+  const dir = resolve(root, 'packages', id, 'tags/item')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(resolve(dir, 'tools.json'), JSON.stringify({ values: ['impI'] }))
   const content = readPackage(id, root)
-  assert.deepEqual(content.eras.map((era) => era.chapter.title), ['First tag', 'Second tag', 'Nested tag', id])
-  assert.deepEqual(content.eras.map((era) => era.levels.map((level) => level.id)), [[`${id}/given`], [`${id}/apply`], [], [`${id}/suppose`]])
-  assert.deepEqual(content.eras[0].rows, [[`${id}/given`]])
-  assert.ok(content.relationEdges.requires.some((edge) => edge.from === `${id}/given` && edge.to === `${id}/apply`))
-  assert.deepEqual(openPackage(id, root).content().eras, content.eras)
-  assert.ok(content.glossary.groups.some((group) => group.id === `${id}/terms`))
-  const { course } = (await runtimeOf(content)).spec(content)
-  assert.ok(usable(course, { id: `${id}/given`, task: 0 }, new Set()).includes(`${id}/impI`))
-  assert.equal(holds(course, { id: `${id}/given`, task: 0 }, new Set())(`${id}/impI`, 'A'), true)
-  assert.deepEqual((await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail), [])
+  assert.equal('eras' in content, false)
+  assert.equal('chapters' in content, false)
+  const source = content.levels.find(l => l.id === `${id}/given`)
+  source.tasks[0].tray = `${id}/tools`
+  const shell = packageLevel(content, source.id)
+  assert.equal(shell.levels.length, 1)
+  assert.deepEqual(shell.eras, [])
+  const { course, levels } = (await runtimeOf(shell)).spec(shell)
+  assert.deepEqual(levels.map(l => l.id), [source.id])
+  assert.deepEqual(course.plan.requires.get(source.id), [])
+  assert.deepEqual(usable(course, { id: source.id, task: 0 }, new Set()), [`${id}/impI`])
+  assert.equal(holds(course, { id: source.id, task: 0 }, new Set())(`${id}/impI`, 'A'), true)
+  assert.equal(holds(course, { id: source.id, task: 0 }, new Set())(`${id}/mp`), false)
+  delete source.tasks[0].tray
+  const all = (await runtimeOf(shell)).spec(shell).course
+  assert.ok(usable(all, { id: source.id, task: 0 }, new Set()).includes(`${id}/mp`))
+  const game = await gameOf(shell)
+  assert.deepEqual(game.levels.map(l => l.id), [source.id])
+  assert.throws(() => packageLevel(content, 'missing'), /no level/)
+})
+
+test('a levels-only package plays dependency pieces and checks references and naive answers independently', async () => {
+  const { root, put } = fixture()
+  put('packages/problems/package.json', { vocabulary: 1, uses: ['library'] })
+  put('packages/problems/levels/implication.json', {
+    title: 'Implication', after: 'Use the implication.', tasks: [{ id: 'solve', kind: 'logic:proof',
+      tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], cases: [{ A: 'A', B: 'B' }],
+      solution: ['m = library/apply(p, q)', 'goal <- m'], naive: ['goal <- q'],
+      brief: 'Prove B.', hint: ['Apply the implication.'],
+    }],
+  })
+  const content = readPackage('problems', root)
+  const lines = await checkGame(content, { domain: await runtimeOf(content), root })
+  assert.deepEqual(lines.filter(l => l.fail), [])
+  assert.ok(lines.some(l => /naive fails/.test(l.text)))
+  content.levels[0].tasks[0].naive = content.levels[0].tasks[0].solution
+  assert.ok((await checkGame(content, { domain: await runtimeOf(content), root })).some(l => l.fail && /naive/.test(l.text)))
+  content.levels[0].gives = ['library/missing']
+  assert.ok((await checkGame(content, { domain: await runtimeOf(content), root })).some(l => l.fail && /missing/.test(l.text)))
 })
 
 test('package dependencies are readable while only the selected layer can be edited', async () => {
@@ -143,8 +163,16 @@ test('game course writes maintain the derived hub count without writing package 
 })
 
 
-test('generated courses still reject invalid authored package fields', async () => {
+test('packages reject invalid authored package fields', async () => {
   const { root, put } = fixture()
   put('packages/library/package.json', { vocabulary: 1, unknownField: true })
   assert.throws(() => readPackage('library', root), /unknownField/)
+})
+
+
+test('package lists use order relations, then prerequisites, without constructing chapters', () => {
+  const content = { levels: ['p/a', 'p/b', 'p/c'].map(id => ({ id })),
+    relationEdges: { order: [{ from: 'p/c', to: 'p/b', of: 'level' }], requires: [{ from: 'p/b', to: 'p/a' }] } }
+  assert.deepEqual(packageLevelOrder(content), ['p/c', 'p/b', 'p/a'])
+  assert.equal('eras' in content, false)
 })

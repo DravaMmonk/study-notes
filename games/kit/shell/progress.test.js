@@ -242,3 +242,17 @@ test('recorded solutions preserve the selected packed works when a later pass ch
   assert.equal(earlier.puzzle, 'i')
   assert.deepEqual(before.works.find(({ key }) => key === 'middle').uses, [earlier.id])
 })
+
+
+test('single-level play keeps task state in memory without reading or writing a saved game', () => {
+  const id = 'standalone'
+  const stored = createProgress({ id })
+  stored.update(p => ({ ...p, solved: ['earlier'] }))
+  const before = storage.get(stored.key)
+  const play = createProgress({ id, persist: false })
+  assert.deepEqual(play.load().solved, [])
+  play.update(p => ({ ...p, data: { task: { draft: true } } }))
+  assert.deepEqual(play.load().data, { task: { draft: true } })
+  assert.equal(storage.get(stored.key), before)
+  assert.deepEqual(createProgress({ id, persist: false }).load().data, {})
+})

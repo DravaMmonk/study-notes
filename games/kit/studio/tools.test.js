@@ -76,12 +76,12 @@ function openStarter(d) {
   return openPackage(d, root)
 }
 
-test('on every starter: a bulk edit of its first era’s levels runs as a changeset, and they go into a group in order', async () => {
+test('on every starter: a bulk edit of its package levels runs as a changeset, and they go into a group in order', async () => {
   for (const d of STARTERS) {
     const ws = openStarter(d)
     const content = ws.content()
     const { vocabulary } = await runtimeOf(content)
-    const ids = eraLevels(content.eras[0])
+    const ids = content.levels.map(l => l.id)
     const levels = ids.map((id) => content.levels.find((l) => l.id === id))
     // A text every level of the era holds: the title, which every vocabulary gives a level.
     const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { en: '同一个标题' })

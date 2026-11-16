@@ -2,7 +2,7 @@
 // npm run op -- … — the operation set (operations.js) from the command line, through a changeset (changeset.js):
 //
 //   npm run op -- list                                     the operations and their arguments
-//   npm run op -- --package <package> <op> key=value…    one package, its generated course and its log
+//   npm run op -- --package <package> <op> key=value…    one package, its objects and its log
 //   npm run op -- <game> <op> key=value…                   one operation (a value is read as JSON when it is JSON)
 //   npm run op -- <game> --file changeset.json             a changeset { why?, ops: [{ op, …args }] }
 //   npm run op -- <game> undo                              undo the last change in the game's change log

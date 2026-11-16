@@ -227,7 +227,7 @@ export function dependencyCycle(requires) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false, available = null }) {
+export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false, available = null, availableItems = null }) {
   // Settings brought by adds open along the route, while piece consumers keep receiving only pieces.
   const brought = adds, opened = opens
   adds = (level) => brought(level).filter(isPartItem)
@@ -258,7 +258,7 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, complete, trays, tray, available, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, complete, trays, tray, available, availableItems, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -269,7 +269,7 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
  * it in its level built. In order: the level's own parts, then the carried ones in the order they were met.
  */
 export function met(course, level) {
-  if (course.available) return course.available
+  if (course.available) return course.available(level)
   const own = [...course.adds(level), ...builtBefore(course, level)]
   const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].filter(isPartItem)
   const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => !course.local(p, l)))]
@@ -363,7 +363,12 @@ export function holds(course, level, flags) {
     return !course.gated.has(item) || opened().has(item)
   }
   const has = (part, key, value) => {
-    if (course.available) return course.available.includes(part)
+    if (course.available) {
+      if (!course.available(level).includes(part)) return false
+      if (key === undefined) return true
+      const items = course.availableItems(level)
+      return items.includes(part) || items.includes(itemOf(part, key)) || items.includes(itemOf(part, key, value))
+    }
     if (key === undefined) return (parts ??= new Set(usable(course, level, flags))).has(part)
     return one(itemOf(part, key)) && (value === undefined || one(itemOf(part, key, value)))
   }
