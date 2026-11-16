@@ -9,7 +9,7 @@ import { stagesOf } from '../engine/stages.js'
 import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
-import { outputsOf } from '../circuit/model.js'
+import { feeding, outputsOf } from '../circuit/model.js'
 import { isFixed } from '../circuit/presets.js'
 import { runTestGroups, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
@@ -112,7 +112,7 @@ function Value({ value, error, show, of, views }) {
 
 const noWorld = () => null
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, showResults = true, outputTarget = false, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, showResults = true, outputTarget = false, tileSettings = true, className = '' }) {
   const { game, level: entry, solved, progress } = screen
   const level = entry.source
   const base = course.forTask(level)
@@ -366,7 +366,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   if (screen.workshopOnly) return (
     <SettingsContext.Provider value={views}>
       <Workshop screen={screen} tray={screen.workshopTray} carry={screen.workshopCarry} board={drawn} parts={parts} packed={packed} cards={itemOf}
-        defined={definedFaces} defaults={defaults} types={offers.types} library={library}
+        defined={definedFaces} defaults={defaults} types={offers.types} library={library} tileSettings={tileSettings} phoneRegionLabel={faces.phoneRegionLabel}
         available={available} capture={capture} update={update} />
     </SettingsContext.Provider>
   )
@@ -387,6 +387,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           folded={folded.map(itemOf)}
           types={types}
           defaults={defaults}
+          tileSettings={tileSettings}
           view={view}
           card={{
             body,
@@ -407,6 +408,10 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
               return v === undefined ? null : <Value value={v} show={show} />
             },
             resultNote: (node, _region, ctx) => <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} />,
+            phoneRegionResult: (node, region, ctx) => {
+              const value = ctx.view.values.get(feeding(ctx.board.circuit, node.id, region))
+              return value === undefined ? null : <Value value={value} show={show} />
+            },
             ...faces,
             ...(outputTarget && { cardClass: withTargetClass(faces.cardClass), sinkClass: withTargetClass(faces.sinkClass) }),
           }}
@@ -455,6 +460,6 @@ export function circuitScreen(config, { play, course, ...declared }) {
   const revealOnPass = config.checks === 'afterPass'
   return function Screen(screen) {
     return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared}
-      judged={judged} revealOnPass={revealOnPass} showResults={config.results !== 'hidden'} outputTarget={config.output === 'target'} className={config.layout} />
+      judged={judged} revealOnPass={revealOnPass} showResults={config.results !== 'hidden'} outputTarget={config.output === 'target'} tileSettings={config.tileSettings !== 'hidden'} className={config.layout} />
   }
 }

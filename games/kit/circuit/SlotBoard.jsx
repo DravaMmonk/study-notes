@@ -127,11 +127,12 @@ const readMode = () => {
  *                                         (the row starts with the switcher between the level's saved boards, SaveSlots)
  * @param onChange(graph), types           a board given these can be read in from text (SaveSlots): the editor's
  *                                         change, and the parts this level offers
+ * @param regionLabel(node, index)         a short label before the received value in a multi-region frame
+ * @param needsSetting(node)               whether a frame still needs a required setting
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is (or, for a
  *                                         region that opens none, what the frame holds there: the thing a
  *                                         for-any box takes, say);
- *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
- *                                         block shows nothing else of it)
+ *        resultNote(node, region)         what reaches the conclusion port of the region
  *
  * A frame is a block a row wide: its own inputs on top, its output under it, and between them each region, a grid
  * of its own (model.js placement) between two dashed lines: on the top one the dot of the value the region opens (as
@@ -141,11 +142,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-// Row numbers are logical; the even tracks are the gaps between them.
-const rowTracks = (rows, headings) => Array.from({ length: rows }, (_, row) =>
-  row === 0 ? 'auto' : `${headings.has(row - 1) ? 'var(--sp-2)' : 'var(--pb-row-gap)'} auto`).join(' ')
-
-export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote, regionLabel, needsSetting }) {
   const portMask = useId()
   const ownRef = useRef(null)
   const board = boardRef ?? ownRef
@@ -350,7 +347,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       if(region===null&&hidden.has(row))continue
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       const ports = cardPorts(parts, node)
-      if(ports.regions.length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],cols,ports));continue}
+      if(ports.regions.length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],ports));continue}
       const extra=!isFolded&&tileExtra?.(node)
       const view = cardView(parts.valueView?.(node))
       const tileHeight = isFolded ? undefined : cardHeight(parts, node)
@@ -372,41 +369,54 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
-  function frameBlock(node, slot, region, style, width, columns, card) {
+  function frameBlock(node, slot, region, style, width, card) {
     const isFolded = foldedParts.has(node.id)
     const { outputs, regions: ownRegions } = card
     const compact = compactFrame(width)
-    const localHeads = new Set(compact ? [] : [0])
     const ports = inputDots(node, card)
+    const waitingForInput = card.inputs.some((port) => !feeding(graph, node.id, port))
+    const waitingForSetting = needsSetting?.(node)
+    const unavailable = (text) => <span className="pb-region-placeholder">{L(text)}</span>
     const title = (
-      <div className="pb-frame-head" data-drag={fixed || !canMove(node.id) ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} onKeyDown={(event) => activateCard(event, node)} aria-label={nameOf(node)}>
-        <span className="pb-name">{icon(node)}{nameOf(node)}</span>
+      <div className="pb-frame-head" data-drag={fixed || partitioning || !canMove(node.id) ? undefined : true}>
+        <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
       </div>
     )
     let row = compact ? 1 : 3
     const regions = ownRegions.map((r, index) => {
-      const { rows, frameHeads } = placement(graph, parts, regionAddress(node.id, r.name), { fixed })
-      const resultLabel = L(parts.portLabel?.(node, r.name)) || ''
-      const resultPort = resultLabel || tr('结果入口', 'Result input')
-      for (const head of frameHeads) localHeads.add((row + 1) / 2 + head)
+      const address = regionAddress(node.id, r.name)
+      const { rows } = placement(graph, parts, address, { fixed })
+      const branch = ownRegions.length > 1 ? regionLabel?.(node, index) ?? L(r.label) : null
+      const received = r.opens ? [branch, L(WORDS.received)].filter(Boolean).join(' ') : branch
+      const opening = !isFolded && (regionNote?.(node, r.name) ?? (
+        r.opens && waitingForInput ? unavailable(WORDS.notWired)
+          : waitingForSetting ? unavailable(WORDS.notConfigured)
+            : r.opens ? unavailable('—') : null
+      ))
+      const resultLabel = L(parts.portLabel?.(node, r.name)) || L(WORDS.conclusion)
+      const regionName = ownRegions.length > 1 ? `${L(r.label)} ` : ''
+      const wired = Boolean(feeding(graph, node.id, r.name))
+      const result = !isFolded && (wired ? resultNote?.(node, r.name) ?? unavailable('—') : unavailable(WORDS.notWired))
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
           <header className={`pb-region-head ${r.opens ? 'has-port' : ''} ${compact ? 'is-compact' : ''}`}>
             {compact && index === 0 && title}
-            {ownRegions.length > 1 && <b>{L(r.label)}</b>}
-            {r.opens && r.output?.label && <em>{L(r.output.label)}</em>}
-            {!isFolded && <span className="pb-region-value">{regionNote?.(node, r.name)}</span>}
+            {(received || opening) && <div className="pb-region-readout">
+              {received && <em>{received}</em>}
+              {opening && <span className="pb-region-value">{opening}</span>}
+            </div>}
             {r.opens && <span className="pb-out">{dot(outPort(sourceOf(node.id, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(sourceOf(node.id, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
-          {grid(regionAddress(node.id, r.name), { gridRow: `3 / span ${2 * rows - 1}` })}
-          {/* Its foot row: the dot its result goes into, and what the frame gives. */}
+          {grid(address, { gridRow: `3 / span ${2 * rows - 1}` })}
           <footer className="pb-closes">
             <span className="pb-ins">
-              <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)}的${resultPort}`, `${nameOf(node)}: ${resultPort}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
+              <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)}的${regionName}${resultLabel}`, `${nameOf(node)}: ${regionName}${resultLabel}`), `is-in ${wired ? 'is-wired' : 'is-open'}`)}</span>
             </span>
-            {resultLabel && <em>{resultLabel}</em>}
-            {!isFolded && <span className="pb-region-value">{resultNote?.(node, r.name)}</span>}
+            <div className="pb-region-readout">
+              <em>{resultLabel}</em>
+              {result && <span className="pb-region-value">{result}</span>}
+            </div>
           </footer>
         </section>
       )
@@ -414,8 +424,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       return section
     })
     return (
-      <div key={node.id} className={`pb-cell is-frame ${width < columns && !compact ? 'is-partial' : ''}`} data-slot={slot} data-region={region ?? ''} style={style}>
-        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), ...(width < columns && !compact && { gridTemplateRows: rowTracks((row - 1) / 2, localHeads) }) }}>
+      <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
+        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} aria-label={nameOf(node)} onKeyDown={(event) => activateCard(event, node)} onClick={(event) => {
+          if (event.target.closest('[data-piece]') === event.currentTarget && !event.target.closest('button')) onNode(node.id)
+        }}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           {!compact && title}
           {regions}

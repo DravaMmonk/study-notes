@@ -207,7 +207,7 @@
 .pb-grid { position: relative; display: grid; grid-template-columns: repeat(var(--pb-columns, 2), minmax(var(--pb-min-slot), 1fr)); grid-auto-rows: auto; column-gap: var(--pb-column-gap); }
 .pb-cell { display: grid; min-width: 0; border-radius: var(--r-md); }
 .pb-cell.over { box-shadow: 0 0 0 2.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.pb-slot { box-sizing: border-box; height: var(--pb-slot-height, var(--pb-tile-height)); align-self: start; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint, var(--muted)); background: color-mix(in srgb, var(--paper) 55%, transparent); outline: 1.5px dashed var(--rule); outline-offset: -1px; font: inherit; }
+.pb-slot { box-sizing: border-box; min-height: var(--pb-slot-height, var(--pb-tile-height)); display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint, var(--muted)); background: color-mix(in srgb, var(--paper) 55%, transparent); outline: 1.5px dashed var(--rule); outline-offset: -1px; font: inherit; }
 .pb-cell > .pb-tile { min-height: var(--pb-tile-height); }
 .pb-slot:active { background: var(--hover); }
 .pb-tile { position: relative; box-sizing: border-box; min-width: 0; padding: var(--sp-6) var(--pb-tile-padding); display: grid; justify-items: stretch; align-content: start; gap: var(--sp-1); border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card); outline: none; cursor: pointer; -webkit-touch-callout: none; animation: card-in 200ms ease; }
@@ -297,9 +297,10 @@
 .pb-dot.is-in i { position: relative; }
 .pb-dot.is-in:not(.is-wired) i::after { inset: 4px; }
 /* A part's sheet ends with this: take the block off the board. */
-.sheet-actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--sp-4); }
-.sheet-remove, .sheet-move, .sheet-edit { height: 44px; display: flex; align-items: center; justify-content: center; gap: var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--fail); background: var(--canvas); font: inherit; }
-.sheet-move, .sheet-edit { color: var(--ink); }
+.sheet-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--sp-4); }
+.sheet-actions > button { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); font: inherit; }
+.sheet-actions > button > svg { flex: none; }
+.sheet-actions > .sheet-remove { color: var(--fail); }
 /* A part on the move: it and the slots it can go to are marked until a slot is tapped. */
 .pb-board[data-moving] .pb-slot { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); outline-color: var(--accent); }
 .pb-tile.is-moving, .pb-frame.is-moving { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
@@ -434,22 +435,22 @@
 .pb-frame.lift { z-index: 20; pointer-events: none; }
 .pb-region { padding: 0; border-radius: var(--r-md); outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
 /* A region's head row: its name, then the value it opens, its dot on the row's foot. */
-.pb-region-head, .pb-closes { grid-column: 1 / -1; position: relative; min-height: 0; display: flex; align-items: baseline; justify-content: center; gap: var(--sp-4); color: var(--muted); font-size: 11.5px; }
+.pb-region-head, .pb-closes { grid-column: 1 / -1; position: relative; min-height: 0; color: var(--muted); font-size: 11.5px; }
 .pb-region-head { grid-row: 1; padding: var(--sp-2) var(--sp-4); border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
 .pb-region-head.has-port { padding-bottom: calc(var(--pb-dot) / 2 + var(--sp-3)); }
 .pb-closes { grid-row: -2; padding: calc(var(--pb-dot) / 2 + var(--sp-3)) var(--sp-4); border-top: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
-.pb-region-head b { color: var(--ink); font-weight: 600; }
-.pb-region-head em, .pb-closes em { font-style: normal; }
+.pb-region-readout { display: flex; align-items: baseline; justify-content: center; gap: var(--sp-3); }
+.pb-region-readout em { flex: none; max-width: 50%; font-style: normal; overflow-wrap: anywhere; }
 .pb-region-value { min-width: 0; overflow-wrap: anywhere; }
-.pb-region-value [data-card-sentence] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-.pb-frame-head { grid-column: 1 / -1; position: relative; padding: var(--sp-2) var(--sp-3); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: var(--sp-1) var(--sp-4); color: var(--ink); cursor: grab; touch-action: none; user-select: none; }
+.pb-region-placeholder { color: var(--faint); }
+.pb-frame:focus-visible { outline: 2px solid var(--accent); }
+.pb-frame-head { grid-column: 1 / -1; position: relative; padding: var(--sp-2) var(--pb-tile-padding); color: var(--muted); user-select: none; }
+.pb-frame-head[data-drag] { cursor: grab; touch-action: none; }
+.pb-frame-head > .pb-name { text-align: start; font-size: var(--fs-label); }
 .pb-frame > .pb-ins + .pb-frame-head { padding-top: calc(var(--pb-dot) / 2 + var(--sp-3)); }
-.pb-region-head.is-compact { flex-direction: column; align-items: center; gap: var(--sp-2); min-height: var(--pb-slot-height, 64px); box-sizing: border-box; }
+.pb-region-head.is-compact { display: grid; align-content: start; gap: var(--sp-2); min-height: var(--pb-slot-height, var(--pb-tile-height)); box-sizing: border-box; }
 .pb-region-head.is-compact .pb-frame-head { padding: 0; }
 .pb-frame > .pb-ins + .pb-region > .pb-region-head.is-compact { padding-top: calc(var(--pb-dot) / 2 + var(--sp-3)); }
-/* A partial frame sizes its own rows so a slot beside it cannot stretch its regions. */
-.pb-cell.is-partial > .pb-frame { align-self: start; }
-.pb-region-head > b, .pb-region-head > em, .pb-closes > em { flex-shrink: 0; }
 
 
 /* Compact tiles follow the content. The picture face keeps the space reserved for its preview. */

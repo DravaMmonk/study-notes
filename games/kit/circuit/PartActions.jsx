@@ -9,8 +9,8 @@ import { tr } from '../shell/i18n.js'
 export default function PartActions({ onEdit, onMove, resize, onRemove }) {
   return (
     <div className="sheet-actions">
-      {onEdit && <button type="button" className="sheet-edit" onClick={onEdit}><Pencil size={15} />{tr('编辑', 'Edit')}</button>}
-      {onMove && <button type="button" className="sheet-move" onClick={onMove}><Move size={15} />{tr('移动')}</button>}
+      {onEdit && <button type="button" onClick={onEdit}><Pencil size={15} />{tr('编辑', 'Edit')}</button>}
+      {onMove && <button type="button" onClick={onMove}><Move size={15} />{tr('移动')}</button>}
       {resize && <button type="button" onClick={resize.run}><Columns2 size={15} />{resize.label}</button>}
       {onRemove && <button type="button" className="sheet-remove" onClick={onRemove}><Trash2 size={15} />{tr('删除', 'Delete')}</button>}
     </div>

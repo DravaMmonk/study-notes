@@ -23,5 +23,8 @@ export const WORDS = {
   passed: T('通过', 'Passed'),
   sample: T('样张'),
   notWired: T('待接线', 'Not wired'),
+  notConfigured: T('待配置', 'Not configured'),
+  received: T('收到', 'Received'),
+  conclusion: T('结论', 'Conclusion'),
   test: (k) => T(`测试 ${k + 1}`, `Test ${k + 1}`),
 }

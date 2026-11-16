@@ -17,6 +17,7 @@ const circuit = (judge, options = {}) => S.obj({
   layout: S.opt(S.str()),
   results: S.opt(S.oneOf(['hidden'])),
   output: S.opt(S.oneOf(['target'])),
+  tileSettings: S.opt(S.oneOf(['hidden'])),
   ...options,
 })
 

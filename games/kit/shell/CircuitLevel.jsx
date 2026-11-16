@@ -1,4 +1,5 @@
-import { editorOf } from '../engine/pieces.js'
+import { editorOf, settingsOf } from '../engine/pieces.js'
+import { defaultOf, shows } from '../engine/parts/define.js'
 import { useElementSize } from '../views/useElementSize.js'
 import { portNotes } from '../circuit/card-ports.js'
 import { traySize } from '../circuit/card-size.js'
@@ -181,7 +182,8 @@ const nothing = { values: new Map(), errors: new Map() }
  *   view            what the board shows now: { values, errors } (the default wire state reads it)
  *   card            the faces of a card, each (node, ctx): body, head, caption, cardClass, outNote (node, key, ctx),
  *                   wireState (wire, ctx), regionNote / resultNote (node, region, ctx); on a phone thumb, tileExtra,
- *                   sinkBody, sinkClass, nodeClass
+ *                   sinkBody, sinkClass, nodeClass, phoneRegionLabel (node, index), phoneRegionResult (node, region, ctx)
+ *   tileSettings    show configuration summaries on phone tiles (the details always show the settings)
  *   canvas          more for the desktop editor: height, emptyNote, corner, minFit
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it;
  *                   an element stands in its place (a board that is no level: the workshop); null: none
@@ -200,7 +202,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayActions = [], trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, terminalDetail, terminalTitle, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayActions = [], trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, terminalDetail, terminalTitle, details = false, addSheet, packed, words, meta, pad, tabs = true, tileSettings = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -280,8 +282,17 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
     const cards = (trayNames === undefined && game.course ? fixedTray(game.course, source) : types ?? [])
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
+    const phoneCard = { ...card, tileExtra: tileSettings ? card.tileExtra : undefined, resultNote: card.phoneRegionResult ?? card.resultNote }
+    const needsSetting = (node) => {
+      const def = defined?.of(node.type)
+      const params = node.params ?? {}
+      return Boolean(def && settingsOf(def).some((setting) => {
+        const value = params[setting.key] ?? defaultOf(setting)
+        return (value == null || value === '') && !setting.optional && shows(setting, def, params, defined.ops)
+      }))
+    }
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems, terminalBody, terminalTitle, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card: phoneCard, needsSetting, inside, all, trayItems, terminalBody, terminalTitle, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -347,7 +358,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, trayControl, terminalBody, terminalTitle, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, needsSetting, inside, all, trayItems, trayFolded, trayControl, terminalBody, terminalTitle, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -424,6 +435,8 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
         sinkBody={(n) => (card.sinkBody ?? card.body)?.(n, ctx)}
         sinkClass={card.sinkClass && ((n) => card.sinkClass(n, ctx))}
         nodeClass={card.nodeClass && ((n) => card.nodeClass(n, ctx))}
+        regionLabel={card.phoneRegionLabel}
+        needsSetting={needsSetting}
         {...portNotes(card, ctx)}
         picking={editing.picking}
         moving={editing.moving}

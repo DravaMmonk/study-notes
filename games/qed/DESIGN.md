@@ -547,7 +547,7 @@
 
 ## 6. 引擎：复用什么，补什么
 
-证明板的元件读数显示推出的公式，要求显示证明项的关卡会附上证明项。电路玩法配置隐藏结果区，输出元件显示当前测试的目标。目标已证出时标为绿色，判定失败时标为红色。
+证明板的元件读数显示推出的公式，要求显示证明项的关卡会附上证明项。电路玩法配置隐藏结果区，输出元件显示当前测试的目标。目标已证出时标为绿色，判定失败时标为红色。手机电路板通过玩法配置将各元件的设置收进详情。「分类讨论」在两个区域的「收到」前分别显示 ① 和 ②。
 
 **已有（`games/kit/domains/logic/`）：** 公式（`formula.js`）、证明板与规则（`proof.js`，含证出的引理当规则）、证明板的证明项表示（`pterm.js`）、拼公式板（`formulaTree.js`、`ui/FormulaScreen.jsx`，界面是共用的 `kit/strip`）和造世界板（`fol.js`、`ui/WorldScreens.jsx`）、机器板（`machine.js`：等式组、证明状态、证明项、子句；重复框、依次尝试、逐个目标、回溯搜索）、带元变量的规则与合一（`schematic.js`）、证明状态与策略（`tactics.js`）、子句与归结（`resolution.js`：子句集、归结、饱和、证书、重放；一阶的先合一）、改写与化简（`rewrite.js`）、结构化脚本与写脚本板（`script.js`、`ui/ScriptScreen.jsx`）、类型声明给的规则（`datatype.js`）、卡片选项（`choices.js`）；kit 的步进回放（`engine/trace.js`、`shell/usePlayback.jsx`）。内容层的契约：词汇表（`vocabulary.js`：元件、关卡种类、机器板要的结果、存档迁移项，各带参数 schema）、电路板的蓝图文本（`blueprint.js`，证明板、机器板、真值电路共用）、存档迁移项（`items/migrations.js`），两个入口 `domain.js`（检查用）和 `game.jsx`（页面用）。
 

@@ -51,7 +51,7 @@ function TrayPicker({ tray, trays, choices, onPick }) {
 }
 
 /** One saved draft per tray, starting from the circuit task's terminal cards. */
-export default function Workshop({ screen, tray = '', carry = false, board, parts, packed, cards, defined, defaults, types, library, available, capture, update }) {
+export default function Workshop({ screen, tray = '', carry = false, board, parts, packed, cards, defined, defaults, types, library, available, capture, update, tileSettings, phoneRegionLabel }) {
   const { game, phone } = screen
   const trays = game.course?.trays ?? {}
   const slot = trayKey(game.id, tray)
@@ -184,6 +184,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
         trayActions={terminals.map(({ role, ...item }) => ({ ...item, onPick: () => addTerminal(role, item.label) }))}
         board={{ circuit: draft, change: keep, clear: () => keep(blank), clearable: () => draft !== blank }}
         parts={drawn} defaults={defaults} defined={defined} packed={packed} run={silent}
+        tileSettings={tileSettings} card={{ phoneRegionLabel }}
         brief={phone ? null : shelf} results={phone ? shelf : null} scope={`workshop:${slot}`}
         items={items.filter((item) => !own(item) || featured.has(item.type))} folded={items.filter((item) => own(item) && !featured.has(item.type))}
         types={[...allowed]} tabs={false} pad={dock}
