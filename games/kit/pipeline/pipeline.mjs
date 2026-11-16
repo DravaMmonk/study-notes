@@ -81,14 +81,14 @@ function inputs(step, state, scope) {
   const review = state.steps.review?.runs?.at(-1)?.findings?.filter((f) => f.fix && !f.resolved && f.owner === step.id) ?? []
   const last = state.steps[step.id]?.gates?.at(-1)
   const lines = [
-    `- Game: ${game} (its folder: ${dir}; domain: ${content.domain}, ${resolve(GAMES_DIR, 'kit/domains', content.domain)})`,
+    `- Game: ${game} (its folder: ${dir}; domain: ${content.domain}, ${resolve(GAMES_DIR, 'kit/modules', content.domain)})`,
     `- Repository root: ${resolve(GAMES_DIR, '..')} (games/DESIGN.md is ${resolve(GAMES_DIR, 'DESIGN.md')})`,
     `- Course material: ${['DESIGN.md', 'CURRICULUM.md'].map((f) => resolve(dir, f)).filter(existsSync).join(', ') || '(none)'}`,
     // The sources the blueprint teaches from, each said to be there or not (the agent reads them; a missing one is a gap).
     ...(content.blueprint?.sources?.length ? [`- The blueprint's sources: ${content.blueprint.sources.map((f) => `${resolve(GAMES_DIR, '..', f)}${existsSync(resolve(GAMES_DIR, '..', f)) ? '' : ' (missing)'}`).join(', ')}`] : []),
     `- Blueprint: ${content.blueprint ? resolve(dir, 'blueprint.json') : '(none yet)'}`,
     `- Vocabulary: ./vocabulary.json (the domain's items and schemas, and the operations)`,
-    `- The domain's part catalog: ${resolve(GAMES_DIR, 'kit/domains', content.domain, 'ui/catalog.js')}`,
+    `- The domain's part catalog: ${resolve(GAMES_DIR, 'kit/modules', content.domain, 'ui/catalog.js')}`,
     ...(scope ? [`- Scope of this run: ${scope}`] : []),
   ]
   const out = [`## Inputs\n\n${lines.join('\n')}`]

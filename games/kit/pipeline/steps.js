@@ -15,7 +15,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkGame } from '../engine/checks.js'
 import { domainOf, readContent } from '../engine/content-node.js'
-import { domainProblems, specProblems, validateProblems } from '../engine/contract.js'
+import { moduleProblems, specProblems, validateProblems } from '../engine/contract.js'
+import { capabilities, modules } from '../engine/kernel.js'
 import { hubCount } from '../engine/ops/workspace.js'
 import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
@@ -88,8 +89,8 @@ export const STEPS = [
       const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.en ?? r.about))
       const domain = await domainOf(content)
       const spec = domain.spec(content)
-      const contract = [...domainProblems(content.domain, domain), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))
-      const test = resolve(GAMES_DIR, 'kit/domains', content.domain, `${content.domain}.test.js`)
+      const contract = [...modules.flatMap((module) => moduleProblems(module, capabilities)), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))
+      const test = resolve(GAMES_DIR, 'kit/modules', content.domain, `${content.domain}.test.js`)
       const tests = []
       if (existsSync(test)) {
         try {
