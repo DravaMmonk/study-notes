@@ -4,7 +4,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
 import { proofsRoot } from './fixture.js'
@@ -112,4 +112,19 @@ test('search and replace: hits across the game, a replace as a changeset that mo
   const old = (await call('history', { package: GAME, level: 'suppose' })).data
   assert.equal(old.found, false)
   assert.match(old.why, /git/i)
+})
+
+
+test('MCP exposes game package operations and writes selection through modify', async () => {
+  const vocabulary = (await call('vocabulary', { game: GAME })).data
+  for (const name of ['game.package.add', 'game.package.remove']) assert.ok(vocabulary.operations[name].params.fields.package)
+  mkdirSync(join(root, 'packages', 'library'), { recursive: true })
+  writeFileSync(join(root, 'packages', 'library', 'package.json'), JSON.stringify({ vocabulary: 1 }))
+  const original = readFileSync(join(root, 'games', GAME, 'game.json'), 'utf8')
+  const added = (await call('modify', { game: GAME, changeset: { why: 'Select test library', ops: [{ op: 'game.package.add', package: 'library' }] } })).data
+  assert.equal(added.ok, true, JSON.stringify(added))
+  assert.ok(JSON.parse(readFileSync(join(root, 'games', GAME, 'game.json'))).packages.includes('library'))
+  const removed = (await call('modify', { game: GAME, changeset: { why: 'Remove test library', ops: [{ op: 'game.package.remove', package: 'library' }] } })).data
+  assert.equal(removed.ok, true, JSON.stringify(removed))
+  assert.equal(readFileSync(join(root, 'games', GAME, 'game.json'), 'utf8'), original)
 })

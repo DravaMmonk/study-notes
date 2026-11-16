@@ -41,7 +41,7 @@ export { LOG, readLog } from './log.js'
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
-  const domain = given ?? (await runtimeOf(ws.content()))
+  let domain = given ?? (await runtimeOf(ws.content()))
   ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []
@@ -69,6 +69,10 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     try {
       const previous = ws.snapshot()
       const done = op.apply(ws, args, { vocabulary, domain })
+      if (ws.packageLayers !== previous.packageLayers && !given) {
+        domain = await runtimeOf(ws.content())
+        ws.schemas = domain.vocabulary
+      }
       ws.normalize(withParts(domain.vocabulary, ws.partDefs), previous)
       says.push(done.says)
       inverse.unshift(...done.inverse)

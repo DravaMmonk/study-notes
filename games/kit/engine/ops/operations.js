@@ -225,6 +225,29 @@ export const OPERATIONS = {
       return { says: `${task}: ${from === to.level ? `moved in ${from}` : `${from} → ${to.level}`} (${k + 1} of ${levelOf(ws, to.level).tasks.length})`, inverse: [back] }
     },
   },
+  'game.package.add': {
+    about: t('游戏选用一个包（须先选全它的依赖）', 'Select a package for the game; select its dependencies first'),
+    params: S.obj({ package: S.str({ pattern: '^[a-z][a-z0-9-]*$' }), at: S.opt(S.int({ min: 0 })) }),
+    apply(ws, { package: id, at = ws.packageIds.length }) {
+      if (ws.packageIds.includes(id)) fail(`package ${id} is already selected`)
+      ws.selectPackages([...ws.packageIds.slice(0, at), id, ...ws.packageIds.slice(at)])
+      return { says: `game.json: selected package ${id}`, inverse: [{ op: 'game.package.remove', package: id }] }
+    },
+  },
+  'game.package.remove': {
+    about: t('游戏去掉一个包；课程还有它的关或别的包依赖它时拒绝', 'Remove a package unless the course uses its levels or another selected package depends on it'),
+    params: S.obj({ package: S.str({ pattern: '^[a-z][a-z0-9-]*$' }) }),
+    apply(ws, { package: id }) {
+      const at = ws.packageIds.indexOf(id)
+      if (at < 0) fail(`package ${id} is not selected`)
+      const dependents = ws.packageLayers.filter((layer) => layer.config.uses?.includes(id)).map((layer) => layer.id)
+      const placed = (ws.content().eras ?? []).flatMap((chapter) => chapter.levels.filter((level) => level.id.startsWith(`${id}/`)).map((level) => `${level.id} (chapter ${chapter.id})`))
+      const reasons = [...(placed.length ? [`course still places ${placed.join(', ')}`] : []), ...(dependents.length ? [`selected packages depend on it: ${dependents.join(', ')}`] : [])]
+      if (reasons.length) fail(`cannot remove package ${id}: ${reasons.join('; ')}`)
+      ws.selectPackages(ws.packageIds.filter((name) => name !== id))
+      return { says: `game.json: removed package ${id}`, inverse: [{ op: 'game.package.add', package: id, at }] }
+    },
+  },
   'game.set': {
     about: t('设 game.json 的一个字段（课程、元件、标题……）'),
     params: S.obj({ path: PATH, value: S.any() }),
@@ -416,6 +439,7 @@ Object.assign(OPERATIONS, {
 
 /** Which workspace an operation belongs to (games/DESIGN.md 6.7): 'package' (the levels, their groups, pieces and encyclopedia) or 'game' (the course and the game's own texts). */
 export function opScope({ op, path, in: where, layer }) {
+  if (op.startsWith('game.package.')) return 'game'
   if (op.startsWith('override.')) return layer?.startsWith('@') ? 'game' : 'package'
   if (/^(tag|relation|layout)\./.test(op)) return 'package'
   if ( op === 'text.override' || op.startsWith('blueprint.')) return 'game'

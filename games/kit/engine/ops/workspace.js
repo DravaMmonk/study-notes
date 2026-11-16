@@ -67,7 +67,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
   layer = packaged ? id : `@${id}`
   const packageDir = resolve(root, 'packages', packageId)
   const packageDirs = packageIds.map((id) => resolve(root, 'packages', id))
-  const dependencyFiles = new Map(packageDirs.filter((path) => path !== packageDir).flatMap((dir) => overridePaths(dir).map((file) => [resolve(dir, file), read(resolve(dir, file))])))
+  const dependencyFiles = new Map(packageDirs.filter((path) => !packaged || path !== packageDir).flatMap((dir) => overridePaths(dir).map((file) => [resolve(dir, file), read(resolve(dir, file))])))
   const packageLayers = readPackageLayers(packageIds, root)
   const paths = packaged ? { 'package.json': resolve(packageDir, 'package.json') } : configPaths(dir, packageDir)
   const pathFor = (file) => {
@@ -150,9 +150,22 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
     content: () => deepFreeze(contentOf(ws)),
     /** What the files hold now, by name; a removed level file is null. */
-    snapshot: () => ({ game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, contentObjects: Object.fromEntries(Object.entries(ws.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), reservations: ws.reservations }),
-    restore: (s) => Object.assign(ws, { game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, contentObjects: Object.fromEntries(Object.entries(s.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), reservations: s.reservations }),
+    snapshot: () => ({ schemas: ws.schemas, packageIds: ws.packageIds, packageLayers: ws.packageLayers, packageDirs: ws.packageDirs, dependencyFiles: ws.dependencyFiles, game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, contentObjects: Object.fromEntries(Object.entries(ws.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), reservations: ws.reservations }),
+    restore: (s) => Object.assign(ws, { schemas: s.schemas, packageIds: s.packageIds, packageLayers: s.packageLayers, packageDirs: s.packageDirs, dependencyFiles: s.dependencyFiles, game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, contentObjects: Object.fromEntries(Object.entries(s.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), reservations: s.reservations }),
     normalize: (vocabulary, previous) => normalize(ws, vocabulary, previous),
+    /** Select exactly the game's explicit package list; dependencies remain explicit selections. */
+    selectPackages: (ids) => {
+      if (packaged) throw new Error('only a game can select packages')
+      splitGameConfig({ packages: ids }, root)
+      const layers = readPackageLayers(ids, root)
+      const dirs = ids.map((id) => resolve(root, 'packages', id))
+      const dependencies = new Map(ws.dependencyFiles)
+      for (const dir of dirs) for (const file of overridePaths(dir)) {
+        const path = resolve(dir, file)
+        if (!dependencies.has(path)) dependencies.set(path, read(path))
+      }
+      Object.assign(ws, { packageIds: [...ids], packageLayers: layers, packageDirs: dirs, dependencyFiles: dependencies, schemas: vocabulary ?? layerVocabulary(layers) })
+    },
     /** Every file whose text changes: [{ file, before, after }] (before null: a new file; after null: removed). */
     changes: () => changes(ws),
     /** The changes as a unified diff. */
@@ -195,7 +208,7 @@ function contentOf(ws) {
     if (folder === 'i18n') target.textOverrides.push({ namespace, lang: filename.slice(0, -5), entries: value })
     else target.overrides.push({ kind: folder === 'piece' || folder === 'tag' ? folder : kindForFolder[folder], name: `${namespace}/${filename.slice(0, -5)}`, value: { ...value, ...(folder === 'tag' && { kind: path[3] }) } })
   }
-  const layers = orderPackages(ws.packageLayers.map((layer) => layer.id === ws.packageId ? own : layer))
+  const layers = orderPackages(ws.packaged ? ws.packageLayers.map((layer) => layer.id === ws.packageId ? own : layer) : ws.packageLayers)
   return assembleLayers(ws.id, ws.packaged ? layers : [...layers, game], ws.schemas, { blueprint: ws.blueprint, declarationProblems: ws.declarationProblems, ...(ws.packaged && { packageId: ws.packageId }) })
 }
 
@@ -285,7 +298,7 @@ function write(ws, localeFiles) {
   const expected = new Map([...new Set([...ws.original.keys(), ...currentNames, ...localeFiles()])]
     .map((file) => [ws.pathFor(file), ws.original.get(file) ?? null]))
   for (const { file, before } of done) expected.set(file, before)
-  const dependencyPaths = ws.packageDirs.filter((dir) => dir !== ws.packageDir).flatMap((dir) => overridePaths(dir).map((file) => resolve(dir, file)))
+  const dependencyPaths = ws.packageDirs.filter((dir) => !ws.packaged || dir !== ws.packageDir).flatMap((dir) => overridePaths(dir).map((file) => resolve(dir, file)))
   for (const path of dependencyPaths) if (!ws.dependencyFiles.has(path)) throw new Error(`dependency changed on disk since the game was opened: ${relative(ws.root, path)}; open it again`)
   for (const [path, before] of ws.dependencyFiles) if (read(path) !== before) throw new Error(`dependency changed on disk since the game was opened: ${relative(ws.root, path)}; open it again`)
   const moved = [...expected].filter(([file, before]) => read(resolve(ws.root, file)) !== before).map(([file]) => file)
