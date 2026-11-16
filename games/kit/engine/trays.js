@@ -16,10 +16,10 @@ export const TRAY_SCHEMA_CHANGE = { at: 'game.trays.about', why: t('托盘描述
 export const trayMembers = (entries) => entries.flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
 /** Project available pieces onto the selected trays, leaving availability to the course. */
-export function trayDisplay(course, level, shown, folded) {
+export function trayDisplay(trays, names, shown, folded) {
   const first = new Set(shown.map(({ type }) => type))
   const remaining = new Map([...shown, ...folded].map((item) => [item.type, item]))
-  const menus = (course?.tray(level) ?? []).flatMap((name) => course.trays[name]
+  const menus = names.flatMap((name) => (trays[name] ?? [])
     .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, key: JSON.stringify([name, entry.id]) })))
   const items = [], more = []
   const add = (item, visible) => (visible ? items : more).push(item)

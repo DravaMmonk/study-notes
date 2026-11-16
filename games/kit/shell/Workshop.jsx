@@ -143,7 +143,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
   return (
     <CircuitLevel
       className="ws-level"
-      screen={{ ...screen, game: { ...game, course: null } }}
+      screen={screen} trayNames={tray ? [tray] : []}
       board={{ circuit: draft.graph, change: (graph) => keep({ ...draft, graph }), clear: () => keep(blank) }}
       parts={drawn} defaults={defaults} defined={defined} packed={packed} run={silent}
       brief={phone ? null : face} below={phone ? face : null} scope={`workshop:${slot}`}

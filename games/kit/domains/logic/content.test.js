@@ -325,7 +325,7 @@ test('a proof tray groups disjunction rules and leaves truth gates off the proof
   const task = logic.LEVELS.find(({ id }) => id === 'cases').tasks[0]
   const { shown, folded, types } = logic.proofBoards.forTask(task).offerIn(task, new Set())
   assert.ok(!types.includes('gOr'))
-  const display = trayDisplay(logic.course, task, shown.map((type) => ({ type })), folded.map((type) => ({ type })))
+  const display = trayDisplay(logic.course.trays, logic.course.tray(task), shown.map((type) => ({ type })), folded.map((type) => ({ type })))
   assert.deepEqual(display.items.find(({ menu }) => menu).children.map(({ type }) => type), ['orI', 'orE'])
 })
 
