@@ -1,9 +1,12 @@
 // The kernel's capabilities, read only (games/PACKAGES.md 7.1, 8): what a package can pick and combine — value types,
 // operations, primitive pieces, boards, task kinds, content items, displays, languages, content kinds — each by its
-// `<module>:<name>`, narrowed by kind, module and a search, with what it says and what it takes.
+// `<module>:<name>`, listed in the left column narrowed by kind, module and a search; the one picked in the middle, with
+// what it says and what it takes; its description as JSON on the right.
 import { useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import { sidebarSearch } from './sidebar-list.js'
+import { capabilityOf } from './left-lists.js'
+import SidebarListTools from './SidebarListTools.jsx'
 
 const KINDS = [
   ['operation', '运算', 'Operations'], ['primitive', '原始件', 'Primitive pieces'], ['valueType', '值类型', 'Value types'],
@@ -13,44 +16,60 @@ const KINDS = [
 const ALL = ''
 export const moduleOf = (name) => name.slice(0, name.indexOf(':'))
 
-/** `capabilities`: { kind: { '<module>:<name>': description } } (the vocabulary's index). */
-export default function CapabilityBrowser({ capabilities }) {
+/** The capability `key` names (left-lists.js capabilityKey), else the first listed: { kind, name, it }, or null. */
+export function currentCapability(capabilities, key) {
+  const picked = capabilityOf(key)
+  if (picked && capabilities?.[picked.kind]?.[picked.name]) return { ...picked, it: capabilities[picked.kind][picked.name] }
+  const kind = KINDS.map(([k]) => k).find((k) => Object.keys(capabilities?.[k] ?? {}).length)
+  if (!kind) return null
+  const [name, it] = Object.entries(capabilities[kind])[0]
+  return { kind, name, it }
+}
+
+/**
+ * The left list of capabilities (`capabilities`: { kind: { '<module>:<name>': description } }, the vocabulary's index),
+ * narrowed by kind, module and a search. `current`: { kind, name } open; `onOpen(kind, name)` opens one.
+ */
+export function CapabilityList({ capabilities, current, onOpen }) {
   const kinds = KINDS.filter(([kind]) => Object.keys(capabilities?.[kind] ?? {}).length)
-  const [kind, setKind] = useState(kinds[0]?.[0] ?? 'operation')
+  const [kind, setKind] = useState(current?.kind ?? kinds[0]?.[0] ?? 'operation')
   const [module, setModule] = useState(ALL)
   const [query, setQuery] = useState('')
-  const [picked, setPicked] = useState(null)
   const entries = useMemo(() => Object.entries(capabilities?.[kind] ?? {}), [capabilities, kind])
   const modules = useMemo(() => [...new Set(Object.values(capabilities ?? {}).flatMap((of) => Object.keys(of).map(moduleOf)))].sort(), [capabilities])
   const matches = sidebarSearch(query)
   const shown = entries.filter(([name, it]) => (module === ALL || moduleOf(name) === module) && matches(name, L(it.about)))
-  const current = shown.find(([name]) => name === picked) ?? shown[0] ?? null
   return (
-    <article className="arrange capabilities">
-      <header className="arrange-bar">
-        <select className="studio-game" value={kind} aria-label={tr('能力的种类', 'Kind of capability')} onChange={(e) => { setKind(e.target.value); setPicked(null) }}>
+    <nav className="parts-list capabilities" aria-label={tr('能力', 'Capabilities')}>
+      <div className="capabilities-filters">
+        <select className="studio-game" value={kind} aria-label={tr('能力的种类', 'Kind of capability')} onChange={(e) => setKind(e.target.value)}>
           {kinds.map(([id, zh, en]) => <option key={id} value={id}>{tr(zh, en)} · {Object.keys(capabilities[id]).length}</option>)}
         </select>
         <select className="studio-game" value={module} aria-label={tr('模块', 'Module')} onChange={(e) => setModule(e.target.value)}>
           <option value={ALL}>{tr('全部模块', 'All modules')}</option>
           {modules.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
-        <input className="field-input capabilities-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr('搜索', 'Search')} aria-label={tr('搜索', 'Search')} />
-      </header>
-      <div className="capabilities-body">
-        <ul className="capabilities-list" aria-label={tr('能力', 'Capabilities')}>
-          {shown.map(([name, it]) => (
+      </div>
+      <SidebarListTools query={query} onQuery={setQuery} />
+      <ul className="capabilities-list">
+        {shown.map(([name, it]) => {
+          const on = current?.kind === kind && current?.name === name
+          return (
             <li key={name}>
-              <button type="button" className={current?.[0] === name ? 'is-on' : ''} aria-current={current?.[0] === name ? 'true' : undefined} onClick={() => setPicked(name)}>
+              <button type="button" className={on ? 'is-on' : ''} aria-current={on ? 'true' : undefined} onClick={() => onOpen(kind, name)} title={L(it.about)}>
                 <code>{name}</code><span>{L(it.about)}</span>
               </button>
             </li>
-          ))}
-        </ul>
-        {current && <CapabilityDetail name={current[0]} it={current[1]} />}
-      </div>
-    </article>
+          )
+        })}
+      </ul>
+    </nav>
   )
+}
+
+/** The capability picked, in the middle: what it says, what it takes and gives. */
+export function CapabilityView({ current }) {
+  return <article className="arrange">{current && <CapabilityDetail name={current.name} it={current.it} />}</article>
 }
 
 function CapabilityDetail({ name, it }) {

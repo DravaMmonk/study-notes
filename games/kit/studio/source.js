@@ -8,6 +8,7 @@ import { find, validate } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { tr } from '../shell/i18n.js'
 import { changesType, gameFields, opFor, taskListOps } from './form.js'
+import { objectSchema } from './object-file.js'
 
 const changedKeys = (before, after) => [...new Set([...Object.keys(before), ...Object.keys(after)])]
   .filter((key) => !sameJson(before[key], after[key]))
@@ -20,7 +21,7 @@ function sourceTexts(file, content) {
     if (key) texts.set(key, value)
     else if (value && typeof value === 'object') Object.values(value).forEach(visit)
   }
-  visit(file.game ? gameFields(content) : [content.levels, content.glossary, content.partDefs])
+  visit(file.game ? gameFields(content) : file.object ? content.registries : [content.levels, content.glossary, content.partDefs])
   return (key) => {
     if (!texts.has(key)) throw new Error(tr(`当前配置的语言文件里没有文案键 @${key}。`, `No text for @${key} in this configuration's language files.`))
     return texts.get(key)
@@ -32,7 +33,7 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
   const source = sourceValue(before)
   const edited = setAt(source, path, value)
   if (sameJson(source, edited)) return []
-  const schema = file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
+  const schema = file.object ? objectSchema(file.object.kind) : file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
   const existingLiterals = new Set(find(schema, before, 'text', { vocabulary })
     .map(({ value }) => value).filter((value) => typeof value === 'string'))
   const inline = find(schema, edited, 'text', { vocabulary }).find(({ path, value }) =>

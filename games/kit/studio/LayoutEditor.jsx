@@ -2,60 +2,46 @@
 // level tag's members as the game draws it, row by row, one to three places a row. A level is dragged to a place (or
 // picked, then its place clicked: the way on a phone), to a row of its own between rows, or off the map; places and
 // rows are put in and taken out; the tag's levels no row places wait below. A move that would put a prerequisite in a
-// row not above the level that needs it is refused. Another layer's layouts are read only.
+// row not above the level that needs it is refused. Another layer's layouts are read only. The list of layouts is the
+// left column's (ObjectLists.jsx); its file the right's.
 import { useRef, useState } from 'react'
 import { Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
-import { Picker } from './Picker.jsx'
 import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, objectsOf, shownName } from './objects-edit.js'
+import { localName, namespaceOf, shownName } from './objects-edit.js'
 import SourceMark from './SourceMark.jsx'
 import { layoutOverrideOps, overridesIt } from './override-edit.js'
-import { ROW_SLOTS, addPlace, addRow, clearLevel, layoutMembers, layoutRefusal, layoutRowsOp, newLayout, placeLevel, placeOf, removePlace } from './layout-edit.js'
+import { ROW_SLOTS, addPlace, addRow, clearLevel, layoutMembers, layoutRefusal, layoutRowsOp, placeLevel, placeOf, removePlace } from './layout-edit.js'
 
-export default function LayoutEditor({ content, namespace, selected, pending, onSelect, onEdit, onOps }) {
-  const all = objectsOf(content, 'layout', namespace)
-  const current = all.find(([full]) => full === selected) ?? all[0] ?? null
-  const namespaces = [...new Set(all.map(([full]) => namespaceOf(full)))]
-  const levelTags = objectsOf(content, 'tag', namespace).filter(([, tag]) => tag.kind === 'level')
-    .map(([full, tag]) => ({ value: full, label: shownName(namespace, `#${full}`), title: tag.title }))
-  const create = (tag) => {
-    if (pending) return
-    const { full, op } = newLayout(content, namespace, tag)
-    onEdit(op)
-    onSelect(full)
-  }
+/** The layout `full` (picked in the left list, LayoutList); `onPick(path)` shows a field of its file on the right. */
+export default function LayoutEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
+  const layout = content?.registries?.layout?.[full]
+  if (!layout) return <article className="arrange" />
+  const own = namespaceOf(full) === namespace
   const remove = () => {
-    const [full, , own] = current
     if (!own || pending || !confirmDelete(localName(namespace, full))) return
     onEdit({ op: 'layout.remove', layout: localName(namespace, full) })
     onSelect(null)
   }
   return (
     <article className="arrange">
-      <header className="arrange-bar">
-        {all.length > 0 && <select className="studio-game" value={current?.[0] ?? ''} aria-label={tr('布局', 'Layout')} onChange={(e) => onSelect(e.target.value)}>
-          {namespaces.map((ns) => <optgroup key={ns} label={ns}>
-            {all.filter(([full]) => namespaceOf(full) === ns).map(([full]) => <option key={full} value={full}>{shownName(namespace, full)}</option>)}
-          </optgroup>)}
-        </select>}
-        {levelTags.length > 0 && <Picker options={levelTags} icon={Plus} label={tr('新的布局', 'New layout')} onPick={create} />}
-        {current?.[2] && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除布局', 'Delete the layout')} aria-label={tr('删除布局', 'Delete the layout')} onClick={remove}><Trash2 size={14} aria-hidden="true" /></button>}
-      </header>
-      {current && <LayoutPane key={current[0]} full={current[0]} layout={current[1]} own={current[2]} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onOps={onOps} />}
+      <LayoutPane key={full} full={full} layout={layout} own={own} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onOps={onOps} onPick={onPick} onRemove={own ? remove : null} />
     </article>
   )
 }
 
 /** A layout of this package edited in place, or another package's overridden here once asked to. */
-function LayoutPane({ full, layout, own, content, namespace, pending, onEdit, onOps }) {
+function LayoutPane({ full, layout, own, content, namespace, pending, onEdit, onOps, onPick, onRemove }) {
   const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'layout', full))
   return (
     <>
-      <div className="arrange-actions">
+      <div className="arrange-group">
+        <code className="editor-id">{shownName(namespace, full)}</code>
         <SourceMark content={content} kind="layout" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
+        <span className="kit-spacer" />
+        {onRemove && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除布局', 'Delete the layout')} aria-label={tr('删除布局', 'Delete the layout')} onClick={onRemove}><Trash2 size={14} aria-hidden="true" /></button>}
       </div>
-      <OneLayout full={full} layout={layout} own={own || overriding} content={content} namespace={namespace} pending={pending} onEdit={onEdit}
+      <OneLayout full={full} layout={layout} own={own || overriding} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onPick={onPick}
         onRows={own ? undefined : (rows) => onOps(layoutOverrideOps(content, namespace, full, rows))} />
     </>
   )
@@ -71,7 +57,7 @@ function dropOf(key) {
 const dropAt = (x, y) => document.elementFromPoint(x, y)?.closest('[data-drop]')?.dataset.drop ?? null
 
 /** One layout's grid. `onRows(rows)` writes the rows elsewhere (a game's override); without it they go to the layout. */
-export function OneLayout({ full, layout, own, content, namespace, pending, onEdit, onRows }) {
+export function OneLayout({ full, layout, own, content, namespace, pending, onEdit, onRows, onPick }) {
   const rows = layout.rows ?? []
   const members = layoutMembers(content, layout)
   const placed = new Set(rows.flat())
@@ -136,6 +122,7 @@ export function OneLayout({ full, layout, own, content, namespace, pending, onEd
     if (armed && armed !== id && place) { move(armed, place); return }
     setNotice('')
     setArmed(armed === id ? null : id)
+    if (place) onPick?.(['rows', place.row, place.slot])
   }
   const target = (key, to) => ({
     'data-drop': key,

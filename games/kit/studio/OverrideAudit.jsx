@@ -1,14 +1,20 @@
 // The override audit (games/PACKAGES.md 4, 8): every override a layer can see — its own and those of the packages it
-// loads on — one row each: what was overridden, by which layer, and the fields before and after. A row opens the
-// object it overrides; the layer's own overrides can be taken back.
+// loads on — listed in the left column, one row each: what was overridden and by which layer. The one picked is in the
+// middle with the fields before and after, a way to the object it overrides and, for the layer's own, a way to take it
+// back; its file is on the right (Inspector.jsx).
 import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, RotateCcw } from 'lucide-react'
+import { ArrowUpRight, Filter, Layers, RotateCcw } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
 import { fieldDiff } from './diff.js'
 import { DiffFields } from './DiffView.jsx'
 import { confirmDelete } from './delete.js'
+import { overrideKey } from './left-lists.js'
+import { sidebarSearch } from './sidebar-list.js'
+import SidebarListTools from './SidebarListTools.jsx'
 
 const KINDS = { level: ['关卡', 'Level'], piece: ['件', 'Piece'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
+const kindWord = (kind) => tr(...KINDS[kind] ?? [kind, kind])
+const FILTERS = [['all', '全部', 'All'], ['own', '本层', 'This layer'], ['below', '依赖的包', 'Dependencies']]
 
 /** The overrides visible from `layer`, in load order: its own and those of every layer it loads on. */
 export function visibleOverrides(content, layer) {
@@ -19,46 +25,48 @@ export function visibleOverrides(content, layer) {
   return (content?.overrideHistory ?? []).filter((event) => seen.has(event.layer)).sort((a, b) => order.indexOf(a.layer) - order.indexOf(b.layer))
 }
 
-/** `layer`: the layer the workspace edits; `onOpen(event)` opens the object overridden. */
-export default function OverrideAudit({ content, layer, pending, onOpen, onOps }) {
-  const events = useMemo(() => visibleOverrides(content, layer), [content, layer])
-  const [open, setOpen] = useState(null)
+/** The left list: `events` (visibleOverrides), narrowed to the layer's own or its dependencies' and by a search. */
+export function OverrideList({ events, layer, current, onOpen }) {
   const [filter, setFilter] = useState('all')
-  const shown = events.filter((event) => filter === 'all' || (filter === 'own' ? event.layer === layer : event.layer !== layer))
-  const key = (event) => `${event.layer} ${event.kind} ${event.name}`
-  const takeBack = (event) => {
+  const [query, setQuery] = useState('')
+  const matches = sidebarSearch(query)
+  const shown = events.filter((event) => (filter === 'all' || (filter === 'own' ? event.layer === layer : event.layer !== layer)) && matches(event.name, event.layer, kindWord(event.kind)))
+  return (
+    <nav className="parts-list" aria-label={tr('覆盖', 'Overrides')}>
+      <SidebarListTools query={query} onQuery={setQuery} sortOptions={FILTERS.map(([value, zh, en]) => ({ value, label: tr(zh, en) }))} sort={filter} onSort={setFilter} menuIcon={Filter} menuLabel={tr('覆盖', 'Overrides')} />
+      {shown.map((event) => {
+        const key = overrideKey(event)
+        return (
+          <button key={key} type="button" className={`parts-row ${key === current ? 'is-on' : ''}`} aria-current={key === current ? 'true' : undefined} onClick={() => onOpen(key)} title={kindWord(event.kind)}>
+            <i className="family-chip"><Layers size={12} aria-hidden="true" /></i>
+            <span>{event.name}</span>
+            <code>{event.layer}</code>
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
+
+/** The override picked, in the middle: the fields before and after. `onOpen(event)` opens the object overridden. */
+export function OverrideDetail({ event, layer, pending, onOpen, onOps }) {
+  const rows = useMemo(() => event && fieldDiff(event.before, event.after), [event])
+  if (!event) return <article className="arrange" />
+  const own = event.layer === layer
+  const takeBack = () => {
     if (pending || !confirmDelete(`${event.layer}: ${event.name}`)) return
     onOps([{ op: 'override.remove', layer, kind: event.kind, name: event.name }])
   }
   return (
     <article className="editor is-wide override-audit">
-      <header className="arrange-bar">
-        <nav className="studio-modes" role="tablist" aria-label={tr('覆盖', 'Overrides')}>
-          {[['all', '全部', 'All'], ['own', '本层', 'This layer'], ['below', '依赖的包', 'Dependencies']].map(([id, zh, en]) => (
-            <button key={id} type="button" role="tab" aria-selected={filter === id} className={`studio-tab ${filter === id ? 'is-on' : ''}`} onClick={() => setFilter(id)}>{tr(zh, en)}</button>
-          ))}
-        </nav>
-        <strong>{shown.length}</strong>
+      <header className="arrange-group">
+        <small className="override-kind">{kindWord(event.kind)}</small>
+        <code className="editor-id is-static">{event.name}</code>
+        <span className="override-layer">{event.layer}</span>
+        {onOpen && event.kind !== 'i18n' && <button type="button" className="kit-btn editor-tool" title={tr('打开被覆盖的对象', 'Open the object overridden')} aria-label={tr('打开被覆盖的对象', 'Open the object overridden')} onClick={() => onOpen(event)}><ArrowUpRight size={14} aria-hidden="true" /></button>}
+        {own && event.kind !== 'i18n' && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('撤掉这个覆盖', 'Take this override back')} aria-label={tr('撤掉这个覆盖', 'Take this override back')} onClick={takeBack}><RotateCcw size={14} aria-hidden="true" /></button>}
       </header>
-      <ul className="override-list">
-        {shown.map((event) => {
-          const k = key(event), expanded = open === k
-          return (
-            <li key={k} className={event.layer === layer ? 'is-own' : ''}>
-              <div className="override-row">
-                <button type="button" className="kit-btn editor-tool" aria-expanded={expanded} onClick={() => setOpen(expanded ? null : k)}>
-                  {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                </button>
-                <small className="override-kind">{tr(...KINDS[event.kind] ?? [event.kind, event.kind])}</small>
-                <button type="button" className="override-name" onClick={() => onOpen?.(event)}><code>{event.name}</code></button>
-                <span className="override-layer">{event.layer}</span>
-                {event.layer === layer && event.kind !== 'i18n' && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('撤掉这个覆盖', 'Take this override back')} onClick={() => takeBack(event)}><RotateCcw size={13} /></button>}
-              </div>
-              {expanded && <DiffFields rows={fieldDiff(event.before, event.after)} />}
-            </li>
-          )
-        })}
-      </ul>
+      <DiffFields rows={rows} />
     </article>
   )
 }

@@ -1,11 +1,13 @@
 // The game workspace of the studio (games/DESIGN.md 6.7): where a course designer makes a game on a package and
-// arranges its learning route. On the left the game's settings and its chapters; in the middle a chapter's fields and
-// its board (ChapterBoard.jsx: whole level groups and single levels placed, the links between them, the map's layout),
-// the game's settings as rows, the copy (the game's own texts, and its own wording over the package's, which the
-// package keeps as it is), the changes; the field picked on the right (Inspector.jsx); the audit under the middle. Only
+// arranges its learning route. On the left a list (left-lists.js GAME_LISTS): the game's settings and its chapters, or
+// the overrides it sees; in the middle what is picked: a chapter's fields and its board (ChapterBoard.jsx: whole level
+// groups and single levels placed, the links between them, the map's layout), the game's settings as rows, the copy
+// (the game's own texts, and its own wording over the package's, which the package keeps as it is), the changes, or an
+// override's fields before and after; the file of what is picked on the right (Inspector.jsx); the audit under the
+// middle. Only
 // the game's side of the operation set runs here (useChangeset.js): the course, the game's texts and its overrides.
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, Plus, Settings2, Trash2 } from 'lucide-react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, ArrowUp, Layers, ListTree, Plus, Settings2, Trash2 } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { withParts } from '../engine/parts/define.js'
 import { parsePath } from '../engine/ops/edit.js'
@@ -23,24 +25,28 @@ import PanelResizer from './PanelResizer.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
 import ChapterBoard from './ChapterBoard.jsx'
-import OverrideAudit from './OverrideAudit.jsx'
+import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
+import { GAME_LISTS, OBJECT_LISTS, openParams, overrideKey, readOpen } from './left-lists.js'
 import Review from './Review.jsx'
 import Audit from './Audit.jsx'
 import Inspector from './Inspector.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SCOPE = 'game'
-const TABS = [['arrange', '编排', 'Arrangement'], ['copy', '文案', 'Copy'], ['overrides', '覆盖', 'Overrides'], ['review', '变更', 'Changes']]
+const OPENED = readOpen(QUERY, GAME_LISTS)
+const TABS = [['arrange', '编排', 'Arrangement'], ['copy', '文案', 'Copy'], ['review', '变更', 'Changes']]
+const LISTS = { chapters: [ListTree, '章节', 'Chapters'], overrides: [Layers, '覆盖', 'Overrides'] }
 const SETTLE = 700
 const NEW = '\0new'
 
-const remember = (game, at, tab) => {
+const remember = (game, at, tab, opened) => {
   const url = new URL(window.location.href)
   url.searchParams.set('game', game)
   url.searchParams.set('space', SCOPE)
   url.searchParams.set('tab', tab)
-  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
+  for (const [k, v] of opened) url.searchParams.set(k, v)
   window.history.replaceState(null, '', url)
 }
 
@@ -51,13 +57,18 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const [domainVocab, setVocab] = useState(null)
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('era') !== null ? { era: Number(QUERY.get('era')) } : { era: 0 }))
-  const [tab, setTab] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'arrange'))
+  const [tab, setTabState] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'arrange'))
+  const [savedSide, setSide] = usePref('game-side', 'chapters')
+  useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const side = GAME_LISTS.includes(savedSide) ? savedSide : 'chapters'
+  const overridesShown = side === 'overrides'
+  const [openOverride, setOpenOverride] = useState(OPENED.open.override ?? null)
+  const setTab = (next) => { setTabState(next); setSide('chapters') }
   const [field, setField] = useState(null)
   const [copyScope, setCopyScope] = useState(null)
   const [making, setMaking] = useState(null) // the new game being named: { id, zh, en, problem? }
   const [layout, setLayout] = usePref('game-layout', { tree: 220, audit: 200, side: 360, treeOpen: true, auditOpen: true, sideOpen: true })
   const [resize, setResize] = useState(null)
-  useEffect(() => remember(game, at, tab), [game, at, tab])
   useEffect(() => {
     setVocab(null)
     setRawNames(null)
@@ -90,9 +101,15 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
 
+  const layer = `@${game}`
+  const events = useMemo(() => visibleOverrides(content, layer), [content, layer])
+  const openEvent = overridesShown ? events.find((event) => overrideKey(event) === openOverride) ?? events[0] ?? null : null
+  const openedParams = openEvent ? openParams('overrides', { override: overrideKey(openEvent) }) : []
+  useEffect(() => remember(game, at, tab, openedParams), [game, at, tab, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
   const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
   const select = (next) => {
+    setSide('chapters')
     setAt(next)
     if (next?.game || next?.era !== at?.era) setField(null)
   }
@@ -142,7 +159,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const scope = copyScope ?? (e ?? 'all')
   return (
     <div className={`studio ${resize ? 'is-resizing' : ''}`}>
-      <StudioBar space={space} tabs={TABS} tab={tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh}>
+      <StudioBar space={space} tabs={TABS} tab={overridesShown ? null : tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh}>
         {making ? (
           <form className="studio-new-game" onSubmit={(event) => { event.preventDefault(); make() }}>
             <input className="field-input" value={making.id} onChange={(event) => setMaking({ ...making, id: event.target.value, problem: null })} placeholder={tr('游戏 id', 'Game id')} aria-label={tr('游戏 id', 'Game id')} autoFocus spellCheck={false} />
@@ -163,8 +180,19 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
         )}
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
-        <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
+        <div className={`studio-body is-${overridesShown ? 'objects' : tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
+            <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
+              {GAME_LISTS.map((list) => {
+                const [Icon, zh, en] = LISTS[list]
+                return (
+                  <button key={list} type="button" role="tab" aria-selected={side === list} className={side === list ? 'is-on' : ''} aria-label={tr(zh, en)} title={tr(zh, en)} onClick={() => setSide(list)}>
+                    <Icon size={14} aria-hidden="true" />
+                  </button>
+                )
+              })}
+            </div>
+            {overridesShown ? <OverrideList events={events} layer={layer} current={openEvent && overrideKey(openEvent)} onOpen={setOpenOverride} /> : (
             <nav className="tree chapters" aria-label={tr('章节', 'Chapters')}>
               <button type="button" className={`tree-level ${at?.game ? 'is-on' : ''}`} onClick={() => select({ game: true })}>
                 <Settings2 size={13} aria-hidden="true" /><span>{L(content.title)}</span>
@@ -182,25 +210,25 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
                 </div>
               ))}
               <button type="button" className="kit-btn is-label chapter-add" disabled={busyEditing} onClick={newChapter}><Plus size={13} aria-hidden="true" />{tr('新的一章', 'New chapter')}</button>
-            </nav>
+            </nav>)}
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             <div className="studio-scroll">
-              {tab === 'arrange' && (at?.game || e === null
+              {overridesShown && <OverrideDetail event={openEvent} layer={layer} pending={busyEditing} onOps={addOps} onOpen={() => setSide('chapters')} />}
+              {!overridesShown && tab === 'arrange' && (at?.game || e === null
                 ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                 : <>
                   <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} onCopy={(k) => { setCopyScope(k); setTab('copy') }} />
                   <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} onOps={addOps} />
                 </>)}
-              {tab === 'copy' && (
+              {!overridesShown && tab === 'copy' && (
                 <article className="editor is-wide">
                   <CopyTable side={SCOPE} content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={order} names={names} places={places} onEdit={edit}
                     onJump={(row) => { if (row.file.game) { const path = parsePath(row.path); select(path[0] === 'chapters' ? { era: path[1] } : { game: true }); pickField(path) } }} />
                 </article>
               )}
-              {tab === 'overrides' && <OverrideAudit content={content} layer={`@${game}`} pending={busyEditing} onOps={addOps} onOpen={() => setTab('arrange')} />}
-              {tab === 'review' && (
+              {!overridesShown && tab === 'review' && (
                 <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
                   onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
                   onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={() => {}} />
@@ -209,7 +237,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={course} vocab={vocab} at={{ game: true }} field={field} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
+            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : field ?? (at?.game ? { path: [] } : e !== null ? { path: ['chapters', e] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
               onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => setField(null)}
               tabs={[]} selection={at?.game ? { game: true } : { era: e }} onToggleTab={() => {}} onOpenTab={() => {}} onCloseTab={() => {}}
               onNavigate={(path) => pickField(path)} />}

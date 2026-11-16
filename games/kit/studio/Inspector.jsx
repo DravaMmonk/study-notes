@@ -8,7 +8,10 @@ import { glossaryFile } from './form.js'
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
-//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces/<name>.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
+//   at: the file shown ({ level } | { game: true } | { parts: true }: a piece's pieces/<name>.json, with root: ['parts', id] | { glossary: true }
+//       | { object: { kind, full, namespace, own } }: a tag, relation or layout (object-file.js), another layer's read only
+//       | { capability: { kind, name, it } }: the kernel's, read only | { override: { event, layer } }: an override's file,
+//       edited in the layer that made it); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Pin, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -24,6 +27,7 @@ import SourceEditor from './SourceEditor.jsx'
 import { sourceOps } from './source.js'
 import { confirmDelete, removesContent } from './delete.js'
 import InspectorTabs, { inspectorTabKey } from './InspectorTabs.jsx'
+import { objectFileName, overrideFileName, overrideFileOf, overrideOp } from './object-file.js'
 
 export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, tabs, selection,
   onEdit, onOps, onPick, onNavigate, onLevel, onRemoveLevel, onRemoveSelection, onToggleTab, onOpenTab, onCloseTab }) {
@@ -31,7 +35,6 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const { vocabulary } = vocab
   const order = ctx.levels
   const root = at?.root ?? []
-  const file = at?.level ? { level: at.level } : at?.parts ? { parts: true } : at?.glossary ? { glossary: content.glossary } : { game: true }
   const pathToFace = pendingFace && field.path.slice(0, 4)
   const partDefs = content.partDefs
   const part = pathToFace && partDefs?.parts?.[pathToFace[1]]
@@ -40,6 +43,10 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     ? { ...content, partDefs: setAt(partDefs, pathToFace.slice(0, 3), { ...part.views, [face]: pendingFace }) }
     : content
   const shown = field?.path && fileForm(preview, vocabulary, at, order)
+  const file = at?.object ? { object: { ...at.object, value: shown?.value } } : at?.level ? { level: at.level } : at?.parts ? { parts: true } : at?.glossary ? { glossary: content.glossary } : { game: true }
+  // Another layer's object is read here only: it is overridden from the middle.
+  const readOnly = Boolean(at?.object && !at.object.own)
+  const asJson = json || readOnly
   // An item of a list drawn as one control (chips, a table, a row of numbers) has no field of its own: the list's.
   let held = field?.path ?? []
   let hit = shown ? fieldAt(shown.form, held) : null
@@ -79,6 +86,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     window.setTimeout(() => body.current?.querySelector('input, textarea, [contenteditable="true"], select, button:not(.insp-crumb)')?.focus({ preventScroll: true }))
   }, [field])
 
+  if (at?.capability || at?.override) return <RawFile at={at} tabsRow={tabsRow} onOps={onOps} />
   if (!field) {
     return (
       <div className="insp is-empty">
@@ -97,12 +105,12 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const header = (
     <div className="insp-bar">
       {tabsRow}
-      <Head path={path} trail={trail} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
-        pinned={pinned} onPin={hit ? () => onToggleTab(path) : null}
-        about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} />
+      <Head path={path} trail={trail} file={file} onPick={openCrumb} json={asJson} onToggleJson={readOnly ? null : () => setJson(!json)}
+        pinned={pinned} onPin={hit && !at?.object ? () => onToggleTab(path) : null}
+        about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} root={root} />
     </div>
   )
-  if (json) {
+  if (asJson) {
     const currentSource = sourceValue(getAt(shown?.value, path))
     return (
       <div className="insp">
@@ -110,7 +118,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
         <div className="insp-body" ref={body}>
           {!shown
             ? <p className="insp-about">{tr('这个字段没有 JSON 值。', 'This field has no JSON value.')}</p>
-            : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(currentSource, null, 2) ?? ''}
+            : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(currentSource, null, 2) ?? ''} readOnly={readOnly}
               onApply={(value) => {
                 const ops = sourceOps(file, shown.value, path, value, vocabulary, content)
                 if (ops.length && removesContent(currentSource, value) && !confirmDelete()) return false
@@ -134,7 +142,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'
   const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
-  const { at: findings } = placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : at?.glossary ? p.file === 'glossary' : !p.level && !p.file)))
+  const { at: findings } = placeFindings(shown.form, places.filter((p) => (at?.object ? false : at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : at?.glossary ? p.file === 'glossary' : !p.level && !p.file)))
   const ctxHere = { ...ctx, findings, partDefs }
   return (
     <div className="insp">
@@ -204,6 +212,39 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
   )
 }
 
+/**
+ * A file shown as raw JSON alone: a capability of the kernel (read only), or an override, which its own layer edits
+ * here (the operation writes the file whole).
+ */
+function RawFile({ at, tabsRow, onOps }) {
+  const event = at.override?.event
+  const readOnly = !event || event.layer !== at.override.layer
+  const value = event ? overrideFileOf(event) : at.capability.it
+  const name = event ? overrideFileName(event) : `${at.capability.kind} · ${at.capability.name}`
+  return (
+    <div className="insp">
+      <div className="insp-bar">
+        {tabsRow}
+        <header className="insp-head">
+          <nav className="insp-path" aria-label={tr('字段的位置')}>
+            <button type="button" className="insp-crumb" disabled aria-current="location">{name}</button>
+          </nav>
+          <button type="button" className="insp-source" disabled aria-pressed="true" aria-label={tr('JSON 源码', 'JSON source')} title={tr('JSON 源码', 'JSON source')}><Braces size={13} aria-hidden="true" /></button>
+        </header>
+      </div>
+      <div className="insp-body">
+        <SourceEditor key={name} source={JSON.stringify(value, null, 2) ?? ''} readOnly={readOnly}
+          onApply={(data) => {
+            const op = overrideOp(event, at.override.layer, data)
+            if (!op) return false
+            onOps([op])
+            return true
+          }} />
+      </div>
+    </div>
+  )
+}
+
 /** Stop counting once rendering the value would exceed the inspector's normal size. */
 function longConfig(value) {
   const pending = [value]
@@ -221,9 +262,15 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove }) {
-  const name = file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json` : file.parts ? 'pieces.json' : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
-  const atRoot = path.length === 0
+function Head({ path, trail, file, root, onPick, json, onToggleJson, about, pinned, onPin, onRemove }) {
+  // A piece is a file of its own (pieces/<name>.json): its crumbs start at the piece.
+  const piece = file.parts && root?.length === 2 && root.every((key, i) => key === path[i] && key === trail[i]) ? root : null
+  const base = piece ?? []
+  const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.value, file.object.namespace)
+    : file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json`
+    : piece ? `pieces/${piece[1].slice(piece[1].indexOf('/') + 1)}.json` : file.parts ? 'pieces/'
+    : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
+  const atRoot = path.length === base.length
   const canOpenRoot = !['course.json', 'package.json'].includes(name)
   const jsonLabel = tr('JSON 源码', 'JSON source')
   const pinLabel = tr('固定配置标签页', 'Pin configuration tab')
@@ -232,10 +279,10 @@ function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, on
       <button type="button" className="insp-pin" onClick={onPin} disabled={!onPin} aria-pressed={pinned}
         aria-label={pinLabel} title={pinned ? tr('取消固定', 'Unpin tab') : pinLabel}><Pin size={13} aria-hidden="true" /></button>
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={atRoot || !canOpenRoot}
+        <button type="button" className="insp-crumb" onClick={() => onPick(base)} disabled={atRoot || !canOpenRoot}
           aria-current={atRoot ? 'location' : undefined} title={atRoot ? about : undefined}>{name}</button>
-        {trail.map((k, i) => {
-          const at = trail.slice(0, i + 1)
+        {trail.slice(base.length).map((k, i) => {
+          const at = trail.slice(0, base.length + i + 1)
           const current = at.length === path.length
           return (
             <span key={showPath(at)} className="insp-step" title={current ? about : undefined}>
@@ -246,7 +293,7 @@ function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, on
           )
         })}
       </nav>
-      <button type="button" className="insp-source" onClick={onToggleJson} aria-pressed={json} aria-label={jsonLabel} title={jsonLabel}><Braces size={13} aria-hidden="true" /></button>
+      <button type="button" className="insp-source" onClick={onToggleJson} disabled={!onToggleJson} aria-pressed={json} aria-label={jsonLabel} title={jsonLabel}><Braces size={13} aria-hidden="true" /></button>
       {onRemove && <button type="button" className="insp-delete" onClick={onRemove}
         title={tr('删除', 'Delete')} aria-label={tr('删除', 'Delete')}>
         <Trash2 size={13} aria-hidden="true" />
