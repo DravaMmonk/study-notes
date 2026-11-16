@@ -15,8 +15,8 @@ import PartActions from '../circuit/PartActions.jsx'
 import SlotBoard from '../circuit/SlotBoard.jsx'
 import Tray from '../circuit/Tray.jsx'
 import TerminalInfo from '../circuit/TerminalInfo.jsx'
-import { canRemoveCard, editNodeSettings, isPart, spotIn } from '../circuit/model.js'
-import { isOpenRegion } from '../circuit/regions.js'
+import { canRemoveCard, editNodeSettings, isPart, placement, spotIn } from '../circuit/model.js'
+import { isOpenRegion, regionsOf } from '../circuit/regions.js'
 import { lockedCards } from '../circuit/presets.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
 import { useCircuitEdits } from '../circuit/useCircuitEdits.js'
@@ -395,6 +395,18 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const desc = node && describeOf(node, ctx)
   const body = node && sheetBody(node, ctx)
   const terminal = node && role !== 'part' && terminalBody(node, circuit, close)
+  let resize
+  if (node && canMove(node.id) && regionsOf(parts, node).length) {
+    const { cols, span } = placement(circuit, parts, node.in ?? null)
+    const width = span.get(node.id)?.[0]
+    if (width && cols > 1) {
+      const next = width === cols ? 1 : width + 1
+      resize = {
+        label: next === cols ? tr('展开到整行', 'Expand to full row') : tr(`改为占 ${next} 格`, `Use ${next} ${next === 1 ? 'slot' : 'slots'}`),
+        run: () => { editing.resizeFrame(node.id, next === cols ? undefined : next); close() },
+      }
+    }
+  }
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
@@ -419,7 +431,6 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
         onPort={editing.onPort}
         onNode={editing.onNode}
         onSlot={editing.onSlot}
-        onResizeFrame={editing.resizeFrame}
         history={editing.history}
         onClear={onClear}
         onChange={change}
@@ -427,8 +438,8 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
       />
       {below}
       <Notice editing={editing} prompt={partitionHint} />
-      {node && (desc || body || terminal || packedHere || removable) && (
-        <Sheet title={(role !== 'part' && terminalTitle?.(node)) || editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={edit ? () => { close(); edit() } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
+      {node && (desc || body || terminal || packedHere || removable || resize) && (
+        <Sheet title={(role !== 'part' && terminalTitle?.(node)) || editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions resize={resize} onEdit={edit ? () => { close(); edit() } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
           <div className="cl-sheet">
             {desc}
             {body}

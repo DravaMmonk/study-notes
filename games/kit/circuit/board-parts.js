@@ -8,7 +8,6 @@ import { packedBoards } from './packed-boards.js'
 import { openWorkshopPart, workshopWiring } from './workshop-view.js'
 
 const GIVES = T('得出', 'Result')
-const OPENS = T('收到')
 /** Add labels and icons to a circuit view without changing its ports or active regions. */
 export function withPartLabels(base, of) {
   const defOf = (node) => base.role(node) === 'part' ? of(node.type) : null
@@ -35,7 +34,7 @@ export function withPartLabels(base, of) {
       const regions = base.frames?.(node)
       if (regions?.some(({ opens }) => opens)) {
         return outputs.map((port) => {
-          const label = port.key === null ? GIVES : OPENS
+          const label = port.key === null ? GIVES : ''
           return { ...port, label, short: label }
         })
       }

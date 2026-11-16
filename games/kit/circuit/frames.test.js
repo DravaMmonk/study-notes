@@ -126,10 +126,18 @@ test('frames span the saved number of columns and can share rows with a card or 
   const resized = { ...board, nodes: board.nodes.map((n) => n.id === 'f' ? { ...n, span: 1 } : n) }
   const side = placement(resized, parts)
   assert.deepEqual([...side.cell], [['f', 0], ['g', 1]])
-  assert.deepEqual(side.span.get('f'), [1, 5])
+  assert.deepEqual(side.span.get('f'), [1, 4])
   assert.deepEqual([...side.frameHeads], [])
   const both = { ...resized, nodes: resized.nodes.map((n) => n.id === 'g' ? { ...n, type: 'box', span: 1 } : n) }
   assert.deepEqual([...placement(both, parts).cell], [['f', 0], ['g', 1]])
+})
+
+test('each region of an empty one-column frame uses three rows with the title merged into the first', () => {
+  const frame = { id: 'f', type: 'box', span: 1 }
+  const graph = { nodes: [frame], wires: [] }
+  assert.deepEqual(placement(graph, parts).span.get('f'), [1, 3])
+  const branches = { ...parts, frames: () => [{ name: 'left' }, { name: 'right' }] }
+  assert.deepEqual(placement(graph, branches).span.get('f'), [1, 6])
 })
 
 test('a frame passes its width to its regions, limiting the saved width of nested frames', () => {

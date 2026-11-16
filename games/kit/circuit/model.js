@@ -246,7 +246,8 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       const frames = regions(n)
       if (!frames.length) return [cardColumns(parts, n, width, cols), 1]
       const children = frames.map((g) => place(regionAddress(n.id, g.name)))
-      return [children[0].cols, 1 + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
+      const frameColumns = children[0].cols
+      return [frameColumns, (compactFrame(frameColumns) ? 0 : 1) + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
     }
     const take = (node, at, size) => {
       cell.set(node.id, at)
@@ -273,11 +274,14 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       const frames = regions(byNode.get(id))
       if (!frames.length) continue
       let row = Math.floor(slot / cols)
-      if (span.get(id)[0] === cols) frameHeads.add(row)
-      row++
+      const width = span.get(id)[0]
+      if (!compactFrame(width)) {
+        if (width === cols) frameHeads.add(row)
+        row++
+      }
       for (const region of frames) {
         const child = place(regionAddress(id, region.name))
-        if (span.get(id)[0] === cols) for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
+        if (width === cols) for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
         row += child.rows + 2
       }
     }
@@ -287,6 +291,9 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
   }
   return place(region)
 }
+
+/** A single-column frame can share its title row with its first region. */
+export const compactFrame = (width) => width === 1
 
 /** Every requested slot must fit without displacing another card in the destination grid. */
 export function fitsSlotEdit(placed, slots) {
