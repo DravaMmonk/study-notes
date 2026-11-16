@@ -269,7 +269,7 @@ packages/<包>/
    5. 界面：各领域的 `ui/`、样式和显示改成模块注册的显示能力，外壳按能力画。
    - 验收：四款游戏检查输出除名字外不变；四则运算库包被两个原属不同领域的包依赖，检查通过；`npm run new-package` 从每个模板建出的包能打开、试玩、检查。
 6. **Studio。** 实现第 8 节，在浏览器里看桌面和手机。
-6½. **去掉改名。**（和第 5 步并行）实现 3.1「id 不能改」：删掉 `level.rename`、`task.rename`、`piece.rename`、`setting.rename` 和只为改名服务的引用改写；任何改动一个对象 `id` 字段的操作都拒绝；studio 里 id 只显示、不可编辑。
+- **去掉改名**（不占步号，和第 5 步并行做）：实现 3.1「id 不能改」：删掉 `level.rename`、`task.rename`、`piece.rename`、`setting.rename` 和只为改名服务的引用改写；任何改动一个对象 `id` 字段的操作都拒绝；studio 里 id 只显示、不可编辑。
    - 验收：四款游戏检查输出不变；操作集测试里不再有改名。
 7. **余下的迁移。** 百科的 `groups` 改成词条标签，`glossary.json` 拆成 `entries/<名>.json`；`concept` 改成概念标签，`local` 改成关卡（任务）的字段，都在包里，按第 5 节归位；标签文件挪到 `tags/<种类>/`。
    - **7a 已完成**：百科改为 `entries/<名>.json` 与 `tags/entry/<名>.json`，标签声明为 `tags/<种类>/<名>.json`，标签覆盖为 `overrides/<命名空间>/tag/<种类>/<名>.json`；文件不重复存 `kind`。`setting` 标签仍保留。
