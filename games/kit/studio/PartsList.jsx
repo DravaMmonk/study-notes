@@ -18,7 +18,7 @@ export const freeName = (taken, stem) => {
 }
 
 /**
- * The package's pieces (games/PACKAGES.md 8.2), in the order the course first gives them, grouped by their tags, the
+ * The package's pieces (games/DESIGN.md 6.7), in the order the course first gives them, grouped by their tags, the
  * trays or the relations that gather them (GroupedList.jsx); a new piece from the kernel's creation options.
  */
 export default function PartsList({ content, vocabulary, namespace, game, levelOptions, order = [], earned = new Map(), at, found, by, onBy, heading, onHeading, newOptions, onNew, onSelect, onOps }) {

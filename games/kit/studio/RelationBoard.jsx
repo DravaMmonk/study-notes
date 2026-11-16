@@ -1,4 +1,4 @@
-// The relation board of the package workspace (games/PACKAGES.md 3.3, 8): one relation at a time on the wiring board
+// The relation board of the package workspace (games/DESIGN.md 6.1, 6.7): one relation at a time on the wiring board
 // (ArrangementBoard.jsx). Its endpoints are cards (a level, a piece or a whole tag), its edges are wires: drag from
 // one card's output to another's input to add an edge, pick a wire to remove it or, for a prerequisite, to require a
 // pass. Requires, order and replaces are all drawn and edited the same way. Another layer's relations are read only.

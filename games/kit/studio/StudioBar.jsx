@@ -1,4 +1,4 @@
-// The bar the studio's workspaces share (Studio.jsx; games/PACKAGES.md 8.2): the workspace switch, what the workspace
+// The bar the studio's workspaces share (Studio.jsx; games/DESIGN.md 6.7): the workspace switch, what the workspace
 // opens (a package, a game: its children), the command palette, the busy light, language and theme. No tabs: what is
 // shown follows what is picked, and the helpers fold under the middle (Drawer.jsx).
 import { useEffect, useRef } from 'react'

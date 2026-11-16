@@ -1,4 +1,4 @@
-// What a layer writes when it overrides a package's object from the studio (games/PACKAGES.md 4, 5, 8). A game
+// What a layer writes when it overrides a package's object from the studio (games/DESIGN.md 6.1, 2, 6.7). A game
 // overrides only copy and level relations: a relation by the edges it adds and removes.
 import { sameJson } from '../engine/json-value.js'
 
@@ -80,5 +80,5 @@ export function tagOverrideOps(content, layer, name, wanted) {
   return [{ op: 'override.put', layer, kind: 'tag', name, data: patch }]
 }
 
-/** Whether `layer` already overrides the object (games/PACKAGES.md 4: content.sources). */
+/** Whether `layer` already overrides the object (games/DESIGN.md 6.1: content.sources). */
 export const overridesIt = (content, layer, kind, name) => Boolean(content?.sources?.[kind]?.[name]?.overrides?.includes(layer))

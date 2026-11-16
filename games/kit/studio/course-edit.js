@@ -1,4 +1,4 @@
-// Pure chapter edits of the arrange workspace (games/PACKAGES.md 5): the chapters' order, a new chapter, and levels
+// Pure chapter edits of the arrange workspace (games/DESIGN.md 2): the chapters' order, a new chapter, and levels
 // imported into one with what they need.
 import { importLevelOrder } from '../engine/objects.js'
 /** The course with chapter `e` moved by `by` places (-1 earlier, 1 later). */

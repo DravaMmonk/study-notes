@@ -1,4 +1,4 @@
-// The arrange workspace's map editor (games/PACKAGES.md 3.4, 8.3): a chapter's route map, its `rows` in course.json,
+// The arrange workspace's map editor (games/DESIGN.md 2.6, 6.7): a chapter's route map, its `rows` in course.json,
 // row by row, one to three places a row. A level is dragged to a place (or picked, then its place clicked: the way on
 // a phone), to a row of its own between rows, or off the map; places and rows are put in and taken out; the chapter's
 // levels no row places wait below. A move that would put a prerequisite in a row not above the level that needs it is

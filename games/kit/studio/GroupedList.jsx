@@ -1,4 +1,4 @@
-// A build list grouped (games/PACKAGES.md 8.2): its objects under every group that names them (list-groups.js), each
+// A build list grouped (games/DESIGN.md 6.7): its objects under every group that names them (list-groups.js), each
 // group folding, its heading row opening the group's own object (a tag, a tray, a relation, a section) in the middle;
 // what no group names under the last heading. The tools above: a new object of the list, a search, then the grouping
 // row (GroupingBar.jsx).

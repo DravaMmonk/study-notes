@@ -1,4 +1,4 @@
-// Pure edits of a tag for the tag editor (games/PACKAGES.md 3.2): an unordered set of one kind of object, members by
+// Pure edits of a tag for the tag editor (games/DESIGN.md 6.1): an unordered set of one kind of object, members by
 // full name, nested tags as `#<full name>`. Registries hold full names; a layer writes its own by their short names.
 import { pieceStages } from '../engine/piece-stages.js'
 import { referenceResolver } from '../engine/objects.js'

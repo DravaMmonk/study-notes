@@ -1,4 +1,4 @@
-// The tag editor of the package workspace (games/PACKAGES.md 3.2, 8): one tag at a time, an unordered set of one kind
+// The tag editor of the package workspace (games/DESIGN.md 6.1, 6.7): one tag at a time, an unordered set of one kind
 // of object. Its title, its members (an object by its name and title; a nested tag as a link to it, unfolded to what
 // it holds), members added from what the kind offers and taken out, nested tags refused when they would close a ring;
 // Another layer's tags are read only. The list of tags is the left column's
@@ -70,7 +70,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
     if (next.has(member)) next.delete(member); else next.add(member)
     return next
   })
-  // The members' order is the relation <tag>-order (games/PACKAGES.md 3.2): dragged, or moved with Alt+↑/↓.
+  // The members' order is the relation <tag>-order (games/DESIGN.md 6.1): dragged, or moved with Alt+↑/↓.
   const ordered = valuesInOrder(content, full)
   const movable = !pending && canOrder(content, namespace, memberOrderName(full), full, overriding)
   const moveMember = (member, to) => {

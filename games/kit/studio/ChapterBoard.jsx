@@ -1,4 +1,4 @@
-// The arrange workspace's chapter board (games/PACKAGES.md 5, 8): one chapter of the course. Its levels — an ordered
+// The arrange workspace's chapter board (games/DESIGN.md 2, 6.7): one chapter of the course. Its levels — an ordered
 // list, the play order — are imported at the top (a level or a level tag, with what they need), reordered by dragging
 // or Alt+↑/↓, and taken out; below, two views of them.
 //

@@ -1,4 +1,4 @@
-// An object's place among the others (games/PACKAGES.md 3.6, 8): the files are kept by job, the object is edited in
+// An object's place among the others (games/DESIGN.md 6.1, 6.7): the files are kept by job, the object is edited in
 // one place. Under an object's page: the tags that hold it, the relations that name it, the trays or sections that gather it,
 // and the layers it comes from; each opens where it is edited.
 import { BookMarked, Inbox, Layers, Spline, Tag } from 'lucide-react'

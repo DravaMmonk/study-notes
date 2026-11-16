@@ -1,4 +1,4 @@
-// The lists of the studio's left column (games/PACKAGES.md 8.2): whatever is picked from is listed on the left, one
+// The lists of the studio's left column (games/DESIGN.md 6.7): whatever is picked from is listed on the left, one
 // kind at a time, a switcher above choosing which; the middle shows what is picked, the right its file. The build
 // workspace's three lists — levels, pieces, entries — are grouped by the objects that gather them (list-groups.js); a
 // group's heading opens that tag, relation, tray or section in the middle (`heading`). The object lists (the kernel's

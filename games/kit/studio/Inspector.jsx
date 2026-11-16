@@ -69,7 +69,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   }
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {
-    // An id never changes (games/PACKAGES.md 3.1).
+    // An id never changes (games/DESIGN.md 6.1).
     if (path.at(-1) === 'id' && change.set !== undefined) return undefined
     // The task list edited as a whole goes task by task, so each task's board stays with it.
     if (tasked && path.length === 1 && path[0] === 'tasks' && Array.isArray(change.set)) return onOps(taskListOps(at.level, getAt(shown.value, path) ?? [], change.set, content.levels))

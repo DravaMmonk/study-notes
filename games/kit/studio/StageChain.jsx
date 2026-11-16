@@ -1,4 +1,4 @@
-// A piece's stages under its page (games/PACKAGES.md 7.4, 8.2): the piece and its stages in order, one picked to
+// A piece's stages under its page (games/DESIGN.md 6.8, 6.7): the piece and its stages in order, one picked to
 // preview on the page above and to open on the right; what the stage picked changes; and every setting there — what
 // the operation declares, what the piece narrows, what holds — the ones the stage changes marked. A new stage is added
 // at the end, changing nothing yet.

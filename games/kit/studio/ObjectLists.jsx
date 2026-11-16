@@ -1,4 +1,4 @@
-// The encyclopedia's entries in the build workspace's left column (games/PACKAGES.md 8.2), grouped by their tags, the
+// The encyclopedia's entries in the build workspace's left column (games/DESIGN.md 6.7), grouped by their tags, the
 // sections or the relations that gather them (GroupedList.jsx); an entry opens on the right. The words the tag editor
 // names kinds with.
 import { BookOpen } from 'lucide-react'

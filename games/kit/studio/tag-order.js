@@ -1,4 +1,4 @@
-// Order where an author cares about it (games/PACKAGES.md 3.2): a tag is a set; the order of its members is the order
+// Order where an author cares about it (games/DESIGN.md 6.1): a tag is a set; the order of its members is the order
 // relation `<tag>-order` (a sequence of members), the order among the tags of one kind the relation `<kind>-tags-order`
 // (a sequence of `#` tag references, `"of": "tag"`: it orders the tags, not their members). Dragging in the studio (the
 // tree's groups and levels, the tag list, a tag's members) rewrites these relations: the layer's own by `relation.put`,

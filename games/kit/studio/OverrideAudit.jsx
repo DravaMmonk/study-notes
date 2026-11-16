@@ -1,4 +1,4 @@
-// The override audit (games/PACKAGES.md 4, 8): every override a layer can see — its own and those of the packages it
+// The override audit (games/DESIGN.md 6.1, 6.7): every override a layer can see — its own and those of the packages it
 // loads on — listed in the left column, one row each: what was overridden and by which layer. The one picked is in the
 // middle with the fields before and after, a way to the object it overrides and, for the layer's own, a way to take it
 // back; its file is on the right (Inspector.jsx).

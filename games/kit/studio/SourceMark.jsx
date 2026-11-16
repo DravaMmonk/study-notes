@@ -1,4 +1,4 @@
-// Where an object comes from (games/PACKAGES.md 4, 8): the layer that declares it and the layers that override it, in
+// Where an object comes from (games/DESIGN.md 6.1, 6.7): the layer that declares it and the layers that override it, in
 // load order. On another layer's object, the button that starts overriding it in this one.
 import { Layers } from 'lucide-react'
 import { tr } from '../shell/i18n.js'

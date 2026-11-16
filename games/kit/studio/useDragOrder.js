@@ -1,4 +1,4 @@
-// A list reordered by hand (games/PACKAGES.md 3.2): an item dragged with the pointer before or after another, or moved
+// A list reordered by hand (games/DESIGN.md 6.1): an item dragged with the pointer before or after another, or moved
 // one place with Alt+↑/↓ where it has the focus. `onMove(id, to)` gets { before } or { after } another item's id; what
 // that writes is the caller's (tag-order.js).
 import { useState } from 'react'

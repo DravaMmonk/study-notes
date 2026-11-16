@@ -1,4 +1,4 @@
-// The fold bar under the middle (games/PACKAGES.md 8.2): what helps rather than what is edited. On the bar how the check
+// The fold bar under the middle (games/DESIGN.md 6.7): what helps rather than what is edited. On the bar how the check
 // stands and the tabs — the audit (the check's findings, Audit.jsx), a file compared with its history (Compare.jsx),
 // the change log (the pending changeset, applying it, undoing, the log: Review.jsx), and what the last preview said
 // (debug); a tab clicked opens the bar on it, clicked again folds it.

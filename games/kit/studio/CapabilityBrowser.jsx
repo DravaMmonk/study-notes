@@ -1,4 +1,4 @@
-// The kernel's capabilities, read only (games/PACKAGES.md 7.1, 8): what a package can pick and combine — value types,
+// The kernel's capabilities, read only (games/DESIGN.md 6.2, 6.7): what a package can pick and combine — value types,
 // operations, primitive pieces, boards, task kinds, content items, displays, languages, content kinds — each by its
 // `<module>:<name>`, listed in the left column narrowed by kind, module and a search; the one picked in the middle, with
 // what it says and what it takes; its description as JSON on the right.

@@ -1,4 +1,4 @@
-// The tray and section editors of the build workspace (games/PACKAGES.md 3.5, 8.3): objects that gather pieces (a tray,
+// The tray and section editors of the build workspace (games/DESIGN.md 6.1, 6.7): objects that gather pieces (a tray,
 // with its menus) or encyclopedia entries (a section). What they hold is their `values` (members, stages, tags of
 // them); the order they show them in is an order relation (`<tray>-order`, `<section>-order`; a menu's
 // `<tray>-<menu>-order`, or an order relation of the layer that already lists them all), dragged or moved with Alt+↑/↓. Another package's tray or section is read only until it is

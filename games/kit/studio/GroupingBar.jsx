@@ -1,4 +1,4 @@
-// The row under a build list's tools (games/PACKAGES.md 8.2): what the list is grouped by, a new group of that kind
+// The row under a build list's tools (games/DESIGN.md 6.7): what the list is grouped by, a new group of that kind
 // (a tag, a tray, a relation, a section), and every group folded or unfolded at once.
 import { ChevronsDownUp, ChevronsUpDown, Plus } from 'lucide-react'
 import { tr } from '../shell/i18n.js'

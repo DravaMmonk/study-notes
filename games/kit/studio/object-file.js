@@ -1,4 +1,4 @@
-// An object's file in the side panel (Inspector.jsx; games/PACKAGES.md 8): a tag, a relation or a layout picked in the
+// An object's file in the side panel (Inspector.jsx; games/DESIGN.md 6.7): a tag, a relation or a layout picked in the
 // left column has its file on the right, as the schema's form and as raw JSON. The registries hold the objects with
 // full names (`<namespace>/<name>`); the layer writes its own by their short names, through the object operations:
 // `<kind>.set` for a field, `<kind>.put` for the whole object (and for a field taken out). Another layer's object is

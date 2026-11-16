@@ -1,4 +1,4 @@
-// The packages a game plays (games/PACKAGES.md 5, 8.1): chosen in the arrange workspace by the kernel's
+// The packages a game plays (games/DESIGN.md 2, 6.7): chosen in the arrange workspace by the kernel's
 // `game.package.add` and `game.package.remove`. A package goes in after what it uses, so adding one adds the
 // dependencies the game lacks first, each once, deepest first.
 

@@ -1,4 +1,4 @@
-// A piece's stages as the studio shows them (games/PACKAGES.md 7.4): the piece itself, then each stage with what it
+// A piece's stages as the studio shows them (games/DESIGN.md 6.8): the piece itself, then each stage with what it
 // changes over the one before; at each step every setting with what the operation declares, what the piece (or its
 // stages so far) narrows, and what holds there.
 import { stagePatch } from '../engine/piece-stages.js'

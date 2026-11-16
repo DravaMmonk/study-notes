@@ -1,4 +1,4 @@
-// Pure edits of a chapter's route map for the arrange workspace's map editor (games/PACKAGES.md 3.4, MapEditor.jsx): the
+// Pure edits of a chapter's route map for the arrange workspace's map editor (games/DESIGN.md 2.6, MapEditor.jsx): the
 // chapter's `rows` in course.json, rows of one to three places, `null` an empty place, full names.
 
 export const ROW_SLOTS = 3
