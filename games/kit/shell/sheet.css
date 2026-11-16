@@ -16,7 +16,6 @@
 
 @media (max-width: 760px) {
   .ph-scrim { align-items: flex-end; padding: 0; }
-  .ph-scrim:is(.is-phone-sheet, .is-play-sheet) { overflow: clip; }
   .ph-scrim.is-phone-sheet { inset-block: var(--sheet-top, 0px) auto; height: var(--sheet-height, 100dvh); }
   .game.is-playing > .ph-scrim.is-play-sheet { position: absolute; }
   .game.is-playing:has(> .is-play-sheet) { overflow: clip; }
