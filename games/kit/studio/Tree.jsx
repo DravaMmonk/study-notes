@@ -6,8 +6,9 @@ import SidebarListTools from './SidebarListTools.jsx'
 import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
+import { shownName } from './objects-edit.js'
 
-export default function Tree({ game, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
+export default function Tree({ game, namespace, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => groupTree(content, playOrder), [content, playOrder])
@@ -85,7 +86,7 @@ export default function Tree({ game, content, order: playOrder = [], at, selecte
       onDragEnd={() => setMoving(null)}
       {...(taskDrag && taskTarget(id, { level: id }))}
     >
-      <code className="tree-level-id" title={id}>{id}</code>
+      <code className="tree-level-id" title={id}>{shownName(namespace, id)}</code>
       <span>{L(byId.get(id)?.title)}</span>
       {placements.get(id)?.optional && <small className="tree-optional">{tr('可选')}</small>}
       {placements.get(id)?.skippable && <small className="tree-optional">{tr('可跳过', 'Skippable')}</small>}
