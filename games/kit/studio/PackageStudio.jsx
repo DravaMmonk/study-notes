@@ -39,6 +39,7 @@ import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
+import { packageLevel } from '../engine/package-play.js'
 import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
@@ -164,6 +165,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }, [game, naming, rev, loaded])
 
   const content = shown?.content ?? null
+  const playContent = useMemo(() => content?.levels.some(level => level.id === play?.level) ? packageLevel(content, play.level) : null, [content, play?.level])
   // A domain that defines its parts as data names them by the game's pieces/<name>.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const pieceRoot = piecePath(at)
@@ -618,7 +620,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               </div>
             )}
             <GameFrame
-              visible={tab === 'page'} content={content} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={tab === 'page' && Boolean(playContent)} content={playContent} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined && <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />

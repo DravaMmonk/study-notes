@@ -42,7 +42,7 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packagePreview = null }) {
+export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packageTarget = null }) {
   game = { ...game }
   delete game.uses
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
@@ -93,7 +93,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)
   for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, value] of Object.entries(registries[kind])) registries[kind][name] = refs(value, schema)
   const sourceChapters = game.chapters
-  const scheduled = new Set((sourceChapters ?? []).flatMap((chapter) => resolve(chapter.levels, 'level', `chapters/${chapter.id}`)))
+  const scheduled = new Set(packageTarget ? levels.map(([id]) => id) : (sourceChapters ?? []).flatMap((chapter) => resolve(chapter.levels, 'level', `chapters/${chapter.id}`)))
   const relationEdges = expandRelations(relationMap, resolve, scheduled, objectProblems, new Set(resolve(game.optional ?? [], 'level')))
   resolve.order = relationEdges.order
   layoutMap = Object.fromEntries(Object.entries(layoutMap).map(([name, value]) => [name, { ...value, rows: refs(value.rows, { type: 'list', of: { type: 'list', of: { type: 'level' } } }) }]))
@@ -130,7 +130,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   }
   const stripTray = (v) => ({ ...v, ...(v.tray && { tray: Array.isArray(v.tray) ? v.tray.map((n) => n.replace(/^#/, '')) : v.tray.replace(/^#/, '') }), ...(v.tasks && { tasks: v.tasks.map(stripTray) }) })
   const content = {
-    id, ...game, ...provenance, ...(packagePreview && { packagePreview }), ...(eras && { eras, sourceChapters }), trays, replaces,
+    id, ...game, ...provenance, ...(packageTarget && { packageTarget }), ...(eras && { eras, sourceChapters }), trays, replaces,
     levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...stripTray(level) })),
     tags: tagMap, relations: relationMap, layouts: layoutMap, relationEdges, objectProblems, glossary,
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden, registries,

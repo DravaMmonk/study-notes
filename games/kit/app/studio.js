@@ -5,7 +5,8 @@
 //
 //   GET  /studio/api/              the tools: { name: { about, params } }
 //   POST /studio/api/packages       {} → installed packages
-//   POST /studio/api/preview        { package, changeset?, check? } → generated course and pending changes
+//   POST /studio/api/preview        { package, changeset?, check? } → package objects and pending changes
+//   POST /studio/api/play_level     { package, level, changeset? } → { content } single-level runtime shell
 //   POST /studio/api/modify         { package, changeset, dryRun?, base? } → checked write to that package
 //   POST /studio/api/<tool>        the tool's arguments as a JSON body → its result as JSON (an error: { error })
 //

@@ -61,7 +61,7 @@ export function current(stored, tasks) {
 }
 
 /** A game's progress in this browser, kept under `id`. `tasks`: its tasks' stamps today (../engine/stamp.js taskStamps). */
-export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built }) {
+export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built, persist = true }) {
   const key = saveKey(id)
   const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
   const empty = () => ({ ...blank(), stamps })
@@ -70,6 +70,7 @@ export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built
   let snapshot = empty()
 
   function load() {
+    if (!persist) return snapshot
     let latest
     try {
       latest = window.localStorage.getItem(key)
@@ -93,7 +94,7 @@ export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built
     snapshot = progress
     try {
       const serialized = JSON.stringify({ ...progress, stamps })
-      window.localStorage.setItem(key, serialized)
+      if (persist) window.localStorage.setItem(key, serialized)
       raw = serialized
     } catch {
       // Storage may be full or blocked; the game still works for this session.
@@ -114,10 +115,10 @@ export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built
     },
     subscribe(notify) {
       const onStorage = (event) => { if (event.key === key || event.key === null) notify() }
-      window.addEventListener('storage', onStorage)
+      if (persist) window.addEventListener('storage', onStorage)
       listeners.add(notify)
       return () => {
-        window.removeEventListener('storage', onStorage)
+        if (persist) window.removeEventListener('storage', onStorage)
         listeners.delete(notify)
       }
     },

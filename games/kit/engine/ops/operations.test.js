@@ -219,7 +219,7 @@ test('named-object operations persist typed tags, relations and layouts and pres
   assert.equal(result.ok, true, result.problems.join('\n'))
   const reopened = openGame('toy', root)
   assert.equal(reopened.content().tags['toy/basics'].title.en, 'Basics')
-  assert.deepEqual(reopened.content().eras[0].rows, [['toy/a1'], ['toy/a2']])
+  assert.deepEqual(reopened.content().layouts['toy/map'].rows, [['toy/a1'], ['toy/a2']])
   for (const kind of ['tag', 'relation', 'layout']) {
     const key = { tag: 'basics', relation: 'path', layout: 'map' }[kind]
     roundTrip(reopened, `${kind}.set`, { [kind]: key, path: kind === 'tag' ? 'values' : kind === 'relation' ? 'edges' : 'rows', value: [] })
@@ -343,7 +343,7 @@ test('a changeset whose domain throws while it is settled is refused and leaves 
     const disk = files()
     const r = await runChangeset(ws, op, { write: true, check: true, domain: broken })
     assert.equal(r.ok, false)
-    assert.match(r.problems[0], /^the changeset could not be settled: /)
+    assert.match(r.problems[0], /^toy\/a1: the (domain|checks) broke$/)
     assert.equal(JSON.stringify(ws.content()), before)
     assert.equal(files(), disk, 'nothing on disk changed')
     assert.deepEqual(readLog(ws), [])

@@ -16,7 +16,7 @@ function spec(content, works = imageWorks(content)) {
   const image = works
   return {
     id: content.id,
-    packagePreview: Boolean(content.packagePreview),
+    packageTarget: Boolean(content.packageTarget),
     title: content.title,
     course: image.course,
     levels: image.LEVELS,

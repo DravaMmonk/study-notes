@@ -22,6 +22,45 @@ import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
 import { noMemo } from './check-cache.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
+import { referenceResolver } from './objects.js'
+import { packageLevel } from './package-play.js'
+
+/** Packages check objects and implementations once, then each level independently of any learning route. */
+export async function checkPackage(content, { domain, root, mutants = false }) {
+  const wrong = checkContent(domain, content)
+  if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
+  const expand = referenceResolver(content.registries, wrong)
+  for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
+    const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
+    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'item', `${at}.${field}`)
+    for (const tray of [entry.tray ?? []].flat()) expand(`#${tray.replace(/^#/, '')}`, 'item', `${at}.tray`)
+  }
+  const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
+  if (wrong.length) return lines
+  const names = Object.fromEntries(['level', 'piece', 'entry'].map(kind => [kind === 'piece' ? 'part' : kind === 'entry' ? 'wiki' : kind,
+    new Map(Object.entries(content.registries[kind]).map(([id, object]) => [id, String(firstText(object.title ?? object.name ?? id))])),
+  ]))
+  for (const id of Object.keys(content.registries.piece)) {
+    names.part.set(`part:${id}`, '')
+    names.part.set(`lemma:${id}`, '')
+  }
+  for (const id of Object.keys(domain.vocabulary.kinds.unlock ?? {})) names.part.set(id, '')
+  const quotes = Object.values(content.registries.quote ?? {}).map(quote => quote.text)
+  for (const [name, value] of Object.entries({ levels: content.levels, entries: content.glossary.entries, parts: content.partDefs?.parts })) {
+    for (const problem of refProblems(value, name, names, quotes)) lines.push({ fail: true, text: `text ${problem}` })
+  }
+  for (const f of termRegistry(content.glossary).failures) lines.push({ fail: true, text: `terminology ${f.rule} ${f.at}: ${f.says}` })
+  for (const level of content.levels) {
+    try {
+      const shell = packageLevel(content, level.id)
+      const spec = domain.spec(shell)
+      lines.push(...await domain.validate({ ...spec, memo: noMemo, ...(mutants && spec.circuit && { circuit: { ...spec.circuit, mutants: true } }) }))
+    } catch (error) {
+      lines.push({ fail: true, level: level.id, text: `${level.id}: ${error.message}` })
+    }
+  }
+  return lines
+}
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
@@ -30,6 +69,7 @@ import { dependencyProblemsInProject } from './project-dependencies.js'
  * kept checks (check-cache.js), which the domain's checks of an unchanged level are read from; never with `mutants`.
  */
 export async function checkGame(content, { domain, listed, mutants = false, cache = null, root }) {
+  if (content.packageTarget) return checkPackage(content, { domain, root, mutants })
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
@@ -42,7 +82,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // A notes course is no machine growing level by level: its course is not audited (games/DESIGN.md 12.1).
   // Trays are the package's: whether something on them is ever brought in is judged on a game placing the whole package.
   const whole = spec.levels.length >= content.levels.length
-  const findings = spec.course.notes || content.packagePreview ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])].filter((f) => whole || f.rule !== 'tray-unmet')
+  const findings = spec.course.notes ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])].filter((f) => whole || f.rule !== 'tray-unmet')
   for (const { rule, fresh, left, gone } of againstOpen(findings, content.open ?? {})) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
@@ -79,7 +119,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // The links are read off every text of the content, by its schema, whatever its fields are called.
   const vocabulary = withParts(domain.vocabulary, content.partDefs)
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
-  const opensBy = (at, where) => content.packagePreview || !at || at === where || (where && spec.course.before(at, where))
+  const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
     .flatMap(({ value }) => typeof value === 'string' ? [value] : textEntries(value).map(([, text]) => text))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))

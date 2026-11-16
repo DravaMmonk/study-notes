@@ -157,10 +157,28 @@ test('the HTTP tools list, preview and write a package that no game selects', as
   const preview = (await post('preview', { package: 'library' })).body
   assert.equal(preview.ok, true, preview.problems.join('\n'))
   assert.deepEqual(preview.content.levels, [])
-  assert.equal(preview.content.packagePreview.id, 'library')
+  assert.equal(preview.content.packageTarget.id, 'library')
   const modified = (await post('modify', { package: 'library', changeset: { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'A revised description.' }] } })).body
   assert.equal(modified.written, true, modified.problems.join('\n'))
   assert.deepEqual(modified.files, ['packages/library/pieces/apply.json'])
   assert.equal((await post('log', { package: 'library' })).body.head, 1)
   assert.equal((await post('preview', { game: GAME, package: 'library' })).status, 422)
+})
+
+
+test('the HTTP single-level shell feeds the same package level to the screen and blind-play hooks', async () => {
+  const level = `${GAME}/apply`
+  const { body: opened, status } = await post('play_level', { package: GAME, level })
+  assert.equal(status, 200)
+  assert.deepEqual(opened.content.standalone, { level })
+  assert.deepEqual(opened.content.eras, [])
+  assert.equal('chapters' in opened.content, false)
+  assert.deepEqual(opened.content.levels.map(l => l.id), [level])
+  const played = await post('run_tests', { package: GAME, level })
+  assert.equal(played.body.covered, true, played.body.why)
+  assert.equal(played.body.pass, true)
+  const seeded = await post('seed', { package: GAME, level })
+  assert.ok(seeded.body.data)
+  const missing = await post('play_level', { package: GAME, level: `${GAME}/missing` })
+  assert.equal(missing.status, 422)
 })

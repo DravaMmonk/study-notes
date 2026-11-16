@@ -27,7 +27,7 @@ for (const { id, kind } of contentTargets(asked, root, { package: process.argv.i
     // Read frozen: nothing that checks a game may write into its content.
     const ws = (packaged ? openPackage : openGame)(id, root)
     const content = deepFreeze((packaged ? readPackage : readContent)(id, root))
-    head = `${firstText(content.title)} (${id})`
+    head = `${firstText(content.title ?? id)} (${id})`
     lines = await checkGame(content, { domain: await runtimeOf(content), listed: packaged ? null : hubCount(ws.hub, id), mutants, cache: packaged || process.env.GAMES_ROOT ? null : checkCache(id, { fresh }), root })
     // Files changed outside the operation set since its log last says: noted, not failed (adopt takes them).
     const drift = driftOf(ws, ws.onDisk())

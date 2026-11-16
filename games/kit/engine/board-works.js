@@ -87,7 +87,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
   }
   const circuit = { BUILT, partOf, types: () => [...Object.keys(parts), ...Object.keys(BUILT)].filter((t) => !board.isFixed(t)), builtBy: readBuilder }
 
-  const placeOf = (id, task) => ({ id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [] })
+  const placeOf = (id, task) => ({ id, era: eraOf.get(id)?.id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [] })
   const readTask = (id, task, where) => {
     if (kinds[task.kind]) return { ...kinds[task.kind](task, (text) => say(where, text)), ...placeOf(id, task) }
     const names = [...board.portsIn(task), ...board.portsOut(task)].map((p) => p.name)
@@ -195,7 +195,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
       return last
     })
     played.set(id, read)
-    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: tasks.at(-1).adds, opened: tasks.at(-1).opened, builds, unlocks: [...new Set(builds.map((b) => b.type))] }
+    return { ...level, id, era: eraOf.get(id)?.id, requires: plan.requires.get(id) ?? [], adds: tasks.at(-1).adds, opened: tasks.at(-1).opened, builds, unlocks: [...new Set(builds.map((b) => b.type))] }
   })
   for (const read of readArtifacts) read()
   const artifactOrder = new Map(implementations.map(({ type, variant }, index) => [JSON.stringify([type, variant]), index]))
