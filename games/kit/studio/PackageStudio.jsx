@@ -47,13 +47,14 @@ import { useChangeset } from './useChangeset.js'
 import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
 import ObjectLinks from './ObjectLinks.jsx'
 import { CapabilityList, CapabilityView, currentCapability } from './CapabilityBrowser.jsx'
-import { EntryList, LayoutList, RELATION_KINDS, RelationList, TagList } from './ObjectLists.jsx'
+import { EntryList, LayoutList, RELATION_KINDS, RelationList, TagList, tagListOrder } from './ObjectLists.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
 import LayoutEditor from './LayoutEditor.jsx'
 import { OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, currentOf, isObjectList, listOfKind, openParams, overrideKey, readOpen } from './left-lists.js'
 import { namespaceOf, objectsOf } from './objects-edit.js'
-import { groupMoves, groupOf, levelTags } from './groups.js'
+import { groupOf, levelTags, treeMoves } from './groups.js'
+import { memberOrderOps, tagMoveOps } from './tag-order.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
 import { textField } from './copy.js'
@@ -224,7 +225,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const capabilities = vocab?.vocabulary?.capabilities
   const events = useMemo(() => visibleOverrides(content, namespace), [content, namespace])
   // In the order the list shows them: relations by kind.
-  const listed = objectKind ? objectsOf(content, objectKind, namespace) : []
+  const listed = objectKind === 'tag' ? tagListOrder(content).map((full) => [full, content.registries.tag[full]]) : objectKind ? objectsOf(content, objectKind, namespace) : []
   if (objectKind === 'relation') listed.sort((a, b) => RELATION_ORDER.indexOf(a[1].kind) - RELATION_ORDER.indexOf(b[1].kind))
   const openObject = objectKind ? currentOf(listed, opened[objectKind])?.[0] ?? null : null
   const openCapability = side === 'kernel' ? currentCapability(capabilities, opened.capability) : null
@@ -469,8 +470,18 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   // Levels dropped in the tree: into a group at a place, or out of every group.
   const move = (levels, to) => {
-    addOps(groupMoves(levels, to, content, namespace))
+    addOps(treeMoves(levels, to, content, namespace))
     setMoving(null)
+  }
+  // A group dragged among the groups: the layer's level-tags-order; a level moved in its group: the group's order.
+  const moveGroup = (group, to) => {
+    const members = Object.fromEntries(Object.entries(levelTags(content)).map(([id, tag]) => [id, tag.levels.map((l) => l.id)]))
+    const ops = tagMoveOps(content, namespace, 'level', group, to, members)
+    if (ops?.length) addOps(ops)
+  }
+  const reorderGroup = (group, sequence) => {
+    const ops = memberOrderOps(content, namespace, group, sequence)
+    if (ops?.length) addOps(ops)
   }
   // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
   const moveTask = (task, to) => {
@@ -616,7 +627,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
   const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'entries' || content?.glossary?.entries?.length))
   const objectPending = saving || shown?.ops !== ops
-  const listProps = { content, namespace, current: openObject, pending: objectPending, onOpen: (full) => openKind(objectKind, full), onEdit: edit }
+  const listProps = { content, namespace, current: openObject, pending: objectPending, onOpen: (full) => openKind(objectKind, full), onEdit: edit, onOps: addOps }
   const editorProps = {
     content, namespace, full: openObject, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
     onSelect: (full) => (full ? openKind(objectKind, full) : setOpened((o) => ({ ...o, [objectKind]: null }))),
@@ -656,7 +667,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
-              : <Tree game={game} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
+              : <Tree game={game} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} onGroupMove={moveGroup} onReorder={reorderGroup} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
                     ...(levelChoices.length ? [{
                       value: levelChoices.length === 1 ? levelChoices[0].value : 'blank',

@@ -1,4 +1,6 @@
-// The package workspace's sidebar projects level tags and the levels outside them.
+// The package workspace's sidebar projects level tags and the levels outside them. A group dragged (or moved with
+// Alt+↑/↓ on its name) reorders the level tags, a level moved with Alt+↑/↓ its group: the order relations the
+// workspace writes (tag-order.js).
 import { Fragment, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import { groupTree, levelTags, stays } from './groups.js'
@@ -7,8 +9,10 @@ import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 import { shownName } from './objects-edit.js'
+import { shifted } from './tag-order.js'
+import { useDragOrder } from './useDragOrder.js'
 
-export default function Tree({ game, namespace, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
+export default function Tree({ game, namespace, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, onGroupMove, onReorder, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => groupTree(content, playOrder), [content, playOrder])
@@ -32,6 +36,9 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
       level?.tasks?.some((task) => matches(task.id, L(task.step)))
   }))
   const flat = view !== 'group'
+  const groups = tree.sections.filter((section) => section.group !== null).map((section) => section.group)
+  const { item: groupItem } = useDragOrder({ ids: groups, onMove: (group, to) => onGroupMove?.(group, to), disabled: !onGroupMove || Boolean(moving) || filtering || flat })
+  const groupOfLevel = useMemo(() => new Map(tree.sections.filter((s) => s.group !== null).flatMap((s) => s.levels.map(({ id }) => [id, s]))), [tree])
   const rows = flat ? sortSidebarIds(visible, view, (id) => L(byId.get(id)?.title))
     : tree.sections.flatMap((section) => !filtering && !moving && folded.has(section.key) ? [] : ids(section).filter((id) => visible.has(id)))
 
@@ -69,6 +76,12 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
       onKeyDown={(event) => {
         if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
         event.preventDefault()
+        // Alt+↑/↓: the level one place up or down in its group.
+        if (event.altKey) {
+          const section = !flat && groupOfLevel.get(id)
+          if (section) onReorder?.(section.group, shifted(ids(section), id, event.key === 'ArrowUp' ? -1 : 1))
+          return
+        }
         const all = [...event.currentTarget.closest('.tree').querySelectorAll('.tree-level')]
         const next = all[all.indexOf(event.currentTarget) + (event.key === 'ArrowDown' ? 1 : -1)]
         if (!next) return
@@ -172,7 +185,8 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
         const title = section.group === null ? tr('未分组', 'Ungrouped') : L(levelTags(content)[section.group].title) || shownName(namespace, section.group)
         return (
           <SidebarSection key={section.key} title={title} name={section.group ? shownName(namespace, section.group) : ''} active={section.group !== null && at?.group === section.group} collapsed={shut}
-            onSelect={section.group === null ? undefined : () => onSelect({ group: section.group })} onToggle={() => fold(section.key)}>
+            onSelect={section.group === null ? undefined : () => onSelect({ group: section.group })} onToggle={() => fold(section.key)}
+            headProps={section.group === null ? {} : groupItem(section.group)}>
             {list(ids(section), section.slots, title)}
           </SidebarSection>
         )

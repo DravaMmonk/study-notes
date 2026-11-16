@@ -4,13 +4,15 @@
 // for an item tag, whether it is a concept. Another layer's tags are read only. The list of tags is the left column's
 // (ObjectLists.jsx); its file the right's.
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Layers, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, GripVertical, Layers, Trash2, X } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { confirmDelete } from './delete.js'
 import { localName, namespaceOf, shownName, tagCandidates, tagMembers } from './objects-edit.js'
 import { tagKindWord } from './ObjectLists.jsx'
+import { canOrder, memberOrderName, memberOrderOps, reordered, valuesInOrder } from './tag-order.js'
+import { useDragOrder } from './useDragOrder.js'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, tagOverrideOps } from './override-edit.js'
 import { memberKnown, memberTitle, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
@@ -68,6 +70,23 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
     if (next.has(member)) next.delete(member); else next.add(member)
     return next
   })
+  // The members' order is the relation <tag>-order (games/PACKAGES.md 3.2): dragged, or moved with Alt+↑/↓.
+  const ordered = valuesInOrder(content, full)
+  const movable = !pending && canOrder(content, namespace, memberOrderName(full), full, overriding)
+  const moveMember = (member, to) => {
+    const ops = memberOrderOps(content, namespace, full, reordered(ordered, [member], to), overriding)
+    if (ops?.length) onOps(ops)
+  }
+  const { item } = useDragOrder({ ids: ordered, onMove: moveMember, disabled: !movable })
+  const mover = (member) => movable && ordered.length > 1 && (
+    <span className="member-move">
+      <span className="member-grip" aria-hidden="true"><GripVertical size={12} /></span>
+      <button type="button" className="kit-btn editor-tool" disabled={ordered[0] === member} aria-label={tr('上移', 'Move up')} title={tr('上移', 'Move up') + ' (Alt+↑)'}
+        onClick={(e) => { e.stopPropagation(); moveMember(member, { before: ordered[ordered.indexOf(member) - 1] }) }}><ArrowUp size={12} aria-hidden="true" /></button>
+      <button type="button" className="kit-btn editor-tool" disabled={ordered.at(-1) === member} aria-label={tr('下移', 'Move down')} title={tr('下移', 'Move down') + ' (Alt+↓)'}
+        onClick={(e) => { e.stopPropagation(); moveMember(member, { after: ordered[ordered.indexOf(member) + 1] }) }}><ArrowDown size={12} aria-hidden="true" /></button>
+    </span>
+  )
   const options = tagCandidates(content, tag.kind, full).filter((v) => !tag.values.includes(v)).map((v) => ({
     value: v, label: shownName(namespace, v), title: titleOf(v) ?? undefined, group: v.startsWith('#') ? tr('标签', 'Tags') : tagKindWord(tag.kind),
   }))
@@ -97,9 +116,10 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
         {notice && <p className="is-error" role="status">{notice}</p>}
       </div>
       <ul className="tag-members" aria-label={tr('成员', 'Members')}>
-        {tag.values.map((member, k) => member.startsWith('#')
-          ? <li key={member}>
+        {ordered.map((member) => [member, tag.values.indexOf(member)]).map(([member, k]) => member.startsWith('#')
+          ? <li key={member} {...item(member)}>
             <div className={`tag-member is-tag ${known(member) ? '' : 'is-unknown'}`}>
+              {mover(member)}
               <button type="button" className="kit-btn editor-tool" aria-expanded={open.has(member)} aria-label={tr('展开', 'Expand')} onClick={() => toggle(member)}>
                 {open.has(member) ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
               </button>
@@ -115,7 +135,8 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
               </li>)}
             </ul>}
           </li>
-          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])}>
+          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])} {...item(member)}>
+            {mover(member)}
             <code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
             {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
           </li>)}

@@ -9,15 +9,17 @@ import { freeObjectName, namespaceOf, objectsOf, ownNames, shownName, tagMembers
 import { sidebarSearch } from './sidebar-list.js'
 import { TAG_KINDS, newTag } from './tag-edit.js'
 import { newLayout } from './layout-edit.js'
+import { orderedTags, tagMoveOps, tagsOfKind } from './tag-order.js'
+import { useDragOrder } from './useDragOrder.js'
 
 export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'] }
 export const tagKindWord = (kind) => (TAG_KIND_WORDS[kind] ? tr(...TAG_KIND_WORDS[kind]) : kind)
 export const RELATION_KINDS = [['requires', '先修', 'Requires'], ['order', '顺序', 'Order'], ['replaces', '取代', 'Replaces']]
 
 /** One row of a list: its icon, what it is called, its name, a count. */
-function Row({ icon: Icon, on, title, name, count, onClick }) {
+function Row({ icon: Icon, on, title, name, count, onClick, ...rest }) {
   return (
-    <button type="button" className={`parts-row is-object ${on ? 'is-on' : ''}`} aria-current={on ? 'true' : undefined} onClick={onClick}>
+    <button type="button" className={`parts-row is-object ${on ? 'is-on' : ''}`} aria-current={on ? 'true' : undefined} onClick={onClick} {...rest}>
       <i className="family-chip"><Icon size={12} aria-hidden="true" /></i>
       <span>{title || name}</span>
       {title ? <code>{name}</code> : <i />}
@@ -39,14 +41,36 @@ function Groups({ groups, row }) {
 
 const byNamespace = (entries) => [...new Set(entries.map(([full]) => namespaceOf(full)))].map((ns) => [ns, entries.filter(([full]) => namespaceOf(full) === ns)])
 
-/** The tags, by layer; narrowed by kind and a search; a new one of a kind. */
-export function TagList({ content, namespace, current, pending, onOpen, onEdit }) {
+/** The members of each tag of `kind` (for the prerequisites that order level tags). */
+const membersOf = (content, kind) => Object.fromEntries(tagsOfKind(content, kind).map((tag) => [tag, kind === 'level' ? tagMembers(content, tag) : []]))
+
+/** Every tag in the order the list shows them: by kind, each kind in its order. */
+export const tagListOrder = (content) => TAG_KINDS.flatMap((k) => orderedTags(content, k, membersOf(content, k)))
+
+/**
+ * The tags, by kind, each kind in its order (tag-order.js: dragged, or moved with Alt+↑/↓, it is the layer's
+ * `<kind>-tags-order`); narrowed by kind and a search; a new one of a kind.
+ */
+export function TagList({ content, namespace, current, pending, onOpen, onEdit, onOps }) {
   const [query, setQuery] = useState('')
   const [kind, setKind] = useState('')
   const all = objectsOf(content, 'tag', namespace)
+  const registry = content?.registries?.tag ?? {}
   const matches = sidebarSearch(query)
-  const shown = all.filter(([full, tag]) => (!kind || tag.kind === kind) && matches(full, L(tag.title)))
   const kinds = TAG_KINDS.filter((k) => all.some(([, tag]) => tag.kind === k))
+  const byKind = kinds.filter((k) => !kind || k === kind).map((k) => [k, orderedTags(content, k, membersOf(content, k)).filter((full) => matches(full, L(registry[full].title))).map((full) => [full, registry[full]])])
+  const shown = byKind.flatMap(([, entries]) => entries)
+  const ids = shown.map(([full]) => full)
+  const { item } = useDragOrder({
+    ids,
+    disabled: pending || Boolean(query.trim()),
+    onMove: (tag, to) => {
+      const k = registry[tag]?.kind
+      if (registry[to.before ?? to.after]?.kind !== k) return
+      const ops = tagMoveOps(content, namespace, k, tag, to, membersOf(content, k))
+      if (ops?.length) onOps(ops)
+    },
+  })
   const create = (k) => {
     if (pending) return
     const { full, op } = newTag(content, namespace, k)
@@ -57,8 +81,8 @@ export function TagList({ content, namespace, current, pending, onOpen, onEdit }
     <nav className="parts-list" aria-label={tr('标签', 'Tags')}>
       <SidebarListTools addOptions={TAG_KINDS.map((k) => ({ value: k, label: tagKindWord(k) }))} addLabel={tr('新的标签', 'New tag')} onAdd={create} query={query} onQuery={setQuery}
         sortOptions={kinds.length > 1 ? [{ value: '', label: tr('全部', 'All') }, ...kinds.map((k) => ({ value: k, label: tagKindWord(k) }))] : []} sort={kind} onSort={setKind} menuIcon={Filter} menuLabel={tr('种类', 'Kind')} />
-      <Groups groups={byNamespace(shown)} row={([full, tag]) => (
-        <Row key={full} icon={Tag} on={full === current} title={L(tag.title)} name={shownName(namespace, full)} count={tagMembers(content, full).length} onClick={() => onOpen(full)} />
+      <Groups groups={byKind.map(([k, entries]) => [tagKindWord(k), entries])} row={([full, tag]) => (
+        <Row key={full} icon={Tag} on={full === current} title={L(tag.title)} name={shownName(namespace, full)} count={tagMembers(content, full).length} onClick={() => onOpen(full)} {...item(full)} />
       )} />
     </nav>
   )
