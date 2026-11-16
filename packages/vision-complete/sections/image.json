@@ -1,0 +1,19 @@
+{
+  "title": "@section.image.title",
+  "values": [
+    "pixel",
+    "perpixel",
+    "bgsub",
+    "pinhole",
+    "filter",
+    "separable",
+    "gaussian",
+    "edge",
+    "kernel",
+    "sobel",
+    "convolution",
+    "padding",
+    "sharpen",
+    "kernelread"
+  ]
+}

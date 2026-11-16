@@ -26,5 +26,6 @@
   "level.0-3.tasks.0-3.hidden.0.label": "Random texture",
   "level.0-3.tasks.0-3.tests.0.label": "Square",
   "level.0-3.tasks.0-3.tests.1.label": "Letter T",
-  "level.0-3.title": "Two steps"
+  "level.0-3.title": "Two steps",
+  "section.image.title": "Images"
 }

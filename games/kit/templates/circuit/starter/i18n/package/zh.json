@@ -16,5 +16,6 @@
   "piece.addSub.desc": "给出 a 加 b、再减去 c 的结果。",
   "piece.addSub.name": "加了再减",
   "piece.sub.desc": "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。",
-  "piece.sub.name": "相减"
+  "piece.sub.name": "相减",
+  "section.adding.title": "加减"
 }

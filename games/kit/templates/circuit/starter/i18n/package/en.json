@@ -16,5 +16,6 @@
   "piece.addSub.desc": "Gives a plus b, less c.",
   "piece.addSub.name": "Add, then take away",
   "piece.sub.desc": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
-  "piece.sub.name": "Subtract"
+  "piece.sub.name": "Subtract",
+  "section.adding.title": "Adding up"
 }

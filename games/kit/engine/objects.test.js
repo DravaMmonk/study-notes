@@ -11,15 +11,14 @@ const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part'))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
-  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], layout: 'toy/map' }], optional: ['#toy/extras'] },
+  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], rows: [['toy/a'], ['toy/b', 'toy/c']] }], optional: ['#toy/extras'] },
   levels: ['start', 'a', 'b', 'c', 'end'].map((id) => [id, { title: id }]),
   glossary: { groups: [], entries: [] },
   tags: [['core', { kind: 'level', title: 'Core', values: ['a', '#extras', 'b'] }], ['extras', { kind: 'level', values: ['c'] }]],
   relations: [['path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }, { from: 'start', to: '#core' }, { from: '#core', to: 'end' }] }], ['sequence', { kind: 'order', sequence: ['start', 'a', 'b', 'c', 'end'] }]],
-  layouts: [['map', { of: '#core', rows: [['a'], ['b', 'c']] }]],
 })
 
-test('tags, relation boundaries and selected layouts assemble the route; all relations take effect', () => {
+test('tags, relation boundaries and chapter rows assemble the route; all relations take effect', () => {
   const content = assemble(source())
   assert.deepEqual(checkContent({ vocabulary }, content), [])
   assert.deepEqual(content.eras[0].levels.map((l) => l.id), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
@@ -53,7 +52,7 @@ test('checks reject separate relation cycles, duplicate chapter membership, inva
   const wrong = source()
   wrong.relations.push(['loop', { kind: 'requires', edges: [{ from: 'b', to: 'a' }] }], ['order-loop', { kind: 'order', edges: [{ from: 'end', to: 'start' }] }])
   wrong.game.chapters.push({ id: 'two', levels: ['toy/a'] })
-  wrong.layouts[0][1].rows = [['b', 'a', 'c', null]]
+  wrong.game.chapters[0].rows = [['toy/b', 'toy/a', 'toy/c', null]]
   const problems = checkContent({ vocabulary }, assemble(wrong)).map((p) => p.says)
   for (const pattern of [/circular requires/, /circular order/, /placed twice/, /no lower/, /at most|max|more than/]) assert.ok(problems.some((s) => pattern.test(s)), String(pattern) + problems.join('\n'))
 })
@@ -91,9 +90,9 @@ test('schema-aware catalogs resolve text while preserving package object referen
   const { catalogReader } = await import('./catalogs.js')
   const { catalogsOf } = await import('./content-text.js')
   const reader = catalogReader({ en: { 'toy/name': 'Translated title' } })
-  const result = reader({ title: '@toy/name', layout: 'toy/name' }, 'course.json', S.obj({ title: S.text(), layout: S.name('layout') }))
+  const result = reader({ title: '@toy/name', section: 'toy/name' }, 'section.json', S.obj({ title: S.text(), section: S.name('section') }))
   assert.equal(result.title.en, 'Translated title')
-  assert.equal(result.layout, 'toy/name')
+  assert.equal(result.section, 'toy/name')
   assert.deepEqual(catalogsOf('course', result), { en: { 'toy/name': 'Translated title' } })
 })
 
@@ -115,7 +114,7 @@ test('cycles between tag endpoints cannot vanish during boundary expansion', () 
   assert.ok(assemble(input).objectProblems.some((p) => /circular requires/.test(p.says)))
 })
 
-test('game namespaces cannot declare tags, relations or layouts', () => {
+test('game namespaces cannot declare tags, relations or sections', () => {
   const input = source()
   input.tags.push(['illegal', { kind: 'level', values: [] }, '@toy'])
   assert.ok(checkContent({ vocabulary }, assemble(input)).some((p) => /games cannot declare objects/.test(p.says)))
@@ -139,9 +138,10 @@ test('explicit trays produce ordered menus, expand task items and apply replacem
   assert.deepEqual(content.replaces, { 'toy/three': ['toy/one'] })
 })
 
-test('a selected layout projects onto a partial chapter and retains its empty positions', () => {
+test('chapter rows retain authored empty positions', () => {
   const input = source()
   input.game.chapters[0].levels = ['toy/a', 'toy/b']
+  input.game.chapters[0].rows = [['toy/a'], ['toy/b', null]]
   input.game.optional = []
   const content = assemble(input)
   assert.deepEqual(content.eras[0].rows, [['toy/a'], ['toy/b', null]])

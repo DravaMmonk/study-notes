@@ -94,7 +94,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = [...Object.keys(contentKindSchemas), 'level', 'piece', 'part', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
+  const selectors = [...Object.keys(contentKindSchemas), 'level', 'piece', 'part', 'entry', 'tag', 'relation', 'section', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const source = (value, schema) => expandNames(value, ws.packageId, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
   const args = source(selected, OPERATIONS[operation].params)
@@ -110,7 +110,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],
     game: [undefined, ws.game],
-    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
+    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
     piece: [PART, ws.partDefs?.parts?.[args.piece]],
     pieces: [PARTS_FILE, ws.partDefs],
   }

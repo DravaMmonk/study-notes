@@ -1,0 +1,20 @@
+{
+  "title": "@section.prop.title",
+  "values": [
+    "truth",
+    "tautology",
+    "counterexample",
+    "connective",
+    "contradiction",
+    "satisfiable",
+    "equivalence",
+    "contrapositive",
+    "explosion",
+    "dsyll",
+    "lem",
+    "demorgan",
+    "nnf",
+    "cnf",
+    "clause"
+  ]
+}

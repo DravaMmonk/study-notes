@@ -1,5 +1,5 @@
 // A data game's files opened for operations (./operations.js): the game selector, its course (course.json), its
-// package's configuration, entries/<id>.json, levels/<id>.json, tags/<kind>/<id>.json, relations/layouts/<id>.json, pieces/<name>.json (when present), the game's
+// package's configuration, entries/<id>.json, levels/<id>.json, tags/<kind>/<id>.json, relations/sections/<id>.json, pieces/<name>.json (when present), the game's
 // own texts over its package's (overrides/<namespace>/i18n/<lang>.json) and the course blueprint (blueprint.json, when the game has one
 // or an operation writes one) as values an operation replaces (never mutates), the text each file had, and the hub's
 // level count for the game (games/games.js). Nothing reaches the disk until write(); diff() previews it.
@@ -85,7 +85,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     return parse(text, pathFor(file))
   }
   const levels = () => levelFiles(packageDir).map(([levelId]) => levelId).sort()
-  const objectPaths = () => ['pieces', 'entries', 'tags', 'relations', 'layouts', 'trays', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
+  const objectPaths = () => ['pieces', 'entries', 'tags', 'relations', 'sections', 'trays', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
     ...objectFiles(packageDir, kind).map(([name]) => `${kind}/${name}.json`),
   ])
   const localeFiles = () => [
@@ -196,7 +196,7 @@ function contentOf(ws) {
       ...[...ws.levels].map(([name, value]) => ({ kind: 'level', name, value })),
       ...Object.entries(ws.partDefs?.parts ?? {}).map(([name, value]) => ({ kind: 'piece', name, value })),
       ...[...ws.entries].map(([name, value]) => ({ kind: 'entry', name, value })),
-      ...Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts', tray: 'trays' }).flatMap(([kind, plural]) => [...ws[plural]].map(([name, value]) => ({ kind, name, value }))),
+      ...Object.entries({ tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays' }).flatMap(([kind, plural]) => [...ws[plural]].map(([name, value]) => ({ kind, name, value }))),
     ], overrides: [], textOverrides: [],
   }
   const game = { id: `@${ws.id}`, config: { ...files['game.json'], ...files['course.json'] }, objects: [], catalogs: catalogsOf(COURSE_I18N, files['game.json'], files['course.json'], ws.blueprint), overrides: [], textOverrides: [] }

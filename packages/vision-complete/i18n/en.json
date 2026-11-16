@@ -3007,5 +3007,14 @@
   "tray.generative.title": "Generative models",
   "tray.generative.desc": "Generate or reconstruct images from latent representations.",
   "tray.pipeline.title": "Image processing",
-  "tray.pipeline.desc": "Combine pixel operations, filters, and sampling."
+  "tray.pipeline.desc": "Combine pixel operations, filters, and sampling.",
+  "section.freq.title": "Frequency",
+  "section.scene.title": "Segmentation and detection",
+  "section.light.title": "Light and edges",
+  "section.check.title": "Checking a model",
+  "section.learn.title": "Learning",
+  "section.geo.title": "Matching and depth",
+  "section.image.title": "Images and filtering",
+  "section.play.title": "How to play",
+  "section.gen.title": "Generating images"
 }

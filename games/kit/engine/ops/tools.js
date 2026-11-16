@@ -141,12 +141,12 @@ const tools = {
     },
   },
   objects: {
-    about: 'Read registered tags, relations or layouts and the expanded course route, optionally after a pending changeset.',
+    about: 'Read registered tags, relations or sections and the expanded course route, optionally after a pending changeset.',
     params: { game: 'string', kind: 'string?', name: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, kind, name, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      if (kind && !['tag', 'relation', 'layout'].includes(kind)) throw new Error(`unknown object kind ${kind}`)
-      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : { tag: content.tags, relation: content.relations, layout: content.layouts, tray: content.registries.tray }, route: courseRoute(content) }
+      if (kind && !['tag', 'relation', 'section'].includes(kind)) throw new Error(`unknown object kind ${kind}`)
+      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : { tag: content.tags, relation: content.relations, section: content.sections, tray: content.registries.tray }, route: courseRoute(content) }
     },
   },
   games: {
@@ -392,7 +392,7 @@ const tools = {
         const text = git('show', `${tree}:${path}`)
         if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
         let value = JSON.parse(text)
-        const isObject = /^(levels|pieces|entries|tags|relations|layouts|trays)\//.test(fileName)
+        const isObject = /^(levels|pieces|entries|tags|relations|sections|trays)\//.test(fileName)
         if (isObject || ['game.json', 'blueprint.json'].includes(fileName)) {
           const scope = join(isObject ? path.slice(0, -fileName.length) : dirname(path), 'i18n')
           const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))

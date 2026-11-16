@@ -116,7 +116,7 @@ const LEVELS = {
 }
 
 /** Write a temporary game (its course) and package in the same format as checked-in content. */
-export function writeContentFixture(root, id, { game: sourceGame, glossary, partDefs, levels, tags = {}, relations = {}, layouts = {}, trays = {} }, domainVocabulary) {
+export function writeContentFixture(root, id, { game: sourceGame, glossary, partDefs, levels, tags = {}, relations = {}, sections = {}, trays = {} }, domainVocabulary) {
   const { contentObjects = {}, ...game } = sourceGame
   const course = join(root, 'games', id)
   const pkg = join(root, 'packages', id)
@@ -134,7 +134,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const piecesText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'pieces')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
-  const objectText = Object.entries({ tags, relations, layouts, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
+  const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
   put(join(course, 'game.json'), { packages: [id], ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { pieces: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))

@@ -1,1 +1,11 @@
-{ "kind": "order", "of": "entry", "sequence": ["#play", "#entries-basics", "#order", "#classic", "#further"] }
+{
+  "kind": "order",
+  "of": "section",
+  "sequence": [
+    "play",
+    "entries-basics",
+    "order",
+    "classic",
+    "further"
+  ]
+}

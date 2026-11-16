@@ -2391,5 +2391,13 @@
   "tray.proof.menu.proof-exists.title": "存在∃",
   "tray.proof.menu.proof-equality.title": "等式＝",
   "tray.proof.menu.proof-classical.title": "经典推理",
-  "tray.proof.menu.proof-equivalences.title": "等价变换"
+  "tray.proof.menu.proof-equivalences.title": "等价变换",
+  "section.entries-proof.title": "证明",
+  "section.types.title": "证明即程序",
+  "section.limits.title": "证明的边界",
+  "section.fol.title": "一阶逻辑",
+  "section.rules.title": "规则与自动化",
+  "section.assist.title": "证明助手",
+  "section.play.title": "玩法",
+  "section.prop.title": "命题逻辑"
 }

@@ -2392,5 +2392,13 @@
   "tray.proof.menu.proof-exists.title": "Exists ∃",
   "tray.proof.menu.proof-equality.title": "Equality =",
   "tray.proof.menu.proof-classical.title": "Classical reasoning",
-  "tray.proof.menu.proof-equivalences.title": "Equivalence laws"
+  "tray.proof.menu.proof-equivalences.title": "Equivalence laws",
+  "section.entries-proof.title": "Proof",
+  "section.types.title": "Proofs are programs",
+  "section.limits.title": "The limits of proof",
+  "section.fol.title": "First-order logic",
+  "section.rules.title": "Rules and automation",
+  "section.assist.title": "Proof assistants",
+  "section.play.title": "How to play",
+  "section.prop.title": "Propositional logic"
 }

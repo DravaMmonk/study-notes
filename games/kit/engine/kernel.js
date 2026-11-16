@@ -14,9 +14,10 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 7,
+  version: 8,
   removes: [
-    ...["courses.circuit.level", "courses.image.level", "courses.logic.level", "courses.table.level", "courses.tick-bus.level", "level"].map(at => ({ at, why: 'Tasks reference declared tray objects instead of piece tags or lists of tags.' })),
+    ...Object.keys(capabilities.schemas).map(id => ({ at: `courses.${id}.game`, why: 'Chapter route-map rows belong to the game instead of named package layouts.' })),
+    { at: 'game', why: 'Chapter route-map rows belong to the game instead of named package layouts.' },
   ],
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,

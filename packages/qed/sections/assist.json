@@ -1,0 +1,10 @@
+{
+  "title": "@section.assist.title",
+  "values": [
+    "provers",
+    "isabelle",
+    "lean",
+    "lcf",
+    "scripts"
+  ]
+}

@@ -1,5 +1,14 @@
 {
   "kind": "order",
-  "of": "entry",
-  "sequence": ["#play", "#prop", "#entries-proof", "#fol", "#rules", "#types", "#limits", "#assist"]
+  "of": "section",
+  "sequence": [
+    "play",
+    "prop",
+    "entries-proof",
+    "fol",
+    "rules",
+    "types",
+    "limits",
+    "assist"
+  ]
 }

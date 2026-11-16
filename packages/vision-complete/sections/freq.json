@@ -1,0 +1,13 @@
+{
+  "title": "@section.freq.title",
+  "values": [
+    "wave",
+    "superpose",
+    "fourier",
+    "spectrum",
+    "convthm",
+    "lowpass",
+    "sampling",
+    "hybrid"
+  ]
+}

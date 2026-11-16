@@ -1424,5 +1424,10 @@
   "tray.trays.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
   "tray.trays.main.name": "Robot components",
   "tray.main.title": "Robot components",
-  "tray.main.desc": "Combine signals and sensor readings to control how the robot fills a table."
+  "tray.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
+  "section.classic.title": "Classic problems",
+  "section.further.title": "Further afield",
+  "section.entries-basics.title": "Core ideas",
+  "section.play.title": "How to play",
+  "section.order.title": "Order of computation"
 }

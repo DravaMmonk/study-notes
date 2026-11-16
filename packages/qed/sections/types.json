@@ -1,0 +1,22 @@
+{
+  "title": "@section.types.title",
+  "values": [
+    "curry-howard",
+    "proof-term",
+    "lambda",
+    "beta",
+    "normal-form",
+    "dep-function",
+    "currying",
+    "inductive",
+    "constructor",
+    "injectivity",
+    "induction",
+    "motive",
+    "defeq",
+    "propeq",
+    "dependent",
+    "implicit",
+    "transport"
+  ]
+}

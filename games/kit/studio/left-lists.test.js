@@ -15,9 +15,9 @@ test('search is the last list of the package workspace; the object lists are tol
 })
 
 test('the address keeps what the object list shown has open, and opens it again', () => {
-  assert.deepEqual(openParams('tags', { tag: 'demo/one', layout: 'demo/map' }), [['tag', 'demo/one']])
+  assert.deepEqual(openParams('tags', { tag: 'demo/one', section: 'demo/map' }), [['tag', 'demo/one']])
   assert.deepEqual(openParams('tree', { tag: 'demo/one' }), [])
-  assert.deepEqual(openParams('layouts', {}), [])
+  assert.deepEqual(openParams('sections', {}), [])
   assert.deepEqual(readOpen(new URLSearchParams('tag=demo/one&tab=page')), { list: 'tags', open: { tag: 'demo/one' } })
   assert.deepEqual(readOpen(new URLSearchParams('capability=operation/logic:and')), { list: 'kernel', open: { capability: 'operation/logic:and' } })
   // The old tabs that only switched to a list open that list.
@@ -31,7 +31,7 @@ test('a capability and an override have one key each', () => {
   assert.equal(capabilityKey('operation', 'logic:and'), 'operation/logic:and')
   assert.deepEqual(capabilityOf('operation/logic:and'), { kind: 'operation', name: 'logic:and' })
   assert.equal(capabilityOf('nothing'), null)
-  assert.equal(overrideKey({ layer: '@game', kind: 'layout', name: 'demo/map' }), '@game layout demo/map')
+  assert.equal(overrideKey({ layer: '@game', kind: 'section', name: 'demo/map' }), '@game section demo/map')
   assert.deepEqual(currentOf([['a', 1], ['b', 2]], 'b'), ['b', 2])
   assert.deepEqual(currentOf([['a', 1], ['b', 2]], 'z'), ['a', 1])
   assert.equal(currentOf([], 'z'), null)
@@ -43,7 +43,7 @@ const content = {
       'demo/first': { id: 'demo/first', kind: 'level', title: { en: 'First', $key: 'demo/tags.first' }, values: ['demo/a', 'other/b', '#demo/inner'] },
       'other/far': { kind: 'level', values: ['other/b'] },
     },
-    layout: { 'demo/map': { of: '#demo/first', rows: [['demo/a', null]] } },
+    section: { 'demo/map': { title: 'Words', values: [] } },
   },
 }
 const object = (full, kind = 'tag') => ({ kind, full, namespace: 'demo', value: objectValue(content, kind, full) })
@@ -52,8 +52,8 @@ test('an object’s file is the registry’s value without its id, written back 
   assert.equal(objectValue(content, 'tag', 'demo/first').id, undefined)
   assert.equal(objectValue(content, 'tag', 'demo/none'), null)
   assert.equal(objectFileName('tag', 'demo/first', { kind: 'level' }), 'demo/tags/level/first.json')
-  assert.equal(objectFileName('layout', 'demo/map', {}), 'demo/layouts/map.json')
-  assert.equal(objectFileName('layout', 'demo/map', {}, 'demo'), 'layouts/map.json')
+  assert.equal(objectFileName('section', 'demo/map', {}), 'demo/sections/map.json')
+  assert.equal(objectFileName('section', 'demo/map', {}, 'demo'), 'sections/map.json')
   assert.deepEqual(ownObjectData('demo', objectValue(content, 'tag', 'demo/first')),
     { kind: 'level', title: { en: 'First', $key: 'tags.first' }, values: ['a', 'other/b', '#inner'] })
 })
@@ -63,13 +63,13 @@ test('an edit of the layer’s own object is its object operation; another layer
   assert.deepEqual(objectOp(object('demo/first'), ['title'], { set: 'Erste', lang: 'de' }, 'text'),
     { op: 'tag.set', tag: 'first', path: ['title'], value: { en: 'First', de: 'Erste', $key: 'tags.first' } })
   assert.deepEqual(objectOp(object('demo/first'), ['title'], { unset: true }), { op: 'tag.put', tag: 'first', data: { kind: 'level', values: ['a', 'other/b', '#inner'] } })
-  assert.deepEqual(objectOp(object('demo/map', 'layout'), ['rows'], { set: [['demo/a']] }), { op: 'layout.set', layout: 'map', path: ['rows'], value: [['a']] })
+  assert.deepEqual(objectOp(object('demo/map', 'section'), ['values'], { set: ['demo/a'] }), { op: 'section.set', section: 'map', path: ['values'], value: ['a'] })
   assert.equal(objectOp(object('demo/first'), [], { unset: true }), null)
   assert.equal(objectOp(object('other/far'), ['values'], { set: [] }), null)
   // The forms reach them through the same file operation as any other file.
-  assert.deepEqual(opFor({ object: object('demo/map', 'layout') }, 'of', { set: '#demo/first' }), { op: 'layout.set', layout: 'map', path: ['of'], value: '#first' })
-  const shown = fileForm(content, {}, { object: { kind: 'layout', full: 'demo/map' } }, [])
-  assert.deepEqual(shown.value, { of: '#demo/first', rows: [['demo/a', null]] })
+  assert.deepEqual(opFor({ object: object('demo/map', 'section') }, 'values', { set: ['demo/a'] }), { op: 'section.set', section: 'map', path: ['values'], value: ['a'] })
+  const shown = fileForm(content, {}, { object: { kind: 'section', full: 'demo/map' } }, [])
+  assert.deepEqual(shown.value, { title: 'Words', values: [] })
   assert.equal(shown.form.kind, 'obj')
 })
 
@@ -78,8 +78,8 @@ test('an override’s file is what the override operation writes: a patch of a t
   assert.deepEqual(overrideFileOf(tag), { title: { en: 'Far' }, values: ['demo/a'], remove: ['other/c'] })
   const relation = { layer: 'demo', kind: 'relation', name: 'other/r', before: { kind: 'requires', edges: [{ from: 'x', to: 'y' }] }, after: { kind: 'requires', edges: [{ from: 'x', to: 'y' }, { from: 'y', to: 'z' }] } }
   assert.deepEqual(overrideFileOf(relation), { edges: [{ from: 'y', to: 'z' }] })
-  const layout = { layer: '@game', kind: 'layout', name: 'demo/map', before: { of: '#demo/t', rows: [] }, after: { of: '#demo/t', rows: [['demo/a']] } }
+  const layout = { layer: '@game', kind: 'section', name: 'demo/map', before: { of: '#demo/t', rows: [] }, after: { of: '#demo/t', rows: [['demo/a']] } }
   assert.deepEqual(overrideFileOf(layout), { of: '#demo/t', rows: [['demo/a']] })
-  assert.deepEqual(overrideOp(layout, '@game', { rows: [] }), { op: 'override.put', layer: '@game', kind: 'layout', name: 'demo/map', data: { rows: [] } })
+  assert.deepEqual(overrideOp(layout, '@game', { rows: [] }), { op: 'override.put', layer: '@game', kind: 'section', name: 'demo/map', data: { rows: [] } })
   assert.equal(overrideOp(layout, 'demo', { rows: [] }), null)
 })

@@ -96,7 +96,7 @@ export function entryValue(name, value) {
 
 /** Games arrange package objects and cannot declare objects of their own. */
 export function gameDeclarationProblems(gameDir) {
-  return ['levels', 'pieces', 'pieces.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'layouts', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas)]
+  return ['levels', 'pieces', 'pieces.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas)]
     .filter((name) => existsSync(resolve(gameDir, name)))
     .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
 }
@@ -134,7 +134,7 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
     id, packageId, courseNamespace, schemas,
     game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file, schemas.game, schemas)]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
-    ...Object.fromEntries(['tags', 'relations', 'layouts', 'trays'].map((kind) => [kind, [
+    ...Object.fromEntries(['tags', 'relations', 'sections', 'trays'].map((kind) => [kind, [
       ...objectFiles(packageDir, kind).map(([name, file]) => [kind === 'tags' ? name.split('/')[1] : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.split('/')[0] }) }, packageId]),
     ]])),
     contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(packageDir, kind).map(([name, file]) => [name, read(packageText, file, schema)]))])),
@@ -151,7 +151,7 @@ export function readLayer(id, dir, config = json(resolve(dir, 'package.json'))) 
   if (existsSync(resolve(dir, 'settings')) || existsSync(resolve(dir, 'settings.json'))) throw new Error(`${dir}: settings belong inside pieces/`)
   if (existsSync(resolve(dir, 'glossary.json'))) throw new Error(`${dir}: glossary.json has been replaced by entries/ and tags/entry/`)
   const objects = levelFiles(dir).map(([name, file]) => ({ kind: 'level', name, value: json(file) }))
-  for (const folder of ['tags', 'relations', 'layouts', 'trays']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/')[1] : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
+  for (const folder of ['tags', 'relations', 'sections', 'trays']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/')[1] : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
   if (existsSync(resolve(dir, 'pieces.json'))) throw new Error(`${dir}: pieces.json has been replaced by pieces/`)
   for (const [name, file] of objectFiles(dir, 'pieces')) objects.push({ kind: 'piece', name, value: json(file) })
   for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
@@ -184,7 +184,7 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
     values[lang] = event.before
   }
   return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
-    levels: entries('level'), tags: entries('tag'), relations: entries('relation'), layouts: entries('layout'), trays: entries('tray'),
+    levels: entries('level'), tags: entries('tag'), relations: entries('relation'), sections: entries('section'), trays: entries('tray'),
     contentObjects: Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, r[kind]])), partDefs: { parts: r.piece }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
     blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packageTarget: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })

@@ -36,5 +36,6 @@
   "level.stamp.tasks.stamp.hints.0": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger.",
   "level.stamp.title": "Count the routes",
   "piece.counter.desc": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”.",
-  "piece.counter.name": "Route Counter"
+  "piece.counter.name": "Route Counter",
+  "section.robot.title": "The robot"
 }

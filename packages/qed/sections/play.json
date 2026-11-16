@@ -1,0 +1,9 @@
+{
+  "title": "@section.play.title",
+  "values": [
+    "map",
+    "circuit",
+    "board",
+    "box"
+  ]
+}

@@ -1424,5 +1424,10 @@
   "tray.trays.main.desc": "组合信号和传感器读数，控制机器人填表。",
   "tray.trays.main.name": "机器人元件",
   "tray.main.title": "机器人元件",
-  "tray.main.desc": "组合信号和传感器读数，控制机器人填表。"
+  "tray.main.desc": "组合信号和传感器读数，控制机器人填表。",
+  "section.classic.title": "经典问题",
+  "section.further.title": "更远的地方",
+  "section.entries-basics.title": "基本概念",
+  "section.play.title": "玩法",
+  "section.order.title": "计算顺序"
 }

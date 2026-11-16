@@ -11,7 +11,7 @@ import { localName, namespaceOf } from './objects-edit.js'
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', layout: 'layouts' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays', section: 'sections' }
 /** The schema of an object kind's files. */
 export const objectSchema = (kind) => OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null
 

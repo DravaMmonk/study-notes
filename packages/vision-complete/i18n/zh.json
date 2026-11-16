@@ -3007,5 +3007,14 @@
   "tray.generative.title": "生成模型",
   "tray.generative.desc": "从潜在表示生成或重建图像。",
   "tray.pipeline.title": "图像处理",
-  "tray.pipeline.desc": "组合像素运算、滤波及采样。"
+  "tray.pipeline.desc": "组合像素运算、滤波及采样。",
+  "section.freq.title": "频率",
+  "section.scene.title": "分割与检测",
+  "section.light.title": "光与边",
+  "section.check.title": "检查模型",
+  "section.learn.title": "学习",
+  "section.geo.title": "匹配与三维",
+  "section.image.title": "图像与滤波",
+  "section.play.title": "玩法",
+  "section.gen.title": "生成"
 }
