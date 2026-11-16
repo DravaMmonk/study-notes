@@ -4,7 +4,7 @@ import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
 import { freeObjectName, localName, ownNames } from './objects-edit.js'
 
-export const TAG_KINDS = ['level', 'item', 'entry', 'setting']
+export const TAG_KINDS = ['level', 'item', 'entry']
 
 /** How `namespace` writes a full name (or `#` tag reference): short when it is its own, full otherwise. */
 export const writtenName = (namespace, full) => localName(namespace, full) ?? full
@@ -34,7 +34,7 @@ export function tagCycle(content, full, member) {
   const tag = tags[full]
   if (!tag) return false
   const problems = []
-  const registries = { level: {}, piece: {}, setting: {}, entry: {}, ...content.registries, tag: { ...tags, [full]: { ...tag, values: [...tag.values, member] } } }
+  const registries = { level: {}, piece: {}, entry: {}, ...content.registries, tag: { ...tags, [full]: { ...tag, values: [...tag.values, member] } } }
   referenceResolver(registries, problems)(`#${full}`, tag.kind)
   return problems.some(({ says }) => says.startsWith('circular tags'))
 }

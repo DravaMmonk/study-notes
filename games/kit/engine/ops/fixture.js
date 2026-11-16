@@ -1,3 +1,4 @@
+import { objectFiles } from '../content-node.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
 // real game (games/DESIGN.md: unit tests never read a real game's levels). Each call writes a fresh folder.
@@ -62,11 +63,11 @@ const GLOSSARY = {
 
 // Its pieces: Apply, the assumption box and the implication key.
 const PARTS = {
-  settings: { assumption: { control: 'tree', label: T('假设', 'Assume') } },
+
   parts: {
     formulaImplies: { editor: 'strip', mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
     mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'logic:family-rule', outputType: 'logic:judgment', inputs: [{ name: 'imp', type: 'logic:judgment', label: T('A → B') }, { name: 'a', type: 'logic:judgment', label: T('A') }], compute: 'logic:mp(imp, a)' },
-    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: [{ key: 'A', setting: 'assumption' }], regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'logic:impI(body)' },
+    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: { 'A': { control: 'tree', label: T('假设', 'Assume') } }, regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'logic:impI(body)' },
   },
 }
 const LEVELS = {
@@ -140,7 +141,8 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
   for (const { id, ...group } of glossaryText.groups) put(join(pkg, 'tags/entry', `${id}.json`), { ...sourceValue(group), values: glossaryText.entries.filter((e) => e.group === id).map((e) => e.id) })
-  if (piecesText !== undefined) put(join(pkg, 'pieces.json'), sourceValue(piecesText))
+  mkdirSync(join(pkg, 'pieces'), { recursive: true })
+  for (const [name, piece] of Object.entries(piecesText?.parts ?? {})) put(join(pkg, 'pieces', `${name}.json`), sourceValue(piece))
   for (const [level, value] of levelText) put(join(pkg, 'levels', `${level}.json`), sourceValue(value))
   for (const [kind, name, value] of objectText) {
     const folder = kind === 'tags' ? `${kind}/${value.kind}` : kind
@@ -162,5 +164,5 @@ export function proofsRoot() {
 /** Source definitions for unit tests that compose their own small content over the starter's resources. */
 export function starterPieces(domainDir) {
   const dir = join(domainDir, 'starter')
-  return catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(join(dir, 'pieces.json'), 'utf8')))
+  return { parts: Object.fromEntries(objectFiles(dir, 'pieces').map(([name, file]) => [name, catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(file, 'utf8')))])) }
 }

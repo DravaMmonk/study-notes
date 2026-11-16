@@ -1,0 +1,10 @@
+{
+  "name": "σ",
+  "desc": "@piece.dg_sigma.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [],
+  "settings": { "w": { "label": "σ", "fixed": true } },
+  "compute": "image:dg_sigma($w)",
+  "outputType": "image:image"
+}

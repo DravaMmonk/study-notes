@@ -1,0 +1,12 @@
+{
+  "name": "@piece.mp.name",
+  "desc": "@piece.mp.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [
+    { "name": "imp", "label": "@piece.mp.inputs.0.label", "type": "logic:judgment" },
+    { "name": "a", "label": "@piece.mp.inputs.1.label", "type": "logic:judgment" }
+  ],
+  "compute": "logic:mp(imp, a)",
+  "outputType": "logic:judgment"
+}

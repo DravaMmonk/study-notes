@@ -1,0 +1,42 @@
+{
+  "name": "@piece.iff.name",
+  "desc": "@piece.iff.desc",
+  "family": "logic:family-lemma",
+  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" } },
+  "inside": [
+    {
+      "id": "elim",
+      "form": "elim",
+      "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "e = andE(p)",
+          "a1 = arrow(e.left)",
+          "a2 = arrow(e.right)",
+          "c = andI(a1, a2)",
+          "goal <- c"
+        ],
+        "tests": [{ "goal": "(¬A ∨ B) ∧ (¬B ∨ A)", "premises": { "p": "A ↔ B" } }]
+      }
+    },
+    {
+      "id": "intro",
+      "form": "intro",
+      "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "e = andE(p)",
+          "a1 = arrow[form=intro](e.left)",
+          "a2 = arrow[form=intro](e.right)",
+          "c = andI(a1, a2)",
+          "goal <- c"
+        ],
+        "tests": [{ "goal": "A ↔ B", "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" } }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
+  "outputType": "logic:judgment"
+}

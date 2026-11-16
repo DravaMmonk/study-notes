@@ -1,0 +1,17 @@
+{
+  "name": "@piece.keep.name",
+  "desc": "@piece.keep.desc",
+  "icon": "ArrowDownToLine",
+  "family": "tick-bus:family-memory",
+  "inputs": [{ "name": "in", "type": "circuit:number" }],
+  "settings": {
+    "reg": {
+      "control": "select",
+      "label": "@piece.keep.settings.reg.label",
+      "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
+      "default": "A"
+    }
+  },
+  "keeps": { "input": "in", "register": "reg" },
+  "outputType": "circuit:number"
+}

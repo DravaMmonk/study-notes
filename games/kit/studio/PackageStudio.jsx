@@ -5,7 +5,7 @@
 // operations to it. The package's levels are played in a game that plays the package, as its course sets them up; how
 // a game arranges them is the game workspace's (GameStudio.jsx).
 //
-// The page: the tree of level groups (or search, or the package's pieces: pieces.json) on the left; in the middle the
+// The page: the tree of level groups (or search, or the package's pieces: pieces/<name>.json) on the left; in the middle the
 // level as the game shows it, which is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a +
 // adds an item), or a group's levels and their links, its fields as rows, its copy, a comparison, the changes; the
 // field picked in the side panel on the right (Inspector.jsx), with its control; the audit in a drawer under the
@@ -13,7 +13,7 @@
 // place and action, ? lists the keys.
 import './studio.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Command, ListTree, Search as SearchIcon, Shapes, SlidersHorizontal } from 'lucide-react'
+import { Command, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { find, shapeAt } from '../engine/schema.js'
@@ -26,7 +26,6 @@ import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList, { freeName } from './PartsList.jsx'
-import SettingsList from './SettingsList.jsx'
 import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { usePref } from './prefs.js'
@@ -60,7 +59,7 @@ const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fi
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
-const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.setting !== undefined ? ['settings', at.setting] : null
+const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : null
 const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
@@ -68,11 +67,10 @@ const remember = (pkg, at, tab, field, playLevel, task) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', SCOPE)
-  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['level', 'group', 'era', 'part', 'glossary']) url.searchParams.delete(k)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
-  if (at?.setting !== undefined) url.searchParams.set('setting', at.setting)
   if (at?.glossary) url.searchParams.set('glossary', '1')
   url.searchParams.set('tab', tab)
   const inspector = field?.path ? { path: field.path, ...(field.trail && { trail: field.trail }) } : field?.missing ? { missing: field.missing } : null
@@ -95,7 +93,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [objectAt, setObjectAt] = useState(null)
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
-  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
+  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
   const [picked, setPicked] = useState(() => new Set(at?.level ? [at.level] : []))
   const [tab, setTab] = useState(() => {
     const requested = QUERY.get('tab')
@@ -166,7 +164,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }, [game, naming, rev, loaded])
 
   const content = shown?.content ?? null
-  // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
+  // A domain that defines its parts as data names them by the game's pieces/<name>.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const pieceRoot = piecePath(at)
   const items = useMemo(() => lines.map(itemOf), [lines])
@@ -193,7 +191,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }, [content, rawNames, playOrder])
 
   const select = (next, keep = false) => {
-    const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part || next?.setting !== at?.setting
+    const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part
     setAt(next)
     setMoving(null)
     const root = piecePath(next)
@@ -233,7 +231,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       return
     }
     if (level) select({ level })
-    else if (file === 'pieces') select(keys[0] === 'settings' ? { setting: keys[1] } : { part: keys[1] })
+    else if (file === 'pieces') select({ part: keys[1] })
     else select({ game: true })
     if (!stayOnTab && !level && tab === 'page') setTab('fields')
     if (keys.length) pickField(keys, true)
@@ -272,10 +270,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     const game = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (game) return jump(null, game[1].replace(/^\./, ''), 'game')
     if (/^content: glossary\.json/.test(item.text)) return jump(null, null, 'glossary')
-    const part = /^content: pieces\.json\.(parts|settings)\.([^\s.:[]+)((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
+    const part = /^content: pieces\/([^\s]+)\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (part) {
-      select(part[1] === 'parts' ? { part: part[2] } : { setting: part[2] })
-      return pickField(parsePath(`${part[1]}.${part[2]}${part[3]}`), true)
+      select({ part: part[1] })
+      return pickField(parsePath(`parts.${part[1]}${part[2]}`), true)
     }
     if (item.levels[0]) select({ level: item.levels[0] })
   }
@@ -363,7 +361,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     if (m.type === 'task-go') return onTaskGo(m)
     if (m.file) return onFilePage(m)
     if (m.type === 'start') return onStart(m)
-    if (m.part !== undefined || m.setting !== undefined) return onPartPage(m)
+    if (m.part !== undefined) return onPartPage(m)
     if (m.type === 'task') { if (m.level === play?.level) setPageTask(m.task); return undefined }
     const value = levelValue(m.level)
     if (!value) return undefined
@@ -388,7 +386,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   // The part page: a field of the part picked, or a block (a rule, a check) added to it; a face still drawn by default
   // is first written out as its default blocks.
   const onPartPage = (m) => {
-    const base = m.setting !== undefined ? ['settings', m.setting] : ['parts', m.part]
+    const base = ['parts', m.part]
     const def = getAt(content?.partDefs, base)
     if (!def) return undefined
     const [key, face] = m.path
@@ -452,14 +450,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))
-    : field?.path && at?.setting !== undefined && field.path[0] === 'settings' && field.path[1] === at.setting ? JSON.stringify(field.path.slice(2))
     : field?.path && sideFile?.game ? { file: 'game', path: JSON.stringify(field.path) }
     : field?.path && sideFile?.glossary ? { file: 'glossary', path: JSON.stringify(field.path[0] === 'entries' && Number.isInteger(field.path[1]) ? ['entries', content.glossary.entries[field.path[1]]?.id, ...field.path.slice(2)] : field.path) }
     : null
-  const openSetting = (setting) => {
-    setSide('settings')
-    select({ setting })
-  }
+
   const sideCtx = vocab && content && {
     vocabulary: vocab.vocabulary,
     levels: content.levels.map((l) => l.id),
@@ -467,8 +461,6 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     levelOptions,
     textField,
     lang,
-    onSetting: openSetting,
-    onSettings: () => setSide('settings'),
     onPiece: (part) => { setSide('parts'); select({ part }) },
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
@@ -582,11 +574,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程')}><ListTree size={14} aria-hidden="true" /></button>
               <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
-              <button type="button" role="tab" aria-selected={side === 'settings'} className={side === 'settings' ? 'is-on' : ''} onClick={() => setSide('settings')} title={tr('设置', 'Settings')}><SlidersHorizontal size={14} aria-hidden="true" /></button>
             </div>
-            {side === 'settings'
-              ? <SettingsList key={game} file={content.partDefs} vocabulary={vocab.vocabulary} selected={at?.setting} onSelect={openSetting} onEdit={edit} />
-              : side === 'parts' && content.partDefs
+            {side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
@@ -629,7 +618,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               </div>
             )}
             <GameFrame
-              visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.setting !== undefined ? `settings/${at.setting}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={tab === 'page'} content={content} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined && <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />

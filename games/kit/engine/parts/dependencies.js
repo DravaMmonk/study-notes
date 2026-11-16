@@ -15,13 +15,13 @@ export function implementationProblems(parts) {
         for (const { type } of parse(lines.join('\n')).statements) if (known.has(type)) uses.add(type)
       } catch (error) {
         if (!error?.en) throw error
-        problems.push({ at: `pieces.json.parts.${id}.inside[${index}].reference.solution`,
+        problems.push({ at: `pieces/${id}.json.inside[${index}].reference.solution`,
           says: `line ${error.line}: ${error.en}` })
       }
     }
     return [id, [...uses]]
   }))
   const cycle = dependencyCycle(graph)
-  if (cycle) problems.push({ at: 'pieces.json.parts', says: `circular piece implementations: ${cycle.join(' → ')}` })
+  if (cycle) problems.push({ at: 'pieces', says: `circular piece implementations: ${cycle.join(' → ')}` })
   return problems
 }

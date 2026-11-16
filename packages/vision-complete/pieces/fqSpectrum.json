@@ -1,0 +1,9 @@
+{
+  "name": "@piece.fqSpectrum.name",
+  "desc": "@piece.fqSpectrum.desc",
+  "icon": "Waves",
+  "family": "image:family-frequency",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:fqSpectrum(in)",
+  "outputType": "image:image"
+}

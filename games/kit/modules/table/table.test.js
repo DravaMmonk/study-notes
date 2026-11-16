@@ -162,8 +162,7 @@ test('a robot runs a packaged circuit without a local publishing task', () => {
 
 test('a configurable robot part opens and runs the same setting, including its default', () => {
   const content = twoLevels();
-  content.partDefs.settings = { countValue: { control: 'number', default: 2 } };
-  content.partDefs.parts.counter.settings = [{ key: 'value', setting: 'countValue' }];
+  content.partDefs.parts.counter.settings = { value: { control: 'number', default: 2 } };
   const { model, played, syncOwn } = tableWorks(content);
   const builder = played.get('build')[0];
   const reuse = played.get('reuse')[0];

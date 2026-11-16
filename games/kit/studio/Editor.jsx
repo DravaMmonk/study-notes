@@ -5,7 +5,7 @@
 // levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
 // The level's own actions are operations: level.add (a copy after it), level.remove, and moving it in the tree; its
 // id never changes (games/PACKAGES.md 3.1). A row says how many findings of the check are on its field and whether the pending changes touched it. A
-// part of pieces.json (and a setting definition) is a file of its own here: its fields as rows, and its own actions —
+// part of pieces/<name>.json  is a file of its own here: its fields as rows, and its own actions —
 // piece.add (a copy after it), piece.remove.
 import { useMemo } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
@@ -16,7 +16,6 @@ import { getAt, showPath } from '../engine/ops/edit.js'
 import { copyLevelData, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
 import { contentFileFor } from '../engine/content.js'
-import { settingReferences } from '../engine/pieces.js'
 import { freeName } from './PartsList.jsx'
 import { Field, FieldTags } from './Fields.jsx'
 import Rows from './Rows.jsx'
@@ -33,7 +32,7 @@ export default function Editor({ side, content, base, vocab, at, picked, field, 
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
-  if (at?.part !== undefined || at?.setting !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
+  if (at?.part !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove, onRemoveLevel }} />
   if (at?.era !== undefined && content.chapters?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
@@ -174,15 +173,13 @@ function GameEditor({ side, content, base, vocabulary, order, names, levelOption
   )
 }
 
-/** An independently selected piece or setting definition, with its fields and definition actions. */
+/** An independently selected piece , with its fields and definition actions. */
 function PartEditor({ content, base, vocabulary, order, names, levelOptions, at, places, field, onEdit, onSelect, onPick }) {
   const file = { parts: true }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { partDefs: content.partDefs })
   const shown = fileForm(content, vocabulary, file, order)
-  const kind = at.part !== undefined ? 'part' : 'setting'
-  const isPiece = kind === 'part'
-  const selected = at[kind]
-  const path = [`${kind}s`, selected]
+  const selected = at.part
+  const path = ['parts', selected]
   const hit = fieldAt(shown.form, path)
   const taken = Object.keys(content.partDefs?.[path[0]] ?? {})
   if (!hit?.field) return <article className="editor"><p className="editor-note">{tr('这一项已经不在了。')}</p></article>
@@ -190,27 +187,24 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   const copy = () => {
     const to = freeName(taken, `${selected}_`)
     const data = copyWithoutTextKeys(hit.field.value)
-    onEdit(isPiece ? { op: 'piece.add', piece: to, data, after: selected } : { op: 'setting.add', setting: to, data })
-    onSelect({ [kind]: to })
+    onEdit({ op: 'piece.add', piece: to, data, after: selected })
+    onSelect({ part: to })
   }
   const definition = hit.field.value
-  const inUse = !isPiece && settingReferences(content.partDefs, selected).length > 0
   const remove = () => {
     if (!confirmDelete(selected)) return
-    onEdit(isPiece ? { op: 'piece.remove', piece: selected } : { op: 'setting.remove', setting: selected })
+    onEdit({ op: 'piece.remove', piece: selected })
     onSelect(null)
   }
   return (
     <article className="editor">
       <header className="editor-head">
         <code className="editor-id is-static" title={selected}>{selected.slice(selected.indexOf('/') + 1)}</code>
-        <h1>{L(isPiece ? definition.name : definition.label) || selected}</h1>
+        <h1>{L(definition.name) || selected}</h1>
         <span className="kit-spacer" />
         <span className="editor-tools">
-          <button type="button" className="kit-btn editor-tool" onClick={copy} title={isPiece ? tr('复制成新的件') : tr('复制设置', 'Duplicate setting')}><Copy size={14} /></button>
-          <button type="button" className="kit-btn editor-tool" onClick={remove} disabled={inUse} title={isPiece
-            ? tr('删掉这个件（还有地方用到它时拒绝）')
-            : inUse ? tr('仍有件引用这项设置', 'This setting is still used by pieces') : tr('删除设置', 'Delete setting')}><Trash2 size={14} /></button>
+          <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的件')}><Copy size={14} /></button>
+          <button type="button" className="kit-btn editor-tool" onClick={remove} title={tr('删掉这个件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
         </span>
       </header>
       <Rows form={hit.field} ctx={ctx} picked={field} findings={findings} before={beforeIn(base?.partDefs)} onPick={onPick} onAdd={addIn(file, onEdit, onPick)} />

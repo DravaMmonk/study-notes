@@ -1,0 +1,15 @@
+{
+  "name": "@piece.rewrite.name",
+  "desc": "@piece.rewrite.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [
+    { "name": "eq", "label": "@piece.rewrite.inputs.0.label", "type": "logic:judgment" },
+    { "name": "p", "label": "@piece.rewrite.inputs.1.label", "type": "logic:judgment" }
+  ],
+  "settings": {
+    "at": { "control": "list", "label": "@piece.rewrite.settings.at.label", "from": "logic:occurrences(eq, p)" }
+  },
+  "compute": "logic:rewrite(eq, p)",
+  "outputType": "logic:judgment"
+}

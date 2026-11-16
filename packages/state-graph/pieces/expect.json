@@ -1,0 +1,29 @@
+{
+  "name": "@piece.expect.name",
+  "desc": "@piece.expect.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "k8 = table:const[value=0.8]()",
+          "k2 = table:const[value=0.2]()",
+          "k9 = table:const[value=0.9]()",
+          "a = table:mul(k8, view.right)",
+          "b = table:mul(k2, view.down)",
+          "c = table:mul(k8, view.down)",
+          "d = table:mul(k2, view.right)",
+          "p = table:add(a, b)",
+          "q = table:add(c, d)",
+          "m = table:mmax(p, q)",
+          "x = table:mul(m, k9)",
+          "cell <- x"
+        ],
+        "world": "table:world-vgrid",
+        "robot": "table:robot-loop",
+        "facts": ["slip", "grip"]
+      }
+    }
+  ]
+}

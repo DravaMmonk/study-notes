@@ -1,0 +1,12 @@
+{
+  "name": "@piece.refl.name",
+  "desc": "@piece.refl.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [],
+  "settings": {
+    "t": { "control": "select", "label": "@piece.refl.settings.t.label", "from": "logic:things()" }
+  },
+  "compute": "logic:refl()",
+  "outputType": "logic:judgment"
+}

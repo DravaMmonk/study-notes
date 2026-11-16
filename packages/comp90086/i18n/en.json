@@ -44,10 +44,10 @@
   "piece.add.name": "Add",
   "piece.line3.desc": "Take three neighbouring pixels along a row or column, multiply each by its weight, and add them.",
   "piece.line3.name": "1D 3-point kernel",
-  "setting.border.label": "Border",
-  "setting.border.options.0.label": "Pad with 0",
-  "setting.border.options.1.label": "Replicate edge",
-  "setting.line3_axis.label": "Direction",
-  "setting.line3_axis.options.0.label": "Across",
-  "setting.line3_axis.options.1.label": "Down"
+  "piece.line3.settings.axis.label": "Direction",
+  "piece.line3.settings.axis.options.0.label": "Across",
+  "piece.line3.settings.axis.options.1.label": "Down",
+  "piece.line3.settings.border.label": "Border",
+  "piece.line3.settings.border.options.0.label": "Pad with 0",
+  "piece.line3.settings.border.options.1.label": "Replicate edge"
 }

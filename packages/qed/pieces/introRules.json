@@ -1,0 +1,47 @@
+{
+  "name": "@piece.introRules.name",
+  "desc": "@piece.introRules.desc",
+  "family": "logic:family-built",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
+          "  first {",
+          "    c1r0 = andI()",
+          "    c1 = rule(c0.first, c1r0)",
+          "  }",
+          "  second {",
+          "    c2r0 = impI()",
+          "    c2 = rule(c0.second, c2r0)",
+          "  }",
+          "  third {",
+          "    c3r0 = orI[use=[disjI1]]()",
+          "    c3 = rule(c0.third, c3r0)",
+          "  }",
+          "  fourth {",
+          "    c4r0 = orI[use=[disjI2]]()",
+          "    c4 = rule(c0.fourth, c4r0)",
+          "  }",
+          "  fifth {",
+          "    c5r0 = allI()",
+          "    c5 = rule(c0.fifth, c5r0)",
+          "  }",
+          "  sixth {",
+          "    c6r0 = exI()",
+          "    c6 = rule(c0.sixth, c6r0)",
+          "  }",
+          "}",
+          "out <- c0"
+        ],
+        "want": "logic:want-becomes",
+        "inputs": [{ "name": "in", "label": "in" }],
+        "tests": [{ "goal": "Rain ∧ Wind" }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "outputType": "logic:machine-value"
+}

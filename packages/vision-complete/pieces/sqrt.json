@@ -1,0 +1,9 @@
+{
+  "name": "@piece.sqrt.name",
+  "desc": "@piece.sqrt.desc",
+  "icon": "Calculator",
+  "family": "image:family-pixel",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:sqrt(in)",
+  "outputType": "image:image"
+}

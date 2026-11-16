@@ -13,7 +13,7 @@ import SourceMark from './SourceMark.jsx'
 import { overridesIt, tagOverrideOps } from './override-edit.js'
 import { TAG_KINDS, memberKnown, memberTitle, newTag, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
 
-const KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'], setting: ['设置', 'Settings'] }
+const KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'] }
 const kindWord = (kind) => (KIND_WORDS[kind] ? tr(...KIND_WORDS[kind]) : kind)
 const refusal = (reason) => ({
   duplicate: tr('标签里已经有它了。', 'The tag already holds it.'),

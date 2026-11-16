@@ -1,0 +1,18 @@
+{
+  "name": "@piece.box3.name",
+  "desc": "@piece.box3.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": {
+    "border": {
+      "label": "@piece.box3.settings.border.label",
+      "options": [
+        { "value": "zero", "label": "@piece.box3.settings.border.options.0.label" },
+        { "value": "edge", "label": "@piece.box3.settings.border.options.1.label" }
+      ]
+    }
+  },
+  "compute": "image:box3(in, $border)",
+  "outputType": "image:image"
+}

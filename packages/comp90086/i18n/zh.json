@@ -44,10 +44,10 @@
   "piece.add.name": "相加",
   "piece.line3.desc": "沿一行或一列取三个相邻像素，分别乘以权重后相加。",
   "piece.line3.name": "一维三点核",
-  "setting.border.label": "边界",
-  "setting.border.options.0.label": "补 0",
-  "setting.border.options.1.label": "复制边缘",
-  "setting.line3_axis.label": "方向",
-  "setting.line3_axis.options.0.label": "横",
-  "setting.line3_axis.options.1.label": "竖"
+  "piece.line3.settings.axis.label": "方向",
+  "piece.line3.settings.axis.options.0.label": "横",
+  "piece.line3.settings.axis.options.1.label": "竖",
+  "piece.line3.settings.border.label": "边界",
+  "piece.line3.settings.border.options.0.label": "补 0",
+  "piece.line3.settings.border.options.1.label": "复制边缘"
 }

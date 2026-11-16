@@ -14,7 +14,7 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 2,
+  version: 3,
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

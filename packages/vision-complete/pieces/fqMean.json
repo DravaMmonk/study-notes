@@ -1,0 +1,9 @@
+{
+  "name": "@piece.fqMean.name",
+  "desc": "@piece.fqMean.desc",
+  "icon": "Network",
+  "family": "image:family-global",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:fqMean(in)",
+  "outputType": "image:image"
+}

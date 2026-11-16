@@ -1,0 +1,207 @@
+{
+  "name": "@piece.dm.name",
+  "desc": "@piece.dm.desc",
+  "family": "logic:family-lemma",
+  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" }, "P": { "control": "tree" } },
+  "inside": [
+    {
+      "id": "notOr",
+      "form": "notOr",
+      "label": "¬(A ∨ B) → ¬A ∧ ¬B",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "na = impI[A=A](body: m) {",
+          "  body {",
+          "    i = orI[other=B, side=right](na.body)",
+          "    m = mp(p, i)",
+          "  }",
+          "}",
+          "nb = impI[A=B](body: m2) {",
+          "  body {",
+          "    i2 = orI[other=A, side=left](nb.body)",
+          "    m2 = mp(p, i2)",
+          "  }",
+          "}",
+          "c = andI(na, nb)",
+          "goal <- c"
+        ],
+        "tests": [{ "goal": "¬A ∧ ¬B", "premises": { "p": "¬(A ∨ B)" } }]
+      }
+    },
+    {
+      "id": "andNot",
+      "form": "andNot",
+      "label": "¬A ∧ ¬B → ¬(A ∨ B)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"A | B\"](body: o) {",
+          "  body {",
+          "    o = orE(f.body, left: m1, right: m2) {",
+          "      left {",
+          "        m1 = mp(e.left, o.left)",
+          "      }",
+          "      right {",
+          "        m2 = mp(e.right, o.right)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "e = andE(p)",
+          "goal <- f"
+        ],
+        "tests": [{ "goal": "¬(A ∨ B)", "premises": { "p": "¬A ∧ ¬B" } }]
+      }
+    },
+    {
+      "id": "orNot",
+      "form": "orNot",
+      "label": "¬A ∨ ¬B → ¬(A ∧ B)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"A & B\"](body: o) {",
+          "  body {",
+          "    e = andE(f.body)",
+          "    o = orE(p, left: m1, right: m2) {",
+          "      left {",
+          "        m1 = mp(o.left, e.left)",
+          "      }",
+          "      right {",
+          "        m2 = mp(o.right, e.right)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "goal <- f"
+        ],
+        "tests": [{ "goal": "¬(A ∧ B)", "premises": { "p": "¬A ∨ ¬B" } }]
+      }
+    },
+    {
+      "id": "notAnd",
+      "form": "notAnd",
+      "label": "¬(A ∧ B) → ¬A ∨ ¬B",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "l = lem[A=A]()",
+          "e = orE(l, left: i1, right: i2) {",
+          "  left {",
+          "    g = impI[A=B](body: m) {",
+          "      body {",
+          "        c = andI(e.left, g.body)",
+          "        m = mp(p, c)",
+          "      }",
+          "    }",
+          "    i1 = orI[other=\"~A\", side=left](g)",
+          "  }",
+          "  right {",
+          "    i2 = orI[other=\"~B\", side=right](e.right)",
+          "  }",
+          "}",
+          "goal <- e"
+        ],
+        "tests": [{ "goal": "¬A ∨ ¬B", "premises": { "p": "¬(A ∧ B)" } }]
+      }
+    },
+    {
+      "id": "notEx",
+      "form": "notEx",
+      "label": "¬∃x. P → ∀x. ¬P",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "g = allI[x=a](body: f) {",
+          "  body {",
+          "    f = impI[A=\"P(a)\"](body: m) {",
+          "      body {",
+          "        i = exI(f.body)",
+          "        m = mp(p, i)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "goal <- g"
+        ],
+        "tests": [{ "goal": "∀x. ¬P(x)", "premises": { "p": "¬∃x. P(x)" } }]
+      }
+    },
+    {
+      "id": "allNot",
+      "form": "allNot",
+      "label": "∀x. ¬P → ¬∃x. P",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"exists x. P(x)\"](body: e) {",
+          "  body {",
+          "    e = exE[x=a](f.body, body: m) {",
+          "      body {",
+          "        a = allE[t=a](p)",
+          "        m = mp(a, e.body)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "goal <- f"
+        ],
+        "tests": [{ "goal": "¬∃x. P(x)", "premises": { "p": "∀x. ¬P(x)" } }]
+      }
+    },
+    {
+      "id": "exNot",
+      "form": "exNot",
+      "label": "∃x. ¬P → ¬∀x. P",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"forall x. P(x)\"](body: e) {",
+          "  body {",
+          "    e = exE[x=a](p, body: m) {",
+          "      body {",
+          "        a = allE[t=a](f.body)",
+          "        m = mp(e.body, a)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "goal <- f"
+        ],
+        "tests": [{ "goal": "¬∀x. P(x)", "premises": { "p": "∃x. ¬P(x)" } }]
+      }
+    },
+    {
+      "id": "notAll",
+      "form": "notAll",
+      "label": "¬∀x. P → ∃x. ¬P",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "k = impI[A=\"~exists x. ~P(x)\"](body: m2) {",
+          "  body {",
+          "    g = allI[x=a](body: r1) {",
+          "      body {",
+          "        j = impI[A=\"~P(a)\"](body: mj) {",
+          "          body {",
+          "            i = exI(j.body)",
+          "            mj = mp(k.body, i)",
+          "          }",
+          "        }",
+          "        r1 = raa(j)",
+          "      }",
+          "    }",
+          "    m2 = mp(p, g)",
+          "  }",
+          "}",
+          "r2 = raa(k)",
+          "goal <- r2"
+        ],
+        "tests": [{ "goal": "∃x. ¬P(x)", "premises": { "p": "¬∀x. P(x)" } }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
+  "outputType": "logic:judgment"
+}

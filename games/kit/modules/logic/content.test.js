@@ -45,13 +45,13 @@ const CONTENT = {
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
   },
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
-  // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
+  // The parts the starter defines (its pieces/<name>.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
-  partDefs: { settings: { ...starterPieces(import.meta.dirname).settings, formula: { control: 'tree' } }, parts: {
+  partDefs: { parts: {
     ...Object.fromEntries(Object.entries(starterPieces(import.meta.dirname).parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'logic:family-gate', inside: [{ id: 'base', reference: GATE }] },
-    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'base', reference: CHAIN }] },
-    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
+    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B', 'C'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'base', reference: CHAIN }] },
+    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
   } },
   eras: [{ id: 'one', machine: null, levels: [{ id: 'or' }, { id: 'chain' }, { id: 'useChain' }, { id: 'half' }, { id: 'useHalf' }, { id: 'eqSym' }, { id: 'andDef' }, { id: 'eqUse' }, { id: 'eqTerm' }, { id: 'rows' }, { id: 'negate' }], links: [{ from: 'or', to: 'chain' }, { from: 'chain', to: 'useChain' }, { from: 'useChain', to: 'half' }, { from: 'half', to: 'useHalf' }, { from: 'useHalf', to: 'eqSym' }, { from: 'eqSym', to: 'andDef' }, { from: 'andDef', to: 'eqUse' }, { from: 'eqUse', to: 'eqTerm' }, { from: 'eqTerm', to: 'rows' }, { from: 'rows', to: 'negate' }], chapter: { title: L('c'), question: L('q') } }],
   levels: [

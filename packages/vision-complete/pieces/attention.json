@@ -1,0 +1,25 @@
+{
+  "name": "@piece.attention.name",
+  "desc": "@piece.attention.desc",
+  "icon": "Network",
+  "family": "image:family-global",
+  "inputs": [
+    { "name": "Q", "type": "image:image" },
+    { "name": "K", "type": "image:image" },
+    { "name": "V", "type": "image:image" }
+  ],
+  "settings": {
+    "s": { "label": "@piece.attention.settings.s.label" },
+    "P": {
+      "label": "@piece.attention.settings.P.label",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "4", "label": "4" },
+        { "value": "8", "label": "8" }
+      ]
+    }
+  },
+  "nulls": "pass",
+  "compute": "image:attention(Q, K, V, $s, $P)",
+  "outputType": "image:image"
+}

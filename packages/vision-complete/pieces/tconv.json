@@ -1,0 +1,10 @@
+{
+  "name": "@piece.tconv.name",
+  "desc": "@piece.tconv.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": { "w": { "label": "@piece.tconv.settings.w.label" } },
+  "compute": "image:tconv(in, $w)",
+  "outputType": "image:image"
+}

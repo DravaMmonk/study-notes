@@ -8,17 +8,16 @@ import { glossaryFile } from './form.js'
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
-//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
+//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces/<name>.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Pin, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { copyWithoutTextKeys, sourceValue } from '../engine/catalogs.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { contentFileFor } from '../engine/content.js'
-import { settingReferences } from '../engine/pieces.js'
 import { fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
-import { AddFields, SettingUsers } from './PartFields.jsx'
+import { AddFields } from './PartFields.jsx'
 import { Picker } from './Picker.jsx'
 import { usePref } from './prefs.js'
 import SourceEditor from './SourceEditor.jsx'
@@ -89,7 +88,6 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     )
   }
   const definition = hit?.field && root.length === 2 && path.length === 2 && root.every((key, i) => key === path[i])
-  const inUse = definition && root[0] === 'settings' && settingReferences(partDefs, root[1]).length > 0
   const removeDefinition = () => {
     if (!confirmDelete(root[1])) return
     edit(path, { unset: true })
@@ -101,7 +99,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
       {tabsRow}
       <Head path={path} trail={trail} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
         pinned={pinned} onPin={hit ? () => onToggleTab(path) : null}
-        about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} inUse={inUse} />
+        about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} />
     </div>
   )
   if (json) {
@@ -141,7 +139,6 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   return (
     <div className="insp">
       {header}
-      {path[0] === 'settings' && typeof path[1] === 'string' && <SettingUsers file={partDefs} id={path[1]} onPiece={ctx.onPiece} />}
       {optional && (
         <div className="insp-tools">
           <span>{tr('可选的字段')}</span>
@@ -156,7 +153,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
           <span className="kit-spacer" />
           <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
           <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
-          {!(root[0] === 'parts' && path[2] === 'settings' && path.length === 4) && <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), copyWithoutTextKeys(list[last]), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>}
+          <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), copyWithoutTextKeys(list[last]), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>
           <button type="button" onClick={() => { if (confirmDelete(showPath(path))) { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) } }} title={tr('去掉')}><Trash2 size={13} /></button>
         </div>
       )}
@@ -224,7 +221,7 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove, inUse }) {
+function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove }) {
   const name = file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json` : file.parts ? 'pieces.json' : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
   const atRoot = path.length === 0
   const canOpenRoot = !['course.json', 'package.json'].includes(name)
@@ -250,8 +247,8 @@ function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, on
         })}
       </nav>
       <button type="button" className="insp-source" onClick={onToggleJson} aria-pressed={json} aria-label={jsonLabel} title={jsonLabel}><Braces size={13} aria-hidden="true" /></button>
-      {onRemove && <button type="button" className="insp-delete" onClick={onRemove} disabled={inUse}
-        title={inUse ? tr('仍有件引用这项设置', 'This setting is still used by pieces') : tr('删除', 'Delete')} aria-label={tr('删除', 'Delete')}>
+      {onRemove && <button type="button" className="insp-delete" onClick={onRemove}
+        title={tr('删除', 'Delete')} aria-label={tr('删除', 'Delete')}>
         <Trash2 size={13} aria-hidden="true" />
       </button>}
     </header>

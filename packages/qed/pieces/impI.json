@@ -1,0 +1,19 @@
+{
+  "name": "@piece.impI.name",
+  "desc": "@piece.impI.desc",
+  "icon": "Box",
+  "family": "logic:family-box",
+  "inputs": [],
+  "settings": { "A": { "control": "tree", "label": "@piece.impI.settings.A.label" } },
+  "regions": [
+    {
+      "name": "body",
+      "label": "@piece.impI.regions.0.label",
+      "opens": true,
+      "closes": true,
+      "type": "logic:judgment"
+    }
+  ],
+  "compute": "logic:impI(body)",
+  "outputType": "logic:judgment"
+}
