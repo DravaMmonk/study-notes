@@ -23,13 +23,14 @@ import PanelResizer from './PanelResizer.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
 import ChapterBoard from './ChapterBoard.jsx'
+import OverrideAudit from './OverrideAudit.jsx'
 import Review from './Review.jsx'
 import Audit from './Audit.jsx'
 import Inspector from './Inspector.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SCOPE = 'game'
-const TABS = [['arrange', '编排', 'Arrangement'], ['copy', '文案', 'Copy'], ['review', '变更', 'Changes']]
+const TABS = [['arrange', '编排', 'Arrangement'], ['copy', '文案', 'Copy'], ['overrides', '覆盖', 'Overrides'], ['review', '变更', 'Changes']]
 const SETTLE = 700
 const NEW = '\0new'
 
@@ -190,7 +191,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
                 ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                 : <>
                   <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} onCopy={(k) => { setCopyScope(k); setTab('copy') }} />
-                  <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} />
+                  <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} onOps={addOps} />
                 </>)}
               {tab === 'copy' && (
                 <article className="editor is-wide">
@@ -198,6 +199,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
                     onJump={(row) => { if (row.file.game) { const path = parsePath(row.path); select(path[0] === 'chapters' ? { era: path[1] } : { game: true }); pickField(path) } }} />
                 </article>
               )}
+              {tab === 'overrides' && <OverrideAudit content={content} layer={`@${game}`} pending={busyEditing} onOps={addOps} onOpen={() => setTab('arrange')} />}
               {tab === 'review' && (
                 <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
                   onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}

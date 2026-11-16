@@ -775,3 +775,14 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .chapter-members li { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 1px 2px 1px 7px; border: 1px solid var(--hairline); border-radius: 6px; font-size: 12px; }
 .chapter-members li.is-tag { border-style: dashed; }
 .chapter-members li span { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+
+/* The override audit (OverrideAudit.jsx): one row per override a layer can see. */
+.override-list { margin: 8px 0 0; padding: 0; list-style: none; }
+.override-list > li { border-bottom: 1px solid var(--hairline); }
+.override-row { display: flex; align-items: center; gap: 6px; min-height: 32px; min-width: 0; }
+.override-kind { flex: none; width: 4.5em; color: var(--muted); }
+.override-name { min-width: 0; overflow: hidden; padding: 0; border: 0; color: var(--accent-ink); background: none; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.override-layer { margin-left: auto; color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+.override-list > li.is-own .override-layer { color: var(--ink); }
+.override-list .diff-fields { padding: 4px 0 10px 26px; }
+@media (max-width: 600px) { .override-kind { display: none; } }

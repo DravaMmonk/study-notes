@@ -44,6 +44,7 @@ import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
 import ObjectsTab from './ObjectsTab.jsx'
+import OverrideAudit from './OverrideAudit.jsx'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -53,7 +54,7 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['overrides', '覆盖', 'Overrides'], ['review', '变更', 'Changes']]
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -599,6 +600,11 @@ export default function PackageStudio({ game, games, onGame, space }) {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
+                {tab === 'overrides' && <OverrideAudit content={content} layer={namespace} pending={saving || shown.ops !== ops} onOps={addOps}
+                  onOpen={(event) => {
+                    if (['tag', 'relation', 'layout'].includes(event.kind)) { setObjectAt({ [event.kind]: event.name }); setTab('arrange') }
+                    else if (event.kind === 'level') select({ level: event.name })
+                  }} />}
                 {tab === 'arrange' && <ObjectsTab content={content} namespace={namespace} at={objectAt} pending={saving || shown.ops !== ops} onAt={setObjectAt} onEdit={edit} onOps={addOps} />}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (

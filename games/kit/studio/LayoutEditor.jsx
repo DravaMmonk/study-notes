@@ -54,7 +54,8 @@ function dropOf(key) {
 }
 const dropAt = (x, y) => document.elementFromPoint(x, y)?.closest('[data-drop]')?.dataset.drop ?? null
 
-function OneLayout({ full, layout, own, content, namespace, pending, onEdit }) {
+/** One layout's grid. `onRows(rows)` writes the rows elsewhere (a game's override); without it they go to the layout. */
+export function OneLayout({ full, layout, own, content, namespace, pending, onEdit, onRows }) {
   const rows = layout.rows ?? []
   const members = layoutMembers(content, layout)
   const placed = new Set(rows.flat())
@@ -69,7 +70,7 @@ function OneLayout({ full, layout, own, content, namespace, pending, onEdit }) {
   const dragged = useRef(false)
   const titleOf = (id) => L(content.registries?.level?.[id]?.title)
   const describe = (id) => `${shownName(namespace, id)} ${titleOf(id) ?? ''}`.trim()
-  const write = (next) => onEdit(layoutRowsOp(namespace, full, next))
+  const write = (next) => (onRows ? onRows(next) : onEdit(layoutRowsOp(namespace, full, next)))
   const move = (id, to) => {
     if (locked || !to) return
     const next = to.off ? clearLevel(rows, id) : placeLevel(rows, id, to)
