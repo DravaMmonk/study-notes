@@ -237,7 +237,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : field} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
+            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : field ?? (at?.game ? { path: [] } : e !== null ? { path: ['chapters', e] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
               onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => setField(null)}
               tabs={[]} selection={at?.game ? { game: true } : { era: e }} onToggleTab={() => {}} onOpenTab={() => {}} onCloseTab={() => {}}
               onNavigate={(path) => pickField(path)} />}
