@@ -27,3 +27,13 @@ test('the image author check accepts a naive board caught only by a hidden case'
     { board: 'naive', cases: ['shown', 'hidden'] },
   ])
 })
+
+test('package previews allow omitted introductions but still check authored pages and tasks', () => {
+  const task = { id: 'sample', kind: 'board', title: 'Sample', board: 'sample', verify: () => '' }
+  const spec = { levels: [{ id: task.id, tasks: [task] }], intros: {}, kit: {}, course: {}, publishedBy: () => [] }
+  assert.ok(validate(spec).some((line) => line.fail && line.text.includes('没有引言')))
+  const preview = { ...spec, packagePreview: { id: 'sample' } }
+  assert.ok(validate(preview).every((line) => !line.fail))
+  assert.ok(validate({ ...preview, intros: { sample: [{ t: '' }] } }).some((line) => line.fail && line.text.includes('没有文字')))
+  assert.ok(validate({ ...preview, levels: [{ id: task.id, tasks: [{ ...task, verify: () => 'Broken task' }] }] }).some((line) => line.fail && line.text.includes('Broken task')))
+})

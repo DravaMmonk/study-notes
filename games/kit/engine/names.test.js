@@ -22,8 +22,8 @@ test('file assembly qualifies each layer and keeps the registries independent', 
     game: { title: t('heading', 'Demo'), primitives: ['library/calc'], chapters: [{ id: 'chapter', levels: ['library/calc'] }] },
     levels: [['calc', { title: t('heading', 'Calculate'), tasks: [{ id: 'work', piece: 'calc', carry: 'other/start', solution: ['n = calc()', 'out <- n'] }] }]],
     partDefs: { settings: { calc: { control: 'number', default: 1 } }, parts: { calc: { inputs: [{ name: 'a' }], settings: [{ key: 'value', setting: 'calc' }], compute: 'a' } } },
-    glossary: { groups: [{ id: 'calc', title: 'Numbers' }], entries: [{ id: 'calc', group: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
-    tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }]],
+    glossary: { groups: [], entries: [{ id: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
+    tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }], ['entries-calc', { kind: 'entry', title: 'Numbers', values: ['calc'] }]],
   }
   const before = structuredClone(source)
   const content = assemble(source)
@@ -38,7 +38,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.equal(content.partDefs.parts['library/calc'].settings[0].key, 'value')
   assert.equal(content.partDefs.parts['library/calc'].inputs[0].name, 'a')
   assert.equal(content.glossary.entries[0].at, 'library/calc')
-  assert.equal(content.glossary.entries[0].group, 'library/calc')
+  assert.equal(content.glossary.entries[0].group, 'library/entries-calc')
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
   for (const kind of ['level', 'piece', 'setting', 'entry']) assert.ok(content.registries[kind]['library/calc'])
   assert.ok(content.registries.tag['library/calc'])

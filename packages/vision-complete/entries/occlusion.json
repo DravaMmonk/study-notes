@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.occlusion.title",
+  "at": "11-1",
+  "body": [
+    "@glossary.entries.occlusion.body.0",
+    "@glossary.entries.occlusion.body.1",
+    "@glossary.entries.occlusion.body.2"
+  ],
+  "see": ["cnn", "attention"]
+}

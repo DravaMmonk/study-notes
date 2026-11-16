@@ -109,7 +109,7 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
               return (
                 <div key={key} className={`hit is-${hit.kind} ${out ? 'is-out' : ''}`}>
                   {replacing && hit.kind !== 'id' && <input type="checkbox" checked={!out} onChange={() => flip(key)} aria-label={tr('替换这一处')} />}
-                  <button type="button" onClick={() => onJump(hit.level ?? null, hit.path, hit.in)} title={`${showPath(hit.path)}${hit.side ? ` · ${hit.side}` : ''}${hit.line !== undefined ? ` · ${hit.line + 1}` : ''}`}>
+                  <button type="button" onClick={() => onJump(hit.level ?? null, hit.entry ? ['entries', content.glossary.entries.findIndex((e) => e.id === hit.entry), ...hit.path] : hit.tag ? ['groups', content.glossary.groups.findIndex((g) => g.id === hit.tag), ...hit.path] : hit.path, hit.entry || hit.tag ? 'glossary' : hit.in)} title={`${showPath(hit.path)}${hit.side ? ` · ${hit.side}` : ''}${hit.line !== undefined ? ` · ${hit.line + 1}` : ''}`}>
                     <code>{hit.kind === 'board' ? `${showPath(hit.path)}:${hit.line + 1}` : hit.kind === 'id' ? 'id' : showPath(hit.path)}</code>
                     <Snippet hit={hit} query={query} replacement={replacing ? replacement : null} />
                   </button>

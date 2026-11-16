@@ -119,8 +119,8 @@ test('level.rename renames the file and every reference', () => {
   assert.equal(level(ws, 'b1').from, 'two')
   assert.equal(level(ws, 'b1').brief.en, 'after <level-ref to="two"></level-ref>')
   assert.equal(level(ws, 'b1').brief.zh, '接着 <level-ref to="two"></level-ref>')
-  assert.equal(ws.glossary.entries[0].at, 'two')
-  assert.equal(ws.glossary.entries[0].body[0], 'see <level-ref to="two"></level-ref>')
+  assert.equal(ws.entries.get('e').at, 'two')
+  assert.equal(ws.entries.get('e').body[0], 'see <level-ref to="two"></level-ref>')
   assert.throws(() => run(ws, 'level.rename', { level: 'two', to: 'b1' }), /already/)
 })
 
@@ -181,15 +181,15 @@ test('text.set edits one language at a field path and round trips', () => {
   const { ws } = toy()
   const before = level(ws, 'b1').brief
   const gameTitle = ws.game.title
-  const entryTitle = ws.glossary.entries[0].title
+  const entryTitle = ws.entries.get('e').title
   roundTrip(ws, 'text.set', { level: 'b1', path: 'brief', lang: 'en', value: 'then' })
   assert.deepEqual(level(ws, 'b1').brief, { ...before, en: 'then' })
   roundTrip(ws, 'text.set', { level: 'b1', path: 'brief', lang: 'fr', value: 'ensuite' })
   assert.deepEqual(level(ws, 'b1').brief, { ...before, en: 'then', fr: 'ensuite' })
   roundTrip(ws, 'text.set', { in: 'game', path: 'title', lang: 'zh', value: '玩具' })
   assert.deepEqual(ws.game.title, { ...gameTitle, zh: '玩具' })
-  roundTrip(ws, 'text.set', { in: 'glossary', path: 'entries[0].title', lang: 'ja', value: '項目' })
-  assert.deepEqual(ws.glossary.entries[0].title, { ...entryTitle, ja: '項目' })
+  roundTrip(ws, 'text.set', { entry: 'e', path: 'title', lang: 'ja', value: '項目' })
+  assert.deepEqual(ws.entries.get('e').title, { ...entryTitle, ja: '項目' })
   assert.throws(() => run(ws, 'text.set', { level: 'b1', path: 'from', lang: 'en', value: 'x' }), /not a text/)
 })
 
@@ -227,14 +227,14 @@ test('preview, apply and undo a locale edit across a workspace reopen', async ()
   assert.equal(existsSync(join(root, catalog)), false)
 })
 
-test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () => {
+test('entry.put, entry.patch and entry.remove edit the encyclopedia', () => {
   const { ws } = toy()
-  roundTrip(ws, 'glossary.put', { entry: 'f', data: { group: 'g', title: 'F', body: [] } })
-  assert.deepEqual(ws.glossary.entries.map((e) => e.id), ['e', 'f'])
-  roundTrip(ws, 'glossary.set', { entry: 'e', fields: { title: 'E2', at: null } })
-  assert.deepEqual(ws.glossary.entries[0], { id: 'e', group: 'g', title: 'E2', body: ['see <level-ref to="a2"></level-ref>'] })
-  roundTrip(ws, 'glossary.remove', { entry: 'e' })
-  assert.deepEqual(ws.glossary.entries.map((e) => e.id), ['f'])
+  roundTrip(ws, 'entry.put', { entry: 'f', data: { title: 'F', body: [] } })
+  assert.deepEqual([...ws.entries.keys()], ['e', 'f'])
+  roundTrip(ws, 'entry.patch', { entry: 'e', fields: { title: 'E2', at: null } })
+  assert.deepEqual(ws.entries.get('e'), { title: 'E2', body: ['see <level-ref to="a2"></level-ref>'] })
+  roundTrip(ws, 'entry.remove', { entry: 'e' })
+  assert.deepEqual([...ws.entries.keys()], ['f'])
 })
 
 test('the log keeps each file’s hashes; a write lands only on the files and the log it was made on', async () => {
@@ -476,7 +476,7 @@ test('package tags, relations and layouts persist and reopen with full names', a
     { op: 'layout.put', layout: 'toy/map', data: { of: '#pick', rows: [['toy/a1'], ['toy/a2']] } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  assert.ok(result.files.includes('packages/toy/tags/pick.json'))
+  assert.ok(result.files.includes('packages/toy/tags/level/pick.json'))
   assert.ok(result.files.includes('packages/toy/layouts/map.json'))
   const content = openGame('toy', root).content()
   assert.deepEqual(content.layouts['toy/map'].rows, [['toy/a1'], ['toy/a2']])
@@ -509,4 +509,17 @@ test('removing a level clears its tag, relation and layout placements and suppor
   assert.deepEqual(ws.tags.get('levels').values, [])
   assert.deepEqual(ws.relations.get('path').edges, [])
   assert.deepEqual(ws.layouts.get('map').rows, [])
+})
+
+
+test('entry identity and membership cannot be hidden by the encyclopedia projection', async () => {
+  const { root } = toy()
+  const ws = openPackage('toy', root, { vocabulary: VOCAB })
+  for (const op of [{ op: 'entry.set', entry: 'e', path: 'id', value: 'other' }, { op: 'entry.patch', entry: 'e', fields: { group: 'g' } }]) {
+    const result = await runChangeset(ws, { ops: [op] }, { check: false, domain: DOMAIN })
+    assert.equal(result.ok, false)
+    assert.match(result.problems.join('\n'), /identity belongs/)
+    assert.equal(ws.entries.get('e').id, undefined)
+    assert.equal(ws.entries.get('e').group, undefined)
+  }
 })

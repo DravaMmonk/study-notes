@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.recognise.title",
+  "at": "ice",
+  "body": ["@glossary.entries.recognise.body.0", "@glossary.entries.recognise.body.1"],
+  "see": ["dp", "state", "recurrence"]
+}

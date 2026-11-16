@@ -7,10 +7,10 @@ import { resolve } from 'node:path'
 import { WIDTH, writeJson } from './json.js'
 import { lineDiff, unified } from './diff.js'
 
-// The domains' starter games: content files the kit keeps, in the house style every content file is written in.
-const DOMAINS = resolve(import.meta.dirname, '../../modules')
-const files = readdirSync(DOMAINS).filter((name) => ['image', 'logic', 'table'].includes(name)).map((d) => resolve(DOMAINS, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
-  resolve(g, 'game.json'), resolve(g, 'glossary.json'), ...readdirSync(resolve(g, 'levels')).map((f) => resolve(g, 'levels', f)),
+// The modules' starter games: content files the kit keeps, in the house style every content file is written in.
+const MODULES = resolve(import.meta.dirname, '../../modules')
+const files = readdirSync(MODULES).map((d) => resolve(MODULES, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
+  resolve(g, 'game.json'), ...['levels', 'entries', 'tags/entry'].flatMap((dir) => readdirSync(resolve(g, dir)).map((f) => resolve(g, dir, f))),
 ])
 
 test('every content file is written back as it is', () => {

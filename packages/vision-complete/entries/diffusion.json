@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.diffusion.title",
+  "at": "8-7",
+  "body": ["@glossary.entries.diffusion.body.0", "@glossary.entries.diffusion.body.1"],
+  "see": ["autoencoder", "reparam"]
+}

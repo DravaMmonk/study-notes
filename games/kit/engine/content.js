@@ -1,3 +1,4 @@
+import { encyclopedia } from './encyclopedia.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { GLOSSARY } from './vocabulary.js'
 import { createRegistries, expandNames, fullName, registryOf } from './names.js'
@@ -96,10 +97,12 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   levels = levels.map(([name, value]) => [name, refs(value, schemas.level)])
   glossary = refs(glossary, GLOSSARY)
   const entryEdges = relationEdges.order.filter((edge) => edge.of === 'entry')
-  if (glossary?.entries && entryEdges.length) {
+  if (glossary?.entries) {
     const entries = new Map(glossary.entries.map((entry) => [entry.id, entry]))
     glossary = { ...glossary, entries: relationOrder([...entries.keys()], entryEdges, 'entry').map((id) => entries.get(id)) }
   }
+  const entryObjects = glossary?.entries ?? []
+  glossary = encyclopedia(entryObjects, tagMap, relationMap, resolve, relationEdges.order)
   game = refs(game, schemas.game)
   const eras = sourceChapters && assembleChapters(game.chapters, { expand: resolve, relations: relationEdges, layouts: layoutMap, optional: game.optional, skippable: game.skippable, problems: objectProblems })
   const replaces = {}
@@ -129,7 +132,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden, registries,
   }
   registries.level = registryOf('level', content.levels.map((level) => [level.id, level]))
-  registries.entry = registryOf('entry', (glossary?.entries ?? []).map((entry) => [entry.id, entry]))
+  registries.entry = registryOf('entry', entryObjects.map((entry) => [entry.id, entry]))
   if (fromDisk) sourceContents.add(content)
   return content
 }
@@ -146,10 +149,10 @@ export function deepFreeze(value) {
 
 /** File-shaped assembly inputs for publishers and pending-course validation. */
 export function assemblySource(content) {
-  const { id, levels, glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, tags = {}, relations = {}, layouts = {}, trays: _trays, replaces: _replaces, ...game } = content
+  const { id, levels, glossary: _glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, tags = {}, relations = {}, layouts = {}, trays: _trays, replaces: _replaces, ...game } = content
   if (sourceChapters) game.chapters = sourceChapters
   return {
-    id, game, glossary, partDefs, blueprint, overridden,
+    id, game, glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
     levels: levels.map(({ id, ...level }) => [id, level]),
     ...Object.fromEntries(Object.entries({ tags, relations, layouts }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [name, object, name.split('/')[0]])])),
   }

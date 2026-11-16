@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.fourier.title",
+  "at": "2-6",
+  "body": [
+    "@glossary.entries.fourier.body.0",
+    "@glossary.entries.fourier.body.1",
+    "@glossary.entries.fourier.body.2"
+  ],
+  "see": ["superpose", "spectrum"]
+}

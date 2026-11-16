@@ -1,9 +1,0 @@
-{
-  "kind": "item",
-  "title": "@tray.trays.machine.items.equality.title",
-  "values": [
-    "rw",
-    "simp",
-    "logic:hyp"
-  ]
-}

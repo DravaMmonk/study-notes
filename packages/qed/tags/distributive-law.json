@@ -1,9 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.distributive-law.title",
-  "values": [
-    "dist",
-    "r-dist",
-    "c-dist"
-  ]
-}

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.bench.title",
+  "at": "0-2",
+  "body": ["@glossary.entries.bench.body.0", "@glossary.entries.bench.body.1"],
+  "see": ["game", "intro"]
+}

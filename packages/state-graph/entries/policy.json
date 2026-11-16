@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.policy.title",
+  "at": "arrows",
+  "body": ["@glossary.entries.policy.body.0", "@glossary.entries.policy.body.1"],
+  "see": ["valueIter", "expectation"]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.colour.title",
+  "at": "3-6",
+  "body": [
+    "@glossary.entries.colour.body.0",
+    "@glossary.entries.colour.body.1",
+    "@glossary.entries.colour.body.2"
+  ],
+  "see": ["pixel", "lambert", "channels"]
+}

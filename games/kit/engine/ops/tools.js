@@ -371,9 +371,9 @@ const tools = {
         const text = git('show', `${tree}:${path}`)
         if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
         let value = JSON.parse(text)
-        const isLevel = fileName.startsWith('levels/')
-        if (isLevel || ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json'].includes(fileName)) {
-          const scope = join(isLevel ? dirname(dirname(path)) : dirname(path), 'i18n')
+        const isObject = /^(levels|entries|tags|relations|layouts)\//.test(fileName)
+        if (isObject || ['game.json', 'pieces.json', 'blueprint.json'].includes(fileName)) {
+          const scope = join(isObject ? path.slice(0, -fileName.length) : dirname(path), 'i18n')
           const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))
           const catalogs = Object.fromEntries(files.map((file) => [file.slice(scope.length + 1, -'.json'.length), JSON.parse(git('show', `${tree}:${file}`))]))
           value = catalogReader(catalogs, scope)(value, path)

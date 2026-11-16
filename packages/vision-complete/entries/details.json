@@ -1,0 +1,9 @@
+{
+  "title": "@glossary.entries.details.title",
+  "body": [
+    "@glossary.entries.details.body.0",
+    "@glossary.entries.details.body.1",
+    "@glossary.entries.details.body.2"
+  ],
+  "see": ["tests", "views"]
+}

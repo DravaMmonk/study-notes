@@ -1,0 +1,5 @@
+{
+  "title": "@glossary.entries.defeq.title",
+  "body": ["@glossary.entries.defeq.body.0"],
+  "see": ["propeq", "motive"]
+}

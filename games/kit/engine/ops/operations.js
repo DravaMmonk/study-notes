@@ -11,7 +11,7 @@ import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { settingReferences } from '../pieces.js'
-import { GLOSSARY } from '../vocabulary.js'
+import { ENTRY } from '../vocabulary.js'
 import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
@@ -171,7 +171,7 @@ export const OPERATIONS = {
           inverse.push({ op: 'game.set', path: [field], value: old })
         }
       }
-      for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) for (const [name, old] of ws[plural]) {
+      for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) for (const [name, old] of ws[plural]) {
         if (!references.some((r) => r.file === `${plural}/${name}.json`)) continue
         const next = { ...old }
         if (kind === 'tag') next.values = old.values.filter((id) => !matches(id))
@@ -279,16 +279,16 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('修改某个语言的字段文本'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
-    apply(ws, { level, in: where, path, lang, value: text }, { vocabulary }) {
-      if ([level, where].filter((x) => x !== undefined).length !== 1) fail('name the text’s file: a level, a group, or in: game, glossary or pieces')
+    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
+    apply(ws, { level, entry, tag, in: where, path, lang, value: text }, { vocabulary }) {
+      if ([level, entry, tag, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, or in: game or pieces')
       if (where === 'pieces' && ws.partDefs === undefined) fail('the game has no pieces.json')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, GLOSSARY]
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
       if (shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
-      if (old === undefined && (where === 'glossary' || where === 'pieces')) fail(`${where}.json has no text at ${showPath(keys)}`)
+      if (old === undefined && (entry !== undefined || tag !== undefined || where === 'pieces')) fail(`${where}.json has no text at ${showPath(keys)}`)
       if (lang && !isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       if (lang && typeof text !== 'string') fail('editing one language needs one string')
       if (lang && typeof old === 'string') fail('use a text field without a language to edit a shared string')
@@ -296,69 +296,16 @@ export const OPERATIONS = {
       // Keep the message identity when a whole field is edited or restored by its inverse.
       const key = textKey(next) ?? textKey(old)
       const updated = key && typeof next === 'object' ? withTextKey(next, key) : next
-      const file = level ?? where
+      const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(tag !== undefined && { tag }), ...(where !== undefined && { in: where }) }
+      const file = level ?? entry ?? tag ?? where
       // Restoring the complete message also removes a locale that this edit added.
-      const inverse = [where === 'glossary' || where === 'pieces' ? { op: 'text.set', in: where, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      const inverse = [entry !== undefined || tag !== undefined || where === 'pieces' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, updated, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, updated)
       else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      else ws.glossary = setAt(ws.glossary, keys, updated)
+      else if (entry !== undefined) ws.entries.set(entry, setAt(value, keys, updated))
+      else if (tag !== undefined) ws.tags.set(tag, setAt(value, keys, updated))
       return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
-    },
-  },
-  'glossary.presentation': {
-    about: t('设置百科词条是否按解锁关卡的章节分组'),
-    params: S.obj({ groupByChapter: S.either(S.bool(), S.oneOf([null])) }),
-    apply(ws, { groupByChapter }) {
-      const old = ws.glossary.groupByChapter ?? null
-      ws.glossary = mergePatch(ws.glossary, { groupByChapter })
-      return { says: 'glossary: set chapter grouping', inverse: [{ op: 'glossary.presentation', groupByChapter: old }] }
-    },
-  },
-  'glossary.replace': {
-    about: t('替换百科的 JSON 内容', 'Replace the glossary JSON'),
-    params: S.obj({ data: GLOSSARY }),
-    apply(ws, { data }) {
-      const old = ws.glossary
-      ws.glossary = data
-      return { says: 'glossary: replaced', inverse: [{ op: 'glossary.replace', data: old }] }
-    },
-  },
-  'glossary.put': {
-    about: t('写一条百科（没有就加上，at 是在列表里的位置）'),
-    params: S.obj({ entry: S.str(), data: S.map(S.any()), at: S.opt(S.int({ min: 0 })) }),
-    apply(ws, { entry, data, at }) {
-      const entries = ws.glossary.entries
-      const k = entries.findIndex((e) => e.id === entry)
-      const next = { id: entry, ...data }
-      const list = k >= 0 ? entries.map((e, i) => (i === k ? next : e)) : [...entries.slice(0, at ?? entries.length), next, ...entries.slice(at ?? entries.length)]
-      ws.glossary = { ...ws.glossary, entries: list }
-      const { id: _, ...old } = entries[k] ?? {}
-      return { says: `glossary: ${k >= 0 ? 'rewrote' : 'added'} ${entry}`, inverse: [k >= 0 ? { op: 'glossary.put', entry, data: old } : { op: 'glossary.remove', entry }] }
-    },
-  },
-  'glossary.set': {
-    about: t('按 JSON merge patch 改一条百科的几个字段'),
-    params: S.obj({ entry: S.str(), fields: S.map(S.any()) }),
-    apply(ws, { entry, fields }) {
-      const entries = ws.glossary.entries
-      const k = entries.findIndex((e) => e.id === entry)
-      if (k < 0) fail(`no entry ${entry}: glossary.put adds one`)
-      const { id: _, ...old } = entries[k]
-      ws.glossary = { ...ws.glossary, entries: entries.map((e, i) => (i === k ? mergePatch(e, fields) : e)) }
-      return { says: `glossary: ${entry}: patched ${Object.keys(fields).join(', ')}`, inverse: [{ op: 'glossary.put', entry, data: old }] }
-    },
-  },
-  'glossary.remove': {
-    about: t('删掉一条百科'),
-    params: S.obj({ entry: S.str() }),
-    apply(ws, { entry }) {
-      const entries = ws.glossary.entries
-      const k = entries.findIndex((e) => e.id === entry)
-      if (k < 0) fail(`no entry ${entry}`)
-      const { id: _, ...old } = entries[k]
-      ws.glossary = { ...ws.glossary, entries: entries.filter((_, i) => i !== k) }
-      return { says: `glossary: removed ${entry}`, inverse: [{ op: 'glossary.put', entry, data: old, at: k }] }
     },
   },
   'piece.add': {
@@ -519,8 +466,8 @@ export const OPERATIONS = {
 }
 
 /** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
-function packageText(ws, { level, in: where }, keys, vocabulary) {
-  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : where === 'glossary' ? [ws.glossary, GLOSSARY] : [ws.game, vocabulary.game]
+function packageText(ws, { level, entry, tag, in: where }, keys, vocabulary) {
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
   if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
   if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
   const text = getAt(value, keys)
@@ -532,14 +479,14 @@ Object.assign(OPERATIONS, {
   'text.override': {
     about: t('这款游戏在包的一处文案上写它自己的（不改包里的原文）；value 为 null 时恢复原文', 'The game\'s own wording over a text of its package (the package is left as it is); value null: back to the package\'s'),
     params: S.obj({
-      level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH,
+      level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'pieces'])), path: PATH,
       lang: S.str({ pattern: LANGUAGE_CODE }), value: S.either(S.str(), S.oneOf([null])),
     }),
-    apply(ws, { level, in: where, path, lang, value }, { vocabulary }) {
-      if ([level, where].filter((x) => x !== undefined).length !== 1) fail('name the text’s file: a level, a group, or in: game, glossary or pieces')
+    apply(ws, { level, entry, tag, in: where, path, lang, value }, { vocabulary }) {
+      if ([level, entry, tag, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, or in: game or pieces')
       if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       const keys = parsePath(path)
-      const key = textKey(packageText(ws, { level, in: where }, keys, vocabulary))
+      const key = textKey(packageText(ws, { level, entry, tag, in: where }, keys, vocabulary))
       const target = `overrides/${ws.packageId}/i18n/${lang}.json`
       const old = ws.overrideFiles.get(target)?.[key] ?? null
       const entries = { ...ws.overrideFiles.get(target) }
@@ -547,7 +494,7 @@ Object.assign(OPERATIONS, {
       else entries[key] = value
       if (Object.keys(entries).length) ws.overrideFiles.set(target, entries)
       else ws.overrideFiles.delete(target)
-      const file = { ...(level !== undefined && { level }), ...(where !== undefined && { in: where }) }
+      const file = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(tag !== undefined && { tag }), ...(where !== undefined && { in: where }) }
       return { says: `${level ?? where}: ${showPath(keys)} (${lang}) ${value === null ? 'reads as its package writes it' : 'reads the game\'s own way'}`, inverse: [{ op: 'text.override', ...file, path: keys, lang, value: old }] }
     },
   },
@@ -564,8 +511,8 @@ export function opScope({ op, path, in: where, layer }) {
   return 'package'
 }
 
-// The same operations edit all three named-object kinds. Reads use ws.content().registries[kind][fullName].
-for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) {
+// The same operations edit entries, tags, relations and layouts. Reads use ws.content().registries[kind][fullName].
+for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) {
   const selector = { [kind]: S.str({ pattern: OBJECT_NAME }) }
   const target = (ws, name) => {
     if (name.includes('/') || name.startsWith('@')) fail('declare objects in this package using its local name')
@@ -575,7 +522,7 @@ for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layo
   Object.assign(OPERATIONS, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: OBJECT_SCHEMAS[plural] }),
+      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : OBJECT_SCHEMAS[plural] }),
       apply(ws, args) {
         const name = target(ws, args[kind]), old = ws[plural].get(name)
         ws[plural].set(name, args.data)
@@ -604,12 +551,22 @@ for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layo
 }
 
 
+OPERATIONS['entry.patch'] = {
+  about: t('修改对象字段', 'Set an object field'),
+  params: S.obj({ entry: S.str({ pattern: OBJECT_NAME }), fields: S.map(S.any()) }),
+  apply(ws, { entry, fields }) {
+    const old = ws.entries.get(entry) ?? fail(`no entry ${entry}`)
+    ws.entries.set(entry, mergePatch(old, fields))
+    return { says: `entry ${entry}: patched`, inverse: [{ op: 'entry.put', entry, data: old }] }
+  },
+}
+
 /** Overrides always write to the named authoring layer, never to the declaration. */
 const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders), 'i18n']), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
 const overrideFile = (ws, { layer, kind, name }) => {
   if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
-  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : folders[kind]}/${id}.json`
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tag/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : folders[kind]}/${id}.json`
 }
 Object.assign(OPERATIONS, {
   'override.put': {
@@ -618,6 +575,7 @@ Object.assign(OPERATIONS, {
     apply(ws, args) {
       const file = overrideFile(ws, args)
       const old = ws.overrideFiles.get(file)
+      if (args.kind === 'tag' && Object.hasOwn(args.data ?? {}, 'kind')) fail('tag kind belongs in the override path')
       let data = args.data
       if (data === undefined) {
         if (args.kind === 'i18n') data = {}
@@ -625,7 +583,7 @@ Object.assign(OPERATIONS, {
           const object = ws.content().registries[args.kind]?.[args.name]
           if (!object) fail(`no ${args.kind} ${args.name}`)
           const { id: _id, ...value } = sourceValue(object)
-          data = args.merge ? {} : value
+          data = args.merge ? {} : args.kind === 'tag' ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'kind')) : value
         }
       }
       ws.overrideFiles.set(file, { ...(args.merge && { $merge: true }), ...data })

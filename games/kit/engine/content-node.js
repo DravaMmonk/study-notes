@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { assemble, combineConfiguration } from './content.js'
-import { GLOSSARY } from './vocabulary.js'
+import { ENTRY } from './vocabulary.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { OBJECT_SCHEMAS } from './objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
@@ -65,7 +65,28 @@ export function readGameConfig(id, root = PROJECT_DIR) {
 /** Named objects declared by a package or game layer, [[name, path]]. */
 export function objectFiles(dir, kind) {
   const folder = resolve(dir, kind)
+  if (kind === 'tags' || kind === 'tag') {
+    if (!existsSync(folder)) return []
+    const children = readdirSync(folder, { withFileTypes: true })
+    if (children.some((entry) => entry.isFile() && entry.name.endsWith('.json'))) throw new Error(`${folder}: tags belong in <kind>/<name>.json`)
+    return children.filter((entry) => entry.isDirectory()).sort((a, b) => a.name.localeCompare(b.name)).flatMap((entry) => {
+      if (!['level', 'item', 'setting', 'entry'].includes(entry.name)) throw new Error(`${folder}: unknown tag kind ${entry.name}`)
+      return objectFiles(folder, entry.name).map(([name, file]) => [`${entry.name}/${name}`, file])
+    })
+  }
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => [f.slice(0, -5), resolve(folder, f)]) : []
+}
+
+/** Tag kind belongs to the path; source files never duplicate it. */
+export function tagValue(name, value) {
+  if (Object.hasOwn(value, 'kind')) throw new Error(`tags/${name}: kind belongs in the path, not the object`)
+  return { ...value, kind: name.split('/')[0] }
+}
+
+/** Entry identity and membership belong to filenames and tags. */
+export function entryValue(name, value) {
+  if (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group')) throw new Error(`entries/${name}: identity belongs in the filename and membership in entry tags`)
+  return value
 }
 
 /** Games arrange package objects and cannot declare objects of their own. */
@@ -109,10 +130,10 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
     game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file, schemas.game, schemas)]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
     ...Object.fromEntries(['tags', 'relations', 'layouts'].map((kind) => [kind, [
-      ...objectFiles(packageDir, kind).map(([name, file]) => [name, read(packageText, file, OBJECT_SCHEMAS[kind]), packageId]),
+      ...objectFiles(packageDir, kind).map(([name, file]) => [kind === 'tags' ? name.split('/')[1] : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.split('/')[0] }) }, packageId]),
     ]])),
     declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
-    glossary: read(packageText, resolve(packageDir, 'glossary.json'), GLOSSARY),
+    glossary: { groups: [], entries: objectFiles(packageDir, 'entries').map(([id, file]) => ({ id, ...read(packageText, file, ENTRY) })) },
     partDefs: existsSync(parts) ? read(packageText, parts, PARTS_FILE) : undefined,
     blueprint: existsSync(blueprint) ? read(courseText, blueprint, BLUEPRINT) : undefined,
     fromDisk: true,
@@ -121,19 +142,19 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
 
 /** Read a layer in file shape; workspaces can replace this layer before assembling. */
 export function readLayer(id, dir, config = json(resolve(dir, 'package.json'))) {
+  if (existsSync(resolve(dir, 'glossary.json'))) throw new Error(`${dir}: glossary.json has been replaced by entries/ and tags/entry/`)
   const objects = levelFiles(dir).map(([name, file]) => ({ kind: 'level', name, value: json(file) }))
-  for (const folder of ['tags', 'relations', 'layouts']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name, value: json(file) })
-  const parts = resolve(dir, 'pieces.json'), glossary = resolve(dir, 'glossary.json')
+  for (const folder of ['tags', 'relations', 'layouts']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/')[1] : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
+  const parts = resolve(dir, 'pieces.json')
   if (existsSync(parts)) for (const [field, kind] of [['parts', 'piece'], ['settings', 'setting']]) for (const [name, value] of Object.entries(json(parts)[field] ?? {})) objects.push({ kind, name, value })
-  const glossaryValue = existsSync(glossary) ? json(glossary) : { groups: [], entries: [] }
-  for (const { id: name, ...value } of glossaryValue.entries) objects.push({ kind: 'entry', name, value })
+  for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
   const overrides = [], textOverrides = []
   const overrideDir = resolve(dir, 'overrides')
   for (const namespace of existsSync(overrideDir) ? readdirSync(overrideDir) : []) {
-    for (const [kind, folder] of Object.entries(folders)) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${name}`, value: json(file) })
+    for (const [kind, folder] of Object.entries(folders)) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), kind === 'tag' ? 'tag' : folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/')[1] : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, objects, overrides, textOverrides, catalogs: readCatalogs(resolve(dir, 'i18n')), glossary: glossaryValue }
+  return { id, config, objects, overrides, textOverrides, catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
 export function readPackageLayers(packageIds, root = PROJECT_DIR) {
@@ -143,7 +164,7 @@ export function readPackageLayers(packageIds, root = PROJECT_DIR) {
 /** Assemble qualified layers once, after every override has been composed. */
 export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
-  const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses, groups } = result
+  const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
   let game = Object.assign({}, ...configurations)
   delete game.uses
   const packageFields = Object.keys(game).filter((key) => !['domain', 'vocabulary'].includes(key))
@@ -155,10 +176,9 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
     const values = overridden[key] ??= {}
     values[lang] = event.before
   }
-  // Glossary groups remain package metadata until the later glossary migration.
   return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
     levels: entries('level'), tags: entries('tag'), relations: entries('relation'), layouts: entries('layout'),
-    partDefs: { parts: r.piece, settings: r.setting }, glossary: { groups, entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
+    partDefs: { parts: r.piece, settings: r.setting }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
     blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packagePreview: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })
 }

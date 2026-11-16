@@ -136,12 +136,17 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
   put(join(course, 'game.json'), { packages: [id], ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { pieces: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
-  put(join(pkg, 'glossary.json'), sourceValue(glossaryText))
+  mkdirSync(join(pkg, 'entries'), { recursive: true })
+  for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
+  mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
+  for (const { id, ...group } of glossaryText.groups) put(join(pkg, 'tags/entry', `${id}.json`), { ...sourceValue(group), values: glossaryText.entries.filter((e) => e.group === id).map((e) => e.id) })
   if (piecesText !== undefined) put(join(pkg, 'pieces.json'), sourceValue(piecesText))
   for (const [level, value] of levelText) put(join(pkg, 'levels', `${level}.json`), sourceValue(value))
   for (const [kind, name, value] of objectText) {
-    mkdirSync(join(pkg, kind), { recursive: true })
-    put(join(pkg, kind, `${name}.json`), sourceValue(value))
+    const folder = kind === 'tags' ? `${kind}/${value.kind}` : kind
+    mkdirSync(join(pkg, folder), { recursive: true })
+    const { kind: _kind, ...tag } = value
+    put(join(pkg, folder, `${name}.json`), sourceValue(kind === 'tags' ? tag : value))
   }
   putCatalogs(course, shell, route)
   putCatalogs(pkg, ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))

@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.component.title",
+  "at": "confluence",
+  "body": [
+    "@glossary.entries.component.body.0",
+    "@glossary.entries.component.body.1",
+    "@glossary.entries.component.body.2"
+  ],
+  "see": ["board", "part", "countOpt"]
+}

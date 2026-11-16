@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.layout.title",
+  "body": [
+    "@glossary.entries.layout.body.0",
+    "@glossary.entries.layout.body.1",
+    "@glossary.entries.layout.body.2",
+    "@glossary.entries.layout.body.3"
+  ],
+  "see": ["circuit", "wiremode", "details"]
+}

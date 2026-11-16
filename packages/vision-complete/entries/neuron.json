@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.neuron.title",
+  "at": "4-7",
+  "body": [
+    "@glossary.entries.neuron.body.0",
+    "@glossary.entries.neuron.body.1",
+    "@glossary.entries.neuron.body.2"
+  ],
+  "see": ["descent", "cnn"]
+}

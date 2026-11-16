@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.contrapositive.title",
+  "at": "mt",
+  "body": ["@glossary.entries.contrapositive.body.0", "@glossary.entries.contrapositive.body.1"],
+  "see": ["counterexample"]
+}

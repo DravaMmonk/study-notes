@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.unet.title",
+  "at": "9-8",
+  "body": ["@glossary.entries.unet.body.0", "@glossary.entries.unet.body.1"],
+  "see": ["upsample", "residual"]
+}

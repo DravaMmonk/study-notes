@@ -1,9 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.logical-normal-forms.title",
-  "values": [
-    "sp-nnf",
-    "sp-cnf",
-    "sp-order"
-  ]
-}

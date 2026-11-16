@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.overlap.title",
+  "at": "robber",
+  "body": ["@glossary.entries.overlap.body.0", "@glossary.entries.overlap.body.1"],
+  "see": ["speed", "memo", "dp"]
+}

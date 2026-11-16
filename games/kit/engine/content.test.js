@@ -99,7 +99,7 @@ test('a name the content defines must be one it defines', () => {
   assert.deepEqual(validate(S.name('gate'), 'x', { names }), [], 'a kind of name the domain does not give is the contract’s to refuse')
   const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({}) })
   const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [], glossary: { groups: [{ id: 'a', title: 'A' }], entries: [{ id: 'e', group: 'b', title: 'E', body: [], see: ['f'] }] } }
-  assert.deepEqual(checkContent({ vocabulary }, content).map((p) => p.at), ['glossary.json.entries[0].group', 'glossary.json.entries[0].see[0]'])
+  assert.deepEqual(checkContent({ vocabulary }, content).map((p) => p.at), ['entries/e.json.see[0]'])
 })
 
 test('a vocabulary prints as plain data', () => {
@@ -113,7 +113,7 @@ test('content is checked file by file', () => {
     id: 'toy', schemas: VOCAB,
     game: { domain: 'toy', vocabulary: 3, title: { en: '玩具' }, extra: 1 },
     levels: [['b', { mode: 'read', text: 'x' }], ['a', { mode: 'run', world: 'nowhere' }]],
-    glossary: { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: 'E', body: [] }] },
+    glossary: { groups: [], entries: [{ id: 'e', title: 'E', body: [] }] },
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['toy/a', 'toy/b'])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [
@@ -131,7 +131,6 @@ test('a data game is read from its folder', () => {
   writeFileSync(join(dir, 'games', 'toy', 'course.json'), '{}')
   writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ domain: 'toy', vocabulary: 1 }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'glossary.json'), JSON.stringify({ groups: [], entries: [] }))
   assert.equal(isDataGame('toy', dir), true)
   assert.equal(isDataGame('none', dir), false)
   const content = readContent('toy', dir, { vocabulary: VOCAB })

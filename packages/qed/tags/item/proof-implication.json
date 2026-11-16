@@ -1,0 +1,4 @@
+{
+  "title": "@tray.trays.proof.items.implication.title",
+  "values": ["mp", "impI", "chain", "merge", "swap", "axK", "axS"]
+}

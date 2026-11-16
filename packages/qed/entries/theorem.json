@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.theorem.title",
+  "at": "and",
+  "body": ["@glossary.entries.theorem.body.0"],
+  "see": ["lemma", "classical"]
+}

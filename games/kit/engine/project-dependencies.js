@@ -18,7 +18,7 @@ function siblingCourseProblems(own, content, peers, root) {
     const belongs = (name) => shared.has(name.split('/')[0])
     const extra = peer.packageIds.filter((packageId) => !own.packageIds.includes(packageId))
     const installedLevels = extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'levels').map(([name]) => ({ id: `${packageId}/${name}` })))
-    const installedTags = Object.fromEntries(extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'tags').map(([name, file]) => [`${packageId}/${name}`, qualifyObject('tags', JSON.parse(readFileSync(file, 'utf8')), packageId)])))
+    const installedTags = Object.fromEntries(extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'tags').map(([name, file]) => [`${packageId}/${name.split('/')[1]}`, qualifyObject('tags', { ...JSON.parse(readFileSync(file, 'utf8')), kind: name.split('/')[0] }, packageId)])))
     const levels = new Set([...installedLevels, ...content.levels.filter((l) => belongs(l.id))].map((l) => l.id))
     const registries = { level: Object.fromEntries([...levels].map((name) => [name, {}])), tag: {
       ...Object.fromEntries(Object.entries(installedTags).filter(([name]) => !belongs(name))),

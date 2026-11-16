@@ -17,15 +17,23 @@ export default function Studio() {
   const [games, setGames] = useState(null)
   const [space, setSpace] = useState(QUERY.get('space') === 'game' ? 'game' : 'package')
   const [game, setGame] = useState(QUERY.get('game'))
+  const [packages, setPackages] = useState(null)
+  const [pkg, setPkg] = useState(QUERY.get('package'))
   const reload = () => call('games', {}).then((list) => {
     setGames(list)
     setGame((id) => (list.some((g) => g.id === id) ? id : list[0]?.id ?? null))
     return list
   })
-  useEffect(() => { reload() }, [])
-  if (!games || !game) return <div className="studio-loading">{tr('读取中……')}</div>
+  useEffect(() => {
+    reload()
+    call('packages', {}).then((list) => {
+      setPackages(list)
+      setPkg((id) => (list.some((p) => p.id === id) ? id : list[0]?.id ?? null))
+    })
+  }, [])
+  if (!games || !game || !packages || !pkg) return <div className="studio-loading">{tr('读取中……')}</div>
   const switcher = { value: space, onChange: setSpace }
   return space === 'game'
     ? <GameStudio game={game} games={games} onGame={setGame} onMade={(id) => reload().then(() => setGame(id))} space={switcher} />
-    : <PackageStudio key={game} game={game} games={games} onGame={setGame} space={switcher} />
+    : <PackageStudio key={pkg} pkg={pkg} packages={packages} onPackage={setPkg} space={switcher} />
 }

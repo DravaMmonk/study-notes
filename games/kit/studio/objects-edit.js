@@ -1,6 +1,7 @@
 // Names and lists for the studio's object editors (games/PACKAGES.md 3, 8): the registries hold full names
 // (`<namespace>/<name>`), the operations write a layer's own objects by their short names.
 import { referenceResolver, relationOrder } from '../engine/objects.js'
+import { edgesOf } from './override-edit.js'
 
 /** The namespace of a full name: `qed` for `qed/table`, `@qed` for `@qed/title`. */
 export const namespaceOf = (full) => (typeof full === 'string' && full.includes('/') ? full.slice(0, full.indexOf('/')).replace(/^#/, '') : null)
@@ -48,3 +49,14 @@ export function freeObjectName(taken, base) {
 
 /** The short names a layer already uses for one kind. */
 export const ownNames = (content, kind, namespace) => objectsOf(content, kind, namespace).filter(([, , own]) => own).map(([full]) => localName(namespace, full))
+
+/** Where `full` (an object of `kind`) is named: { tags, relations, layouts }, each a list of full names. */
+export function objectPlaces(content, kind, full) {
+  const registries = content?.registries ?? {}
+  const tagKind = kind === 'piece' ? 'item' : kind
+  const tags = Object.entries(registries.tag ?? {}).filter(([, tag]) => tag.kind === tagKind && tag.values.includes(full)).map(([name]) => name)
+  const named = new Set([full, ...tags.map((name) => `#${name}`)])
+  const relations = Object.entries(registries.relation ?? {}).filter(([, relation]) => edgesOf(relation).some(({ from, to }) => named.has(from) || named.has(to))).map(([name]) => name)
+  const layouts = kind === 'level' ? Object.entries(registries.layout ?? {}).filter(([, layout]) => layout.rows?.some((row) => row.includes(full))).map(([name]) => name) : []
+  return { tags, relations, layouts }
+}

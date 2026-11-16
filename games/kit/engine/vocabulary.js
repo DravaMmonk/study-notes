@@ -35,12 +35,15 @@ import { catalogTextProblems } from './content-text.js'
 import { OBJECT_SCHEMAS, referenceResolver, expandReferences } from './objects.js'
 import { canonicalJson } from './json-value.js'
 
+/** Authored entries have identity in their filename and membership in entry tags. */
+export const ENTRY = S.obj({ title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })
+
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
   englishNamesInChinese: S.opt(S.bool()),
   groupByChapter: S.opt(S.bool()),
-  groups: S.list(S.obj({ id: S.str(), title: S.text() })),
-  entries: S.list(S.obj({ id: S.str(), group: S.name('group'), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })),
+  groups: S.list(S.obj({ id: S.str(), title: S.text(), values: S.opt(S.list(S.name('entry'))) })),
+  entries: S.list(S.obj({ id: S.str(), group: S.opt(S.name('group')), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })),
 })
 
 /**
@@ -144,7 +147,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
       out.push(...catalogTextProblems(value, vocabulary.game, file, vocabulary, file === 'game.json' || file === 'course.json' ? courseKeys : packageKeys))
     }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
-    out.push(...catalogTextProblems(glossary, GLOSSARY, 'glossary.json', vocabulary, packageKeys))
+    for (const { id, group: _group, ...entry } of glossary?.entries ?? []) out.push(...catalogTextProblems(entry, ENTRY, `entries/${id}.json`, vocabulary, packageKeys))
     out.push(...catalogTextProblems(parts, PARTS_FILE, 'pieces.json', vocabulary, packageKeys))
     for (const level of levels) out.push(...catalogTextProblems(level, vocabulary.level, `levels/${level.id}.json`, vocabulary, packageKeys))
     for (const [id, tag] of Object.entries(tags)) out.push(...catalogTextProblems(tag, OBJECT_SCHEMAS.tags, `tags/${id}.json`, vocabulary, id.startsWith('@') ? courseKeys : packageKeys))
@@ -174,7 +177,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages, names }), `levels/${levelId}.json`)
   out.push(...taskIdProblems(levels))
-  add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
+  for (const { id, ...entry } of Object.values(content.registries?.entry ?? Object.fromEntries((glossary?.entries ?? []).map(({ group: _group, ...entry }) => [entry.id, entry])))) add(validate(ENTRY, entry, { vocabulary, levels: ids, names }), `entries/${id}.json`)
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   if (parts !== undefined) {
     const problems = partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) })

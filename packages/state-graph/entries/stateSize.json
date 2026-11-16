@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.stateSize.title",
+  "at": "twokeys",
+  "body": [
+    "@glossary.entries.stateSize.body.0",
+    "@glossary.entries.stateSize.body.1",
+    "@glossary.entries.stateSize.body.2"
+  ],
+  "see": ["layers", "memory", "speed"]
+}

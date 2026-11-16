@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.query.title",
+  "at": "q-children",
+  "body": ["@glossary.entries.query.body.0"],
+  "see": ["free", "world"]
+}

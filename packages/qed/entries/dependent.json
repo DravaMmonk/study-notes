@@ -1,0 +1,5 @@
+{
+  "title": "@glossary.entries.dependent.title",
+  "body": ["@glossary.entries.dependent.body.0", "@glossary.entries.dependent.body.1"],
+  "see": ["dep-function", "implicit", "transport"]
+}

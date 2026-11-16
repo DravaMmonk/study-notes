@@ -1,3 +1,4 @@
+import { glossaryFile } from './form.js'
 import { useLayoutEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -10,7 +11,7 @@ export const inspectorTabKey = (at, path) => JSON.stringify([at, path])
 function describe({ at, path }, content) {
   const owner = at.level ?? at.part ?? at.setting
     ?? (at.era !== undefined ? L(content.eras?.[at.era]?.title) || content.eras?.[at.era]?.id : null)
-  const file = at.level ? `levels/${at.level}.json` : at.part || at.setting ? 'pieces.json' : at.glossary ? 'glossary.json' : contentFileFor(path)
+  const file = at.level ? `levels/${at.level.slice(at.level.indexOf('/') + 1)}.json` : at.part || at.setting ? 'pieces.json' : at.glossary ? glossaryFile(content.glossary, path) : contentFileFor(path)
   const nestedRoot = at.part || at.setting || at.era !== undefined
   const ancestor = nestedRoot && path.length < 2
   const relative = nestedRoot && !ancestor ? path.slice(2) : path

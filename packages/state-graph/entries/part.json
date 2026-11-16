@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.part.title",
+  "at": "stamp",
+  "body": ["@glossary.entries.part.body.0", "@glossary.entries.part.body.1", "@glossary.entries.part.body.2"],
+  "see": ["component", "board", "stairs"]
+}

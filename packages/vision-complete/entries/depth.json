@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.depth.title",
+  "at": "7-3",
+  "body": [
+    "@glossary.entries.depth.body.0",
+    "@glossary.entries.depth.body.1",
+    "@glossary.entries.depth.body.2"
+  ],
+  "see": ["pinhole", "disparity"]
+}

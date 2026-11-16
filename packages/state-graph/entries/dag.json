@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.dag.title",
+  "at": "lastStep",
+  "body": ["@glossary.entries.dag.body.0", "@glossary.entries.dag.body.1", "@glossary.entries.dag.body.2"],
+  "see": ["dp", "topo", "state"]
+}

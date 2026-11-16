@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.declaration.title",
+  "at": "decl-and",
+  "body": ["@glossary.entries.declaration.body.0"],
+  "see": ["definition", "axiom"]
+}

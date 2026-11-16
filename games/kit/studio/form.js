@@ -469,6 +469,20 @@ export function copyLevelData(source, level, levels) {
   return data
 }
 
+/** Name the source represented by an encyclopedia field. */
+export function glossaryFile(glossary, path) {
+  const object = glossary[path[0]]?.[path[1]]
+  if (!object?.id) return 'entries/ + tags/entry/'
+  return `${path[0] === 'entries' ? 'entries' : 'tags/entry'}/${object.id.split('/').at(-1)}.json`
+}
+
+/** Translate the encyclopedia projection's form paths to authored object targets. */
+export function glossaryTarget(glossary, keys) {
+  const object = glossary[keys[0]]?.[keys[1]]
+  if (!object?.id) return null
+  return { ...(keys[0] === 'entries' ? { entry: object.id } : { tag: object.id }), path: keys.slice(2) }
+}
+
 /**
  * The operation that makes an edit, on a file of the game: `file` { level } | { game: true } | { parts: true } |
  * { glossary } (the glossary as it is). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
@@ -478,26 +492,31 @@ export function copyLevelData(source, level, levels) {
 export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
   if (type === 'text' && !edit.unset) {
-    const where = file.level !== undefined ? { level: file.level } : { in: file.glossary ? 'glossary' : file.parts ? 'pieces' : 'game' }
-    return { op: 'text.set', ...where, path: keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
+    const where = file.glossary ? glossaryTarget(file.glossary, keys) : file.level !== undefined ? { level: file.level } : { in: file.parts ? 'pieces' : 'game' }
+    if (!where) return null
+    return { op: 'text.set', ...where, path: where.path ?? keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
   }
   // The glossary: a text by text.set; any other field of an entry by a merge patch of the entry's top field.
   if (file.glossary) {
+    if (keys[0] === 'entries' && keys[2] === 'group') return null
+    if (keys[0] === 'groups' && keys.length >= 3) {
+      const target = glossaryTarget(file.glossary, keys)
+      return target ? { op: 'tag.set', ...target, value: edit.unset ? null : edit.set } : null
+    }
     if (keys[0] === 'entries' && keys.length >= 3) {
       const entry = file.glossary.entries[keys[1]]
       const [top, ...rest] = keys.slice(2)
       const value = !rest.length ? (edit.unset ? null : edit.set) : edit.unset ? unsetAt(entry[top], rest) : setAt(entry[top], rest, edit.set)
-      return { op: 'glossary.set', entry: entry.id, fields: { [top]: value } }
+      return { op: 'entry.patch', entry: entry.id, fields: { [top]: value } }
     }
     if (keys[0] === 'entries' && keys.length === 2 && !edit.unset) {
-      const { id, ...data } = edit.set
-      return { op: 'glossary.put', entry: id, data, at: keys[1] }
+      const { id, group: _group, ...data } = edit.set
+      return { op: 'entry.put', entry: id, data }
     }
-    if (keys[0] === 'entries' && keys.length === 2) return { op: 'glossary.remove', entry: file.glossary.entries[keys[1]].id }
-    if (keys[0] === 'groupByChapter' && keys.length === 1) return { op: 'glossary.presentation', groupByChapter: edit.unset ? null : edit.set }
+    if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
-  // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
+  // pieces.json: a field of it (a whole part is added and removed by the part operations).
   if (file.parts) {
     if (edit.unset && keys.length === 2) {
       if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }
@@ -555,18 +574,16 @@ export function taskListOps(level, before, after, levels) {
 
 // Two operations edit the same thing when they are the same operation on the same file and path; the later then
 // stands for both.
-const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation ?? op.layout ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.rename' ? op.level : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
+const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation ?? op.layout ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
 
 /**
  * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
- * keeps the side the last one changed and this one does not; a task renamed again is renamed once).
+ * keeps the side the last one changed and this one does not).
  */
 export function pushOp(ops, op) {
   const last = ops.at(-1)
-  // A task's id typed a letter at a time is one rename, from the id it had.
-  if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 

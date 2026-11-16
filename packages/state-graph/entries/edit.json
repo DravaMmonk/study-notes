@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.edit.title",
+  "at": "edit",
+  "body": ["@glossary.entries.edit.body.0", "@glossary.entries.edit.body.1", "@glossary.entries.edit.body.2"],
+  "see": ["lcs", "countOpt", "local"]
+}

@@ -1,3 +1,4 @@
+import { glossaryTarget } from './form.js'
 // The copy table's rows (CopyTable.jsx): every text of a scope — an era (its own texts, then its levels'), a level group
 // (its name, then its levels'), the whole game or package (the configuration's texts, then every level's), the
 // encyclopedia or the pieces — in play order, each with the file it is in, its path, the copy rule it is held to (the
@@ -37,7 +38,9 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
   if (scope === 'glossary') {
     for (const t of find(GLOSSARY, content.glossary, 'text')) {
       const entry = content.glossary[t.path[0]]?.[t.path[1]]
-      add({ glossary: true }, entry?.id ?? showPath(t.path.slice(0, 2)), 'glossary')(t)
+      const target = glossaryTarget(content.glossary, t.path)
+      if (!target) continue
+      add({ glossary: true, target }, entry?.id ?? showPath(t.path.slice(0, 2)), 'glossary')(t)
     }
     return rows
   }
@@ -64,12 +67,12 @@ export const allCopyRows = (content, vocabulary, order, side = 'package') => ['a
 
 export const copyLanguages = (rows) => [...new Set(['en', 'zh', ...languagesOf(rows.map((row) => row.value))])].sort()
 
-const fileOf = (row) => (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : 'game' })
+const fileOf = (row) => row.file.target ?? (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : 'game' })
 
 /** The edit of a row's text in `lang`: in the game workspace, a package text gets the game's own wording (text.override). */
 export function copyEdit(row, lang, value, side = 'package') {
-  if (side === 'game' && row.own === 'package') return { op: 'text.override', ...fileOf(row), path: row.path, lang, value }
-  return { op: 'text.set', ...fileOf(row), path: row.path, ...(typeof row.value === 'string' ? {} : { lang }), value }
+  if (side === 'game' && row.own === 'package') return { op: 'text.override', ...fileOf(row), path: row.file.target?.path ?? row.path, lang, value }
+  return { op: 'text.set', ...fileOf(row), path: row.file.target?.path ?? row.path, ...(typeof row.value === 'string' ? {} : { lang }), value }
 }
 
 /** What the package writes where the game has its own wording in `lang` (undefined: the game has none there). */

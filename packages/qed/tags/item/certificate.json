@@ -1,0 +1,6 @@
+{
+  "title": "@tray.trays.certificate.name",
+  "desc": "@tray.trays.certificate.desc",
+  "workshop": false,
+  "values": ["#certificate-certificate"]
+}

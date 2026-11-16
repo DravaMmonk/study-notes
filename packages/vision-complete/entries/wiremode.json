@@ -1,0 +1,9 @@
+{
+  "title": "@glossary.entries.wiremode.title",
+  "body": [
+    "@glossary.entries.wiremode.body.0",
+    "@glossary.entries.wiremode.body.1",
+    "@glossary.entries.wiremode.body.2"
+  ],
+  "see": ["layout"]
+}

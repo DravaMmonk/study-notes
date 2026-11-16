@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.ransac.title",
+  "at": "6-6",
+  "body": [
+    "@glossary.entries.ransac.body.0",
+    "@glossary.entries.ransac.body.1",
+    "@glossary.entries.ransac.body.2"
+  ],
+  "see": ["hough", "homography", "ratio"]
+}

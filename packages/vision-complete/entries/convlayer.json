@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.convlayer.title",
+  "at": "4-9",
+  "body": [
+    "@glossary.entries.convlayer.body.0",
+    "@glossary.entries.convlayer.body.1",
+    "@glossary.entries.convlayer.body.2"
+  ],
+  "see": ["convolution", "padding", "pooling", "channels"]
+}

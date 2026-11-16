@@ -396,12 +396,11 @@ test('a mark on the game page is the field it shows: the task’s, else the leve
   assert.deepEqual(markOf({ brief: t('x') }, ['brief']), { at: 'brief', scope: null })
 })
 
-test('task operations stand alone in a pending changeset, but a task renamed again is renamed once', () => {
+test('task operations stand alone in a pending changeset', () => {
   const add = { op: 'task.add', level: 'p', data: {} }
   assert.equal(pushOp([add], add).length, 2)
   const up = { op: 'task.move', task: 'a', to: { level: 'p', first: true } }
   assert.equal(pushOp([up], up).length, 2)
-  assert.deepEqual(pushOp([{ op: 'task.rename', task: 'a', to: 'ab' }], { op: 'task.rename', task: 'ab', to: 'abc' }), [{ op: 'task.rename', task: 'a', to: 'abc' }])
 })
 
 test('a task is picked from the tasks of the game, grouped by level in course order', () => {

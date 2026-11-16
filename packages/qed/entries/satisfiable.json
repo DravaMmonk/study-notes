@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.satisfiable.title",
+  "at": "g-always",
+  "body": ["@glossary.entries.satisfiable.body.0", "@glossary.entries.satisfiable.body.1"],
+  "see": ["tautology", "world", "automation"]
+}

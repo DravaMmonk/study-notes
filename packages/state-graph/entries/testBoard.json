@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.testBoard.title",
+  "at": "copy",
+  "body": [
+    "@glossary.entries.testBoard.body.0",
+    "@glossary.entries.testBoard.body.1",
+    "@glossary.entries.testBoard.body.2"
+  ],
+  "see": ["robot", "board", "dial"]
+}

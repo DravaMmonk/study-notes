@@ -3,7 +3,7 @@
 // ('part@level').
 import { PARTS_FILE } from '../parts/schema.js'
 import { S, find } from '../schema.js'
-import { GLOSSARY } from '../vocabulary.js'
+import { ENTRY } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
 import { textEntries } from '../i18n.js'
 import { getAt, setAt } from './edit.js'
@@ -16,7 +16,7 @@ const link = (id, namespace) => new RegExp(`(<level-ref to="(?:${namespace}/)?)$
 /** The files of a workspace with the schema each is read by: [[name, value, schema, set(value)]]. */
 const files = (ws, vocabulary) => [
   ['game.json', own(ws.game), vocabulary.game, (v) => { ws.game = { ...ws.game, ...v } }],
-  ['glossary.json', ws.glossary, GLOSSARY, (v) => { ws.glossary = v }],
+  ...[...ws.entries].map(([id, entry]) => [`entries/${id}.json`, entry, ENTRY, (value) => { ws.entries.set(id, value) }]),
   ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs, PARTS_FILE, (v) => { ws.partDefs = v }]]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level, (v) => { ws.levels.set(id, v) }]),
   ...Object.entries(OBJECT_SCHEMAS).flatMap(([kind, schema]) => [...(ws[kind] ?? [])].map(([id, value]) => [`${kind}/${id}.json`, value, objectReferenceSchema(ws, kind, value, schema), (v) => { ws[kind].set(id, v) }])),

@@ -1,3 +1,4 @@
+import { OBJECT_SCHEMAS } from '../objects.js'
 // Search across a game's content, and replace as operations (games/DESIGN.md 7.1). What is searched: every localized text
 // of the levels, game.json and the encyclopedia (each side on its own; a link tag is never matched inside, so a
 // replace cannot break one), every line of every board, and the ids of levels and entries. A replace is never an edit
@@ -11,7 +12,7 @@
 import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
 import { textEntries } from '../i18n.js'
-import { GLOSSARY } from '../vocabulary.js'
+import { ENTRY } from '../vocabulary.js'
 
 const REF_TAG = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/g
 const KINDS = ['text', 'board', 'id']
@@ -71,10 +72,11 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   }
   if (kinds.includes('text')) {
     texts(game, vocabulary.game, { file: 'game.json', in: 'game' })
-    texts(glossary, GLOSSARY, { file: 'glossary.json', in: 'glossary' })
+    for (const { id, group: _group, ...entry } of glossary.entries) texts(entry, ENTRY, { file: `entries/${id}.json`, entry: id })
+    for (const [name, tag] of Object.entries(content.tags ?? {})) if (tag.kind === 'entry') texts(tag, OBJECT_SCHEMAS.tags, { file: `tags/${tag.kind}/${name}.json`, tag: name })
     texts(partDefs, PARTS_FILE, { file: 'pieces.json', in: 'pieces' })
   }
-  if (kinds.includes('id')) glossary.entries.forEach((e, k) => out.push({ file: 'glossary.json', in: 'glossary', path: ['entries', k, 'id'], kind: 'id', text: e.id }))
+  if (kinds.includes('id')) glossary.entries.forEach((e) => out.push({ file: `entries/${e.id}.json`, entry: e.id, path: [], kind: 'id', text: e.id }))
   return out
 }
 
@@ -134,7 +136,7 @@ export function replaceOps(content, vocabulary, query, replacement, pick = null)
     if (after === hit.text) continue
     changes.push({ file: hit.file, ...(hit.level !== undefined && { level: hit.level }), path: hit.path, kind: hit.kind, ...(hit.side && { side: hit.side }), ...(hit.line !== undefined && { line: hit.line }), before: hit.text, after })
     if (hit.kind === 'text') {
-      texts.push({ op: 'text.set', ...(hit.level !== undefined ? { level: hit.level } : { in: hit.in }), path: hit.path,
+      texts.push({ op: 'text.set', ...(hit.level !== undefined ? { level: hit.level } : hit.entry !== undefined ? { entry: hit.entry } : hit.tag !== undefined ? { tag: hit.tag } : { in: hit.in }), path: hit.path,
         ...(hit.side ? { lang: hit.side } : {}), value: after })
     } else {
       const lines = boards.get(key(hit)) ?? { level: hit.level, path: hit.path, lines: [...levelAt(content, hit.level, hit.path)] }

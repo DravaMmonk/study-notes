@@ -1,8 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.winning-states.title",
-  "values": [
-    "nim",
-    "piles"
-  ]
-}

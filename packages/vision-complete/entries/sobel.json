@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.sobel.title",
+  "at": "1-8",
+  "body": [
+    "@glossary.entries.sobel.body.0",
+    "@glossary.entries.sobel.body.1",
+    "@glossary.entries.sobel.body.2"
+  ],
+  "see": ["edge", "gradient", "kernel"]
+}

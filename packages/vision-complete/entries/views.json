@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.views.title",
+  "at": "1-1",
+  "body": [
+    "@glossary.entries.views.body.0",
+    "@glossary.entries.views.body.1",
+    "@glossary.entries.views.body.2"
+  ],
+  "see": ["details", "edge", "spectrum"]
+}

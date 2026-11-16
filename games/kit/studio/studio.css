@@ -63,6 +63,10 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
   .studio-play iframe { height: 80vh; }
   .studio-game { max-width: 7em; }
   .studio-palette kbd { display: none; }
+  .studio-bar { height: auto; min-height: var(--bar-h); flex-wrap: wrap; row-gap: 6px; padding-top: 6px; padding-bottom: 6px; }
+  .studio-bar > .studio-tabs { order: 10; flex: 1 1 100%; }
+  .arrange-bar { flex-wrap: nowrap; }
+  .arrange-bar > .studio-game { flex: 1 1 0; min-width: 0; max-width: none; }
 }
 
 /* ---- the left panel: the tree, or search ---- */
@@ -786,3 +790,12 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .override-list > li.is-own .override-layer { color: var(--ink); }
 .override-list .diff-fields { padding: 4px 0 10px 26px; }
 @media (max-width: 600px) { .override-kind { display: none; } }
+
+/* An object's layers (SourceMark.jsx): declared ← overridden. */
+.source-mark { color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+
+/* An object's tags, relations and layouts above its fields (ObjectLinks.jsx). */
+.object-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px clamp(10px, 2cqi, 24px) 0; }
+.object-link { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: 22px; padding: 0 7px; border: 1px solid var(--hairline); border-radius: 11px; color: var(--muted); background: none; font-size: 12px; cursor: pointer; }
+.object-link:hover { color: var(--ink); background: var(--hover); }
+.object-link code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

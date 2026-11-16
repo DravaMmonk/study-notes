@@ -1,0 +1,14 @@
+{
+  "title": "@tray.trays.formula.name",
+  "desc": "@tray.trays.formula.desc",
+  "values": [
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ]
+}

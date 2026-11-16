@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.tautology.title",
+  "at": "always",
+  "body": ["@glossary.entries.tautology.body.0", "@glossary.entries.tautology.body.1"],
+  "see": ["counterexample", "proof"]
+}

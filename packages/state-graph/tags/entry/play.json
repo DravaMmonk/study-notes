@@ -1,0 +1,19 @@
+{
+  "title": "@glossary.groups.play.title",
+  "values": [
+    "map",
+    "brief",
+    "cells",
+    "robot",
+    "board",
+    "testBoard",
+    "component",
+    "part",
+    "models",
+    "arms",
+    "dirs",
+    "sweep",
+    "dial",
+    "memory"
+  ]
+}

@@ -25,7 +25,7 @@ function glossaryLayout(game) {
     group: groupOf.get(game.byId[entry.at]?.chapter) ?? entry.group,
   })).sort((a, b) => (order.get(a.at) ?? Infinity) - (order.get(b.at) ?? Infinity))
   const used = new Set(grouped.map(entry => entry.group))
-  return { groups: [...chapters, ...groups].filter(group => used.has(group.id)), entries: grouped }
+  return { groups: [...chapters, ...groups].filter(group => used.has(group.id)).map((group) => ({ ...group, values: grouped.filter((entry) => entry.group === group.id).map((entry) => entry.id) })), entries: grouped }
 }
 
 /**
@@ -60,7 +60,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, edit = n
   const list = groups.map((group) => ({
     id: group.id,
     title: group.title,
-    items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
+    items: entries.filter((e) => group.values.includes(e.id)).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
   }))
 
   const article = (id, back, pick) => {

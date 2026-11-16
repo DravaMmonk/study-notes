@@ -1,0 +1,22 @@
+{
+  "title": "@tray.trays.main.name",
+  "desc": "@tray.trays.main.desc",
+  "values": [
+    "table:msum",
+    "table:const",
+    "table:pass",
+    "table:block",
+    "counter",
+    "table:many",
+    "table:mmin",
+    "table:mmax",
+    "table:add",
+    "min",
+    "table:not",
+    "cost",
+    "table:mul",
+    "choose",
+    "interval",
+    "value"
+  ]
+}

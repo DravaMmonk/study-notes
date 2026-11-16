@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.overfit.title",
+  "at": "4-19",
+  "body": [
+    "@glossary.entries.overfit.body.0",
+    "@glossary.entries.overfit.body.1",
+    "@glossary.entries.overfit.body.2"
+  ],
+  "see": ["descent", "training", "cnn"]
+}

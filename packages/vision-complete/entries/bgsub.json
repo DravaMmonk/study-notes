@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.bgsub.title",
+  "at": "0-8",
+  "body": [
+    "@glossary.entries.bgsub.body.0",
+    "@glossary.entries.bgsub.body.1",
+    "@glossary.entries.bgsub.body.2"
+  ],
+  "see": ["perpixel", "invariance"]
+}

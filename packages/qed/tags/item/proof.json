@@ -1,0 +1,16 @@
+{
+  "title": "@tray.trays.proof.name",
+  "desc": "@tray.trays.proof.desc",
+  "values": [
+    "#proof-implication",
+    "#proof-and",
+    "#proof-or",
+    "#proof-contradiction",
+    "#proof-forall",
+    "#proof-exists",
+    "#proof-equality",
+    "#proof-classical",
+    "#proof-equivalences",
+    "natInd"
+  ]
+}

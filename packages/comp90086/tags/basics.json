@@ -1,9 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.basics.title",
-  "values": [
-    "projection",
-    "separable",
-    "sinusoid"
-  ]
-}

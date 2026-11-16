@@ -6,11 +6,11 @@ import { resolve, dirname } from 'node:path'
 import { S } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
 import { applyOverride, composeLayers, orderPackages, visibleOverrides } from './layers.js'
-import { readContent, assembleLayers } from './content-node.js'
+import { readContent, readPackage, assembleLayers } from './content-node.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
-import { openGame } from './ops/workspace.js'
+import { openGame, openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 
 const schemas = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
@@ -141,7 +141,7 @@ test('multi-package sibling courses validate shared levels without rejecting the
   put('games/peer/course.json', { chapters: [{ id: 'one', levels: ['base/a', '#third/all'] }] })
   put('packages/third/package.json', { domain: 'toy', vocabulary: 1 })
   put('packages/third/levels/c.json', {})
-  put('packages/third/tags/all.json', { kind: 'level', values: ['c'] })
+  put('packages/third/tags/level/all.json', { values: ['c'] })
   const content = readContent('demo', root, { vocabulary: schemas })
   assert.deepEqual(dependencyProblemsInProject(content, root), [])
   assert.deepEqual(dependencyProblemsInProject({ ...content, levels: content.levels.filter((l) => l.id !== 'base/a') }, root), [{ at: 'games/peer/course.json', says: 'the course places the level base/a, which is missing from its package' }])
@@ -169,4 +169,58 @@ test('author writes refuse changed dependency files while holding every selected
     assert.equal(result.ok, false)
     assert.match(result.problems.join('\n'), /dependency changed on disk/)
   }
+})
+
+test('entry files, typed tag paths, ordering and overrides round trip through authoring and publishing', async () => {
+  const { root, put } = fixture()
+  put('packages/base/entries/z.json', { title: '@entry-z', body: [], see: ['a'] })
+  put('packages/base/entries/a.json', { title: 'A', body: [] })
+  put('packages/base/entries/c.json', { title: 'C', body: [] })
+  put('packages/base/relations/within-first.json', { kind: 'order', of: 'entry', sequence: ['z', 'c'] })
+  put('packages/base/tags/entry/first.json', { title: '@entry-group', values: ['z'] })
+  put('packages/base/tags/entry/second.json', { title: 'Second', values: ['a'] })
+  put('packages/base/i18n/en.json', { title: 'Original', 'entry-z': 'Z', 'entry-group': 'First' })
+  put('packages/base/relations/encyclopedia.json', { kind: 'order', sequence: ['#first', '#second'] })
+  put('packages/extra/overrides/base/tag/entry/first.json', { values: ['base/c'] })
+  put('packages/extra/overrides/base/entries/z.json', { $merge: true, body: ['Changed'] })
+  const content = readContent('demo', root, { vocabulary: schemas })
+  assert.deepEqual(content.glossary.groups.map((g) => g.id), ['base/first', 'base/second'])
+  assert.deepEqual(content.glossary.entries.map((e) => e.id), ['base/z', 'base/c', 'base/a'])
+  assert.deepEqual(content.glossary.groups[0].values, ['base/z', 'base/c'])
+  assert.deepEqual(content.registries.entry['base/z'].body, ['Changed'])
+  assert.equal(content.registries.entry['base/z'].group, undefined)
+  assert.deepEqual(content.sources.entry['base/z'], { declaration: 'base', overrides: ['extra'] })
+  const assets = contentAssets(content)
+  const restored = await pageContent(JSON.parse(assets.get(CONTENT_FILE)), 'https://example.test/', async (url) => ({ ok: true, json: async () => JSON.parse(assets.get(url.pathname.slice(1))) }), schemas)
+  assert.deepEqual(restored.glossary, content.glossary)
+  const domain = { vocabulary: schemas }
+  const ws = openGame('demo', root, { vocabulary: schemas, layer: 'extra' })
+  const result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'tag', name: 'base/second', data: { replace: true, values: ['base/a'] } }] }, { check: false, write: true, domain })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/extra/overrides/base/tag/entry/second.json'))), { replace: true, values: ['base/a'] })
+  assert.ok(result.files.every((file) => file.startsWith('packages/extra/')))
+  assert.deepEqual(openPackage('extra', root, { vocabulary: schemas }).content().glossary, readPackage('extra', root, { vocabulary: schemas }).glossary)
+  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })).ok, true)
+  const own = openGame('demo', root, { vocabulary: schemas, layer: 'base' })
+  const edit = await runChangeset(own, { ops: [{ op: 'entry.put', entry: 'new', data: { title: { en: 'New' }, body: [] } }, { op: 'text.set', tag: 'first', path: 'title', lang: 'en', value: 'First edited' }] }, { check: false, write: true, domain })
+  assert.equal(edit.ok, true, edit.problems.join('\n'))
+  assert.ok(edit.files.includes('packages/base/entries/new.json'))
+  assert.ok(edit.files.every((file) => file.startsWith('packages/base/')))
+  const reopened = openPackage('base', root, { vocabulary: schemas })
+  assert.deepEqual(reopened.content().glossary, readPackage('base', root, { vocabulary: schemas }).glossary)
+  assert.deepEqual(reopened.changes(), [])
+  assert.equal(JSON.parse(readFileSync(resolve(root, 'packages/base/tags/entry/first.json'))).kind, undefined)
+  assert.equal(readContent('demo', root, { vocabulary: schemas }).tags['base/first'].title.en, 'First edited')
+  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'base' }), { check: false, write: true, domain })).ok, true)
+})
+
+test('source files reject retired glossary and tag formats and tag overrides cannot change kind', () => {
+  const { root, put } = fixture()
+  put('packages/base/tags/entry/words.json', { values: [] })
+  put('packages/extra/overrides/base/tag/level/words.json', { values: [] })
+  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /cannot change.*kind/)
+  put('packages/base/tags/entry/words.json', { kind: 'entry', values: [] })
+  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /kind belongs in the path/)
+  put('packages/base/glossary.json', { groups: [], entries: [] })
+  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /glossary.json has been replaced/)
 })

@@ -44,7 +44,7 @@ test('creation offers every nested task type and writes its discriminators into 
   ])
 })
 
-test('JSON editing preserves existing types and uses task operations for identity changes', () => {
+test('JSON editing preserves existing types and writes an id like any field, for the kernel to refuse', () => {
   const config = (kind) => S.obj({ kind: S.oneOf([kind]), value: S.int() })
   const vocabulary = { kinds: {}, level: taskLevel({ title: S.str() }, S.by('kind', { a: config('a'), b: config('b') })) }
   const value = { title: 'Level', tasks: [{ id: 'first', kind: 'a', value: 1 }] }
@@ -54,7 +54,7 @@ test('JSON editing preserves existing types and uses task operations for identit
     { op: 'level.set', level: 'l', path: ['title'], value: 'New title' },
     { op: 'level.set', level: 'l', path: ['tasks', 0], value: { id: 'first', kind: 'a', value: 2 } },
   ])
-  assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'task.rename', task: 'first', to: 'renamed' }])
+  assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'level.set', level: 'l', path: ['tasks', 0, 'id'], value: 'renamed' }])
   assert.throws(() => edit(['tasks', 0, 'kind'], 'b'), /change its type|类型/)
   assert.throws(() => edit(['tasks', 0, 'value'], 'text'), /whole number/)
 })
@@ -97,4 +97,18 @@ test('source deletion detection distinguishes removed fields and items from edit
 
 test('assembled registries stay outside the editable course fields', () => {
   assert.deepEqual(gameFields({ id: 'toy', title: 'Toy', registries: { level: {} } }), { title: 'Toy' })
+})
+
+test('encyclopedia form and copy edits target entry and tag objects', async () => {
+  const { opFor, glossaryFile } = await import('./form.js')
+  const { copyRows, copyEdit } = await import('./copy.js')
+  const glossary = { groups: [{ id: 'toy/terms', title: { en: 'Terms' }, values: ['toy/term'] }], entries: [{ id: 'toy/term', group: 'toy/terms', title: { en: 'Term' }, body: [] }] }
+  const file = { glossary }
+  assert.deepEqual(opFor(file, ['entries', 0, 'title'], { set: 'New', lang: 'en' }, 'text'), { op: 'text.set', entry: 'toy/term', path: ['title'], lang: 'en', value: 'New' })
+  assert.deepEqual(opFor(file, ['groups', 0, 'title'], { set: 'New', lang: 'en' }, 'text'), { op: 'text.set', tag: 'toy/terms', path: ['title'], lang: 'en', value: 'New' })
+  assert.equal(glossaryFile(glossary, ['entries', 0, 'body']), 'entries/term.json')
+  assert.equal(glossaryFile(glossary, ['groups', 0, 'title']), 'tags/entry/terms.json')
+  const rows = copyRows({ glossary }, {}, 'glossary', [])
+  assert.deepEqual(copyEdit(rows.find((r) => r.name === 'toy/term'), 'en', 'New'), { op: 'text.set', entry: 'toy/term', path: ['title'], lang: 'en', value: 'New' })
+  assert.deepEqual(copyEdit(rows.find((r) => r.name === 'toy/terms'), 'en', 'New', 'game'), { op: 'text.override', tag: 'toy/terms', path: ['title'], lang: 'en', value: 'New' })
 })

@@ -48,3 +48,12 @@ test('a game lays out a package layout whole, and goes back to it when the rows 
     [{ op: 'override.put', layer: '@g', kind: 'layout', name: 'p/map', data: { of: '#p/t', rows: [['p/b'], ['p/a']] } }])
   assert.deepEqual(layoutOverrideOps(content(), '@g', 'p/map', [['p/a'], ['p/b', null]]), [])
 })
+
+test('a tag override names the members added and taken out, and goes when nothing differs', async () => {
+  const { tagOverrideOps, tagPatch } = await import('./override-edit.js')
+  assert.deepEqual(tagPatch({ values: ['p/a', 'p/b'] }, ['p/a', 'p/c']), { values: ['p/c'], remove: ['p/b'] })
+  assert.equal(tagPatch({ values: ['p/a'] }, ['p/a']), null)
+  const c = { registries: { tag: { 'p/t': { kind: 'level', values: ['p/a', 'p/b'] } } }, overrideHistory: [] }
+  assert.deepEqual(tagOverrideOps(c, 'q', 'p/t', ['p/a']), [{ op: 'override.put', layer: 'q', kind: 'tag', name: 'p/t', data: { remove: ['p/b'] } }])
+  assert.deepEqual(tagOverrideOps(c, 'q', 'p/t', ['p/a', 'p/b']), [])
+})

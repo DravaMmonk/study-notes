@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.base.title",
+  "at": "stamp",
+  "body": ["@glossary.entries.base.body.0", "@glossary.entries.base.body.1", "@glossary.entries.base.body.2"],
+  "see": ["recurrence", "component"]
+}

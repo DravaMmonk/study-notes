@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.hough.title",
+  "at": "6-9",
+  "body": [
+    "@glossary.entries.hough.body.0",
+    "@glossary.entries.hough.body.1",
+    "@glossary.entries.hough.body.2"
+  ],
+  "see": ["ransac", "homography", "edge"]
+}

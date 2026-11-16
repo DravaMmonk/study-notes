@@ -2,13 +2,13 @@
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { qualifyObject, OBJECT_SCHEMAS } from './objects.js'
 import { PARTS_FILE } from './parts/schema.js'
-import { GLOSSARY } from './vocabulary.js'
+import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
 export const folders = { level: 'levels', piece: 'pieces', setting: 'settings', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts' }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, setting: PARTS_FILE.fields.settings.of, entry: GLOSSARY.fields.entries.of, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, setting: PARTS_FILE.fields.settings.of, entry: ENTRY, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
@@ -34,6 +34,7 @@ const same = (a, b) => typeof a === 'string' ? a === b : Object.keys(a).length =
 export function applyOverride(kind, before, patch) {
   const { $merge, replace, remove = [], ...data } = patch
   if (kind !== 'tag' && kind !== 'relation') return $merge ? mergePatch(before, data) : data
+  if (kind === 'tag' && data.kind && data.kind !== before.kind) throw new Error('a tag override cannot change its member kind')
   const field = kind === 'tag' ? 'values' : 'edges'
   const values = kind === 'tag' ? (v) => v.values ?? [] : edges
   const result = [...(replace ? [] : values(before)).filter((v) => !remove.some((r) => kind === 'tag' ? r === v : Object.entries(r).every(([key, value]) => v[key] === value))), ...values(data)]
@@ -68,7 +69,7 @@ export function composeLayers(layers, schemas) {
   layers = [...orderPackages(layers.filter((layer) => !layer.id.startsWith('@'))), ...layers.filter((layer) => layer.id.startsWith('@'))]
   const registries = Object.fromEntries([...OBJECT_KINDS, 'i18n'].map((kind) => [kind, {}]))
   const sources = Object.fromEntries(Object.keys(registries).map((kind) => [kind, {}]))
-  const history = [], catalogs = {}, configurations = [], groups = []
+  const history = [], catalogs = {}, configurations = []
   const dependencies = new Map(layers.map((layer) => [layer.id, layer.config?.uses ?? []]))
   const depends = (a, b, seen = new Set()) => {
     if (seen.has(a)) return false
@@ -109,6 +110,7 @@ export function composeLayers(layers, schemas) {
     const { name, pieces, qualify } = contextFor(layer, layers, schemas)
     const texts = (value, schema, context = '') => readText(sourceValue(qualify(value, schema, context)), layer.id, schema, schemas)
     const object = (kind, value) => {
+      if (kind === 'entry' && (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group'))) throw new Error('entry identity belongs in its name and membership in entry tags')
       const schema = schemaForKind(kind, schemas)
       let qualified = qualify(value, schema)
       const endpoint = [...(value.edges ?? []).flatMap((e) => [e.from, e.to]), ...(value.sequence ?? [])][0]
@@ -119,7 +121,6 @@ export function composeLayers(layers, schemas) {
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
     configurations.push(texts(layer.config ?? {}, schemas.game, 'configuration'))
-    if (layer.glossary) groups.push(...texts({ ...layer.glossary, entries: [] }, GLOSSARY).groups)
     for (const { kind, name: id, value } of layer.objects) {
       if (id.includes('/') && !id.startsWith(`${layer.id}/`)) throw new Error(`${layer.id}: declare foreign object ${id} in overrides`)
       record(kind, fullName(layer.id, id), object(kind, value), layer, false)
@@ -134,5 +135,5 @@ export function composeLayers(layers, schemas) {
       record(kind, id, after, layer, true)
     }
   }
-  return { registries, sources, overrideHistory: history, layerOrder: layers.map((l) => l.id), layerUses: Object.fromEntries(layers.map((l) => [l.id, l.id.startsWith('@') ? layers.filter((p) => !p.id.startsWith('@')).map((p) => p.id) : l.config.uses ?? []])), configurations, catalogs, groups }
+  return { registries, sources, overrideHistory: history, layerOrder: layers.map((l) => l.id), layerUses: Object.fromEntries(layers.map((l) => [l.id, l.id.startsWith('@') ? layers.filter((p) => !p.id.startsWith('@')).map((p) => p.id) : l.config.uses ?? []])), configurations, catalogs }
 }

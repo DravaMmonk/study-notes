@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.viterbi.title",
+  "at": "tagging",
+  "body": [
+    "@glossary.entries.viterbi.body.0",
+    "@glossary.entries.viterbi.body.1",
+    "@glossary.entries.viterbi.body.2"
+  ],
+  "see": ["forward", "backtrack"]
+}

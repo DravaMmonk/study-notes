@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.refutation.title",
+  "at": "au-saturate",
+  "body": ["@glossary.entries.refutation.body.0"],
+  "see": ["resolution", "undecidable"]
+}

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.pooling.title",
+  "at": "4-15",
+  "body": ["@glossary.entries.pooling.body.0", "@glossary.entries.pooling.body.1"],
+  "see": ["convlayer", "receptive", "cnn"]
+}

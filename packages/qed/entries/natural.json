@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.natural.title",
+  "at": "and",
+  "body": ["@glossary.entries.natural.body.0", "@glossary.entries.natural.body.1"],
+  "see": ["intro-rule", "elim-rule", "hilbert"]
+}

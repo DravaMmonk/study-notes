@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.fixedPoint.title",
+  "at": "loop",
+  "body": [
+    "@glossary.entries.fixedPoint.body.0",
+    "@glossary.entries.fixedPoint.body.1",
+    "@glossary.entries.fixedPoint.body.2"
+  ],
+  "see": ["topo", "valueIter"]
+}

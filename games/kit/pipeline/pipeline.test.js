@@ -213,7 +213,7 @@ test('terminology review inspects both task overrides and glossary bodies throug
   const result = reviewTerminology(content, spec, vocabulary)
   assert.equal(result.failures.filter((f) => f.rule === 'term-unavailable').length, 2)
   assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.en'))
-  assert.ok(result.failures.some((f) => f.at === 'glossary.json:entries.1.body.0.en'))
+  assert.ok(result.failures.some((f) => f.at === 'entries/global.json:body.0.en'))
   assert.equal(result.terms[0].body, content.glossary.entries[0].body)
   assert.equal(result.reports.length, 0, 'aliases and titles are registry metadata, not bare prose')
 })

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.undecidable.title",
+  "at": "u-halt",
+  "body": ["@glossary.entries.undecidable.body.0"],
+  "see": ["reduction", "refutation"]
+}

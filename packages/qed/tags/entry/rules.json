@@ -1,0 +1,26 @@
+{
+  "title": "@glossary.groups.rules.title",
+  "values": [
+    "metavariable",
+    "unification",
+    "mgu",
+    "backward",
+    "proof-state",
+    "pattern",
+    "forward",
+    "tactic",
+    "backtracking",
+    "dfs",
+    "simplifier",
+    "rewrite",
+    "ordered",
+    "automation",
+    "skolem",
+    "resolution",
+    "refutation",
+    "unit",
+    "certificate",
+    "decision",
+    "reflection"
+  ]
+}

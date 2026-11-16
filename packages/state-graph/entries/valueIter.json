@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.valueIter.title",
+  "at": "value",
+  "body": [
+    "@glossary.entries.valueIter.body.0",
+    "@glossary.entries.valueIter.body.1",
+    "@glossary.entries.valueIter.body.2"
+  ],
+  "see": ["fixedPoint", "policy", "expectation"]
+}

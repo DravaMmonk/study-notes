@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.kmeans.title",
+  "at": "9-2",
+  "body": ["@glossary.entries.kmeans.body.0", "@glossary.entries.kmeans.body.1"],
+  "see": ["unet"]
+}

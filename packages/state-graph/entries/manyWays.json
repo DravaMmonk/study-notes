@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.manyWays.title",
+  "at": "prefix",
+  "body": [
+    "@glossary.entries.manyWays.body.0",
+    "@glossary.entries.manyWays.body.1",
+    "@glossary.entries.manyWays.body.2"
+  ],
+  "see": ["sweep", "lis", "coin", "wordBreak"]
+}

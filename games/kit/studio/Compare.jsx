@@ -10,7 +10,7 @@ import { Picker } from './Picker.jsx'
 
 const bare = (level) => (level ? (({ id: _, ...v }) => v)(level) : undefined)
 
-export default function Compare({ game, content, base, at, levelOptions, onJump }) {
+export default function Compare({ target, content, base, at, levelOptions, onJump }) {
   const [left, setLeft] = useState(at?.level ?? content.levels[0]?.id)
   const [right, setRight] = useState({ kind: 'base' }) // { kind: 'level', id } | { kind: 'base' } | { kind: 'rev', rev }
   const [rev, setRev] = useState('HEAD')
@@ -20,9 +20,9 @@ export default function Compare({ game, content, base, at, levelOptions, onJump 
     if (right.kind !== 'rev') return undefined
     let live = true
     setHeld(null)
-    call('history', { game, level: left, rev: right.rev }).then((r) => live && setHeld(r)).catch((error) => live && setHeld({ found: false, why: error.message }))
+    call('history', { ...target, level: left, rev: right.rev }).then((r) => live && setHeld(r)).catch((error) => live && setHeld({ found: false, why: error.message }))
     return () => { live = false }
-  }, [game, left, right])
+  }, [target, left, right])
   const mine = bare(content.levels.find((l) => l.id === left))
   const theirs = right.kind === 'level' ? bare(content.levels.find((l) => l.id === right.id)) : right.kind === 'base' ? bare(base?.levels.find((l) => l.id === left)) : held?.found ? held.value : undefined
   const rows = useMemo(() => (mine && theirs ? fieldDiff(theirs, mine) : []), [mine, theirs])

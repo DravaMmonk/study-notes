@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.equivalence.title",
+  "at": "g-iff",
+  "body": ["@glossary.entries.equivalence.body.0", "@glossary.entries.equivalence.body.1"],
+  "see": ["connective", "rewrite"]
+}

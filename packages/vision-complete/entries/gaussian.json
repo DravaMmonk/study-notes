@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.gaussian.title",
+  "at": "1-5",
+  "body": ["@glossary.entries.gaussian.body.0", "@glossary.entries.gaussian.body.1"],
+  "see": ["filter", "separable", "convthm"]
+}

@@ -1,9 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.edit-distance.title",
-  "values": [
-    "replace",
-    "edit",
-    "spell"
-  ]
-}

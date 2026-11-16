@@ -1,0 +1,25 @@
+{
+  "title": "@glossary.groups.proof.title",
+  "values": [
+    "proof",
+    "rule",
+    "kernel",
+    "soundness",
+    "completeness",
+    "assumption",
+    "lemma",
+    "definition",
+    "declaration",
+    "rule-arrow",
+    "axiom",
+    "hilbert",
+    "deduction",
+    "natural",
+    "intro-rule",
+    "elim-rule",
+    "recursor",
+    "theorem",
+    "intuitionistic",
+    "classical"
+  ]
+}

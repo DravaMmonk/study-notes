@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.elim-rule.title",
+  "at": "decl-and",
+  "body": ["@glossary.entries.elim-rule.body.0"],
+  "see": ["intro-rule", "normal-form"]
+}

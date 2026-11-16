@@ -1,0 +1,5 @@
+{
+  "title": "@glossary.entries.lambda.title",
+  "body": ["@glossary.entries.lambda.body.0"],
+  "see": ["beta", "proof-term"]
+}

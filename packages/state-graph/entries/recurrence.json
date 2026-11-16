@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.recurrence.title",
+  "at": "copy",
+  "body": [
+    "@glossary.entries.recurrence.body.0",
+    "@glossary.entries.recurrence.body.1",
+    "@glossary.entries.recurrence.body.2"
+  ],
+  "see": ["base", "dp", "board"]
+}
