@@ -70,3 +70,23 @@ export function layoutOverrideOps(content, layer, name, rows) {
   if (sameJson(before?.rows, rows)) return had ? [{ op: 'override.remove', layer, kind: 'layout', name }] : []
   return [{ op: 'override.put', layer, kind: 'layout', name, data: { ...before, rows } }]
 }
+
+/** The override patch that turns `before`'s members into `wanted`: the members added and the ones taken out. */
+export function tagPatch(before, wanted) {
+  const had = before?.values ?? []
+  const values = wanted.filter((v) => !had.includes(v))
+  const remove = had.filter((v) => !wanted.includes(v))
+  if (!values.length && !remove.length) return null
+  return { ...(values.length && { values }), ...(remove.length && { remove }) }
+}
+
+/** The ops a layer writes so tag `name` ends with `wanted` members. */
+export function tagOverrideOps(content, layer, name, wanted) {
+  const patch = tagPatch(beforeLayer(content, layer, 'tag', name), wanted)
+  const had = overrideEvent(content, layer, 'tag', name)
+  if (!patch) return had ? [{ op: 'override.remove', layer, kind: 'tag', name }] : []
+  return [{ op: 'override.put', layer, kind: 'tag', name, data: patch }]
+}
+
+/** Whether `layer` already overrides the object (games/PACKAGES.md 4: content.sources). */
+export const overridesIt = (content, layer, kind, name) => Boolean(content?.sources?.[kind]?.[name]?.overrides?.includes(layer))

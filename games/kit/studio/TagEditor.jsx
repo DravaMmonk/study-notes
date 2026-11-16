@@ -9,6 +9,8 @@ import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { confirmDelete } from './delete.js'
 import { localName, namespaceOf, objectsOf, shownName, tagCandidates, tagMembers } from './objects-edit.js'
+import SourceMark from './SourceMark.jsx'
+import { overridesIt, tagOverrideOps } from './override-edit.js'
 import { TAG_KINDS, memberKnown, memberTitle, newTag, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
 
 const KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'], setting: ['设置', 'Settings'] }
@@ -59,16 +61,18 @@ export default function TagEditor({ content, namespace, selected, pending, onSel
   )
 }
 
-function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit }) {
+function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit, onOps }) {
   const [open, setOpen] = useState(() => new Set())
   const [notice, setNotice] = useState('')
   const lang = getLang()
   const name = localName(namespace, full)
-  const locked = pending || !own
+  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'tag', full))
+  const editable = own || overriding
+  const locked = pending || !editable
   const count = tagMembers(content, full).length
   const titleOf = (member) => L(memberTitle(content, tag.kind, member))
   const known = (member) => memberKnown(content, tag.kind, member)
-  const write = (values) => onEdit(tagValuesOp(namespace, full, values))
+  const write = (values) => (own ? onEdit(tagValuesOp(namespace, full, values)) : onOps(tagOverrideOps(content, namespace, full, values)))
   const add = (member) => {
     if (locked) return
     const { values, refusal: reason } = withMember(content, full, member)
@@ -95,6 +99,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit 
         <code className="editor-id is-static">{shownName(namespace, full)}</code>
         <span className="object-kind">{kindWord(tag.kind)}</span>
         <span className="object-count" title={tr('展开后的成员数', 'Members once expanded')}>{count}</span>
+        <SourceMark content={content} kind="tag" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
         {tag.kind === 'item' && <label className="object-flag">
           <input type="checkbox" className="field-check" checked={tag.concept ?? false} disabled={locked}
             onChange={(e) => onEdit({ op: 'tag.put', tag: name, data: withConcept(namespace, tag, e.target.checked) })} />
@@ -108,7 +113,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit 
           : <span>{L(tag.title)}</span>}
       </div>
       <div className="arrange-actions">
-        {own && options.length > 0 && <Picker options={options} add label={tr('加入成员', 'Add a member')} placeholder={tr('加入成员', 'Add a member')} onPick={add} />}
+        {editable && options.length > 0 && <Picker options={options} add label={tr('加入成员', 'Add a member')} placeholder={tr('加入成员', 'Add a member')} onPick={add} />}
         {notice && <p className="is-error" role="status">{notice}</p>}
       </div>
       <ul className="tag-members" aria-label={tr('成员', 'Members')}>
@@ -122,7 +127,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit 
                 <Layers size={13} aria-hidden="true" /><code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
                 <small className="object-count">{tagMembers(content, member.slice(1)).length}</small>
               </button>
-              {own && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
+              {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
             </div>
             {open.has(member) && <ul className="tag-members">
               {tagMembers(content, member.slice(1)).map((id) => <li key={id} className="tag-member is-nested">
@@ -132,7 +137,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit 
           </li>
           : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`}>
             <code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
-            {own && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
+            {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
           </li>)}
       </ul>
     </div>
