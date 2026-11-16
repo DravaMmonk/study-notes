@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "state-graph/trace",
-    "state-graph/lastStep",
-    "state-graph/city"
-  ],
-  "of": "level"
-}

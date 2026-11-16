@@ -163,9 +163,9 @@ export function layout(eras, { notes = false, links = eras.flatMap((era) => era.
   if (!notes) for (const link of links) if (!link.fromGame) incoming.get(link.to)?.push(link)
   for (const [id, links] of incoming) requires.set(id, [...new Set(links.map(({ from }) => from))])
 
-  const order = dependencyOrder([...place.keys()], requires)
+  const order = [...place.keys()]
   const required = new Map()
-  for (const id of order) {
+  for (const id of dependencyOrder(order, requires)) {
     const direct = incoming.get(id).flatMap(({ from, required: strict }) => place.get(from)?.skippable && !strict
       ? required.get(from) ?? [from]
       : [from])

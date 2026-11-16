@@ -109,7 +109,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const entryObjects = glossary?.entries ?? []
   glossary = encyclopedia(entryObjects, sectionMap, resolve, relationEdges.order)
   game = refs(game, schemas.game)
-  const eras = sourceChapters && assembleChapters(game.chapters, { expand: resolve, relations: relationEdges, optional: game.optional, skippable: game.skippable, problems: objectProblems })
+  const eras = sourceChapters && assembleChapters(sourceChapters, { expand: resolve, relations: relationEdges, optional: game.optional, skippable: game.skippable, problems: objectProblems })
   const replaces = {}
   for (const { from, to } of relationEdges.replaces) (replaces[from] ??= []).push(to)
   const displayedTrays = {}

@@ -272,7 +272,7 @@ test('package selection refuses missing dependencies, duplicate selection and re
   put('packages/library/package.json', { vocabulary: 1 })
   put('packages/child/package.json', { vocabulary: 1, uses: ['library'] })
   put('packages/base/tags/level/course.json', { values: ['a'] })
-  put('games/demo/course.json', { chapters: [{ id: 'main', levels: ['#base/course'] }] })
+  put('games/demo/course.json', { chapters: [{ id: 'main', levels: ['base/a'] }] })
   const ws = openGame('demo', root, { vocabulary: schemas })
   const options = { check: false, domain: { vocabulary: schemas } }
   for (const [op, id, pattern] of [

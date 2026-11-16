@@ -3,7 +3,7 @@ import { pieceStages } from './piece-stages.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
 import { S, validate } from './schema.js'
 import { fullName } from './names.js'
-import { dependencyCycle, dependencyOrder } from '../course.js'
+import { dependencyCycle } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
@@ -183,11 +183,20 @@ export function assembleChapters(chapters, { expand, relations, optional = [], s
   const opt = new Set(expand(optional, 'level')), skip = new Set(expand(skippable, 'level'))
   const seen = new Set()
   return chapters.map((chapter) => {
-    const ids = expand(chapter.levels, 'level', `chapters/${chapter.id}`)
+    const ids = (chapter.levels ?? []).filter((id) => {
+      if (typeof id !== 'string' || id.startsWith('#') || !id.includes('/')) {
+        problems.push({ at: `chapters/${chapter.id}.levels`, says: 'chapter levels must be an ordered list of level full names, without tags' })
+        return false
+      }
+      expand(id, 'level', `chapters/${chapter.id}`)
+      return true
+    })
     for (const id of ids) { if (seen.has(id)) problems.push({ at: 'chapters', says: `${id} is placed twice` }); seen.add(id) }
-    const requires = new Map(ids.map((id) => [id, relations.requires.filter((e) => !e.game && e.to === id).map((e) => e.from)]))
-    const order = dependencyOrder(relationOrder(ids, relations.order), requires)
-    return { ...chapter, levels: order.map((id) => ({ id, ...(opt.has(id) && { optional: true }), ...(skip.has(id) && { skippable: true }) })), links: relations.requires.filter((e) => ids.includes(e.to)).map(({ game, ...e }) => ({ ...e, ...(game && { fromGame: game }) })) }
+    const positions = new Map(ids.map((id, i) => [id, i]))
+    for (const edge of relations.requires) if (!edge.game && positions.has(edge.from) && positions.has(edge.to) && positions.get(edge.from) >= positions.get(edge.to)) {
+      problems.push({ at: `chapters/${chapter.id}.levels`, says: `${edge.from} must precede ${edge.to} in chapter order` })
+    }
+    return { ...chapter, levels: ids.map((id) => ({ id, ...(opt.has(id) && { optional: true }), ...(skip.has(id) && { skippable: true }) })), links: relations.requires.filter((e) => ids.includes(e.to)).map(({ game, ...e }) => ({ ...e, ...(game && { fromGame: game }) })) }
   })
 }
 
@@ -200,3 +209,29 @@ export function objectOf(content, kind, name) {
 
 /** Expanded chapter order and prerequisite edges for route maps and relation boards. */
 export const courseRoute = (content) => ({ chapters: content.eras ?? [], edges: content.relationEdges?.requires ?? [] })
+
+/** Import levels or level tags with their complete local prerequisite closure, before game scheduling. */
+export function importLevelOrder(content, references) {
+  const problems = []
+  const expand = referenceResolver(content.registries, problems)
+  const ids = new Set(Object.keys(content.registries.level))
+  const edges = expandRelations(content.registries.relation, expand, ids, problems)
+  const selected = new Set(expand(references, 'level'))
+  const visit = (id) => {
+    for (const edge of edges.requires) if (!edge.game && edge.to === id && !selected.has(edge.from)) {
+      selected.add(edge.from)
+      visit(edge.from)
+    }
+  }
+  for (const id of selected) visit(id)
+  if (problems.length) throw new Error(problems.map(({ at, says }) => `${at}: ${says}`).join('\n'))
+  const display = relationOrder([...selected], edges.order)
+  const pending = new Set(display), out = []
+  while (pending.size) {
+    const next = display.find(id => pending.has(id) && !edges.requires.some(edge => !edge.game && edge.to === id && pending.has(edge.from)))
+    if (!next) throw new Error('circular level prerequisites')
+    pending.delete(next)
+    out.push(next)
+  }
+  return out
+}

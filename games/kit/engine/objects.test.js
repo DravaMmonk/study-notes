@@ -4,14 +4,14 @@ import { assemble } from './content.js'
 import { S } from './schema.js'
 import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
-import { referenceResolver, expandReferences, expandRelations, relationOrder, orderedTags } from './objects.js'
+import { referenceResolver, expandReferences, expandRelations, relationOrder, orderedTags, importLevelOrder } from './objects.js'
 
 const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part'))), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part'))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
-  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], rows: [['toy/a'], ['toy/b', 'toy/c']] }], optional: ['#toy/extras'] },
+  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'], rows: [['toy/a'], ['toy/b', 'toy/c']] }], optional: ['#toy/extras'] },
   levels: ['start', 'a', 'b', 'c', 'end'].map((id) => [id, { title: id }]),
   glossary: { groups: [], entries: [] },
   tags: [['core', { kind: 'level', title: 'Core', values: ['a', '#extras', 'b'] }], ['extras', { kind: 'level', values: ['c'] }]],
@@ -214,4 +214,26 @@ test('tag sorting uses explicit tag order before member prerequisites, then full
   assert.deepEqual(orderedTags(content, 'level'), ['p/b', 'p/c', 'p/a', 'p/d'])
   content.relationEdges.order.push({ of: 'tag', from: '#p/a', to: '#p/b' })
   assert.deepEqual(orderedTags(content, 'level'), ['p/c', 'p/a', 'p/b', 'p/d'])
+})
+
+
+test('chapters retain authored order independently of display relations and reject tags or reversed prerequisites', () => {
+  const input = source()
+  input.game.chapters[0].levels = ['toy/start', 'toy/a', 'toy/c', 'toy/b', 'toy/end']
+  assert.deepEqual(assemble(input).eras[0].levels.map(level => level.id), input.game.chapters[0].levels)
+  input.game.chapters[0].levels = ['toy/b', 'toy/a']
+  assert.ok(assemble(input).objectProblems.some(problem => /must precede/.test(problem.says)))
+  input.game.chapters[0].levels = ['#toy/core']
+  assert.ok(assemble(input).objectProblems.some(problem => /without tags/.test(problem.says)))
+})
+
+test('imports include unscheduled prerequisite closures, using dependency order before package display order', () => {
+  const input = source()
+  input.game.chapters = []
+  const content = assemble(input)
+  assert.deepEqual(content.relationEdges.requires, [])
+  assert.deepEqual(importLevelOrder(content, 'toy/end'), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
+  assert.deepEqual(importLevelOrder(content, '#toy/core'), ['toy/start', 'toy/a', 'toy/b', 'toy/c'])
+  content.registries.relation['toy/sequence'].sequence = ['toy/b', 'toy/a', 'toy/start', 'toy/c', 'toy/end']
+  assert.deepEqual(importLevelOrder(content, 'toy/b'), ['toy/start', 'toy/a', 'toy/b'])
 })

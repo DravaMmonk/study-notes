@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "qed/table",
-    "qed/always",
-    "qed/onerow"
-  ],
-  "of": "level"
-}
