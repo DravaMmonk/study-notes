@@ -85,8 +85,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
       if (['gives', 'opens', 'withholds'].includes(key) && Array.isArray(child) && (path.length === 0 || path.at(-2) === 'tasks' || path.at(-1) === 'reference')) return [key, child.map(piece)]
       if (key === 'tray') return [key, Array.isArray(child) ? child.map(name) : name(child)]
       if (key === 'from' && v.fromGame) return [key, child]
-      if (context === 'configuration' && ['concept', 'borrow'].includes(parent)) target = piece(key)
-      if (context === 'configuration' && parent === 'concept') return [target, piece(child)]
+      if (context === 'configuration' && parent === 'borrow') target = piece(key)
       if (key === 'open' && context === 'configuration') return [key, Object.fromEntries(Object.entries(child).map(([rule, items]) => [rule, items.map((item) => {
         const at = item.indexOf('@', item.startsWith('@') ? 1 : 0)
         return at < 0 ? item : `${piece(item.slice(0, at))}@${name(item.slice(at + 1))}`

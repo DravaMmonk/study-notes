@@ -60,5 +60,9 @@
         "out <- r"
       ]
     }
+  ],
+  "local": [
+    "uPattern",
+    "unifier"
   ]
 }

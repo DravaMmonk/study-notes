@@ -64,5 +64,11 @@
         "out <- r"
       ]
     }
+  ],
+  "local": [
+    "uSwap",
+    "uDecompose",
+    "uConflict",
+    "uEliminate"
   ]
 }

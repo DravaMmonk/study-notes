@@ -14,7 +14,12 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 3,
+  version: 4,
+  removes: [
+    { at: 'game', why: 'Concepts are package item tags; local items belong to levels and tasks.' },
+    ...['circuit', 'tick-bus', 'image', 'logic', 'table'].map((module) => ({ at: `courses.${module}.game.concept`, why: 'Concepts are declared by package item tags.' })),
+    { at: 'courses.logic.game.local', why: 'Local items are declared on their introducing levels or tasks.' },
+  ],
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

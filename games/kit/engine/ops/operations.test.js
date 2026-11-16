@@ -535,3 +535,26 @@ test('entry identity and membership cannot be hidden by the encyclopedia project
     assert.equal(ws.entries.get('e').group, undefined)
   }
 })
+
+
+test('package operations write concept tags and local items on levels and tasks', async () => {
+  const { root } = toy()
+  const ws = openPackage('toy', root, { vocabulary: VOCAB })
+  const result = await runChangeset(ws, { why: 'Declare package-owned progression.', ops: [
+    { op: 'tag.put', tag: 'numbers', data: { kind: 'item', concept: true, values: ['a', 'b'] } },
+    { op: 'level.set', level: 'a1', path: 'adds', value: ['a'] },
+    { op: 'level.set', level: 'a1', path: 'local', value: ['#numbers'] },
+    { op: 'level.set', level: 'a1', path: 'tasks[0].adds', value: ['b'] },
+    { op: 'level.set', level: 'a1', path: 'tasks[0].local', value: ['b'] },
+  ] }, { write: true, check: false, domain: DOMAIN })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  const reopened = openPackage('toy', root, { vocabulary: VOCAB }).content()
+  assert.equal(reopened.tags['toy/numbers'].concept, true)
+  assert.deepEqual(reopened.levels.find((level) => level.id === 'toy/a1').local, ['a', 'b'])
+  assert.deepEqual(reopened.levels.find((level) => level.id === 'toy/a1').tasks[0].local, ['b'])
+  const game = openWorkspace('toy', root, { vocabulary: VOCAB })
+  const refused = await runChangeset(game, { ops: [
+    { op: 'level.set', level: 'a1', path: 'local', value: [] },
+  ] }, { check: false, domain: DOMAIN })
+  assert.equal(refused.ok, false)
+})

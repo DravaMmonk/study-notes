@@ -1,0 +1,9 @@
+{
+  "concept": true,
+  "values": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule"
+  ]
+}

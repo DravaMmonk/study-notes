@@ -27,7 +27,7 @@ const PIECE_REVISIONS = S.opt(S.list(S.obj({
 })))
 
 export const ITEM_REFERENCE = S.str({ reference: 'item' })
-export const TASK_ITEMS = Object.fromEntries(['gives', 'withholds', 'opens'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
+export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
 
 const OWN = {
   id: TASK_ID_FIELD,
@@ -45,8 +45,9 @@ const owned = (s, fields) => (s.type === 'by' ? { ...s, cases: Object.fromEntrie
  * (or itself a by- or either-schema of such objects).
  */
 export const taskLevel = (once, task, { parts = false } = {}) => {
-  const keys = parts ? { ...OWN, ...TASK_ITEMS, publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : OWN
+  const keys = { ...OWN, ...TASK_ITEMS, ...(parts ? { publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : {}) }
   return S.obj({
+    ...TASK_ITEMS,
     ...(parts ? { featuredParts: FEATURED_PARTS, pieceRevisions: PIECE_REVISIONS } : {}),
     ...once,
     requires: S.opt(S.list(S.level(), { section: 'course', about: t('这关固有的知识前置', 'Knowledge prerequisites for this level') })),

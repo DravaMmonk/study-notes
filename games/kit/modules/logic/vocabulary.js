@@ -187,8 +187,6 @@ const GAME = S.obj({
   words: WORDS,
   wordSets: S.map(S.map(S.text()), { about: t('几套词：字母、谓词、名字怎么读（{0}、{1} 是参数）') }),
   primitives: S.list(S.ref('part')),
-  concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法') })),
-  local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱') })),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字') })),

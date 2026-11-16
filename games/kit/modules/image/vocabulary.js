@@ -134,7 +134,6 @@ const GAME = S.obj({
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词') }),
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件') }),
-  concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,

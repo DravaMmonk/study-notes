@@ -58,5 +58,10 @@
         "out <- r"
       ]
     }
+  ],
+  "local": [
+    "uCheck",
+    "uDecompose",
+    "uEliminate"
   ]
 }

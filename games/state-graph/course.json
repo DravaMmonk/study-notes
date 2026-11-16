@@ -11,10 +11,6 @@
     "table:not",
     "table:mul"
   ],
-  "concept": {
-    "table:const": "table:pass",
-    "table:many": "table:msum"
-  },
   "borrow": {
     "state-graph/seam": "state-graph/seam"
   },

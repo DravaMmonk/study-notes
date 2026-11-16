@@ -63,5 +63,9 @@
         "out <- r"
       ]
     }
+  ],
+  "local": [
+    "uDelete",
+    "uDecompose"
   ]
 }

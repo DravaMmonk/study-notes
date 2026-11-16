@@ -170,3 +170,15 @@ test('settings have neither a registry nor a tag kind', () => {
   assert.equal(Object.hasOwn(content.registries, 'setting'), false)
   assert.ok(checkContent({ vocabulary }, content).some((problem) => /tags\/toy\/obsolete/.test(problem.at)))
 })
+
+
+test('concept declarations reject non-item tags and ambiguous membership', () => {
+  const input = source()
+  input.tags.push(['bad', { kind: 'level', concept: true, values: ['a'] }],
+    ['idea', { kind: 'item', concept: true, values: ['piece'] }],
+    ['other-idea', { kind: 'item', concept: true, values: ['#idea'] }])
+  input.partDefs = { parts: { piece: {} } }
+  const problems = assemble(input).objectProblems.map((p) => p.says)
+  assert.ok(problems.some((p) => p.includes('concept tags must contain items')))
+  assert.ok(problems.some((p) => p.includes('belongs to multiple concepts')))
+})

@@ -9,11 +9,11 @@ import { runtimeOf } from './runtime.js'
 
 const sample = () => ({
   id: 'sample', domain: 'irrelevant', primitives: ['base', 'local'],
-  local: ['local'], concept: { base: 'number' }, replaces: { built: ['base'] },
+  tags: { 'sample/number': { kind: 'item', concept: true, values: ['base'] } }, replaces: { built: ['base'] },
   trays: { tools: { items: ['base', 'local', 'built'] } },
   eras: [{ id: 'chapter', levels: [{ id: 'first' }, { id: 'next' }], links: [{ from: 'first', to: 'next' }] }],
   levels: [
-    { id: 'first', tray: 'tools', adds: ['base', 'local'], tasks: [{ id: 'introduce', opens: ['base.border=wrap'] }, { id: 'publish', gives: ['extra'], withholds: ['base.border=wrap'] }] },
+    { id: 'first', tray: 'tools', adds: ['base', 'local'], local: ['local'], tasks: [{ id: 'introduce', opens: ['base.border=wrap'] }, { id: 'publish', gives: ['extra'], withholds: ['base.border=wrap'] }] },
     { id: 'next', tray: 'tools', tasks: [{ id: 'reuse' }] },
   ],
 })
@@ -22,7 +22,7 @@ test('all mechanisms use the same publication, local, replacement and three-grai
   const content = sample()
   const publications = publicationEvents(content.levels, [{ task: 'publish', type: 'built' }])
   const course = contentCourse(content, { publications })
-  assert.equal(course.concept('base'), 'number')
+  assert.equal(course.concept('base'), 'sample/number')
   assert.equal(course.builder('built'), 'first')
   assert.equal(holds(course, { id: 'first', task: 0 }, new Set())('base', 'border', 'wrap'), true)
   assert.equal(holds(course, { id: 'first', task: 1 }, new Set())('base', 'border', 'wrap'), false)
@@ -109,4 +109,41 @@ test('tasks of different mechanisms retain their positions inside one level', as
   const rows = spec.specs[1].levels[0].tasks[0].source
   assert.equal(rows.task, 1)
   assert.deepEqual((await runtime.validate(spec)).filter(line => line.fail), [])
+})
+
+
+test('nested concept tags take precedence over inferred work concepts and keep their full names', () => {
+  const content = sample()
+  content.tags = {
+    'library/numbers': { kind: 'item', concept: true, values: ['#library/atoms'] },
+    'library/atoms': { kind: 'item', values: ['base', 'local'] },
+  }
+  const course = contentCourse(content, { concepts: { base: 'inferred', extra: null } })
+  assert.equal(course.concept('base'), 'library/numbers')
+  assert.equal(course.concept('local'), 'library/numbers')
+  assert.equal(course.concept('extra'), null)
+  assert.equal(course.concept('other'), 'other')
+})
+
+test('local belongs to the introducing level and does not suppress a later permanent introduction', () => {
+  const content = sample()
+  content.levels[1].adds = ['local']
+  content.levels.push({ id: 'last', tasks: [{ id: 'last-task' }] })
+  content.eras[0].levels.push({ id: 'last' })
+  content.eras[0].links.push({ from: 'next', to: 'last' })
+  const course = contentCourse(content)
+  assert.equal(course.local('local', { id: 'first' }), true)
+  assert.equal(course.local('local', { id: 'next' }), false)
+  assert.equal(course.local('local'), false)
+  assert.ok(met(course, { id: 'last' }).includes('local'))
+})
+
+test('task-local settings and values are available at their introduction and do not open successor levels', () => {
+  const content = sample()
+  const items = ['base.border', 'base.border=wrap']
+  content.levels[0].tasks[0] = { id: 'introduce', adds: items, local: items }
+  const course = contentCourse(content)
+  assert.equal(holds(course, { id: 'first', task: 0 }, new Set())('base', 'border', 'wrap'), true)
+  assert.equal(holds(course, { id: 'next' }, new Set())('base', 'border'), false)
+  assert.equal(course.local('base.border=wrap', { id: 'first' }), true)
 })

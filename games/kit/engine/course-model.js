@@ -2,6 +2,7 @@
 // progression, item granularity, trays, local pieces and replacements are interpreted here.
 import { defineCourse, itemOf, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
+import { referenceResolver } from './objects.js'
 import { trayIn } from './trays.js'
 
 const unique = (items) => [...new Set(items)]
@@ -36,7 +37,16 @@ export function contentCourse(content, {
     ...awards(at),
   ]
   const build = (at) => unique([...(builds?.(at) ?? []), ...awards(at), ...Object.keys(parts).filter((part) => parts[part].unlock && unlocked(at).includes(parts[part].unlock))])
-  const localPieces = new Set([...(content.local ?? []), ...local])
+  const resolve = referenceResolver(content.registries ?? { tag: content.tags ?? {}, piece: parts })
+  const taggedConcepts = new Map(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'item' && tag.concept)
+    .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
+    .flatMap(([name]) => resolve(`#${name}`, 'item').map((item) => [item, name])))
+  const localAt = (part, at) => local.includes(part) || (level(at).local ?? []).includes(part)
+    || tasks(at).some((task, index) => (at.task === undefined || index === at.task) && (task.local ?? []).includes(part))
+  const isLocal = (part, at) => at ? localAt(part, at) : local.includes(part)
+    || content.levels.some((level) => localAt(part, level))
+      && !content.levels.some((level) => defaultAdds(level).includes(part) && !localAt(part, level))
+
   const course = defineCourse({
     available: content.packagePreview ? Object.keys(content.registries.piece) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
@@ -45,8 +55,8 @@ export function contentCourse(content, {
     tray: (at) => trayIn(content.trays ?? {}, task(at)?.tray ?? played.get(at.id)?.tray ?? level(at).tray),
     primitives: unique([...(content.primitives ?? []), ...intrinsic]),
     adds, needs: flagOf, builds: build,
-    concept: (part) => Object.hasOwn(concepts, part) ? concepts[part] : content.concept?.[part] ?? part,
-    local: (part) => localPieces.has(part),
+    concept: (part) => taggedConcepts.get(part) ?? (Object.hasOwn(concepts, part) ? concepts[part] : part),
+    local: isLocal,
     replaces: (part) => content.replaces?.[part] ?? [],
     gives: (at) => unique([...(level(at).gives ?? []), ...(task(at)?.gives ?? []), ...grants(at)]),
     withholds: (at) => unique([...(task(at)?.withholds ?? level(at).withholds ?? []), ...(task(at)?.without ?? level(at).without ?? []), ...withheld(at)]),

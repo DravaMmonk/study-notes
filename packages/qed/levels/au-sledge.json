@@ -85,5 +85,9 @@
         "@level.au-sledge.tasks.au-sledge_2.hint.0"
       ]
     }
+  ],
+  "local": [
+    "saturate",
+    "clausify"
   ]
 }

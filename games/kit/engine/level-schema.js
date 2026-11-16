@@ -83,7 +83,6 @@ export const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   primitives: S.list(S.ref('part')),
-  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
   views: GAME_VIEWS,

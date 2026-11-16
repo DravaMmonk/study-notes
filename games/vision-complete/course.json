@@ -22,21 +22,6 @@
     "vision-complete/dg_sigma",
     "vision-complete/dg_sample"
   ],
-  "concept": {
-    "vision-complete/const": "vision-complete/arithmetic",
-    "vision-complete/add": "vision-complete/arithmetic",
-    "vision-complete/sub": "vision-complete/arithmetic",
-    "vision-complete/mul": "vision-complete/arithmetic",
-    "vision-complete/arith": "vision-complete/arithmetic",
-    "vision-complete/lrnConv": "vision-complete/learn3",
-    "vision-complete/dg_encode": "vision-complete/autoencoder",
-    "vision-complete/dg_decode": "vision-complete/autoencoder",
-    "vision-complete/dg_encoder": "vision-complete/autoencoder",
-    "vision-complete/dg_decoder": "vision-complete/autoencoder",
-    "vision-complete/dg_mu": "vision-complete/latent",
-    "vision-complete/dg_sigma": "vision-complete/latent",
-    "vision-complete/dg_sample": "vision-complete/latent"
-  },
   "views": {
     "image:view-profile": "vision-complete/1-1",
     "image:view-terrain": "vision-complete/1-4",

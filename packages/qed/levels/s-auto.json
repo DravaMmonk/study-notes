@@ -69,5 +69,9 @@
         }
       ]
     }
+  ],
+  "local": [
+    "introRules",
+    "elimRules"
   ]
 }

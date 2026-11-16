@@ -5,10 +5,6 @@
     "table:pass",
     "table:block"
   ],
-  "concept": {
-    "table:const": "start",
-    "table:pass": "start"
-  },
   "chapters": [
     {
       "id": "scout",
