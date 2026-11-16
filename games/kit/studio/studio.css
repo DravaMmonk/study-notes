@@ -827,3 +827,17 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
   .member-move .editor-tool { opacity: 0; transition: opacity 120ms ease; }
   .tag-member:hover .member-move .editor-tool, .tag-member:focus-within .member-move .editor-tool { opacity: 1; }
 }
+
+/* The fold bar under the middle (Drawer.jsx): how the check stands, its tabs, and the tab open. */
+.drawer { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
+.drawer-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 4px 8px; }
+.drawer-bar.is-ok { background: color-mix(in srgb, var(--status) 16%, transparent); }
+.drawer-bar.is-fail { background: color-mix(in srgb, var(--fail) 14%, transparent); }
+.drawer.is-open .audit-sum > svg { transform: rotate(180deg); }
+.drawer-tabs { min-width: 0; display: flex; gap: 1px; padding: 2px; overflow-x: auto; border-radius: 8px; background: var(--hover); scrollbar-width: none; }
+.drawer-tabs .studio-tab { flex: none; }
+.drawer-body { min-height: 0; overflow: auto; }
+.drawer-body > .audit { height: 100%; }
+.audit > .audit-filter { justify-content: flex-start; padding: 4px 8px; }
+.drawer-debug { margin: 0; padding: 8px 12px; color: var(--ink); font: 11px/1.45 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.studio-play > .object-links { padding: 6px 10px; border-top: 1px solid var(--hairline); }

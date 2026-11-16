@@ -1,10 +1,9 @@
-// The audit drawer under the form (DIRECTION decision 6): a bar that says how the check stands and folds the drawer
-// open or shut, and in the drawer a worklist: npm run check's lines for the game as the pending changeset
+// The audit, a tab of the fold bar under the middle (Drawer.jsx; DIRECTION decision 6): how the check stands (auditSum,
+// on the bar) and a worklist: npm run check's lines for the game as the pending changeset
 // leaves it, recomputed on every edit, one row a line (worklist.js) — filtered by severity, rule, the level selected
 // and words; F8 and Shift+F8 step through them, each step going to the field the line is about (or its level). While
 // the whole check of the latest edit is still running, the last one shows faded.
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronUp } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { SEVERITIES, filterItems, stepIn, tally } from './worklist.js'
@@ -13,7 +12,15 @@ import { usePref } from './prefs.js'
 const SEVERITY = { fail: ['不过', 'failing'], open: ['待办', 'open'], report: ['报告', 'reported'], pass: ['通过', 'passing'] }
 const SHOWN = 400 // rows drawn at most; the rest summed up
 
-export default function Audit({ items, fresh, last, at, busy, ops, migration, open, onToggle, onJump, onReview }) {
+/** How the check stands, for the fold bar: { fail: true when something fails, label }. */
+export function auditSum(items, last) {
+  const fails = items.filter((it) => it.severity === 'fail').length
+  const failedOp = last && last.failed !== null && last.failed !== undefined
+  return { fail: Boolean(fails || failedOp), label: failedOp ? tr('操作失败') : fails ? tr(`${fails} 处不过`, `${fails} failing`) : tr('全部通过', 'All clear') }
+}
+
+/** `open`: the fold bar is open on the audit; `onOpen()` opens it there (F8 steps into a folded one). */
+export default function Audit({ items, fresh, last, at, busy, open, onOpen, onJump }) {
   const [filter, setFilter] = usePref('audit-filter', { severities: ['fail', 'open', 'report'], rule: '', mine: false })
   const [query, setQuery] = useState('')
   const [cursor, setCursor] = useState(-1)
@@ -25,7 +32,7 @@ export default function Audit({ items, fresh, last, at, busy, ops, migration, op
     if (shown[k]) onJump(shown[k])
   }
   const step = (delta) => {
-    if (!open) onToggle()
+    if (!open) onOpen()
     go(stepIn(shown.length, Math.min(cursor, shown.length - 1), delta))
   }
   // F8 / Shift+F8, or the palette's next and previous finding.
@@ -42,25 +49,15 @@ export default function Audit({ items, fresh, last, at, busy, ops, migration, op
   useEffect(() => { document.querySelector('.audit-row.is-at')?.scrollIntoView({ block: 'nearest' }) }, [cursor])
   const set = (patch) => setFilter((f) => ({ ...f, ...patch }))
   const toggle = (s) => set({ severities: filter.severities.includes(s) ? filter.severities.filter((x) => x !== s) : [...filter.severities, s] })
-  const fails = severities.get('fail') ?? 0
   const failedOp = last && last.failed !== null && last.failed !== undefined
+  if (!open) return null
   return (
-    <div className={`audit ${open ? 'is-open' : ''} ${busy || !fresh ? 'is-busy' : ''}`} aria-busy={!fresh}>
-      <div className={`audit-bar ${fails || failedOp ? 'is-fail' : 'is-ok'}`}>
-        <button type="button" className="audit-sum" onClick={onToggle} aria-expanded={open} title="Alt+]">
-          <ChevronUp size={14} aria-hidden="true" />
-          <b>{failedOp ? tr('操作失败') : fails ? tr(`${fails} 处不过`, `${fails} failing`) : tr('全部通过', 'All clear')}</b>
-          {!fresh && <i className="audit-wait" title={tr('检查中')} />}
-        </button>
-        {ops.length > 0 && <button type="button" className="audit-pending" onClick={onReview}>{tr(`${ops.length} 个待定`, `${ops.length} pending`)}{migration ? ` · v${migration.version}` : ''}</button>}
-        {open && <Filters filter={filter} set={set} toggle={toggle} severities={severities} rules={rules} at={at} query={query} setQuery={setQuery} />}
+    <div className={`audit is-open ${busy || !fresh ? 'is-busy' : ''}`} aria-busy={!fresh}>
+      <Filters filter={filter} set={set} toggle={toggle} severities={severities} rules={rules} at={at} query={query} setQuery={setQuery} />
+      <div className="audit-body">
+        {failedOp && <ul className="audit-lines">{last.problems.map((p) => <li key={p} className="audit-row is-fail is-wide">{p}</li>)}</ul>}
+        <Lines shown={shown} cursor={cursor} go={go} />
       </div>
-      {open && (
-        <div className="audit-body">
-          {failedOp && <ul className="audit-lines">{last.problems.map((p) => <li key={p} className="audit-row is-fail is-wide">{p}</li>)}</ul>}
-          <Lines shown={shown} cursor={cursor} go={go} />
-        </div>
-      )}
     </div>
   )
 }

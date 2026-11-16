@@ -146,7 +146,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, 
         <summary>{tr('关卡的位置')}</summary>
         <Rows form={part(true)} ctx={ctx} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />
       </details>
-      <button type="button" className="kit-btn is-label" onClick={() => onCopy(e)}>{tr('文案表')}</button>
+      {onCopy && <button type="button" className="kit-btn is-label" onClick={() => onCopy(e)}>{tr('文案表')}</button>}
     </article>
   )
 }

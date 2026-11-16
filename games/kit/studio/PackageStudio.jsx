@@ -36,9 +36,9 @@ import PanelResizer from './PanelResizer.jsx'
 import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
-import CopyTable from './CopyTable.jsx'
 import Compare from './Compare.jsx'
-import Audit from './Audit.jsx'
+import Audit, { auditSum } from './Audit.jsx'
+import Drawer, { Debug } from './Drawer.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
@@ -64,7 +64,6 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
 const OPENED = readOpen(QUERY)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 // The left column's switcher (left-lists.js PACKAGE_LISTS): each list's icon and name.
 const LISTS = {
   tree: [ListTree, '课程', 'Course'], parts: [Shapes, '件', 'Pieces'], entries: [BookOpen, '词条', 'Entries'],
@@ -80,17 +79,17 @@ const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : null
 const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
-const remember = (pkg, at, tab, field, playLevel, task, opened) => {
+const remember = (pkg, at, field, playLevel, task, opened) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
-  url.searchParams.set('space', SCOPE)
+  url.searchParams.set('space', 'build')
   for (const k of ['level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
   if (at?.glossary) url.searchParams.set('glossary', '1')
-  url.searchParams.set('tab', tab)
+  url.searchParams.delete('tab')
   const inspector = field?.path ? { path: field.path, ...(field.trail && { trail: field.trail }) } : field?.missing ? { missing: field.missing } : null
   window.history.replaceState({ studio: { inspector, playLevel, task, gameRoot: Boolean(at?.game) } }, '', url)
 }
@@ -114,11 +113,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
   const [picked, setPicked] = useState(() => new Set(at?.level ? [at.level] : []))
-  const [tab, setTabState] = useState(() => {
-    const requested = QUERY.get('tab')
-    if (requested === 'i18n') return 'copy'
-    return TABS.some(([id]) => id === requested) ? requested : 'page'
-  })
+  const [drawerTab, setDrawerTab] = usePref('drawer-tab', 'audit') // the fold bar's tab (Drawer.jsx)
   const [play, setPlay] = useState(() => {
     const level = SAVED_VIEW?.playLevel ?? at?.level
     return level ? { level, seed: null, take: null } : null
@@ -146,10 +141,13 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     setSide(list)
   }
   const leaveObjects = () => setSide((s) => (isObjectList(s) ? levelList : s))
-  const setTab = (next) => { setTabState(next); leaveObjects() }
+  /** The fold bar opened on a tab. */
+  const openDrawer = (next) => {
+    setDrawerTab(next)
+    setLayout((l) => (l.auditOpen ? l : { ...l, auditOpen: true }))
+  }
   const [savedInspectorTabs, setInspectorTabs] = usePref('inspector-tabs', {})
   const inspectorTabs = savedInspectorTabs[game] ?? []
-  const [copyScope, setCopyScope] = useState(null) // A group ('group:<id>'), the whole package, the glossary or the pieces.
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
   const overlayOrigin = useRef(null)
   const openOverlay = (name) => {
@@ -232,7 +230,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const openEvent = side === 'overrides' ? events.find((event) => overrideKey(event) === opened.override) ?? events[0] ?? null : null
   const openKey = objectKind ? openObject : openCapability ? capabilityKey(openCapability.kind, openCapability.name) : openEvent ? overrideKey(openEvent) : null
   const openedParams = openKey ? openParams(side, { [OBJECT_LISTS[side]]: openKey }) : []
-  useEffect(() => remember(game, at, tab, field, playId, pageTask, openedParams), [game, at, tab, field, playId, pageTask, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => remember(game, at, field, playId, pageTask, openedParams), [game, at, field, playId, pageTask, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
   /** Open an object of a list (`list`, by the key its address parameter keeps): the middle shows it, the right its file. */
   const openIn = (list, key) => {
     setOpened((o) => ({ ...o, [OBJECT_LISTS[list]]: key }))
@@ -240,11 +238,14 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     showList(list)
   }
   const openKind = (kind, full) => openIn(listOfKind(kind), full)
+  // A level group picked in the tree: its tag in the middle and its file on the right, the course list staying.
+  const groupTag = !objectList && at?.group !== undefined && content?.registries?.tag?.[at.group] ? at.group : null
+  const fileKey = groupTag ? `#${groupTag}` : openKey
   const pickObjectField = (path) => {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
-    setObjectField({ of: openKey, path })
+    setObjectField({ of: fileKey, path })
   }
-  const objectPath = objectField?.of === openKey ? objectField.path : []
+  const objectPath = objectField?.of === fileKey ? objectField.path : []
   const select = (next, keep = false) => {
     leaveObjects()
     const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part
@@ -265,8 +266,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const openTreeItem = (next, keep) => {
     select(next, keep)
-    if (next?.group !== undefined) setTab('copy')
-    else pickField(selectionPath(next))
+    if (next?.group === undefined) pickField(selectionPath(next))
   }
   const removeLevel = (level) => {
     if (savingRef.current || !confirmDelete(level)) return
@@ -274,22 +274,17 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     select(null)
     if (play?.level === level) { setPlay(null); setPageTask(0); setGo(null) }
   }
-  /** Find a field in the inspector. Search results keep the current workspace tab. */
-  const jump = (level, path, file = null, { stayOnTab = false } = {}) => {
+  /** Find a field in the side panel: the file it is in picked, the field in it. */
+  const jump = (level, path, file = null) => {
     const keys = path ? parsePath(path) : []
     if (file === 'glossary') {
-      setCopyScope('glossary')
-      if (!stayOnTab) setTab('copy')
-      if (keys.length) {
-        select({ glossary: true })
-        pickField(keys, true)
-      }
+      select({ glossary: true })
+      if (keys.length) pickField(keys, true)
       return
     }
     if (level) select({ level })
     else if (file === 'pieces') select({ part: keys[1] })
     else select({ game: true })
-    if (!stayOnTab && !level && tab === 'page') setTab('fields')
     if (keys.length) pickField(keys, true)
     else setField(null)
   }
@@ -351,11 +346,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const playFrom = (level, reference) => {
     playLevel(level, reference ? referenceOf(level) : null)
-    setTab('page')
+    leaveObjects()
   }
   // A board of the level edited in the game's own circuit editor, on the page: its 「用作 …」 writes it back.
   const onBoard = async (level, path) => {
-    setTab('page')
+    leaveObjects()
     await playLevel(level, path, true)
   }
   const onTake = ({ level, path, text }) => {
@@ -548,10 +543,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const level = at?.level && content?.levels.some((l) => l.id === at.level) ? at.level : null
   const ACTIONS = [
     ['search', tr('在整款游戏里搜索、替换'), `${MOD}+Shift+F`, openSearch],
-    ['copy', tr('文案表'), '', () => setTab('copy')],
-    ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
-    ['page', tr('画面：在游戏的页面上改'), '', () => { setTab('page'); setPageEdit(true) }],
-    ['fields', tr('字段：这一关的全部字段'), '', () => setTab('fields')],
+    ['compare', tr('比较', 'Compare'), '', () => openDrawer('compare')],
+    ['page', tr('画面：在游戏的页面上改'), '', () => { leaveObjects(); setPageEdit(true) }],
     ...(level ? [
       ['play-ref', tr('载入参考解试玩这一关'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
       ['play', tr('试玩这一关（不显示编辑标记）'), level, () => { setPageEdit(false); playFrom(level, false) }],
@@ -562,7 +555,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     ['previous', tr('上一处检查结果'), 'Shift+F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: -1 }))],
     ...(ops.length ? [['drop', tr('去掉最后一个待定操作'), `${MOD}+Z`, () => back(ops.length - 1)]] : []),
     ...(redo.length ? [['redo', tr('放回去掉的操作'), `${MOD}+Shift+Z`, again]] : []),
-    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃'), '', discard]] : []),
+    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => openDrawer('changes')], ['discard', tr('全部放弃'), '', discard]] : []),
     ['tree', tr('收起或打开左栏'), 'Alt+[', () => togglePanel('tree')],
     ['audit', tr('收起或打开检查栏'), 'Alt+]', () => togglePanel('audit')],
     ['side', tr('收起或打开侧栏'), 'Alt+\\', () => togglePanel('side')],
@@ -588,9 +581,9 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     : []
   const runItem = (item, word) => {
     if (item.kind === 'action') return ACTIONS.find((a) => a.id === item.action)?.run(word)
-    if (item.kind === 'level') { select({ level: item.level }); if (!['page', 'groups', 'fields'].includes(tab)) setTab('page'); return undefined }
+    if (item.kind === 'level') { select({ level: item.level }); return undefined }
     if (item.kind === 'field' || item.kind === 'recent') return jump(item.level, item.path, item.level ? null : 'game')
-    if (item.kind === 'entry') { setCopyScope('glossary'); setTab('copy'); return undefined }
+    if (item.kind === 'entry') { select({ glossary: true }); return undefined }
     if (item.kind === 'finding') return jumpTo(item.finding)
     return undefined
   }
@@ -620,8 +613,6 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
 
   const ready = content && vocab
   const pickedIds = playOrder.filter((id) => picked.has(id))
-  const groupShown = at?.group ?? (at?.level && content ? groupOf(content, at.level) : null)
-  const scope = copyScope ?? (groupShown ? `group:${groupShown}` : 'all')
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
   const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
@@ -632,19 +623,22 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     content, namespace, full: openObject, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
     onSelect: (full) => (full ? openKind(objectKind, full) : setOpened((o) => ({ ...o, [objectKind]: null }))),
   }
+  // The middle: an object list's object (above), several levels picked at once, a level group's tag, or the page.
+  const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : groupTag ? 'group' : 'page'
   // The right column of an object list: the object's file, the capability's description, the override's file.
-  const objectFile = objectKind && openObject ? { object: { kind: objectKind, full: openObject, namespace, own: namespaceOf(openObject) === namespace } }
+  const objectFile = groupTag ? { object: { kind: 'tag', full: groupTag, namespace, own: namespaceOf(groupTag) === namespace } }
+    : objectKind && openObject ? { object: { kind: objectKind, full: openObject, namespace, own: namespaceOf(openObject) === namespace } }
     : openCapability ? { capability: openCapability } : openEvent ? { override: { event: openEvent, layer: namespace } } : { game: true }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
-      <StudioBar space={space} tabs={TABS} tab={objectList ? null : tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
+      <StudioBar space={space} ops={ops} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
         <select className="studio-game" value={pkg} disabled={saving} aria-label={tr('内容包', 'Package')}
           onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null); setOpened({}) }}>
           {packages.map(({ id }) => <option key={id} value={id}>{id}</option>)}
         </select>
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
-        <div className={`studio-body is-${objectList ? 'objects' : tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
+        <div className={`studio-body is-${objectList ? 'objects' : middle} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
               {lists.map((list) => {
@@ -666,7 +660,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
               : side === 'search'
-              ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
+              ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file)} />
               : <Tree game={game} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} onGroupMove={moveGroup} onReorder={reorderGroup} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
                     ...(levelChoices.length ? [{
@@ -692,34 +686,27 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                   }} />}
               </div>
             )}
-            {!objectList && tab !== 'page' && (
+            {middle === 'bulk' && (
               <div className="studio-scroll">
-                {tab === 'fields' && at?.level && <ObjectLinks content={content} kind="level" full={at.level} namespace={namespace} onOpen={(next) => openKind(...Object.entries(next)[0])} />}
-                {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
-                {tab === 'copy' && (
-                  <article className="editor is-wide">
-                    <CopyTable side={SCOPE} content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : row.file.level ? null : 'game')} />
-                  </article>
-                )}
-                {tab === 'compare' && <Compare target={target} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}
-                {tab === 'review' && (
-                  <Review
-                    ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
-                    onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
-                    onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('page') }}
-                  />
-                )}
+                <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />
+              </div>
+            )}
+            {middle === 'group' && (
+              <div className="studio-scroll">
+                <TagEditor content={content} namespace={namespace} full={groupTag} pending={objectPending} onEdit={edit} onOps={addOps} onPick={pickObjectField}
+                  onSelect={(full) => (full ? openKind('tag', full) : select(null))} />
               </div>
             )}
             <GameFrame
-              visible={tab === 'page' && !objectList} content={content} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={middle === 'page'} content={content} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
-              footer={at?.part !== undefined && <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
+              footer={at?.part !== undefined ? <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
+                : level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openKind(...Object.entries(next)[0])} />}
             />
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && (objectList
+            {sideCtx && (objectList || groupTag
               ? <Inspector content={content} vocab={vocab} at={objectFile} field={objectFile.object || objectFile.capability || objectFile.override ? { path: objectPath } : null} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickObjectField} onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => {}}
                 tabs={inspectorTabs} selection={objectFile} onToggleTab={() => {}} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
                 onNavigate={(path) => pickObjectField(path)} />
@@ -729,7 +716,13 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">
-            <Audit items={items} fresh={fresh} last={last} at={at} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
+            <Drawer open={layout.auditOpen} tab={drawerTab} onTab={openDrawer} onToggle={() => togglePanel('audit')} sum={auditSum(items, last)} fresh={fresh} ops={ops}
+              audit={<Audit items={items} fresh={fresh} last={last} at={at} busy={busy} open={layout.auditOpen && drawerTab === 'audit'} onOpen={() => openDrawer('audit')} onJump={jumpTo} />}
+              panel={drawerTab === 'compare' ? <Compare target={target} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />
+                : drawerTab === 'changes' ? <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
+                  onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
+                  onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={(lvl) => select({ level: lvl })} />
+                : <Debug ops={ops} last={last} />} />
           </aside>
         </div>
       )}

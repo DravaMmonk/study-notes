@@ -23,27 +23,26 @@ import { useChangeset } from './useChangeset.js'
 import StudioBar from './StudioBar.jsx'
 import PanelResizer from './PanelResizer.jsx'
 import Editor from './Editor.jsx'
-import CopyTable from './CopyTable.jsx'
 import ChapterBoard from './ChapterBoard.jsx'
 import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
 import { GAME_LISTS, OBJECT_LISTS, openParams, overrideKey, readOpen } from './left-lists.js'
 import Review from './Review.jsx'
-import Audit from './Audit.jsx'
+import Audit, { auditSum } from './Audit.jsx'
+import Drawer, { Debug } from './Drawer.jsx'
 import Inspector from './Inspector.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SCOPE = 'game'
 const OPENED = readOpen(QUERY, GAME_LISTS)
-const TABS = [['arrange', '编排', 'Arrangement'], ['copy', '文案', 'Copy'], ['review', '变更', 'Changes']]
 const LISTS = { chapters: [ListTree, '章节', 'Chapters'], overrides: [Layers, '覆盖', 'Overrides'] }
 const SETTLE = 700
 const NEW = '\0new'
 
-const remember = (game, at, tab, opened) => {
+const remember = (game, at, opened) => {
   const url = new URL(window.location.href)
   url.searchParams.set('game', game)
-  url.searchParams.set('space', SCOPE)
-  url.searchParams.set('tab', tab)
+  url.searchParams.set('space', 'arrange')
+  url.searchParams.delete('tab')
   for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
   for (const [k, v] of opened) url.searchParams.set(k, v)
@@ -57,15 +56,17 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const [domainVocab, setVocab] = useState(null)
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('era') !== null ? { era: Number(QUERY.get('era')) } : { era: 0 }))
-  const [tab, setTabState] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'arrange'))
+  const [drawerTab, setDrawerTab] = usePref('game-drawer-tab', 'audit') // the fold bar's tab (Drawer.jsx)
   const [savedSide, setSide] = usePref('game-side', 'chapters')
   useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const side = GAME_LISTS.includes(savedSide) ? savedSide : 'chapters'
   const overridesShown = side === 'overrides'
   const [openOverride, setOpenOverride] = useState(OPENED.open.override ?? null)
-  const setTab = (next) => { setTabState(next); setSide('chapters') }
+  const openDrawer = (next) => {
+    setDrawerTab(next)
+    setLayout((l) => (l.auditOpen ? l : { ...l, auditOpen: true }))
+  }
   const [field, setField] = useState(null)
-  const [copyScope, setCopyScope] = useState(null)
   const [making, setMaking] = useState(null) // the new game being named: { id, zh, en, problem? }
   const [layout, setLayout] = usePref('game-layout', { tree: 220, audit: 200, side: 360, treeOpen: true, auditOpen: true, sideOpen: true })
   const [resize, setResize] = useState(null)
@@ -105,7 +106,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const events = useMemo(() => visibleOverrides(content, layer), [content, layer])
   const openEvent = overridesShown ? events.find((event) => overrideKey(event) === openOverride) ?? events[0] ?? null : null
   const openedParams = openEvent ? openParams('overrides', { override: overrideKey(openEvent) }) : []
-  useEffect(() => remember(game, at, tab, openedParams), [game, at, tab, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => remember(game, at, openedParams), [game, at, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
   const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
   const select = (next) => {
@@ -156,10 +157,9 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
   const ready = content && vocab
   const busyEditing = saving || shown?.ops !== ops
-  const scope = copyScope ?? (e ?? 'all')
   return (
     <div className={`studio ${resize ? 'is-resizing' : ''}`}>
-      <StudioBar space={space} tabs={TABS} tab={overridesShown ? null : tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh}>
+      <StudioBar space={space} ops={ops} busy={busy} fresh={fresh}>
         {making ? (
           <form className="studio-new-game" onSubmit={(event) => { event.preventDefault(); make() }}>
             <input className="field-input" value={making.id} onChange={(event) => setMaking({ ...making, id: event.target.value, problem: null })} placeholder={tr('游戏 id', 'Game id')} aria-label={tr('游戏 id', 'Game id')} autoFocus spellCheck={false} />
@@ -180,7 +180,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
         )}
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
-        <div className={`studio-body is-${overridesShown ? 'objects' : tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
+        <div className={`studio-body is-${overridesShown ? 'objects' : 'arrange'} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
               {GAME_LISTS.map((list) => {
@@ -216,23 +216,12 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           <main className="studio-main">
             <div className="studio-scroll">
               {overridesShown && <OverrideDetail event={openEvent} layer={layer} pending={busyEditing} onOps={addOps} onOpen={() => setSide('chapters')} />}
-              {!overridesShown && tab === 'arrange' && (at?.game || e === null
+              {!overridesShown && (at?.game || e === null
                 ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                 : <>
-                  <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} onCopy={(k) => { setCopyScope(k); setTab('copy') }} />
+                  <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                   <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} onOps={addOps} />
                 </>)}
-              {!overridesShown && tab === 'copy' && (
-                <article className="editor is-wide">
-                  <CopyTable side={SCOPE} content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={order} names={names} places={places} onEdit={edit}
-                    onJump={(row) => { if (row.file.game) { const path = parsePath(row.path); select(path[0] === 'chapters' ? { era: path[1] } : { game: true }); pickField(path) } }} />
-                </article>
-              )}
-              {!overridesShown && tab === 'review' && (
-                <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
-                  onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
-                  onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={() => {}} />
-              )}
             </div>
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
@@ -244,8 +233,13 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">
-            <Audit items={items} fresh={fresh} last={last} at={null} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen}
-              onToggle={() => setLayout((l) => ({ ...l, auditOpen: !l.auditOpen }))} onJump={jumpTo} onReview={() => setTab('review')} />
+            <Drawer open={layout.auditOpen} tab={drawerTab} onTab={openDrawer} onToggle={() => setLayout((l) => ({ ...l, auditOpen: !l.auditOpen }))} sum={auditSum(items, last)} fresh={fresh} ops={ops}
+              tabs={['audit', 'changes', 'debug']}
+              audit={<Audit items={items} fresh={fresh} last={last} at={null} busy={busy} open={layout.auditOpen && drawerTab === 'audit'} onOpen={() => openDrawer('audit')} onJump={jumpTo} />}
+              panel={drawerTab === 'changes' ? <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
+                onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
+                onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={() => {}} />
+                : <Debug ops={ops} last={last} />} />
           </aside>
         </div>
       )}
