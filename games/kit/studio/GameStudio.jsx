@@ -315,7 +315,7 @@ function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
       {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <dl className="package-facts">
         {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
-        {used.includes(id) && [['level', '关卡', 'Levels'], ['piece', '件', 'Pieces'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['layout', '布局', 'Layouts']].map(([kind, zh, en]) => (
+        {used.includes(id) && [['level', '关卡', 'Levels'], ['piece', '件', 'Pieces'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
           <Fragment key={kind}><dt>{tr(zh, en)}</dt><dd>{count(kind)}</dd></Fragment>
         ))}
       </dl>

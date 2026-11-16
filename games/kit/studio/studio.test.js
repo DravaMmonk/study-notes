@@ -17,7 +17,7 @@ import {
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
 import { groupOf, groupTree, stays } from './groups.js'
-import { blankChapter, moveChapter } from './course-edit.js'
+import { blankChapter, chapterOrderRefusal, importLevels, moveChapter } from './course-edit.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
@@ -142,7 +142,20 @@ test('the package sidebar lists each group with a drop place before and after it
 test('chapter metadata edits preserve level references and detach a copied layout', () => {
   const chapters = [{ id: 1, levels: ['#pkg/a'] }, { id: 2, levels: ['pkg/b'] }]
   assert.deepEqual(moveChapter(chapters, 0, 1).map(({ id }) => id), [2, 1])
-  assert.deepEqual(blankChapter(chapters, { ...chapters[1], layout: 'pkg/map', title: 'T' }, (v) => v), { id: 3, title: 'T', levels: [] })
+  assert.deepEqual(blankChapter(chapters, { ...chapters[1], rows: [['pkg/a']], title: 'T' }, (v) => v), { id: 3, title: 'T', levels: [] })
+  // A level or a level tag imported with the prerequisites no chapter places yet, those first.
+  const pkg = {
+    registries: {
+      level: { 'p/a': {}, 'p/b': {}, 'p/c': {}, 'p/d': {} }, tag: { 'p/t': { kind: 'level', values: ['p/c', 'p/d'] } },
+      relation: { 'p/needs': { kind: 'requires', edges: [{ from: 'p/b', to: 'p/c' }, { from: 'p/a', to: 'p/b' }] } },
+    },
+    relationEdges: { requires: [{ from: 'p/b', to: 'p/c' }, { from: 'p/a', to: 'p/b' }], order: [] },
+  }
+  assert.deepEqual(importLevels(pkg, ['p/x'], 'p/c'), ['p/x', 'p/a', 'p/b', 'p/c'])
+  assert.deepEqual(importLevels(pkg, [], '#p/t', new Set(['p/a'])), ['p/b', 'p/c', 'p/d'])
+  // A chapter order that puts a level before its prerequisite is refused as the check says it.
+  assert.equal(chapterOrderRefusal(pkg, ['p/a', 'p/b', 'p/c']), null)
+  assert.equal(chapterOrderRefusal(pkg, ['p/b', 'p/a']), 'p/a must precede p/b in chapter order')
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {

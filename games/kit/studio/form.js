@@ -583,7 +583,7 @@ const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation 
 export function pushOp(ops, op) {
   const last = ops.at(-1)
   // Adding and removing never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'tray.put', 'tray.remove', 'section.put', 'section.remove'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 
@@ -635,7 +635,7 @@ export function fieldAt(form, path) {
 /* ---------- a file as a form ---------- */
 
 // What game.json's form leaves out: what is not its own schema.
-const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'vocabulary', 'open', 'tags', 'relations', 'layouts', 'sourceChapters', 'relationEdges', 'objectProblems', 'eras', 'trays', 'replaces', 'overridden', 'registries']
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'vocabulary', 'open', 'tags', 'relations', 'sections', 'sourceChapters', 'relationEdges', 'objectProblems', 'eras', 'trays', 'replaces', 'overridden', 'registries']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */

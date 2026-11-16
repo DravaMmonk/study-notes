@@ -1,51 +1,12 @@
-// The layout editor of the package workspace (games/PACKAGES.md 3.4, 8): one layout at a time, the route map of a
-// level tag's members as the game draws it, row by row, one to three places a row. A level is dragged to a place (or
-// picked, then its place clicked: the way on a phone), to a row of its own between rows, or off the map; places and
-// rows are put in and taken out; the tag's levels no row places wait below. A move that would put a prerequisite in a
-// row not above the level that needs it is refused. Another layer's layouts are read only. The list of layouts is the
-// left column's (ObjectLists.jsx); its file the right's.
+// The arrange workspace's map editor (games/PACKAGES.md 3.4, 8.3): a chapter's route map, its `rows` in course.json,
+// row by row, one to three places a row. A level is dragged to a place (or picked, then its place clicked: the way on
+// a phone), to a row of its own between rows, or off the map; places and rows are put in and taken out; the chapter's
+// levels no row places wait below. A move that would put a prerequisite in a row not above the level that needs it is
+// refused.
 import { useRef, useState } from 'react'
-import { Plus, Trash2, X } from 'lucide-react'
-import { L, tr } from '../shell/i18n.js'
-import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, shownName } from './objects-edit.js'
-import SourceMark from './SourceMark.jsx'
-import { layoutOverrideOps, overridesIt } from './override-edit.js'
-import { ROW_SLOTS, addPlace, addRow, clearLevel, layoutMembers, layoutRefusal, layoutRowsOp, placeLevel, placeOf, removePlace } from './layout-edit.js'
-
-/** The layout `full` (picked in the left list, LayoutList); `onPick(path)` shows a field of its file on the right. */
-export default function LayoutEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
-  const layout = content?.registries?.layout?.[full]
-  if (!layout) return <article className="arrange" />
-  const own = namespaceOf(full) === namespace
-  const remove = () => {
-    if (!own || pending || !confirmDelete(localName(namespace, full))) return
-    onEdit({ op: 'layout.remove', layout: localName(namespace, full) })
-    onSelect(null)
-  }
-  return (
-    <article className="arrange">
-      <LayoutPane key={full} full={full} layout={layout} own={own} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onOps={onOps} onPick={onPick} onRemove={own ? remove : null} />
-    </article>
-  )
-}
-
-/** A layout of this package edited in place, or another package's overridden here once asked to. */
-function LayoutPane({ full, layout, own, content, namespace, pending, onEdit, onOps, onPick, onRemove }) {
-  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'layout', full))
-  return (
-    <>
-      <div className="arrange-group">
-        <code className="editor-id">{shownName(namespace, full)}</code>
-        <SourceMark content={content} kind="layout" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
-        <span className="kit-spacer" />
-        {onRemove && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除布局', 'Delete the layout')} aria-label={tr('删除布局', 'Delete the layout')} onClick={onRemove}><Trash2 size={14} aria-hidden="true" /></button>}
-      </div>
-      <OneLayout full={full} layout={layout} own={own || overriding} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onPick={onPick}
-        onRows={own ? undefined : (rows) => onOps(layoutOverrideOps(content, namespace, full, rows))} />
-    </>
-  )
-}
+import { Plus, X } from 'lucide-react'
+import { tr } from '../shell/i18n.js'
+import { ROW_SLOTS, addPlace, addRow, clearLevel, layoutRefusal, placeLevel, placeOf, removePlace } from './layout-edit.js'
 
 /** What a drop target's key says: a place, a new row before a row, or off the map. */
 function dropOf(key) {
@@ -56,23 +17,22 @@ function dropOf(key) {
 }
 const dropAt = (x, y) => document.elementFromPoint(x, y)?.closest('[data-drop]')?.dataset.drop ?? null
 
-/** One layout's grid. `onRows(rows)` writes the rows elsewhere (a game's override); without it they go to the layout. */
-export function OneLayout({ full, layout, own, content, namespace, pending, onEdit, onRows, onPick }) {
-  const rows = layout.rows ?? []
-  const members = layoutMembers(content, layout)
+/**
+ * A chapter's map: `rows` its rows (or those the map's rules give, until it has its own), `members` the chapter's
+ * levels in order, `edges` the prerequisites among them; `onRows(rows)` writes the rows; `onPick(id)` a level picked.
+ */
+export default function MapEditor({ rows, members, edges, titleOf, pending, onRows, onPick }) {
   const placed = new Set(rows.flat())
   const loose = members.filter((id) => !placed.has(id))
-  const edges = content.relationEdges?.requires ?? []
-  const locked = pending || !own
+  const locked = pending
   const [armed, setArmed] = useState(null)
   const [notice, setNotice] = useState('')
   const [dragging, setDragging] = useState(null)
   const [over, setOver] = useState(null)
   const drag = useRef(null)
   const dragged = useRef(false)
-  const titleOf = (id) => L(content.registries?.level?.[id]?.title)
-  const describe = (id) => `${shownName(namespace, id)} ${titleOf(id) ?? ''}`.trim()
-  const write = (next) => (onRows ? onRows(next) : onEdit(layoutRowsOp(namespace, full, next)))
+  const describe = (id) => `${id} ${titleOf(id) ?? ''}`.trim()
+  const write = onRows
   const move = (id, to) => {
     if (locked || !to) return
     const next = to.off ? clearLevel(rows, id) : placeLevel(rows, id, to)
@@ -122,7 +82,7 @@ export function OneLayout({ full, layout, own, content, namespace, pending, onEd
     if (armed && armed !== id && place) { move(armed, place); return }
     setNotice('')
     setArmed(armed === id ? null : id)
-    if (place) onPick?.(['rows', place.row, place.slot])
+    onPick?.(id)
   }
   const target = (key, to) => ({
     'data-drop': key,
@@ -133,7 +93,7 @@ export function OneLayout({ full, layout, own, content, namespace, pending, onEd
     <button key={id} type="button" className={`map-place ${members.includes(id) ? '' : 'is-auto'} ${armed === id ? 'is-on' : ''} ${dragging === id ? 'is-moving' : ''}`}
       title={describe(id)} aria-pressed={armed === id} disabled={pending} {...grab(id)} {...(to && target(`slot:${to.row}:${to.slot}`, to))}
       onClick={() => pick(id, to)}>
-      <code>{shownName(namespace, id)}</code><span>{titleOf(id)}</span>
+      <code>{id}</code><span>{titleOf(id)}</span>
     </button>
   )
   const reach = armed || dragging
@@ -144,7 +104,6 @@ export function OneLayout({ full, layout, own, content, namespace, pending, onEd
   return (
     <div className="map-layout layout-editor">
       <div className="arrange-actions">
-        <code>{shownName(namespace, layout.of)}</code>
         <span className="object-count">{members.filter((id) => placed.has(id)).length}/{members.length}</span>
         {armed && <>
           <strong>{describe(armed)}</strong>

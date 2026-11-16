@@ -6,14 +6,15 @@
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
 //   part: a piece of pieces.json shown instead (the scenes its editor draws and its fields, PieceView.jsx;
-//         settings/<name>, a setting definition, the control it draws); picked is then the path picked in it
+//         settings/<name>, a setting definition, the control it draws); picked is then the path picked in it;
+//         stage: one of its stages previewed instead (read only)
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
 //         does not draw too;  footer: what goes under the page (a piece's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'
 import { CirclePlay, MousePointerClick, Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'
 
-export default function GameFrame({ visible, content, play, part, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference, footer = null }) {
+export default function GameFrame({ visible, content, play, part, stage = null, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference, footer = null }) {
   const frame = useRef(null)
   const [ready, setReady] = useState(false)
   const said = useRef(onMessage)
@@ -48,15 +49,16 @@ export default function GameFrame({ visible, content, play, part, task, go, edit
   useEffect(() => {
     if (!ready || !visible) return
     if (part !== undefined) {
-      if (opened.current.part === part) return
-      send({ type: 'part', content: now.current.content, part, theme, lang })
-      opened.current = { play: undefined, part, content: now.current.content }
+      const shownPart = stage ? `${part} ${stage}` : part
+      if (opened.current.part === shownPart) return
+      send({ type: 'part', content: now.current.content, part, stage, theme, lang })
+      opened.current = { play: undefined, part: shownPart, content: now.current.content }
       return
     }
     if (opened.current.play === play && opened.current.part === undefined) return
     send({ type: 'load', content: now.current.content, level: play?.level ?? null, task: now.current.task, seed: play?.seed ?? null, take: play?.take ?? null, theme, lang })
     opened.current = { play, part: undefined, content: now.current.content }
-  }, [ready, visible, play, part]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, visible, play, part, stage]) // eslint-disable-line react-hooks/exhaustive-deps
   // An edit: the new content, the level staying open.
   useEffect(() => {
     if (!ready || !visible || opened.current.content === content) return

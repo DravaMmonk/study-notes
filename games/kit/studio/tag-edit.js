@@ -79,11 +79,6 @@ export function ownTagData(namespace, tag) {
   return { ...rest, ...(title !== undefined && { title: ownText(namespace, title) }), ...(desc !== undefined && { desc: ownText(namespace, desc) }), values: tag.values.map((v) => writtenName(namespace, v)) }
 }
 
-/** The tag's data with `concept` set, or taken out when it is false. */
-export function withConcept(namespace, tag, concept) {
-  const { concept: _, ...rest } = tag
-  return ownTagData(namespace, concept ? { ...rest, concept: true } : rest)
-}
 
 /** A new empty tag of `kind` in `namespace`: its short name (free among the layer's tags) and the operation. */
 export function newTag(content, namespace, kind) {

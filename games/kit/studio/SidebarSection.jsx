@@ -6,6 +6,8 @@ export function useSidebarFolds(key, game) {
   const [folds, setFolds] = usePref(key, {})
   return {
     folded: new Set(folds[game] ?? []),
+    /** Every one of `ids` folded (or none). */
+    setAll: (ids, fold) => setFolds((previous) => ({ ...previous, [game]: fold ? [...ids] : [] })),
     toggle: (id) => setFolds((previous) => {
       const current = new Set(previous[game] ?? [])
       if (current.has(id)) current.delete(id)

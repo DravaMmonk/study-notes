@@ -11,8 +11,10 @@ import { usePref } from './prefs.js'
 import { shownName } from './objects-edit.js'
 import { shifted } from './tag-order.js'
 import { useDragOrder } from './useDragOrder.js'
+import GroupingBar from './GroupingBar.jsx'
 
-export default function Tree({ game, namespace, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, onGroupMove, onReorder, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
+/** `grouping`: GroupingBar's props (the levels grouped by tags here; by relations the workspace shows GroupedList). */
+export default function Tree({ game, namespace, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, onGroupMove, onReorder, labels = null, onTask, onTaskMove, addOptions, onAdd, grouping = null }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => groupTree(content, playOrder), [content, playOrder])
@@ -26,7 +28,7 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
   const placements = useMemo(() => new Map(tree.sections.flatMap(({ levels }) => levels.map((entry) => [entry.id, entry]))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
-  const { folded, toggle: fold } = useSidebarFolds('folded-groups', game)
+  const { folded, toggle: fold, setAll } = useSidebarFolds('folded-groups', game)
   const [over, setOver] = useState(null)
 
   const matches = sidebarSearch(filtering ? query : '')
@@ -177,6 +179,7 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
     <nav className="tree" aria-label={tr('关卡分组', 'Level groups')}>
       <SidebarListTools addOptions={addOptions} onAdd={onAdd} query={query} onQuery={setQuery}
         sortOptions={sortOptions} sort={view} onSort={setSort} />
+      {grouping && !flat && <GroupingBar {...grouping} folded={tree.sections.every((section) => folded.has(section.key))} onFoldAll={(shut) => setAll(tree.sections.map((section) => section.key), shut)} />}
       {flat ? <div className="tree-levels">{rows.map(row)}</div>
         : tree.sections.map((section) => {
         const levels = ids(section).filter((id) => visible.has(id))

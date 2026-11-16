@@ -86,3 +86,36 @@ export function valuesInOrder(content, tag) {
   }
   return values.map((value, k) => [value, rank(value), k]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map(([value]) => value)
 }
+
+/** `sequence` with the places `ids` hold refilled by `next` (the same ids in a new order), every other item kept. */
+export function resequence(sequence, ids, next) {
+  const places = sequence.map((id, k) => (ids.includes(id) ? k : -1)).filter((k) => k >= 0)
+  const out = [...sequence]
+  places.forEach((place, k) => { out[place] = next[k] })
+  return out
+}
+
+/**
+ * The operations that put `ids` (members of one object, in the order shown) into the order `next`. Order relations are
+ * global: every one the layer may write that lists two or more of them is rewritten in place to agree (its order of
+ * everything else standing); when none lists them all, `preferred` (`<object>-order`) is written with the whole order.
+ */
+export function subsetOrderOps(content, layer, preferred, ids, next, of, owner = null, overriding = false) {
+  const relations = content?.registries?.relation ?? {}
+  const named = (name) => (relations[name]?.kind === 'order' ? edgesOf(relations[name]).flatMap(({ from, to }) => [from, to]) : [])
+  const listed = (name) => ids.filter((id) => named(name).includes(id))
+  const names = [...new Set([preferred, ...Object.keys(relations).sort()])].filter((name) => listed(name).length >= 2 && canOrder(content, layer, name, owner, overriding))
+  const ops = names.flatMap((name) => {
+    const mine = listed(name)
+    const order = next.filter((id) => mine.includes(id))
+    const relation = relations[name]
+    if (Array.isArray(relation.sequence) && !relation.edges?.length) return orderOps(content, layer, name, resequence(relation.sequence, mine, order), relation.of ?? of, owner, overriding) ?? []
+    // Edges: those between two of them give way to a chain in the new order.
+    const edges = [...edgesOf(relation).filter((e) => !(mine.includes(e.from) && mine.includes(e.to))), ...order.slice(1).map((to, k) => ({ from: order[k], to }))]
+    if (namespaceOf(name) !== layer) return relationOverrideOps(content, layer, name, edges)
+    const { sequence: _, id: __, ...rest } = relation
+    return [{ op: 'relation.put', relation: localName(layer, name), data: { ...rest, edges: edges.map((e) => ({ ...e, from: writtenName(layer, e.from), to: writtenName(layer, e.to) })) } }]
+  })
+  if (names.some((name) => listed(name).length === ids.length)) return ops
+  return [...ops.filter((op) => op.relation !== localName(layer, preferred) && op.name !== preferred), ...(orderOps(content, layer, preferred, next, of, owner, overriding) ?? [])]
+}

@@ -1,7 +1,7 @@
 // What a game writes when it rewires or re-lays out a package's objects (override-edit.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { addEdgeOps, beforeLayer, layoutOverrideOps, relationForEdge, relationPatch, removeEdgeOps } from './override-edit.js'
+import { addEdgeOps, beforeLayer, relationForEdge, relationPatch, removeEdgeOps } from './override-edit.js'
 
 const content = (history = []) => ({
   id: 'g',
@@ -10,7 +10,6 @@ const content = (history = []) => ({
       'p/route': { kind: 'requires', edges: [{ from: 'p/a', to: 'p/b' }, { from: '#p/t', to: 'p/c' }] },
       'p/steps': { kind: 'order', sequence: ['p/a', 'p/b'] },
     },
-    layout: { 'p/map': { of: '#p/t', rows: [['p/a'], ['p/b', null]] } },
   },
   overrideHistory: history,
 })
@@ -43,11 +42,6 @@ test('undoing a game’s change to a relation removes its override', () => {
   assert.deepEqual(removeEdgeOps(c, '@g', 'p/c', 'p/b'), [{ op: 'override.remove', layer: '@g', kind: 'relation', name: 'p/route' }])
 })
 
-test('a game lays out a package layout whole, and goes back to it when the rows are the same', () => {
-  assert.deepEqual(layoutOverrideOps(content(), '@g', 'p/map', [['p/b'], ['p/a']]),
-    [{ op: 'override.put', layer: '@g', kind: 'layout', name: 'p/map', data: { of: '#p/t', rows: [['p/b'], ['p/a']] } }])
-  assert.deepEqual(layoutOverrideOps(content(), '@g', 'p/map', [['p/a'], ['p/b', null]]), [])
-})
 
 test('a tag override names the members added and taken out, and goes when nothing differs', async () => {
   const { tagOverrideOps, tagPatch } = await import('./override-edit.js')

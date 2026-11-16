@@ -1,30 +1,29 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { GAME_LISTS, PACKAGE_LISTS, capabilityKey, capabilityOf, currentOf, isObjectList, listOfKind, openParams, overrideKey, readOpen } from './left-lists.js'
+import { GAME_LISTS, PACKAGE_LISTS, capabilityKey, capabilityOf, currentOf, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
 import { objectFileName, objectOp, objectValue, overrideFileOf, overrideOp, ownObjectData } from './object-file.js'
 import { fileForm, opFor } from './form.js'
 
 test('search is the last list of the package workspace; the object lists are told apart', () => {
-  assert.equal(PACKAGE_LISTS.at(-1), 'search')
-  assert.equal(PACKAGE_LISTS[0], 'tree')
+  assert.deepEqual(PACKAGE_LISTS, ['tree', 'parts', 'entries', 'kernel', 'overrides', 'search'])
   assert.deepEqual(GAME_LISTS, ['packages', 'chapters', 'overrides'])
-  assert.ok(isObjectList('tags') && isObjectList('overrides') && isObjectList('kernel'))
+  assert.ok(isObjectList('overrides') && isObjectList('kernel'))
   assert.ok(!isObjectList('tree') && !isObjectList('search') && !isObjectList('toString'))
-  assert.equal(listOfKind('relation'), 'relations')
-  assert.equal(listOfKind('level'), null)
 })
 
-test('the address keeps what the object list shown has open, and opens it again', () => {
-  assert.deepEqual(openParams('tags', { tag: 'demo/one', section: 'demo/map' }), [['tag', 'demo/one']])
-  assert.deepEqual(openParams('tree', { tag: 'demo/one' }), [])
-  assert.deepEqual(openParams('sections', {}), [])
-  assert.deepEqual(readOpen(new URLSearchParams('tag=demo/one&tab=page')), { list: 'tags', open: { tag: 'demo/one' } })
+test('the address keeps what is open: an object list’s object, or a group’s heading', () => {
+  assert.deepEqual(openParams('kernel', { capability: 'operation/logic:and', override: 'x' }), [['capability', 'operation/logic:and']])
+  assert.deepEqual(openParams('tree', { capability: 'x' }), [])
   assert.deepEqual(readOpen(new URLSearchParams('capability=operation/logic:and')), { list: 'kernel', open: { capability: 'operation/logic:and' } })
   // The old tabs that only switched to a list open that list.
-  assert.deepEqual(readOpen(new URLSearchParams('tab=arrange')), { list: 'tags', open: {} })
+  assert.deepEqual(readOpen(new URLSearchParams('tab=kernel')), { list: 'kernel', open: {} })
   assert.deepEqual(readOpen(new URLSearchParams('tab=page')), { list: null, open: {} })
   // A workspace without the list ignores its parameter.
-  assert.deepEqual(readOpen(new URLSearchParams('tag=demo/one&override=x'), GAME_LISTS), { list: 'overrides', open: { override: 'x' } })
+  assert.deepEqual(readOpen(new URLSearchParams('capability=x&override=x'), GAME_LISTS), { list: 'overrides', open: { override: 'x' } })
+  assert.deepEqual(readHeading(new URLSearchParams('tray=demo/main&level=demo/a')), { kind: 'tray', full: 'demo/main' })
+  assert.equal(readHeading(new URLSearchParams('level=demo/a')), null)
+  assert.deepEqual(['tag', 'relation', 'tray', 'section'].map((k) => listOfHeading(k)), ['tree', 'tree', 'parts', 'entries'])
+  assert.equal(listOfHeading('tag', 'piece'), 'parts')
 })
 
 test('a capability and an override have one key each', () => {

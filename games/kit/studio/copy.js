@@ -14,7 +14,7 @@ import { contentFileFor } from '../engine/content.js'
 import { levelTags } from './groups.js'
 import { textKey } from '../engine/i18n.js'
 
-const NOT_GAME = ['id', 'levels', 'glossary', 'vocabulary', 'open', 'blueprint', 'partDefs', 'tags', 'relations', 'layouts', 'sourceChapters', 'relationEdges', 'objectProblems', 'registries', 'eras', 'trays', 'replaces', 'overridden']
+const NOT_GAME = ['id', 'levels', 'glossary', 'vocabulary', 'open', 'blueprint', 'partDefs', 'tags', 'relations', 'sections', 'sourceChapters', 'relationEdges', 'objectProblems', 'registries', 'eras', 'trays', 'replaces', 'overridden']
 /** The copy rule a text is held to: the field it is (a task's own field for a task's text). */
 export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'chapters' ? path[2] ?? '' : path[0] ?? '')
 

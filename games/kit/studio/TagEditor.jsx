@@ -1,7 +1,7 @@
 // The tag editor of the package workspace (games/PACKAGES.md 3.2, 8): one tag at a time, an unordered set of one kind
 // of object. Its title, its members (an object by its name and title; a nested tag as a link to it, unfolded to what
 // it holds), members added from what the kind offers and taken out, nested tags refused when they would close a ring;
-// for an item tag, whether it is a concept. Another layer's tags are read only. The list of tags is the left column's
+// Another layer's tags are read only. The list of tags is the left column's
 // (ObjectLists.jsx); its file the right's.
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, GripVertical, Layers, Trash2, X } from 'lucide-react'
@@ -15,7 +15,7 @@ import { canOrder, memberOrderName, memberOrderOps, reordered, valuesInOrder } f
 import { useDragOrder } from './useDragOrder.js'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, tagOverrideOps } from './override-edit.js'
-import { memberKnown, memberTitle, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
+import { memberKnown, memberTitle, tagValuesOp, textWith, withMember, withoutMember } from './tag-edit.js'
 
 const refusal = (reason) => ({
   duplicate: tr('标签里已经有它了。', 'The tag already holds it.'),
@@ -24,7 +24,7 @@ const refusal = (reason) => ({
   cycle: tr('这样嵌套会形成循环。', 'This nesting would create a cycle.'),
 })[reason] ?? ''
 
-/** The tag `full` (picked in the left list, TagList); `onSelect(full)` opens another, `onPick(path)` shows a field of its file on the right. */
+/** The tag `full` (a tag group picked in a build list); `onSelect(full)` opens another, `onPick(path)` shows a field of its file on the right. */
 export default function TagEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
   const tag = content?.registries?.tag?.[full]
   if (!tag) return <article className="arrange" />
@@ -98,11 +98,6 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
         <span className="object-kind">{tagKindWord(tag.kind)}</span>
         <span className="object-count" title={tr('展开后的成员数', 'Members once expanded')}>{count}</span>
         <SourceMark content={content} kind="tag" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
-        {tag.kind === 'piece' && <label className="object-flag">
-          <input type="checkbox" className="field-check" checked={tag.concept ?? false} disabled={locked}
-            onChange={(e) => onEdit({ op: 'tag.put', tag: name, data: withConcept(namespace, tag, e.target.checked) })} />
-          {tr('概念', 'Concept')}
-        </label>}
         <span className="kit-spacer" />
         {onRemove && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除标签', 'Delete the tag')} aria-label={tr('删除标签', 'Delete the tag')} onClick={onRemove}><Trash2 size={14} aria-hidden="true" /></button>}
       </div>

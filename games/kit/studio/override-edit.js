@@ -1,5 +1,5 @@
 // What a layer writes when it overrides a package's object from the studio (games/PACKAGES.md 4, 5, 8). A game
-// overrides only copy, level relations and layouts: a relation by the edges it adds and removes, a layout whole.
+// overrides only copy and level relations: a relation by the edges it adds and removes.
 import { sameJson } from '../engine/json-value.js'
 
 const sameEdge = (a, b) => a.from === b.from && a.to === b.to
@@ -61,14 +61,6 @@ export function removeEdgeOps(content, layer, from, to) {
   const names = relationsWithEdge(content, from, to)
   if (!names.length) return null
   return names.flatMap((name) => relationOverrideOps(content, layer, name, edgesOf(content.registries.relation[name]).filter((edge) => !sameEdge(edge, { from, to }))))
-}
-
-/** The ops for a game laying out layout `name` with `rows`; back to the package's when they are the same. */
-export function layoutOverrideOps(content, layer, name, rows) {
-  const before = beforeLayer(content, layer, 'layout', name)
-  const had = overrideEvent(content, layer, 'layout', name)
-  if (sameJson(before?.rows, rows)) return had ? [{ op: 'override.remove', layer, kind: 'layout', name }] : []
-  return [{ op: 'override.put', layer, kind: 'layout', name, data: { ...before, rows } }]
 }
 
 /** The override patch that turns `before`'s members into `wanted`: the members added and the ones taken out. */

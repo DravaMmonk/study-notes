@@ -1,24 +1,27 @@
-// The game workspace's chapter board (games/PACKAGES.md 5, 8): one chapter of the course. Its members — single levels
-// and whole level tags — are put in and taken out at the top; below, two views of what the packages make of them.
+// The arrange workspace's chapter board (games/PACKAGES.md 5, 8): one chapter of the course. Its levels — an ordered
+// list, the play order — are imported at the top (a level or a level tag, with what they need), reordered by dragging
+// or Alt+↑/↓, and taken out; below, two views of them.
 //
 // Links: the chapter's levels on the wiring board with the prerequisites the packages' relations give them; a level
-// picked can be marked optional or skippable (the course's own lists). Map: the layout the chapter takes from a
-// package, row by row, with the levels it leaves out placed by the map's rules (../course.js mapRows).
+// picked can be marked optional or skippable (the course's own lists). Map: the chapter's own `rows` (MapEditor.jsx),
+// those the map's rules give (../course.js mapRows) until it has its own.
 import { useMemo, useState } from 'react'
-import { RotateCcw, Trash2, X } from 'lucide-react'
+import { GripVertical, RotateCcw, Trash2, X } from 'lucide-react'
 import { eraLevels, mapRows } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
 import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 import { confirmDelete } from './delete.js'
-import { OneLayout } from './LayoutEditor.jsx'
-import { addEdgeOps, layoutOverrideOps, overrideEvent, removeEdgeOps } from './override-edit.js'
+import MapEditor from './MapEditor.jsx'
+import { addEdgeOps, removeEdgeOps } from './override-edit.js'
 import { usePref } from './prefs.js'
 import { objectsOf, tagMembers } from './objects-edit.js'
+import { chapterOrderRefusal, importLevels } from './course-edit.js'
+import { reordered } from './tag-order.js'
+import { useDragOrder } from './useDragOrder.js'
 
 const MODES = [['links', '依赖', 'Links'], ['map', '路线图', 'Map']]
-const DEFAULT_LAYOUT = ''
 
 /** `course`: the course as course.json writes it (`chapters`, `optional`, `skippable`); `content`: as it plays. */
 export default function ChapterBoard({ content, course, e, at, pending, onSelect, onEdit, onOps }) {
@@ -33,12 +36,27 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
   const members = chapter.levels ?? []
   const placedIds = useMemo(() => new Set((content.eras ?? []).flatMap(eraLevels)), [content])
   const additions = [
-    ...objectsOf(content, 'tag', null).filter(([full, tag]) => tag.kind === 'level' && !members.includes(`#${full}`) && !tagMembers(content, full).some((id) => placedIds.has(id)))
+    ...objectsOf(content, 'tag', null).filter(([full, tag]) => tag.kind === 'level' && tagMembers(content, full).some((id) => !placedIds.has(id)))
       .map(([full, tag]) => ({ value: `#${full}`, label: `#${full}`, title: tag.title, group: tr('关卡标签', 'Level tags') })),
     ...Object.entries(content.registries?.level ?? {}).filter(([id]) => !placedIds.has(id))
       .map(([id, level]) => ({ value: id, label: id, title: level.title, group: tr('关卡', 'Levels') })),
   ]
-  const setMembers = (next) => onEdit({ op: 'game.set', path: ['chapters', e, 'levels'], value: next })
+  const [refusal, setRefusal] = useState(null)
+  const setMembers = (next) => {
+    setRefusal(null)
+    onEdit({ op: 'game.set', path: ['chapters', e, 'levels'], value: next })
+  }
+  // The chapter's levels are its play order: a move that puts a level before its prerequisite is refused.
+  const reorder = (id, to) => {
+    const next = reordered(members, [id], to)
+    const refused = chapterOrderRefusal(content, next)
+    if (refused) setRefusal(refused)
+    else setMembers(next)
+  }
+  const { item } = useDragOrder({ ids: members, disabled: pending, onMove: reorder })
+  const importing = (value) => {
+    try { setMembers(importLevels(content, members, value, placedIds)) } catch (error) { setRefusal(error.message) }
+  }
   return (
     <article className="arrange">
       <header className="arrange-bar">
@@ -46,11 +64,13 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
           {MODES.map(([id, zh, en]) => <button key={id} type="button" role="tab" aria-selected={mode === id} className={`studio-tab ${mode === id ? 'is-on' : ''}`} onClick={() => setMode(id)}>{tr(zh, en)}</button>)}
         </nav>
         {additions.length > 0 && <Picker options={additions} label={tr('放进这一章', 'Put in this chapter')} placeholder={tr('放进这一章', 'Put in this chapter')}
-          onPick={(value) => !pending && setMembers([...members, value])} />}
+          onPick={(value) => !pending && importing(value)} />}
       </header>
+      {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <ul className="chapter-members" aria-label={tr('这一章的关', 'The chapter’s levels')}>
         {members.map((id) => (
-          <li key={id} className={id.startsWith('#') ? 'is-tag' : ''}>
+          <li key={id} className={id.startsWith('#') ? 'is-tag' : ''} {...item(id)} tabIndex={pending ? undefined : 0}>
+            <GripVertical size={12} aria-hidden="true" className="member-grip" />
             <code>{id}</code><span>{titleOf(id)}</span>
             <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('移出这一章', 'Take out of the chapter')}
               onClick={() => setMembers(members.filter((m) => m !== id))}><X size={12} /></button>
@@ -58,7 +78,7 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
         ))}
       </ul>
       {played && (mode === 'map'
-        ? <ChapterMap content={content} chapter={chapter} played={played} e={e} at={at} pending={pending} titleOf={titleOf} onSelect={onSelect} onEdit={onEdit} onOps={onOps} />
+        ? <ChapterMap chapter={chapter} played={played} e={e} at={at} pending={pending} titleOf={titleOf} onSelect={onSelect} onEdit={onEdit} />
         : <ChapterLinks content={content} course={course} played={played} e={e} at={at} pending={pending} titleOf={titleOf} describe={describe} onSelect={onSelect} onEdit={onEdit} onOps={onOps} />)}
     </article>
   )
@@ -136,44 +156,22 @@ function ChapterLinks({ content, course, played, e, at, pending, titleOf, descri
   )
 }
 
-function ChapterMap({ content, chapter, played, e, at, pending, titleOf, onSelect, onEdit, onOps }) {
+function ChapterMap({ chapter, played, e, at, pending, titleOf, onSelect, onEdit }) {
   const ids = useMemo(() => eraLevels(played), [played])
   const local = useMemo(() => new Map(ids.map((id) => [id, (played.links ?? []).filter(({ to, fromGame }) => to === id && !fromGame).map(({ from }) => from).filter((from) => ids.includes(from))])), [ids, played])
-  const rows = useMemo(() => mapRows(ids, local, null).rows, [ids, local])
-  const layouts = objectsOf(content, 'layout', null)
-  const layer = `@${content.id}`
-  const name = chapter.layout
-  const layout = name && content.registries?.layout?.[name]
-  const overridden = name && overrideEvent(content, layer, 'layout', name)
+  const edges = useMemo(() => [...local].flatMap(([to, froms]) => froms.map((from) => ({ from, to }))), [local])
+  const ruled = useMemo(() => mapRows(ids, local, null).rows, [ids, local])
+  const own = Array.isArray(chapter.rows)
   return (
     <div className="map-layout">
-      <div className="arrange-actions">
-        <select className="studio-game" value={name ?? DEFAULT_LAYOUT} disabled={pending} aria-label={tr('布局', 'Layout')}
-          onChange={(ev) => onEdit(ev.target.value === DEFAULT_LAYOUT ? { op: 'game.unset', path: ['chapters', e, 'layout'] } : { op: 'game.set', path: ['chapters', e, 'layout'], value: ev.target.value })}>
-          <option value={DEFAULT_LAYOUT}>{tr('按规则排', 'By the rules')}</option>
-          {layouts.map(([full]) => <option key={full} value={full}>{full}</option>)}
-        </select>
-        {overridden && <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onOps([{ op: 'override.remove', layer, kind: 'layout', name }])}>
-          <RotateCcw size={13} aria-hidden="true" />{tr('用包里的排法', 'Use the package’s layout')}
-        </button>}
-      </div>
-      {layout
-        ? <OneLayout full={name} layout={layout} own content={content} namespace={layer} pending={pending} onEdit={onEdit}
-          onRows={(next) => onOps(layoutOverrideOps(content, layer, name, next))} />
-        : <div className="map-rows" aria-label={tr('路线图', 'Map')}>
-          {rows.map((row, r) => (
-            <div key={r} className="map-row-wrap">
-              <div className="map-row">
-                {row.map((id, slot) => id === null
-                  ? <div key={`empty-${slot}`} className="map-place is-empty" />
-                  : <button key={id} type="button" className={`map-place is-auto ${at?.level === id ? 'is-on' : ''}`}
-                    title={`${id} ${titleOf(id) ?? ''}`} onClick={() => onSelect({ era: e, level: id })}>
-                    <code>{id}</code><span>{titleOf(id)}</span>
-                  </button>)}
-              </div>
-            </div>
-          ))}
-        </div>}
+      {own && <div className="arrange-actions">
+        <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onEdit({ op: 'game.unset', path: ['chapters', e, 'rows'] })}>
+          <RotateCcw size={13} aria-hidden="true" />{tr('按规则排', 'By the rules')}
+        </button>
+      </div>}
+      <MapEditor rows={own ? chapter.rows : ruled} members={ids} edges={edges} titleOf={titleOf} pending={pending}
+        onRows={(rows) => onEdit({ op: 'game.set', path: ['chapters', e, 'rows'], value: rows })}
+        onPick={(id) => onSelect({ era: e, level: id })} picked={at?.level} />
     </div>
   )
 }

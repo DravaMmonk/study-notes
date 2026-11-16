@@ -1,6 +1,6 @@
 // The studio (games/PACKAGES.md 8): workspaces over the operation set, one for each role. Build (PackageStudio.jsx)
-// opens a package: its pieces, levels, tags, relations, layouts and overrides. Arrange (GameStudio.jsx) opens a game:
-// the packages it uses, its chapters, its overrides of relations and layouts. The bar switches between them; each keeps
+// opens a package: its levels, pieces, entries, tags, relations, trays, sections and overrides. Arrange
+// (GameStudio.jsx) opens a game: the packages it uses, its chapters and their maps, its overrides of relations. The bar switches between them; each keeps
 // its own pending changes, and only its own side's operations run in it. Copy (CopyStudio.jsx) opens a package or a
 // game: every text of it, in every language.
 import './studio.css'

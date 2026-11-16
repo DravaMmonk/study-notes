@@ -849,4 +849,45 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .package-facts dt { color: var(--muted); font: 600 11.5px/1.6 var(--mono); }
 .package-facts dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .chapter-head { cursor: pointer; }
+.studio-scroll > .chapter-head { margin: 0; }
 .package-refusal { margin: 4px 0 8px; color: var(--fail); }
+
+/* A build list's grouping row (GroupingBar.jsx): grouped by what, a new group, every group folded or unfolded. */
+.list-grouping { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 0 0 4px; }
+.list-grouping .studio-modes { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.list-grouping .studio-tab { flex: none; height: 22px; padding: 0 7px; font-size: 11.5px; }
+.list-grouping .editor-tool, .list-grouping .pick-button.is-icon { flex: none; width: 24px; height: 24px; }
+.tree > .list-grouping { padding: 0 2px 2px; }
+
+/* The tray and section editors (GatherEditor.jsx): members, menus, and the order shown. */
+.gather-editor { gap: 10px; overflow: auto; }
+.gather-part { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+.gather-part h3, .gather-menu-order h4 { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--muted); font: 600 12px/1.4 var(--sans); }
+.gather-part h3 .field-text, .gather-part h3 [contenteditable] { flex: 1; min-width: 0; }
+.gather-part h3 code, .gather-menu-order h4 code { color: var(--accent-ink); font: var(--fs-mini)/1 var(--mono); }
+.gather-refs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.gather-refs li { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 1px 2px 1px 7px; border: 1px solid var(--hairline); border-radius: 6px; font-size: 12px; }
+.gather-refs li.is-tag { border-style: dashed; }
+.gather-refs li code { color: var(--accent-ink); font: var(--fs-mini)/1 var(--mono); }
+.gather-refs li span { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.gather-refs .editor-tool { width: 20px; height: 20px; }
+.gather-order { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; }
+.gather-menu-order { display: grid; gap: 4px; margin: 6px 0 0 16px; }
+.gather-add { justify-self: start; }
+
+/* A piece's stages under its page (StageChain.jsx). */
+.stage-chain { display: grid; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--hairline); background: var(--paper); max-height: 40vh; overflow: auto; }
+.stage-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.stage-step { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px; border: 1px solid var(--hairline); border-radius: 12px; color: var(--ink); background: none; cursor: pointer; }
+.stage-step small { color: var(--faint); font: var(--fs-mini)/1 var(--mono); }
+.stage-step code { font: var(--fs-mini)/1 var(--mono); }
+.stage-step.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.stage-changes { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.stage-changes li { display: flex; gap: 8px; min-width: 0; font-size: 12px; }
+.stage-changes code { flex: none; color: var(--accent-ink); font: var(--fs-mini)/1.5 var(--mono); }
+.stage-changes span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-settings { width: 100%; border-collapse: collapse; font-size: 12px; }
+.stage-settings th, .stage-settings td { padding: 2px 6px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.stage-settings thead th { color: var(--muted); font: 600 11px/1.4 var(--sans); }
+.stage-settings tr.is-changed { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+@media (max-width: 760px) { .stage-settings { display: block; overflow-x: auto; } }

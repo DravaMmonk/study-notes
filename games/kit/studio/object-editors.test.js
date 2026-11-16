@@ -1,10 +1,10 @@
-// node --test games/kit/studio/object-editors.test.js — the tag and layout editors' pure parts (tag-edit.js,
+// node --test games/kit/studio/object-editors.test.js — the tag editor's and the chapter map's pure parts (tag-edit.js,
 // layout-edit.js) on a small hand-written content: members added and refused, nested tags without rings, texts kept
-// with their keys, levels placed, swapped and taken off a layout, and moves refused that put a prerequisite below.
+// with their keys, levels placed, swapped and taken off a map, and moves refused that put a prerequisite below.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { memberKnown, memberTitle, newTag, ownTagData, withConcept, tagCycle, tagValuesOp, textWith, withMember, withoutMember, writtenName } from './tag-edit.js'
-import { addPlace, addRow, clearLevel, layoutRefusal, layoutRowsOp, newLayout, placeLevel, placeOf, removePlace, removeRow, rowConflicts, unplacedOf } from './layout-edit.js'
+import { memberKnown, memberTitle, newTag, ownTagData, tagCycle, tagValuesOp, textWith, withMember, withoutMember, writtenName } from './tag-edit.js'
+import { addPlace, addRow, clearLevel, layoutRefusal, placeLevel, placeOf, removePlace, removeRow, rowConflicts, unplacedOf } from './layout-edit.js'
 
 const CONTENT = {
   registries: {
@@ -17,9 +17,6 @@ const CONTENT = {
       'p/third': { kind: 'level', values: ['p/c'] },
       'p/gates': { kind: 'piece', values: ['p/and'] },
       'o/more': { kind: 'level', values: ['o/d', '#p/first'] },
-    },
-    layout: {
-      'p/map': { of: '#p/first', rows: [['p/a', null], ['p/b']] },
     },
   },
   relationEdges: { order: [], requires: [{ from: 'p/a', to: 'p/b' }, { from: 'p/b', to: 'p/c' }] },
@@ -57,10 +54,8 @@ test('a text keeps its other languages and its message key, the layer’s own ke
 })
 
 test('a tag is written back whole in the layer’s own short names, concept set or taken out', () => {
-  const tag = { kind: 'piece', title: { en: 'Gates', $key: 'p/tag.gates.title' }, concept: true, values: ['p/and', 'not', '#o/x'] }
-  assert.deepEqual(ownTagData('p', tag), { kind: 'piece', title: { en: 'Gates', $key: 'tag.gates.title' }, concept: true, values: ['and', 'not', '#o/x'] })
-  assert.equal('concept' in withConcept('p', tag, false), false)
-  assert.equal(withConcept('p', { kind: 'piece', values: [] }, true).concept, true)
+  const tag = { kind: 'piece', title: { en: 'Gates', $key: 'p/tag.gates.title' }, values: ['p/and', 'not', '#o/x'] }
+  assert.deepEqual(ownTagData('p', tag), { kind: 'piece', title: { en: 'Gates', $key: 'tag.gates.title' }, values: ['and', 'not', '#o/x'] })
   assert.equal(memberKnown(CONTENT, 'piece', 'p/and'), true)
   assert.equal(memberKnown(CONTENT, 'level', 'p/zz'), false)
   assert.equal(memberKnown(CONTENT, 'level', '#p/third'), true)
@@ -71,11 +66,9 @@ test('a new tag takes a name the layer does not use', () => {
   assert.deepEqual(newTag(content, 'p', 'level'), { name: 'new-level-2', full: 'p/new-level-2', op: { op: 'tag.put', tag: 'new-level-2', data: { kind: 'level', values: [] } } })
 })
 
-test('a layout’s unplaced levels are its tag’s members no row places', () => {
-  assert.deepEqual(unplacedOf(CONTENT, CONTENT.registries.layout['p/map']), ['p/c'])
-  assert.deepEqual(newLayout(CONTENT, 'p', 'p/first'), { name: 'first', full: 'p/first', op: { op: 'layout.put', layout: 'first', data: { of: '#first', rows: [] } } })
-  assert.equal(newLayout(CONTENT, 'p', 'p/map').name, 'map-2')
-  assert.equal(newLayout(CONTENT, 'p', 'o/more').op.data.of, '#o/more')
+test('a chapter map’s unplaced levels are the chapter’s levels no row places', () => {
+  assert.deepEqual(unplacedOf([['p/a', null], ['p/b']], ['p/a', 'p/b', 'p/c']), ['p/c'])
+  assert.deepEqual(unplacedOf(undefined, ['p/a']), ['p/a'])
 })
 
 test('a level is placed, swapped, given a row of its own and taken off', () => {
@@ -116,6 +109,3 @@ test('a move that puts a prerequisite in a row not above its level is refused, a
   assert.equal(layoutRefusal(wrong, placeLevel(wrong, 'p/c', { row: 2, new: true }), edges), null)
 })
 
-test('rows are written with the layer’s own levels short', () => {
-  assert.deepEqual(layoutRowsOp('p', 'p/map', [['p/a', null], ['o/d']]), { op: 'layout.set', layout: 'map', path: 'rows', value: [['a', null], ['o/d']] })
-})

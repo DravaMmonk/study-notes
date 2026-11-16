@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { canOrder, kindOrderName, memberOrderOps, orderOps, orderedTags, reordered, shifted, tagMoveOps } from './tag-order.js'
+import { canOrder, kindOrderName, memberOrderOps, orderOps, orderedTags, reordered, resequence, shifted, subsetOrderOps, tagMoveOps } from './tag-order.js'
 import { groupTree, treeMoves } from './groups.js'
 
 test('moving in a list, by a drop or a key', () => {
@@ -87,4 +87,22 @@ test('a tag’s own values in the order its members come in, a nested tag at its
     relationEdges: { order: [{ from: 'demo/a', to: 'demo/b', of: 'level' }, { from: 'demo/b', to: 'demo/c', of: 'level' }] },
   }
   assert.deepEqual(valuesInOrder(c, 'demo/t'), ['demo/a', '#demo/inner', 'demo/c'])
+})
+
+test('a group’s members reordered inside an order relation that already lists them, or in the group’s own', () => {
+  assert.deepEqual(resequence(['a', 'x', 'b', 'c'], ['a', 'b', 'c'], ['c', 'a', 'b']), ['c', 'x', 'a', 'b'])
+  const c = { registries: { relation: { 'demo/entries': { kind: 'order', of: 'entry', sequence: ['demo/a', 'demo/x', 'demo/b'] } } }, sources: { relation: {} } }
+  assert.deepEqual(subsetOrderOps(c, 'demo', 'demo/sec-order', ['demo/a', 'demo/b'], ['demo/b', 'demo/a'], 'entry'),
+    [{ op: 'relation.put', relation: 'entries', data: { kind: 'order', of: 'entry', sequence: ['b', 'x', 'a'] } }])
+  assert.deepEqual(subsetOrderOps(c, 'demo', 'demo/sec-order', ['demo/a', 'demo/y'], ['demo/y', 'demo/a'], 'entry'),
+    [{ op: 'relation.put', relation: 'sec-order', data: { kind: 'order', of: 'entry', sequence: ['y', 'a'] } }])
+  // A relation of edges between them gives way to a chain in the new order.
+  const e = { registries: { relation: { 'demo/more': { kind: 'order', of: 'piece', edges: [{ from: 'demo/a', to: 'demo/b' }, { from: 'demo/b', to: 'demo/z' }] } } }, sources: { relation: {} } }
+  assert.deepEqual(subsetOrderOps(e, 'demo', 'demo/tray-order', ['demo/a', 'demo/b'], ['demo/b', 'demo/a'], 'piece'),
+    [{ op: 'relation.put', relation: 'more', data: { kind: 'order', of: 'piece', edges: [{ from: 'b', to: 'z' }, { from: 'b', to: 'a' }] } }])
+  // A relation listing some of them is brought into line too, so the two do not contradict each other.
+  assert.deepEqual(subsetOrderOps(c, 'demo', 'demo/sec-order', ['demo/a', 'demo/b', 'demo/y'], ['demo/b', 'demo/y', 'demo/a'], 'entry'), [
+    { op: 'relation.put', relation: 'entries', data: { kind: 'order', of: 'entry', sequence: ['b', 'x', 'a'] } },
+    { op: 'relation.put', relation: 'sec-order', data: { kind: 'order', of: 'entry', sequence: ['b', 'y', 'a'] } },
+  ])
 })

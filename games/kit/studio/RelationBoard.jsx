@@ -21,7 +21,7 @@ const refusal = (reason) => ({
   cycle: tr('这条连线会形成循环。', 'This wire would create a cycle.'),
 })[reason]
 
-/** The relation `full` (picked in the left list, RelationList); `onPick(path)` shows a field of its file on the right. */
+/** The relation `full` (a relation group picked in a build list); `onPick(path)` shows a field of its file on the right. */
 export default function RelationBoard({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
   const relation = content?.registries?.relation?.[full]
   if (!relation) return <article className="arrange" />

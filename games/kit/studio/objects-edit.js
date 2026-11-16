@@ -50,13 +50,15 @@ export function freeObjectName(taken, base) {
 /** The short names a layer already uses for one kind. */
 export const ownNames = (content, kind, namespace) => objectsOf(content, kind, namespace).filter(([, , own]) => own).map(([full]) => localName(namespace, full))
 
-/** Where `full` (an object of `kind`) is named: { tags, relations, layouts }, each a list of full names. */
+/** Where `full` (an object of `kind`) is named: { tags, relations, trays, sections }, each a list of full names. */
 export function objectPlaces(content, kind, full) {
   const registries = content?.registries ?? {}
   const tagKind = kind
   const tags = Object.entries(registries.tag ?? {}).filter(([, tag]) => tag.kind === tagKind && tag.values.includes(full)).map(([name]) => name)
   const named = new Set([full, ...tags.map((name) => `#${name}`)])
   const relations = Object.entries(registries.relation ?? {}).filter(([, relation]) => edgesOf(relation).some(({ from, to }) => named.has(from) || named.has(to))).map(([name]) => name)
-  const layouts = kind === 'level' ? Object.entries(registries.layout ?? {}).filter(([, layout]) => layout.rows?.some((row) => row.includes(full))).map(([name]) => name) : []
-  return { tags, relations, layouts }
+  const gathers = (value) => [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])].some((ref) => named.has(ref))
+  const trays = kind === 'piece' ? Object.entries(registries.tray ?? {}).filter(([, tray]) => gathers(tray)).map(([name]) => name) : []
+  const sections = kind === 'entry' ? Object.entries(registries.section ?? {}).filter(([, section]) => gathers(section)).map(([name]) => name) : []
+  return { tags, relations, trays, sections }
 }

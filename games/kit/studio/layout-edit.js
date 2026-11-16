@@ -1,7 +1,5 @@
-// Pure edits of a layout for the layout editor (games/PACKAGES.md 3.4): the route-map arrangement of a level tag's
-// members, rows of one to three places, `null` an empty place. Rows hold full names; a layer writes its own short.
-import { freeObjectName, localName, ownNames, tagMembers } from './objects-edit.js'
-import { writtenName } from './tag-edit.js'
+// Pure edits of a chapter's route map for the arrange workspace's map editor (games/PACKAGES.md 3.4, MapEditor.jsx): the
+// chapter's `rows` in course.json, rows of one to three places, `null` an empty place, full names.
 
 export const ROW_SLOTS = 3
 
@@ -14,14 +12,11 @@ export function placeOf(rows, id) {
   return null
 }
 
-/** The members of the layout's level tag (`of`, `#<full name>`) that no row places, in the tag's effective order. */
-export const unplacedOf = (content, layout) => {
-  const placed = new Set((layout?.rows ?? []).flat())
-  return layoutMembers(content, layout).filter((id) => !placed.has(id))
+/** The levels of `members` (a chapter's, in its order) that no row places. */
+export const unplacedOf = (rows, members) => {
+  const placed = new Set((rows ?? []).flat())
+  return members.filter((id) => !placed.has(id))
 }
-
-/** The levels a layout arranges: its level tag's members. */
-export const layoutMembers = (content, layout) => (layout?.of?.startsWith('#') ? tagMembers(content, layout.of.slice(1)) : [])
 
 /**
  * The rows with level `id` put at `to`: { row, slot } (slot = the row's length adds a place at its end) or
@@ -86,14 +81,4 @@ export function rowConflicts(rows, edges) {
 export function layoutRefusal(before, after, edges) {
   const had = new Set(rowConflicts(before, edges).map(({ from, to }) => `${from} ${to}`))
   return rowConflicts(after, edges).find(({ from, to }) => !had.has(`${from} ${to}`)) ?? null
-}
-
-/** The operation writing `rows` (full names) into the layer's own layout `full`. */
-export const layoutRowsOp = (namespace, full, rows) => ({ op: 'layout.set', layout: localName(namespace, full), path: 'rows', value: rows.map((row) => row.map((id) => (id === null ? null : writtenName(namespace, id)))) })
-
-/** A new layout in `namespace` of the level tag `tag` (a full name): its short name after the tag's, and the operation. */
-export function newLayout(content, namespace, tag) {
-  const base = (localName(namespace, tag) ?? tag.slice(tag.indexOf('/') + 1)) || 'layout'
-  const name = freeObjectName(ownNames(content, 'layout', namespace), base)
-  return { name, full: `${namespace}/${name}`, op: { op: 'layout.put', layout: name, data: { of: writtenName(namespace, `#${tag}`), rows: [] } } }
 }

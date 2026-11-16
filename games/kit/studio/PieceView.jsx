@@ -3,6 +3,7 @@ import { Monitor, PanelRight, Plus, Smartphone } from 'lucide-react'
 import { L, T, tr } from '../shell/i18n.js'
 import { picker } from '../shell/parts/PieceSheet.jsx'
 import { SCENES, editorFor } from '../shell/parts/previews.js'
+import { pieceAtStage } from './stage-chain.js'
 
 // A piece on the studio's piece page (games/DESIGN.md 6.7): the scenes its editor draws (../shell/parts/previews.js),
 // several side by side over its sheet, a single detail beside it; each scene a pane with its drawing face
@@ -11,14 +12,16 @@ import { SCENES, editorFor } from '../shell/parts/previews.js'
 // version of the piece.
 //
 //   game  the game's description, game.partDefs pieces.json as the studio edits it      type  the piece shown
+//   stage  one of its stages shown instead (its definition there)
 //   edit  { picked (a path in the piece), pick(path), add(path) } or null
 //   onTask(task)  a task a field names followed (a built piece's chain)      label(task)  how the map numbers it
 
 const PANES = { card: [Monitor, T('电脑端面板')], tile: [Smartphone, T('手机端简略视图')], detail: [PanelRight, T('详情（两端共用）')] }
 const at = (path) => JSON.stringify(path)
 
-export default function PieceView({ game, type, edit, onTask, label }) {
-  const raw = game.partDefs?.parts?.[type]
+export default function PieceView({ game, type, stage = null, edit, onTask, label }) {
+  const declared = game.partDefs?.parts?.[type]
+  const raw = declared && stage ? pieceAtStage(type, declared, stage) : declared
   const state = useState(undefined)
   const [, setState] = state
   useEffect(() => setState(undefined), [type, raw, setState])

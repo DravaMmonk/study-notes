@@ -104,7 +104,7 @@ export default function Play() {
       if (m?.type === 'part') {
         look(m)
         const game = await gameOf(m.content, ++stamp)
-        return setPart({ game, type: m.part })
+        return setPart({ game, type: m.part, stage: m.stage ?? null })
       }
       if (m?.type !== 'load') return
       const { content, level, task = 0, seed = null, take = null } = m
@@ -142,7 +142,8 @@ export default function Play() {
   }), [level, take, editing, go])
   if (part) {
     const which = { part: part.type }
-    const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
+    // A stage previewed is read only: its fields are the piece's over the stages before it.
+    const parts = edit.on && !part.stage ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
     const toTask = (task) => say({ type: 'task-go', task })
     // A task as the map numbers it: its level's label, and which task of the level when it has several.
     const taskLabel = (task) => {
@@ -151,7 +152,7 @@ export default function Play() {
       const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
       return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
     }
-    return <PieceView game={part.game} type={part.type} edit={parts} onTask={toTask} label={taskLabel} />
+    return <PieceView game={part.game} type={part.type} stage={part.stage} edit={parts} onTask={toTask} label={taskLabel} />
   }
   if (!shown) return null
   return <DraftPreview key={shown.no} stamp={shown.game.stamp}>

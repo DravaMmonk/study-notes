@@ -5,17 +5,17 @@
 // operations to it. The package's levels are played in a game that plays the package, as its course sets them up; how
 // a game arranges them is the game workspace's (GameStudio.jsx).
 //
-// The page (games/PACKAGES.md 8): lists on the left, one at a time (left-lists.js) — the tree of level groups, the
-// package's pieces (pieces/<name>.json, each with its settings), the encyclopedia's entries, the tags, relations and layouts
-// (ObjectLists.jsx), the kernel's capabilities, the overrides, search; in the middle what is picked: the level as the
-// game shows it, which is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item),
-// or a group's levels and their links, its fields as rows, its copy, a comparison, the changes — or the tag, relation,
-// layout, capability or override picked in an object list, in its editor; the file of what is picked on the right
-// (Inspector.jsx), the field picked in it with its control; the audit in a drawer under the middle. Each folds away and resizes (remembered per viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every
-// place and action, ? lists the keys.
+// The page (games/PACKAGES.md 8): lists on the left, one at a time (left-lists.js) — the levels, the pieces and the
+// encyclopedia's entries, each grouped by the tags, relations, trays or sections that gather them (list-groups.js),
+// the kernel's capabilities, the overrides, search; in the middle what is picked: the level as the game shows it, which
+// is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item), a piece with its
+// stages (StageChain.jsx), several levels at once, a group's own object in its editor (a tag, a relation, a tray, a
+// section), a capability, an override; the file of what is picked on the right (Inspector.jsx), the field picked in it
+// with its control; the helpers in a fold bar under the middle. Each folds away and resizes (remembered per viewer,
+// prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Cpu, Layers, LayoutGrid, ListTree, Search as SearchIcon, Shapes, Spline, Tag } from 'lucide-react'
+import { BookOpen, Cpu, Layers, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { find, shapeAt } from '../engine/schema.js'
@@ -48,12 +48,16 @@ import { useChangeset } from './useChangeset.js'
 import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
 import ObjectLinks from './ObjectLinks.jsx'
 import { CapabilityList, CapabilityView, currentCapability } from './CapabilityBrowser.jsx'
-import { EntryList, LayoutList, RELATION_KINDS, RelationList, TagList, tagListOrder } from './ObjectLists.jsx'
+import { EntryList } from './ObjectLists.jsx'
+import GroupedList from './GroupedList.jsx'
+import { GROUPINGS } from './list-groups.js'
+import { TrayEditor, SectionEditor } from './GatherEditor.jsx'
+import StageChain from './StageChain.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
-import LayoutEditor from './LayoutEditor.jsx'
-import { OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, currentOf, isObjectList, listOfKind, openParams, overrideKey, readOpen } from './left-lists.js'
-import { namespaceOf, objectsOf } from './objects-edit.js'
+import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
+import { freeObjectName, namespaceOf, ownNames, shownName } from './objects-edit.js'
+import { newTag } from './tag-edit.js'
 import { objectFileName, objectValue, ownObjectData } from './object-file.js'
 import { groupOf, levelTags, treeMoves } from './groups.js'
 import { memberOrderOps, tagMoveOps } from './tag-order.js'
@@ -68,12 +72,13 @@ const SAVED_VIEW = window.history.state?.studio
 const OPENED = readOpen(QUERY)
 // The left column's switcher (left-lists.js PACKAGE_LISTS): each list's icon and name.
 const LISTS = {
-  tree: [ListTree, '课程', 'Course'], parts: [Shapes, '件', 'Pieces'], entries: [BookOpen, '词条', 'Entries'],
-  tags: [Tag, '标签', 'Tags'], relations: [Spline, '关系', 'Relations'], layouts: [LayoutGrid, '布局', 'Layouts'], kernel: [Cpu, '能力', 'Capabilities'],
-  overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
+  tree: [ListTree, '关卡', 'Levels'], parts: [Shapes, '件', 'Pieces'], entries: [BookOpen, '词条', 'Entries'],
+  kernel: [Cpu, '能力', 'Capabilities'], overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
 }
-const OBJECT_KIND = { tags: 'tag', relations: 'relation', layouts: 'layout' }
-const RELATION_ORDER = RELATION_KINDS.map(([kind]) => kind)
+// The kind of object each build list holds, and the relations a new group of it can be.
+const LIST_KIND = { tree: 'level', parts: 'piece', entries: 'entry' }
+const RELATION_KINDS = { level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], piece: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
+const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -81,12 +86,13 @@ const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : null
 const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
-const remember = (pkg, at, field, playLevel, task, opened) => {
+const remember = (pkg, at, field, playLevel, task, opened, heading) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', 'build')
-  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS), ...HEADING_KINDS]) url.searchParams.delete(k)
   for (const [k, v] of opened) url.searchParams.set(k, v)
+  if (heading && at?.group === undefined) url.searchParams.set(heading.kind, heading.full)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
@@ -109,7 +115,12 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
   const pending = useChangeset(target, SCOPE)
   const namespace = pkg
-  const [opened, setOpened] = useState(OPENED.open) // what each object list has open: { tag, relation, layout, capability, override }
+  const [opened, setOpened] = useState(OPENED.open) // what each object list has open: { capability, override }
+  const [headingState, setHeading] = useState(HEADING) // a group's own object open in the middle: { kind, full }
+  const [pieceStage, setPieceStage] = useState(null) // the stage of the piece shown that the page previews
+  const [levelsBy, setLevelsBy] = usePref('level-by', 'tag')
+  const [piecesBy, setPiecesBy] = usePref('piece-by', 'tag')
+  const [entriesBy, setEntriesBy] = usePref('entry-by', 'tag')
   const [objectField, setObjectField] = useState(null) // the field of the object open shown on the right: { of, path }
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
@@ -134,6 +145,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [savedSide, setSide] = usePref('side', 'tree')
   // The list the address names wins over the one last shown.
   useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => setPieceStage(null), [at?.part])
   const side = PACKAGE_LISTS.includes(savedSide) ? savedSide : 'tree'
   const objectList = isObjectList(side)
   // The level list last shown, which a level picked elsewhere goes back to.
@@ -195,6 +207,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
 
   const content = shown?.content ?? null
   const playContent = useMemo(() => content?.levels.some(level => level.id === play?.level) ? packageLevel(content, play.level) : null, [content, play?.level])
+  // A piece's page needs a game around it: the level played, else the package's first level.
+  const pageContent = useMemo(() => playContent ?? (at?.part !== undefined && content?.levels[0] ? packageLevel(content, content.levels[0].id) : null), [playContent, at?.part, content])
   // A domain that defines its parts as data names them by the game's pieces/<name>.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const pieceRoot = piecePath(at)
@@ -221,29 +235,25 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     }).sort((a, b) => playOrder.indexOf(a.value) - playOrder.indexOf(b.value))
   }, [content, rawNames, playOrder])
 
-  // The object open in the object list shown (the first when none is named): the middle edits it, the right shows its file.
-  const objectKind = OBJECT_KIND[side]
+  // The object open in the object list shown (the first when none is named): the middle shows it, the right its file.
   const capabilities = vocab?.vocabulary?.capabilities
   const events = useMemo(() => visibleOverrides(content, namespace), [content, namespace])
-  // In the order the list shows them: relations by kind.
-  const listed = objectKind === 'tag' ? tagListOrder(content).map((full) => [full, content.registries.tag[full]]) : objectKind ? objectsOf(content, objectKind, namespace) : []
-  if (objectKind === 'relation') listed.sort((a, b) => RELATION_ORDER.indexOf(a[1].kind) - RELATION_ORDER.indexOf(b[1].kind))
-  const openObject = objectKind ? currentOf(listed, opened[objectKind])?.[0] ?? null : null
   const openCapability = side === 'kernel' ? currentCapability(capabilities, opened.capability) : null
   const openEvent = side === 'overrides' ? events.find((event) => overrideKey(event) === opened.override) ?? events[0] ?? null : null
-  const openKey = objectKind ? openObject : openCapability ? capabilityKey(openCapability.kind, openCapability.name) : openEvent ? overrideKey(openEvent) : null
+  const openKey = openCapability ? capabilityKey(openCapability.kind, openCapability.name) : openEvent ? overrideKey(openEvent) : null
   const openedParams = openKey ? openParams(side, { [OBJECT_LISTS[side]]: openKey }) : []
-  useEffect(() => remember(game, at, field, playId, pageTask, openedParams), [game, at, field, playId, pageTask, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
+  // A group's heading picked in a build list: its tag, relation, tray or section in the middle and its file on the
+  // right, the list staying (a level tag picked in the tree is the tree's own group).
+  const headingAt = at?.group !== undefined ? { kind: 'tag', full: at.group } : headingState
+  const heading = !objectList && headingAt && content?.registries?.[headingAt.kind]?.[headingAt.full] ? headingAt : null
+  useEffect(() => remember(game, at, field, playId, pageTask, openedParams, heading), [game, at, field, playId, pageTask, JSON.stringify(openedParams), JSON.stringify(heading)]) // eslint-disable-line react-hooks/exhaustive-deps
   /** Open an object of a list (`list`, by the key its address parameter keeps): the middle shows it, the right its file. */
   const openIn = (list, key) => {
     setOpened((o) => ({ ...o, [OBJECT_LISTS[list]]: key }))
     setObjectField(null)
     showList(list)
   }
-  const openKind = (kind, full) => openIn(listOfKind(kind), full)
-  // A level group picked in the tree: its tag in the middle and its file on the right, the course list staying.
-  const groupTag = !objectList && at?.group !== undefined && content?.registries?.tag?.[at.group] ? at.group : null
-  const fileKey = groupTag ? `#${groupTag}` : openKey
+  const fileKey = heading ? `${heading.kind} ${heading.full}` : openKey
   const pickObjectField = (path) => {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
     setObjectField({ of: fileKey, path })
@@ -251,6 +261,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const objectPath = objectField?.of === fileKey ? objectField.path : []
   const select = (next, keep = false) => {
     leaveObjects()
+    setHeading(null)
     const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part
     setAt(next)
     setMoving(null)
@@ -263,10 +274,46 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       setPageTask(0)
     }
   }
-  const openTray = (tray) => {
-    select({ game: true })
-    pickField(['trays', tray])
+  /** A group's own object opened in the middle (`list`: the build list to show it in, else the one shown). */
+  const openHeading = (next, list = null) => {
+    if (list) showList(list)
+    else leaveObjects()
+    if (next?.kind === 'tag' && (list ?? side) === 'tree' && levelsBy === 'tag' && content?.registries?.tag?.[next.full]?.kind === 'level') {
+      select({ group: next.full })
+      return
+    }
+    select(null)
+    setHeading(next)
+    setObjectField(null)
   }
+  /** An object named somewhere (a tag, a relation, a tray, a section) opened in the build list it belongs in. */
+  const openNamed = (kind, full) => {
+    const of = kind === 'tag' ? content?.registries?.tag?.[full]?.kind : kind === 'relation' ? relationOf(full) : null
+    openHeading({ kind, full }, listOfHeading(kind, of))
+  }
+  const relationOf = (full) => {
+    const relation = content?.registries?.relation?.[full]
+    return relation?.kind === 'replaces' ? 'piece' : relation?.of === 'entry' ? 'entry' : relation?.of === 'piece' ? 'piece' : 'level'
+  }
+  /** A new group's object for a build list of `kind` grouped `by` (a relation of `option`'s kind), opened. */
+  const newGroup = (kind, by, option) => {
+    if (saving) return
+    if (by === 'tag') {
+      const { full, op } = newTag(content, namespace, kind)
+      edit(op)
+      return openHeading({ kind: 'tag', full })
+    }
+    const name = freeObjectName(ownNames(content, by, namespace), by === 'relation' ? `${option}` : `new-${by}`)
+    const data = by === 'relation' ? { kind: option, ...(option === 'order' && { of: kind }), edges: [] }
+      : by === 'tray' ? { values: [] } : { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
+    edit({ op: `${by}.put`, [by]: name, data })
+    return openHeading({ kind: by, full: `${namespace}/${name}` })
+  }
+  const grouping = (kind, by, onBy) => ({
+    groupings: GROUPINGS[kind], by, onBy,
+    newOptions: by === 'relation' ? RELATION_KINDS[kind].map(([value, zh, en]) => ({ value, label: tr(zh, en) })) : null,
+    onNew: (option) => newGroup(kind, by, option),
+  })
   const openTreeItem = (next, keep) => {
     select(next, keep)
     if (next?.group === undefined) pickField(selectionPath(next))
@@ -620,16 +667,16 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
   const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'entries' || content?.glossary?.entries?.length))
   const objectPending = saving || shown?.ops !== ops
-  const listProps = { content, namespace, current: openObject, pending: objectPending, onOpen: (full) => openKind(objectKind, full), onEdit: edit, onOps: addOps }
-  const editorProps = {
-    content, namespace, full: openObject, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
-    onSelect: (full) => (full ? openKind(objectKind, full) : setOpened((o) => ({ ...o, [objectKind]: null }))),
+  // A group's own object in the middle: its editor (a tag, a relation, a tray, a section).
+  const groupProps = heading && {
+    content, namespace, full: heading.full, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
+    onSelect: (full) => (full ? openHeading({ kind: heading.kind, full }) : select(null)),
   }
-  // The middle: an object list's object (above), several levels picked at once, a level group's tag, or the page.
-  const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : groupTag ? 'group' : 'page'
-  // The right column of an object list: the object's file, the capability's description, the override's file.
-  const objectFile = groupTag ? { object: { kind: 'tag', full: groupTag, namespace, own: namespaceOf(groupTag) === namespace } }
-    : objectKind && openObject ? { object: { kind: objectKind, full: openObject, namespace, own: namespaceOf(openObject) === namespace } }
+  const GroupEditor = heading && { tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor }[heading.kind]
+  // The middle: an object list's object (above), several levels picked at once, a group's own object, or the page.
+  const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : heading ? 'group' : 'page'
+  // The right column: a group's own object's file, the capability's description, the override's file.
+  const objectFile = heading ? { object: { kind: heading.kind, full: heading.full, namespace, own: namespaceOf(heading.full) === namespace } }
     : openCapability ? { capability: openCapability } : openEvent ? { override: { event: openEvent, layer: namespace } } : { game: true }
   // The file the fold bar's compare shows: the object open in the middle (as its layer writes it), else a level.
   const compared = objectFile.object
@@ -643,7 +690,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
       <StudioBar space={space} ops={ops} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
         <select className="studio-game" value={pkg} disabled={saving} aria-label={tr('内容包', 'Package')}
-          onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null); setOpened({}) }}>
+          onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null); setOpened({}); setHeading(null) }}>
           {packages.map(({ id }) => <option key={id} value={id}>{id}</option>)}
         </select>
       </StudioBar>
@@ -661,17 +708,23 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 )
               })}
             </div>
-            {side === 'tags' ? <TagList {...listProps} />
-              : side === 'relations' ? <RelationList {...listProps} />
-              : side === 'layouts' ? <LayoutList {...listProps} />
-              : side === 'kernel' ? <CapabilityList capabilities={capabilities} current={openCapability} onOpen={(kind, name) => openIn('kernel', capabilityKey(kind, name))} />
+            {side === 'kernel' ? <CapabilityList capabilities={capabilities} current={openCapability} onOpen={(kind, name) => openIn('kernel', capabilityKey(kind, name))} />
               : side === 'overrides' ? <OverrideList events={events} layer={namespace} current={openKey} onOpen={(key) => openIn('overrides', key)} />
-              : side === 'entries' ? <EntryList glossary={content.glossary} current={at?.glossary && field?.path?.[0] === 'entries' ? field.path[1] : null} onOpen={(k) => jump(null, `entries[${k}]`, 'glossary')} />
+              : side === 'entries' ? <EntryList content={content} namespace={namespace} game={game} current={at?.glossary && field?.path?.[0] === 'entries' ? field.path[1] : null}
+                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('entry', entriesBy, setEntriesBy)} onOpen={(k) => jump(null, `entries[${k}]`, 'glossary')} />
               : side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} namespace={namespace} game={game} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length}
+                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('piece', piecesBy, setPiecesBy)} onSelect={select} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file)} />
-              : <Tree game={game} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} onGroupMove={moveGroup} onReorder={reorderGroup} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
+              : levelsBy !== 'tag' ? <GroupedList kind="level" content={content} namespace={namespace} game={game} items={playOrder} label={(id) => L(content.registries?.level?.[id]?.title)}
+                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('level', levelsBy, setLevelsBy)}
+                row={(id) => (
+                  <button key={id} type="button" className={`tree-level ${at?.level === id ? 'is-on' : ''}`} onClick={() => openTreeItem({ level: id })}>
+                    <code className="tree-level-id" title={id}>{shownName(namespace, id)}</code><span>{L(content.registries?.level?.[id]?.title)}</span>
+                  </button>
+                )} />
+              : <Tree game={game} grouping={grouping('level', levelsBy, setLevelsBy)} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} onGroupMove={moveGroup} onReorder={reorderGroup} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
                     ...(levelChoices.length ? [{
                       value: levelChoices.length === 1 ? levelChoices[0].value : 'blank',
@@ -685,13 +738,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           <main className="studio-main">
             {objectList && (
               <div className="studio-scroll">
-                {side === 'tags' && <TagEditor {...editorProps} />}
-                {side === 'relations' && <RelationBoard {...editorProps} />}
-                {side === 'layouts' && <LayoutEditor {...editorProps} />}
                 {side === 'kernel' && <CapabilityView current={openCapability} />}
                 {side === 'overrides' && <OverrideDetail event={openEvent} layer={namespace} pending={objectPending} onOps={addOps}
                   onOpen={(event) => {
-                    if (['tag', 'relation', 'layout'].includes(event.kind)) openKind(event.kind, event.name)
+                    if (HEADING_KINDS.includes(event.kind)) openNamed(event.kind, event.name)
                     else if (event.kind === 'level') select({ level: event.name })
                   }} />}
               </div>
@@ -703,20 +753,24 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
             )}
             {middle === 'group' && (
               <div className="studio-scroll">
-                <TagEditor content={content} namespace={namespace} full={groupTag} pending={objectPending} onEdit={edit} onOps={addOps} onPick={pickObjectField}
-                  onSelect={(full) => (full ? openKind('tag', full) : select(null))} />
+                <GroupEditor key={`${heading.kind} ${heading.full}`} {...groupProps} />
               </div>
             )}
             <GameFrame
-              visible={middle === 'page' && Boolean(playContent)} content={playContent} play={play} part={at?.part} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={middle === 'page' && Boolean(pageContent)} content={pageContent} play={play} part={at?.part} stage={pieceStage} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
-              footer={at?.part !== undefined ? <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
-                : level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openKind(...Object.entries(next)[0])} />}
+              footer={at?.part !== undefined ? <>
+                <StageChain piece={at.part} raw={content.partDefs?.parts?.[at.part]} operations={capabilities?.operation ?? {}} namespace={namespace} stage={pieceStage} pending={objectPending}
+                  editable={namespaceOf(at.part) === namespace} onStage={(id, path) => { setPieceStage(id); pickField(['parts', at.part, ...path]) }}
+                  onAdd={(stages) => edit({ op: 'pieces.set', path: ['parts', at.part, 'stages'], value: stages })} />
+                <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
+              </>
+                : level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openNamed(...Object.entries(next)[0])} />}
             />
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && (objectList || groupTag
+            {sideCtx && (objectList || heading
               ? <Inspector content={content} vocab={vocab} at={objectFile} field={objectFile.object || objectFile.capability || objectFile.override ? { path: objectPath } : null} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickObjectField} onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => {}}
                 tabs={inspectorTabs} selection={objectFile} onToggleTab={() => {}} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
                 onNavigate={(path) => pickObjectField(path)} />
