@@ -169,9 +169,9 @@ export default function Tree({ game, namespace, content, order: playOrder = [], 
         const levels = ids(section).filter((id) => visible.has(id))
         if ((filtering || section.group === null) && !levels.length && !moving) return null
         const shut = folded.has(section.key) && !filtering && !moving
-        const title = section.group === null ? tr('未分组', 'Ungrouped') : L(levelTags(content)[section.group].title) || section.group
+        const title = section.group === null ? tr('未分组', 'Ungrouped') : L(levelTags(content)[section.group].title) || shownName(namespace, section.group)
         return (
-          <SidebarSection key={section.key} title={title} name={section.group ?? ''} active={section.group !== null && at?.group === section.group} collapsed={shut}
+          <SidebarSection key={section.key} title={title} name={section.group ? shownName(namespace, section.group) : ''} active={section.group !== null && at?.group === section.group} collapsed={shut}
             onSelect={section.group === null ? undefined : () => onSelect({ group: section.group })} onToggle={() => fold(section.key)}>
             {list(ids(section), section.slots, title)}
           </SidebarSection>

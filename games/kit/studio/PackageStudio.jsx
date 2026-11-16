@@ -46,6 +46,7 @@ import { useChangeset } from './useChangeset.js'
 import ObjectsTab from './ObjectsTab.jsx'
 import OverrideAudit from './OverrideAudit.jsx'
 import ObjectLinks from './ObjectLinks.jsx'
+import CapabilityBrowser from './CapabilityBrowser.jsx'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -55,7 +56,7 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['overrides', '覆盖', 'Overrides'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['overrides', '覆盖', 'Overrides'], ['kernel', '能力', 'Capabilities'], ['review', '变更', 'Changes']]
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -603,6 +604,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
+                {tab === 'kernel' && <CapabilityBrowser capabilities={vocab?.vocabulary?.capabilities} />}
                 {tab === 'overrides' && <OverrideAudit content={content} layer={namespace} pending={saving || shown.ops !== ops} onOps={addOps}
                   onOpen={(event) => {
                     if (['tag', 'relation', 'layout'].includes(event.kind)) { setObjectAt({ [event.kind]: event.name }); setTab('arrange') }

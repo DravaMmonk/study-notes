@@ -799,3 +799,23 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .object-link { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: 22px; padding: 0 7px; border: 1px solid var(--hairline); border-radius: 11px; color: var(--muted); background: none; font-size: 12px; cursor: pointer; }
 .object-link:hover { color: var(--ink); background: var(--hover); }
 .object-link code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The kernel's capabilities, read only (CapabilityBrowser.jsx): a list and the one picked. */
+.capabilities-search { flex: 1 1 10em; min-width: 0; }
+.capabilities-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(14em, 2fr) 3fr; gap: 12px; padding-top: 8px; }
+.capabilities-list { margin: 0; padding: 0; overflow: auto; list-style: none; }
+.capabilities-list button { width: 100%; display: flex; align-items: baseline; gap: 8px; padding: 4px 6px; border: 0; border-radius: 5px; color: var(--ink); background: none; text-align: left; cursor: pointer; }
+.capabilities-list button:hover { background: var(--hover); }
+.capabilities-list button.is-on { background: var(--select); color: var(--select-ink); }
+.capabilities-list code { flex: none; }
+.capabilities-list span { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.capability-detail { min-width: 0; overflow: auto; }
+.capability-detail h2 { margin: 0 0 6px; font-size: 15px; }
+.capability-detail h3 { margin: 14px 0 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.capability-detail p { margin: 0; }
+.capability-ports, .capability-fields { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+.capability-fields .capability-fields { margin: 3px 0 0 16px; }
+.capability-ports li, .capability-fields li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.capability-type { color: var(--accent-ink); font: 12px var(--mono); }
+.capability-about { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+@media (max-width: 760px) { .capabilities-body { grid-template-columns: 1fr; } .capabilities-list { max-height: 40vh; } }
