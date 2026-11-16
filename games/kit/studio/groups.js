@@ -1,6 +1,7 @@
 // Project level tags onto the existing sidebar until the object editors replace it.
 import { referenceResolver, relationOrder } from '../engine/objects.js'
 import { sameJson } from '../engine/json-value.js'
+import { localName } from './objects-edit.js'
 
 /** Read-only sidebar projection of level tags in effective relation order. */
 export const levelTags = (content) => Object.fromEntries(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').map(([name, tag]) => {
@@ -36,11 +37,11 @@ export function stays(tree, level, to) {
   })
 }
 
-/** Update explicit tag membership through the package operation set. */
-export function groupMoves(levels, to, content) {
-  return Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').flatMap(([tag, value]) => {
+/** Update explicit tag membership through the package operation set: only the layer's own level tags, by short names. */
+export function groupMoves(levels, to, content, namespace) {
+  return Object.entries(content.tags ?? {}).filter(([full, tag]) => tag.kind === 'level' && localName(namespace, full)).flatMap(([full, value]) => {
     const values = value.values.filter((id) => !levels.includes(id))
-    if (tag === to.group) values.push(...levels)
-    return sameJson(values, value.values) ? [] : [{ op: 'tag.set', tag, path: 'values', value: values }]
+    if (full === to.group) values.push(...levels)
+    return sameJson(values, value.values) ? [] : [{ op: 'tag.set', tag: localName(namespace, full), path: 'values', value: values.map((id) => localName(namespace, id) ?? id) }]
   })
 }

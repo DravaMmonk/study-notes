@@ -133,7 +133,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .editor { max-width: 1360px; margin: 0 auto; padding: 0 16px 80px; }
 .editor-head { position: sticky; top: 0; z-index: 3; margin: 0 -16px 6px; padding: 5px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; background: color-mix(in srgb, var(--canvas) 94%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--hairline); }
 .editor-head h1 { margin: 0 2px 0 0; min-width: 0; color: var(--heading); font: 500 17px/1.2 var(--serif); }
-.editor-id { height: 24px; padding: 0 5px; border: 0; border-radius: 5px; color: var(--accent-ink); background: transparent; font: 600 13px/1 var(--mono); box-shadow: 0 0 0 1px var(--hairline); }
+.editor-id { height: 24px; padding: 0 5px; white-space: nowrap; border: 0; border-radius: 5px; color: var(--accent-ink); background: transparent; font: 600 13px/1 var(--mono); box-shadow: 0 0 0 1px var(--hairline); }
 .editor-id:focus { outline: 2px solid var(--accent); }
 .editor-id.is-static { display: inline-flex; align-items: center; box-shadow: none; }
 .editor-tools { display: inline-flex; gap: 1px; }
@@ -728,7 +728,61 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .map-place.is-end { width: 28px; justify-content: center; padding: 0; background: transparent; box-shadow: none; cursor: default; }
 .map-place[data-over] { box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px var(--line); }
 .map-place .editor-tool { width: 22px; height: 22px; }
+
+/* The package workspace's tag and layout editors (TagEditor.jsx, LayoutEditor.jsx). */
+.object-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0 4px; }
+.object-kind { color: var(--muted); font: 600 var(--fs-mini)/1 var(--mono); }
+.object-count { color: var(--faint); font: var(--fs-mini)/1 var(--mono); }
+.object-flag { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+.object-flag .field-check { margin: 0; }
+.object-title { max-width: 40em; }
+.tag-members { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1px; overflow: auto; }
+.tag-members .tag-members { padding-left: 26px; }
+.tag-member { min-height: 28px; display: flex; align-items: center; gap: 6px; padding: 0 4px; border-radius: var(--r-sm); }
+.tag-member:hover { background: var(--hover); }
+.tag-member code, .tag-link code { flex: none; color: var(--accent-ink); font: var(--fs-mini)/1 var(--mono); }
+.tag-member > span, .tag-link > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag-member > .editor-tool:last-child { margin-left: auto; }
+.tag-member .editor-tool { width: 22px; height: 22px; flex: none; }
+.tag-member.is-unknown code { color: var(--fail); }
+.tag-member.is-nested { min-height: 24px; color: var(--muted); }
+.tag-link { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; color: inherit; background: none; font: inherit; text-align: left; cursor: pointer; }
+.tag-link:hover > span { text-decoration: underline; }
+.layout-editor .map-row > .map-place:not(.is-end) { flex: 0 1 180px; width: auto; min-width: 0; }
+.layout-editor .map-row > .kit-btn { margin-top: 8px; }
+.layout-editor .map-gap.is-armed { height: 20px; outline: 1px dashed var(--line); cursor: pointer; }
+.layout-editor .map-place.is-empty[data-drop], .layout-editor .map-place.is-end[data-drop] { cursor: pointer; }
+.layout-unplaced { min-height: 52px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; margin-top: 8px; padding: 6px; border: 1px dashed var(--line); border-radius: var(--r-md); }
+.layout-unplaced[data-over] { border-color: var(--accent); }
+.layout-unplaced .map-place { width: auto; max-width: 180px; height: 36px; }
+@media (max-width: 760px) {
+  .layout-editor .map-rows { padding: 8px; }
+  .layout-editor .map-row { gap: 6px; }
+  .layout-editor .map-row > .map-place:not(.is-end, .is-empty) { height: 52px; padding: 0 6px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; }
+}
 .copy-fixed { display: block; padding: 4px 6px; color: var(--muted); font: var(--fs-mini)/1.4 var(--sans); }
 .copy-row [role='cell'] { position: relative; }
 .copy-row [role='cell'].is-own { box-shadow: inset 2px 0 0 var(--accent); border-radius: 2px; }
 .copy-restore { position: absolute; right: 2px; bottom: 2px; width: 20px; height: 20px; }
+
+/* The arrangement tab: tags, relations and layouts, one editor at a time (ObjectsTab.jsx). */
+.objects-tab { display: flex; flex-direction: column; height: 100%; min-width: 0; }
+.objects-switch { align-self: flex-start; margin: 10px clamp(10px, 2cqi, 24px) 0; }
+.objects-tab > .arrange { flex: 1; min-height: 0; padding-top: 8px; }
+
+/* A chapter's members in the game workspace (ChapterBoard.jsx): levels and whole level tags. */
+.chapter-members { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
+.chapter-members li { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 1px 2px 1px 7px; border: 1px solid var(--hairline); border-radius: 6px; font-size: 12px; }
+.chapter-members li.is-tag { border-style: dashed; }
+.chapter-members li span { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+
+/* The override audit (OverrideAudit.jsx): one row per override a layer can see. */
+.override-list { margin: 8px 0 0; padding: 0; list-style: none; }
+.override-list > li { border-bottom: 1px solid var(--hairline); }
+.override-row { display: flex; align-items: center; gap: 6px; min-height: 32px; min-width: 0; }
+.override-kind { flex: none; width: 4.5em; color: var(--muted); }
+.override-name { min-width: 0; overflow: hidden; padding: 0; border: 0; color: var(--accent-ink); background: none; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.override-layer { margin-left: auto; color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+.override-list > li.is-own .override-layer { color: var(--ink); }
+.override-list .diff-fields { padding: 4px 0 10px 26px; }
+@media (max-width: 600px) { .override-kind { display: none; } }
