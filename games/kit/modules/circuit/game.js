@@ -1,3 +1,4 @@
+import { loadDisplays } from '../../engine/displays.js'
 // A circuit game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
 // level (run.js).
 //
@@ -11,11 +12,11 @@
 //                 boards as text (npm test)
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Binary } from 'lucide-react'
-import './ui/circuit.css'
 import { definedGame } from '../../shell/circuit-game.js'
-import * as play from './run.js'
 import { circuitWorks } from './work.js'
 import { OPS } from './ops.js'
 
+const ui = await loadDisplays(['circuit:screen'])
+
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, circuitWorks(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: { play }, ops: OPS })
+export default (content) => definedGame(content, circuitWorks(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: ui['circuit:screen'], ops: OPS })

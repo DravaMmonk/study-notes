@@ -349,6 +349,11 @@ export function moduleProblems(module, registry, runtime = null) {
       for (const port of item.inputs ?? []) if (typeof port === 'object' && !declaredType(port.type)) out.push(`${name}: port ${port.name} has unknown value type ${port.type}`)
       if (item.outputType && !declaredType(item.outputType)) out.push(`${name}: unknown output type ${item.outputType}`)
     }
+    if (kind === 'display' && (item.role || ['display', 'widget'].includes(item.kind))) {
+      const entry = registry.displayLoaders[name]
+      if (!entry) out.push(`${name}: no display implementation`)
+      else if (!entry.startsWith(`../modules/${module.id}/ui/`)) out.push(`${name}: display implementation is outside its module UI`)
+    }
     if (kind === 'operation' && !registry.operations[name]) out.push(`${name}: no runtime implementation`)
     if (kind === 'operation' && item.signatures && !item.signatures.length) out.push(`${name}: no signatures`)
     if (kind === 'operation') for (const signature of item.signatures ?? [item]) {

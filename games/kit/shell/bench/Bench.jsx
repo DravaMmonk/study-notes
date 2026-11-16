@@ -3,13 +3,12 @@ import { callOf } from '../../engine/schema.js'
 import { benchRun, openKnobs, startValues } from '../../engine/bench.js'
 import { PHONE, useMedia } from '../useMedia.js'
 import { PickMark } from '../EditMarks.jsx'
-import { KERNEL_ITEMS } from './items.jsx'
 import './bench.css'
 
 // The parameter bench (games/DESIGN.md 6.4, the data in ../../engine/bench.js): one screen for every bench. It keeps
 // the knob values (one set per stage, one value per case for a per-case knob), the model's process and a running
 // repeat, judges the goal on what the model computes, steps through the stages, and lays out the display items the
-// bench's layout names: the kernel's (./items.jsx) and the domain's, loaded through an optional registry promise.
+// bench's layout names, loaded through the module display registry.
 //
 // A display component gets { params, ctx: the bench's state below, children: its `with` items }. On a bench judged on
 // submit, `ctx.revealed` says whether the setting on the knobs has been checked: a display draws its result only then.
@@ -137,6 +136,6 @@ function Block({ b, c, displays, render }) {
   if (b.stack) return <div className={`bk-stack ${b.center ? 'bench-center' : ''}`}>{render(b.stack)}</div>
   if (b.row) return <div className={`bench-row ${b.narrow ? 'is-narrow' : ''} ${b.tight ? 'is-tight' : ''}`}>{render(b.row)}</div>
   const [name, params] = callOf(b)
-  const Item = KERNEL_ITEMS[name] ?? displays[name]
+  const Item = displays[name]
   return createElement(Item, { params, ctx: c }, params.with ? render(params.with) : undefined)
 }

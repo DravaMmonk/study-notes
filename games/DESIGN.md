@@ -660,6 +660,15 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 ### 6.9 界面
 
+**Registered displays (PACKAGES.md §7.1, step 5.5).** Modules declare printable display capabilities in
+`module.js` under qualified names and register lazy implementation loaders with `implementDisplays`.
+`engine/displays.js` resolves these names and caches each implementation bundle. Module `ui/displays.js`
+entries own their styles, map illustrations, introduction figures, circuit presentation resources and pass panels.
+Game adapters select capabilities by name and bind course data; shared shell/views never import module UI or CSS.
+Bench layouts resolve both string and parameterized display calls (including nested `with` blocks) through the
+same registry. Common bench displays are provided by the circuit module; the shared `Knob` control remains in
+`shell/bench`. Metadata-only view/family/mark entries continue to describe generic value rendering.
+
 **Unlock all.** The progress dialog can open all levels, tasks, parts and encyclopedia entries without marking any task
 passed. Clearing play progress turns off Unlock all and restores the normal prerequisites. Normally a level is complete once every required task has passed. With all content unlocked, passing the last required task completes the level without returning to earlier tasks. A carried circuit opens on the prerequisite's passed board; if all content is unlocked and that prerequisite has not been passed, it opens on the reference board instead. A later pass replaces this starting point with the player's passing board, while a board already edited in the destination remains the player's own. Optional tasks are only recorded and grant their own rewards when actually completed.
 
@@ -875,7 +884,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 - **结果区**：领域只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是领域给的默认几行：输出；逐拍的板在前面再加进线和输入。
 - **电路玩法的显示配置。** `plays.js` 可用 `results: 'hidden'` 隐藏结果区，用 `output: 'target'` 让输出元件显示当前测试的应得值。颜色取自同一份逐输出判定。单次判定的电路在有输出时更新颜色，检查过但没有输出也显示失败色。测试选择和运行栏仍可用。
 - **手机电路卡片。** `tileSettings: 'hidden'` 把配置摘要收进详情，格位保留元件名称和运行读数。
-- **领域的屏幕是一份声明**：建在电路底座上的领域不写组件，只在 `ui/screen.js` 里声明（`play`：它的 run.js；`portLabels`、`registers`、`figure`……，见 `shell/CircuitScreen.jsx` 的 `circuitScreen`），游戏自带元件的领域连这个文件也没有，在 `game.js` 里写 `screen: { play }`。内核按声明拼出屏幕。各领域自写组件的行数由 `engine/components.js` 统计，`npm test` 只许降（方向文档决策二十一）。
+- **Module screen resources.** Circuit modules provide display resources such as port labels, readouts and figures through registered display capabilities. `shell/CircuitScreen.jsx` composes the shared screen; game adapters bind the registered resources to course data. Module contracts check registration and loading, and shared renderers may not import module UI or CSS directly (PACKAGES.md §7.1).
 - **修改给定的电路**：任务照常写 `tests`、`solution`。`starter` 是打开时摆在板上的蓝图，玩家编辑电路，内核按任务的测试判定。玩家编写检验来找错误的关卡走第 6.5 节的纠错玩法。
 - **一个测试的附图**。电路屏可从 `figure({ task, test, run, at })` 取得附图，桌面排在结果旁，手机排在结果上方。附图可按当前运行步骤更新。
 - **引言和点题**：引言的一页可以带 `show`，一关可以带 `afterShow`（显示在点题旁），写一个值：`{ shape, value, views?, label? }`，值按内容的写法写（网格写成一行行的数或 [R, G, B]，位写成 0、1、. 组成的字符串），kit 在 `figure` 场景里画它。

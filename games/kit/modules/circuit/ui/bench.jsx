@@ -1,12 +1,12 @@
-import { sameJson } from '../../engine/json-value.js'
+import { sameJson } from '../../../engine/json-value.js'
 import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
-import { formatValue, knobKind, needText, rowValue } from '../../engine/bench.js'
-import { GridPicture } from '../../views/grid/GridView.jsx'
-import { L, keyOf, tr } from '../i18n.js'
-import { useMark } from '../edit.js'
-import TestTabs from '../TestTabs.jsx'
-import Plot, { Legend } from './Plot.jsx'
-import { Rich } from './Rich.jsx'
+import { formatValue, knobKind, needText, rowValue } from '../../../engine/bench.js'
+import { GridPicture } from '../../../views/grid/GridView.jsx'
+import { L, keyOf, tr } from '../../../shell/i18n.js'
+import Knob from '../../../shell/bench/Knob.jsx'
+import TestTabs from '../../../shell/TestTabs.jsx'
+import Plot, { Legend } from '../../../shell/bench/Plot.jsx'
+import { Rich } from '../../../shell/bench/Rich.jsx'
 
 // The kernel's display items (../../engine/bench.js KERNEL_DISPLAYS): each gets { params, ctx } from Bench.jsx.
 // Text a param gives as { of: name } is what the model computed under that name.
@@ -17,49 +17,6 @@ const toned = (x) => (x && typeof x === 'object' && 'text' in x && !('off' in x)
 
 /* ---------- knobs ---------- */
 
-/**
- * One knob's control; `value` and `onChange` default to the knob's own value in the bench. A range may show its own
- * `output` and a `mark` on its track (0 … 1, a budget, say).
- */
-export function Knob({ name, ctx, value = ctx.values[name], onChange = (x) => ctx.set(name, x), label, output, mark }) {
-  const knob = ctx.bench.knobs[name]
-  const disabled = ctx.busy || knob.fixed
-  const title = label ?? knob.label
-  const kind = knobKind(knob)
-  const editKnob = useMark()(`bench.knobs.${name}`)
-  if (kind === 'toggle') {
-    return <label className="bk-check"><input type="checkbox" checked={Boolean(value)} disabled={disabled} onChange={(e) => onChange(e.target.checked)} /> <span {...editKnob}><Rich text={title} /></span></label>
-  }
-  if (kind === 'choice') {
-    const dot = knob.look === 'dot'
-    const biggest = Math.max(...knob.choices.map((c) => Math.abs(Number(c.value)) || 0))
-    return (
-      <div className="bench-choice">
-        {title && <span className="bk-label" {...editKnob}><Rich text={title} /></span>}
-        <div className={`bk-seg bench-seg ${dot ? 'is-dots' : ''}`} role="radiogroup" aria-label={L(title) ?? name}>
-          {knob.choices.map((c) => (
-            <button key={String(c.value)} type="button" role="radio" aria-checked={value === c.value} aria-pressed={value === c.value} disabled={disabled} onClick={() => onChange(c.value)}>
-              {dot && <svg viewBox="-14 -14 28 28" aria-hidden="true"><circle r={(Number(c.value) / biggest) * 11.5} /></svg>}
-              <span>{c.label !== undefined ? <Rich text={c.label} /> : `${c.value}${knob.unit ?? ''}`}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    )
-  }
-  const index = kind === 'index'
-  const [min, max, step] = index ? [0, knob.values.length - 1, 1] : [knob.min, knob.max, knob.step]
-  const range = <input className="bk-range" type="range" min={min} max={max} step={step} value={value} disabled={disabled} aria-label={L(title) ?? name} style={{ '--fill': `${((value - min) / (max - min)) * 100}%` }} onChange={(e) => onChange(Number(e.target.value))} />
-  const input = mark === undefined ? range : <span className="bench-track" style={{ '--mark': mark }}><i />{range}</span>
-  if (knob.ends) return <label className="bk-field bench-ends"><span {...editKnob}><Rich text={knob.ends[0]} /></span>{input}<span><Rich text={knob.ends[1]} /></span></label>
-  return (
-    <label className="bk-field">
-      <span {...editKnob}><Rich text={title} /></span>
-      {input}
-      {output ?? <output>{formatValue(index ? knob.values[value] : value, knob.format ?? 'raw', knob.unit ?? '')}</output>}
-    </label>
-  )
-}
 
 function Knobs({ params, ctx }) {
   // The open knobs and the fixed ones (shown, never turned), in the bench's order.
@@ -313,7 +270,7 @@ function Progress({ params, ctx }) {
   return <div className="bench-progress" style={{ '--n': dots.length }} role="img" aria-label={tr(`${dots.filter((d) => d === 'right').length} 对`, `${dots.filter((d) => d === 'right').length} right`)}>{dots.map((d, i) => <i key={i} className={d ? `is-${d}` : ''} />)}</div>
 }
 
-export const KERNEL_ITEMS = {
+export const displays = {
   'circuit:display-step': Step,
   'circuit:display-knobs': Knobs,
   'circuit:display-actions': Actions,
