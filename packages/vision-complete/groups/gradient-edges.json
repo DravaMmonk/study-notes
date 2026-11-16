@@ -1,0 +1,5 @@
+{
+  "title": "@group.gradient-edges.title",
+  "levels": [{ "id": "1-6" }, { "id": "1-7" }, { "id": "3-9" }, { "id": "3-10" }],
+  "links": [{ "from": "1-6", "to": "1-7" }, { "from": "3-9", "to": "3-10" }]
+}

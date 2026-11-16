@@ -1,0 +1,14 @@
+{
+  "title": "@group.elimination-generator.title",
+  "levels": [
+    { "id": "gen-one", "optional": true },
+    { "id": "gen-each", "optional": true },
+    { "id": "gen-ex", "optional": true },
+    { "id": "gen-nat", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "gen-one", "to": "gen-each" },
+    { "required": true, "from": "gen-each", "to": "gen-ex" },
+    { "required": true, "from": "gen-ex", "to": "gen-nat" }
+  ]
+}

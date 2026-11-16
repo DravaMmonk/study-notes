@@ -1,0 +1,5 @@
+{
+  "title": "@group.structural-automation.title",
+  "levels": [{ "id": "s-intro" }, { "id": "s-elim" }, { "id": "s-auto" }],
+  "links": [{ "from": "s-intro", "to": "s-elim" }, { "from": "s-elim", "to": "s-auto" }]
+}

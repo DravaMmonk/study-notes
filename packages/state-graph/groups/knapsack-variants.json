@@ -1,0 +1,16 @@
+{
+  "title": "@group.knapsack-variants.title",
+  "levels": [
+    { "id": "pack", "optional": true },
+    { "id": "knaptable", "optional": true },
+    { "id": "knapmany", "optional": true },
+    { "id": "knapmix", "optional": true },
+    { "id": "roll", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "pack", "to": "knaptable" },
+    { "required": true, "from": "knaptable", "to": "knapmany" },
+    { "required": true, "from": "knapmany", "to": "knapmix" },
+    { "required": true, "from": "knapmix", "to": "roll" }
+  ]
+}

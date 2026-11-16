@@ -1,0 +1,5 @@
+{
+  "title": "@group.frequency-masks.title",
+  "levels": [{ "id": "2-7" }, { "id": "2-8" }, { "id": "2-9" }],
+  "links": [{ "from": "2-7", "to": "2-8" }, { "from": "2-8", "to": "2-9" }]
+}

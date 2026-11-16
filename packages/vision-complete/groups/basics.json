@@ -1,0 +1,20 @@
+{
+  "title": "@group.basics.title",
+  "levels": [
+    { "id": "0-1" },
+    { "id": "0-4" },
+    { "id": "0-5" },
+    { "id": "0-8" },
+    { "id": "0-9", "optional": true },
+    { "id": "1-15", "optional": true },
+    { "id": "4-11" },
+    { "id": "4-9" },
+    { "id": "4-15" },
+    { "id": "4-19", "optional": true },
+    { "id": "4-21", "optional": true, "skippable": true },
+    { "id": "8-6" },
+    { "id": "10-1" },
+    { "id": "10-5" }
+  ],
+  "links": [{ "from": "0-1", "to": "0-4" }, { "from": "0-4", "to": "0-5" }]
+}

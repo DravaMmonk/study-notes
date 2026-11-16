@@ -1,0 +1,5 @@
+{
+  "title": "@group.palindrome-intervals.title",
+  "levels": [{ "id": "palin" }, { "id": "lps" }],
+  "links": [{ "from": "palin", "to": "lps" }]
+}

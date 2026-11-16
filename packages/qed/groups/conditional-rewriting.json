@@ -1,0 +1,10 @@
+{
+  "title": "@group.conditional-rewriting.title",
+  "levels": [
+    { "id": "def-max" },
+    { "id": "sp-cond" },
+    { "id": "sp-hyp" },
+    { "id": "sort-if", "optional": true }
+  ],
+  "links": [{ "from": "def-max", "to": "sp-cond" }]
+}

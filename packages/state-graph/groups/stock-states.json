@@ -1,0 +1,5 @@
+{
+  "title": "@group.stock-states.title",
+  "levels": [{ "id": "stock1" }, { "id": "cooldown" }],
+  "links": [{ "from": "stock1", "to": "cooldown" }]
+}

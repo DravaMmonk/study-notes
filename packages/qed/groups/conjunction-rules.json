@@ -1,0 +1,5 @@
+{
+  "title": "@group.conjunction-rules.title",
+  "levels": [{ "id": "decl-and" }, { "id": "and" }, { "id": "curry" }],
+  "links": [{ "from": "and", "to": "curry" }]
+}

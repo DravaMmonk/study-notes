@@ -1,0 +1,5 @@
+{
+  "title": "@group.subsequence-alignment.title",
+  "levels": [{ "id": "link" }, { "id": "lcs" }],
+  "links": [{ "from": "link", "to": "lcs" }]
+}

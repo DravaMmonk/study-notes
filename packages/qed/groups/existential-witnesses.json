@@ -1,0 +1,15 @@
+{
+  "title": "@group.existential-witnesses.title",
+  "levels": [
+    { "id": "decl-ex" },
+    { "id": "q-exI" },
+    { "id": "q-exE" },
+    { "id": "q-witness" },
+    { "id": "r-order", "optional": true }
+  ],
+  "links": [
+    { "from": "decl-ex", "to": "q-exI" },
+    { "from": "q-exI", "to": "q-exE" },
+    { "from": "q-exE", "to": "q-witness" }
+  ]
+}

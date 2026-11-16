@@ -1,6 +1,7 @@
 {
   "course.power.lines.0": "每一关对应笔记里的一个知识点。",
   "course.power.title": "计算机视觉笔记",
+  "group.basics.title": "基础关卡",
   "level.projection.after": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。",
   "level.projection.tasks.projection.bench.knobs.D.label": "孔径 D",
   "level.projection.tasks.projection.bench.stages.0.goal.0.label": "像高",

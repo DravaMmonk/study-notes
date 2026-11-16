@@ -1,0 +1,14 @@
+{
+  "title": "@group.diffusion-denoising.title",
+  "levels": [
+    { "id": "8-7" },
+    { "id": "8-8" },
+    { "id": "8-10", "optional": true },
+    { "id": "8-11", "optional": true }
+  ],
+  "links": [
+    { "from": "8-7", "to": "8-8" },
+    { "from": "8-8", "to": "8-10" },
+    { "required": true, "from": "8-10", "to": "8-11" }
+  ]
+}

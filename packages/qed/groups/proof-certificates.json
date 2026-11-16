@@ -1,0 +1,5 @@
+{
+  "title": "@group.proof-certificates.title",
+  "levels": [{ "id": "au-cert" }, { "id": "au-replay" }, { "id": "au-wrong" }],
+  "links": [{ "from": "au-cert", "to": "au-replay" }, { "from": "au-replay", "to": "au-wrong" }]
+}

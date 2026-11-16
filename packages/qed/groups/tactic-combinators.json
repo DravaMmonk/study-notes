@@ -1,0 +1,9 @@
+{
+  "title": "@group.tactic-combinators.title",
+  "levels": [{ "id": "s-repeat" }, { "id": "s-orelse" }, { "id": "s-mix" }, { "id": "s-try" }],
+  "links": [
+    { "from": "s-repeat", "to": "s-orelse" },
+    { "from": "s-orelse", "to": "s-mix" },
+    { "from": "s-mix", "to": "s-try" }
+  ]
+}

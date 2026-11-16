@@ -1,0 +1,5 @@
+{
+  "title": "@group.homogeneous-geometry.title",
+  "levels": [{ "id": "7-5" }, { "id": "7-6" }],
+  "links": [{ "from": "7-5", "to": "7-6" }]
+}

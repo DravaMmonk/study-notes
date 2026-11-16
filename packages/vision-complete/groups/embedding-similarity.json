@@ -1,0 +1,9 @@
+{
+  "title": "@group.embedding-similarity.title",
+  "levels": [
+    { "id": "5-7", "optional": true },
+    { "id": "5-8", "optional": true },
+    { "id": "5-9", "optional": true }
+  ],
+  "links": [{ "required": true, "from": "5-7", "to": "5-8" }, { "required": true, "from": "5-8", "to": "5-9" }]
+}

@@ -1,0 +1,16 @@
+{
+  "title": "@group.key-state.title",
+  "levels": [
+    { "id": "breach" },
+    { "id": "keydoor" },
+    { "id": "twokeys", "optional": true },
+    { "id": "threekeys", "optional": true },
+    { "id": "enough", "optional": true }
+  ],
+  "links": [
+    { "from": "breach", "to": "keydoor" },
+    { "from": "keydoor", "to": "twokeys" },
+    { "required": true, "from": "twokeys", "to": "threekeys" },
+    { "required": true, "from": "threekeys", "to": "enough" }
+  ]
+}

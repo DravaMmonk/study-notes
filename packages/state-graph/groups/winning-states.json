@@ -1,0 +1,5 @@
+{
+  "title": "@group.winning-states.title",
+  "levels": [{ "id": "nim" }, { "id": "piles", "optional": true }],
+  "links": [{ "from": "nim", "to": "piles" }]
+}

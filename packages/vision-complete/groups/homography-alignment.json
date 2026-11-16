@@ -1,0 +1,12 @@
+{
+  "title": "@group.homography-alignment.title",
+  "levels": [
+    { "id": "6-11", "optional": true },
+    { "id": "6-12", "optional": true },
+    { "id": "6-13", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "6-11", "to": "6-12" },
+    { "required": true, "from": "6-12", "to": "6-13" }
+  ]
+}

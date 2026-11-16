@@ -1,0 +1,18 @@
+{
+  "title": "@group.incompleteness.title",
+  "levels": [
+    { "id": "gd-code", "optional": true },
+    { "id": "gd-check", "optional": true },
+    { "id": "gd-diag", "optional": true },
+    { "id": "gd-true", "optional": true },
+    { "id": "gd-con", "optional": true },
+    { "id": "gd-second", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "gd-code", "to": "gd-check" },
+    { "required": true, "from": "gd-check", "to": "gd-diag" },
+    { "required": true, "from": "gd-diag", "to": "gd-true" },
+    { "required": true, "from": "gd-true", "to": "gd-con" },
+    { "required": true, "from": "gd-con", "to": "gd-second" }
+  ]
+}

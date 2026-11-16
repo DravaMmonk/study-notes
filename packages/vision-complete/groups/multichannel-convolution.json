@@ -1,0 +1,5 @@
+{
+  "title": "@group.multichannel-convolution.title",
+  "levels": [{ "id": "4-12" }, { "id": "4-13" }, { "id": "4-14" }],
+  "links": [{ "from": "4-12", "to": "4-13" }, { "from": "4-13", "to": "4-14" }]
+}

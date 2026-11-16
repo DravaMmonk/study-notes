@@ -1,0 +1,5 @@
+{
+  "title": "@group.natural-constructors.title",
+  "levels": [{ "id": "decl-nat" }, { "id": "in-distinct" }, { "id": "in-inject" }, { "id": "in-cases" }],
+  "links": [{ "from": "in-distinct", "to": "in-inject" }, { "from": "in-inject", "to": "in-cases" }]
+}

@@ -1,0 +1,5 @@
+{
+  "title": "@group.truth-table-semantics.title",
+  "levels": [{ "id": "table" }, { "id": "always" }, { "id": "onerow" }, { "id": "g-always" }],
+  "links": [{ "from": "table", "to": "always" }, { "from": "always", "to": "onerow" }]
+}

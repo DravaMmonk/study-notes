@@ -1,0 +1,5 @@
+{
+  "title": "@group.nonlinear-activations.title",
+  "levels": [{ "id": "4-5" }, { "id": "4-7" }, { "id": "4-6" }],
+  "links": [{ "from": "4-5", "to": "4-6" }]
+}

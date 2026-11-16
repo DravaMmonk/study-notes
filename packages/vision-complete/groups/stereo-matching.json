@@ -1,0 +1,5 @@
+{
+  "title": "@group.stereo-matching.title",
+  "levels": [{ "id": "7-1" }, { "id": "7-2" }],
+  "links": [{ "from": "7-1", "to": "7-2" }]
+}

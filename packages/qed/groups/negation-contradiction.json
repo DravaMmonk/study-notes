@@ -1,0 +1,15 @@
+{
+  "title": "@group.negation-contradiction.title",
+  "levels": [
+    { "id": "decl-bot" },
+    { "id": "bot" },
+    { "id": "notI" },
+    { "id": "mt" },
+    { "id": "contra", "optional": true }
+  ],
+  "links": [
+    { "from": "decl-bot", "to": "bot" },
+    { "from": "bot", "to": "notI" },
+    { "from": "notI", "to": "mt" }
+  ]
+}

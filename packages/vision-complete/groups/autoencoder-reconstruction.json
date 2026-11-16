@@ -1,0 +1,5 @@
+{
+  "title": "@group.autoencoder-reconstruction.title",
+  "levels": [{ "id": "8-1" }, { "id": "8-2" }, { "id": "8-3" }],
+  "links": [{ "from": "8-1", "to": "8-2" }, { "from": "8-2", "to": "8-3" }]
+}

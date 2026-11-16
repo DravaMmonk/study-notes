@@ -1,0 +1,5 @@
+{
+  "title": "@group.spatial-kernels.title",
+  "levels": [{ "id": "1-8" }, { "id": "1-9" }, { "id": "1-10" }],
+  "links": [{ "from": "1-8", "to": "1-9" }, { "from": "1-9", "to": "1-10" }]
+}

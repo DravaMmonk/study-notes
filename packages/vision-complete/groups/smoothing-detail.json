@@ -1,0 +1,5 @@
+{
+  "title": "@group.smoothing-detail.title",
+  "levels": [{ "id": "1-4" }, { "id": "1-5" }, { "id": "1-13", "optional": true }],
+  "links": [{ "from": "1-4", "to": "1-5" }]
+}

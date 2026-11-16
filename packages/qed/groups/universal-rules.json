@@ -1,0 +1,16 @@
+{
+  "title": "@group.universal-rules.title",
+  "levels": [
+    { "id": "q-allI" },
+    { "id": "q-allE" },
+    { "id": "q-rename" },
+    { "id": "q-allAnd" },
+    { "id": "q-capture" }
+  ],
+  "links": [
+    { "from": "q-allI", "to": "q-allE" },
+    { "from": "q-allE", "to": "q-rename" },
+    { "from": "q-rename", "to": "q-allAnd" },
+    { "from": "q-allAnd", "to": "q-capture" }
+  ]
+}

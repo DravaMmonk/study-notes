@@ -1,0 +1,5 @@
+{
+  "title": "@group.hybrid-images.title",
+  "levels": [{ "id": "2-10" }, { "id": "2-12", "optional": true }],
+  "links": [{ "from": "2-10", "to": "2-12" }]
+}

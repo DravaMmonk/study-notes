@@ -1,0 +1,5 @@
+{
+  "title": "@group.recursive-lists.title",
+  "levels": [{ "id": "decl-list" }, { "id": "def-list" }, { "id": "sp-lists" }],
+  "links": [{ "from": "decl-list", "to": "def-list" }, { "from": "def-list", "to": "sp-lists" }]
+}

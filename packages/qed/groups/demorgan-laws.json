@@ -1,0 +1,5 @@
+{
+  "title": "@group.demorgan-laws.title",
+  "levels": [{ "id": "demorgan" }, { "id": "q-dm" }],
+  "links": [{ "from": "demorgan", "to": "q-dm" }]
+}

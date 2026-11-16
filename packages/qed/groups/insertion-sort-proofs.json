@@ -1,0 +1,13 @@
+{
+  "title": "@group.insertion-sort-proofs.title",
+  "levels": [
+    { "id": "sort-ins", "optional": true },
+    { "id": "sort-run", "optional": true },
+    { "id": "sort-insLen", "optional": true },
+    { "id": "sort-len", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "sort-ins", "to": "sort-run" },
+    { "required": true, "from": "sort-insLen", "to": "sort-len" }
+  ]
+}

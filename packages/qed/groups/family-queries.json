@@ -1,0 +1,14 @@
+{
+  "title": "@group.family-queries.title",
+  "levels": [
+    { "id": "q-children", "optional": true },
+    { "id": "q-grand", "optional": true },
+    { "id": "q-none", "optional": true },
+    { "id": "q-school", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "q-children", "to": "q-grand" },
+    { "required": true, "from": "q-grand", "to": "q-none" },
+    { "required": true, "from": "q-none", "to": "q-school" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "@group.segmentation-skips.title",
+  "levels": [
+    { "id": "9-8", "optional": true },
+    { "id": "9-9", "optional": true },
+    { "id": "9-10", "optional": true }
+  ],
+  "links": [{ "required": true, "from": "9-8", "to": "9-9" }, { "required": true, "from": "9-9", "to": "9-10" }]
+}

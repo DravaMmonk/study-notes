@@ -1,0 +1,12 @@
+{
+  "title": "@group.leibniz-equality.title",
+  "levels": [
+    { "id": "h-eq-refl", "optional": true },
+    { "id": "h-eq-subst", "optional": true },
+    { "id": "h-eq-sym", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "h-eq-refl", "to": "h-eq-subst" },
+    { "required": true, "from": "h-eq-subst", "to": "h-eq-sym" }
+  ]
+}

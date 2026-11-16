@@ -1,0 +1,12 @@
+{
+  "title": "@group.image-difference.title",
+  "levels": [
+    { "id": "0-10", "optional": true },
+    { "id": "0-11", "optional": true },
+    { "id": "0-12", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "0-10", "to": "0-11" },
+    { "required": true, "from": "0-11", "to": "0-12" }
+  ]
+}

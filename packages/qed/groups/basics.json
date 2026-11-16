@@ -1,0 +1,19 @@
+{
+  "title": "@group.basics.title",
+  "levels": [
+    { "id": "copy" },
+    { "id": "decl-true", "optional": true },
+    { "id": "q-ancestor", "optional": true },
+    { "id": "q-bigger", "optional": true },
+    { "id": "c-arrow" },
+    { "id": "au-adder" },
+    { "id": "au-machine" },
+    { "id": "s-each" },
+    { "id": "decl-bool" },
+    { "id": "in-itsum", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "q-ancestor", "to": "q-bigger" },
+    { "from": "au-adder", "to": "au-machine" }
+  ]
+}

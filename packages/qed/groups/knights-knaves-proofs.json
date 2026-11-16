@@ -1,0 +1,12 @@
+{
+  "title": "@group.knights-knaves-proofs.title",
+  "levels": [
+    { "id": "kk-one", "optional": true },
+    { "id": "kk-two", "optional": true },
+    { "id": "kk-three", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "kk-one", "to": "kk-two" },
+    { "required": true, "from": "kk-two", "to": "kk-three" }
+  ]
+}

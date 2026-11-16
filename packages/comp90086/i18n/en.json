@@ -1,6 +1,7 @@
 {
   "course.power.lines.0": "Each level goes with one idea of the notes.",
   "course.power.title": "Computer Vision Notes",
+  "group.basics.title": "Basic levels",
   "level.projection.after": "The image is f·H/Z tall: only the ratio of f to Z counts, and the brightness only the hole and f. Moving the plate changes Z and f together.",
   "level.projection.tasks.projection.bench.knobs.D.label": "Aperture D",
   "level.projection.tasks.projection.bench.stages.0.goal.0.label": "Image height",

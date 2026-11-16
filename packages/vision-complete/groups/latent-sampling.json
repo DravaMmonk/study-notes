@@ -1,0 +1,5 @@
+{
+  "title": "@group.latent-sampling.title",
+  "levels": [{ "id": "8-4" }, { "id": "8-5" }, { "id": "8-9", "optional": true }],
+  "links": [{ "from": "8-4", "to": "8-5" }, { "from": "8-5", "to": "8-9" }]
+}

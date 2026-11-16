@@ -1,0 +1,12 @@
+{
+  "title": "@group.edit-distance.title",
+  "levels": [
+    { "id": "replace", "optional": true },
+    { "id": "edit", "optional": true },
+    { "id": "spell", "optional": true }
+  ],
+  "links": [
+    { "required": true, "from": "replace", "to": "edit" },
+    { "required": true, "from": "edit", "to": "spell" }
+  ]
+}

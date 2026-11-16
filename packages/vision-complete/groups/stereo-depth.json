@@ -1,0 +1,16 @@
+{
+  "title": "@group.stereo-depth.title",
+  "levels": [
+    { "id": "7-3" },
+    { "id": "7-4" },
+    { "id": "7-10", "optional": true },
+    { "id": "7-11", "optional": true },
+    { "id": "7-12", "optional": true }
+  ],
+  "links": [
+    { "from": "7-3", "to": "7-4" },
+    { "from": "7-3", "to": "7-10" },
+    { "required": true, "from": "7-10", "to": "7-11" },
+    { "required": true, "from": "7-11", "to": "7-12" }
+  ]
+}

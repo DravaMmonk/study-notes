@@ -1,0 +1,16 @@
+{
+  "title": "@group.clausification.title",
+  "levels": [
+    { "id": "au-negate" },
+    { "id": "au-iff" },
+    { "id": "au-hyps" },
+    { "id": "au-skolem" },
+    { "id": "au-clauses" }
+  ],
+  "links": [
+    { "from": "au-negate", "to": "au-iff" },
+    { "from": "au-iff", "to": "au-hyps" },
+    { "from": "au-hyps", "to": "au-skolem" },
+    { "from": "au-skolem", "to": "au-clauses" }
+  ]
+}
