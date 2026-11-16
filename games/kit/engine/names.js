@@ -60,7 +60,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
     }
     if (s?.type === 'by') return walk(v, s.cases[v[s.field]], path)
     if (s?.type === 'text') {
-      if (typeof v === 'string') return text(v)
+      if (typeof v === 'string') return v.startsWith('@') && textKeys ? `@${name(v.slice(1))}` : text(v)
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
       return textKey(v) ? withTextKey(translated, textKeys ? name(textKey(v)) : textKey(v)) : translated
     }

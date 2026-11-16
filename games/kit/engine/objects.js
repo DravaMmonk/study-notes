@@ -18,7 +18,7 @@ export function qualifyObject(kind, value, namespace, text = (v) => v, resolve =
   if (kind === 'tags') return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.remove && { remove: value.remove.map(ref) }) }
   const edge = (e) => ({ ...e, from: ref(e.from), to: ref(e.to) })
   if (kind === 'relations') return { ...value, ...(value.edges && { edges: value.edges.map(edge) }), ...(value.sequence && { sequence: value.sequence.map(ref) }), ...(value.remove && { remove: value.remove.map(edge) }) }
-  return { ...value, of: ref(value.of), rows: value.rows?.map((row) => row.map((id) => id === null ? null : ref(id))) }
+  return { ...value, ...(value.of !== undefined && { of: ref(value.of) }), ...(value.rows !== undefined && { rows: value.rows.map((row) => row.map((id) => id === null ? null : ref(id))) }) }
 }
 
 /** One resolver for every typed reference field and relation endpoint. Tags are unordered sets. */

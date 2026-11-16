@@ -2,7 +2,6 @@ import { PARTS_FILE } from './parts/schema.js'
 import { GLOSSARY } from './vocabulary.js'
 import { createRegistries, expandNames, fullName, registryOf } from './names.js'
 import { referenceName, qualifyObject, referenceResolver, expandReferences, expandRelations, assembleChapters, relationOrder } from './objects.js'
-import { textEntries, textKey, withTextKey } from './i18n.js'
 
 const sourceContents = new WeakSet()
 export const hasCatalogSource = (content) => sourceContents.has(content)
@@ -40,37 +39,14 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   ? configuration.chapters.reduce((count, chapter) => count + referenceResolver({ tag: tags, level: {}, piece: {}, setting: {}, entry: {} })(chapter.levels, 'level').length, 0)
   : total
 
-/** What each of a game's own texts stands over: key → { lang: the package's text (undefined: the package lacks that language) }, or null for a key the package has no text under. */
-export function overridesOf(catalogs, overrides) {
-  const out = {}
-  for (const [lang, entries] of Object.entries(overrides)) for (const key of Object.keys(entries)) {
-    const known = Object.values(catalogs).some((catalog) => Object.hasOwn(catalog ?? {}, key))
-    if (!known) out[key] = null
-    else (out[key] ??= {})[lang] = catalogs[lang]?.[key]
-  }
-  return out
-}
-
-/** A value with the game's own texts (lang → key → text) in place of its package's. */
-export function overlayTexts(value, overrides) {
-  if (!value || typeof value !== 'object') return value
-  const key = textKey(value)
-  if (key) {
-    const own = Object.entries(overrides).filter(([, entries]) => Object.hasOwn(entries, key))
-    return own.length ? withTextKey({ ...Object.fromEntries(textEntries(value)), ...Object.fromEntries(own.map(([lang, entries]) => [lang, entries[key]])) }, key) : value
-  }
-  if (Array.isArray(value)) return value.map((child) => overlayTexts(child, overrides))
-  return Object.fromEntries(Object.entries(value).map(([k, child]) => [k, overlayTexts(child, overrides)]))
-}
-
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false }) {
+export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {} }) {
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
   const pieces = new Set(Object.keys(partDefs?.parts ?? {})
     .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
     .map((name) => name.includes('/') ? name.slice(name.indexOf('/') + 1) : name))
   const pieceRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, piece]) => piece.inside && ['lemma', 'rule'].includes(piece.family)).map(([name]) => name))
-  const expand = (value, namespace, schema, context = '') => expandNames(value, namespace, { pieces, pieceRules, schema, vocabulary: schemas, context })
+  const expand = (value, namespace, schema, context = '') => qualified ? value : expandNames(value, namespace, { pieces, pieceRules, schema, vocabulary: schemas, context })
   game = Object.fromEntries(Object.entries(configurationFiles(game)).flatMap(([file, value]) => {
     const namespace = file === 'game.json' || file === 'course.json' ? courseNamespace : packageId
     return Object.entries(expand(value, namespace, schemas.game, 'configuration'))
@@ -147,7 +123,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   }
   const stripTray = (v) => ({ ...v, ...(v.tray && { tray: Array.isArray(v.tray) ? v.tray.map((n) => n.replace(/^#/, '')) : v.tray.replace(/^#/, '') }), ...(v.tasks && { tasks: v.tasks.map(stripTray) }) })
   const content = {
-    id, ...game, ...(eras && { eras, sourceChapters }), trays, replaces,
+    id, ...game, ...provenance, ...(eras && { eras, sourceChapters }), trays, replaces,
     levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...stripTray(level) })),
     tags: tagMap, relations: relationMap, layouts: layoutMap, relationEdges, objectProblems, glossary,
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden, registries,
@@ -170,7 +146,7 @@ export function deepFreeze(value) {
 
 /** File-shaped assembly inputs for publishers and pending-course validation. */
 export function assemblySource(content) {
-  const { id, levels, glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, tags = {}, relations = {}, layouts = {}, trays: _trays, replaces: _replaces, ...game } = content
+  const { id, levels, glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, tags = {}, relations = {}, layouts = {}, trays: _trays, replaces: _replaces, ...game } = content
   if (sourceChapters) game.chapters = sourceChapters
   return {
     id, game, glossary, partDefs, blueprint, overridden,

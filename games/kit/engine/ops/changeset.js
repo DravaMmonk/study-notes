@@ -26,7 +26,7 @@ import { domainOf } from '../content-node.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
 import { OPERATIONS, opScope } from './operations.js'
-import { hubCount } from './workspace.js'
+import { hubCount, openGame } from './workspace.js'
 import { append, hashOf, headOf, readLog, withLock } from './log.js'
 
 export { LOG, readLog } from './log.js'
@@ -151,7 +151,7 @@ async function settle({ ws, changeset, domain, start, says, inverse, write, chec
       } catch (error) {
         return error.message
       }
-      append(ws, { why: changeset.why, ...(changeset.by && { by: changeset.by }), ops: changeset.ops, files: changes.map((c) => ({ file: c.file, before: hashOf(c.before), after: hashOf(c.after) })), inverse, ...(undoes !== null && { undoes }) })
+      append(ws, { ...(ws.layer && { layer: ws.layer }), why: changeset.why, ...(changeset.by && { by: changeset.by }), ops: changeset.ops, files: changes.map((c) => ({ file: c.file, before: hashOf(c.before), after: hashOf(c.after) })), inverse, ...(undoes !== null && { undoes }) })
       return null
     })
   }
@@ -176,6 +176,7 @@ export async function undo(ws, { seq = null, ...options } = {}) {
   const refused = (problem) => ({ ok: false, says: [], problems: [problem], failed: null, lines: [], diff: '', files: [], changes: [], content: null, inverse: null })
   if (!entry) return refused('nothing to undo')
   if (seq !== null && seq !== entry.seq) return refused(`#${seq} is not the change undo would undo now (#${entry.seq} is): the log has changed since`)
+  if (entry.layer && entry.layer !== ws.layer) return undo(openGame(ws.id, ws.root, { layer: entry.layer, vocabulary: ws.schemas }), { seq, ...options })
   const disk = ws.onDisk()
   const moved = entry.files.filter((f) => (disk.has(f.file) || f.file.includes('/i18n/')) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
   if (moved.length) return refused(`#${entry.seq} cannot be undone: changed since it was made: ${moved.join(', ')}`)

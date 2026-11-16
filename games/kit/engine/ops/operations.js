@@ -18,6 +18,8 @@ import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
 import { contentFileFor } from '../content.js'
+import { folders } from '../layers.js'
+import { sourceValue } from '../catalogs.js'
 import { OBJECT_NAME, OBJECT_SCHEMAS } from '../objects.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
@@ -538,11 +540,13 @@ Object.assign(OPERATIONS, {
       if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       const keys = parsePath(path)
       const key = textKey(packageText(ws, { level, in: where }, keys, vocabulary))
-      const old = ws.overrides[lang]?.[key] ?? null
-      const entries = { ...ws.overrides[lang] }
+      const target = `overrides/${ws.packageId}/i18n/${lang}.json`
+      const old = ws.overrideFiles.get(target)?.[key] ?? null
+      const entries = { ...ws.overrideFiles.get(target) }
       if (value === null) delete entries[key]
       else entries[key] = value
-      ws.overrides = { ...ws.overrides, [lang]: entries }
+      if (Object.keys(entries).length) ws.overrideFiles.set(target, entries)
+      else ws.overrideFiles.delete(target)
       const file = { ...(level !== undefined && { level }), ...(where !== undefined && { in: where }) }
       return { says: `${level ?? where}: ${showPath(keys)} (${lang}) ${value === null ? 'reads as its package writes it' : 'reads the game\'s own way'}`, inverse: [{ op: 'text.override', ...file, path: keys, lang, value: old }] }
     },
@@ -550,7 +554,8 @@ Object.assign(OPERATIONS, {
 })
 
 /** Which workspace an operation belongs to (games/DESIGN.md 6.7): 'package' (the levels, their groups, pieces and encyclopedia) or 'game' (the course and the game's own texts). */
-export function opScope({ op, path, in: where }) {
+export function opScope({ op, path, in: where, layer }) {
+  if (op.startsWith('override.')) return layer?.startsWith('@') ? 'game' : 'package'
   if (/^(tag|relation|layout)\./.test(op)) return 'package'
   if ( op === 'text.override' || op.startsWith('blueprint.')) return 'game'
   if (op === 'game.set' || op === 'game.unset' || (op === 'text.set' && where === 'game')) {
@@ -597,3 +602,44 @@ for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layo
     },
   })
 }
+
+
+/** Overrides always write to the named authoring layer, never to the declaration. */
+const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders), 'i18n']), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
+const overrideFile = (ws, { layer, kind, name }) => {
+  if (layer !== `@${ws.id}` && layer !== ws.packageId) fail(`open the package workspace with layer ${layer} before editing it`)
+  const [namespace, id] = name.split('/')
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : folders[kind]}/${id}.json`
+}
+Object.assign(OPERATIONS, {
+  'override.put': {
+    about: t('在本层覆盖对象或文案', 'Override an object or catalog in this layer'),
+    params: S.obj({ ...overrideParams, data: S.opt(S.map(S.any())), merge: S.opt(S.bool()) }),
+    apply(ws, args) {
+      const file = overrideFile(ws, args)
+      const old = ws.overrideFiles.get(file)
+      let data = args.data
+      if (data === undefined) {
+        if (args.kind === 'i18n') data = {}
+        else {
+          const object = ws.content().registries[args.kind]?.[args.name]
+          if (!object) fail(`no ${args.kind} ${args.name}`)
+          const { id: _id, ...value } = sourceValue(object)
+          data = args.merge ? {} : value
+        }
+      }
+      ws.overrideFiles.set(file, { ...(args.merge && { $merge: true }), ...data })
+      return { says: `${args.layer}: override ${args.kind} ${args.name}`, inverse: [old === undefined ? { op: 'override.remove', layer: args.layer, kind: args.kind, name: args.name } : { op: 'override.put', layer: args.layer, kind: args.kind, name: args.name, data: old }] }
+    },
+  },
+  'override.remove': {
+    about: t('删除本层的覆盖文件', 'Remove this layer’s override file'),
+    params: S.obj(overrideParams),
+    apply(ws, args) {
+      const file = overrideFile(ws, args), old = ws.overrideFiles.get(file)
+      if (old === undefined) fail(`no override ${args.name} in ${args.layer}`)
+      ws.overrideFiles.delete(file)
+      return { says: `${args.layer}: remove override ${args.name}`, inverse: [{ op: 'override.put', ...args, data: old }] }
+    },
+  },
+})

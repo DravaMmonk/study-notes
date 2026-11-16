@@ -26,7 +26,7 @@ const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json |
 const argv = process.argv.slice(2)
 const flag = (name) => argv.includes(name)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
-const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why', '--by'].includes(argv[k - 1]))
+const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why', '--by', '--layer'].includes(argv[k - 1]))
 const value = (text) => {
   try {
     return JSON.parse(text)
@@ -41,7 +41,7 @@ if (words[0] === 'list') {
 }
 
 const [game] = knownGames(words.slice(0, 1), USAGE)
-const ws = openGame(game, process.env.GAMES_ROOT ?? PROJECT_DIR)
+const ws = openGame(game, process.env.GAMES_ROOT ?? PROJECT_DIR, { layer: option('--layer') })
 const [what, ...rest] = words.slice(1)
 if (what === 'log') {
   for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.by ? ` ${e.by}` : ''}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
