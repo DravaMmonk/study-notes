@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gameModule } from './game-module.js'
+import { runtimeIds } from './runtime.js'
 
 const ROOT = resolve(import.meta.dirname, '../../../trace-viewer')
 const DOMAINS = resolve(import.meta.dirname, '../modules')
@@ -32,7 +33,7 @@ export async function loadModule(file) {
 /** The game made from `content` as the shell gets it (its domain's game.js over it). */
 export async function gameOf(content) {
   await serve()
-  const defineGame = (await server.ssrLoadModule(gameModule(DOMAINS, content.domain))).default
+  const defineGame = (await server.ssrLoadModule(gameModule(DOMAINS, runtimeIds(content)[0]))).default
   return defineGame(content)
 }
 

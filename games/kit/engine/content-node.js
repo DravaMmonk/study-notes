@@ -247,8 +247,4 @@ export function readStarter(domainDir) {
   return readFiles('starter', files, { vocabulary: contentVocabulary(json(resolve(dir, 'package.json')).domain), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
-/** The domain module (../modules/<domain>/domain.js) of a content. */
-export const domainOf = async (content) => {
-  const course = (await import(`../modules/${content.domain}/domain.js`)).default
-  return { ...course, vocabulary: vocabularyFor(content.domain) }
-}
+export { runtimeOf } from './runtime.js'

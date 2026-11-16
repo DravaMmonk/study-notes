@@ -17,7 +17,7 @@ import { OBJECT_SCHEMAS } from '../objects.js'
 import { PARTS_FILE } from '../parts/schema.js'
 import { withParts } from '../parts/define.js'
 import { expandNames } from '../names.js'
-import { readCatalogs, domainOf } from '../content-node.js'
+import { readCatalogs, contentVocabulary } from '../content-node.js'
 
 const T = (en) => ({ en })
 
@@ -47,7 +47,7 @@ const GAME = {
     chapter: { title: T('The foundation'), question: T('What can be built from Apply and the assumption box alone?') },
   }],
 }
-const { vocabulary: proofVocabulary } = await domainOf(GAME)
+const proofVocabulary = contentVocabulary('logic')
 
 const GLOSSARY = {
   groups: [{ id: 'logic', title: T('Logic') }],

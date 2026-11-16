@@ -75,7 +75,7 @@ test('on a game of a real domain: a replace runs as a changeset, and afterwards 
   const { root, id } = proofsRoot()
   const ws = openPackage(id, root)
   const content = ws.content()
-  const { vocabulary } = (await import('../../modules/logic/domain.js')).default
+  const { vocabulary } = (await import('../../modules/logic/runtime.js')).default
   const query = { find: 'Saturday', kinds: ['text'] }
   const before = searchContent(content, vocabulary, query)
   assert.ok(before.length > 1 && new Set(before.map((h) => h.file)).size > 1, 'hits in more than one file')

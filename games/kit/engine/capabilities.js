@@ -78,9 +78,9 @@ export function createCapabilityRegistry() {
 export const registeredOperations = Object.create(null)
 export const registeredValueTypes = Object.create(null)
 
-/** Select the still-independent course schema while sharing all capability tables. */
-export function selectCourseVocabulary(vocabulary, course) {
+/** Select a module schema projection while sharing all capability tables. */
+export function selectModuleVocabulary(vocabulary, course) {
   const schemas = vocabulary.courses[course]
-  if (!schemas) throw new Error(`unknown course model ${course}`)
+  if (!schemas) throw new Error(`unknown module schema ${course}`)
   return { ...vocabulary, ...schemas, domain: course }
 }

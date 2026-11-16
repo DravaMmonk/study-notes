@@ -9,18 +9,19 @@ import { resolve } from 'node:path'
 import { readStarter } from './content-node.js'
 import { audit } from '../course.js'
 import { checkContent } from './vocabulary.js'
-import { domainProblems, gameProblems, specProblems, validateProblems } from './contract.js'
+import { moduleProblems, gameProblems, specProblems, validateProblems } from './contract.js'
 import { closeGames, gameOf } from './games.mjs'
+import { modules, capabilities } from './kernel.js'
 
 const DOMAINS = resolve(import.meta.dirname, '../modules')
-const names = readdirSync(DOMAINS).filter((d) => ['image', 'logic', 'table'].includes(d))
-const load = async (name) => (await import(`../modules/${name}/domain.js`)).default
+const names = readdirSync(DOMAINS).filter((name) => existsSync(resolve(DOMAINS, name, 'module.js')))
+const load = async (name) => (await import(`../modules/${name}/runtime.js`)).default
 
 after(() => closeGames())
 
-test('every domain gives the contract’s entries, and its vocabulary describes itself as data', async () => {
-  assert.ok(names.length > 0, 'discover at least one domain')
-  for (const name of names) assert.deepEqual(domainProblems(name, await load(name)), [], name)
+test('every registered module gives checkable, printable and playable capabilities', async () => {
+  assert.ok(modules.length > 0, 'discover at least one module')
+  for (const module of modules) assert.deepEqual(moduleProblems(module, capabilities, await load(module.id)), [], module.id)
 })
 
 // A verdict is a pure function of the content, the task and the board (games/DIRECTION.md, decision 13): what a

@@ -3,7 +3,7 @@
 // hook for blind sessions (play.js). Nothing here draws: the page's side is game.js.
 
 import { vocabulary } from './vocabulary.js';
-import { tableCourse } from './course.js';
+import { tableWorks, prepareTableWorks } from './work.js';
 import { validate } from './validate.js';
 import { play } from './play.js';
 import { builtPieces } from '../../engine/pieces.js';
@@ -12,11 +12,10 @@ import { builtPieces } from '../../engine/pieces.js';
 // What a tray may list (vocabulary.js): the parts and ideas pieces.json names.
 const names = content => ({ part: new Set(Object.keys(builtPieces(content.partDefs))) });
 
-function spec(content) {
-  const table = tableCourse(content);
+function spec(content, works = tableWorks(content)) {
+  const table = works;
   return {
     id: content.id,
-    domain: 'table',
     title: content.title,
     course: table.course,
     levels: table.LEVELS,
@@ -27,4 +26,4 @@ function spec(content) {
   };
 }
 
-export default { vocabulary, names, spec, validate, play };
+export default { prepare: prepareTableWorks, vocabulary, names, spec, validate, play };

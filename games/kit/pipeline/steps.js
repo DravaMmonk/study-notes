@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkGame } from '../engine/checks.js'
-import { domainOf, readContent } from '../engine/content-node.js'
+import { runtimeOf, readContent } from '../engine/content-node.js'
 import { moduleProblems, specProblems, validateProblems } from '../engine/contract.js'
 import { capabilities, modules } from '../engine/kernel.js'
 import { hubCount } from '../engine/ops/workspace.js'
@@ -35,7 +35,7 @@ const finding = (rule, at, says) => ({ rule, at, says })
 async function checks(id) {
   const content = readContent(id)
   const listed = hubCount(readFileSync(resolve(GAMES_DIR, 'games.js'), 'utf8'), id)
-  const lines = await checkGame(content, { domain: await domainOf(content), listed })
+  const lines = await checkGame(content, { domain: await runtimeOf(content), listed })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
 
@@ -50,14 +50,14 @@ function blueprintGate(id) {
 async function conformanceOf(id) {
   const content = readContent(id)
   if (!content.blueprint) return [finding('bp-missing', id, 'the game has no blueprint.json')]
-  const domain = await domainOf(content)
+  const domain = await runtimeOf(content)
   return conformance(content.blueprint, content, domain.spec(content))
 }
 
 /** The pedagogy lint's findings split into failures and reports. */
 export async function pedagogyOf(id) {
   const content = readContent(id)
-  const domain = await domainOf(content)
+  const domain = await runtimeOf(content)
   const all = lintPedagogy(content, domain.spec(content))
   return { failures: all.filter((f) => !f.report), reports: all.filter((f) => f.report) }
 }
@@ -65,7 +65,7 @@ export async function pedagogyOf(id) {
 /** The per-game term dictionary and its usage; this reads no saved review status and writes no content. */
 export async function terminologyOf(id) {
   const content = readContent(id)
-  const domain = await domainOf(content)
+  const domain = await runtimeOf(content)
   return reviewTerminology(content, domain.spec(content), domain.vocabulary)
 }
 
@@ -87,7 +87,7 @@ export const STEPS = [
     gate: async (id) => {
       const content = readContent(id)
       const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.en ?? r.about))
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       const spec = domain.spec(content)
       const contract = [...modules.flatMap((module) => moduleProblems(module, capabilities)), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))
       const test = resolve(GAMES_DIR, 'kit/modules', content.domain, `${content.domain}.test.js`)
@@ -147,7 +147,7 @@ export const STEPS = [
     commands: ['op', 'check', 'gate'],
     gate: async (id, _state, scope) => {
       const content = readContent(id)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       const vocabulary = withParts(domain.vocabulary, content.partDefs)
       const places = searchable(content, vocabulary, ['text']).filter((p) => p.side)
       const field = (place) => JSON.stringify([place.file, place.path])

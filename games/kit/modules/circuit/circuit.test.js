@@ -10,7 +10,7 @@ import { vocabulary } from './vocabulary.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
-import domain from './domain.js'
+import domain from './runtime.js'
 
 const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], outputs: [{ name: 'sum', label: 'Sum' }], tests: [{ inputs: { a: 2, b: 3 }, expect: { sum: 5 } }] }
 const content = readStarter(import.meta.dirname)

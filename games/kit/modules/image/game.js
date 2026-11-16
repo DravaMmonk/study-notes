@@ -6,7 +6,7 @@ import './image.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
-import { imageCourse } from './course.js'
+import { imageWorks } from './work.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { plays } from './plays.js'
 import { partsFor } from '../../circuit/board-parts.js'
@@ -47,7 +47,7 @@ const OPTION_NAMES = {
  * levels, glossary }.
  */
 export default function imageGame(content) {
-  const image = imageCourse(content)
+  const image = imageWorks(content)
   const { CHAPTERS, LEVELS, course, kit } = image
   const { types } = kit
   const PART_OF_FLAG = partOfFlag(types)

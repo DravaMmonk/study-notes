@@ -1,14 +1,14 @@
 import { printSource } from '../circuit/text.js'
 import { failureOf } from './test-run.js'
 // The circuit preset (games/DESIGN.md 6.3, games/DIRECTION.md decision 24): a way to play made of the kernel's
-// pieces — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-course.js), the
+// pieces — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-works.js), the
 // level's schema (./level-schema.js) and the author checks below over the judge (./authoring.js, ./judge.js). A domain
 // on it gives its vocabulary, its course and how a task runs, and gets its domain module:
 //
-//   circuitDomain(domain, { vocabulary, course, run, entries, failure?, more?, kinds?, …extensions }) → domain.js's
+//   circuitRuntime({ vocabulary, course, run, entries, failure?, more?, kinds?, …extensions }) → runtime.js's
 //     { vocabulary, names, spec, validate, …extensions }
-//       course(content) → the course read (circuitCourse / definedCourse); the rest as checkCircuitTasks takes them
-//   circuitNames(content), circuitSpec(domain, courseOf)   a game's part names and its spec, the course read as `circuit`
+//       course(content) → the course read (circuitWorks / definedWorks); the rest as checkCircuitTasks takes them
+//   circuitNames(content), circuitSpec(courseOf)   a game's part names and its spec, the course read as `circuit`
 //     (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
 //   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds?, memo? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; entries({ task, test, run, sample }) what the results
@@ -25,24 +25,22 @@ import { checkWorks, scoreWorks } from './authoring.js'
 import { cases } from './judge.js'
 
 /** A domain module on the preset: the kernel's spec and checks over the domain's course and runs. */
-export function circuitDomain(domain, { vocabulary, course, run, entries, failure, more, kinds, ...extensions }) {
+export function circuitRuntime({ vocabulary, course, run, entries, failure, more, kinds, ...extensions }) {
   return {
     vocabulary,
     names: circuitNames,
-    spec: circuitSpec(domain, course),
+    spec: circuitSpec(course),
     validate: ({ circuit, memo }) => checkCircuitTasks(circuit, { run, entries, failure, more, kinds, memo }),
     ...extensions,
   }
 }
 
-/** A circuit game's part names (domain.js names): its built pieces. */
+/** A circuit game's part names (runtime.js names): its built pieces. */
 export const circuitNames = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
 
-export const circuitSpec = (domain, courseOf) => (content) => {
-  const circuit = courseOf(content)
+export const circuitSpec = (courseOf) => (content, circuit = courseOf(content)) => {
   return {
     id: content.id,
-    domain,
     title: content.title,
     course: circuit.course,
     levels: circuit.LEVELS,

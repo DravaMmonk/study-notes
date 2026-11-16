@@ -24,7 +24,7 @@ export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
  * domain gives what is its own: `ports` a task's fixed cards ({ inputs, outputs, … }; outputs by default one or more PORTs), `test` one
  * test, `checks` what a task's outputs must be beyond what its tests say ({ want }), `more` the task's other fields,
  * `page` one page of an introduction ({ t } by default). A domain whose levels also hold tasks of other kinds
- * (circuitCourse kinds) gives `kinds` ({ kind: fields }): every task then says its `kind`, a board's being 'circuit',
+ * (circuitWorks kinds) gives `kinds` ({ kind: fields }): every task then says its `kind`, a board's being 'circuit',
  * and every task has `shared`'s fields too. An introduction page and the pass text may each show a value (./views.js
  * SHOW), drawn by the kit as a figure.
  */

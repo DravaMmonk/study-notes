@@ -10,7 +10,7 @@ import { S, find, holdsLevels, sectionOf } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { domainOf, readStarter } from '../engine/content-node.js'
+import { runtimeOf, readStarter } from '../engine/content-node.js'
 import {
   blank, boardPaths, cellText, cellValue, creationChoices, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
@@ -177,7 +177,7 @@ test('every level of every starter reads as a form: each text a text pair, each 
   assert.ok(STARTERS.length > 0)
   for (const game of STARTERS) {
     const content = starter(game)
-    const { vocabulary } = await domainOf(content)
+    const { vocabulary } = await runtimeOf(content)
     const levels = content.levels.map((l) => l.id)
     for (const { id, ...level } of content.levels) {
       const kinds = new Map()
@@ -306,7 +306,7 @@ test('on every starter: each value a schema hint names gets its control, and eac
   const counts = {}
   for (const game of STARTERS) {
     const content = starter(game)
-    const { vocabulary } = await domainOf(content)
+    const { vocabulary } = await runtimeOf(content)
     const levels = content.levels.map((l) => l.id)
     for (const { id, ...level } of content.levels) {
       const kinds = new Map()

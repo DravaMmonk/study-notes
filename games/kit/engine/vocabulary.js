@@ -137,7 +137,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
-  const { packagePreview, id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { packagePreview, id: ID, levels, glossary, domain: _domain, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
   out.push(...objectProblems)
   if (hasCatalogSource(content)) {
@@ -159,7 +159,6 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, setting: parts?.settings ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
   for (const [kind, objects] of Object.entries({ tags, relations, layouts })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
-  if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
   // Generated courses have no authored game configuration. Validate the fields actually supplied by packages.
   const packageFields = packagePreview?.fields ?? []

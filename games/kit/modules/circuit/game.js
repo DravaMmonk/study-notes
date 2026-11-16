@@ -14,8 +14,8 @@ import { Binary } from 'lucide-react'
 import './ui/circuit.css'
 import { definedGame } from '../../shell/circuit-game.js'
 import * as play from './run.js'
-import { circuitCourse } from './course.js'
+import { circuitWorks } from './work.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, circuitCourse(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: { play }, ops: OPS })
+export default (content) => definedGame(content, circuitWorks(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: { play }, ops: OPS })

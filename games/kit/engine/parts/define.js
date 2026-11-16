@@ -3,7 +3,7 @@
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
 //   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its circuit primitives; a built piece (an
-//                                inside, no compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
+//                                inside, no compute) is the course's to make (../board-works.js, ../pieces.js builtPieces)
 //   partProblems(file, vocabulary, { tasks? }) → [{ at, says }]   tasks: the game's task ids (a reference to none fails)
 //   withParts(vocabulary, file)  the vocabulary with both code and file pieces in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
