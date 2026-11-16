@@ -19,3 +19,20 @@ test('the comparison keeps separate fields when text repeats and uses their own 
   assert.deepEqual(copyEdit(level, 'zh', '拼接', 'game'), { op: 'text.override', level: 'step', path: ['title'], lang: 'zh', value: '拼接' })
   assert.deepEqual(allCopyRows(content, vocabulary, ['step']).map((row) => row.file), [{ level: 'step' }])
 })
+
+test('the copy workspace lists texts by the file they are in', async () => {
+  const { copyFieldOf, copyFileOf, copyFiles } = await import('./copy.js')
+  const rows = [
+    { file: { level: 'demo/one' }, path: ['title'] },
+    { file: { level: 'demo/one' }, path: ['tasks', 0, 'brief'] },
+    { file: { parts: true }, path: ['parts', 'demo/and', 'name'] },
+    { file: { glossary: true, target: { entry: 'demo/proof', path: ['title'] } }, path: ['entries', 0, 'title'] },
+    { file: { glossary: true, target: { tag: 'demo/basics', path: ['title'] } }, path: ['groups', 0, 'title'] },
+  ]
+  assert.deepEqual(rows.map(copyFileOf), ['levels/one.json', 'levels/one.json', 'pieces/and.json', 'entries/proof.json', 'tags/entry/basics.json'])
+  assert.deepEqual(copyFiles(rows), [['levels/one.json', 2], ['pieces/and.json', 1], ['entries/proof.json', 1], ['tags/entry/basics.json', 1]])
+  // A row goes to its field in the side panel.
+  assert.deepEqual(copyFieldOf(rows[1]), { at: { level: 'demo/one' }, path: ['tasks', 0, 'brief'] })
+  assert.deepEqual(copyFieldOf(rows[2]), { at: { parts: true, root: ['parts', 'demo/and'] }, path: ['parts', 'demo/and', 'name'] })
+  assert.deepEqual(copyFieldOf({ file: { game: true }, path: ['title'] }), { at: { game: true }, path: ['title'] })
+})

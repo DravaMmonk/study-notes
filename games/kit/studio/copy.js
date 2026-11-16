@@ -81,3 +81,34 @@ export function packageWording(content, row, lang) {
   const was = key && content.overridden?.[key]
   return was && Object.hasOwn(was, lang) ? was[lang] ?? '' : undefined
 }
+
+const shortName = (full) => String(full).slice(String(full).indexOf('/') + 1)
+
+/** The file a row's text is written in, as the layer keeps it (the copy workspace lists texts by file). */
+export function copyFileOf(row) {
+  if (row.file.level !== undefined) return `levels/${shortName(row.file.level)}.json`
+  if (row.file.parts) return row.path[0] === 'parts' && row.path[1] !== undefined ? `pieces/${shortName(row.path[1])}.json` : 'pieces/'
+  if (row.file.glossary) {
+    const target = row.file.target ?? {}
+    return target.entry ? `entries/${shortName(target.entry)}.json` : target.tag ? `tags/entry/${shortName(target.tag)}.json` : 'entries/'
+  }
+  return contentFileFor(row.path)
+}
+
+/** The files `rows` are in, each with how many texts: [[file, count]], in the order they first come. */
+export function copyFiles(rows) {
+  const counts = new Map()
+  for (const row of rows) {
+    const file = copyFileOf(row)
+    counts.set(file, (counts.get(file) ?? 0) + 1)
+  }
+  return [...counts]
+}
+
+/** The field a row goes to in the side panel: { at: the file (as Inspector.jsx takes it), path }. */
+export function copyFieldOf(row) {
+  if (row.file.level !== undefined) return { at: { level: row.file.level }, path: row.path }
+  if (row.file.parts) return { at: { parts: true, ...(row.path[0] === 'parts' && { root: row.path.slice(0, 2) }) }, path: row.path }
+  if (row.file.glossary) return { at: { glossary: true }, path: row.path }
+  return { at: { game: true }, path: row.path }
+}

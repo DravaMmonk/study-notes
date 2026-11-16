@@ -5,7 +5,7 @@ import { useLang } from '../shell/useLang.js'
 import { showPath } from '../engine/ops/edit.js'
 import { textIn } from '../engine/i18n.js'
 import { RotateCcw } from 'lucide-react'
-import { allCopyRows, copyEdit, copyLanguages, copyRows, packageWording } from './copy.js'
+import { allCopyRows, copyEdit, copyFileOf, copyLanguages, copyRows, packageWording } from './copy.js'
 import { usePref } from './prefs.js'
 import LanguagePicker from './LanguagePicker.jsx'
 import { TextField, textFindings } from './TextField.jsx'
@@ -41,7 +41,8 @@ const CopyRow = memo(function CopyRow({ row, first, found, names, side, wording,
 }, (a, b) => a.left === b.left && a.right === b.right && a.first === b.first && a.names === b.names && a.side === b.side
   && a.onEdit === b.onEdit && sameJson(a.row, b.row) && sameJson(a.wording, b.wording) && a.found.join('\n') === b.found.join('\n'))
 
-export default function CopyTable({ side = 'package', content, vocabulary, scope, setScope, order, names, places, onEdit, onJump }) {
+/** `scope` as copyRows takes it, or `file`: the texts of one file (copy.js copyFileOf) instead. */
+export default function CopyTable({ side = 'package', content, vocabulary, scope, setScope, file = null, order, names, places, onEdit, onJump }) {
   const uiLang = useLang()
   const [languages, setLanguages] = usePref('copy-languages', { left: null, right: null, added: [] })
   const left = languages.left ?? uiLang
@@ -51,7 +52,7 @@ export default function CopyTable({ side = 'package', content, vocabulary, scope
   const [missingOnly, setMissingOnly] = useState(false)
   const [query, setQuery] = useState('')
   const all = useMemo(() => allCopyRows(content, vocabulary, order, side), [content, vocabulary, order, side])
-  const scoped = useMemo(() => scope === 'all' ? all : copyRows(content, vocabulary, scope, order, side), [all, content, vocabulary, scope, order, side])
+  const scoped = useMemo(() => file !== null ? all.filter((row) => copyFileOf(row) === file) : scope === 'all' ? all : copyRows(content, vocabulary, scope, order, side), [all, content, vocabulary, scope, file, order, side])
   const options = useMemo(() => {
     const names = new Intl.DisplayNames([uiLang], { type: 'language' })
     return [...new Set([...copyLanguages(all), ...languages.added, left, right])].sort()
@@ -89,7 +90,7 @@ export default function CopyTable({ side = 'package', content, vocabulary, scope
     <section className="copy-table" role="table" aria-label={tr('文案', 'Copy')}>
       <div className="copy-head">
         <div className="copy-bar">
-          <select value={String(scope)} onChange={(event) => {
+          {file !== null ? <code className="copy-file">{file}</code> : <select value={String(scope)} onChange={(event) => {
             const value = event.target.value
             setField('')
             setScope(/^\d+$/.test(value) ? Number(value) : value)
@@ -100,7 +101,7 @@ export default function CopyTable({ side = 'package', content, vocabulary, scope
             <option value="all">{side === 'game' ? tr('整款游戏') : tr('整个内容包', 'The whole package')}</option>
             <option value="glossary">{tr('百科')}</option>
             {content.partDefs && <option value="pieces">{tr('件', 'Pieces')}</option>}
-          </select>
+          </select>}
           <select value={selectedField} onChange={(event) => setField(event.target.value)} aria-label={tr('字段')}>
             <option value="">{tr('全部字段')}</option>
             {fields.map((name) => <option key={name} value={name}>{name}</option>)}
