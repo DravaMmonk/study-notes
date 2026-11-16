@@ -1,3 +1,4 @@
+import { piecePath } from './schema.js'
 import { parse } from './expr.js'
 import { holesOf, outletsOf, resolveSettings, insideOf, editorOf, regionsOf } from '../pieces.js'
 
@@ -11,7 +12,7 @@ export function typeProblems(file, vocabulary) {
   const types = vocabulary.kinds.valueType ?? {}
   const ops = vocabulary.kinds.op ?? {}
   const compatible = (expected, actual) => acceptsType(expected, actual, types)
-  const say = (at, says) => out.push({ at: `pieces.json${at}`, says })
+  const say = (at, says) => out.push({ at: piecePath(at), says })
   for (const [name, part] of Object.entries(file.parts ?? {})) {
     if (editorOf(part) !== 'circuit') continue
     const base = `.parts.${name}`
@@ -20,7 +21,7 @@ export function typeProblems(file, vocabulary) {
     for (const port of [...ports, ...outputs]) if (!types[port.type]) say(base, `port ${port.name} needs a registered value type, found ${port.type}`)
     if (!outputs.length && !part.keeps && (!insideOf(part) || part.inputs) && !types[part.outputType]) say(`${base}.outputType`, `needs a registered value type, found ${part.outputType}`)
     if (insideOf(part)) continue
-    const settings = Object.fromEntries(resolveSettings(file, part).map((s) => [s.key, s]))
+    const settings = Object.fromEntries(resolveSettings(part, ops).map((s) => [s.key, s]))
     const infer = (tree, at) => {
       if ('in' in tree) return ports.find((p) => p.name === tree.in)?.type ?? 'circuit:any'
       if ('num' in tree) return 'circuit:number'

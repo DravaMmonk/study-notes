@@ -1,0 +1,10 @@
+{
+  "name": "@piece.homography.name",
+  "desc": "@piece.homography.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "inputs": [{ "name": "pairs", "type": "image:image" }],
+  "settings": { "k": { "label": "@piece.homography.settings.k.label" } },
+  "compute": "image:homography(pairs, $k)",
+  "outputType": "image:image"
+}

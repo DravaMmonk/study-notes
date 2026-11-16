@@ -119,18 +119,16 @@ test('piece variants, setting definitions, blueprints and overrides preserve ids
   const { root } = toy()
   const ws = openPackage('toy', root, { vocabulary: VOCAB })
   run(ws, 'piece.add', { piece: 'made', data: { inside: [{ id: 'base', reference: {} }] } })
-  run(ws, 'setting.add', { setting: 'scale', data: { control: 'slider', min: 0, max: 4 } })
   for (const args of [
     { path: 'parts.made.id', value: 'new' },
     { path: 'parts.made.inside[0].id', value: 'new' },
     { path: 'parts.made.inside', value: [{ id: 'new', reference: {} }] },
-    { path: 'settings.scale.id', value: 'new' },
   ]) assert.throws(() => run(ws, 'pieces.set', args), /id cannot change/)
   run(ws, 'blueprint.put', { data: { eras: [{ id: 'chapter' }] } })
   assert.throws(() => run(ws, 'blueprint.set', { path: 'eras[0].id', value: 'new' }), /id cannot change/)
   assert.throws(() => run(ws, 'blueprint.put', { data: { eras: [{ id: 'new' }] } }), /id cannot change/)
-  assert.throws(() => run(ws, 'pieces.set', { path: [], value: { parts: {} } }), /path is empty/)
-  assert.throws(() => run(ws, 'pieces.set', { path: 'settings', value: { new: ws.partDefs.settings.scale } }), /id cannot change/)
+  assert.throws(() => run(ws, 'pieces.set', { path: [], value: { parts: {} } }), /manage objects/)
+  assert.throws(() => run(ws, 'pieces.set', { path: 'settings', value: {} }), /settings belong to a piece/)
   for (const merge of [false, true]) {
     for (const id of ['a1', 'toy/a1']) {
       const data = { ...level(ws, 'a1'), tasks: [{ id }] }
@@ -407,7 +405,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.remove
   assert.equal(JSON.stringify([...ws.levels]), before)
 })
 
-// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in pieces.json.
+// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in pieces/<name>.json.
 const PVOCAB = defineVocabulary({
   domain: 'ptoy',
   version: 1,
@@ -454,20 +452,16 @@ test('the part operations edit pieces.json, refuse to remove a part still used',
   assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /levels\/a1.json uses.sum/)
 })
 
-test('settings have their own lifecycle and references prevent removal', () => {
+test('inline settings are edited and undone with their piece', () => {
   const ws = partsToy()
   const before = ws.content()
-  const data = { control: 'slider', min: 0, max: 4 }
-  const add = prun(ws, 'setting.add', { setting: 'scale', data })
-  assert.deepEqual(ws.partDefs.settings.scale, data)
-  assert.equal(ws.partDefs.parts.sum.settings, undefined)
-  const remove = prun(ws, 'setting.remove', { setting: 'scale' })
-  assert.equal(ws.partDefs.settings.scale, undefined)
-  for (const { op, ...args } of remove.inverse) prun(ws, op, args)
-  const attach = prun(ws, 'pieces.set', { path: ['parts', 'sum', 'settings'], value: [{ key: 'k', setting: 'scale' }] })
-  assert.throws(() => prun(ws, 'setting.remove', { setting: 'scale' }), /still used by sum\.k/)
-  for (const done of [attach, add]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
+  const data = { k: { control: 'slider', min: 0, max: 4 } }
+  const change = prun(ws, 'pieces.set', { path: ['parts', 'sum', 'settings'], value: data })
+  assert.deepEqual(ws.partDefs.parts.sum.settings, data)
+  for (const { op, ...args } of change.inverse) prun(ws, op, args)
   assert.deepEqual(ws.content(), before)
+  assert.equal(OPERATIONS['setting.add'], undefined)
+  assert.equal(OPERATIONS['setting.remove'], undefined)
 })
 
 test('operations consume assembled names and keep package source references local', async () => {
@@ -492,8 +486,8 @@ test('assembled piece selectors and registry paths address layer-local source ob
     { op: 'piece.add', piece: 'ptoy/other', data: sum, after: 'ptoy/sum' },
   ] }, { check: false, domain: { vocabulary: PVOCAB } })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  const source = JSON.parse(result.changes.find(({ file }) => file.endsWith('/pieces.json')).after)
-  assert.deepEqual(Object.keys(source.parts), ['sum', 'other'])
+  assert.ok(result.changes.some(({ file }) => file.endsWith('/pieces/sum.json')))
+  assert.ok(result.changes.some(({ file }) => file.endsWith('/pieces/other.json')))
   assert.equal(result.content.partDefs.parts['ptoy/sum'].inputs[0].label.en, 'First input')
   assert.ok(result.content.registries.piece['ptoy/other'])
 })

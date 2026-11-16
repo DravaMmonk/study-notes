@@ -17,8 +17,8 @@
   "piece.keep.name": "Keep",
   "piece.reg.desc": "Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).",
   "piece.reg.name": "Register",
-  "setting.const_value.label": "Value",
-  "setting.keep_reg.label": "Name",
-  "setting.reg_reg.label": "Name",
-  "setting.reg_start.label": "Start"
+  "piece.keep.settings.reg.label": "Name",
+  "piece.const.settings.value.label": "Value",
+  "piece.reg.settings.reg.label": "Name",
+  "piece.reg.settings.start.label": "Start"
 }

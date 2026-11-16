@@ -75,7 +75,7 @@ export function workshopIdentity(definitions, type) {
   if (!definition) return canonicalJson([type, null])
   const { compute, keeps, nulls, inputs, outputs, outputType, regions, checks } = definition
   // Resolve catalog references before comparing the settings used by the circuit.
-  const settings = resolveSettings(definitions, definition).map((setting) => {
+  const settings = resolveSettings(definition).map((setting) => {
     const { key, control, optional, integer, min, max, options, from } = setting
     return { key, control, default: defaultOf(setting), optional, integer, min, max,
       options: options?.map(({ value }) => value), from }

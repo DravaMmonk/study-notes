@@ -1,0 +1,12 @@
+{
+  "name": "@piece.mul.name",
+  "desc": "@piece.mul.desc",
+  "icon": "Calculator",
+  "family": "image:family-pixel",
+  "inputs": [
+    { "name": "a", "label": "a", "type": "image:image" },
+    { "name": "b", "label": "b", "type": "image:image" }
+  ],
+  "compute": "image:mul(a, b)",
+  "outputType": "image:image"
+}

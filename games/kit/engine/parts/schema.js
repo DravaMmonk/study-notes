@@ -1,11 +1,11 @@
-// The schema of a game's pieces.json (games/DESIGN.md 6.8): every piece the course gives, as data. A piece has the
+// The schema of a game's pieces/<name>.json (games/DESIGN.md 6.8): every piece the course gives, as data. A piece has the
 // faces every piece has (its name, what it does, its icon and family) and the
 // faces of the editor it is made with (`editor`; the circuit's when it names none), each editor declaring its own:
 //   circuit  a primitive's ports, its settings (one of the kernel controls), what it computes (an expression over the
 //            domain's engine resources, expr.js) and its three views; or a built piece's independent board and interface.
 //            Its rule: a piece computes (or keeps an input), or runs an inside, never both
 //   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
-// and the setting definitions referenced by its pieces. The schema is the kernel's, the same in every domain; what it names
+// with settings declared inline. The schema is the kernel's, the same in every domain; what it names
 // (resources, families, widgets, marks) the domain's vocabulary gives.
 import { S } from '../schema.js'
 import { PIECE_REFERENCE_FIELDS } from '../pieces.js'
@@ -43,28 +43,17 @@ const CONTROL = {
   toggle: { on: S.opt(S.text()), off: S.opt(S.text()) },
   custom: { widget: S.ref('widget'), params: S.opt(S.any()) },
 }
-/** A setting definition, referenced by any number of pieces. */
+/** The complete resolved definition of an inline setting. */
 export const SETTING = S.by('control', Object.fromEntries(Object.entries(CONTROL).map(([control, fields]) => [
   control, S.obj({ control: S.oneOf([control]), ...COMMON, ...fields }),
 ])))
 
-/** Controls available when authoring a setting, with a usable starting definition. */
-export function settingControlOptions(vocabulary) {
-  const widget = Object.keys(vocabulary?.kinds.widget ?? {})[0]
-  return Object.keys(SETTING.cases).filter((control) => control !== 'custom' || widget).map((control) => ({
-    value: control,
-    data: {
-      control,
-      ...('options' in CONTROL[control] && { options: [{ value: 'a' }, { value: 'b' }] }),
-      ...(control === 'slider' && { min: 0, max: 1 }),
-      ...(control === 'custom' && { widget }),
-    },
-  }))
-}
-
-const SETTING_BINDING = S.obj({
-  key: LOCAL_NAME,
-  setting: S.ref('setting', { about: t('此件引用的设置定义', 'The setting definition this piece uses') }),
+const SETTING_FIELDS = { ...COMMON, ...Object.assign({}, ...Object.values(CONTROL)) }
+/** Inline settings may inherit their control and constraints from an operation parameter. */
+export const INLINE_SETTING = S.obj({
+  control: S.opt(S.oneOf(Object.keys(CONTROL))),
+  ...Object.fromEntries(Object.entries(SETTING_FIELDS).map(([key, schema]) => [key, S.opt(schema)])),
+  remove: S.opt(S.list(WORD)),
 })
 
 const leaf = {
@@ -95,7 +84,7 @@ const PORT = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S
 const REGION = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(LOCAL_NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
-  settings: S.opt(S.list(SETTING_BINDING, { view: 'setting-bindings' })),
+  settings: S.opt(S.map(INLINE_SETTING, { keys: LOCAL_NAME.pattern })),
   rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改') })),
   checks: S.opt(S.list(CHECK, { about: t('设置必须满足的条件：不满足时卡片上说出原因，元件不计算') })),
 }
@@ -184,8 +173,13 @@ export function pieceCreationOptions(vocabulary, tasks = []) {
 
 export const builtPart = (reference, name) => ({ name: { en: name }, desc: { en: '' }, inside: [{ id: 'base', reference }] })
 
-/** pieces.json. */
+/** Assembled piece declarations, indexed by identity. */
 export const PARTS_FILE = S.obj({
-  settings: S.opt(S.map(SETTING, { keys: NAME.pattern })),
   parts: S.map(PART, { keys: NAME.pattern }),
 })
+
+/** Translate an assembled piece path into its per-object source filename. */
+export function piecePath(path) {
+  const match = /^\.parts\.([^.[\]]+)(.*)$/.exec(path)
+  return match ? `pieces/${match[1]}.json${match[2]}` : `pieces${path}`
+}

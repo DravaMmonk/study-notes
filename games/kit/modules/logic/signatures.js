@@ -1,6 +1,6 @@
 import { S } from '../../engine/schema.js'
 
-const parameter = (schema, defaultValue) => ({ ...schema, optional: true, default: defaultValue })
+const parameter = (schema, defaultValue) => ({ ...schema, control: ({ str: 'tree', oneOf: 'select', list: 'list' })[schema.type], optional: true, default: defaultValue })
 const text = (value = '') => parameter(S.str(), value)
 const choice = (values, value = values[0]) => parameter(S.oneOf(values), value)
 const fields = {

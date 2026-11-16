@@ -6,9 +6,9 @@ import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', piece: 'pieces', setting: 'settings', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts' }
+export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts' }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, setting: PARTS_FILE.fields.settings.of, entry: ENTRY, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, entry: ENTRY, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {

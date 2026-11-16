@@ -1,9 +1,9 @@
-// A game's pieces.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
+// A game's pieces/<name>.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
 //   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its circuit primitives; a built piece (an
-//                                inside, no compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
+//                                inside, no compute) is the course's to make (../board-works.js, ../pieces.js builtPieces)
 //   partProblems(file, vocabulary, { tasks? }) → [{ at, says }]   tasks: the game's task ids (a reference to none fails)
 //   withParts(vocabulary, file)  the vocabulary with both code and file pieces in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
@@ -21,9 +21,10 @@ import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
 import { BUILTINS, BUILTIN_ITEMS } from './builtins.js'
-import { FACES, PARTS_FILE } from './schema.js'
+import { FACES, PARTS_FILE, SETTING, piecePath } from './schema.js'
 import { registeredOperations, registeredValueTypes } from '../capabilities.js'
 import { typeProblems } from './types.js'
+import { settingParameters } from './settings.js'
 
 const ICONS = new Set(ICON_NAMES)
 const OPTIONED = new Set(['select', 'buttons'])
@@ -165,7 +166,7 @@ function symmetricIn(tree, settings, ops) {
  * resources, { name: { run(args, named, ctx) } }.
  */
 export function defineParts(file, ops, code = {}) {
-  const parts = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { ...def, settings: resolveSettings(file, def) }]))
+  const parts = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { ...def, settings: settingsOf(def, ops) }]))
   return compileParts(parts, ops, code)
 }
 
@@ -262,20 +263,19 @@ export function partDesc(def, allowed = () => null) {
   return Object.fromEntries((langs.length ? langs : ['en']).map((lang) => [lang, texts.map((text) => sideOf(text, lang)).filter(Boolean).join(lang === 'zh' ? '' : ' ')]))
 }
 
-/** The vocabulary with a pieces.json's pieces as its `part` kind: what content's S.ref('part') names. */
+/** The vocabulary with a pieces/<name>.json's pieces as its `part` kind: what content's S.ref('part') names. */
 export function withParts(vocabulary, file) {
-  // A domain with its circuit primitives in code has only its other pieces in pieces.json.
+  // A domain with its circuit primitives in code has only its other pieces in pieces/<name>.json.
   const pieces = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => definesParts(vocabulary) || !circuitPrimitive(piece)))
   if (!file) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
-  const setting = Object.assign(Object.create(null), Object.fromEntries(Object.entries(file.settings ?? {}).map(([id, def]) => [id, { about: def?.label ?? def?.about }])))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, valueType: { ...registeredValueTypes, ...vocabulary.kinds.valueType }, part: registerPieces(vocabulary.kinds.part, part), setting } }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, valueType: { ...registeredValueTypes, ...vocabulary.kinds.valueType }, part: registerPieces(vocabulary.kinds.part, part) } }
 }
 
-/** Every place a pieces.json does not hold together, as [{ at, says }] (at: pieces.json and the path in it). */
+/** Every place a pieces/<name>.json does not hold together, as [{ at, says }] (at: pieces/<name>.json and the path in it). */
 export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const out = []
-  const say = (at, says) => out.push({ at: `pieces.json${at}`, says })
+  const say = (at, says) => out.push({ at: piecePath(at), says })
   const vocab = withParts(vocabulary, file)
   // A domain with its circuit primitives in code keeps none here.
   if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
@@ -304,9 +304,27 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       if (w && (w.params ? !fits(w.params, s.params) : s.params !== undefined)) say(`${at}.params`, w.params ? `the parameters do not fit the widget ${s.widget}` : `the widget ${s.widget} takes no parameters`)
     }
   }
-  for (const [name, s] of Object.entries(file.settings ?? {})) settingProblems(s, `.settings.${name}`)
   for (const [type, raw] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
+    const parameters = settingParameters(raw, vocabulary.kinds.op)
+    const resolved = resolveSettings(raw, vocabulary.kinds.op)
+    for (const setting of resolved) {
+      const where = `${at}.settings.${setting.key}`
+      const { key: _key, ...definition } = setting
+      if (!setting.control) say(where, 'a standalone setting needs a complete control definition')
+      for (const problem of validate(SETTING, definition, { vocabulary: vocab })) say(`${where}${problem.at === '(root)' ? '' : problem.at}`, problem.says)
+      settingProblems(setting, where)
+      for (const schema of parameters.get(setting.key) ?? []) {
+        if (setting.default !== undefined && !fits(schema, setting.default)) say(`${where}.default`, 'the default does not fit the operation parameter')
+        if (schema.min !== undefined && (setting.min === undefined || setting.min < schema.min)) say(`${where}.min`, 'a setting cannot widen its operation parameter range')
+        if (schema.max !== undefined && (setting.max === undefined || setting.max > schema.max)) say(`${where}.max`, 'a setting cannot widen its operation parameter range')
+        if (schema.type === 'int' && !setting.integer) say(where, 'an integer parameter needs an integer setting')
+        if (schema.type === 'oneOf') {
+          for (const option of setting.options ?? []) if (!fits(schema, option.value)) say(`${where}.options`, `${option.value} is not an option of the operation parameter`)
+          for (const value of raw.settings[setting.key].remove ?? []) if (!schema.values.some((option) => String(option) === value)) say(`${where}.remove`, `${value} is not an option of the operation parameter`)
+        }
+      }
+    }
     const built = Boolean(insideOf(raw))
     if ((!built || raw.icon) && !ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
     // The rest is the circuit editor's: a strip's block has no faces beyond what it marks, which the schema checks.
@@ -315,7 +333,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
     if (new Set(outletsOf(raw).map((p) => p.name)).size !== outletsOf(raw).length) say(`${at}.outputs`, 'an output is named twice')
-    const def = indexPart({ ...raw, settings: resolveSettings(file, raw) }, type)
+    const def = indexPart({ ...raw, settings: resolveSettings(raw, vocabulary.kinds.op) }, type)
     const check = (text, where, inputs) => {
       let tree
       try {
@@ -327,8 +345,8 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       for (const says of problemsOf(tree, { ops, inputs, inputTypes: Object.fromEntries(holesOf(def).map((port) => [port.name, port.type])), settings: def.setting, fits })) say(where, says)
       return undefined
     }
-    for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `.settings.${raw.settings[k].setting}.when`, [])
-    for (const [k, s] of settingsOf(def).entries()) if (s.from) check(s.from, `.settings.${raw.settings[k].setting}.from`, holesOf(def).map((p) => p.name))
+    for (const s of settingsOf(def)) if (s.when) check(s.when, `${at}.settings.${s.key}.when`, [])
+    for (const s of settingsOf(def)) if (s.from) check(s.from, `${at}.settings.${s.key}.from`, holesOf(def).map((p) => p.name))
     const regionNames = regionsOf(raw).map((r) => r.name)
     if (new Set([...holesOf(raw).map((p) => p.name), ...regionNames]).size !== holesOf(raw).length + regionNames.length) say(`${at}.regions`, 'a region is named twice, or like an input')
     if (regionNames.length && outletsOf(raw).length) say(`${at}.outputs`, 'a part with regions has one output of its own')

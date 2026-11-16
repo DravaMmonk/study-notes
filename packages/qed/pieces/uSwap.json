@@ -1,0 +1,9 @@
+{
+  "name": "@piece.uSwap.name",
+  "desc": "@piece.uSwap.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "compute": "logic:uSwap(in)",
+  "outputType": "logic:machine-value"
+}

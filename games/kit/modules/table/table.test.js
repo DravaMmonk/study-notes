@@ -7,7 +7,7 @@ import { plainBoard } from '../../engine/contract.js';
 import { readStarter } from '../../engine/content-node.js';
 import { print, read, readLines } from '../../circuit/text.js';
 import { workshopView } from '../../circuit/workshop-view.js';
-import { tableCourse } from './course.js';
+import { tableWorks } from './work.js';
 import { fitted, portsProblem } from './model/board.js';
 import { modelOf } from './model/run.js';
 import { partsOf } from './model/parts.js';
@@ -87,7 +87,7 @@ test('a grouped merger stays available to blueprints under each unlocked model',
   content.primitives = [...content.primitives, 'table:mmin'];
   const merge = content.levels.find((level) => level.id === 'starter/merge');
   merge.adds = [...merge.adds, 'table:mmin'];
-  const course = tableCourse(content);
+  const course = tableWorks(content);
   const task = course.played.get('starter/merge')[0];
   const { shown, folded, types } = course.offerIn(task, new Set());
   assert.deepEqual([...shown, ...folded].filter((type) => type === 'table:msum' || type === 'table:mmin'), ['table:msum']);
@@ -143,17 +143,17 @@ const twoLevels = () => ({
 test('a robot circuit checks its declared interface against its referenced world', () => {
   const wrongInput = twoLevels();
   wrongInput.partDefs.parts.counter.inputs[0].type = 'circuit:boolean';
-  assert.ok(tableCourse(wrongInput).wrong.some(message => message.includes('input types do not match')));
+  assert.ok(tableWorks(wrongInput).wrong.some(message => message.includes('input types do not match')));
   const wrongOutput = twoLevels();
   wrongOutput.partDefs.parts.counter.outputType = 'circuit:boolean';
-  assert.ok(tableCourse(wrongOutput).wrong.some(message => message.includes('output type does not match')));
+  assert.ok(tableWorks(wrongOutput).wrong.some(message => message.includes('output type does not match')));
 });
 
 test('a robot runs a packaged circuit without a local publishing task', () => {
   const content = twoLevels();
   content.levels[0].tasks[0].publishes = [];
   content.levels[0].adds.push('counter');
-  const table = tableCourse(content);
+  const table = tableWorks(content);
   const task = table.played.get('reuse')[0];
   const result = table.run(WORLDS[task.world], task.tests[0], task.solution, task);
   assert.deepEqual(table.wrong, []);
@@ -162,9 +162,8 @@ test('a robot runs a packaged circuit without a local publishing task', () => {
 
 test('a configurable robot part opens and runs the same setting, including its default', () => {
   const content = twoLevels();
-  content.partDefs.settings = { countValue: { control: 'number', default: 2 } };
-  content.partDefs.parts.counter.settings = [{ key: 'value', setting: 'countValue' }];
-  const { model, played, syncOwn } = tableCourse(content);
+  content.partDefs.parts.counter.settings = { value: { control: 'number', default: 2 } };
+  const { model, played, syncOwn } = tableWorks(content);
   const builder = played.get('build')[0];
   const reuse = played.get('reuse')[0];
   // The passing board may hold a different value from the one the enclosing card declares.
@@ -179,7 +178,7 @@ test('a configurable robot part opens and runs the same setting, including its d
 });
 
 test('robot workshop blueprints round-trip and restore with the same ports and signal checks', () => {
-  const table = tableCourse(twoLevels());
+  const table = tableWorks(twoLevels());
   const task = table.played.get('reuse')[0];
   const V = WORLDS[task.world];
   const base = { partOf: table.model.partOf, board: {
@@ -210,7 +209,7 @@ test('the parts box lists only choices open on its selected robot', () => {
   content.levels[1].robot = 'table:robot-ranger';
   content.levels[1].adds.push('table:mmin');
   content.levels[1].tasks[0].consts = [3];
-  const table = tableCourse(content);
+  const table = tableWorks(content);
   const values = (type, options) => table.settingsIn(type, { flags: new Set(), open: () => true, ...options })[0]?.values.map(({ value }) => value);
   assert.deepEqual(values('table:msum', { scope: 'table:robot-scout' }), ['table:msum']);
   assert.deepEqual(values('table:msum', { scope: 'table:robot-ranger' }), ['table:msum', 'table:mmin']);
@@ -220,10 +219,10 @@ test('the parts box lists only choices open on its selected robot', () => {
 });
 
 test('carried boards use the reference until the prerequisite has passed', async () => {
-  const { tableCourse } = await import('./course.js');
+  const { tableWorks } = await import('./work.js');
   const content = twoLevels();
   content.levels[1].carry = 'build';
-  const table = tableCourse(content), source = table.played.get('build')[0], target = table.played.get('reuse')[0];
+  const table = tableWorks(content), source = table.played.get('build')[0], target = table.played.get('reuse')[0];
   const modified = { ...source.solution, nodes: source.solution.nodes.map(n => n.id === 'k' ? { ...n, params: { value: 7 } } : n) };
   const progress = { all: true, passed: [], solved: [], data: { build: modified }, built: {} };
   assert.equal(table.opening(target, progress).nodes.find(n => n.id === 'k').params.value, 1);
@@ -232,22 +231,22 @@ test('carried boards use the reference until the prerequisite has passed', async
 });
 
 test('a task’s answers are written, and the reference board is checked against them', async () => {
-  const { tableCourse } = await import('./course.js');
+  const { tableWorks } = await import('./work.js');
   const { validate } = await import('./validate.js');
   const course = twoLevels();
   course.levels[1].tasks[0].expected = [8, 12, 11];
-  const table = tableCourse(course);
+  const table = tableWorks(course);
   assert.deepEqual(table.wrong, []);
   const lines = validate({ levels: table.LEVELS, table }).filter(l => l.fail).map(l => l.text);
   assert.deepEqual(lines, ['reuse test 3: the reference gives 10, expected 11']);
   course.levels[1].tasks[0].expected = [8, 12];
-  assert.match(tableCourse(course).wrong[0], /reuse: gives 2 expected answers for 3 tests/);
+  assert.match(tableWorks(course).wrong[0], /reuse: gives 2 expected answers for 3 tests/);
 });
 
 test('a built part runs the board its level’s last task was passed with, when that board reads exactly the part’s ports', async () => {
-  const { tableCourse } = await import('./course.js');
+  const { tableWorks } = await import('./work.js');
   const { WORLDS } = await import('./model/worlds.js');
-  const { played, wrong, syncOwn, run } = tableCourse(twoLevels());
+  const { played, wrong, syncOwn, run } = tableWorks(twoLevels());
   assert.deepEqual(wrong, []);
   const builder = played.get('build').at(-1), user = played.get('reuse').at(-1);
   const V = WORLDS[user.world], answers = () => user.tests.map(t => run(V, t, user.solution, user).value);
@@ -257,7 +256,7 @@ test('a built part runs the board its level’s last task was passed with, when 
   syncOwn({ build: offByOne });
   assert.notDeepEqual(answers(), user.expected);
   // Another read of the same content keeps boards of its own: the first read's kept board is not its part.
-  const other = tableCourse(twoLevels()), otherUser = other.played.get('reuse').at(-1);
+  const other = tableWorks(twoLevels()), otherUser = other.played.get('reuse').at(-1);
   assert.deepEqual(otherUser.tests.map(t => other.run(V, t, otherUser.solution, otherUser).value), otherUser.expected);
   assert.notDeepEqual(answers(), user.expected);
   // As an older save keeps it: no output node, every sensor on the view card.
@@ -277,7 +276,7 @@ test('a built part runs the board its level’s last task was passed with, when 
 /** Every game on the table domain, and the starter a new one is copied from: [id, dir]. */
 test('reading a course never writes into its content', async () => {
   const { deepFreeze } = await import('../../engine/content.js');
-  const { default: domain } = await import('./domain.js');
+  const { default: domain } = await import('./runtime.js');
   const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)));
   assert.deepEqual(spec.table.wrong, []);
   assert.ok(domain.validate(spec).every(l => !l.fail));

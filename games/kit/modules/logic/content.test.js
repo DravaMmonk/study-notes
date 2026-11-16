@@ -4,7 +4,7 @@ import { starterPieces } from '../../engine/ops/fixture.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runBoard } from '../../engine/boards.js'
-import { logicCourse } from './course.js'
+import { logicWorks } from './work.js'
 import { fixedTray } from '../../course.js'
 import { chipsOf } from './formulaTree.js'
 import { parse } from './formula.js'
@@ -16,7 +16,7 @@ import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from './gates.
 import { deepFreeze } from '../../engine/content.js'
 import { readStarter } from '../../engine/content-node.js'
 import { trayDisplay } from '../../engine/trays.js'
-import domain from './domain.js'
+import domain from './runtime.js'
 
 const L = (zh, en = zh) => ({ zh, en })
 // A level of one task (its id the level's): what it says once, then the task.
@@ -45,13 +45,13 @@ const CONTENT = {
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
   },
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
-  // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
+  // The parts the starter defines (its pieces/<name>.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
-  partDefs: { settings: { ...starterPieces(import.meta.dirname).settings, formula: { control: 'tree' } }, parts: {
+  partDefs: { parts: {
     ...Object.fromEntries(Object.entries(starterPieces(import.meta.dirname).parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'logic:family-gate', inside: [{ id: 'base', reference: GATE }] },
-    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'base', reference: CHAIN }] },
-    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
+    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B', 'C'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'base', reference: CHAIN }] },
+    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
   } },
   eras: [{ id: 'one', machine: null, levels: [{ id: 'or' }, { id: 'chain' }, { id: 'useChain' }, { id: 'half' }, { id: 'useHalf' }, { id: 'eqSym' }, { id: 'andDef' }, { id: 'eqUse' }, { id: 'eqTerm' }, { id: 'rows' }, { id: 'negate' }], links: [{ from: 'or', to: 'chain' }, { from: 'chain', to: 'useChain' }, { from: 'useChain', to: 'half' }, { from: 'half', to: 'useHalf' }, { from: 'useHalf', to: 'eqSym' }, { from: 'eqSym', to: 'andDef' }, { from: 'andDef', to: 'eqUse' }, { from: 'eqUse', to: 'eqTerm' }, { from: 'eqTerm', to: 'rows' }, { from: 'rows', to: 'negate' }], chapter: { title: L('c'), question: L('q') } }],
   levels: [
@@ -87,7 +87,7 @@ const CONTENT = {
       solution: ["c0r0 = raa()", "c1r0 = impI()", "c0 = rule(in, c0r0)", "c1 = rule(c0, c1r0)", 'out <- c1'] }),
   ],
 }
-const course = logicCourse(CONTENT)
+const course = logicWorks(CONTENT)
 const syncOwn = course.syncOwn
 const level = (id) => course.LEVELS.find((l) => l.id === id)
 // A level of one task, as read.
@@ -238,7 +238,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   syncOwn({ chain: own })
   assert.equal(course.proofs.chain[''].board(), own)
   // Another read of the same content (another game of the domain in this process) keeps its own boards.
-  const other = logicCourse(CONTENT)
+  const other = logicWorks(CONTENT)
   assert.notEqual(other.proofs.chain[''].board(), own)
   assert.equal(run('useChain', 0).pass, true)
   syncOwn({ chain: { ...own, wires: [...own.wires, { from: 'missing', to: 'goal', port: 'in' }] } })
@@ -282,7 +282,7 @@ test('reading a game on the domain never writes into its content', () => {
 
 test('formula chips use the registered pieces and keep contextual names', () => {
   const content = readStarter(import.meta.dirname)
-  const level = logicCourse(content).LEVELS.at(-1).tasks.at(-1)
+  const level = logicWorks(content).LEVELS.at(-1).tasks.at(-1)
   const chips = chipsOf({
     kind: 'logic:translate', notation: level.notation, vocab: { preds: [['Rain', 0]], consts: [] },
   })
@@ -307,7 +307,7 @@ test('formula and circuit groups share a task, combining in order and respecting
   const last = levels.find(({ id }) => id === 'starter/g-use')
   last.tray = ['gates', 'extended', 'basic']
   last.without = ['starter/formulaNot']
-  const logic = logicCourse(content)
+  const logic = logicWorks(content)
   const read = (id) => logic.LEVELS.find((level) => level.id === id).tasks[0]
   const chips = (id) => chipsOf({
     kind: 'logic:translate', notation: read(id).notation, vocab: { preds: [['Rain', 0]], consts: [] },
@@ -325,7 +325,7 @@ test('a proof tray groups disjunction rules and leaves truth gates off the proof
   const content = structuredClone(CONTENT)
   content.trays = { proof: { name: 'Proof', desc: '', items: [{ id: 'or', title: 'Or', items: ['orI', 'orE'] }] } }
   content.levels[0].tray = 'proof'
-  const logic = logicCourse(content)
+  const logic = logicWorks(content)
   const task = logic.LEVELS[0].tasks[0]
   const display = trayDisplay(logic.course.trays, ['proof'], [{ type: 'orI' }, { type: 'orE' }], [])
   assert.equal(display.items[0].label, 'Or')
@@ -337,7 +337,7 @@ test('a machine reference can use rule cards granted by its task', () => {
   const content = structuredClone(CONTENT)
   const level = content.levels.at(-1)
   level.tasks[0].rules = { own: { name: L('Own rule'), premises: [], conclusion: 'A' } }
-  const logic = logicCourse(content)
+  const logic = logicWorks(content)
   const task = logic.LEVELS.at(-1).tasks[0]
   assert.ok(logic.course.gives(task).includes('own'))
 })

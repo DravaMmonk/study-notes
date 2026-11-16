@@ -1,0 +1,36 @@
+{
+  "name": "@piece.apMeter.name",
+  "desc": "@piece.apMeter.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "kN = const[c=16]()",
+          "h1 = shift[dir=right](f)",
+          "p1 = arith[op=add](f, h1)",
+          "h2 = shift[dir=right, n=2](p1)",
+          "p2 = arith[op=add](p1, h2)",
+          "h4 = shift[dir=right, n=4](p2)",
+          "p4 = arith[op=add](p2, h4)",
+          "h8 = shift[dir=right, n=8](p4)",
+          "p8 = arith[op=add](p4, h8)",
+          "pr = arith[op=div](p8, k)",
+          "m = arith[op=mul](pr, f)",
+          "a = fqMean(m)",
+          "s = arith[op=mul](a, kN)",
+          "q = arith[op=div](s, g)",
+          "out <- q"
+        ],
+        "inputs": ["f", "k", "g"]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "f", "type": "image:image" },
+    { "name": "k", "type": "image:image" },
+    { "name": "g", "type": "image:image" }
+  ],
+  "outputType": "image:image"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@piece.chain.name",
+  "desc": "@piece.chain.desc",
+  "family": "logic:family-lemma",
+  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" }, "C": { "control": "tree" } },
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=A](body: m2) {",
+          "  body {",
+          "    m1 = mp(p, f.body)",
+          "    m2 = mp(q, m1)",
+          "  }",
+          "}",
+          "goal <- f"
+        ],
+        "tests": [{ "goal": "A → C", "premises": { "p": "A → B", "q": "B → C" } }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "p0", "type": "logic:judgment" }, { "name": "p1", "type": "logic:judgment" }],
+  "outputType": "logic:judgment"
+}

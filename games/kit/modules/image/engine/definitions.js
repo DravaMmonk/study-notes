@@ -11,11 +11,13 @@ const nativeForResource = new Map(native.flatMap(([type, spec]) => {
   return outputs.map((output) => [`${type}${output ? `_${output}` : ''}`, { type, spec }])
 }))
 
-const parameterSchema = ({ kind, options, min, max, step, default: value }) => {
+const parameterSchema = ({ kind, options, buttons, min, max, step, default: value }) => {
+  const control = options ? (buttons ? 'buttons' : 'select') : kind === 'kernel' ? 'custom' : kind
+  const presentation = { control, ...(buttons && { layout: buttons }), ...(kind === 'kernel' && { widget: 'image:widget-imageKernel' }) }
   const bounds = { ...(min !== undefined && { min }), ...(max !== undefined && { max }), ...(step !== undefined && { step }), ...(value !== undefined && { default: value }) }
-  if (options) return S.opt(S.oneOf(options.map(([option]) => String(option)), { default: String(value) }))
-  if (kind === 'kernel') return S.opt(S.list(S.num(), { default: value }))
-  return S.opt(S.num(bounds))
+  if (options) return S.opt(S.oneOf(options.map(([option]) => String(option)), { ...presentation, default: String(value) }))
+  if (kind === 'kernel') return S.opt(S.list(S.num(), { ...presentation, default: value }))
+  return S.opt(S.num({ ...bounds, ...presentation }))
 }
 const parameterType = ({ kind, options }) => options ? 'circuit:string' : kind === 'kernel' ? 'circuit:list' : 'circuit:number'
 

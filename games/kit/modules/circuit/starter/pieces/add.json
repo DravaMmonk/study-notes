@@ -1,0 +1,9 @@
+{
+  "name": "@piece.add.name",
+  "desc": "@piece.add.desc",
+  "icon": "Plus",
+  "family": "circuit:family-value",
+  "inputs": [{ "name": "a", "type": "circuit:number" }, { "name": "b", "type": "circuit:number" }],
+  "compute": "circuit:add(a, b)",
+  "outputType": "circuit:number"
+}

@@ -61,9 +61,9 @@ export const tasksSchema = (vocabulary) => vocabulary.level?.fields?.tasks?.of ?
 export const taskShapes = (task) => (task.type === 'by' ? Object.values(task.cases).flatMap(taskShapes) : task.type === 'either' ? task.of.flatMap(taskShapes) : [task])
 
 /** Each task of a level as a level of its own: the level's fields under the task's, its index `task`, its id `taskId`. */
-export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {
+export const taskLevels = ({ tasks, ...level }, positions = null) => tasks.map((task, k) => {
   const { step: _step, id: taskId, ...own } = task
-  return { ...level, ...own, task: k, taskId }
+  return { ...level, ...own, task: positions?.get(taskId) ?? k, taskId }
 })
 
 /** Every task id of a game's levels: a level of tasks, its tasks'; a level of one task, its own id. */

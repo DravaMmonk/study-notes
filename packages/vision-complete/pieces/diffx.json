@@ -1,0 +1,9 @@
+{
+  "name": "@piece.diffx.name",
+  "desc": "@piece.diffx.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:diffx(in)",
+  "outputType": "image:image"
+}

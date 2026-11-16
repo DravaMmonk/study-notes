@@ -9,7 +9,7 @@ import { defineVocabulary } from '../engine/vocabulary.js'
 import { cpSync, existsSync, mkdirSync, readFileSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { domainOf, readStarter } from '../engine/content-node.js'
+import { runtimeOf, readStarter } from '../engine/content-node.js'
 import { eraLevels } from '../course.js'
 import { openPackage } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
@@ -80,7 +80,7 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
   for (const d of STARTERS) {
     const ws = openStarter(d)
     const content = ws.content()
-    const { vocabulary } = await domainOf(content)
+    const { vocabulary } = await runtimeOf(content)
     const ids = eraLevels(content.eras[0])
     const levels = ids.map((id) => content.levels.find((l) => l.id === id))
     // A text every level of the era holds: the title, which every vocabulary gives a level.
@@ -156,7 +156,7 @@ test('on every starter: the palette indexes every level and entry', () => {
 test('on every starter: the copy table’s rows: an era’s own texts and its levels’, the whole game, the encyclopedia; each with its copy rule and whose it is', async () => {
   for (const game of STARTERS) {
     const content = starter(game)
-    const { vocabulary } = await domainOf(content)
+    const { vocabulary } = await runtimeOf(content)
     const order = content.levels.map((l) => l.id)
     const era = copyRows(content, vocabulary, 0, order, 'game')
     const own = eraLevels(content.eras[0])

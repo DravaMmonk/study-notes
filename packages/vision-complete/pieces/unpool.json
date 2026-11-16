@@ -1,0 +1,22 @@
+{
+  "name": "@piece.unpool.name",
+  "desc": "@piece.unpool.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "u = tconv(small)",
+          "d = arith[op=sub](big, u)",
+          "e = threshold[t=-0.02](d)",
+          "m = arith[op=mul](u, e)",
+          "out <- m"
+        ],
+        "inputs": ["small", "big"]
+      }
+    }
+  ],
+  "inputs": [{ "name": "small", "type": "image:image" }, { "name": "big", "type": "image:image" }],
+  "outputType": "image:image"
+}

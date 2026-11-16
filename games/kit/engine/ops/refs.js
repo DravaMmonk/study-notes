@@ -16,7 +16,7 @@ const link = (id, namespace) => new RegExp(`(<level-ref to="(?:${namespace}/)?)$
 const files = (ws, vocabulary) => [
   ['game.json', own(ws.game), vocabulary.game],
   ...[...ws.entries].map(([id, entry]) => [`entries/${id}.json`, entry, ENTRY]),
-  ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs, PARTS_FILE]]),
+  ...Object.entries(ws.partDefs?.parts ?? {}).map(([id, piece]) => [`pieces/${id}.json`, piece, PARTS_FILE.fields.parts.of]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level]),
   ...Object.entries(OBJECT_SCHEMAS).flatMap(([kind, schema]) => [...(ws[kind] ?? [])].map(([id, value]) => [`${kind}/${id}.json`, value, objectReferenceSchema(ws, kind, value, schema)])),
 ]
@@ -66,7 +66,7 @@ const itemHits = (schema, value, vocabulary) => [
 const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].some((base) => value === base || value.startsWith(`${base}.`))
 
 /**
- * Every place naming part `type` (pieces.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
+ * Every place naming part `type` (pieces/<name>.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
  * a field (or a map's key) its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board
  * placing it, an audit finding game.json leaves open ('part@level').
  */

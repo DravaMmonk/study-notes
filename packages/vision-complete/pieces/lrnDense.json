@@ -1,0 +1,10 @@
+{
+  "name": "@piece.lrnDense.name",
+  "desc": "@piece.lrnDense.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": { "p": { "label": "w, b", "fixed": true } },
+  "compute": "image:lrnDense(in, $p)",
+  "outputType": "image:image"
+}

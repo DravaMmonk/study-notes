@@ -1,0 +1,18 @@
+{
+  "name": "@piece.liar.name",
+  "desc": "@piece.liar.desc",
+  "family": "logic:family-lemma",
+  "settings": { "A": { "control": "tree" } },
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": ["e = andE(p)", "g = merge(e.left)", "m1 = mp(e.right, g)", "m2 = mp(g, m1)", "goal <- m2"],
+        "tests": [{ "goal": "⊥", "premises": { "p": "A ↔ ¬A" } }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
+  "outputType": "logic:judgment"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@piece.invert.name",
+  "desc": "@piece.invert.desc",
+  "icon": "Calculator",
+  "family": "image:family-pixel",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:invert(in)",
+  "outputType": "image:image"
+}

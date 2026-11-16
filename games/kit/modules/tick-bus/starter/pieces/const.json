@@ -1,0 +1,19 @@
+{
+  "name": "@piece.const.name",
+  "desc": "@piece.const.desc",
+  "icon": "Hash",
+  "family": "tick-bus:family-value",
+  "inputs": [],
+  "settings": {
+    "value": {
+      "control": "number",
+      "label": "@piece.const.settings.value.label",
+      "min": 0,
+      "max": 32,
+      "integer": true,
+      "default": 0
+    }
+  },
+  "compute": "$value",
+  "outputType": "circuit:number"
+}

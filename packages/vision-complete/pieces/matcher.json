@@ -1,0 +1,48 @@
+{
+  "name": "@piece.matcher.name",
+  "desc": "@piece.matcher.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "k8 = const[c=0.8]()",
+          "two = const[c=2]()",
+          "three = const[c=3]()",
+          "M12 = max(d1, d2)",
+          "s12 = arith[op=add](d1, d2)",
+          "m12 = arith[op=sub](s12, M12)",
+          "M = max(m12, d3)",
+          "sm = arith[op=add](m12, d3)",
+          "best = arith[op=sub](sm, M)",
+          "s2 = arith[op=add](M, M12)",
+          "M2 = max(M, M12)",
+          "second = arith[op=sub](s2, M2)",
+          "e1 = arith[op=sub](best, d1)",
+          "e2 = arith[op=sub](best, d2)",
+          "e3 = arith[op=sub](best, d3)",
+          "r = arith[op=mul](second, k8)",
+          "i1 = threshold[t=-0.02](e1)",
+          "i2 = threshold[t=-0.02](e2)",
+          "i3 = threshold[t=-0.02](e3)",
+          "gap = arith[op=sub](r, best)",
+          "w2 = arith[op=mul](i2, two)",
+          "w3 = arith[op=mul](i3, three)",
+          "ok = threshold[t=0](gap)",
+          "sum = merge(i1, w2, w3)",
+          "out2 = arith[op=mul](sum, ok)",
+          "idx <- out2"
+        ],
+        "inputs": ["d1", "d2", "d3"],
+        "outputs": ["idx"]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "d1", "type": "image:image" },
+    { "name": "d2", "type": "image:image" },
+    { "name": "d3", "type": "image:image" }
+  ],
+  "outputType": "image:image"
+}

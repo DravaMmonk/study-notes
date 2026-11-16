@@ -71,7 +71,7 @@ function gameRefused(root, id) {
 /** games/<id>/ from the starter game of `domain`, registered on the hub. Returns the folder. */
 export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   const starter = resolve(root, 'games/kit/modules', domain ?? '', 'starter')
-  if (!domain || !existsSync(resolve(root, 'games/kit/modules', domain, 'domain.js'))) fail(`no domain ${domain} in kit/modules`)
+  if (!domain || !existsSync(resolve(root, 'games/kit/modules', domain, 'runtime.js'))) fail(`no domain ${domain} in kit/modules`)
   if (!existsSync(starter)) fail(`the domain ${domain} has no starter game (kit/modules/${domain}/starter/) to copy`)
   const refused = gameRefused(root, id)
   if (refused) fail(refused)
@@ -87,8 +87,8 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
       const file = resolve(starter, name)
       const source = JSON.parse(readFileSync(file, 'utf8').replaceAll('starter/', `${id}/`))
       const packageConfig = JSON.parse(readFileSync(resolve(starter, 'package.json'), 'utf8'))
-      const piecesFile = resolve(starter, 'pieces.json')
-      const pieces = new Set(existsSync(piecesFile) ? Object.keys(JSON.parse(readFileSync(piecesFile, 'utf8')).parts) : [])
+      const piecesDir = resolve(starter, 'pieces')
+      const pieces = new Set(existsSync(piecesDir) ? readdirSync(piecesDir).filter((name) => name.endsWith('.json')).map((name) => name.slice(0, -5)) : [])
       const vocabulary = contentVocabulary(packageConfig.domain)
       writeFileSync(resolve(dir, name), writeJson(expandNames(source, id, { pieces, vocabulary, schema: vocabulary?.game, context: 'configuration', textKeys: false }), null))
     }

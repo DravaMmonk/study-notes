@@ -150,9 +150,8 @@ test('the HTTP tools list, preview and write a package that no game selects', as
   const pkg = join(root, 'packages', 'library')
   mkdirSync(pkg, { recursive: true })
   writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ domain: 'logic', vocabulary: 1 })}\n`)
-  writeFileSync(join(pkg, 'pieces.json'), JSON.stringify({ parts: {
-    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' },
-  } }))
+  mkdirSync(join(pkg, 'pieces'), { recursive: true })
+  writeFileSync(join(pkg, 'pieces/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' }))
   const packages = (await post('packages', {})).body
   assert.ok(packages.some((entry) => entry.id === 'library'))
   const preview = (await post('preview', { package: 'library' })).body
@@ -161,7 +160,7 @@ test('the HTTP tools list, preview and write a package that no game selects', as
   assert.equal(preview.content.packagePreview.id, 'library')
   const modified = (await post('modify', { package: 'library', changeset: { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'A revised description.' }] } })).body
   assert.equal(modified.written, true, modified.problems.join('\n'))
-  assert.deepEqual(modified.files, ['packages/library/pieces.json'])
+  assert.deepEqual(modified.files, ['packages/library/pieces/apply.json'])
   assert.equal((await post('log', { package: 'library' })).body.head, 1)
   assert.equal((await post('preview', { game: GAME, package: 'library' })).status, 422)
 })

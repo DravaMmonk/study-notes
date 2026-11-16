@@ -1,36 +1,28 @@
+import { loadDisplays } from '../../engine/displays.js'
 // A table game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the table domain's screen (every level played through its mode), its
 // parts box by robot, and its intro pictures.
-import { createElement } from 'react'
 import { Cable, Grid3x3 } from 'lucide-react'
-import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { taskOpen } from '../../shell/progress.js'
 import { eraLevels, introductions, isCore } from '../../course.js'
 import { plays } from './plays.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { robotCircuits } from './ui/circuitCourse.js'
-import { robotScreenFor } from './ui/circuitScreen.js'
-import { handResources } from './ui/modes/index.js'
-import Hero from './ui/hero.jsx'
-import { sceneSVG } from './ui/svg.js'
-import { pieceDemo } from './ui/pieceDemo.js'
-import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T } from './lang.js'
-import { tableCourse } from './course.js'
+import { tableWorks } from './work.js'
+
+const ui = await loadDisplays(['table:hero', 'table:introduction', 'table:circuit', 'table:manual', 'table:catalog'])
+const { pieceDemo, lookIcon } = ui['table:catalog']
 
 const briefOf = ({ mission, hints }) => ({ text: [mission.goal, mission.how], hint: hints })
-const hand = Object.fromEntries(Object.entries(handResources).map(([name, useBoard]) => [name, { useBoard, briefOf }]))
+const hand = Object.fromEntries(Object.entries(ui['table:manual']).map(([name, useBoard]) => [name, { useBoard, briefOf }]))
 const icons = Object.fromEntries(Object.entries(plays).map(([name, play]) => [name, { icon: play.editor === 'circuit' ? Cable : Grid3x3 }]))
 
 /** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
 const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh ?? head.en}</b>`, `<b>${head.en ?? head.zh}</b>`)] : []), ...body]
-
-function IntroFigure({ fig }) {
-  return createElement('div', { className: 'fig', dangerouslySetInnerHTML: { __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) } })
-}
 
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (pieces.json: the parts and
@@ -38,7 +30,7 @@ function IntroFigure({ fig }) {
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
 export default function tableGame(content) {
-  const table = tableCourse(content)
+  const table = tableWorks(content)
   const { LEVELS, REQUIRES, TRACKS, ROWS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}
@@ -92,14 +84,14 @@ export default function tableGame(content) {
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,
-    Hero,
+    Hero: ui['table:hero'],
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era), rows: ROWS.get(chapter.era) })),
     levels,
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,
-    IntroFigure,
-    kinds: playKinds(plays, { ...hand, robot: robotScreenFor(table) }, icons),
+    IntroFigure: ui['table:introduction'],
+    kinds: playKinds(plays, { ...hand, robot: ui['table:circuit'](table) }, icons),
     unlocked: (level) => level.unlocks.map((k) => ({ piece: k, label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {

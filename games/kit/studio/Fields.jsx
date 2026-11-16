@@ -21,7 +21,7 @@ import { creationChoices, moved, revertOf, summaryOf, taskOptionsOf } from './fo
 import { AddKey, AddMenu, Chips, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
-import { AddFields, AttachSetting, ExprField, IconField } from './PartFields.jsx'
+import { AddFields, ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
 import { confirmDelete } from './delete.js'
 
@@ -144,10 +144,6 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'expr': return <ExprField field={field} onSet={set} ctx={ctx} label={name} />
       case 'icon': return <IconField field={field} onSet={set} label={name} />
       case 'choice':
-        if (field.of === 'setting') return <div className="expr-line">
-          <Picker options={field.options} value={field.value} onPick={set} label={tr('已有设置', 'Existing setting')} />
-          <button type="button" className="kit-btn is-label" onClick={() => ctx.onSetting(field.value)} disabled={!ctx.onSetting || !field.options.some((o) => o.value === field.value)}>{tr('编辑设置', 'Edit setting')}</button>
-        </div>
         return <Picker options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
       case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />
@@ -274,7 +270,7 @@ function ListField({ field, onEdit, ctx }) {
           </div>
         )
       })}
-      {field.bindings ? <AttachSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <AddMenu
+      {<AddMenu
         options={[...choices, ...(items.length ? [{ value: 'copy', label: tr('复制最后一项', 'Duplicate last item') }] : [])]}
         onPick={(action) => {
           setOpen((current) => new Set([...current, items.length]))

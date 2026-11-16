@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { GAMES_DIR, readContent, domainOf } from './content-node.js'
+import { GAMES_DIR, readContent, runtimeOf } from './content-node.js'
 import { mechanisms, newGame } from './scaffold.js'
 import { checkContent } from './vocabulary.js'
 import { audit } from '../course.js'
@@ -17,7 +17,7 @@ for (const mechanism of mechanisms()) test(`${mechanism}: the installed module s
     newGame({ root, id: 'sample', domain: mechanism, title: 'Sample' })
     assert.throws(() => newGame({ root, id: 'sample', domain: mechanism }), /there already/)
     const content = readContent('sample', root)
-    const domain = await domainOf(content)
+    const domain = await runtimeOf(content)
     assert.deepEqual(checkContent(domain, content), [])
     const spec = domain.spec(content)
     assert.deepEqual(audit(spec.course), [])

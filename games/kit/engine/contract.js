@@ -1,12 +1,12 @@
 import { trayMembers } from './trays.js'
 import { sameJson } from './json-value.js'
 import { playId } from './plays.js'
-// The domain contract (games/DESIGN.md 6.3): what a domain gives the kernel, checked mechanically. A domain that
+// The module runtime contract: what a module gives the kernel, checked mechanically. A module that
 // passes it is one `npm run check`, the shell, and every tool built on them (the operation set, the MCP, the blind-play
-// harness, the studio) can take without knowing anything about it. contract.test.js runs it over every domain and
-// every data game; the scaffold (scaffold.js) generates domains that pass it.
+// harness, the studio) can take without knowing anything about it. contract.test.js runs it over every registered module
+// and its starter content.
 //
-//   domainProblems(name, domain)            domain.js: { vocabulary, spec, validate } and nothing unknown
+//   runtimeProblems(name, runtime)           runtime.js: { vocabulary, prepare, spec, validate, play }
 //   vocabularyProblems(name, vocabulary)    the vocabulary describes itself as data: kinds, items, schemas
 //   specProblems(domain, content, spec)     spec(content): its course, levels, texts; the course hooks' shapes; the
 //                                           boards round-trip through blueprint text
@@ -23,8 +23,8 @@ import { describe } from './vocabulary.js'
 import { taskShapes, tasksSchema } from './tasks.js'
 import { makesPieces } from './parts/schema.js'
 
-/** What domain.js exports: the three entries, and the extension points tools add (each optional). */
-export const ENTRIES = ['vocabulary', 'spec', 'validate']
+/** Required runtime entries and optional tool extensions. */
+export const ENTRIES = ['vocabulary', 'prepare', 'spec', 'validate', 'play']
 const isFn = (f) => typeof f === 'function'
 // Each extension point and the shape it must have. A tool that needs more of every domain adds its hook here.
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
@@ -41,19 +41,20 @@ const isText = (v) => typeof v === 'string' || (v && (typeof v.en === 'string' |
 const strings = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string')
 const isBoard = (b) => Boolean(b) && Array.isArray(b.nodes) && Array.isArray(b.wires)
 
-export function domainProblems(name, domain) {
+export function runtimeProblems(name, runtime) {
   const out = []
-  if (!domain || typeof domain !== 'object') return [`${name}: domain.js has no default export`]
-  for (const key of ENTRIES) if (!domain[key]) out.push(`${name}: domain.js gives no ${key}`)
-  if (domain.spec && !isFn(domain.spec)) out.push(`${name}: spec is not a function`)
-  if (domain.validate && !isFn(domain.validate)) out.push(`${name}: validate is not a function`)
-  for (const key of Object.keys(domain)) if (!ENTRIES.includes(key) && !(key in EXTENSIONS)) out.push(`${name}: domain.js gives ${key}, which is no entry of the contract`)
-  for (const [key, fits] of Object.entries(EXTENSIONS)) if (key in domain && !fits(domain[key])) out.push(`${name}: ${key} has not the shape its extension point asks for`)
-  if (domain.vocabulary) out.push(...vocabularyProblems(name, domain.vocabulary))
-  const named = Object.keys(domain.vocabulary?.languages ?? {})
-  const read = Object.keys(domain.languages ?? {})
-  for (const lang of named) if (!read.includes(lang)) out.push(`${name}: the vocabulary names the language ${lang}, which domain.js does not read`)
-  for (const lang of read) if (!named.includes(lang)) out.push(`${name}: domain.js reads ${lang}, which the vocabulary does not name`)
+  if (!runtime || typeof runtime !== 'object') return [`${name}: runtime.js has no default export`]
+  for (const key of ENTRIES) if (!runtime[key]) out.push(`${name}: runtime.js gives no ${key}`)
+  if (runtime.prepare && !isFn(runtime.prepare)) out.push(`${name}: prepare is not a function`)
+  if (runtime.spec && !isFn(runtime.spec)) out.push(`${name}: spec is not a function`)
+  if (runtime.validate && !isFn(runtime.validate)) out.push(`${name}: validate is not a function`)
+  for (const key of Object.keys(runtime)) if (!ENTRIES.includes(key) && !(key in EXTENSIONS)) out.push(`${name}: runtime.js gives ${key}, which is no entry of the contract`)
+  for (const [key, fits] of Object.entries(EXTENSIONS)) if (key in runtime && !fits(runtime[key])) out.push(`${name}: ${key} has not the shape its extension point asks for`)
+  if (runtime.vocabulary) out.push(...vocabularyProblems(name, runtime.vocabulary))
+  const named = Object.keys(runtime.vocabulary?.languages ?? {})
+  const read = Object.keys(runtime.languages ?? {})
+  for (const lang of named) if (!read.includes(lang)) out.push(`${name}: the vocabulary names the language ${lang}, which runtime.js does not read`)
+  for (const lang of read) if (!named.includes(lang)) out.push(`${name}: runtime.js reads ${lang}, which the vocabulary does not name`)
   return out
 }
 
@@ -172,11 +173,10 @@ export function specProblems(domain, content, spec) {
   const out = []
   const say = (text) => out.push(`spec: ${text}`)
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
-  if (spec.domain !== domain.vocabulary.domain) say(`domain ${spec.domain}, not ${domain.vocabulary.domain}`)
   // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's and the level groups' by the kernel, the rest by names(content).
   const given = new Set(['entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
-  for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor domain.js names(content) gives`)
+  for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor runtime.js names(content) gives`)
   if (!sameJson(spec.title, content.title)) say('its title is not the content’s')
   if (!spec.course?.levels || !isFn(spec.course.before)) return [...out, 'spec: no course (../course.js defineCourse)']
   if (!Array.isArray(spec.levels)) return [...out, 'spec: levels is no list']
@@ -331,7 +331,7 @@ export function gameProblems(content, spec, game) {
 }
 
 /** A module's registered capabilities are qualified, printable and type-complete. */
-export function moduleProblems(module, registry) {
+export function moduleProblems(module, registry, runtime = null) {
   const out = []
   const prefix = `${module.id}:`
   if (typeof module.register !== 'function') return [`${module.id}: no register function`]
@@ -349,6 +349,11 @@ export function moduleProblems(module, registry) {
       for (const port of item.inputs ?? []) if (typeof port === 'object' && !declaredType(port.type)) out.push(`${name}: port ${port.name} has unknown value type ${port.type}`)
       if (item.outputType && !declaredType(item.outputType)) out.push(`${name}: unknown output type ${item.outputType}`)
     }
+    if (kind === 'display' && (item.role || ['display', 'widget'].includes(item.kind))) {
+      const entry = registry.displayLoaders[name]
+      if (!entry) out.push(`${name}: no display implementation`)
+      else if (!entry.startsWith(`../modules/${module.id}/ui/`)) out.push(`${name}: display implementation is outside its module UI`)
+    }
     if (kind === 'operation' && !registry.operations[name]) out.push(`${name}: no runtime implementation`)
     if (kind === 'operation' && item.signatures && !item.signatures.length) out.push(`${name}: no signatures`)
     if (kind === 'operation') for (const signature of item.signatures ?? [item]) {
@@ -362,6 +367,7 @@ export function moduleProblems(module, registry) {
       }
     }
   }
+  if (runtime) out.push(...runtimeProblems(module.id, runtime))
   if (!count) out.push(`${module.id}: registers no capabilities`)
   return out
 }

@@ -121,6 +121,7 @@ export function courseDependencies(content) {
 
 /** Build the same local plan the domains use, with cross-game gates kept outside the local course topology. */
 export function courseLayout(content) {
+  if (content.coursePlan) return content.coursePlan
   const { links, problems } = courseDependencies(content)
   const notes = content.mode === 'notes'
   const plan = layout(content.eras ?? [], { notes, links })

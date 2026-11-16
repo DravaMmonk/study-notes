@@ -1,0 +1,10 @@
+{
+  "name": "μ",
+  "desc": "@piece.dg_mu.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [],
+  "settings": { "w": { "label": "μ", "fixed": true } },
+  "compute": "image:dg_mu($w)",
+  "outputType": "image:image"
+}

@@ -10,7 +10,7 @@ import { sidebarSearch } from './sidebar-list.js'
 import { TAG_KINDS, newTag } from './tag-edit.js'
 import { newLayout } from './layout-edit.js'
 
-export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'], setting: ['设置', 'Settings'] }
+export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'] }
 export const tagKindWord = (kind) => (TAG_KIND_WORDS[kind] ? tr(...TAG_KIND_WORDS[kind]) : kind)
 export const RELATION_KINDS = [['requires', '先修', 'Requires'], ['order', '顺序', 'Order'], ['replaces', '取代', 'Replaces']]
 

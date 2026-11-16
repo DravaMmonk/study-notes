@@ -1,0 +1,17 @@
+{
+  "name": "@piece.keepBound.name",
+  "desc": "@piece.keepBound.desc",
+  "icon": "Box",
+  "family": "logic:family-loop",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "regions": [
+    {
+      "name": "body",
+      "label": "@piece.keepBound.regions.0.label",
+      "opens": true,
+      "type": "logic:machine-value"
+    }
+  ],
+  "compute": "logic:keepBound(in)",
+  "outputType": "logic:machine-value"
+}

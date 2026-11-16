@@ -1,3 +1,6 @@
+import { resolveSettings } from './parts/settings.js'
+export { resolveSettings } from './parts/settings.js'
+
 // A piece's faces are independent: its own (name, desc, icon, family) and those of the editor it is made
 // with (parts/schema.js EDITORS). The persisted circuit definitions use the established inputs and views keys.
 /** The editor a piece is made with: the one it names, the circuit's when it names none. */
@@ -6,7 +9,7 @@ export const editorOf = (piece) => piece.editor ?? 'circuit'
 export const markOf = (piece) => piece.mark ?? null
 export const holesOf = (piece) => piece.inputs ?? []
 export const outletsOf = (piece) => piece.outputs ?? []
-export const settingsOf = (piece) => piece.settings ?? []
+export const settingsOf = (piece, operations) => Array.isArray(piece.settings) ? piece.settings : resolveSettings(piece, operations)
 export const regionsOf = (piece) => piece.regions ?? []
 export const insideOf = (piece) => piece.inside ?? null
 export const facesOf = (piece) => piece.views ?? {}
@@ -14,22 +17,9 @@ export const keepsOf = (piece) => piece.keeps ?? null
 // A built piece run by an engine resource instead of its inside (the artifact still records its interface).
 export const cardOf = (piece) => piece.card ?? null
 
-/** Resolve a content piece's bindings to the setting face the circuit reads. */
-export function resolveSettings(file, piece) {
-  return settingsOf(piece).flatMap(({ key, setting }) => Object.hasOwn(file?.settings ?? {}, setting)
-    ? [{ ...file.settings[setting], key }]
-    : [])
-}
-
-/** Pieces and local keys referring to a setting definition. */
-export function settingReferences(file, id) {
-  return Object.entries(file?.parts ?? {}).flatMap(([piece, def]) => settingsOf(def)
-    .filter(({ setting }) => setting === id).map(({ key }) => ({ piece, key })))
-}
-
-/** A pieces.json's built pieces (those with an inside), by type. */
+/** A pieces/<name>.json's built pieces (those with an inside), by type. */
 export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece))
-  .map(([type, piece]) => [type, { ...piece, settings: resolveSettings(file, piece) }]))
+  .map(([type, piece]) => [type, { ...piece, settings: resolveSettings(piece) }]))
 
 /** The task author chooses which piece variant its passing work supplies. */
 export function publications(levels, pieces) {

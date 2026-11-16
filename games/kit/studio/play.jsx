@@ -10,7 +10,7 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a piece of pieces.json shown: the scenes its editor draws and its
+//                  { type: 'part', content, part } a piece of pieces/<name>.json shown: the scenes its editor draws and its
 //                  fields (PieceView.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
@@ -29,7 +29,6 @@ import { GameShell, getLang, tr } from '../shell/index.js'
 import { useLang } from '../shell/useLang.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { DOMAINS } from 'virtual:studio-domains'
-import { SettingSheet } from '../shell/parts/PieceSheet.jsx'
 import PieceView from './PieceView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
@@ -141,11 +140,8 @@ export default function Play() {
     go,
   }), [level, take, editing, go])
   if (part) {
-    // A setting definition goes as settings/<name>: its page is the control it draws and its fields.
-    const setting = part.type.startsWith('settings/') ? part.type.slice('settings/'.length) : null
-    const which = setting !== null ? { setting } : { part: part.type }
+    const which = { part: part.type }
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
-    if (setting !== null) return <SettingSheet name={setting} setting={part.game.partDefs?.settings?.[setting]} game={part.game} edit={parts} />
     const toTask = (task) => say({ type: 'task-go', task })
     // A task as the map numbers it: its level's label, and which task of the level when it has several.
     const taskLabel = (task) => {

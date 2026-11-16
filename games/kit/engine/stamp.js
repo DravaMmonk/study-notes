@@ -6,7 +6,7 @@
 import { find, sectionOf, shapeAt } from './schema.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { isText } from './i18n.js'
-import { editorOf, settingsOf } from './pieces.js'
+import { editorOf } from './pieces.js'
 import { canonicalJson } from './json-value.js'
 
 const PUZZLE = ['puzzle', 'tests']
@@ -37,10 +37,7 @@ export function taskStamps(vocabulary, content, { courseField } = {}) {
   // Strip labels are bound to the task's expression language. They do not change how a saved work is judged.
   const strip = Object.values(content.partDefs?.parts ?? {}).filter((piece) => editorOf(piece) === 'strip')
   const file = content.partDefs
-  const used = new Set(Object.values(file?.parts ?? {}).flatMap((piece) => settingsOf(piece).map((ref) => ref.setting)))
-  const settings = Object.entries(file?.settings ?? {}).filter(([id]) => used.has(id))
-  // Standalone definitions do not affect a work until a piece references them.
-  const puzzleParts = file?.settings ? { ...file, settings: settings.length ? Object.fromEntries(settings) : undefined } : file
+  const puzzleParts = file
   const texts = localizedFields(PARTS_FILE, puzzleParts)
   const parts = plain(puzzleParts ?? null, new Set([...texts, ...strip]))
   return Object.fromEntries(content.levels.flatMap((level) => {

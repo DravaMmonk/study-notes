@@ -1,3 +1,4 @@
+import '../../../../shell/bench/bench.css'
 import { qualifyItems } from '../../../../engine/capabilities.js'
 import { SeparableKernels } from './Separable.jsx'
 import { AppleChannels, AppleDecision } from './AppleChannels.jsx'

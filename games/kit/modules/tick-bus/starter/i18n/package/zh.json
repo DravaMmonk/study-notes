@@ -17,8 +17,8 @@
   "piece.keep.name": "存寄存卡",
   "piece.reg.desc": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。",
   "piece.reg.name": "读寄存卡",
-  "setting.const_value.label": "数值",
-  "setting.keep_reg.label": "名字",
-  "setting.reg_reg.label": "名字",
-  "setting.reg_start.label": "初值"
+  "piece.keep.settings.reg.label": "名字",
+  "piece.const.settings.value.label": "数值",
+  "piece.reg.settings.reg.label": "名字",
+  "piece.reg.settings.start.label": "初值"
 }

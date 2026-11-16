@@ -52,8 +52,9 @@ function spansIn(re, text, tags = true, word = false) {
  */
 export function searchable(content, vocabulary, kinds = KINDS) {
   const out = []
-  const texts = (value, schema, at) => {
-    for (const { path, value: v } of find(schema, value, 'text', { vocabulary })) {
+  const texts = (value, schema, at, prefix = []) => {
+    for (const { path: ownPath, value: v } of find(schema, value, 'text', { vocabulary })) {
+      const path = [...prefix, ...ownPath]
       if (typeof v === 'string') out.push({ ...at, path, kind: 'text', text: v })
       else for (const [side, text] of textEntries(v)) out.push({ ...at, path, kind: 'text', side, text })
     }
@@ -73,7 +74,7 @@ export function searchable(content, vocabulary, kinds = KINDS) {
     texts(game, vocabulary.game, { file: 'game.json', in: 'game' })
     for (const { id, group: _group, ...entry } of glossary.entries) texts(entry, ENTRY, { file: `entries/${id}.json`, entry: id })
     for (const [name, tag] of Object.entries(content.tags ?? {})) if (tag.kind === 'entry') texts(tag, OBJECT_SCHEMAS.tags, { file: `tags/${tag.kind}/${name}.json`, tag: name })
-    texts(partDefs, PARTS_FILE, { file: 'pieces.json', in: 'pieces' })
+    for (const [id, piece] of Object.entries(partDefs?.parts ?? {})) texts(piece, PARTS_FILE.fields.parts.of, { file: `pieces/${id}.json`, in: 'pieces' }, ['parts', id])
   }
   if (kinds.includes('id')) glossary.entries.forEach((e) => out.push({ file: `entries/${e.id}.json`, entry: e.id, path: [], kind: 'id', text: e.id }))
   return out

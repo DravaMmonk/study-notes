@@ -1,11 +1,11 @@
 // The lists of the studio's left column (games/PACKAGES.md 8): whatever is picked from is listed on the left, one kind
 // at a time, a switcher above choosing which; the middle shows what is picked, the right its raw JSON. The lists of the
-// level views (the course tree, the pieces, the settings, the encyclopedia, search) leave the middle on the level view;
+// level views (the course tree, the pieces with their settings, the encyclopedia, search) leave the middle on the level view;
 // the object lists (tags, relations, layouts, the kernel's capabilities, the overrides) put the object picked there.
 // What each object list has open is kept in the address, so a reload comes back to it.
 
 /** The package workspace's lists, by the kind of what they list; search always last. */
-export const PACKAGE_LISTS = ['tree', 'parts', 'settings', 'entries', 'tags', 'relations', 'layouts', 'kernel', 'overrides', 'search']
+export const PACKAGE_LISTS = ['tree', 'parts', 'entries', 'tags', 'relations', 'layouts', 'kernel', 'overrides', 'search']
 /** The game workspace's lists. */
 export const GAME_LISTS = ['chapters', 'overrides']
 

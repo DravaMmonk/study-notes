@@ -131,10 +131,9 @@ export function formOf(schema, value, ctx, path = []) {
       return { ...base, kind: 'call', item, params: spec ? formOf(spec, params, ctx, [...path, item]) : null }
     }
     case 'list': {
-      const bindings = schema.view === 'setting-bindings'
-      const control = bindings ? null : listControl(schema, ctx)
+      const control = listControl(schema, ctx)
       if (control) return { ...base, ...control }
-      return { ...base, kind: 'list', of: schema.of, ...(bindings && { bindings: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
+      return { ...base, kind: 'list', of: schema.of, items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
     }
     case 'map': {
       const control = listControl(schema, ctx)
@@ -147,8 +146,8 @@ export function formOf(schema, value, ctx, path = []) {
         kind: 'obj',
         fields: Object.entries(schema.fields).map(([key, s]) => ({
           key, optional: Boolean(s.optional), ...(s.about && { about: s.about }), schema: s,
-          field: isObj(value) && (value[key] !== undefined || s.view === 'setting-bindings')
-            ? formOf(s, value[key] === undefined ? [] : value[key], ctx, [...path, key])
+          field: isObj(value) && value[key] !== undefined
+            ? formOf(s, value[key], ctx, [...path, key])
             : null,
         })),
       }
@@ -518,11 +517,10 @@ export function opFor(file, path, edit, type = null) {
     if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
-  // pieces.json: a field of it (a whole part is added and removed by the part operations).
+  // pieces/<name>.json: a field of it (a whole part is added and removed by the part operations).
   if (file.parts) {
     if (edit.unset && keys.length === 2) {
       if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }
-      if (keys[0] === 'settings') return { op: 'setting.remove', setting: keys[1] }
     }
     if (edit.unset) return { op: 'pieces.unset', path: keys }
     return { op: 'pieces.set', path: keys, value: edit.set }
@@ -585,7 +583,7 @@ const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation 
 export function pushOp(ops, op) {
   const last = ops.at(-1)
   // Adding and removing never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 

@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
-import { contentTargets, domainOf, readContent, readPackage } from './content-node.js'
+import { contentTargets, runtimeOf, readContent, readPackage } from './content-node.js'
 import { checkGame } from './checks.js'
 import { closeGames, gameOf } from './games.mjs'
 import { holds, usable } from '../course.js'
@@ -27,9 +27,7 @@ const fixture = () => {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
   }
   put('packages/library/package.json', { domain: 'logic', vocabulary: 1 })
-  put('packages/library/pieces.json', { parts: {
-    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' },
-  } })
+  put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' })
   return { root, put }
 }
 
@@ -41,7 +39,7 @@ test('a pieces-only package opens, generates a course, checks and writes its own
   assert.deepEqual(content.levels, [])
   assert.deepEqual(content.eras.map((era) => era.levels), [[]])
   assert.ok(content.primitives.includes('library/apply'))
-  const domain = await domainOf(content)
+  const domain = await runtimeOf(content)
   assert.deepEqual((await checkGame(content, { domain, root })).filter((line) => line.fail), [])
   const game = await gameOf(content)
   assert.deepEqual(game.levels, [])
@@ -82,10 +80,10 @@ test('tag chapters retain titles, nesting, layouts, cross-chapter relations and 
   assert.ok(content.relationEdges.requires.some((edge) => edge.from === `${id}/given` && edge.to === `${id}/apply`))
   assert.deepEqual(openPackage(id, root).content().eras, content.eras)
   assert.ok(content.glossary.groups.some((group) => group.id === `${id}/terms`))
-  const { course } = (await domainOf(content)).spec(content)
+  const { course } = (await runtimeOf(content)).spec(content)
   assert.ok(usable(course, { id: `${id}/given`, task: 0 }, new Set()).includes(`${id}/impI`))
   assert.equal(holds(course, { id: `${id}/given`, task: 0 }, new Set())(`${id}/impI`, 'A'), true)
-  assert.deepEqual((await checkGame(content, { domain: await domainOf(content), root })).filter((line) => line.fail), [])
+  assert.deepEqual((await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail), [])
 })
 
 test('package dependencies are readable while only the selected layer can be edited', async () => {
@@ -100,7 +98,7 @@ test('package dependencies are readable while only the selected layer can be edi
   assert.equal(gameOp.ok, false)
   const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'piece', name: 'library/apply', merge: true, data: { desc: 'Local override' } }] }, { write: true })
   assert.equal(edited.ok, true, edited.problems.join('\n'))
-  assert.deepEqual(edited.files, ['packages/extra/overrides/library/pieces/apply.json'])
+  assert.deepEqual(edited.files, ['packages/extra/overrides/library/piece/apply.json'])
   assert.equal(readPackage('library', root).partDefs.parts['library/apply'].desc, 'Apply an implication.')
   assert.equal(readPackage('extra', root).partDefs.parts['library/apply'].desc, 'Local override')
   assert.deepEqual(readLog(openPackage('library', root)), [])
@@ -110,13 +108,13 @@ test('games can edit only their own layer and cannot undo a package log entry', 
   const { root, id } = proofsRoot()
   roots.push(root)
   const ws = openGame(id, root)
-  const before = readFileSync(resolve(root, 'packages', id, 'pieces.json'), 'utf8')
+  const before = readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8')
   const refused = await runChangeset(ws, { ops: [{ op: 'pieces.set', path: ['parts', 'mp', 'desc'], value: 'Forbidden' }] })
   assert.equal(refused.ok, false)
   const result = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'title', value: 'New game title' }] }, { write: true })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(result.files, [`games/${id}/game.json`, `games/${id}/i18n/en.json`])
-  assert.equal(readFileSync(resolve(root, 'packages', id, 'pieces.json'), 'utf8'), before)
+  assert.equal(readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8'), before)
   assert.equal(readContent(id, root).title, 'New game title')
   assert.equal((await undo(openPackage(id, root))).ok, false)
 })
@@ -149,6 +147,6 @@ test('generated courses still reject invalid authored package fields', async () 
   const { root, put } = fixture()
   put('packages/library/package.json', { domain: 'logic', vocabulary: 1, unknownField: true })
   const content = readPackage('library', root)
-  const failures = (await checkGame(content, { domain: await domainOf(content), root })).filter((line) => line.fail)
+  const failures = (await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail)
   assert.ok(failures.some((line) => line.text.includes('unknownField')), failures.map((line) => line.text).join('\n'))
 })
