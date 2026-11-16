@@ -7,7 +7,7 @@ import { fileForm, opFor } from './form.js'
 test('search is the last list of the package workspace; the object lists are told apart', () => {
   assert.equal(PACKAGE_LISTS.at(-1), 'search')
   assert.equal(PACKAGE_LISTS[0], 'tree')
-  assert.equal(GAME_LISTS[0], 'chapters')
+  assert.deepEqual(GAME_LISTS, ['packages', 'chapters', 'overrides'])
   assert.ok(isObjectList('tags') && isObjectList('overrides') && isObjectList('kernel'))
   assert.ok(!isObjectList('tree') && !isObjectList('search') && !isObjectList('toString'))
   assert.equal(listOfKind('relation'), 'relations')

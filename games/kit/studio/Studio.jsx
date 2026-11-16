@@ -43,6 +43,6 @@ export default function Studio() {
       onOpen={(next) => { if (next.game) { setGame(next.game); setCopyOpen('game') } else { setPkg(next.package); setCopyOpen('package') } }} />
   }
   return space === 'arrange'
-    ? <GameStudio game={game} games={games} onGame={setGame} onMade={(id) => reload().then(() => setGame(id))} space={switcher} />
+    ? <GameStudio game={game} games={games} onGame={setGame} onMade={(id) => reload().then(() => setGame(id))} packages={packages} onBuild={(id) => { setPkg(id); setSpace('build') }} space={switcher} />
     : <PackageStudio key={pkg} pkg={pkg} packages={packages} onPackage={setPkg} space={switcher} />
 }

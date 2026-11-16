@@ -6,8 +6,8 @@
 // override's fields before and after; the file of what is picked on the right (Inspector.jsx); the audit under the
 // middle. Only
 // the game's side of the operation set runs here (useChangeset.js): the course, the game's texts and its overrides.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, Layers, ListTree, Plus, Settings2, Trash2 } from 'lucide-react'
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, ArrowUp, Hammer, Layers, ListTree, Package, Plus, Settings2, Trash2 } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { withParts } from '../engine/parts/define.js'
 import { parsePath } from '../engine/ops/edit.js'
@@ -22,7 +22,6 @@ import { blankChapter, moveChapter } from './course-edit.js'
 import { useChangeset } from './useChangeset.js'
 import StudioBar from './StudioBar.jsx'
 import PanelResizer from './PanelResizer.jsx'
-import Editor from './Editor.jsx'
 import ChapterBoard from './ChapterBoard.jsx'
 import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
 import { GAME_LISTS, OBJECT_LISTS, openParams, overrideKey, readOpen } from './left-lists.js'
@@ -34,7 +33,7 @@ import Inspector from './Inspector.jsx'
 const QUERY = new URLSearchParams(window.location.search)
 const SCOPE = 'game'
 const OPENED = readOpen(QUERY, GAME_LISTS)
-const LISTS = { chapters: [ListTree, '章节', 'Chapters'], overrides: [Layers, '覆盖', 'Overrides'] }
+const LISTS = { packages: [Package, '包', 'Packages'], chapters: [ListTree, '章节', 'Chapters'], overrides: [Layers, '覆盖', 'Overrides'] }
 const SETTLE = 700
 const NEW = '\0new'
 
@@ -43,16 +42,19 @@ const remember = (game, at, opened) => {
   url.searchParams.set('game', game)
   url.searchParams.set('space', 'arrange')
   url.searchParams.delete('tab')
-  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const k of ['package', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   window.history.replaceState(null, '', url)
 }
 
-/** `game`: the game arranged; `games`: every game, { id, title, package }; `onMade(id)`: a game was just made. */
-export default function GameStudio({ game, games, onGame, onMade, space }) {
+/**
+ * `game`: the game arranged; `games`: every game, { id, title, package }; `onMade(id)`: a game was just made;
+ * `packages`: every package, { id, uses }; `onBuild(id)` opens a package in the build workspace.
+ */
+export default function GameStudio({ game, games, onGame, onMade, packages = [], onBuild, space }) {
   const pending = useChangeset(game, SCOPE)
-  const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
+  const { ops, redo, why, setWhy, shown, last, checked, busy, rev, saving, said, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [domainVocab, setVocab] = useState(null)
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('era') !== null ? { era: Number(QUERY.get('era')) } : { era: 0 }))
@@ -61,6 +63,8 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const side = GAME_LISTS.includes(savedSide) ? savedSide : 'chapters'
   const overridesShown = side === 'overrides'
+  const packagesShown = side === 'packages'
+  const [packageAt, setPackageAt] = useState(null) // the package picked in the packages list
   const [openOverride, setOpenOverride] = useState(OPENED.open.override ?? null)
   const openDrawer = (next) => {
     setDrawerTab(next)
@@ -97,7 +101,6 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
     quotes: rawNames.quotes,
     onLevel: () => {},
   }, [rawNames])
-  const order = useMemo(() => (rawNames ? rawNames.levels.map((l) => l.id) : content?.levels.map((l) => l.id) ?? []), [rawNames, content])
   const levelOptions = useMemo(() => content?.levels.map((l) => ({ value: l.id, label: l.id, title: l.title })) ?? null, [content])
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
@@ -107,6 +110,9 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const openEvent = overridesShown ? events.find((event) => overrideKey(event) === openOverride) ?? events[0] ?? null : null
   const openedParams = openEvent ? openParams('overrides', { override: overrideKey(openEvent) }) : []
   useEffect(() => remember(game, at, openedParams), [game, at, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
+  // The packages this game plays (game.json `packages`, the layers it loads on) and the one picked in the list.
+  const used = content?.layerUses?.[layer] ?? []
+  const packageShown = packages.some((p) => p.id === packageAt) ? packageAt : used[0] ?? packages[0]?.id ?? null
   const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
   const select = (next) => {
@@ -180,7 +186,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
         )}
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
-        <div className={`studio-body is-${overridesShown ? 'objects' : 'arrange'} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
+        <div className={`studio-body is-${overridesShown || packagesShown ? 'objects' : 'arrange'} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
               {GAME_LISTS.map((list) => {
@@ -192,7 +198,8 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
                 )
               })}
             </div>
-            {overridesShown ? <OverrideList events={events} layer={layer} current={openEvent && overrideKey(openEvent)} onOpen={setOpenOverride} /> : (
+            {packagesShown ? <PackageList packages={packages} used={used} current={packageShown} onOpen={setPackageAt} />
+              : overridesShown ? <OverrideList events={events} layer={layer} current={openEvent && overrideKey(openEvent)} onOpen={setOpenOverride} /> : (
             <nav className="tree chapters" aria-label={tr('章节', 'Chapters')}>
               <button type="button" className={`tree-level ${at?.game ? 'is-on' : ''}`} onClick={() => select({ game: true })}>
                 <Settings2 size={13} aria-hidden="true" /><span>{L(content.title)}</span>
@@ -215,18 +222,21 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             <div className="studio-scroll">
+              {packagesShown && <PackageCard id={packageShown} packages={packages} used={used} content={content} onBuild={onBuild} />}
               {overridesShown && <OverrideDetail event={openEvent} layer={layer} pending={busyEditing} onOps={addOps} onOpen={() => setSide('chapters')} />}
-              {!overridesShown && (at?.game || e === null
-                ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
+              {!overridesShown && !packagesShown && (at?.game || e === null
+                ? <article className="editor"><header className="editor-head"><h1>{L(content.title)}</h1></header></article>
                 : <>
-                  <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
+                  <header className="editor-head chapter-head" onClick={() => pickField(['chapters', e])}>
+                    <code className="editor-id is-static">{eras[e].id}</code><h1>{L(eras[e].title ?? eras[e].chapter?.title) ?? ''}</h1>
+                  </header>
                   <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} onOps={addOps} />
                 </>)}
             </div>
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : field ?? (at?.game ? { path: [] } : e !== null ? { path: ['chapters', e] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
+            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : packagesShown ? null : field ?? (at?.game ? { path: [] } : e !== null ? { path: ['chapters', e] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
               onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => setField(null)}
               tabs={[]} selection={at?.game ? { game: true } : { era: e }} onToggleTab={() => {}} onOpenTab={() => {}} onCloseTab={() => {}}
               onNavigate={(path) => pickField(path)} />}
@@ -252,4 +262,43 @@ function retitled(value, key = null) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return value
   if (isText(value)) return key === 'title' ? T('新的一章', 'New chapter') : Object.fromEntries(textEntries(value).map(([lang]) => [lang, '']))
   return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, retitled(v, k)]))
+}
+
+/** The packages, those this game plays first. */
+function PackageList({ packages, used, current, onOpen }) {
+  const listed = [...packages].sort((a, b) => Number(used.includes(b.id)) - Number(used.includes(a.id)) || a.id.localeCompare(b.id))
+  return (
+    <nav className="parts-list" aria-label={tr('包', 'Packages')}>
+      {listed.map(({ id }) => (
+        <button key={id} type="button" className={`parts-row is-object ${id === current ? 'is-on' : ''} ${used.includes(id) ? '' : 'is-unused'}`} aria-current={id === current ? 'true' : undefined} onClick={() => onOpen(id)}>
+          <i className="family-chip"><Package size={12} aria-hidden="true" /></i>
+          <span>{id}</span>
+          {used.includes(id) ? <code>{tr('在用', 'In use')}</code> : <i />}
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+/** A package picked in the list: whether the game plays it, what it loads on, what it holds; open it to build. */
+function PackageCard({ id, packages, used, content, onBuild }) {
+  if (!id) return <article className="arrange" />
+  const uses = packages.find((p) => p.id === id)?.uses ?? []
+  const count = (kind) => Object.keys(content?.registries?.[kind] ?? {}).filter((name) => name.startsWith(`${id}/`)).length
+  return (
+    <article className="editor">
+      <header className="editor-head">
+        <code className="editor-id is-static">{id}</code>
+        <span className="object-kind">{used.includes(id) ? tr('在用', 'In use') : tr('未用', 'Not used')}</span>
+        <span className="kit-spacer" />
+        {onBuild && <button type="button" className="kit-btn is-label" onClick={() => onBuild(id)}><Hammer size={13} aria-hidden="true" />{tr('构建', 'Build')}</button>}
+      </header>
+      <dl className="package-facts">
+        {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
+        {used.includes(id) && [['level', '关卡', 'Levels'], ['piece', '件', 'Pieces'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['layout', '布局', 'Layouts']].map(([kind, zh, en]) => (
+          <Fragment key={kind}><dt>{tr(zh, en)}</dt><dd>{count(kind)}</dd></Fragment>
+        ))}
+      </dl>
+    </article>
+  )
 }

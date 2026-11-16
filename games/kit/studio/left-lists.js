@@ -7,7 +7,7 @@
 /** The package workspace's lists, by the kind of what they list; search always last. */
 export const PACKAGE_LISTS = ['tree', 'parts', 'entries', 'tags', 'relations', 'layouts', 'kernel', 'overrides', 'search']
 /** The game workspace's lists. */
-export const GAME_LISTS = ['chapters', 'overrides']
+export const GAME_LISTS = ['packages', 'chapters', 'overrides']
 
 /** The object lists, each with the address parameter that keeps what it has open. */
 export const OBJECT_LISTS = { tags: 'tag', relations: 'relation', layouts: 'layout', kernel: 'capability', overrides: 'override' }

@@ -841,3 +841,10 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .audit > .audit-filter { justify-content: flex-start; padding: 4px 8px; }
 .drawer-debug { margin: 0; padding: 8px 12px; color: var(--ink); font: 11px/1.45 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .studio-play > .object-links { padding: 6px 10px; border-top: 1px solid var(--hairline); }
+
+/* The arrange workspace's packages (GameStudio.jsx): those the game does not play are quieter; a package's facts. */
+.parts-row.is-unused > span { color: var(--muted); }
+.package-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 8px 0; }
+.package-facts dt { color: var(--muted); font: 600 11.5px/1.6 var(--mono); }
+.package-facts dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chapter-head { cursor: pointer; }

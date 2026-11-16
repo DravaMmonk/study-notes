@@ -83,7 +83,7 @@ const remember = (pkg, at, field, playLevel, task, opened) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', 'build')
-  for (const k of ['level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
