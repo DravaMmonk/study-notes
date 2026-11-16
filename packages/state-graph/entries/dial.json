@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.dial.title",
+  "at": "order",
+  "body": ["@glossary.entries.dial.body.0", "@glossary.entries.dial.body.1"],
+  "see": ["topo", "testBoard"]
+}

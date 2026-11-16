@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.forward.title",
+  "at": "forward",
+  "body": ["@glossary.entries.forward.body.0", "@glossary.entries.forward.body.1"],
+  "see": ["viterbi", "countOpt"]
+}

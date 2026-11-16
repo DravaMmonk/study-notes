@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.skolem.title",
+  "at": "au-skolem",
+  "body": ["@glossary.entries.skolem.body.0"],
+  "see": ["clause", "satisfiable"]
+}

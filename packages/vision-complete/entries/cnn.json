@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.cnn.title",
+  "at": "4-12",
+  "body": ["@glossary.entries.cnn.body.0", "@glossary.entries.cnn.body.1", "@glossary.entries.cnn.body.2"],
+  "see": ["convlayer", "pooling", "neuron", "overfit"]
+}

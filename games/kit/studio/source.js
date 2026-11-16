@@ -49,7 +49,20 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
   if (invalid) throw new Error(`${invalid.at}: ${invalid.says}`)
   const op = (keys, next) => opFor(file, keys, next === undefined ? { unset: true } : { set: next })
 
-  if (file.glossary) return [{ op: 'glossary.replace', data: after }]
+  if (file.glossary) {
+    const old = Object.fromEntries(before.entries.map(({ id, group: _group, ...entry }) => [id, entry]))
+    const next = Object.fromEntries(after.entries.map(({ id, group: _group, ...entry }) => [id, entry]))
+    const ops = changedKeys(old, next).map((entry) => next[entry] === undefined ? { op: 'entry.remove', entry } : { op: 'entry.put', entry, data: next[entry] })
+    const oldGroups = Object.fromEntries(before.groups.filter((g) => g.id).map((g) => [g.id, g]))
+    const newGroups = Object.fromEntries(after.groups.filter((g) => g.id).map((g) => [g.id, g]))
+    for (const tag of changedKeys(oldGroups, newGroups)) {
+      const group = newGroups[tag]
+      if (!group) ops.push({ op: 'tag.remove', tag })
+      else ops.push({ op: 'tag.put', tag, data: { ...sourceValue(content.tags?.[tag]), kind: 'entry', title: group.title, values: group.values ?? after.entries.filter((e) => e.group === tag).map((e) => e.id) } })
+    }
+    if (after.entries.some((entry) => before.entries.find((old) => old.id === entry.id)?.group !== entry.group)) throw new Error(tr('请通过词条标签修改分组。', 'Edit encyclopedia membership through entry tags.'))
+    return ops
+  }
   if (file.parts) {
     const edits = []
     for (const group of ['parts', 'settings']) {

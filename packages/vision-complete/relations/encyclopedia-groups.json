@@ -1,0 +1,5 @@
+{
+  "kind": "order",
+  "of": "entry",
+  "sequence": ["#play", "#image", "#freq", "#light", "#learn", "#geo", "#gen", "#scene", "#check"]
+}

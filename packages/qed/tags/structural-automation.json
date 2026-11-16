@@ -1,9 +1,0 @@
-{
-  "kind": "level",
-  "title": "@group.structural-automation.title",
-  "values": [
-    "s-intro",
-    "s-elim",
-    "s-auto"
-  ]
-}

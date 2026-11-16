@@ -1,0 +1,15 @@
+{
+  "title": "@glossary.groups.geo.title",
+  "values": [
+    "corner",
+    "ratio",
+    "hough",
+    "ransac",
+    "homography",
+    "disparity",
+    "depth",
+    "epipolar",
+    "nms",
+    "homogeneous"
+  ]
+}

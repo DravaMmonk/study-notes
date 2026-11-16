@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.tactic.title",
+  "at": "s-repeat",
+  "body": ["@glossary.entries.tactic.body.0", "@glossary.entries.tactic.body.1"],
+  "see": ["backtracking", "lcf"]
+}

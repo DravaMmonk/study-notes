@@ -1,0 +1,4 @@
+{
+  "title": "@group.existential-witnesses.title",
+  "values": ["decl-ex", "q-exI", "q-exE", "q-witness", "r-order"]
+}

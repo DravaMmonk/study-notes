@@ -269,6 +269,11 @@ packages/<包>/
    - 验收：四款游戏检查输出除名字外不变；四则运算库包被两个原属不同领域的包依赖，检查通过；`npm run new-package` 从每个模板建出的包能打开、试玩、检查。
 6. **Studio。** 实现第 8 节，在浏览器里看桌面和手机。
 7. **余下的迁移。** 百科的 `groups` 改成词条标签，`glossary.json` 拆成 `entries/<名>.json`；`concept` 改成概念标签，`local` 改成关卡（任务）的字段，都在包里，按第 5 节归位；标签文件挪到 `tags/<种类>/`。
+   - **7a 已完成**：百科改为 `entries/<名>.json` 与 `tags/entry/<名>.json`，标签声明为 `tags/<种类>/<名>.json`，标签覆盖为 `overrides/<命名空间>/tag/<种类>/<名>.json`；文件不重复存 `kind`。`setting` 标签仍保留。
+   - 百科操作为 `entry.put/set/patch/remove` 和 `tag.put/set/remove`；`text.set/override` 用 `entry` 或 `tag` 选对象，路径相对于该对象。已移除 `glossary.*` 操作。词条文件不存 `id`、`group`。
+   - 原分组顺序、组内词条顺序由 `encyclopedia-groups`、`encyclopedia-entries` 两份 `order` 关系保留。旧分组名与既有标签重名时使用 `entries-<旧名>`。四款旧百科都没有其它包级字段。
+   - 前台百科是组装后的显示投影（`glossary`），不是可写内容文件；组的 `values` 是已展开的词条成员，词条注册表不含显示投影的 `group`。Studio 暂用原百科表单映射到对象操作；按对象的标签、嵌套、顺序编辑留给第 6 步。
+   - 本次不迁移 `concept`、`local`，不拆 `pieces.json`；领域词汇表未改变，版本不变。
 8. **写回手册。** 改写 `games/DESIGN.md` 的第 2、2.6、6.1、6.2、6.3、6.5、6.7、6.10、7.1 节；从 `DIRECTION.md`、`PLAN.md` 删掉和本文冲突的话；删掉这份文档。
 
 ## 11. 被本文取代的内容

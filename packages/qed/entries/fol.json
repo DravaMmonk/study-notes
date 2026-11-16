@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.fol.title",
+  "at": "fo-atoms",
+  "body": ["@glossary.entries.fol.body.0", "@glossary.entries.fol.body.1"],
+  "see": ["predicate", "quantifier", "world"]
+}

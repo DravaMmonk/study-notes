@@ -469,6 +469,20 @@ export function copyLevelData(source, level, levels) {
   return data
 }
 
+/** Name the source represented by an encyclopedia field. */
+export function glossaryFile(glossary, path) {
+  const object = glossary[path[0]]?.[path[1]]
+  if (!object?.id) return 'entries/ + tags/entry/'
+  return `${path[0] === 'entries' ? 'entries' : 'tags/entry'}/${object.id.split('/').at(-1)}.json`
+}
+
+/** Translate the encyclopedia projection's form paths to authored object targets. */
+export function glossaryTarget(glossary, keys) {
+  const object = glossary[keys[0]]?.[keys[1]]
+  if (!object?.id) return null
+  return { ...(keys[0] === 'entries' ? { entry: object.id } : { tag: object.id }), path: keys.slice(2) }
+}
+
 /**
  * The operation that makes an edit, on a file of the game: `file` { level } | { game: true } | { parts: true } |
  * { glossary } (the glossary as it is). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
@@ -478,23 +492,28 @@ export function copyLevelData(source, level, levels) {
 export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
   if (type === 'text' && !edit.unset) {
-    const where = file.level !== undefined ? { level: file.level } : { in: file.glossary ? 'glossary' : file.parts ? 'pieces' : 'game' }
-    return { op: 'text.set', ...where, path: keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
+    const where = file.glossary ? glossaryTarget(file.glossary, keys) : file.level !== undefined ? { level: file.level } : { in: file.parts ? 'pieces' : 'game' }
+    if (!where) return null
+    return { op: 'text.set', ...where, path: where.path ?? keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
   }
   // The glossary: a text by text.set; any other field of an entry by a merge patch of the entry's top field.
   if (file.glossary) {
+    if (keys[0] === 'entries' && keys[2] === 'group') return null
+    if (keys[0] === 'groups' && keys.length >= 3) {
+      const target = glossaryTarget(file.glossary, keys)
+      return target ? { op: 'tag.set', ...target, value: edit.unset ? null : edit.set } : null
+    }
     if (keys[0] === 'entries' && keys.length >= 3) {
       const entry = file.glossary.entries[keys[1]]
       const [top, ...rest] = keys.slice(2)
       const value = !rest.length ? (edit.unset ? null : edit.set) : edit.unset ? unsetAt(entry[top], rest) : setAt(entry[top], rest, edit.set)
-      return { op: 'glossary.set', entry: entry.id, fields: { [top]: value } }
+      return { op: 'entry.patch', entry: entry.id, fields: { [top]: value } }
     }
     if (keys[0] === 'entries' && keys.length === 2 && !edit.unset) {
-      const { id, ...data } = edit.set
-      return { op: 'glossary.put', entry: id, data, at: keys[1] }
+      const { id, group: _group, ...data } = edit.set
+      return { op: 'entry.put', entry: id, data }
     }
-    if (keys[0] === 'entries' && keys.length === 2) return { op: 'glossary.remove', entry: file.glossary.entries[keys[1]].id }
-    if (keys[0] === 'groupByChapter' && keys.length === 1) return { op: 'glossary.presentation', groupByChapter: edit.unset ? null : edit.set }
+    if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
   // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).

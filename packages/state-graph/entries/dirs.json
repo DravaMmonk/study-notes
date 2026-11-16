@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.dirs.title",
+  "at": "roll",
+  "body": ["@glossary.entries.dirs.body.0", "@glossary.entries.dirs.body.1"],
+  "see": ["rolling"]
+}

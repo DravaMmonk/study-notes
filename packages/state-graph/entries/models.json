@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.models.title",
+  "at": "stairs",
+  "body": ["@glossary.entries.models.body.0", "@glossary.entries.models.body.1"],
+  "see": ["robot", "arms"]
+}

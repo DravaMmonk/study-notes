@@ -1,0 +1,5 @@
+{
+  "kind": "order",
+  "of": "entry",
+  "sequence": ["#play", "#prop", "#entries-proof", "#fol", "#rules", "#types", "#limits", "#assist"]
+}

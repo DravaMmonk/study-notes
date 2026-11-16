@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.wave.title",
+  "at": "2-2",
+  "body": ["@glossary.entries.wave.body.0", "@glossary.entries.wave.body.1", "@glossary.entries.wave.body.2"],
+  "see": ["superpose", "spectrum"]
+}

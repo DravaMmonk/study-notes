@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.games.title",
+  "at": "nim",
+  "body": ["@glossary.entries.games.body.0", "@glossary.entries.games.body.1"],
+  "see": ["countOpt", "state"]
+}

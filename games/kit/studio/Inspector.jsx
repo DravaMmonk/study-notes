@@ -1,3 +1,4 @@
+import { glossaryFile } from './form.js'
 // The side panel (games/DESIGN.md 6.7): the one field picked — on the game's page (a click on a text, a test, a task's
 // name), in the rows of a file (Rows.jsx), by a finding, the palette or a search — with its control from the schema
 // (Fields.jsx, the same controls the forms used), what it means, the findings on it and its undo. Above it the way to
@@ -224,7 +225,7 @@ function longConfig(value) {
 
 /** Breadcrumbs always start at the original JSON file. */
 function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove, inUse }) {
-  const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : contentFileFor(path)
+  const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
   const atRoot = path.length === 0
   const canOpenRoot = !['course.json', 'package.json'].includes(name)
   const jsonLabel = tr('JSON 源码', 'JSON source')

@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.channels.title",
+  "at": "4-12",
+  "body": [
+    "@glossary.entries.channels.body.0",
+    "@glossary.entries.channels.body.1",
+    "@glossary.entries.channels.body.2"
+  ],
+  "see": ["colour", "convlayer", "cnn"]
+}

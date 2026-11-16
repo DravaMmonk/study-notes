@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.lowpass.title",
+  "at": "2-8",
+  "body": ["@glossary.entries.lowpass.body.0", "@glossary.entries.lowpass.body.1"],
+  "see": ["convthm", "spectrum", "hybrid", "sampling"]
+}

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.capture.title",
+  "at": "q-capture",
+  "body": ["@glossary.entries.capture.body.0"],
+  "see": ["bound", "free"]
+}

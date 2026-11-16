@@ -1,0 +1,11 @@
+{
+  "title": "@glossary.entries.training.title",
+  "at": "4-1",
+  "body": [
+    "@glossary.entries.training.body.0",
+    "@glossary.entries.training.body.1",
+    "@glossary.entries.training.body.2",
+    "@glossary.entries.training.body.3"
+  ],
+  "see": ["descent", "tests", "overfit"]
+}

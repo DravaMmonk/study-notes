@@ -1,4 +1,4 @@
-import { GLOSSARY } from '../engine/vocabulary.js'
+import { ENTRY } from '../engine/vocabulary.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
@@ -25,7 +25,7 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
     game: combineConfiguration(configuration),
     levels: levels.map(([level, value]) => [level, packageText(value, `levels/${level}.json`, vocabulary.level, vocabulary)]),
     ...Object.fromEntries(Object.entries({ tags, relations, layouts }).map(([kind, values]) => [kind, (values ?? []).map(([name, value, ns]) => [name, packageText(value, `${kind}/${name}.json`, OBJECT_SCHEMAS[kind], vocabulary), ns])])),
-    glossary: packageText(glossary, 'glossary.json', GLOSSARY, vocabulary),
+    glossary: { groups: [], entries: glossary.entries.map(({ id, ...entry }) => ({ id, ...packageText(entry, `entries/${id}.json`, ENTRY, vocabulary) })) },
     partDefs: packageText(partDefs, 'pieces.json', PARTS_FILE, vocabulary),
     blueprint: courseText(blueprint, 'blueprint.json', BLUEPRINT, vocabulary),
     fromDisk: true,

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.inductive.title",
+  "at": "decl-nat",
+  "body": ["@glossary.entries.inductive.body.0"],
+  "see": ["constructor", "induction"]
+}

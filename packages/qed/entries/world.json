@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.world.title",
+  "at": "fo-all",
+  "body": ["@glossary.entries.world.body.0", "@glossary.entries.world.body.1"],
+  "see": ["countermodel", "satisfiable"]
+}

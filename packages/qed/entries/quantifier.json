@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.quantifier.title",
+  "at": "fo-all",
+  "body": ["@glossary.entries.quantifier.body.0", "@glossary.entries.quantifier.body.1"],
+  "see": ["bound", "demorgan"]
+}

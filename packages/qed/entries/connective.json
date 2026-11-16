@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.connective.title",
+  "at": "g-not",
+  "body": ["@glossary.entries.connective.body.0", "@glossary.entries.connective.body.1"],
+  "see": ["truth", "natural"]
+}

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.demorgan.title",
+  "at": "demorgan",
+  "body": ["@glossary.entries.demorgan.body.0"],
+  "see": ["nnf"]
+}

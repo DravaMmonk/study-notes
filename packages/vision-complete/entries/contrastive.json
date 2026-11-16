@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.contrastive.title",
+  "at": "5-7",
+  "body": [
+    "@glossary.entries.contrastive.body.0",
+    "@glossary.entries.contrastive.body.1",
+    "@glossary.entries.contrastive.body.2"
+  ],
+  "see": ["cnn", "gan"]
+}

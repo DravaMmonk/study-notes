@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.homogeneous.title",
+  "at": "7-5",
+  "body": ["@glossary.entries.homogeneous.body.0", "@glossary.entries.homogeneous.body.1"],
+  "see": ["epipolar", "homography"]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.parse.title",
+  "at": "parse",
+  "body": [
+    "@glossary.entries.parse.body.0",
+    "@glossary.entries.parse.body.1",
+    "@glossary.entries.parse.body.2"
+  ],
+  "see": ["interval"]
+}

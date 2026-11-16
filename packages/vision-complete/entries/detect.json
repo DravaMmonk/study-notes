@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.detect.title",
+  "at": "10-2",
+  "body": ["@glossary.entries.detect.body.0", "@glossary.entries.detect.body.1"],
+  "see": ["nms", "iou"]
+}

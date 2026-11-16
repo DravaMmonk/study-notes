@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.axiom.title",
+  "at": "chain",
+  "body": ["@glossary.entries.axiom.body.0"],
+  "see": ["hilbert", "definition"]
+}

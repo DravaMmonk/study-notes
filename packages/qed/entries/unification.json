@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.unification.title",
+  "at": "r-match",
+  "body": ["@glossary.entries.unification.body.0"],
+  "see": ["mgu", "pattern"]
+}

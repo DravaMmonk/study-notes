@@ -10,7 +10,7 @@ import { lineDiff, unified } from './diff.js'
 // The domains' starter games: content files the kit keeps, in the house style every content file is written in.
 const DOMAINS = resolve(import.meta.dirname, '../../domains')
 const files = readdirSync(DOMAINS).map((d) => resolve(DOMAINS, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
-  resolve(g, 'game.json'), resolve(g, 'glossary.json'), ...readdirSync(resolve(g, 'levels')).map((f) => resolve(g, 'levels', f)),
+  resolve(g, 'game.json'), ...readdirSync(resolve(g, 'levels')).map((f) => resolve(g, 'levels', f)),
 ])
 
 test('every content file is written back as it is', () => {

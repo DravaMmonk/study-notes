@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.autoencoder.title",
+  "at": "8-1",
+  "body": [
+    "@glossary.entries.autoencoder.body.0",
+    "@glossary.entries.autoencoder.body.1",
+    "@glossary.entries.autoencoder.body.2"
+  ],
+  "see": ["reparam", "cnn"]
+}

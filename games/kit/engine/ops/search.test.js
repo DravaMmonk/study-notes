@@ -37,9 +37,9 @@ test('search: every text, never inside a link tag; board lines; ids', () => {
     'levels/flag.json hint.0 text en',
     'levels/flag.json solution board 0',
     'game.json title text en',
-    'glossary.json entries.0.title text en',
-    'glossary.json entries.0.body.0 text en',
-    'glossary.json entries.0.id id ',
+    'entries/flag.json title text en',
+    'entries/flag.json body.0 text en',
+    'entries/flag.json  id ',
   ])
   const hint = hits.find((h) => h.path.join('.') === 'hint.0')
   assert.equal(hint.at.length, 2, 'flags and flagpole, not the tag’s "flag"')
@@ -57,8 +57,8 @@ test('replace: one text.set a text, one level.blueprint a board; ids left alone'
     { op: 'text.set', level: 'flag', path: ['title'], lang: 'en', value: 'A marker' },
     { op: 'text.set', level: 'flag', path: ['hint', 0], lang: 'en', value: 'See <level-ref to="flag"></level-ref>: markers and a markerpole' },
     { op: 'text.set', in: 'game', path: ['title'], lang: 'en', value: 'The marker game' },
-    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'title'], lang: 'en', value: 'marker' },
-    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'body', 0], lang: 'en', value: 'A marker is 01111110.' },
+    { op: 'text.set', entry: 'flag', path: ['title'], lang: 'en', value: 'marker' },
+    { op: 'text.set', entry: 'flag', path: ['body', 0], lang: 'en', value: 'A marker is 01111110.' },
     { op: 'level.blueprint', level: 'flag', path: ['solution'], text: 'f = marker()\nout <- f' },
   ])
   assert.equal(changes.length, 6)

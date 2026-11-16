@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.completeness.title",
+  "at": "copy",
+  "body": ["@glossary.entries.completeness.body.0", "@glossary.entries.completeness.body.1"],
+  "see": ["soundness", "incompleteness"]
+}

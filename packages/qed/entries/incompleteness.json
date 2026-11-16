@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.incompleteness.title",
+  "at": "gd-true",
+  "body": [
+    "@glossary.entries.incompleteness.body.0",
+    "@glossary.entries.incompleteness.body.1",
+    "@glossary.entries.incompleteness.body.2"
+  ],
+  "see": ["consistency", "undecidable"]
+}

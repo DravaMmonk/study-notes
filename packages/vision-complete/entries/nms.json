@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.nms.title",
+  "at": "6-2",
+  "body": ["@glossary.entries.nms.body.0", "@glossary.entries.nms.body.1"],
+  "see": ["corner", "hough", "detect"]
+}

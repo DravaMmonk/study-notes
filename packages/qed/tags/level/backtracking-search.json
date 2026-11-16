@@ -1,0 +1,4 @@
+{
+  "title": "@group.backtracking-search.title",
+  "values": ["s-defer", "s-results", "s-append", "s-search", "s-loop"]
+}

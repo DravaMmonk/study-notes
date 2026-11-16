@@ -1,0 +1,5 @@
+{
+  "title": "@glossary.entries.game.title",
+  "body": ["@glossary.entries.game.body.0", "@glossary.entries.game.body.1", "@glossary.entries.game.body.2"],
+  "see": ["map", "circuit", "bench"]
+}

@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.dp.title",
+  "at": "lastStep",
+  "body": ["@glossary.entries.dp.body.0", "@glossary.entries.dp.body.1", "@glossary.entries.dp.body.2"],
+  "see": ["recurrence", "dag", "overlap"]
+}

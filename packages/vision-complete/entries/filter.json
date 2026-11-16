@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.filter.title",
+  "at": "1-1",
+  "body": ["@glossary.entries.filter.body.0", "@glossary.entries.filter.body.1"],
+  "see": ["kernel", "separable", "gaussian"]
+}

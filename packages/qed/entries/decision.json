@@ -1,0 +1,5 @@
+{
+  "title": "@glossary.entries.decision.title",
+  "body": ["@glossary.entries.decision.body.0"],
+  "see": ["reflection", "undecidable"]
+}

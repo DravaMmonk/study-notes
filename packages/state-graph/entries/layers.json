@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.layers.title",
+  "at": "robber",
+  "body": ["@glossary.entries.layers.body.0", "@glossary.entries.layers.body.1"],
+  "see": ["state", "stateSize", "memory"]
+}

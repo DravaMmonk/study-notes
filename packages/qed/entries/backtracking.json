@@ -1,0 +1,6 @@
+{
+  "title": "@glossary.entries.backtracking.title",
+  "at": "s-results",
+  "body": ["@glossary.entries.backtracking.body.0"],
+  "see": ["dfs"]
+}

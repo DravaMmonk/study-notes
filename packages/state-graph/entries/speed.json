@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.speed.title",
+  "at": "robber",
+  "body": [
+    "@glossary.entries.speed.body.0",
+    "@glossary.entries.speed.body.1",
+    "@glossary.entries.speed.body.2"
+  ],
+  "see": ["overlap", "stateSize"]
+}

@@ -1,0 +1,18 @@
+{
+  "title": "@glossary.groups.play.title",
+  "values": [
+    "game",
+    "map",
+    "circuit",
+    "tests",
+    "details",
+    "intro",
+    "layout",
+    "wiremode",
+    "bench",
+    "unlock",
+    "score",
+    "views",
+    "training"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "title": "@group.list-induction.title",
+  "values": ["in-appnil", "in-appassoc", "in-revapp", "in-revrev", "in-len"]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.corner.title",
+  "at": "6-1",
+  "body": [
+    "@glossary.entries.corner.body.0",
+    "@glossary.entries.corner.body.1",
+    "@glossary.entries.corner.body.2"
+  ],
+  "see": ["gradient", "ratio"]
+}

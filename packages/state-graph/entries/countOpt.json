@@ -1,0 +1,10 @@
+{
+  "title": "@glossary.entries.countOpt.title",
+  "at": "cheapest",
+  "body": [
+    "@glossary.entries.countOpt.body.0",
+    "@glossary.entries.countOpt.body.1",
+    "@glossary.entries.countOpt.body.2"
+  ],
+  "see": ["backtrack", "recurrence"]
+}
