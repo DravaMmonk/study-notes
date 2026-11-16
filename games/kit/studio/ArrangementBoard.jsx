@@ -4,7 +4,7 @@ import { useElementSize } from '../views/useElementSize.js'
 import { usePointerSession } from '../views/usePointerSession.js'
 import { boardGeometry, linkKey, wireCurve } from './arrangement.js'
 
-export default function ArrangementBoard({ board, label, describe, active, picked, wire, pending, isExternal, onLevel, onPick, onWire, onConnect, onCancel }) {
+export default function ArrangementBoard({ board, label, describe, portal: whereFrom = () => tr('外部关卡', 'External level'), active, picked, wire, pending, isExternal, onLevel, onPick, onWire, onConnect, onCancel }) {
   const scroller = useRef(null)
   const canvas = useRef(null)
   const width = useElementSize(scroller)?.width ?? 520
@@ -93,7 +93,7 @@ export default function ArrangementBoard({ board, label, describe, active, picke
         {cards.map(({ id, portal, x, y, width, height }) => (
           <div key={id} className={`course-card ${portal ? 'is-portal' : ''} ${moving?.id === id ? 'is-moving' : ''}`}
             style={{ left: x, top: y, width, height }}>
-            {portal && <div className="course-card-head">{tr('外部关卡', 'External level')}</div>}
+            {portal && <div className="course-card-head">{whereFrom(id)}</div>}
             <button type="button" className={`course-card-label ${active === id ? 'is-current' : ''}`}
               onPointerDown={(event) => moveCard(event, id, x, y)} onClick={(event) => click(event, () => onLevel(id))} title={describe(id)} aria-current={active === id ? 'true' : undefined}>
               {label(id)}

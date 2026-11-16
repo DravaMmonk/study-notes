@@ -692,3 +692,43 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 }
 
 .course-board-wires .is-derived > .course-wire-line { stroke-dasharray: 5 4; }
+
+/* The two workspaces (Studio.jsx): the switch in the bar, and the game workspace's chapter list, chapter board and map. */
+.studio-spaces { display: flex; gap: 1px; padding: 2px; border-radius: 8px; background: var(--hover); }
+.studio-space { height: 24px; padding: 0 10px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font: 600 12px/1 var(--sans); white-space: nowrap; cursor: pointer; }
+.studio-space.is-on { color: var(--select-ink); background: var(--select); }
+.studio-new-game { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.studio-new-game .field-input { width: 9em; height: 26px; }
+.studio-new-game .is-error { color: var(--fail); }
+.studio-modes { display: flex; gap: 1px; padding: 2px; border-radius: 8px; background: var(--hover); }
+.chapters { display: flex; flex-direction: column; gap: 1px; padding: 6px; }
+.chapter-item { display: flex; align-items: center; gap: 2px; border-radius: 4px; }
+.chapter-item > .tree-level { flex: 1; }
+.chapter-item.is-on > .tree-level { color: var(--select-ink); background: var(--select); }
+.chapter-tools { display: none; }
+.chapter-item:hover .chapter-tools, .chapter-item.is-on .chapter-tools { display: inline-flex; }
+.chapter-tools .editor-tool { width: 22px; height: 22px; }
+.chapter-add { margin-top: 6px; align-self: flex-start; }
+.arrange-group { display: flex; align-items: center; gap: 6px; padding: 8px 0 4px; }
+.arrange-group .editor-id { width: 10em; }
+.arrange-group-title { flex: 1; min-width: 0; }
+.arrange-links { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.map-layout { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.map-rows { flex: 1; overflow: auto; padding: 16px; border: 1px solid var(--hairline); border-radius: var(--r-md); background: radial-gradient(circle, var(--hairline) 1px, transparent 1px) 0 0 / 16px 16px, var(--canvas); }
+.map-row { display: flex; justify-content: center; gap: 12px; }
+.map-gap { height: 12px; margin: 2px auto; max-width: calc(3 * 180px + 2 * 12px); border-radius: 3px; }
+.map-gap[data-over] { background: color-mix(in srgb, var(--accent) 40%, transparent); }
+.map-place { position: relative; width: 180px; height: 44px; flex: none; display: flex; align-items: center; gap: 6px; padding: 0 10px; border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: var(--fs-mini)/1.25 var(--sans); text-align: left; cursor: grab; }
+.map-place code { flex: none; color: var(--accent-ink); font: var(--fs-mini)/1 var(--mono); }
+.map-place span { min-width: 0; display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.map-place.is-auto { box-shadow: inset 0 0 0 1px var(--line); outline: 1px dashed var(--line); outline-offset: 2px; }
+.map-place.is-on { box-shadow: inset 0 0 0 2px var(--select); }
+.map-place.is-moving { opacity: .45; }
+.map-place.is-empty { justify-content: center; background: transparent; box-shadow: none; outline: 1px dashed var(--line); cursor: default; }
+.map-place.is-end { width: 28px; justify-content: center; padding: 0; background: transparent; box-shadow: none; cursor: default; }
+.map-place[data-over] { box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px var(--line); }
+.map-place .editor-tool { width: 22px; height: 22px; }
+.copy-fixed { display: block; padding: 4px 6px; color: var(--muted); font: var(--fs-mini)/1.4 var(--sans); }
+.copy-row [role='cell'] { position: relative; }
+.copy-row [role='cell'].is-own { box-shadow: inset 2px 0 0 var(--accent); border-radius: 2px; }
+.copy-restore { position: absolute; right: 2px; bottom: 2px; width: 20px; height: 20px; }

@@ -189,7 +189,9 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
   // premises of the task that proves it in order and set to the task's own letters, gives the statement on every test.
   for (const [type, shapes] of Object.entries(logic.proofs ?? {})) {
     for (const [key, { level }] of Object.entries(shapes)) {
-      const part = level.parts[type]
+      // A lemma whose proving task this course does not place is never earned in it: nothing to run.
+      const part = level.parts?.[type]
+      if (!part) continue
       const form = key ? { form: key } : {}
       const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).filter((m) => m !== 'form').map((m) => [m, m])) } }
       const names = Object.keys(level.schema.premises ?? {})

@@ -7,7 +7,8 @@
 //
 // A template is a working domain whose files say `__name__` where the domain's name goes (in their text and their
 // names) and whose starter game says `__title__` for its title; the result passes the domain contract (contract.js),
-// `npm run check`, `npm test` and builds. A new game is registered in the hub's list (games.js) as hidden and in
+// `npm run check`, `npm test` and builds. gameOnPackage makes a game on an existing package (the studio's game
+// workspace): its own course, no package of its own. A new game is registered in the hub's list (games.js) as hidden and in
 // development, so it builds and plays at its address before it is shown. Both run on `root`, the project directory.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -16,6 +17,7 @@ import { PROJECT_DIR, gameDirectory, readCatalogs, readGameConfig } from './cont
 import { catalogReader } from './catalogs.js'
 import { firstText } from './i18n.js'
 import { courseLevelCount } from './content.js'
+import { writeJson } from './ops/json.js'
 
 const TEMPLATES = (root) => resolve(root, 'games/kit/scaffold')
 
@@ -100,6 +102,46 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   const { title: gameTitle, lede } = catalogReader(readCatalogs(resolve(dir, 'i18n')))(game)
   const files = readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json'))
   register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readGameConfig(id, root).game, files.length) })
+  return dir
+}
+
+const refs = (value, out = new Set()) => {
+  if (typeof value === 'string' && value.startsWith('@')) out.add(value.slice(1))
+  else if (value && typeof value === 'object') Object.values(value).forEach((child) => refs(child, out))
+  return out
+}
+
+/**
+ * A new game on an existing package (the studio's game workspace, games/DESIGN.md 6.7): games/<id>/ with its own course,
+ * which keeps the course settings of `from` (a game on the same package) and starts with one empty chapter shaped
+ * like its first; registered on the hub as hidden and in development. Returns the folder.
+ */
+export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
+  if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a game id is lowercase letters, digits and dashes: ${id}`)
+  const dir = gameDirectory(id, root)
+  if (existsSync(resolve(dir, 'game.json'))) fail(`games/${id} is there already`)
+  if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
+  const source = gameDirectory(from ?? '', root)
+  if (!from || !existsSync(resolve(source, 'game.json'))) fail(`no game ${from} to take the course settings from`)
+  const { package: packageId } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
+  const { eras = [], ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
+  const { levels: _, links: __, rows: ___, ...chapter } = eras[0] ?? { id: 1 }
+  const course = { ...settings, eras: [{ ...chapter, levels: [] }] }
+  const words = { zh: typeof title === 'string' ? title : title?.zh ?? id, en: typeof title === 'string' ? title : title?.en ?? id }
+  mkdirSync(dir, { recursive: true })
+  mkdirSync(resolve(dir, 'i18n'), { recursive: true })
+  const keys = refs(course)
+  for (const [lang, file] of readdirSync(resolve(source, 'i18n')).filter((f) => f.endsWith('.json')).map((f) => [f.slice(0, -5), resolve(source, 'i18n', f)])) {
+    const theirs = JSON.parse(readFileSync(file, 'utf8'))
+    const own = Object.fromEntries([...keys].filter((key) => Object.hasOwn(theirs, key)).map((key) => [key, theirs[key]]))
+    own['game.title'] = words[lang] ?? words.en
+    own['game.kicker'] = lang === 'zh' ? '开发中' : 'In development'
+    own['game.lede'] = words[lang] ?? words.en
+    writeFileSync(resolve(dir, 'i18n', `${lang}.json`), writeJson(Object.fromEntries(Object.entries(own).sort(([a], [b]) => (a < b ? -1 : 1))), null))
+  }
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ package: packageId, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
+  writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
+  register(root, id, { title: words, lede: words, levels: 0 })
   return dir
 }
 

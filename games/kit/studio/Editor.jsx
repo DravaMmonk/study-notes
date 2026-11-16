@@ -15,6 +15,7 @@ import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { copyLevelData, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
+import { contentFileFor } from '../engine/content.js'
 import { settingReferences } from '../engine/pieces.js'
 import { NAME as PART_NAME } from '../engine/parts/schema.js'
 import { freeName } from './PartsList.jsx'
@@ -31,7 +32,7 @@ const PIECE_ID = new RegExp(PART_NAME.pattern)
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
-export default function Editor({ content, base, vocab, at, picked, field, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onRemoveLevel, onCopy }) {
+export default function Editor({ side, content, base, vocab, at, picked, field, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onRemoveLevel, onCopy }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
@@ -39,7 +40,7 @@ export default function Editor({ content, base, vocab, at, picked, field, places
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove, onRemoveLevel }} />
   if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
-  return <GameEditor {...common} content={content} base={base} />
+  return <GameEditor {...common} side={side} content={content} base={base} />
 }
 
 const ctxOf = ({ vocabulary, order, names, levelOptions }, extra = {}) => ({ vocabulary, levels: order, names, levelOptions, textField, ...extra })
@@ -158,10 +159,15 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, 
   )
 }
 
-function GameEditor({ content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
+// The configuration a workspace edits (games/DESIGN.md 6.7): the package's (package.json, its trays), or the game's
+// (game.json, its course's settings; the chapters have their own board).
+const SIDE_FILES = { package: ['package.json', 'trays.json'], game: ['game.json', 'course.json'] }
+
+function GameEditor({ side, content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
   const { domain, vocabulary: version, open } = content
-  const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => k !== 'eras'))
-  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'eras')) }
+  const shows = (k) => k !== 'eras' && SIDE_FILES[side].includes(contentFileFor([k]))
+  const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => shows(k)))
+  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => shows(k))) }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   return (
     <article className="editor">
@@ -170,7 +176,7 @@ function GameEditor({ content, base, vocabulary, order, names, levelOptions, fie
         <h1>{L(content.title)}</h1>
       </header>
       <Rows form={formOf(schema, strip(content), { vocabulary, levels: order })} ctx={ctx} picked={field} before={beforeIn(base && strip(base))} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />
-      {open && <pre className="editor-open">{JSON.stringify(open, null, 1)}</pre>}
+      {open && side === 'game' && <pre className="editor-open">{JSON.stringify(open, null, 1)}</pre>}
     </article>
   )
 }

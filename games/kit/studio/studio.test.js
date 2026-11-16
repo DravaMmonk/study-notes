@@ -1,6 +1,6 @@
 // node --test games/kit/studio — the studio's pure parts: forms from schemas (form.js), the control each value takes by
 // its shape and hints, cells typed and read back, a level's sections, the check's findings on their fields, each edit as
-// its operation and a pending changeset's coalescing, the course tree and its drop slots (tree.js), a changed file read
+// its operation and a pending changeset's coalescing, the package's group tree and its drop slots (groups.js), the game workspace's course edits (course-edit.js), a changed file read
 // field by field (diff.js), the game page's marks as the fields they show (marks.js); and on every domain's starter game
 // (kit/domains/<d>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
 // more about, every value a schema hint names gets its control, and every cell control gives back the value it shows.
@@ -8,7 +8,6 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S, find, holdsLevels, sectionOf } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
-import { putIn, takeOut } from '../engine/ops/place.js'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { domainOf, readStarter } from '../engine/content-node.js'
@@ -17,7 +16,8 @@ import {
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
-import { courseTree, stays } from './tree.js'
+import { groupOf, groupTree, stays } from './groups.js'
+import { addEntry, blankChapter, emptyPlace, moveChapter, moveEntry, moveOnMap, placed, removeEntry } from './course-edit.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
@@ -123,19 +123,44 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
   assert.deepEqual(textsOf(VOCAB.level, { ...LEVEL, hint: [{ en: '提示' }] }, VOCAB).map((t) => t.path), [['title'], ['hint', 0]])
 })
 
-const ERAS = [
-  { id: 1, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] },
-  { id: 2, levels: [{ id: 'i' }] },
-]
+test('the package sidebar lists each group with a drop place before and after its levels, then the levels in no group', () => {
+  const content = { groups: { g: { title: 'G', levels: [{ id: 'a' }, { id: 'b' }] } }, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] }
+  const tree = groupTree(content)
+  assert.deepEqual(tree.sections.map(({ group, levels, slots }) => [group, levels.map(({ id }) => id), slots]), [
+    ['g', ['a', 'b'], [{ group: 'g', at: 0 }, { group: 'g', after: 'a' }, { group: 'g', after: 'b' }]],
+    [null, ['c'], [{ out: true }, null]],
+  ])
+  assert.equal(stays(tree, 'a', { group: 'g', at: 0 }), true)
+  assert.equal(stays(tree, 'b', { group: 'g', after: 'a' }), true)
+  assert.equal(stays(tree, 'a', { group: 'g', after: 'b' }), false)
+  assert.equal(stays(tree, 'c', { out: true }), true)
+  assert.equal(groupOf(content, 'b'), 'g')
+  assert.equal(groupOf(content, 'c'), null)
+})
 
-test('the course sidebar offers a placement slot before and after ordered levels', () => {
-  const tree = courseTree(ERAS)
-  const [one] = tree.eras
-  assert.deepEqual(one.slots, [{ era: 1, at: 0 }, { after: 'a' }, { after: 'b' }, { after: 'c' }])
-  for (const to of one.slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, { id: 'i' }, to))
-  assert.equal(stays(tree, 'a', { era: 1, at: 0 }), true)
-  assert.equal(stays(tree, 'c', { after: 'b' }), true)
-  assert.equal(stays(tree, 'a', { after: 'c' }), false)
+test('the game workspace places entries, moves and removes them with their links and map places, and moves levels on the map', () => {
+  const groups = { g: { title: 'G', levels: [{ id: 'a' }, { id: 'b' }] } }
+  const eras = [
+    { id: 1, levels: [{ id: 'x' }, { group: 'g' }], links: [{ from: 'x', to: 'g' }], rows: [['x'], ['a', null, 'b']] },
+    { id: 2, levels: [{ id: 'y' }], links: [{ from: 'g', to: 'y' }] },
+  ]
+  assert.deepEqual([...placed(eras, groups).levels], ['x', 'a', 'b', 'y'])
+  assert.deepEqual(addEntry(eras, 1, { id: 'z' })[1].levels, [{ id: 'y' }, { id: 'z' }])
+  const gone = removeEntry(eras, 'g', groups)
+  assert.deepEqual(gone[0], { id: 1, levels: [{ id: 'x' }], rows: [['x']] })
+  assert.deepEqual(gone[1], { id: 2, levels: [{ id: 'y' }] })
+  const moved = moveEntry(eras, 'g', 1, groups)
+  assert.deepEqual(moved[0], { id: 1, levels: [{ id: 'x' }], rows: [['x']] })
+  assert.deepEqual(moved[1].links, [{ from: 'g', to: 'y' }, { from: 'x', to: 'g' }])
+  assert.deepEqual(moveChapter(eras, 0, 1).map(({ id }) => id), [2, 1])
+  assert.deepEqual(blankChapter(eras, { id: 2, title: 'T', levels: [{ id: 'y' }] }, (fields) => fields), { id: 3, title: 'T', levels: [] })
+  // On the map: into a row before a place, a row of its own, and empty places in and out; a row has three places at most.
+  const rows = [['x'], ['a', null, 'b']]
+  assert.equal(moveOnMap(rows, 'x', { row: 1, slot: 1 }), rows, 'a full row takes no more')
+  assert.deepEqual(moveOnMap(rows, 'b', { row: 0, slot: 0 }), [['b', 'x'], ['a', null]])
+  assert.deepEqual(moveOnMap(rows, 'a', { row: 2, new: true }), [['x'], [null, 'b'], ['a']])
+  assert.deepEqual(emptyPlace([['x']], 0), [['x', null]])
+  assert.deepEqual(emptyPlace(rows, 1, 1), [['x'], ['a', 'b']])
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {

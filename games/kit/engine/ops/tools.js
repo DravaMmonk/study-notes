@@ -2,7 +2,7 @@
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -11,7 +11,8 @@ import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
-import { PROJECT_DIR, domainOf, readContent } from '../content-node.js'
+import { PROJECT_DIR, domainOf, isDataGame, readContent, readGameConfig } from '../content-node.js'
+import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
 import { fresh } from '../../shell/progress.js'
@@ -35,8 +36,10 @@ const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'),
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
 const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+// A game the studio's game workspace makes is known at once: it is read off the folder, not off the list loaded at start.
+const dataGames = () => readdirSync(resolve(ROOT, 'games')).filter((id) => isDataGame(id, ROOT)).sort()
 const known = (game) => {
-  if (!GAMES.some((g) => g.id === game)) throw new Error(`no game ${game}; the games are ${GAMES.map((g) => g.id).join(', ')}`)
+  if (!GAMES.some((g) => g.id === game) && !isDataGame(game, ROOT)) throw new Error(`no game ${game}; the games are ${dataGames().join(', ')}`)
   return game
 }
 const levelIn = (content, level) => content.levels.find((l) => l.id === level) ?? (() => { throw new Error(`${content.id} has no level ${level}`) })()
@@ -69,9 +72,20 @@ const logOf = (game) => {
   return { log: readLog(ws), head: headOf(ws), undoable: lastUndoable(ws)?.seq ?? null, drift: driftOf(ws, ws.onDisk()) }
 }
 
+// The studio's two workspaces (games/DESIGN.md 6.7): scope 'package' reads the package's own texts and runs only its
+// operations, 'game' only the game's; without one, everything, read as the game plays it.
+const SCOPES = ['package', 'game']
+const scoped = (scope) => {
+  if (scope !== undefined && !SCOPES.includes(scope)) throw new Error(`scope is ${SCOPES.join(' or ')}, not ${scope}`)
+  return scope ?? null
+}
+const open = (game, scope) => openGame(known(game), ROOT, { scope: scoped(scope) })
+const readAs = (game, scope) => readContent(known(game), ROOT, { overrides: scoped(scope) !== 'package' })
+
 /** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
-async function contentAfter(game, changeset) {
-  const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
+async function contentAfter(game, changeset, scope) {
+  if (!changeset) return readAs(game, scope)
+  const r = await runChangeset(open(game, scope), changeset, { write: false, check: false })
   if (!r.content) throw new Error(r.problems.join('; '))
   return r.content
 }
@@ -94,6 +108,24 @@ async function boardsOf(content, level) {
 }
 
 export const TOOLS = {
+  games: {
+    about: 'The data games: each one’s id, title and the content package it plays (several may play one package).',
+    params: {},
+    async run() {
+      return dataGames().map((id) => {
+        const content = readContent(id, ROOT)
+        return { id, title: content.title, package: readGameConfig(id, ROOT).packageId }
+      })
+    },
+  },
+  create_game: {
+    about: 'Make a new game on the package an existing game (`from`) plays: games/<id>/ with its own course, keeping from’s course settings and starting with one empty chapter shaped like its first, registered on the hub as hidden and in development.',
+    params: { id: 'string', from: 'string', title: 'object' },
+    async run({ id, from, title }) {
+      gameOnPackage({ root: ROOT, id, from: known(from), title })
+      return { id, ...logOf(id) }
+    },
+  },
   audit: {
     about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail). mutants: also, for each circuit task, how many small mistakes made to its reference answer the tests catch, and those they let pass (slow; a mutant left alive is a board the tests do not rule out, or another right answer).',
     params: { game: 'string', mutants: 'boolean?' },
@@ -105,9 +137,9 @@ export const TOOLS = {
   },
   modify: {
     about: 'Apply a changeset { why?, by?, ops: [{ op, …args }] } to a game (by: who makes it, e.g. agent:<step>:<model>; the change log keeps it): every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
-    params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?' },
-    async run({ game, changeset, dryRun = false, base = null }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base, cache: kept(game) })
+    params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?', scope: 'string?' },
+    async run({ game, changeset, dryRun = false, base = null, scope }) {
+      const r = await runChangeset(open(game, scope), changeset, { write: !dryRun, base, cache: kept(game) })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff, undo: r.inverse }
     },
   },
@@ -139,7 +171,7 @@ export const TOOLS = {
     params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
     async run({ game, level, path, format = 'text', changeset = null }) {
       if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const content = await contentAfter(game, changeset)
       const value = levelIn(content, level)
       const boards = await boardsOf(content, level)
       if (format === 'svg') {
@@ -179,9 +211,9 @@ export const TOOLS = {
   },
   preview: {
     about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
-    params: { game: 'string', changeset: 'object?', check: 'boolean?' },
-    async run({ game, changeset = { ops: [] }, check = true }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check, cache: kept(game) })
+    params: { game: 'string', changeset: 'object?', check: 'boolean?', scope: 'string?' },
+    async run({ game, changeset = { ops: [] }, check = true, scope }) {
+      const r = await runChangeset(open(game, scope), changeset, { write: false, check, cache: kept(game) })
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).
@@ -195,18 +227,18 @@ export const TOOLS = {
   },
   flow: {
     about: 'A piece’s way through a game’s course (as a changeset would leave it), read off the course, in course order: where it is at hand from the start, where a level brings it in, where a level or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its upgrade chains (the task whose work runs inside it, with its form). Each event names the level, the task (an index) and the path of the field in the level’s content that says it (null: none).',
-    params: { game: 'string', piece: 'string', changeset: 'object?' },
-    async run({ game, piece, changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', piece: 'string', changeset: 'object?', scope: 'string?' },
+    async run({ game, piece, changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const domain = await domainOf(content)
       return { events: pieceFlow(domain.spec(content).course, content, piece) }
     },
   },
   names: {
     about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box (with the piece it is and the level that first gives it), each encyclopedia entry’s title; and the names copy may quote rather than link.',
-    params: { game: 'string', changeset: 'object?' },
-    async run({ game, changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', changeset: 'object?', scope: 'string?' },
+    async run({ game, changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const shown = await gameOf(content)
       const domain = await domainOf(content)
       return {
@@ -221,9 +253,9 @@ export const TOOLS = {
   },
   run_tests: {
     about: 'Run one of a level’s boards (path, default its first task’s reference) on its visible and hidden tests as the level’s screen runs them, through its domain’s play hook (as a changeset would leave it): each test as the screen shows it (what it gives and expects), whether it passes and what the screen says. A level whose play the hook does not cover says why.',
-    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
-    async run({ game, level, path = 'tasks[0].solution', changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
+    async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const domain = await domainOf(content)
       if (!domain.play) return { covered: false, why: `the ${content.domain} domain gives no play hook` }
       const board = boardAt(content, level, path, domain.vocabulary)
@@ -252,9 +284,9 @@ export const TOOLS = {
   },
   seed: {
     about: 'What a level’s screen keeps of one of its boards (path, default its first task’s solution), as a changeset would leave it: put data in a save’s progress.data under that task’s id (task: its index in the level) and the level opens on that board.',
-    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
-    async run({ game, level, path = 'tasks[0].solution', changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
+    async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const domain = await domainOf(content)
       const board = boardAt(content, level, path, domain.vocabulary)
       if (!board) return { note: `${level} has no board at ${path}` }
@@ -270,18 +302,18 @@ export const TOOLS = {
   },
   search: {
     about: 'Find text across a game (as a changeset would leave it): every language’s text outside link tags, every board line, and the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
-    params: { game: 'string', query: 'object', changeset: 'object?' },
-    async run({ game, query, changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', query: 'object', changeset: 'object?', scope: 'string?' },
+    async run({ game, query, changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const hits = searchContent(content, (await domainOf(content)).vocabulary, query)
       return { count: hits.length, hits }
     },
   },
   replace: {
     about: 'Replace across a game as operations, nothing written: the changeset ({ why, ops }: text.set for each text, level.blueprint for each board) that replaces the query’s matches with `with` ($1… for a regex’s groups), each change before and after, and the ids found and left alone (level.rename changes an id). Run it with modify (dryRun first). pick: only these hits (file|path|side or line).',
-    params: { game: 'string', query: 'object', with: 'string', pick: 'array?', changeset: 'object?' },
-    async run({ game, query, with: replacement, pick = null, changeset = null }) {
-      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+    params: { game: 'string', query: 'object', with: 'string', pick: 'array?', changeset: 'object?', scope: 'string?' },
+    async run({ game, query, with: replacement, pick = null, changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
       const { ops, changes, skipped } = replaceOps(content, (await domainOf(content)).vocabulary, query, replacement, pick)
       return { changeset: { why: `replace ${JSON.stringify(query.find)} with ${JSON.stringify(replacement)}`, ops }, changes, skipped: skipped.map((h) => ({ file: h.file, path: showPath(h.path), text: h.text })) }
     },

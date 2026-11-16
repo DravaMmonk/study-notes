@@ -100,7 +100,3 @@ export function bulkAdds(vocabulary, levels, { add = [], remove = [] }) {
   return { ops, skipped }
 }
 
-// Move levels together in display order, retaining their prerequisites.
-export function bulkMove(ids, to) {
-  return ids.map((id, k) => ({ op: 'level.move', level: id, to: k ? { after: ids[k - 1] } : to }))
-}

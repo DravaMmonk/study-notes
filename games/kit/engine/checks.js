@@ -40,7 +40,9 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const spec = domain.spec(content)
 
   // A notes course is no machine growing level by level: its course is not audited (games/DESIGN.md 12.1).
-  const findings = spec.course.notes ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])]
+  // Trays are the package's: whether something on them is ever brought in is judged on a game placing the whole package.
+  const whole = spec.levels.length >= content.levels.length
+  const findings = spec.course.notes ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])].filter((f) => whole || f.rule !== 'tray-unmet')
   for (const { rule, fresh, left, gone } of againstOpen(findings, content.open ?? {})) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
@@ -66,7 +68,12 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
     wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(firstText(e.title))])),
   }
   const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
-  for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
+  // A game plays the levels its course places; the rest of its package, and the encyclopedia entries that open at them,
+  // are not in it (an entry stands in its place, empty, so the problems still count entries as the file does).
+  const placed = new Set(spec.levels.map((l) => l.id))
+  const inGame = (entry) => !entry.at || placed.has(entry.at)
+  const texts = { ...(spec.texts ?? {}), ...(spec.texts?.glossary && { glossary: spec.texts.glossary.map((entry) => (inGame(entry) ? entry : {})) }) }
+  for (const [name, value] of Object.entries({ levels: spec.levels, ...texts, parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
 
   // An entry is linked only where it is open already: in a level it opens at or after, in an entry opening no earlier.
   // The links are read off every text of the content, by its schema, whatever its fields are called.
@@ -76,13 +83,13 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
     .flatMap(({ value }) => typeof value === 'string' ? [value] : textEntries(value).map(([, text]) => text))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
-  const levelLinks = (kind) => content.levels.map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
+  const levelLinks = (kind) => content.levels.filter(({ id }) => placed.has(id)).map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
   for (const [id, links] of levelLinks('wiki')) for (const entry of links) if (entries.has(entry) && !opensBy(entries.get(entry).at, id)) fail(`${id} links the entry ${entry}, which opens later (at ${entries.get(entry).at})`)
   // A part likewise: linked in the level that earns it or one after (that level's own intro may name what it builds).
   const earnedAt = (part) => game.levels.find((l) => l.unlocks?.includes(part.key) || part.at?.includes(l.id))?.id
   const partsByKey = new Map((game.parts?.all ?? []).map((p) => [p.key, p]))
   for (const [id, links] of levelLinks('part')) for (const key of links) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), id)) fail(`${id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
-  for (const entry of content.glossary.entries) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
+  for (const entry of content.glossary.entries.filter(inGame)) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
   // Asked for, the circuit base also reports what each task's tests make of the answer's mutants (mutate.js): slow,
   // so it is no part of the check every change runs.

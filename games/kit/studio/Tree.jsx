@@ -1,27 +1,28 @@
-// The studio's three-level course tree. Course placement still supplies drop targets for moving levels and tasks.
+// The package workspace's tree: level groups, each its levels in its order and their tasks, then the levels in no
+// group. Dragging a level puts it at a place in a group (group.place); dragging a task moves it in or between levels.
 import { Fragment, useMemo, useState } from 'react'
-import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
-import { courseTree, stays } from './tree.js'
+import { groupTree, stays } from './groups.js'
 import SidebarListTools from './SidebarListTools.jsx'
 import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 
-export default function Tree({ game, content, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
+export default function Tree({ game, content, order: playOrder = [], at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
-  const tree = useMemo(() => courseTree(content.eras ?? []), [content])
+  const tree = useMemo(() => groupTree(content, playOrder), [content, playOrder])
   const [query, setQuery] = useState('')
-  const [sort, setSort] = usePref('course-list-sort', 'chapter')
-  const sortOptions = [{ value: 'chapter', label: tr('按章节', 'By chapter') }, ...sidebarSortOptions()]
-  const view = !moving && sortOptions.some(({ value }) => value === sort) ? sort : 'chapter'
+  const [sort, setSort] = usePref('package-list-sort', 'group')
+  const sortOptions = [{ value: 'group', label: tr('按分组', 'By group') }, ...sidebarSortOptions()]
+  const view = !moving && sortOptions.some(({ value }) => value === sort) ? sort : 'group'
   const filtering = !moving && Boolean(query.trim())
-  const order = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
-  const placements = useMemo(() => new Map(tree.eras.flatMap(({ era }) => era.levels.map((entry) => [entry.id, entry]))), [tree])
+  const ids = (section) => section.levels.map(({ id }) => id)
+  const order = useMemo(() => tree.sections.flatMap(ids), [tree])
+  const placements = useMemo(() => new Map(tree.sections.flatMap(({ levels }) => levels.map((entry) => [entry.id, entry]))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
-  const { folded, toggle: fold } = useSidebarFolds('folded-eras', game)
+  const { folded, toggle: fold } = useSidebarFolds('folded-groups', game)
   const [over, setOver] = useState(null)
 
   const matches = sidebarSearch(filtering ? query : '')
@@ -30,9 +31,9 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     return matches(id, labelOf.get(id), L(level?.title)) ||
       level?.tasks?.some((task) => matches(task.id, L(task.step)))
   }))
-  const flat = view !== 'chapter'
+  const flat = view !== 'group'
   const rows = flat ? sortSidebarIds(visible, view, (id) => L(byId.get(id)?.title))
-    : tree.eras.flatMap(({ era }) => !filtering && !moving && folded.has(String(era.id)) ? [] : eraLevels(era).filter((id) => visible.has(id)))
+    : tree.sections.flatMap((section) => !filtering && !moving && folded.has(section.key) ? [] : ids(section).filter((id) => visible.has(id)))
 
   /** Pick by a click or a key: one level, one more (toggle), or the run from the level selected to it. */
   const pick = (id, how) => {
@@ -125,7 +126,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     )
   }
   const slot = (to, destination) => {
-    if (!moving || (moving.length === 1 && stays(tree, moving[0], to))) return null
+    if (!to || !moving || (moving.length === 1 && stays(tree, moving[0], to))) return null
     const key = JSON.stringify(to)
     return (
       <button
@@ -160,19 +161,19 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
   )
 
   return (
-    <nav className="tree" aria-label={tr('课程')}>
+    <nav className="tree" aria-label={tr('关卡分组', 'Level groups')}>
       <SidebarListTools addOptions={addOptions} onAdd={onAdd} query={query} onQuery={setQuery}
         sortOptions={sortOptions} sort={view} onSort={setSort} />
       {flat ? <div className="tree-levels">{rows.map(row)}</div>
-        : tree.eras.map(({ era: value, at: e, slots }) => {
-        const levels = eraLevels(value).filter((id) => visible.has(id))
-        if (filtering && !levels.length) return null
-        const shut = folded.has(String(value.id)) && !filtering && !moving
-        const title = L(value.title ?? value.chapter?.title) ?? String(value.id)
+        : tree.sections.map((section) => {
+        const levels = ids(section).filter((id) => visible.has(id))
+        if ((filtering || section.group === null) && !levels.length && !moving) return null
+        const shut = folded.has(section.key) && !filtering && !moving
+        const title = section.group === null ? tr('未分组', 'Ungrouped') : L(content.groups[section.group].title) || section.group
         return (
-          <SidebarSection key={value.id} title={title} name={String(value.id)} active={at?.era === e} collapsed={shut}
-            onSelect={() => onSelect({ era: e })} onToggle={() => fold(String(value.id))}>
-            {list(eraLevels(value), slots, title)}
+          <SidebarSection key={section.key} title={title} name={section.group ?? ''} active={section.group !== null && at?.group === section.group} collapsed={shut}
+            onSelect={section.group === null ? undefined : () => onSelect({ group: section.group })} onToggle={() => fold(section.key)}>
+            {list(ids(section), section.slots, title)}
           </SidebarSection>
         )
       })}

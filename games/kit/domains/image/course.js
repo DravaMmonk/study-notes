@@ -128,8 +128,9 @@ export function imageCourse(config) {
     }
   }
   for (const { board } of references.values()) board()
-  const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
+  // The intros of the levels the course places: the rest of the package is not in the game.
+  const intros = Object.fromEntries(levels.filter((level) => chapterOf.has(level.id)).map((level) => [level.id, level.intro]))
   const { requires } = plan
 
   // Everything a level comes after: what it requires, and what those require in turn.
