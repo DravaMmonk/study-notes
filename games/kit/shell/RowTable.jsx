@@ -21,16 +21,22 @@ import { L, tr } from './i18n.js'
 //   fixed           the rows are set out beforehand: none added, none deleted, each only filled in
 //   tip             on a phone, a line under the table saying a row opens when tapped (a default unless it says)
 
-export default function RowTable({ rows, columns, onChange = null, form, blank, max = Infinity, addLabel, formTitle, rowClass = () => '', onPick = () => {}, empty = null, phone = false, fixed = false, tip = null }) {
+export default function RowTable({ rows, columns, onChange = null, form, blank, max = Infinity, addLabel, formTitle, rowClass = () => '', onPick, empty = null, phone = false, fixed = false, tip = null }) {
   const [open, setOpen] = useState(null) // the row open in the sheet
   const editable = Boolean(onChange)
   // On a desktop rows are changed in place; on a phone, in the sheet.
   const inPlace = editable && !phone
+  const formOnPick = editable && !inPlace
+  const selectable = Boolean(onPick) || formOnPick
+  const pick = (index) => {
+    onPick?.(index)
+    if (formOnPick) setOpen(index)
+  }
+  const deleteColumn = inPlace && !fixed
   const setRow = (k, row) => onChange(rows.map((r, j) => (j === k ? row : r)))
   const add = () => {
     onChange([...rows, blank()])
-    onPick(rows.length)
-    if (!inPlace) setOpen(rows.length)
+    pick(rows.length)
   }
   const remove = (k) => {
     onChange(rows.filter((_, j) => j !== k))
@@ -41,25 +47,29 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
   return (
     <div className="rt">
       <div className="rt-scroll">
-        <table className="rt-table">
+        <table className="rt-table" data-wide={columns.length >= 4 || undefined} style={{ '--rt-columns': columns.length }}>
           <thead>
             <tr>
-              {columns.map((c) => <th key={c.key} className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}
-              {inPlace && !fixed && <th aria-label={tr('删除', 'Delete')} />}
+              {columns.map((c) => <th key={c.key} scope="col" className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}
+              {deleteColumn && <th className="rt-actions" scope="col" aria-label={tr('删除', 'Delete')} />}
             </tr>
           </thead>
           <tbody>
             {rows.map((row, k) => (
               <tr
                 key={k}
-                className={`rt-row ${editable && !inPlace ? 'is-editable' : ''} ${rowClass(k)}`}
-                onClick={() => { onPick(k); if (editable && !inPlace) setOpen(k) }}
-                tabIndex={editable && !inPlace ? 0 : undefined}
-                onKeyDown={(e) => editable && !inPlace && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), setOpen(k))}
+                className={`rt-row ${selectable ? 'is-selectable' : ''} ${rowClass(k)}`}
+                onClick={selectable ? () => pick(k) : undefined}
+                tabIndex={selectable ? 0 : undefined}
+                onKeyDown={(event) => {
+                  if (!selectable || event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return
+                  event.preventDefault()
+                  pick(k)
+                }}
               >
                 {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{inPlace && c.edit ? c.edit(row, (next) => setRow(k, next), k) : c.cell(row, k)}</div></td>)}
-                {inPlace && !fixed && (
-                  <td>
+                {deleteColumn && (
+                  <td className="rt-actions">
                     <button type="button" className="rt-drop" aria-label={tr('删除这一行', 'Delete this row')} onClick={(e) => { e.stopPropagation(); remove(k) }}><X size={14} /></button>
                   </td>
                 )}

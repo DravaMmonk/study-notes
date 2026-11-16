@@ -622,14 +622,23 @@ level-ref, part-ref, wiki-ref { display: inline; }
 /* A table the player fills in (RowTable.jsx): tall rows that open a form, a large add button, and the form's fields
    (FormFields.jsx). */
 .rt { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; max-width: 100%; }
-.rt-scroll { max-width: 100%; overflow-x: auto; }
-.rt-table { border-collapse: collapse; width: max-content; max-width: 100%; font-size: 12.5px; }
-.rt-table th { padding: var(--sp-1) var(--sp-4); color: var(--muted); font-weight: 500; text-align: center; border-bottom: 1px solid var(--hairline); }
-.rt-table td { padding: var(--sp-1) var(--sp-4); text-align: center; vertical-align: middle; border-bottom: 1px solid var(--hairline); }
+.rt-scroll { min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.rt-table { --rt-column-min: 4.5rem; --rt-column-max: 15rem; --rt-cell-pad: var(--sp-5); border-collapse: collapse; width: max-content; max-width: 100%; margin-inline: auto; font: var(--fs-small)/1.45 var(--sans); }
+.rt-table:has(.rt-actions) { --rt-actions-width: 2.25rem; }
+.rt-table[data-wide] {
+  table-layout: fixed;
+  width: clamp(calc(var(--rt-columns) * var(--rt-column-min) + var(--rt-actions-width, 0px)), 100%, calc(var(--rt-columns) * var(--rt-column-max) + var(--rt-actions-width, 0px)));
+  max-width: none;
+}
+.rt-table :is(th, td) { padding-inline: var(--rt-cell-pad); text-align: center; vertical-align: middle; border-bottom: 1px solid var(--hairline); }
+.rt-table th { padding-block: var(--sp-3); color: var(--muted); font-weight: 500; }
+.rt-table td { padding-block: var(--sp-5); }
+.rt-cell { min-width: calc(var(--rt-column-min) - 2 * var(--rt-cell-pad)); max-width: calc(var(--rt-column-max) - 2 * var(--rt-cell-pad)); margin-inline: auto; overflow-wrap: anywhere; }
 .rt-table .is-start { text-align: left; }
-.rt-row.is-editable { cursor: pointer; }
-.rt-row.is-editable:hover, .rt-row.is-editable:focus-visible { background: var(--hover, rgba(0,0,0,.04)); outline: none; }
-.rt-row.is-on { background: var(--hover, rgba(0,0,0,.05)); }
+.rt-table .is-start .rt-cell { margin-inline: 0; }
+.rt-table .rt-actions { width: var(--rt-actions-width); padding-inline: 0; }
+.rt-row.is-selectable { cursor: pointer; }
+.rt-row.is-selectable:hover, .rt-row.is-selectable:focus-visible, .rt-row.is-on { background: var(--hover); }
 .rt-tip { margin: 0; color: var(--muted); font-size: 12.5px; }
 .rt-empty { margin: var(--sp-3) var(--sp-4); color: var(--muted); font-size: 12.5px; }
 .rt-add { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-4); border: 1px dashed var(--rule); border-radius: var(--r-sm); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
@@ -639,14 +648,6 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ff-inline-choice { min-width: 4em; padding: var(--sp-1) var(--sp-4); border: 1px solid var(--rule); border-radius: var(--r-sm); background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .ff-inline-choice.is-unset { color: var(--muted); border-style: dashed; }
 .rt-add svg { width: 14px; height: 14px; }
-/* On a phone: a window of its own that scrolls sideways, columns as wide as their text (wrapping past about sixteen
-   characters), tall rows to tap, and a large add button. */
-.level-phone .rt-scroll { overscroll-behavior-x: contain; }
-.level-phone .rt-table { max-width: none; min-width: 100%; font-size: 13px; }
-.level-phone .rt-table th { padding: var(--sp-3) var(--sp-5); }
-.level-phone .rt-table td { padding: var(--sp-5); }
-.level-phone .rt-cell { width: max-content; max-width: 16em; margin: 0 auto; }
-.level-phone .rt-table .is-start .rt-cell { margin: 0; }
 .level-phone .rt-add { align-self: stretch; justify-content: center; gap: var(--sp-4); min-height: 48px; border-width: 1.5px; border-radius: var(--r-md); color: var(--body); font-size: 15px; font-weight: 600; }
 .level-phone .rt-add svg { width: 18px; height: 18px; }
 .rt-form { display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-3) 0 var(--sp-2); }
