@@ -266,6 +266,16 @@
 .pb-o.has-note > :not(em):not(.pb-dot) { margin-bottom: calc(var(--sp-2) * -1); }
 /* A source with many outputs takes a row of its own. */
 .pb-terms > .pb-term.is-wide { flex-basis: 100%; max-width: none; }
+/* A draft terminal that names its ports (card-ports.js namesPorts): each name inside the card beside its dot, the dots
+   on the card's edge, and the card as wide as its names need. */
+.pb-terms > .pb-term.is-named { flex: 0 1 auto; width: max-content; max-width: 100%; }
+.pb-term.is-named > .pb-name { color: var(--muted); font-size: var(--fs-label); }
+.pb-terms > .pb-term.is-output.is-named > .pb-name { order: 0; }
+.pb-term.is-named .pb-out.is-many, .pb-term.is-named .pb-ins { position: static; transform: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0 var(--sp-3); }
+.pb-term.is-named .pb-out.is-many { margin-bottom: calc(-1 * (var(--sp-6) + var(--pb-target) / 2)); }
+.pb-term.is-named .pb-ins { margin-top: calc(-1 * (var(--sp-6) + var(--pb-target) / 2)); }
+.pb-term.is-named .pb-o, .pb-term.is-named .pb-in { flex: none; min-width: var(--pb-target); }
+.pb-term.is-named .pb-o > em, .pb-term.is-named .pb-in > em { position: static; max-width: 10ch; overflow: hidden; color: var(--ink); font: var(--fs-label)/var(--pb-port-label) var(--mono); text-overflow: ellipsis; }
 .pb-dot { position: relative; z-index: 4; width: var(--pb-target); height: var(--pb-target); display: grid; place-items: center; padding: 0; border: 0; background: transparent; touch-action: none; cursor: pointer; }
 .pb-dot i { width: var(--pb-dot); height: var(--pb-dot); border-radius: var(--r-full); background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); transition: transform 140ms ease, box-shadow 140ms ease; }
 /* A dot is hollow until a wire is on it, then solid; an input still waiting for one is ringed in red. */
@@ -642,7 +652,10 @@
 .tray-menu-row { position: absolute; z-index: 60; inset-inline: 0; bottom: 100%; display: flex; gap: var(--sp-4); overflow-x: auto; scrollbar-width: none; padding: var(--sp-4) var(--sp-5); border-top: 1px solid var(--line); background: var(--paper); box-shadow: var(--lift); }
 .tray-menu-row::-webkit-scrollbar { display: none; }
 
-.cl-terminal-info { display: grid; gap: var(--sp-3); margin: 0; }
-.cl-terminal-info > div { display: grid; gap: var(--sp-1); }
-.cl-terminal-info dt { color: var(--muted); font-size: var(--fs-label); }
-.cl-terminal-info dd { margin: 0; color: var(--ink); }
+/* A level terminal's detail: a tag for its side, then its named ports as rows in that side's colour. */
+.cl-terminal-info { --io: var(--fam, var(--accent)); display: grid; justify-items: start; gap: var(--sp-4); }
+.cl-terminal-info[data-side='sink'] { --io: var(--accent); }
+.cl-terminal-kind { padding: 0 var(--sp-3); border-radius: var(--r-sm); color: var(--paper); background: var(--io); font: 600 var(--fs-label)/1.6 var(--mono); letter-spacing: .06em; }
+.cl-terminal-info ul { width: 100%; margin: 0; padding: 0; display: grid; gap: var(--sp-2); list-style: none; }
+.cl-terminal-info li { min-height: var(--sp-8); padding: 0 var(--sp-5); display: flex; align-items: center; gap: var(--sp-4); border-radius: var(--r-md); color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline), inset 3px 0 0 var(--io); font: var(--fs-ui)/1 var(--mono); }
+.cl-terminal-info li i { flex: none; width: var(--sp-4); height: var(--sp-4); border-radius: var(--r-full); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }

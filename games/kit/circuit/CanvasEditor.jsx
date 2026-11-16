@@ -21,7 +21,7 @@ import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { cardPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
+import { cardPorts, namesPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
 import { canRemoveCard, clearSpot, connectWire, ends, inPort, isPart, outPort, parsePort, removeNode, unplugWire, wireRefusal } from './model.js'
@@ -575,7 +575,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
     const role = parts.role(node)
     const folded = foldedNodes.has(node.id)
     const { inputs: ports, outputs, regions } = cardPorts(parts, node)
-    const plainOutput = outputs.length === 1 && outputs[0].key === null && !node.terminal
+    const named = namesPorts(parts, node, (label) => String(L(label)))
+    const plainOutput = outputs.length === 1 && outputs[0].key === null && !named
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
     const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接')} onClick={() => clickPort(outPort(src))}><i /></i>
@@ -624,7 +625,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
             {ports.map((port) => (
               <span key={port} className="node-port-label">
                 {inDot(port, parts.portClass?.(node, port) ?? '')}
-                {L(parts.portLabel?.(node, port)) ?? ''}
+                {node.terminal && !named ? '' : L(parts.portLabel?.(node, port)) ?? ''}
               </span>
             ))}
           </div>

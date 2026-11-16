@@ -2,6 +2,12 @@ import { regionsOf } from './regions.js'
 import { sourceOf } from '../engine/wire-source.js'
 import { ends, feeding, inPort, outPort, outputsOf, parsePort, wireRefusal } from './model.js'
 
+/** Whether a draft terminal names its ports apart from itself: it has several, or its one port is not called what the card is. */
+export function namesPorts(parts, node, text = String) {
+  const ports = node.terminal?.ports
+  return Boolean(ports) && (ports.length > 1 || text(ports[0].label).trim() !== text(parts.label(node)).trim())
+}
+
 /** The ports on the card itself and the ports shown within its frame regions. */
 export function cardPorts(parts, node) {
   const regions = regionsOf(parts, node)

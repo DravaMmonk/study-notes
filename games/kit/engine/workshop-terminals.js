@@ -34,14 +34,21 @@ export function workshopTerminalParts(parts) {
   }
 }
 
-export function addWorkshopTerminal(graph, parts, role, label) {
+/** Every port label on one side of a draft, optionally leaving one card out. */
+export const sideLabels = (graph, parts, role, except) => graph.nodes
+  .filter((node) => terminalRole(parts, node) === role && node.id !== except)
+  .flatMap((node) => terminalPorts(parts, node).map(({ label }) => label))
+
+/** A new terminal with one port. Card and port share one name, numbered past the labels its side already has (`read` turns a label into its text). */
+export function addWorkshopTerminal(graph, parts, role, label, read = String) {
   const stem = role === 'source' ? 'in' : 'out'
   const id = freeId(new Set(graph.nodes.map((node) => node.id)), stem)
   const sameSide = graph.nodes.filter((node) => terminalRole(parts, node) === role)
   const placed = sameSide.filter((node) => Number.isFinite(node.x) && Number.isFinite(node.y)).at(-1)
   const type = role === 'source' ? WORKSHOP_INPUT : WORKSHOP_OUTPUT
   const node = { id, type, params: { name: id }, ...(placed && { x: placed.x, y: placed.y + 120 }) }
-  node.terminal = { text: label, ports: terminalPorts(parts, node) }
+  const name = freeLabel(new Set(sideLabels(graph, parts, role).map(read)), label)
+  node.terminal = { text: name, ports: terminalPorts(parts, node).map((port) => ({ ...port, label: name })) }
   return { ...graph, nodes: [...graph.nodes, node] }
 }
 
@@ -58,13 +65,10 @@ export function editWorkshopTerminal(graph, parts, id, terminal) {
   return { ...graph, nodes, wires }
 }
 
-export function resizeTerminalPorts(ports, count, stem) {
-  const next = ports.slice(0, count)
-  while (next.length < count) {
-    const key = freeId(new Set(next.map((port) => port.key)), '$port')
-    next.push({ key, native: ports[0]?.native ?? null, label: `${stem}_${next.length + 1}` })
-  }
-  return next
+/** One more port after a terminal's own, named after the card and numbered past the labels in `taken`. */
+export function addTerminalPort(ports, stem, taken = []) {
+  const key = freeId(new Set(ports.map((port) => port.key)), '$port')
+  return [...ports, { key, native: ports[0]?.native ?? null, label: freeLabel(new Set(taken), stem, ports.length + 1) }]
 }
 
 // Translate draft-only ports into ordinary domain terminals. The packed runner therefore sees a normal board.
@@ -104,6 +108,13 @@ export function flattenWorkshopTerminals(graph, parts, label = String) {
     return { ...wire, from: sources.get(wire.from) ?? wire.from, ...(to && { to: to.id, port: to.native }) }
   })
   return { graph: { ...graph, nodes, wires }, names, order: [...sources.values()], missing }
+}
+
+function freeLabel(taken, stem, from = 1) {
+  if (from === 1 && !taken.has(stem)) return stem
+  let index = Math.max(from, 2)
+  while (taken.has(`${stem} ${index}`)) index += 1
+  return `${stem} ${index}`
 }
 
 function freeId(taken, stem) {

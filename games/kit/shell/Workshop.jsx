@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownFromLine, ArrowUpFromLine, Check, CircuitBoard, Layers, Pin, Trash2 } from 'lucide-react'
+import { ArrowDownFromLine, ArrowUpFromLine, Check, CircuitBoard, Layers, Pin, Plus, Trash2, X } from 'lucide-react'
 import CircuitLevel from './CircuitLevel.jsx'
 import RunDock from './RunDock.jsx'
 import Popover from './Popover.jsx'
@@ -13,7 +13,7 @@ import {
 import { editorOf } from '../engine/pieces.js'
 import { sourceOf } from '../engine/wire-source.js'
 import {
-  addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, MAX_TERMINAL_PORTS, resizeTerminalPorts,
+  addTerminalPort, addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, MAX_TERMINAL_PORTS, sideLabels,
   terminalPorts, terminalRole, workshopTerminalParts, WORKSHOP_INPUT, WORKSHOP_OUTPUT,
 } from '../engine/workshop-terminals.js'
 import './workshop.css'
@@ -147,7 +147,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
     return null
   }
   const addTerminal = (role, label) => {
-    keep(addWorkshopTerminal(draft, parts, role, label))
+    keep(addWorkshopTerminal(draft, parts, role, String(L(label)), (text) => String(L(text))))
   }
   const picker = <TrayPicker tray={tray} trays={trays} choices={screen.workshopTrays} onPick={screen.onWorkshopTray} />
   const terminals = [
@@ -188,7 +188,8 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
         items={items.filter((item) => !own(item) || featured.has(item.type))} folded={items.filter((item) => own(item) && !featured.has(item.type))}
         types={[...allowed]} tabs={false} pad={dock}
         describe={(node) => library.pieces[node.type]?.description ?? null}
-        terminalDetail={(node, { graph, change, close }) => <TerminalFields node={node} parts={parts} title={drawn.label(node)}
+        terminalTitle={(node) => L(terminalRole(parts, node) === 'source' ? INPUT_LABEL : OUTPUT_LABEL)}
+        terminalDetail={(node, { graph, change, close }) => <TerminalFields node={node} parts={parts} graph={graph} title={drawn.label(node)} family={drawn.family?.(node)}
           change={(terminal) => change(editWorkshopTerminal(graph, parts, node.id, terminal))}
           remove={() => { change(editWorkshopTerminal(graph, parts, node.id, null)); close() }} />}
       />
@@ -214,31 +215,42 @@ function unlockDraft(graph, parts, names) {
   }
 }
 
-function TerminalFields({ node, parts, title, change, remove }) {
+// A draft terminal's detail: its name, and the ports once they are named apart from it (several ports, or one called
+// something else). A terminal with one port of its own name edits both as one.
+function TerminalFields({ node, parts, graph, title, family, change, remove }) {
+  const text = (label) => String(L(label) ?? '')
+  const same = (label) => text(label).normalize('NFKC').trim().toLowerCase()
+  const role = terminalRole(parts, node)
   const ports = terminalPorts(parts, node)
-  const max = Math.max(MAX_TERMINAL_PORTS, ports.length)
+  const named = ports.length > 1 || text(ports[0].label).trim() !== text(title).trim()
+  const others = sideLabels(graph, parts, role, node.id)
+  const bad = (port) => {
+    const own = same(port.label)
+    return !own || own.includes('|') || own.startsWith('__')
+      || [...others, ...ports.filter((item) => item !== port).map(({ label }) => label)].some((label) => same(label) === own)
+  }
   const write = (next) => change({ text: title, ports, ...next })
+  const add = () => write({
+    ports: addTerminalPort(ports, text(title).trim() || text(ports[0].label), [...others, ...ports.map(({ label }) => label)].map(text)),
+  })
+  const enter = (event) => { if (event.key === 'Enter') event.currentTarget.blur() }
   return (
-    <div className="ws-fields">
-      <label>{tr('卡片文本', 'Card text')}
-        <input maxLength={80} value={L(title)} onChange={(event) => write({ text: event.target.value })} />
-      </label>
-      <label>{tr('端口数量', 'Number of ports')}
-        <input key={ports.length} type="number" min={1} max={max} defaultValue={ports.length} onKeyDown={(event) => {
-          if (event.key === 'Enter') event.currentTarget.blur()
-        }} onBlur={(event) => {
-          const count = event.currentTarget.valueAsNumber
-          if (Number.isInteger(count) && count >= 1 && count <= max && count !== ports.length) {
-            write({ ports: resizeTerminalPorts(ports, count, node.id) })
-          } else event.currentTarget.value = String(ports.length)
-        }} />
-      </label>
-      {ports.map((port, index) => <label key={port.key ?? ''}>{tr(`端口 ${index + 1} 标签`, `Port ${index + 1} label`)}
-        <input maxLength={24} value={L(port.label)} onChange={(event) => write({
-          ports: ports.map((item) => item === port ? { ...item, label: event.target.value } : item),
-        })} />
-      </label>)}
-      <button type="button" className="kit-btn is-label ws-remove" onClick={remove}><Trash2 size={15} />{tr('删除元件', 'Delete part')}</button>
+    <div className="ws-term" data-side={role} data-family={family}>
+      <input className="ws-term-name" maxLength={named ? 80 : 24} value={text(title)} placeholder={tr('名称', 'Name')} aria-label={tr('名称', 'Name')}
+        aria-invalid={(!named && bad(ports[0])) || undefined} onKeyDown={enter}
+        onChange={(event) => write(named ? { text: event.target.value } : { text: event.target.value, ports: [{ ...ports[0], label: event.target.value }] })} />
+      {named && <ul className="ws-term-ports">
+        {ports.map((port, index) => <li key={port.key ?? ''}>
+          <i className="ws-dot" />
+          <input maxLength={24} value={text(port.label)} spellCheck={false} aria-label={tr(`端口 ${index + 1}`, `Port ${index + 1}`)} aria-invalid={bad(port) || undefined} onKeyDown={enter}
+            onChange={(event) => write({ ports: ports.map((item) => item === port ? { ...item, label: event.target.value } : item) })} />
+          {ports.length > 1 && <button type="button" className="ws-tool ws-remove" aria-label={tr(`移除端口 ${text(port.label)}`, `Remove port ${text(port.label)}`)} onClick={() => write({ ports: ports.filter((item) => item !== port) })}><X size={14} /></button>}
+        </li>)}
+      </ul>}
+      <div className="ws-term-foot">
+        <button type="button" className="kit-btn is-label" disabled={ports.length >= MAX_TERMINAL_PORTS} onClick={add}><Plus size={15} />{tr('端口', 'Port')}</button>
+        <button type="button" className="kit-btn is-label ws-remove" onClick={remove}><Trash2 size={15} />{tr('删除', 'Delete')}</button>
+      </div>
     </div>
   )
 }

@@ -7,7 +7,7 @@ import {
 } from './workshop.js'
 
 import {
-  addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, resizeTerminalPorts, terminalPorts,
+  addTerminalPort, addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, sideLabels, terminalPorts,
   workshopTerminalParts, WORKSHOP_OUTPUT,
 } from './workshop-terminals.js'
 
@@ -153,20 +153,23 @@ test('publishing a replacement for another reward works even when its old reward
   assert.equal(publishWorkshop(installed, take(base()), { id: 'older', lineage: 'old' }), installed)
 })
 
-test('draft terminals can be added, resized, labelled, and removed along with their wires', () => {
+test('draft terminals can be added, given ports, labelled, and removed along with their wires', () => {
   const start = { nodes: [], wires: [] }
   const graph = addWorkshopTerminal(addWorkshopTerminal(start, drawing, 'source', 'Input'), drawing, 'sink', 'Output')
   const [input, output] = graph.nodes
   const draft = editWorkshopTerminal(graph, drawing, input.id, {
-    text: 'External source', ports: resizeTerminalPorts(terminalPorts(drawing, input), 2, 'in'),
+    text: 'External source', ports: addTerminalPort(terminalPorts(drawing, input), 'Input', sideLabels(graph, drawing, 'source')),
   })
   const rendered = workshopTerminalParts(drawing)
+  assert.deepEqual([input.terminal.text, input.terminal.ports[0].label, output.terminal.text], ['Input', 'Input', 'Output'])
+  assert.equal(addWorkshopTerminal(graph, drawing, 'source', 'Input').nodes.at(-1).terminal.text, 'Input 2')
+  assert.deepEqual(draft.nodes[0].terminal.ports.map(({ label }) => label), ['Input', 'Input 2'])
   assert.equal(rendered.label(draft.nodes[0]), 'External source')
   assert.equal(rendered.outputs(draft.nodes[0]).length, 2)
   const extra = draft.nodes[0].terminal.ports[1].key
   const wired = { ...draft, wires: [wire(input.id, output.id), wire(`${input.id}#${extra}`, output.id)] }
   const shrunk = editWorkshopTerminal(wired, drawing, input.id, {
-    text: 'External source', ports: resizeTerminalPorts(terminalPorts(drawing, draft.nodes[0]), 1, 'in'),
+    text: 'External source', ports: terminalPorts(drawing, draft.nodes[0]).slice(0, 1),
   })
   assert.deepEqual(shrunk.wires, [wire(input.id, output.id)])
   assert.deepEqual(editWorkshopTerminal(shrunk, drawing, output.id, null).wires, [])
@@ -177,7 +180,7 @@ test('a multiport draft packages each wired input and every output as an indepen
   const raw = addWorkshopTerminal(addWorkshopTerminal({ nodes: [], wires: [] }, drawing, 'source', 'Input'), drawing, 'sink', 'Output')
   let [a, b] = raw.nodes
   const widen = (node, names) => ({
-    ...node, terminal: { ...node.terminal, ports: resizeTerminalPorts(node.terminal.ports, names.length, 'p')
+    ...node, terminal: { ...node.terminal, ports: names.slice(1).reduce((ports) => addTerminalPort(ports, 'p'), node.terminal.ports)
       .map((port, i) => ({ ...port, label: names[i] })) },
   })
   a = widen(a, ['left', 'right', 'unused'])
