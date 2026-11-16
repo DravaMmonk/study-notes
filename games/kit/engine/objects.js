@@ -7,7 +7,7 @@ import { dependencyCycle, dependencyOrder } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), concept: S.opt(S.bool()), values: S.list(REFERENCE) })
+export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
 export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'piece', 'entry', 'tag', 'section'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list(REFERENCE) })

@@ -25,7 +25,6 @@
 //
 // The boards the player passed the building levels with live in the course read (syncOwn), one per content: two games
 // of a domain in one process never share them.
-import { stagesOf } from './stages.js'
 import { builtPieces, pieceReferences, publications } from './pieces.js'
 import { packed } from './boards.js'
 import { defineParts } from './parts/define.js'
@@ -212,10 +211,6 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
         .filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))]
     },
     carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
-    openParts: (level) => (played.get(level.id) ?? []).filter(isBoard).map((task) => {
-      const shown = stagesOf({ task, board: task.solution, chain: result.stageChain(task), isFixed: (n) => board.isFixed(n.type) })
-      return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
-    }),
     references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
   }
   const { references } = course

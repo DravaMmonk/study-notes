@@ -4,7 +4,6 @@
     "rule"
   ],
   "tray": "machine-formula",
-  "showcase": "@level.r-rule.showcase",
   "intro": [
     {
       "t": "@level.r-rule.intro.0.t"

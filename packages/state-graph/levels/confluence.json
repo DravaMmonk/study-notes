@@ -120,7 +120,6 @@
     "how": "@level.confluence.mission.how"
   },
   "robot": "table:robot-scout",
-  "showcase": "@level.confluence.showcase",
   "adds": [
     "table:msum"
   ],

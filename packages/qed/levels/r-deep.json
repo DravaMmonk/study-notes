@@ -5,7 +5,6 @@
     "uDecompose"
   ],
   "tray": "machine-formula",
-  "showcase": "@level.r-deep.showcase",
   "intro": [
     {
       "t": "@level.r-deep.intro.0.t"

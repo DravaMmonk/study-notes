@@ -4,7 +4,6 @@
     "allI"
   ],
   "tray": "proof-formula",
-  "showcase": "@level.q-allI.showcase",
   "intro": [
     {
       "t": "@level.q-allI.intro.0.t"

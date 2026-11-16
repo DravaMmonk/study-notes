@@ -341,7 +341,6 @@
   "level.confluence.mission.goal": "街道只能往右或往下走，起点已经写好 1。让机器人算出每个路口的路线数：每个路口 = 上面 + 左边。",
   "level.confluence.mission.how": "在视野里点「上面」和「左边」两格，再放一个汇合器，把视野元件的两个输出口接进去，再把汇合器接到「本格」。",
   "level.confluence.short": "把两个数汇进一个元件",
-  "level.confluence.showcase": "第一次往板上放元件：元件放在输入和输出之间，一根线接进它的一个口，它的输出口再接出去；汇合器把几条来路收成一个数",
   "level.confluence.tasks.confluence.guide.0.say": "第 1 步：在视野里点「上面」和「左边」，「视野」元件就有了两个输出口。",
   "level.confluence.tasks.confluence.guide.1.say": "第 2 步：把托盘里的<part-ref to=\"part:table:msum\"></part-ref>拖到电路板的空格上，点一下也行。",
   "level.confluence.tasks.confluence.guide.2.say": "第 3 步：把视野的两个输出口各接到汇合器左边的一个圆点，再把汇合器右边的圆点接到「本格」。",

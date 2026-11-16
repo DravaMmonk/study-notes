@@ -174,15 +174,12 @@ test('settings have neither a registry nor a tag kind', () => {
 })
 
 
-test('concept declarations reject non-item tags and ambiguous membership', () => {
+test('tags reject teaching metadata and never implicitly declare trays', () => {
   const input = source()
-  input.tags.push(['bad', { kind: 'level', concept: true, values: ['a'] }],
-    ['idea', { kind: 'piece', concept: true, values: ['piece'] }],
-    ['other-idea', { kind: 'piece', concept: true, values: ['#idea'] }])
-  input.partDefs = { parts: { piece: {} } }
-  const problems = assemble(input).objectProblems.map((p) => p.says)
-  assert.ok(problems.some((p) => p.includes('concept tags must contain items')))
-  assert.ok(problems.some((p) => p.includes('belongs to multiple concepts')))
+  input.tags.push(['idea', { kind: 'piece', concept: true, values: [] }])
+  const content = assemble(input)
+  assert.deepEqual(content.trays, {})
+  assert.ok(checkContent({ vocabulary }, content).some(problem => /concept/.test(problem.at)))
 })
 
 

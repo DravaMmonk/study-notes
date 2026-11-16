@@ -68,12 +68,12 @@ function playable({ intro: _, ...task }, kit, keep) {
  * content: { eras (games/DESIGN.md 2: each with its chapter { title, label, question }), levels (in any order: the
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
  * from the start), primitives (the parts no circuit builds), trays: { tray: { name, desc, items } } (../../course.js trays),
- * concept: { part: idea } parts that are one new idea together, replaces: { part: [part] } the parts a part supersedes
+ * replaces: { part: [part] } the parts a part supersedes
  * once met }, mode: 'notes' for a notes edition (every level open, no audit).
  * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level
  * names only the parts it brings in (`adds`) and the tray it plays with (`tray`): every part met or built before it
  * carries into it, as far as its tray lists it; see ../../course.js reach and offer. What a task unlocks, the tasks after it hold at once (`opens`); a
- * level that shows a new part alone says why (`showcase`). A flag a level unlocks, gives for itself (`gives`) or
+ * A flag a level unlocks, gives for itself (`gives`) or
  * keeps from a task (`withholds`) stands for every item that needs it (engine/nodes.js `unlock`: a part, one of its
  * settings, one option of a choice); what a task holds of them is the kernel's rule (../../course.js holds).
  * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn(level, flags), holdsIn(level, flags),

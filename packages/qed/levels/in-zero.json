@@ -1,7 +1,6 @@
 {
   "title": "@level.in-zero.title",
   "tray": "formula",
-  "showcase": "@level.in-zero.showcase",
   "intro": [
     {
       "t": "@level.in-zero.intro.0.t"

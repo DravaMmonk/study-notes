@@ -186,7 +186,6 @@ const ONCE = {
   intro: S.list(S.obj({ t: S.text(), fig: S.opt(S.call('figure')) })),
   mission: S.obj({ goal: S.text(), how: S.text() }),
   robot: S.opt(S.ref('robot', { about: t('玩这一关电路任务的机器人') })),
-  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
   adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course' })),
   tray: TRAY,
   carry: S.opt(S.level({ about: t('第一个任务从这一关玩家留下的电路板开始（必须是先修）') })),

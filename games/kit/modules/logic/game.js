@@ -76,7 +76,7 @@ export default function logicGame(content) {
     index,
     source: L,
     // Marked 新 where its idea is met first: not a part brought in again (a part that stays where it is brought).
-    fresh: L.adds.filter((p) => fresh(logic.course, { id: L.id }).has(logic.course.concept(p))),
+    fresh: [...fresh(logic.course, { id: L.id })].map(logic.course.pieceOf),
     chapter: L.chapter,
     requires: L.requires,
     title: L.title,
@@ -88,7 +88,7 @@ export default function logicGame(content) {
     after: L.after,
     // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
     // its screen reading the task as the course read it (`source`).
-    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, play: t.play, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
+    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, play: t.play, step: t.step, source: t, fresh: [...fresh(logic.course, { id: L.id, task: t.task })].map(logic.course.pieceOf), brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: content.id,

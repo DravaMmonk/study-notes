@@ -16,7 +16,6 @@
   "level.merge.mission.goal": "The start already holds 1. Have the robot work out the routes to every crossing: up + left.",
   "level.merge.mission.how": "Wire “up” and “left” into one Merger, then the Merger to “this cell”.",
   "level.merge.short": "Merge two numbers in one component",
-  "level.merge.showcase": "the first part placed on a board: it sits between the inputs and the output and gathers several ways in into one number",
   "level.merge.tasks.merge.hints.0": "Wire both inputs into the same Merger.",
   "level.merge.title": "Two roads meet",
   "level.rocks.debrief.body.0": "The part stays as it is; a gate outside it is enough.",

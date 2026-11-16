@@ -141,7 +141,6 @@ function readBuilt(content) {
  * cards and their enclosing frames are locked, as are the reference wires joining them and the board's own ports
  * (../../circuit/presets.js). presetIds(level) lists all preset cards.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
- * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, as far as
  * its tray lists it; see ../../course.js reach and offer. What a task holds is the kernel's rule (../../course.js
  * holds), and the domain says only what is its own: a task withholds its `without`; a machine board is given the rule
@@ -368,7 +367,7 @@ export function* prepareLogicWorks(content) {
     }))
     const last = all.at(-1)
     return {
-      id, title: level.title, intro: level.intro, after: level.after, kind: last.kind, brief: last.brief, builds: level.builds, fact: last.fact, showcase: level.showcase,
+      id, title: level.title, intro: level.intro, after: level.after, kind: last.kind, brief: last.brief, builds: level.builds, fact: last.fact,
       without: last.without, declare: last.declare, adds: [...new Set(all.flatMap((t) => t.adds))], chapter, requires, unlocks, tasks: all,
     }
   })
@@ -409,7 +408,6 @@ export function* prepareLogicWorks(content) {
     levels: LEVELS, plan,
     intrinsic: [...axioms, ...Object.keys(strips)],
     local: axioms,
-    concepts: Object.fromEntries([...Object.keys(strips), ...axioms].map(p => [p, null])),
     additions: (l) => {
       const level = byId.get(l.id)
       if (l.task === undefined) return level.adds
@@ -425,7 +423,6 @@ export function* prepareLogicWorks(content) {
     },
     machine: (l) => eras[eraOf.get(l.id)]?.machine ?? null,
     needed: (l) => { const answers = answersOf(l); return answers.length ? answers.flatMap(rulesIn) : null },
-    declares: (l) => (byId.get(l.id).declare ? references.resolve(keyOf(byId.get(l.id).declare), null, null, { kind: 'declaration', reference: true })?.value ?? [] : []),
     references, boards: answersOf,
   }
   const noFlags = new Set()

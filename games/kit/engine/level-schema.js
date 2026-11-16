@@ -63,7 +63,6 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
     note: S.opt(S.text()),
     adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course' })),
     tray: TRAY,
-    showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么') })),
   }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board, { parts: true })
 }
 

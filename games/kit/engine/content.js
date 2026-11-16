@@ -92,14 +92,6 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const resolve = referenceResolver(registries, objectProblems)
   for (const [name, tag] of Object.entries(tagMap)) {
     resolve(`#${name}`, tag.kind, `tags/${name}`)
-    if (tag.concept && tag.kind !== 'piece') objectProblems.push({ at: `tags/${name}`, says: 'concept tags must contain items' })
-  }
-  const concepts = new Map()
-  for (const [name, tag] of Object.entries(tagMap)) if (tag.concept && tag.kind === 'piece') {
-    for (const item of resolve(`#${name}`, 'piece')) {
-      if (concepts.has(item) && concepts.get(item) !== name) objectProblems.push({ at: `tags/${name}`, says: `${item} belongs to multiple concepts: ${concepts.get(item)}, ${name}` })
-      concepts.set(item, name)
-    }
   }
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)
   for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, value] of Object.entries(registries[kind])) registries[kind][name] = refs(value, schema)
