@@ -203,7 +203,7 @@
 .pb-term.is-output.is-fail { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fail) 55%, var(--rule)), var(--card); }
 .pb-term.is-output.is-pass .pb-name svg { color: var(--status); }
 .pb-term.is-output.is-fail .pb-name svg { color: var(--fail); }
-/* The subgrids share the root's columns and row gaps. A frame title has its own gap before the first region. */
+/* The subgrids share the root's columns and row gaps. */
 .pb-grid { position: relative; display: grid; grid-template-columns: repeat(var(--pb-columns, 2), minmax(var(--pb-min-slot), 1fr)); grid-auto-rows: auto; column-gap: var(--pb-column-gap); }
 .pb-cell { display: grid; min-width: 0; border-radius: var(--r-md); }
 .pb-cell.over { box-shadow: 0 0 0 2.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
@@ -433,24 +433,20 @@
 .pb-cell.is-frame, .pb-frame, .pb-region, .pb-grid.is-region { display: grid; grid-template-rows: subgrid; grid-template-columns: subgrid; grid-column: 1 / -1; min-height: 0; gap: normal; }
 .pb-frame { grid-row: 1 / -1; position: relative; border-radius: var(--r-md); background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
 .pb-frame.lift { z-index: 20; pointer-events: none; }
-.pb-region { padding: 0; border-radius: var(--r-md); outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
+.pb-region { padding: 0; }
 /* A region's head row: its name, then the value it opens, its dot on the row's foot. */
 .pb-region-head, .pb-closes { grid-column: 1 / -1; position: relative; min-height: 0; color: var(--muted); font-size: 11.5px; }
-.pb-region-head { grid-row: 1; padding: var(--sp-2) var(--sp-4); border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
-.pb-region-head.has-port { padding-bottom: calc(var(--pb-dot) / 2 + var(--sp-3)); }
+.pb-region-head { grid-row: 1; box-sizing: border-box; min-height: var(--pb-tile-height); padding: var(--sp-6) var(--pb-tile-padding); display: grid; align-content: start; gap: var(--sp-1); }
+.pb-region-head.has-port { border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
 .pb-closes { grid-row: -2; padding: calc(var(--pb-dot) / 2 + var(--sp-3)) var(--sp-4); border-top: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
 .pb-region-readout { display: flex; align-items: baseline; justify-content: center; gap: var(--sp-3); }
 .pb-region-readout em { flex: none; max-width: 50%; font-style: normal; overflow-wrap: anywhere; }
 .pb-region-value { min-width: 0; overflow-wrap: anywhere; }
-.pb-region-placeholder { color: var(--faint); }
+.pb-thumb .vw-value, .pb-region-value .vw-value { line-height: 1.45; }
 .pb-frame:focus-visible { outline: 2px solid var(--accent); }
-.pb-frame-head { grid-column: 1 / -1; position: relative; padding: var(--sp-2) var(--pb-tile-padding); color: var(--muted); user-select: none; }
+.pb-frame-head { color: var(--muted); user-select: none; }
 .pb-frame-head[data-drag] { cursor: grab; touch-action: none; }
 .pb-frame-head > .pb-name { text-align: start; font-size: var(--fs-label); }
-.pb-frame > .pb-ins + .pb-frame-head { padding-top: calc(var(--pb-dot) / 2 + var(--sp-3)); }
-.pb-region-head.is-compact { display: grid; align-content: start; gap: var(--sp-2); min-height: var(--pb-slot-height, var(--pb-tile-height)); box-sizing: border-box; }
-.pb-region-head.is-compact .pb-frame-head { padding: 0; }
-.pb-frame > .pb-ins + .pb-region > .pb-region-head.is-compact { padding-top: calc(var(--pb-dot) / 2 + var(--sp-3)); }
 
 
 /* Compact tiles follow the content. The picture face keeps the space reserved for its preview. */
@@ -518,7 +514,6 @@
 /* ---- a level on the circuit base (shell/CircuitScreen.jsx): a card's settings and value, the strip under the board ---- */
 .cs-card { padding: var(--sp-2) var(--sp-4) 0; display: grid; gap: var(--sp-2); min-width: 0; }
 .cs-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
-.cs-error.is-missing { color: var(--faint); }
 .cs-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--sp-3); }
 .cs-field > span { color: var(--muted); font-size: 11px; }
 .cs-field select, .cs-field input { min-width: 0; height: 26px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12px var(--mono); }

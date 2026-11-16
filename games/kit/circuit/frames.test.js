@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart, moveInto } from './frames.js'
-import { movePhonePart } from './blocks.js'
+import { movePhonePart, phoneBlockBoard, placeInPhoneSlot } from './blocks.js'
 import { flowBoard, primitivesOnly } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
 import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
@@ -66,10 +66,9 @@ test('inputs and outputs cannot move into a frame or reopen inside one', () => {
 
 test('on a phone a box takes the rows of its regions, each a grid of its own between a head row and a foot row', () => {
   const top = placement(board, parts)
-  assert.deepEqual([...top.cell], [['f', 0], ['g', 10]])
-  assert.deepEqual(top.span.get('f'), [2, 5])
-  assert.deepEqual(top.free, [11, 12, 13])
-  assert.deepEqual([...top.frameHeads], [0])
+  assert.deepEqual([...top.cell], [['f', 0], ['g', 8]])
+  assert.deepEqual(top.span.get('f'), [2, 4])
+  assert.deepEqual(top.free, [9, 10, 11])
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
   assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
@@ -97,7 +96,6 @@ test('a frame swap requires room for both footprints and preserves other slots',
   }
   assert.equal(movePhonePart(saved, parts, 'f', 1), null)
   assert.equal(movePhonePart(saved, parts, 'f', 3), null)
-  assert.equal(movePhonePart(saved, parts, 'f', 0), null)
   assert.equal(movePhonePart(saved, parts, 'f', 2).graph, saved)
 
   const open = { ...saved, nodes: saved.nodes.map((node) => node.id === 'g' ? { ...node, slot: 14 } : node) }
@@ -107,6 +105,42 @@ test('a frame swap requires room for both footprints and preserves other slots',
   assert.equal(other, 'g')
   assert.deepEqual(placement(swapped, parts).cell, new Map([['f', 14], ['g', 2], ['bystander', 24]]))
   assert.equal(swapped.wires, saved.wires)
+})
+
+test('a nested frame can move out into the empty column beside its parent and keep its own contents', () => {
+  const saved = {
+    nodes: [
+      { id: 'outer', type: 'box', slot: 0, span: 1 },
+      { id: 'inner', type: 'box', in: 'outer/body', slot: 0 },
+      { id: 'leaf', in: 'inner/body', slot: 0 },
+      { id: 'later', slot: 20 },
+    ],
+    wires: [{ from: 'inner#body', to: 'leaf', port: 'a' }],
+    blocks: [{ id: 'later-group', nodes: ['later'], slot: 20, rows: 2 }],
+  }
+  const { graph } = movePhonePart(saved, parts, 'inner', 3)
+  const shown = placement(phoneBlockBoard(graph, parts), parts)
+  assert.deepEqual([shown.cell.get('outer'), shown.cell.get('inner'), shown.span.get('inner')[0]], [0, 3, 1])
+  assert.equal(graph.nodes.find((n) => n.id === 'leaf').in, 'inner/body')
+  assert.deepEqual(graph.wires, saved.wires)
+})
+
+test('a new tall frame takes the selected empty slot and moves only the card underneath it', () => {
+  const saved = { nodes: [{ id: 'beside', slot: 0 }, { id: 'under', slot: 3 }, { id: 'away', slot: 4 }], wires: [] }
+  const board = { ...saved, nodes: [...saved.nodes, { id: 'box', type: 'box', slot: 1 }] }
+  const placed = placeInPhoneSlot(board, parts, 'box', 1, null, placement(saved, parts))
+  assert.deepEqual([...placement(placed, parts).cell], [['beside', 0], ['under', 6], ['away', 4], ['box', 1]])
+})
+
+test('a wide card uses the row of the selected slot without moving a protected neighbour', () => {
+  const phone = { ...parts, availableWidth: 390, valueView: (node) => node.id === 'wide' ? 'sensor' : 'value' }
+  const saved = { nodes: [{ id: 'other', slot: 0 }], wires: [] }
+  const graph = { ...saved, nodes: [...saved.nodes, { id: 'wide', slot: 1 }] }
+  const before = placement(saved, phone)
+  assert.equal(placeInPhoneSlot(graph, phone, 'wide', 1, null, before, (id) => id !== 'other'), null)
+  const placed = placement(placeInPhoneSlot(graph, phone, 'wide', 1, null, before), phone)
+  assert.deepEqual([placed.cell.get('wide'), placed.span.get('wide')], [0, [2, 1]])
+  assert.equal(placed.cell.get('other'), 2)
 })
 
 test('the fixed tray sets the columns even when its most common card width is not on the board', () => {
@@ -127,15 +161,15 @@ test('frames span the saved number of columns and can share rows with a card or 
   const side = placement(resized, parts)
   assert.deepEqual([...side.cell], [['f', 0], ['g', 1]])
   assert.deepEqual(side.span.get('f'), [1, 4])
-  assert.deepEqual([...side.frameHeads], [])
   const both = { ...resized, nodes: resized.nodes.map((n) => n.id === 'g' ? { ...n, type: 'box', span: 1 } : n) }
   assert.deepEqual([...placement(both, parts).cell], [['f', 0], ['g', 1]])
 })
 
-test('each region of an empty one-column frame uses three rows with the title merged into the first', () => {
+test('each empty region uses three rows with the title in the first one at either width', () => {
   const frame = { id: 'f', type: 'box', span: 1 }
   const graph = { nodes: [frame], wires: [] }
   assert.deepEqual(placement(graph, parts).span.get('f'), [1, 3])
+  assert.deepEqual(placement({ ...graph, nodes: [{ ...frame, span: 2 }] }, parts).span.get('f'), [2, 3])
   const branches = { ...parts, frames: () => [{ name: 'left' }, { name: 'right' }] }
   assert.deepEqual(placement(graph, branches).span.get('f'), [1, 6])
 })

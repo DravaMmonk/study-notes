@@ -14,8 +14,8 @@ export function slotGrid(columns) {
       last = Math.max(last, cell)
     }
   }
-  const firstFree = (span) => {
-    let at = 0
+  const firstFree = (span, start = 0) => {
+    let at = start
     while (!fits(at, span)) at += 1
     return at
   }

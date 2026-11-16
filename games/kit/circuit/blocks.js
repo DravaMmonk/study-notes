@@ -2,7 +2,7 @@ import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
 import { byId, fitsSlotEdit, placement, spotIn } from './model.js'
 import { moveInto } from './frames.js'
-import { frameId, frameTree } from './regions.js'
+import { frameId, frameTree, regionsOf } from './regions.js'
 import { slotGrid } from './slot-grid.js'
 import { layoutOrder, pipelineLayout } from './layout.js'
 
@@ -106,25 +106,24 @@ export function phoneBlockBoard(board,parts) {
   const units=blocks.map(block=>({block,at:block.slot??Math.floor(Math.min(...block.nodes.map(id=>placed.cell.get(id)))/placed.cols)*placed.cols}))
     .concat(editable(board,parts).filter(n=>!owner.has(n.id)).map(node=>({node,at:placed.cell.get(node.id)})))
     .sort((a,b)=>a.at-b.at)
+  const grid=slotGrid(placed.cols)
   let cursor=0
   for(const unit of units){
-    let at=Math.max(cursor,unit.at)
+    const start=Math.max(cursor,unit.at)
     if(unit.block){
-      at=Math.ceil(at/placed.cols)*placed.cols
-      let end=0
-      for(const id of unit.block.nodes){
-        const local=placed.cell.get(id)-unit.at
-        slots.set(id,at+local)
-        end=Math.max(end,Math.floor(local/placed.cols)+(placed.span.get(id)?.[1]??1))
-      }
-      const rows=end+1
+      const locals=unit.block.nodes.map(id=>[id,placed.cell.get(id)-unit.at])
+      const rows=1+Math.max(...locals.map(([id,local])=>Math.floor(local/placed.cols)+placed.span.get(id)[1]))
+      const span=[placed.cols,rows]
+      const at=grid.firstFree(span,start)
+      grid.take(at,span)
+      for(const [id,local] of locals)slots.set(id,at+local)
       bounds.set(unit.block.id,{slot:at,rows})
       cursor=at+rows*placed.cols
     }else{
-      const [w,h]=placed.span.get(unit.node.id)
-      if(at%placed.cols+w>placed.cols)at=Math.ceil(at/placed.cols)*placed.cols
+      const span=placed.span.get(unit.node.id)
+      const at=grid.firstFree(span,start)
+      grid.take(at,span)
       slots.set(unit.node.id,at)
-      cursor=h>1?Math.ceil(at/placed.cols)*placed.cols+h*placed.cols:at+w
     }
   }
   return {...board,blocks:blocks.map(({ins:_ins,outs:_outs,...b})=>({...b,...bounds.get(b.id)})),nodes:board.nodes.map(n=>slots.has(n.id)?{...n,slot:slots.get(n.id)}:n)}
@@ -169,7 +168,48 @@ export function withNewSlots(board, parts) {
   return { ...board, nodes: board.nodes.map((node) => slots.has(node.id) ? { ...node, slot: slots.get(node.id) } : node) }
 }
 
-/** Move into an empty slot or swap within one grid, committing membership only after the new slots fit. */
+const setSlots = (board, slots) => ({ ...board, nodes: board.nodes.map((node) => slots.has(node.id) ? { ...node, slot: slots.get(node.id) } : node) })
+
+/** Pin the dropped part to a vacant slot, moving only neighbours whose footprints overlap. */
+export function placeInPhoneSlot(board, parts, id, slot, region, before, canMove = () => true) {
+  if (!before.free.includes(slot)) return null
+  const { cols } = before
+  const node = byId(board, id)
+  const neighbours = [...before.cell].filter(([key]) => key !== id).sort((a, b) => a[1] - b[1])
+  let next = board
+  if (regionsOf(parts, node).length) {
+    const row = slotGrid(cols)
+    for (const [key, at] of neighbours) row.take(at, before.span.get(key))
+    const preferred = Number.isInteger(node.span) && node.span > 0 ? Math.min(cols, node.span) : cols
+    let width = preferred
+    while (width > 1 && !row.fits(slot, [width, 1])) width--
+    if (width < preferred) next = { ...board, nodes: board.nodes.map((n) => n.id === id ? { ...n, span: width } : n) }
+  }
+
+  // Moving out of a frame can shrink its footprint in the destination grid.
+  const { span } = placement(next, parts, region)
+  const size = span.get(id)
+  const anchor = slot - Math.max(0, slot % cols + size[0] - cols)
+  const grid = slotGrid(cols)
+  const slots = new Map([[id, anchor]])
+  for (const [key, at] of neighbours) if (!canMove(key)) grid.take(at, span.get(key))
+  if (!grid.fits(anchor, size)) return null
+  grid.take(anchor, size)
+  const displaced = []
+  for (const [key, at] of neighbours) {
+    if (!canMove(key)) slots.set(key, at)
+    else if (!grid.fits(at, span.get(key))) displaced.push([key, at])
+    else { grid.take(at, span.get(key)); slots.set(key, at) }
+  }
+  for (const [key, at] of displaced) {
+    const target = grid.firstFree(span.get(key), at)
+    grid.take(target, span.get(key))
+    slots.set(key, target)
+  }
+  return setSlots(next, slots)
+}
+
+/** Move into an empty slot or swap within one grid before committing membership. */
 export function movePhonePart(board, parts, id, slot, region = null, canMove = () => true) {
   const node = byId(board, id)
   if (!node || parts.role(node) !== 'part' || !canMove(id)) return null
@@ -181,10 +221,15 @@ export function movePhonePart(board, parts, id, slot, region = null, canMove = (
 
   const moved = sameRegion ? board : moveInto(board, parts, id, region, ...spotIn(board, region))
   if (!sameRegion && moved === board) return null
-  const slots = new Map(placed.cell).set(id, slot)
-  if (other) slots.set(other, placed.cell.get(id))
-  const next = { ...moved, nodes: moved.nodes.map((n) => slots.has(n.id) ? { ...n, slot: slots.get(n.id) } : n) }
-  if (!fitsSlotEdit(placement(next, parts, region), slots)) return null
+  let next
+  if (other) {
+    const slots = new Map(placed.cell).set(id, slot).set(other, placed.cell.get(id))
+    next = setSlots(moved, slots)
+    if (!fitsSlotEdit(placement(next, parts, region), slots)) return null
+  } else {
+    next = placeInPhoneSlot(moved, parts, id, slot, region, placed, canMove)
+    if (!next) return null
+  }
 
   if (board.blocks === undefined) return { graph: next, other }
   const membership = [{ id, block: blockAtSlot(board, parts, slot, region, placed) }]

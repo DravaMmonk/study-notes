@@ -220,8 +220,7 @@ export function layout(graph, parts) {
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
 // up with the cells beside it. Each frame's regions use the columns it covers in its parent grid.
 //
-//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, frameHeads, free: [slot] }
-// `frameHeads` includes nested headings so the phone subgrid can put the first region directly after its title.
+//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, free: [slot] }
 export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
   const regions = (n) => regionsOf(parts, n)
@@ -247,7 +246,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       if (!frames.length) return [cardColumns(parts, n, width, cols), 1]
       const children = frames.map((g) => place(regionAddress(n.id, g.name)))
       const frameColumns = children[0].cols
-      return [frameColumns, (compactFrame(frameColumns) ? 0 : 1) + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
+      return [frameColumns, children.reduce((sum, child) => sum + 2 + child.rows, 0)]
     }
     const take = (node, at, size) => {
       cell.set(node.id, at)
@@ -269,31 +268,12 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
     const rows = fixed ? Math.max(1, last) : Math.max(last, reserved) + 1
     const size = rows * cols
-    const frameHeads = new Set()
-    for (const [id, slot] of cell) {
-      const frames = regions(byNode.get(id))
-      if (!frames.length) continue
-      let row = Math.floor(slot / cols)
-      const width = span.get(id)[0]
-      if (!compactFrame(width)) {
-        if (width === cols) frameHeads.add(row)
-        row++
-      }
-      for (const region of frames) {
-        const child = place(regionAddress(id, region.name))
-        if (width === cols) for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
-        row += child.rows + 2
-      }
-    }
-    const result = { cell, span, cols, rows, size, frameHeads, free: Array.from({ length: size }, (_, at) => at).filter((at) => !grid.has(at)) }
+    const result = { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !grid.has(at)) }
     grids.set(r, result)
     return result
   }
   return place(region)
 }
-
-/** A single-column frame can share its title row with its first region. */
-export const compactFrame = (width) => width === 1
 
 /** Every requested slot must fit without displacing another card in the destination grid. */
 export function fitsSlotEdit(placed, slots) {

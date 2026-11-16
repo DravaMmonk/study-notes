@@ -106,7 +106,9 @@ function CardField({ label, value, options, onChange, disabled }) {
 /** What a card shows of a value (the kit's card scene, ../views/Show.jsx, in the view kept for it: `of`), or why it
  * has none. */
 function Value({ value, error, show, of, views }) {
-  if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? L(WORDS.notWired) : L(error)}</span>
+  if (value === undefined) return !error || error === MISSING
+    ? <Show value={null} scene="card" text={() => WORDS.notWired} />
+    : <span className="cs-error">{L(error)}</span>
   return <Show value={value} scene="card" text={show} of={of} views={views} />
 }
 

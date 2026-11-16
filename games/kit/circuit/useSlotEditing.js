@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { NO_CARD_PORT, portOnCard } from './card-ports.js'
-import { byId, canRemoveCard, connectWire, ends, fitsSlotEdit, isPart, layout, parsePort, placement, removeNode, unplugWire, wireRefusal } from './model.js'
+import { byId, canRemoveCard, connectWire, ends, isPart, layout, parsePort, placement, removeNode, unplugWire, wireRefusal } from './model.js'
 import { leavesLockedRegion, lockedCards, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
-import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
+import { blockAtSlot, movePhonePart, placeInPhoneSlot, transferBlockMembers } from './blocks.js'
 import { regionAddress, regionsFit, regionsOf } from './regions.js'
 import { usePickedPort } from './usePickedPort.js'
 import { visibleSlot } from './visibleSlot.js'
@@ -197,8 +197,8 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const candidate = create(graph, type, slot, region)
     const node = byId(candidate.graph, candidate.id)
     if (!isPart(parts, node) || (node.in ?? null) !== region || !regionsFit(candidate.graph, parts)) return null
-    const slots = new Map(before.cell).set(node.id, slot)
-    return fitsSlotEdit(placement(candidate.graph, parts, region), slots) ? candidate : null
+    const placed = placeInPhoneSlot(candidate.graph, parts, node.id, slot, region, before, canMove)
+    return placed && { ...candidate, graph: placed }
   }
   const place = (type, at, region = null) => {
     const made = partAt(type, at, region)

@@ -10,6 +10,7 @@ import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connec
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { useElementSize } from '../views/useElementSize.js'
+import Show from '../views/Show.jsx'
 import { cardView } from '../engine/views.js'
 import { cardPorts, namesPorts } from './card-ports.js'
 import { cardHeight } from './card-size.js'
@@ -17,7 +18,7 @@ import { slotMetrics } from './slot-metrics.js'
 import { slotPortAt } from './slot-ports.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { compactFrame, feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
+import { feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
 import { regionAddress } from './regions.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a grid of slots that
@@ -310,20 +311,18 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   // A grid of slots: the board's, or a region's inside a frame (`region`, rows of the frame's own grid: placement).
   function grid(region, style) {
     const placed = placement(graph, parts, region, { fixed })
-    const { cell, span, cols, free, rows, size, frameHeads } = placed
+    const { cell, span, cols, free, rows, size } = placed
     const ranges=region===null?blockRows(graph,parts,placed).map(b=>({...b,view:groups.find(g=>g.id===b.id)?.view??b.view})):[]
     const hidden=new Set(ranges.filter(b=>b.view==='hidden').flatMap(b=>Array.from({length:b.end-b.start},(_,k)=>b.start+k)))
     const rowTrack = new Map(), headTrack = new Map(), tracks = []
-    let afterFrameTitle = false
-    const addTrack = (frameTitle) => {
-      if (tracks.length) tracks.push(afterFrameTitle ? 'var(--sp-2)' : 'var(--pb-row-gap)')
+    const addTrack = () => {
+      if (tracks.length) tracks.push('var(--pb-row-gap)')
       tracks.push('auto')
-      afterFrameTitle = frameTitle
       return tracks.length
     }
     for (let row = 0; row < rows; row++) {
-      for (const block of ranges.filter((b) => b.start === row)) headTrack.set(block.id, addTrack(false))
-      if (!hidden.has(row)) rowTrack.set(row, addTrack(frameHeads.has(row)))
+      for (const block of ranges.filter((b) => b.start === row)) headTrack.set(block.id, addTrack())
+      if (!hidden.has(row)) rowTrack.set(row, addTrack())
     }
     const at = (slot, [w, h] = [1, 1]) => {
       const row = Math.floor(slot / cols)
@@ -347,7 +346,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       if(region===null&&hidden.has(row))continue
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       const ports = cardPorts(parts, node)
-      if(ports.regions.length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],ports));continue}
+      if(ports.regions.length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),ports));continue}
       const extra=!isFolded&&tileExtra?.(node)
       const view = cardView(parts.valueView?.(node))
       const tileHeight = isFolded ? undefined : cardHeight(parts, node)
@@ -369,25 +368,23 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
-  function frameBlock(node, slot, region, style, width, card) {
+  function frameBlock(node, slot, region, style, card) {
     const isFolded = foldedParts.has(node.id)
     const { outputs, regions: ownRegions } = card
-    const compact = compactFrame(width)
     const ports = inputDots(node, card)
     const waitingForInput = card.inputs.some((port) => !feeding(graph, node.id, port))
     const waitingForSetting = needsSetting?.(node)
-    const unavailable = (text) => <span className="pb-region-placeholder">{L(text)}</span>
+    const unavailable = (text) => <Show value={null} scene="card" text={() => text} />
     const title = (
       <div className="pb-frame-head" data-drag={fixed || partitioning || !canMove(node.id) ? undefined : true}>
         <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
       </div>
     )
-    let row = compact ? 1 : 3
+    let row = 1
     const regions = ownRegions.map((r, index) => {
       const address = regionAddress(node.id, r.name)
       const { rows } = placement(graph, parts, address, { fixed })
       const branch = ownRegions.length > 1 ? regionLabel?.(node, index) ?? L(r.label) : null
-      const received = r.opens ? [branch, L(WORDS.received)].filter(Boolean).join(' ') : branch
       const opening = !isFolded && (regionNote?.(node, r.name) ?? (
         r.opens && waitingForInput ? unavailable(WORDS.notWired)
           : waitingForSetting ? unavailable(WORDS.notConfigured)
@@ -400,10 +397,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
-          <header className={`pb-region-head ${r.opens ? 'has-port' : ''} ${compact ? 'is-compact' : ''}`}>
-            {compact && index === 0 && title}
-            {(received || opening) && <div className="pb-region-readout">
-              {received && <em>{received}</em>}
+          <header className={`pb-region-head ${r.opens ? 'has-port' : ''}`}>
+            {index === 0 && title}
+            {(branch || opening) && <div className="pb-region-readout">
+              {branch && <em>{branch}</em>}
               {opening && <span className="pb-region-value">{opening}</span>}
             </div>}
             {r.opens && <span className="pb-out">{dot(outPort(sourceOf(node.id, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(sourceOf(node.id, r.name)) ? 'is-wired' : ''}`)}</span>}
@@ -413,10 +410,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             <span className="pb-ins">
               <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)}的${regionName}${resultLabel}`, `${nameOf(node)}: ${regionName}${resultLabel}`), `is-in ${wired ? 'is-wired' : 'is-open'}`)}</span>
             </span>
-            <div className="pb-region-readout">
-              <em>{resultLabel}</em>
-              {result && <span className="pb-region-value">{result}</span>}
-            </div>
+            {result && <div className="pb-region-readout"><span className="pb-region-value">{result}</span></div>}
           </footer>
         </section>
       )
@@ -429,7 +423,6 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
           if (event.target.closest('[data-piece]') === event.currentTarget && !event.target.closest('button')) onNode(node.id)
         }}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
-          {!compact && title}
           {regions}
           {outDots(node, outputs, isFolded)}
         </div>
