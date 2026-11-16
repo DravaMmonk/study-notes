@@ -5,23 +5,27 @@ import { PHONE, useMedia } from './useMedia.js'
 import { useOverlay } from './useOverlay.js'
 
 // Something to fill in that belongs to one button (a sentence on 《证明完毕》's rule table, a test case's goal…): on a
-// desktop a box beside the button, pointing at it, like a tooltip that holds an editor; on a phone the usual bottom
-// sheet (Sheet.jsx), titled. It closes on Escape, on a press anywhere outside it (the button aside), or by its owner.
+// desktop a box pointing at the button; on a phone the usual bottom sheet, unless the caller anchors it above.
+// It closes on Escape, on a press anywhere outside it (the button aside), or by its owner.
 //
 //   anchor  the element it points at (the button pressed)      title  the sheet's      onClose()
 
 const GAP = 10
 const EDGE = 12
 
-export default function Popover({ anchor, title, onClose, children, className = '', placement }) {
+export default function Popover({ anchor, title, onClose, children, className = '', placement, initialFocus }) {
   const phone = useMedia(PHONE)
-  if (phone) return <Sheet title={title} onClose={onClose}>{children}</Sheet>
-  return <Box className={className} anchor={anchor} label={title} onClose={onClose} placement={placement}>{children}</Box>
+  if (phone && placement !== 'above') return <Sheet title={title} onClose={onClose}>{children}</Sheet>
+  return <Box className={className} anchor={anchor} label={title} onClose={onClose} placement={placement} initialFocus={initialFocus}>{children}</Box>
 }
 
-function Box({ anchor, label, onClose, children, className, placement }) {
+function Box({ anchor, label, onClose, children, className, placement, initialFocus }) {
   const box = useOverlay(onClose, { onOutside: onClose, anchor: () => anchor })
   const [at, setAt] = useState(null) // { left, top, below, arrow, room }
+  const positioned = Boolean(at)
+  useLayoutEffect(() => {
+    if (positioned && initialFocus) box.current.querySelector(initialFocus)?.focus({ preventScroll: true })
+  }, [box, initialFocus, positioned])
   // Under the button when it fits there, else over it; never past the window's edges. It follows the button as the
   // page scrolls or what it holds grows.
   useLayoutEffect(() => {
@@ -32,8 +36,8 @@ function Box({ anchor, label, onClose, children, className, placement }) {
       const h = el.scrollHeight
       const under = window.innerHeight - a.bottom - GAP - EDGE
       const over = a.top - GAP - EDGE
-      const below = placement === 'below' || h <= under || under >= over
-      const room = Math.max(placement === 'below' ? 0 : 160, below ? under : over)
+      const below = placement !== 'above' && (placement === 'below' || h <= under || under >= over)
+      const room = Math.max(placement ? 0 : 160, below ? under : over)
       const shown = Math.min(h, room)
       const left = Math.min(Math.max(EDGE, a.left + a.width / 2 - w / 2), window.innerWidth - w - EDGE)
       setAt({ left, top: below ? a.bottom + GAP : a.top - GAP - shown, below, arrow: Math.min(Math.max(16, a.left + a.width / 2 - left), w - 16), room })

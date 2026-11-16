@@ -29,9 +29,16 @@
 .ws-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .ws-io { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-group); }
-.ws-tray-picker { flex: none; width: min(10rem, 42vw); min-width: 0; display: grid; align-content: center; }
-.ws-tray-picker select { width: 100%; min-width: 0; color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--sp-2); font: 600 var(--fs-ui)/var(--lh-ui) var(--sans); }
-.ws-tray-picker small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); font: var(--fs-label)/var(--lh-ui) var(--sans); }
+.ws-tray-picker { flex: none; display: flex; align-items: center; }
+.ws-tray-toggle { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--r-md); color: var(--muted); background: var(--canvas); cursor: pointer; }
+.ws-tray-toggle:hover, .ws-tray-toggle[aria-expanded='true'] { color: var(--ink); background: var(--hover); }
+.ws-tray-menu { width: min(20rem, calc(100vw - 24px)); }
+.ws-tray-menu .kit-pop-body { padding: var(--sp-2); gap: var(--sp-1); }
+.ws-tray-option { min-height: 44px; padding: var(--sp-3) var(--sp-4); display: grid; grid-template-columns: minmax(0, 1fr) 15px; align-items: center; gap: var(--sp-3); border: 0; border-radius: var(--r-sm); color: var(--ink); background: transparent; text-align: start; font: var(--fs-ui)/var(--lh-ui) var(--sans); cursor: pointer; }
+.ws-tray-option:hover, .ws-tray-option:focus-visible, .ws-tray-option[aria-pressed='true'] { background: var(--hover); }
+.ws-tray-option:focus-visible, .ws-tray-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-tray-option small { display: block; color: var(--muted); font-size: var(--fs-label); }
+.ws-tray-option svg { color: var(--accent-ink); }
 .ws-notice { margin: 0; color: var(--muted); font: var(--fs-ui)/var(--lh-ui) var(--sans); }
 .ws-notice.is-fail { color: var(--fail); }
 
@@ -48,6 +55,7 @@
   .ws-level .ws-face { padding: var(--sp-3) var(--sp-3) var(--sp-5); }
   .ws-level .ws-shelf { margin-top: var(--sp-6); }
   .pb-tray .ws-tray-picker { position: sticky; z-index: 1; inset-inline-start: 0; margin-inline-start: calc(var(--sp-5) * -1); padding-inline-start: var(--sp-5); background: var(--paper); }
+  .ws-tray-toggle { width: 44px; height: 44px; }
   .ws-level .run-dock { flex-wrap: wrap; }
   .ws-level .run-meta { flex-basis: 100%; }
   .ws-desc, .ws-port-name { font-size: var(--fs-touch-input); }

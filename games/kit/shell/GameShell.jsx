@@ -1,4 +1,6 @@
 import { playId } from '../engine/plays.js'
+import { editorOf } from '../engine/pieces.js'
+import { trayMembers } from '../engine/trays.js'
 import { createElement, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
@@ -307,14 +309,23 @@ export default function GameShell({ game, store, author = null }) {
   }, [game, level, author, progress, solved])
   // The workshop borrows the board of a circuit task the player has open: the one it was opened from, else the latest
   // that plays with the tray asked for.
-  const traysOf = (task) => game.course?.tray(task.source) ?? []
-  const onTray = ({ task }) => !bench?.tray || traysOf(task).includes(bench.tray)
-  const workshop = workshopSources.find((source) => bench?.back && source.candidate.id === bench.back.id && source.at === bench.back.task && onTray(source))
-    ?? workshopSources.find((source) => bench?.tray && onTray(source))
-    ?? workshopSources[0]
+  const pieces = game.partDefs?.parts ?? {}
+  const circuitTrays = new Set(Object.entries(game.course?.trays ?? {}).flatMap(([name, tray]) => (
+    trayMembers(tray).some((type) => Object.hasOwn(pieces, type) && editorOf(pieces[type]) === 'circuit') ? [name] : []
+  )))
+  const workshopBoards = workshopSources.flatMap((source) => {
+    const named = game.course?.tray(source.task.source)
+    const trays = named ? named.filter((name) => circuitTrays.has(name)) : ['']
+    return trays.length ? [{ ...source, trays }] : []
+  })
+  const requestedTray = circuitTrays.has(bench?.tray) ? bench.tray : null
+  const onTray = ({ trays }) => requestedTray === null || trays.includes(requestedTray)
+  const workshop = workshopBoards.find((source) => bench?.back && source.candidate.id === bench.back.id && source.at === bench.back.task && onTray(source))
+    ?? workshopBoards.find((source) => requestedTray !== null && onTray(source))
+    ?? workshopBoards[0]
   const benchTask = bench && workshop ? playedTask(taskContext(game, progress, workshop.candidate, workshop.at)) : null
-  const benchTray = benchTask && (bench.tray && onTray(workshop) ? bench.tray : traysOf(workshop.task)[0] ?? '')
-  const benchTrays = Object.keys(game.course?.trays ?? {}).filter((name) => workshopSources.some(({ task }) => traysOf(task).includes(name)))
+  const benchTray = benchTask && (requestedTray !== null && onTray(workshop) ? requestedTray : workshop.trays[0])
+  const benchTrays = [...circuitTrays].filter((name) => workshopBoards.some(({ trays }) => trays.includes(name)))
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (

@@ -1,7 +1,8 @@
 import { useId, useMemo, useState } from 'react'
-import { CircuitBoard, Pin, Plus, Trash2, X } from 'lucide-react'
+import { Check, CircuitBoard, Layers, Pin, Plus, Trash2, X } from 'lucide-react'
 import CircuitLevel from './CircuitLevel.jsx'
 import RunDock from './RunDock.jsx'
+import Popover from './Popover.jsx'
 import Glyph from '../circuit/Glyph.jsx'
 import { boardFits } from '../circuit/model.js'
 import { L, tr } from './i18n.js'
@@ -12,6 +13,36 @@ import {
 import './workshop.css'
 
 const silent = { tests: [], states: [] }
+
+function TrayPicker({ tray, trays, choices, onPick }) {
+  const [anchor, setAnchor] = useState(null)
+  const nameOf = (id) => id ? L(trays[id].name) : tr('元件托盘', 'Parts tray')
+  const label = tr('切换托盘', 'Switch tray')
+  const close = () => {
+    setAnchor(null)
+    anchor.focus({ preventScroll: true })
+  }
+  return (
+    <div className="ws-tray-picker">
+      <button type="button" className="ws-tray-toggle" title={`${label} · ${nameOf(tray)}`} aria-label={`${label} · ${nameOf(tray)}`}
+        aria-expanded={Boolean(anchor)} aria-haspopup="dialog" onClick={(event) => anchor ? close() : setAnchor(event.currentTarget)}>
+        <Layers size={17} aria-hidden="true" />
+      </button>
+      {anchor && <Popover anchor={anchor} title={label} onClose={close} placement="above" className="ws-tray-menu" initialFocus='[aria-pressed="true"]'>
+        {[...new Set([...choices, tray])].map((id) => {
+          const desc = L(trays[id]?.desc)
+          return <button key={id} type="button" className="ws-tray-option" aria-pressed={id === tray} onClick={() => {
+            close()
+            if (id !== tray) onPick(id)
+          }}>
+            <span><strong>{nameOf(id)}</strong>{desc && <small>{desc}</small>}</span>
+            {id === tray && <Check size={15} aria-hidden="true" />}
+          </button>
+        })}
+      </Popover>}
+    </div>
+  )
+}
 
 /**
  * The workshop page (games/DESIGN.md 6.9): one draft board per tray, on the same editor as a circuit level, beside the
@@ -51,7 +82,6 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
     return carry && fits(board) ? fresh(board) : blank
   })
   const fieldsId = useId()
-  const trayDescId = useId()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [notice, setNotice] = useState(null)
@@ -109,18 +139,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
       <textarea className="ws-desc" rows={2} maxLength={320} value={description} placeholder={tr('它做什么', 'What it does')} aria-label={tr('描述', 'Description')} onChange={(event) => setDescription(event.target.value)} />
     </form>
   )
-  const trayDesc = L(trays[tray]?.desc)
-  const picker = (
-    <div className="ws-tray-picker">
-      <select value={tray} aria-label={tr('切换托盘', 'Switch tray')} aria-describedby={trayDesc ? trayDescId : undefined}
-        onChange={(event) => screen.onWorkshopTray(event.target.value)}>
-        {[...new Set([...(screen.workshopTrays ?? []), tray])].map((id) => (
-          <option key={id} value={id}>{id ? L(trays[id].name) : tr('元件托盘', 'Parts tray')}</option>
-        ))}
-      </select>
-      {trayDesc && <small id={trayDescId} title={trayDesc}>{trayDesc}</small>}
-    </div>
-  )
+  const picker = <TrayPicker tray={tray} trays={trays} choices={screen.workshopTrays} onPick={screen.onWorkshopTray} />
   const result = (
     <div className="ws-io">
       {[['inputs', tr('输入', 'Inputs')], ['outputs', tr('输出', 'Outputs')]].map(([side, title]) => {
