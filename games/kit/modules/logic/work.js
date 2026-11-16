@@ -251,7 +251,8 @@ export function* prepareLogicWorks(content) {
     const circuit = boards.forTask(task)
     return fitsCircuit(board, task, workView(board, circuit))
   })
-  const { eras, wordSets = {} } = content
+  const { eras } = content
+  const wordSets = content.registries?.wordset ?? {}
   const wrong = []
   const strips = stripPieces(content.partDefs)
   const marks = new Set()

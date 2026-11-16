@@ -1,3 +1,4 @@
+import { contentKindSchemas } from '../content-kinds.js'
 // A changeset: several operations (operations.js) applied to a game together, as one change.
 //
 //   { why?: text, by?: who, ops: [{ op: 'tag.set', …its arguments }] }
@@ -89,7 +90,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = ['level', 'piece', 'part', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
+  const selectors = [...Object.keys(contentKindSchemas), 'level', 'piece', 'part', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const source = (value, schema) => expandNames(value, ws.packageId, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
   const args = source(selected, OPERATIONS[operation].params)
@@ -100,6 +101,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     if (path[0] === 'parts' && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
   }
   const targets = {
+    ...Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, [schema, ws.contentObjects[kind].get(args[kind])]])),
     level: [vocabulary.level, ws.levels.get(args.level)],
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],

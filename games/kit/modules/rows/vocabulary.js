@@ -7,7 +7,7 @@ import { defineVocabulary } from '../../engine/vocabulary.js'
 const row = S.obj({ total: S.int(), chips: S.list(S.int(), { min: 1 }), reference: S.syntax('sum'), naive: S.syntax('sum') })
 
 export const vocabulary = qualifyVocabulary('rows', defineVocabulary({
-  domain: 'rows',
+  module: 'rows',
   version: 1,
   languages: { sum: { about: { zh: '由整数和加号组成的等式右边', en: 'The right side of an equation, built from integers and addition' } } },
   kinds: { kind: { equation: { about: { zh: '补齐等式右边的加法式' } } } },

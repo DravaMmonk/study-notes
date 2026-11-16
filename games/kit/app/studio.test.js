@@ -149,7 +149,7 @@ test('the slow reads go to the second lane: a quick preview is not held up by a 
 test('the HTTP tools list, preview and write a package that no game selects', async () => {
   const pkg = join(root, 'packages', 'library')
   mkdirSync(pkg, { recursive: true })
-  writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ domain: 'logic', vocabulary: 1 })}\n`)
+  writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ vocabulary: 1 })}\n`)
   mkdirSync(join(pkg, 'pieces'), { recursive: true })
   writeFileSync(join(pkg, 'pieces/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' }))
   const packages = (await post('packages', {})).body

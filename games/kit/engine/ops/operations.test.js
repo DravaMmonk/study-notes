@@ -24,10 +24,10 @@ const openGame = (id, root, options = {}) => (options.scope === 'game' ? openWor
 
 const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS, COURSE_OPTIONS })
 const VOCAB = defineVocabulary({
-  domain: 'toy',
+  module: 'toy',
   version: 1,
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
-  game: S.obj({ title: S.text(), chapters: S.list(ERA), ...COURSE_OPTIONS, carry: S.opt(S.map(S.level())) }),
+  game: S.obj({ title: S.text(), chapters: S.list(ERA), ...COURSE_OPTIONS, views: S.opt(S.map(S.level())) }),
   // What a toy level says once is its whole puzzle; its one task is only its id.
   level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
 })
@@ -44,9 +44,9 @@ const DOMAIN = {
 function toy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-toy-'))
   const game = {
-    domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
+    vocabulary: 1, title: { en: 'Toy' },
     chapters: [{ id: 'one', levels: ['toy/a1', 'toy/a2', 'toy/a3'] }, { id: 'two', levels: ['b1', 'b2', 'c1'] }], optional: ['a3'],
-    carry: { x: 'a2' },
+    views: { x: 'a2' },
   }
   const glossary = { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] }
   const levels = Object.fromEntries(['a1', 'a2', 'a3', 'b1', 'b2', 'c1'].map((id) => [id, {
@@ -204,8 +204,8 @@ test('level.add and level.remove update placement while preserving content refer
 test('game.set and game.unset edit the assembled configuration', () => {
   const { ws } = toy()
   roundTrip(ws, 'game.set', { path: 'title', value: { en: '玩具' } })
-  roundTrip(ws, 'game.unset', { path: 'carry' })
-  assert.equal(ws.game.carry, undefined)
+  roundTrip(ws, 'game.unset', { path: 'views' })
+  assert.equal(ws.game.views, undefined)
 })
 
 test('named-object operations persist typed tags, relations and layouts and preserve translations', async () => {
@@ -379,7 +379,7 @@ test('a package changeset is checked atomically, logged and undone independently
 })
 
 test('tasks by id: task.add, task.move in a level and across levels, task.remove, each undone', async () => {
-  const T = defineVocabulary({ domain: 'tasked', version: 1, kinds: {}, game: VOCAB.game, level: taskLevel({ title: S.text() }, { brief: S.text() }) })
+  const T = defineVocabulary({ module: 'tasked', version: 1, kinds: {}, game: VOCAB.game, level: taskLevel({ title: S.text() }, { brief: S.text() }) })
   const tx = (s) => ({ en: s })
   const levels = new Map([['p', { title: tx('p'), tasks: [{ id: 'p', brief: tx('p1') }, { id: 'p2', brief: tx('p2') }] }], ['q', { title: tx('q'), tasks: [{ id: 'q', brief: tx('q1') }] }], ['r', { title: tx('r'), tasks: [{ id: 'r1', brief: tx('r1') }] }]])
   const ws = { levels: new Map(levels), game: { eras: [] } }
@@ -407,7 +407,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.remove
 
 // A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in pieces/<name>.json.
 const PVOCAB = defineVocabulary({
-  domain: 'ptoy',
+  module: 'ptoy',
   version: 1,
   kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
   game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), chapters: S.list(ERA), ...COURSE_OPTIONS }),
@@ -416,7 +416,7 @@ const PVOCAB = defineVocabulary({
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
 function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
-  const game = { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], chapters: [{ id: 'one', levels: ['a1'] }] }
+  const game = { vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], chapters: [{ id: 'one', levels: ['a1'] }] }
   const glossary = { groups: [], entries: [] }
   const partDefs = { parts: { sum } }
   const levels = { a1: { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] } }

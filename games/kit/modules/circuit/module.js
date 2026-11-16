@@ -1,3 +1,4 @@
+import { registerContentKinds } from '../../engine/content-kinds.js'
 import { BUILTINS, BUILTIN_ITEMS } from '../../engine/parts/builtins.js'
 import { OPS } from './ops.js'
 import { displayItems } from '../../engine/bench.js'
@@ -7,6 +8,7 @@ import { vocabulary } from './vocabulary.js'
 export default {
   id: 'circuit',
   register(registry) {
+    registerContentKinds(registry, 'circuit')
     registry.vocabulary('circuit', vocabulary)
     registry.add('display', 'circuit:screen', { about: { en: 'Circuit cards and result presentation' }, role: 'circuit' })
     registry.implementDisplays(['circuit:screen'], '../modules/circuit/ui/displays.js')

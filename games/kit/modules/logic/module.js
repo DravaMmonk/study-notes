@@ -1,9 +1,11 @@
+import { registerContentKinds } from '../../engine/content-kinds.js'
 import { OPS } from './ops.js'
 import { vocabulary } from './vocabulary.js'
 
 export default {
   id: 'logic',
   register(registry) {
+    registerContentKinds(registry, 'logic')
     registry.vocabulary('logic', vocabulary)
     registry.add('display', 'logic:hero', { about: { en: 'Logic course map illustration' }, role: 'hero' })
     registry.add('display', 'logic:proof-screen', { about: { en: 'Proof cards, readouts and panels' }, role: 'circuit' })
@@ -12,8 +14,6 @@ export default {
     registry.add('display', 'logic:passed', { about: { en: 'Declared rules in the pass dialog' }, role: 'passed' })
     registry.implementDisplays(['logic:hero', 'logic:proof-screen', 'logic:gates-screen', 'logic:machine-screen', 'logic:passed'], '../modules/logic/ui/displays.js')
     registry.implementOperations(OPS)
-    registry.add('contentKind', 'logic:wordset', { about: { en: 'A named formula-reading dictionary' }, schema: { type: 'map', of: { type: 'text' } } })
-    registry.add('contentKind', 'logic:quote', { about: { en: 'A quoted name' }, schema: { type: 'str' } })
     for (const [name, about] of Object.entries({
       judgment: { en: 'A proved formula with its open hypotheses and proof term', zh: '带开放假设与证明项的已证公式' },
       'machine-value': { en: 'An equation set, proof state, rule, sentence or clause set', zh: '等式组、证明状态、规则、句子或子句集' },

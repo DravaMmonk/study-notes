@@ -23,9 +23,9 @@
       ],
       "propertyWords": true,
       "words": [
-        "everyday",
-        "stars",
-        "properties"
+        "qed/everyday",
+        "qed/stars",
+        "qed/properties"
       ],
       "tests": [
         {

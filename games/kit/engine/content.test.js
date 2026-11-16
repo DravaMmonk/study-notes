@@ -12,7 +12,7 @@ import { isDataGame, readContent } from './content-node.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
 
 const VOCAB = defineVocabulary({
-  domain: 'toy',
+  module: 'toy',
   version: 2,
   kinds: {
     world: { line: { about: { en: '一排格子' }, params: S.obj({ n: S.int({ min: 1 }) }) } },
@@ -71,14 +71,14 @@ test('references and calls go by the vocabulary', () => {
 
 test('a small language reports what it cannot read, by the path, without throwing', () => {
   const brackets = (text) => { let d = 0; for (const c of text) { d += c === '(' ? 1 : c === ')' ? -1 : 0; if (d < 0) return `unexpected ) in ${text}` } return d ? 'unclosed (' : null }
-  const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({ goal: S.syntax('brackets') }), languages: { brackets: { about: 'balanced brackets' } } })
+  const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({ goal: S.syntax('brackets') }), languages: { brackets: { about: 'balanced brackets' } } })
   const languages = { brackets }
   assert.deepEqual(validate(vocabulary.level, { goal: '(a)' }, { vocabulary, languages }), [])
   assert.deepEqual(validate(vocabulary.level, { goal: ')))not a formula' }, { vocabulary, languages }), [{ at: '.goal', says: '")))not a formula" is no brackets: unexpected ) in )))not a formula' }])
   assert.deepEqual(validate(vocabulary.level, { goal: ')))' }, { vocabulary }), [], 'without the readers only the type is checked')
   assert.match(validate(vocabulary.level, { goal: 3 }, { vocabulary })[0].says, /expected brackets text/)
   assert.deepEqual(validate(S.syntax('nope'), 'x', { languages }), [], 'a language the domain does not read is the contract’s to refuse')
-  const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [{ id: 'one', goal: '(()' }], glossary: { groups: [], entries: [] } }
+  const content = { id: 'g', vocabulary: 1, levels: [{ id: 'one', goal: '(()' }], glossary: { groups: [], entries: [] } }
   assert.deepEqual(checkContent({ vocabulary, languages }, content), [{ at: 'levels/one.json.goal', says: '"(()" is no brackets: unclosed (' }])
 })
 
@@ -97,8 +97,8 @@ test('a name the content defines must be one it defines', () => {
   assert.deepEqual(validate(S.name('lemma'), 'swap', { names }), [])
   assert.match(validate(S.name('lemma'), 'nonexistent', { names })[0].says, /"nonexistent" is no lemma of this game/)
   assert.deepEqual(validate(S.name('gate'), 'x', { names }), [], 'a kind of name the domain does not give is the contract’s to refuse')
-  const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({}) })
-  const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [], glossary: { groups: [{ id: 'a', title: 'A' }], entries: [{ id: 'e', group: 'b', title: 'E', body: [], see: ['f'] }] } }
+  const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({}) })
+  const content = { id: 'g', vocabulary: 1, levels: [], glossary: { groups: [{ id: 'a', title: 'A' }], entries: [{ id: 'e', group: 'b', title: 'E', body: [], see: ['f'] }] } }
   assert.deepEqual(checkContent({ vocabulary }, content).map((p) => p.at), ['entries/e.json.see[0]'])
 })
 
@@ -111,13 +111,13 @@ test('a vocabulary prints as plain data', () => {
 test('content is checked file by file', () => {
   const content = assemble({
     id: 'toy', schemas: VOCAB,
-    game: { domain: 'toy', vocabulary: 3, title: { en: '玩具' }, extra: 1 },
+    game: { vocabulary: 3, title: { en: '玩具' }, extra: 1 },
     levels: [['b', { mode: 'read', text: 'x' }], ['a', { mode: 'run', world: 'nowhere' }]],
     glossary: { groups: [], entries: [{ id: 'e', title: 'E', body: [] }] },
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['toy/a', 'toy/b'])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [
-    "game.json.vocabulary: written for version 3; the domain's vocabulary has versions 1 to 2",
+    "game.json.vocabulary: written for version 3; the kernel vocabulary has versions 1 to 2",
     'game.json.extra: is not a field here',
     'levels/toy/a.json.world: "nowhere" is no world of the vocabulary',
   ])
@@ -129,7 +129,7 @@ test('a data game is read from its folder', () => {
   mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
   writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ packages: ['shared-toy'], title: 'Toy' }))
   writeFileSync(join(dir, 'games', 'toy', 'course.json'), '{}')
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ domain: 'toy', vocabulary: 1 }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ vocabulary: 1 }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
   assert.equal(isDataGame('toy', dir), true)
   assert.equal(isDataGame('none', dir), false)

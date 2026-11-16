@@ -14,7 +14,15 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 3,
+  version: 4,
+  removes: [
+    { at: 'capabilities.contentKind', why: 'Package configuration becomes named content prototypes.' },
+    { at: 'courses.image.game', why: 'Power and preview configuration are selected by object name.' },
+    { at: 'courses.logic.game', why: 'Word sets are selected by object name and quotes are package objects.' },
+    { at: 'courses.logic.level', why: 'Task dictionaries reference named word sets.' },
+    { at: 'game', why: 'Assembled course schemas select named configuration objects.' },
+    { at: 'level', why: 'Assembled task schemas reference named word sets.' },
+  ],
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

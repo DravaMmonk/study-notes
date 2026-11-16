@@ -6,7 +6,7 @@ by an engineer or an engineering agent with write access to `games/kit/domains/<
 ## Input
 
 The blueprint's `requests` with `status: 'open'`, and its `mechanisms`. A new topic's domain starts from the scaffold
-(`npm run new-domain -- <name> --mechanism <m>`, games/DESIGN.md 6.3) before this step.
+(`npm run new-package -- <name> --template <template>`, games/DESIGN.md 6.3) before this step.
 
 ## Do
 

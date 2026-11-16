@@ -6,12 +6,12 @@ import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
 import { referenceResolver, expandReferences, relationOrder } from './objects.js'
 
-const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {},
+const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part'))), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part'))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
-  game: { domain: 'toy', vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], layout: 'toy/map' }], optional: ['#toy/extras'] },
+  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], layout: 'toy/map' }], optional: ['#toy/extras'] },
   levels: ['start', 'a', 'b', 'c', 'end'].map((id) => [id, { title: id }]),
   glossary: { groups: [], entries: [] },
   tags: [['core', { kind: 'level', title: 'Core', values: ['a', '#extras', 'b'] }], ['extras', { kind: 'level', values: ['c'] }]],

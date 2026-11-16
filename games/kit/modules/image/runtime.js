@@ -30,7 +30,7 @@ function spec(content, works = imageWorks(content)) {
     // implementation; only a built piece of pieces.json (inside) runs the player's board.
     builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),
     texts: { chapters: image.CHAPTERS, intros: image.intros, glossary: content.glossary.entries },
-    quotes: content.quotes ?? [],
+    quotes: Object.values(content.registries?.quote ?? {}).map(quote => quote.text),
   }
 }
 

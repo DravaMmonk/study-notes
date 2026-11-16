@@ -1,4 +1,5 @@
 // Dependency ordering, override composition and provenance shared by readers and author operations.
+import { contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { qualifyObject, OBJECT_SCHEMAS } from './objects.js'
 import { PARTS_FILE } from './parts/schema.js'
@@ -6,9 +7,9 @@ import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts' }
+export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, entry: ENTRY, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
@@ -119,6 +120,11 @@ export function composeLayers(layers, schemas) {
       const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
       if (['tag', 'relation', 'layout'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
+    }
+    if (!layer.id.startsWith('@')) {
+      for (const key of Object.keys(layer.config)) if (!['uses', 'vocabulary'].includes(key)) throw new Error(`${layer.id}/package.json: unknown field ${key}`)
+      const version = layer.config.vocabulary
+      if (!Number.isInteger(version) || version < 1 || version > schemas.version) throw new Error(`${layer.id}/package.json: vocabulary ${version} exceeds or falls outside kernel versions 1 to ${schemas.version}`)
     }
     configurations.push(texts(layer.config ?? {}, schemas.game, 'configuration'))
     for (const { kind, name: id, value } of layer.objects) {

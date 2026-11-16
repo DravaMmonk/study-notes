@@ -1,3 +1,4 @@
+import { defineParts } from '../../../engine/parts/define.js';
 import { qualifyItems } from '../../../engine/capabilities.js';
 // The parts of a table board (games/DESIGN.md 3): the primitives every course starts from, the input cards the level
 // gives, and the parts the player builds (registered by course.js, each running the board it was built from).
@@ -73,8 +74,16 @@ export const isGiven = type => isCard(type) || type === 'port' || type === 'tap'
  *   valueDefault(type) the number it starts with when it is placed
  *   valueOptions(type, task) the ordered choices for that number on this task, or null when the part has no setting
  */
-export function partsOf(built) {
+export function partsOf(built, definitions) {
+  const { PARTS: compiled, defs } = defineParts(definitions, {});
+  const declared = Object.fromEntries(Object.entries(compiled).map(([type, part]) => [type, {
+    name: defs[type].name, desc: defs[type].desc, tag: T('零件', 'part'),
+    ins: part.inputs.map(name => part.inputTypes?.[name] ?? 'circuit:any'),
+    labels: part.inputs, out: part.outputType, params: part.params,
+    f: (values, node) => part.eval(Object.fromEntries(part.inputs.map((name, index) => [name, values[index]])), node, {}),
+  }]));
   const def = type => {
+    if (Object.hasOwn(declared, type)) return declared[type];
     if (Object.hasOwn(PRIMITIVES, type)) return PRIMITIVES[type];
     const b = Object.hasOwn(built, type) ? built[type] : null;
     return b ? { name: b.name, tag: T('零件', 'part'), ins: b.ins, labels: b.labels, desc: b.desc, built: true, out: b.outType, params: b.setting !== undefined ? ['value'] : [] } : null;
@@ -82,5 +91,5 @@ export function partsOf(built) {
   const hasValue = type => type === 'table:const' || built[type]?.setting !== undefined;
   const valueDefault = type => (type === 'table:const' ? 1 : built[type]?.setting);
   const valueOptions = (type, task) => hasValue(type) ? (task.consts ?? CONSTANT_VALUES) : null;
-  return { built, def, hasValue, valueDefault, valueOptions };
+  return { built, types: [...Object.keys(PRIMITIVES), ...Object.keys(declared)], def, hasValue, valueDefault, valueOptions };
 }

@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 // node --test (npm test) — the tick-bus domain: the line's rule, what a level wants tick by tick, a board that talks
 // and keeps a register, boards as blueprint text, and its starter game (starter/, what npm run new-game copies)
 // passing its own checks.
@@ -13,7 +14,7 @@ import { wantOf } from './wants.js'
 import domain from './runtime.js'
 
 // The starter's parts (its pieces.json), over the kernel's builtins.
-const { PARTS } = defineParts(readStarter(import.meta.dirname).partDefs, {})
+const { PARTS } = defineParts(readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1))).partDefs, {})
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board
 const { partOf } = plain
@@ -44,7 +45,7 @@ test('a board that says what it hears this very tick has a loop', () => {
 })
 
 test('the starter game passes its checks', async () => {
-  const content = readStarter(import.meta.dirname)
+  const content = readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])
 })

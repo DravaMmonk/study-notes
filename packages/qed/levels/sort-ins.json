@@ -15,8 +15,8 @@
       "id": "sort-ins_1",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.sort-ins.tasks.sort-ins_1.step",
       "fn": "if",
@@ -69,8 +69,8 @@
       "id": "sort-ins_2",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.sort-ins.tasks.sort-ins_2.step",
       "fn": "ins",
@@ -132,8 +132,8 @@
       "id": "sort-ins_3",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.sort-ins.tasks.sort-ins_3.step",
       "fn": "sort",
@@ -194,8 +194,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.sort-ins.tasks.sort-ins_4.step",
       "types": [

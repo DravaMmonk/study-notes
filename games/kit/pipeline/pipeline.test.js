@@ -190,7 +190,7 @@ test('terminology review inspects both task overrides and glossary bodies throug
   const { reviewTerminology } = await import('./terminology.js')
   const vocabulary = { game: S.obj({ title: S.text() }), level: taskLevel({ title: S.text() }, { brief: S.text(), hint: S.opt(S.list(S.text())) }) }
   const content = {
-    id: 'toy', domain: 'toy', vocabulary: 1, title: t('Toy'), eras: [],
+    id: 'toy', vocabulary: 1, title: t('Toy'), eras: [],
     levels: [{ id: 'a', title: t('A'), tasks: [{ id: 'a', brief: t('Find the point.') }, { id: 'a_2', brief: t('<wiki-ref to="late"></wiki-ref>') }] }],
     glossary: { groups: [], entries: [
       { id: 'late', group: 'g', at: 'b', title: { en: '光轴' }, aliases: ['OA'], body: [t('A geometric line.')] },

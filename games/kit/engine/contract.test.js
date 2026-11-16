@@ -6,7 +6,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { readStarter } from './content-node.js'
+import { readStarter, runtimeOf } from './content-node.js'
 import { audit } from '../course.js'
 import { checkContent } from './vocabulary.js'
 import { moduleProblems, gameProblems, specProblems, validateProblems } from './contract.js'
@@ -41,10 +41,10 @@ test('no domain computes from a clock or an unseeded random source', () => {
 
 // A domain's starter game (what npm run new-game copies) is a game that passes everything a new game must, and the
 // game its domain describes for the shell is the one its content says.
-for (const name of names.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')))) {
+for (const name of names.filter((d) => existsSync(resolve(DOMAINS, '../templates', d, 'starter')))) {
   test(`${name}: its starter game fits the vocabulary, passes the audit and the contract`, async () => {
-    const domain = await load(name)
-    const content = readStarter(resolve(DOMAINS, name))
+    const content = readStarter(resolve(DOMAINS, '../templates', name))
+    const domain = await runtimeOf(content)
     assert.deepEqual(checkContent(domain, content), [])
     const spec = domain.spec(content)
     assert.deepEqual(audit(spec.course), [])

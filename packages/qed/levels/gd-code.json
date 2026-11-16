@@ -26,9 +26,9 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms",
-        "codes"
+        "qed/everyday",
+        "qed/terms",
+        "qed/codes"
       ],
       "stated": [
         "code(rain) = cons(one, nil)",

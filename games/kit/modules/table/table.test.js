@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 // The table board as content and saves hold it: blueprint text both ways, fitting a board to its task, the checks on
 // a board that becomes a part; a course read of every table game leaves its content as it was; a save of a level's
 // stages moves to its tasks.
@@ -83,7 +84,7 @@ test('robot blueprints refuse a second wire, sink sources and unavailable sensor
 });
 
 test('a grouped merger stays available to blueprints under each unlocked model', () => {
-  const content = readStarter(import.meta.dirname);
+  const content = readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)));
   content.primitives = [...content.primitives, 'table:mmin'];
   const merge = content.levels.find((level) => level.id === 'starter/merge');
   merge.adds = [...merge.adds, 'table:mmin'];
@@ -277,7 +278,7 @@ test('a built part runs the board its level’s last task was passed with, when 
 test('reading a course never writes into its content', async () => {
   const { deepFreeze } = await import('../../engine/content.js');
   const { default: domain } = await import('./runtime.js');
-  const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)));
+  const spec = domain.spec(deepFreeze(readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))));
   assert.deepEqual(spec.table.wrong, []);
   assert.ok(domain.validate(spec).every(l => !l.fail));
   spec.syncOwn({});

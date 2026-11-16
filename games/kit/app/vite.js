@@ -7,8 +7,9 @@
 // come from the hub's list (../../games.js).
 import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
-import { isDataGame, readContent, readGameConfig } from '../engine/content-node.js'
+import { isDataGame, readContent } from '../engine/content-node.js'
 import { gameModule as domainEntry } from '../engine/game-module.js'
+import { runtimeIds } from '../engine/runtime.js'
 import { CONTENT_FILE, contentAssets } from './content-assets.js'
 
 const KIT = resolve(import.meta.dirname, '..')
@@ -18,11 +19,11 @@ const q = JSON.stringify
 
 /** The module that is game `id`'s domain as the page takes it: { define (its game.js), vocabulary }. */
 function gameModule(id) {
-  const { game: { domain } } = readGameConfig(id)
+  const modules = runtimeIds(readContent(id))
   return [
-    `import define from ${q(domainEntry(resolve(KIT, 'modules'), domain))}`,
+    `import define from ${q(domainEntry(resolve(KIT, 'modules'), modules[0]))}`,
     `import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`,
-    `const vocabulary = vocabularyFor(${q(domain)})`,
+    `const vocabulary = vocabularyFor(${q(modules)})`,
     'export default { define, vocabulary }',
   ].join('\n')
 }

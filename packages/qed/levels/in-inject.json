@@ -15,8 +15,8 @@
       "id": "in-inject_1",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-inject.tasks.in-inject_1.step",
       "fn": "pred",
@@ -73,8 +73,8 @@
         "zero"
       ],
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "rule": {
         "premises": [

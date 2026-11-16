@@ -11,8 +11,8 @@
       "id": "def-max_1",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.def-max.tasks.def-max_1.step",
       "fn": "le",
@@ -79,8 +79,8 @@
       "id": "def-max_2",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.def-max.tasks.def-max_2.step",
       "fn": "max",

@@ -1,9 +1,10 @@
 // Content names are resolved at the file boundary. Ports, settings keys, variant ids and domain resources stay local.
+import { CONTENT_KINDS } from './content-kinds.js'
 import { mapBlueprintNames } from '../circuit/text.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 import { shapeAt, validate } from './schema.js'
 
-export const OBJECT_KINDS = ['level', 'piece', 'entry', 'tag', 'relation', 'layout']
+export const OBJECT_KINDS = ['level', 'piece', 'entry', 'tag', 'relation', 'layout', ...Object.keys(CONTENT_KINDS)]
 
 export const fullName = (namespace, name) => typeof name === 'string' && !name.includes('/') && !name.includes(':') ? `${namespace}/${name}` : name
 
@@ -50,7 +51,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
   }
   const ref = (kind, v) => {
     if (kind === 'part') return piece(v)
-    return ['entry', 'group', 'tag', 'relation', 'layout'].includes(kind) ? name(v) : v
+    return ['entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(CONTENT_KINDS)].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v

@@ -1,3 +1,4 @@
+import { contentKindSchemas } from '../content-kinds.js'
 import { objectFiles } from '../content-node.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
@@ -25,13 +26,12 @@ const T = (en) => ({ en })
 const ID = 'proofs'
 
 const GAME = {
-  domain: 'logic',
   vocabulary: 1,
   title: T('Proofs · Test'),
   kicker: T('Test'),
   lede: T('Proofs built from Apply and the assumption box.'),
   words: ['everyday'],
-  wordSets: {
+  contentObjects: { wordset: {
     everyday: {
       Rain: T('it rains'),
       Wet: T('the ground is wet'),
@@ -39,7 +39,7 @@ const GAME = {
       Sat: T('today is Saturday'),
       Rest: T('I rest'),
     },
-  },
+  } },
   primitives: ['mp', 'impI'],
   chapters: [{
     id: 'ground',
@@ -116,7 +116,8 @@ const LEVELS = {
 }
 
 /** Write a temporary game (its course) and package in the same format as checked-in content. */
-export function writeContentFixture(root, id, { game, glossary, partDefs, levels, tags = {}, relations = {}, layouts = {} }, domainVocabulary) {
+export function writeContentFixture(root, id, { game: sourceGame, glossary, partDefs, levels, tags = {}, relations = {}, layouts = {} }, domainVocabulary) {
+  const { contentObjects = {}, ...game } = sourceGame
   const course = join(root, 'games', id)
   const pkg = join(root, 'packages', id)
   mkdirSync(course, { recursive: true })
@@ -151,7 +152,9 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
     put(join(pkg, folder, `${name}.json`), sourceValue(kind === 'tags' ? tag : value))
   }
   putCatalogs(course, shell, route)
-  putCatalogs(pkg, ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
+  const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
+  for (const [kind, name, value] of extra) { mkdirSync(join(pkg, kind), { recursive: true }); put(join(pkg, kind, `${name}.json`), sourceValue(value)) }
+  putCatalogs(pkg, ...extra.map(([, , value]) => value), ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
 }
 
 export function proofsRoot() {

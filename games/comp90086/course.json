@@ -30,5 +30,7 @@
         "comp90086/sinusoid"
       ]
     }
-  ]
+  ],
+  "power": "comp90086/default",
+  "box": "comp90086/default"
 }

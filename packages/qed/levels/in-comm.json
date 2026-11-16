@@ -17,8 +17,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "types": [
         "nat"

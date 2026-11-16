@@ -22,7 +22,7 @@ import { validate } from './validate.js'
 import { T } from '../../shell/i18n.js'
 
 // A proof runs on the parts the starter defines (its pieces.json) and the level's lemmas.
-const STARTER = starterPieces(import.meta.dirname)
+const STARTER = starterPieces(new URL('../../templates/logic/', import.meta.url).pathname)
 const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
 const run = (level, circuit) => runProof({ parts: proofParts(level.lemmas), ...level }, circuit)
 // A machine runs on the starter's machine parts, and a rule part for every rule part type.

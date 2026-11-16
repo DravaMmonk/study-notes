@@ -16,9 +16,9 @@
       "id": "decl-eq",
       "kind": "logic:iso",
       "words": [
-        "everyday",
-        "terms",
-        "stars"
+        "qed/everyday",
+        "qed/terms",
+        "qed/stars"
       ],
       "declare": "@level.decl-eq.tasks.decl-eq.declare",
       "target": "a = a",
