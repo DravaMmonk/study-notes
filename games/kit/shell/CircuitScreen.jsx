@@ -112,7 +112,7 @@ function Value({ value, error, show, of, views }) {
 
 const noWorld = () => null
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, showResults = true, outputTarget = false, className = '' }) {
   const { game, level: entry, solved, progress } = screen
   const level = entry.source
   const base = course.forTask(level)
@@ -187,6 +187,24 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const surface = useWorld({ screen: { ...screen, fail: failWorld, solve: (score) => pass(score, drawn) }, workshopParts: hasPersonal(drawn) ? resolve : undefined, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: run.revision })
   const view = surface?.value ?? computed
 
+  // Entries provide the expected values. The runner owns each output's correctness, including checks beyond equality.
+  const test = sampled ? null : tests[run.at]
+  const ran = ended || !run.run
+  const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
+  const testEntries = table && !outputTarget ? [] : entries?.({ task: level, test, run: runOf, sample: sampled?.want ?? null, judged: ended }) ?? []
+  const offered = testEntries.map((e) => (!('got' in e) ? e : timed ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
+  const targetOf = (node, ctx) => outputTarget && !ctx.path.length && ctx.board.parts.role(node) === 'sink'
+    ? offered.find((entry) => entry.of === node.id && entry.want !== undefined)
+    : undefined
+  const outputCheck = (node) => !sampled && (run.result || (whole && runOf.outputs?.[node.id] !== undefined))
+    ? runOf.checks?.find((check) => check.name === node.id)
+    : undefined
+  const withTargetClass = (other) => (node, ctx) => {
+    const check = targetOf(node, ctx) && outputCheck(node)
+    const tone = check ? (check.pass ? 'is-target-pass' : 'is-target-fail') : ''
+    return [other?.(node, ctx), tone].filter(Boolean).join(' ')
+  }
+
   const setParam = (node, ctx, key, value) => {
     if (!ctx.readOnly) ctx.setParams(node, { ...node.params, [key]: value })
   }
@@ -204,6 +222,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       onChange={(picked) => setParam(node, ctx, key, options.find(([option]) => String(option) === picked)[0])} />
   ))
   const body = (node, ctx) => {
+    const target = targetOf(node, ctx)
+    if (target) return <div className="cs-card"><Show value={target.want} shape={target.shape} scene="card" text={show} of={valueKey(ctx, node.id)} /></div>
     const drawing = ctx.path.length ? null : surface?.cardDrawing?.(node, ctx.readOnly)
     const choices = ctx.readOnly || ctx.path.length ? [] : surface?.choices?.(node) ?? []
     return (
@@ -238,6 +258,13 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       </div>
     )
   }
+  const detailBody = sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => setParam(node, ctx, key, v)) : timed ? tickDetail : body
+  const targetDetail = (node, ctx) => {
+    if (!targetOf(node, ctx)) return detailBody(node, ctx)
+    const check = outputCheck(node)
+    const status = check && L(check.pass ? WORDS.passed : check.reason)
+    return <>{body(node, ctx)}{status && <p className={`rv-verdict ${check.pass ? 'is-pass' : 'is-fail'}`}>{status}</p>}</>
+  }
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
   // What the task holds of a defined part's setting (../course.js holds): null when every value, [] when not the
   // setting itself, else the values it holds.
@@ -269,15 +296,10 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     return { type, label: cards[type].name, desc: cards[type].desc, icon: cards[type].icon, family: cards[type].family, fresh }
   }
 
-  const test = sampled ? null : tests[run.at]
   const verdict = !sampled && ended && (reportedFailure(runOf) ?? (runOf.fail?.at?.tick !== undefined ? failureText(runOf.fail) : null))
-  // What a test shows: on a tick board, the ticks run so far; on a board run once, the result once it has run.
-  const ran = ended || !run.run
-  const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
-  const offered = (table ? [] : entries({ task: level, test, run: runOf, sample: sampled?.want ?? null, judged: ended })).map((e) => (!('got' in e) ? e : timed ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
   // A task may draw a shape in views of its own (its `views`): on its cards, in its results and its details.
   const views = useMemo(() => (level.views ? { ...game, views: { ...game.views, ...level.views } } : game), [game, level.views])
-  const rows = rowsOf(level.results, offered, views.views)
+  const rows = showResults ? rowsOf(level.results, offered, views.views) : []
   // Arrows in the plane share one frame across the board and the results: as far as the test's values and the whole
   // run's reach, so it holds still while a run plays.
   const extent = extentOf([...(runOf?.values?.values() ?? []), ...offered.flatMap((e) => [e.given, e.want, e.got])].filter((v) => VIEWS.plane.fits(v)))
@@ -302,7 +324,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     <TracePanel panel={surface.after} /></> : figure?.({ task: level, test, run: (timed ? run.run : ended || onSample) ? runOf : null, at: timed && run.run ? at : -1 })
   // The step log of a board run once: the steps shown so far, each card named on the board it is on (a built part's
   // inside, at any depth), its value in the words of the task and the test on view.
-  const logged = log && !timed && !whole && run.run && runOf?.trace
+  const logged = showResults && log && !timed && !whole && run.run && runOf?.trace
   const named = useMemo(() => {
     if (!logged) return []
     const boardAt = lookupBoard({ circuit: drawn, level, parts }, packed.open)
@@ -323,7 +345,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // A table of cases: a row a test, what the board gives on each as the run reaches it (before a run, on the row picked).
   const ins = kind.portsIn(level)
   const out = kind.portsOut(level)[0]?.name
-  const cases = table && (
+  const cases = showResults && table && (
     <div className="cs-cases">
       <CircuitCheckTable
         play={table(level)} inputs={ins.map((p) => ({ key: p.name, label: p.label }))} at={run.at} select={run.select}
@@ -386,16 +408,17 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             },
             resultNote: (node, _region, ctx) => <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} />,
             ...faces,
+            ...(outputTarget && { cardClass: withTargetClass(faces.cardClass), sinkClass: withTargetClass(faces.sinkClass) }),
           }}
           canvas={canvas}
           brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && screen.onWorkshop && <button type="button" className="kit-btn is-label cs-workshop" onClick={screen.onWorkshop}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
           below={onPhone && practice.panel}
           describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
-          results={strip}
+          results={showResults ? strip : undefined}
           pad={surface?.pad ? <Dock pad={surface.pad} /> : undefined}
-          tabs={!table}
+          tabs={!table || !showResults}
           words={{ go: L(says.go ?? (judged ? WORDS.check : WORDS.run)), done: L(says.done ?? WORDS.passed) }}
-          sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => setParam(node, ctx, key, v)) : timed ? tickDetail : undefined}
+          sheet={outputTarget ? targetDetail : sheet || timed ? detailBody : undefined}
           details={details || (!sheet && Boolean(timed))}
           packed={{
             open: packed.open,
@@ -431,6 +454,7 @@ export function circuitScreen(config, { play, course, ...declared }) {
   const judged = config.judge === 'once' || config.judge === 'outputs'
   const revealOnPass = config.checks === 'afterPass'
   return function Screen(screen) {
-    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} judged={judged} revealOnPass={revealOnPass} className={config.layout} />
+    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared}
+      judged={judged} revealOnPass={revealOnPass} showResults={config.results !== 'hidden'} outputTarget={config.output === 'target'} className={config.layout} />
   }
 }

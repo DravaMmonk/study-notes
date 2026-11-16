@@ -1,7 +1,7 @@
 // A proof level (《证明完毕》, ../proof.js) as the kernel's circuit screen plays it (../../../shell/CircuitScreen.jsx): its
 // premises down the left, the goal on the right, the rules and the lemmas as parts (a game's pieces.json, the lemmas
-// registered by the course), a box's regions on the same board. Every test is checked at once; the results show each
-// test's premises, the goal and what reaches it. A card holds the schema's letters and shows them as the test's
+// registered by the course), a box's regions on the same board. Each test provides the premises and goal.
+// A card holds the schema's letters and shows them as the test's
 // sentences: its sentences are built in the language of the level's own (choices.js), its choices worked out by the
 // domain's resources on the test on view.
 import { T } from '../../../shell/i18n.js'

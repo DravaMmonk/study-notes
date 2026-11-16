@@ -854,6 +854,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 - 任务的 `views`（同样的写法）换掉它写到的形状的默认显示方式，管这个任务的板上元件、详情和结果区。
 - 任务的一个输入或输出可以写 `view`：它的值起初画成哪种（在列出的里面才算）。在工作室的画面编辑模式里，换一个输入、输出元件或它结果行的显示方式，就是写它的 `view`（作为一条待定的变更），不记成设备上的选择。
 - **结果区**：领域只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是领域给的默认几行：输出；逐拍的板在前面再加进线和输入。
+- **电路玩法的显示配置。** `plays.js` 可用 `results: 'hidden'` 隐藏结果区，用 `output: 'target'` 让输出元件显示当前测试的应得值。颜色取自同一份逐输出判定。单次判定的电路在有输出时更新颜色，检查过但没有输出也显示失败色。测试选择和运行栏仍可用。
 - **领域的屏幕是一份声明**：建在电路底座上的领域不写组件，只在 `ui/screen.js` 里声明（`play`：它的 run.js；`portLabels`、`registers`、`figure`……，见 `shell/CircuitScreen.jsx` 的 `circuitScreen`），游戏自带元件的领域连这个文件也没有，在 `game.js` 里写 `screen: { play }`。内核按声明拼出屏幕。各领域自写组件的行数由 `engine/components.js` 统计，`npm test` 只许降（方向文档决策二十一）。
 - **修改给定的电路**：任务照常写 `tests`、`solution`。`starter` 是打开时摆在板上的蓝图，玩家编辑电路，内核按任务的测试判定。玩家编写检验来找错误的关卡走第 6.5 节的纠错玩法。
 - **一个测试的附图**。电路屏可从 `figure({ task, test, run, at })` 取得附图，桌面排在结果旁，手机排在结果上方。附图可按当前运行步骤更新。

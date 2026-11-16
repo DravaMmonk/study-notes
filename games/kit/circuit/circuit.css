@@ -319,7 +319,7 @@
 
 /* The circuit's ends, set apart from its parts in every theme: an opaque card tinted with its own colour and ringed
    in it, a bar down the side the signal enters or leaves by (left for an input, right for an output), and a tag.
-   Inputs keep their own colour (the one they wear in the robot's view); every output wears the accent. */
+   Inputs keep their own colour. Outputs use the accent until a target check gives them a verdict. */
 .node.is-source, .node.is-sink { --io: var(--fam, var(--accent)); background: color-mix(in srgb, var(--io) 12%, var(--paper)); outline: 1.5px solid color-mix(in srgb, var(--io) 55%, transparent); outline-offset: -1.5px; }
 .node.is-source { border-radius: var(--r-sm) var(--r-md) var(--r-md) var(--r-sm); }
 .node.is-sink { --io: var(--accent); border-radius: var(--r-md) var(--r-sm) var(--r-sm) var(--r-md); }
@@ -329,6 +329,9 @@
 .node[data-io]::after { content: attr(data-io); position: absolute; top: -12px; padding: 1px var(--sp-3); border-radius: var(--r-sm); color: var(--paper); background: var(--io); font: 600 10px/1.5 var(--mono); letter-spacing: .06em; pointer-events: none; }
 .node.is-source::after { left: 12px; }
 .node.is-sink::after { right: 12px; }
+.node.is-sink.is-target-pass, .pb-term.is-output.is-target-pass[data-io] { --io: var(--status); }
+.node.is-sink.is-target-fail, .pb-term.is-output.is-target-fail[data-io] { --io: var(--fail); }
+:is(.is-target-pass, .is-target-fail) .cs-card .vw-value { color: var(--io); }
 .pb-glyph { margin-right: var(--sp-1); color: var(--fam, var(--muted)); font-style: normal; font-weight: 600; }
 .pb-new { margin-left: var(--sp-2); padding: 1px var(--sp-2); border-radius: var(--r-sm); color: var(--paper); background: var(--accent); font: 600 9.5px var(--mono); font-style: normal; }
 .pb-part .family-chip { font-style: normal; font-weight: 600; }

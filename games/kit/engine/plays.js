@@ -15,6 +15,8 @@ const circuit = (judge, options = {}) => S.obj({
   resources: S.str(),
   label: S.opt(label),
   layout: S.opt(S.str()),
+  results: S.opt(S.oneOf(['hidden'])),
+  output: S.opt(S.oneOf(['target'])),
   ...options,
 })
 

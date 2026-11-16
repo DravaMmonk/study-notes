@@ -2,7 +2,7 @@ import { definePlays, playFor } from '../../engine/plays.js'
 
 export const plays = definePlays({
   gates: { editor: 'circuit', judge: 'cases', resources: 'gates', target: 'shown' },
-  proof: { editor: 'circuit', judge: 'once', resources: 'proof' },
+  proof: { editor: 'circuit', judge: 'once', resources: 'proof', results: 'hidden', output: 'target' },
   machine: { editor: 'circuit', judge: 'steps', resources: 'machine' },
   truth: { editor: 'values', judge: 'table', checks: 'shown', resources: 'truth', stage: 'vt-stage', layout: 'lg-truth-level' },
   translate: { editor: 'tree', judge: 'check', checks: 'hidden', resources: 'translation', stage: 'fo-stage', layout: 'fo-level' },

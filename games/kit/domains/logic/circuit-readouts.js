@@ -1,6 +1,6 @@
 // Case inputs and values as the circuit screen and text play show them.
 import { L, T, tr } from '../../shell/i18n.js'
-import { parse, same } from './formula.js'
+import { parse } from './formula.js'
 import { inputsOf, inputsOfLevel, parseGoal, ruleWritten } from './machine.js'
 import { say, sayTerm } from './notation.js'
 import { printTerm } from './pterm.js'
@@ -13,20 +13,17 @@ import { equationText, ruleText, sideText, withBinders } from './schematic.js'
 const wordsOf = (task, test) => (test?.symbolic ? { ...task.notation, words: task.symbolicWords ?? null, propertyWords: false } : task.notation)
 export const proofTextOf = (task, test) => (f) => L(say(f, wordsOf(task, test)))
 
-/** A value in words: a formula, or a proved judgment (with its proof term from chapter 7 on, else what it rests on). */
+/** A value in words: a formula with its proof term when the task shows proof terms. */
 function showProof(v, { task, test }) {
   if (v === undefined || v === null) return '—'
   if (typeof v === 'string') return v
-  const said = (f) => say(f, wordsOf(task, test))
-  if (!v.formula) return said(v)
-  const f = said(v.formula)
-  if (task.terms && v.term) return T(`${f.zh} · ${printTerm(v.term)}`, `${f.en} · ${printTerm(v.term)}`)
-  // What it rests on, but for itself (a premise or an assumption rests on just that).
-  const hyps = [...v.hyps.values()].filter((h) => !same(h, v.formula)).map(said)
-  return hyps.length ? T(`${f.zh}（依赖 ${hyps.map((h) => h.zh).join('；')}）`, `${f.en} (from ${hyps.map((h) => h.en).join('; ')})`) : f
+  const f = say(v.formula ?? v, wordsOf(task, test))
+  if (!task.terms || !v.term) return f
+  const term = printTerm(v.term)
+  return T(`${f.zh} · ${term}`, `${f.en} · ${term}`)
 }
 
-/** What the results show of a test: its premises, and the goal against what reaches it. */
+/** A test's premises and the goal for its output card. */
 const proofEntries = ({ task, test, run }) => {
   const consts = task.consts ?? []
   return [
