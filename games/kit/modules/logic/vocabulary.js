@@ -36,7 +36,7 @@ const SIDES = S.list(SIDE)
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串') })
 const PART = S.name('part', { about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式') })
 const PARTS = S.list(PART)
-const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几套词（game.json wordSets 的名字，或直接写出），按顺序合并') })
+const WORDS = S.list(S.either(S.name('wordset'), S.map(S.text())), { about: t('用哪几套词（game.json wordSets 的名字，或直接写出），按顺序合并') })
 
 /* ---------- the parts ---------- */
 
@@ -185,17 +185,15 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   words: WORDS,
-  wordSets: S.map(S.map(S.text()), { about: t('几套词：字母、谓词、名字怎么读（{0}、{1} 是参数）') }),
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法') })),
   local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱') })),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
-  quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字') })),
 })
 
 export const vocabulary = qualifyVocabulary('logic', defineVocabulary({
-  domain: 'logic',
+  module: 'logic',
   version: 1,
   kinds: {
     part: PART_ITEMS,

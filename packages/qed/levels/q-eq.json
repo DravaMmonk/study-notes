@@ -16,8 +16,8 @@
     {
       "id": "q-eq",
       "words": [
-        "everyday",
-        "stars"
+        "qed/everyday",
+        "qed/stars"
       ],
       "kind": "logic:proof",
       "consts": [

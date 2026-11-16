@@ -132,22 +132,17 @@ const GAME = S.obj({
   kicker: TEXT,
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
-  power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词') }),
+  power: S.opt(S.name('power')),
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件') }),
   concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
-  box: S.obj({
-    sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试') }),
-    inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件') }),
-    boards: S.opt(S.map(BOARD, { about: t('试这个元件用的电路（参考电路里把它拆成了小元件时）') })),
-  }, { about: t('元件箱怎么试一个元件') }),
-  quotes: S.opt(S.list(S.str(), { about: t('文案里可以照字面引用的名字（说的是别的东西）') })),
+  box: S.opt(S.name('box')),
 })
 
 export const vocabulary = qualifyVocabulary('image', defineVocabulary({
-  domain: 'image',
+  module: 'image',
   version: 1,
   kinds: {
     part: PARTS,

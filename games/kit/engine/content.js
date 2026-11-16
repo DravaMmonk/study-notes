@@ -1,3 +1,4 @@
+import { contentKindSchemas } from './content-kinds.js'
 import { encyclopedia } from './encyclopedia.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { GLOSSARY } from './vocabulary.js'
@@ -8,7 +9,7 @@ const sourceContents = new WeakSet()
 export const hasCatalogSource = (content) => sourceContents.has(content)
 
 const gameFields = new Set(['title', 'kicker', 'lede'])
-const courseFields = new Set(['chapters', 'optional', 'skippable', 'mode', 'open', 'primitives', 'concept', 'local', 'views', 'borrow', 'words'])
+const courseFields = new Set(['chapters', 'optional', 'skippable', 'mode', 'open', 'primitives', 'concept', 'local', 'views', 'borrow', 'words', 'power', 'box'])
 
 /** The owner of a field in the assembled game configuration. */
 export function contentFileFor([field]) {
@@ -41,7 +42,9 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packagePreview = null }) {
+export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packagePreview = null }) {
+  game = { ...game }
+  delete game.uses
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
   const pieces = new Set(Object.keys(partDefs?.parts ?? {})
     .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
@@ -78,6 +81,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   const registries = createRegistries({
     level: levels, piece: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
     entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
+    ...Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, contentKindSchemas[kind])])])),
     tag: Object.entries(tagMap), relation: Object.entries(relationMap), layout: Object.entries(layoutMap),
   })
   const objectProblems = [...declarationProblems]
@@ -87,6 +91,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   const resolve = referenceResolver(registries, objectProblems)
   for (const [name, tag] of Object.entries(tagMap)) resolve(`#${name}`, tag.kind, `tags/${name}`)
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)
+  for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, value] of Object.entries(registries[kind])) registries[kind][name] = refs(value, schema)
   const sourceChapters = game.chapters
   const scheduled = new Set((sourceChapters ?? []).flatMap((chapter) => resolve(chapter.levels, 'level', `chapters/${chapter.id}`)))
   const relationEdges = expandRelations(relationMap, resolve, scheduled, objectProblems, new Set(resolve(game.optional ?? [], 'level')))
@@ -151,7 +156,7 @@ export function assemblySource(content) {
   const { id, levels, glossary: _glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, tags = {}, relations = {}, layouts = {}, trays: _trays, replaces: _replaces, ...game } = content
   if (sourceChapters) game.chapters = sourceChapters
   return {
-    id, game, glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
+    id, game, contentObjects: Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, _registries?.[kind] ?? {}])), glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
     levels: levels.map(({ id, ...level }) => [id, level]),
     ...Object.fromEntries(Object.entries({ tags, relations, layouts }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [name, object, name.split('/')[0]])])),
   }

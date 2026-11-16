@@ -19,7 +19,7 @@ import { filterItems, itemOf, ruleOf, stepIn, tally } from './worklist.js'
 import { copyRows } from './copy.js'
 
 const VOCAB = defineVocabulary({
-  domain: 'toy',
+  module: 'toy',
   version: 1,
   kinds: { part: { add: { about: 'adds' }, sub: { about: 'subtracts' } } },
   game: S.obj({ title: S.text(), eras: S.list(S.any()) }),
@@ -54,7 +54,7 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
-const DOMAINS = resolve(import.meta.dirname, '../modules')
+const DOMAINS = resolve(import.meta.dirname, '../templates')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readStarter(resolve(DOMAINS, d))
 function openStarter(d) {

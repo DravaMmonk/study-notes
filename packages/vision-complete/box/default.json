@@ -1,0 +1,16 @@
+{
+  "sample": "1-1",
+  "inLevel": {
+    "image:unlock-dg-decoder": "8-4",
+    "image:unlock-dg-reparam": "8-4"
+  },
+  "boards": {
+    "image:unlock-dg-reparam": [
+      "m = dg_mu[w=[0.4, -0.3]]()",
+      "s = dg_sigma[w=[0.5, 0.25]]()",
+      "r = dg_reparam(m, s, eps)",
+      "d = dg_decoder(r)",
+      "out <- d"
+    ]
+  }
+}

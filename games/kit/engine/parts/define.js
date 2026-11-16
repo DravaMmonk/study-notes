@@ -278,7 +278,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const say = (at, says) => out.push({ at: piecePath(at), says })
   const vocab = withParts(vocabulary, file)
   // A domain with its circuit primitives in code keeps none here.
-  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
+  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.module} module defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
   if (vocabulary.capabilities || vocabulary.kinds.valueType) out.push(...typeProblems(file, vocabulary))

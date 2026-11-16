@@ -9,12 +9,18 @@ import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
 import { catalogReader } from './catalogs.js'
 import { packageCourse } from './package-course.js'
+import { runtimeIds } from './runtime.js'
+import { contentKindSchemas } from './content-kinds.js'
 import { vocabularyFor } from './kernel.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
 export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
 
-export const contentVocabulary = (domain) => vocabularyFor(domain)
+export const contentVocabulary = (modules) => vocabularyFor(modules)
+export const layerVocabulary = (layers) => contentVocabulary(runtimeIds({
+  levels: layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(object => object.kind === 'level').map(object => object.value)),
+  partDefs: { parts: Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(object => object.kind === 'piece').map(object => [`${layer.id}/${object.name}`, object.value]))) },
+}))
 
 const json = (file) => {
   try {
@@ -91,7 +97,7 @@ export function entryValue(name, value) {
 
 /** Games arrange package objects and cannot declare objects of their own. */
 export function gameDeclarationProblems(gameDir) {
-  return ['levels', 'pieces', 'pieces.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'layouts', 'groups', 'trays.json']
+  return ['levels', 'pieces', 'pieces.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'layouts', 'groups', 'trays.json', ...Object.keys(contentKindSchemas)]
     .filter((name) => existsSync(resolve(gameDir, name)))
     .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
 }
@@ -122,7 +128,7 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
   const courseText = catalogReader(readCatalogs(courseLocales), courseLocales)
   const packageCatalogs = readCatalogs(packageLocales)
   const packageText = catalogReader(packageCatalogs, packageLocales)
-  const schemas = vocabulary ?? contentVocabulary(files['package.json'].domain)
+  const schemas = vocabulary ?? layerVocabulary([readLayer(packageId, packageDir)])
   const read = (reader, path, schema) => reader(json(path), path, schema, schemas)
   const ownText = (file) => (file === 'game.json' || file === 'course.json' ? courseText : packageText)
   return assemble({
@@ -132,6 +138,7 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
     ...Object.fromEntries(['tags', 'relations', 'layouts'].map((kind) => [kind, [
       ...objectFiles(packageDir, kind).map(([name, file]) => [kind === 'tags' ? name.split('/')[1] : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.split('/')[0] }) }, packageId]),
     ]])),
+    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(packageDir, kind).map(([name, file]) => [name, read(packageText, file, schema)]))])),
     declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
     glossary: { groups: [], entries: objectFiles(packageDir, 'entries').map(([id, file]) => ({ id, ...read(packageText, file, ENTRY) })) },
     partDefs: { parts: Object.fromEntries(parts.map(([name, file]) => [name, read(packageText, file, PARTS_FILE.fields.parts.of)])) },
@@ -149,6 +156,7 @@ export function readLayer(id, dir, config = json(resolve(dir, 'package.json'))) 
   if (existsSync(resolve(dir, 'pieces.json'))) throw new Error(`${dir}: pieces.json has been replaced by pieces/`)
   for (const [name, file] of objectFiles(dir, 'pieces')) objects.push({ kind: 'piece', name, value: json(file) })
   for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
+  for (const kind of Object.keys(contentKindSchemas)) for (const [name, file] of objectFiles(dir, kind)) objects.push({ kind, name, value: json(file) })
   const overrides = [], textOverrides = []
   const overrideDir = resolve(dir, 'overrides')
   for (const namespace of existsSync(overrideDir) ? readdirSync(overrideDir) : []) {
@@ -168,7 +176,7 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
   let game = Object.assign({}, ...configurations)
   delete game.uses
-  const packageFields = Object.keys(game).filter((key) => !['domain', 'vocabulary'].includes(key))
+  const packageFields = Object.keys(game).filter((key) => key !== 'vocabulary')
   if (packageId) game = packageCourse(packageId, r, game, schemas)
   const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [name, value, name.split('/')[0]])
   const overridden = {}
@@ -179,7 +187,7 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
   }
   return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
     levels: entries('level'), tags: entries('tag'), relations: entries('relation'), layouts: entries('layout'),
-    partDefs: { parts: r.piece }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
+    contentObjects: Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, r[kind]])), partDefs: { parts: r.piece }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
     blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packagePreview: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })
 }
@@ -191,7 +199,7 @@ export function readContent(id, root = PROJECT_DIR, { overrides = true, vocabula
   const own = readLayer(`@${id}`, gameDir, { ...files['game.json'], ...files['course.json'] })
   if (!overrides) { own.overrides = []; own.textOverrides = [] }
   own.objects = []
-  const schemas = vocabulary ?? contentVocabulary(layers[0].config.domain)
+  const schemas = vocabulary ?? layerVocabulary(layers)
   const blueprintPath = resolve(gameDir, 'blueprint.json')
   const blueprint = existsSync(blueprintPath) ? catalogReader(own.catalogs)(json(blueprintPath), blueprintPath, BLUEPRINT, schemas) : undefined
   return assembleLayers(id, [...layers, own], schemas, { blueprint, declarationProblems: gameDeclarationProblems(gameDir) })
@@ -237,15 +245,15 @@ export function contentTargets(ids = [], root = PROJECT_DIR, { package: asPackag
 
 export function readPackage(id, root = PROJECT_DIR, { vocabulary } = {}) {
   const layers = packageLayers(id, root)
-  const schemas = vocabulary ?? contentVocabulary(layers.find((layer) => layer.id === id).config.domain)
+  const schemas = vocabulary ?? layerVocabulary(layers)
   return assembleLayers(id, layers, schemas, { packageId: id })
 }
 
 /** A domain's uninstalled starter keeps the course and package files together. */
-export function readStarter(domainDir) {
-  const dir = resolve(domainDir, 'starter')
+export function readStarter(templateDir) {
+  const dir = resolve(templateDir, 'starter')
   const files = { 'game.json': json(resolve(dir, 'game.json')), ...configuration(configPaths(dir, dir)) }
-  return readFiles('starter', files, { vocabulary: contentVocabulary(json(resolve(dir, 'package.json')).domain), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
+  return readFiles('starter', files, { vocabulary: layerVocabulary([readLayer('starter', dir)]), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
 export { runtimeOf } from './runtime.js'

@@ -12,8 +12,8 @@
       "id": "decl-bool",
       "kind": "logic:iso",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "declare": "@level.decl-bool.tasks.decl-bool.declare",
       "target": "Bool",

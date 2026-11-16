@@ -40,7 +40,7 @@ export function packageCourse(id, registries, configuration, schemas) {
   const defaults = emptyValue(schemas.game)
   // Package configuration is authored data. Fill only runtime defaults needed by the generated course.
   const course = { ...defaults, ...configuration, title: id, chapters, primitives: [...new Set([...Object.keys(schemas.kinds?.part ?? {}), ...Object.keys(registries.piece)])] }
-  if (course.box && !configuration.box) course.box.sample = Object.keys(registries.level).sort()[0]
-  if (fields.words) course.words = Object.keys(configuration.wordSets ?? {}).sort()
+  for (const kind of ['power', 'box']) if (Object.keys(registries[kind] ?? {}).length) course[kind] = Object.keys(registries[kind]).sort()[0]
+  if (fields.words) course.words = Object.keys(registries.wordset ?? {}).sort()
   return course
 }

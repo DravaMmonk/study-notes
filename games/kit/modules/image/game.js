@@ -67,7 +67,7 @@ export default function imageGame(content) {
     kicker: content.kicker,
     lede: content.lede,
     Hero: ui['image:hero'],
-    power: content.power,
+    power: content.registries.power[content.power],
     chapters: CHAPTERS,
     levels,
     intro: (level) => image.intros[level.id],
@@ -94,7 +94,7 @@ export default function imageGame(content) {
       },
       preview: (part, { progress }) => {
         image.syncOwn(progress?.built)
-        const made = imagePreview(image, content.box, part)
+        const made = imagePreview(image, content.registries.box[content.box], part)
         return {
           sample: made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {}, defined: game.defined }) },
           inside: boards.BUILT[part.piece] && { course: boards, cards },

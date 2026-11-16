@@ -47,13 +47,13 @@ function answers(content, id, task) {
 
 test('every domain with a play hook has a starter game to play it on', () => {
   assert.ok(withPlay.length > 0)
-  for (const name of withPlay) assert.ok(existsSync(resolve(DOMAINS, name, 'starter')), `${name} has a play hook but no starter/`)
+  for (const name of withPlay) assert.ok(existsSync(resolve(DOMAINS, '../templates', name, 'starter')), `${name} has a play hook but no starter/`)
 })
 
 let naives = 0
-for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')))) {
+for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, '../templates', d, 'starter')))) {
   test(`${name}: the reference passes through the play interface, the naive answer fails, nothing hidden shows`, async () => {
-    const content = readStarter(resolve(DOMAINS, name))
+    const content = readStarter(resolve(DOMAINS, '../templates', name))
     const { shell, hook, course } = await loadPlay(content)
     const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: fresh() })
     const play = createPlay({ game: shell, course, hook, record })

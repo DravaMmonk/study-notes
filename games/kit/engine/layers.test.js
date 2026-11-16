@@ -13,8 +13,8 @@ import { pageContent } from '../app/page-content.js'
 import { openGame, openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 
-const schemas = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
-const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { domain: 'toy', vocabulary: 1, uses }, objects, overrides, catalogs: {} })
+const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
+const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { vocabulary: 1, uses }, objects, overrides, catalogs: {} })
 const obj = (kind, name, value) => ({ kind, name, value })
 const base = () => layer('base', [], [obj('level', 'a', { title: 'A', options: { x: 1, y: 2 } }), obj('level', 'b', { title: 'B' }), obj('tag', 'all', { kind: 'level', values: ['a'] }), obj('relation', 'path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }] }), obj('layout', 'map', { of: '#all', rows: [['a']] })])
 const game = (overrides = []) => ({ id: '@demo', config: { chapters: [{ id: 'one', levels: ['base/a', 'base/b'] }] }, objects: [], catalogs: {}, overrides })
@@ -92,8 +92,8 @@ function fixture() {
   const root = mkdtempSync(resolve(tmpdir(), 'layers-'))
   const put = (file, data) => { const path = resolve(root, file); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`) }
   put('games/demo/game.json', { packages: ['extra', 'base'], title: 'Demo' }); put('games/demo/course.json', {})
-  put('packages/base/package.json', { domain: 'toy', vocabulary: 1 }); put('packages/base/levels/a.json', { title: '@title', options: { x: 1 } }); put('packages/base/i18n/en.json', { title: 'Original' })
-  put('packages/extra/package.json', { domain: 'toy', vocabulary: 1, uses: ['base'] }); put('packages/extra/levels/b.json', { from: 'base/a' })
+  put('packages/base/package.json', { vocabulary: 1 }); put('packages/base/levels/a.json', { title: '@title', options: { x: 1 } }); put('packages/base/i18n/en.json', { title: 'Original' })
+  put('packages/extra/package.json', { vocabulary: 1, uses: ['base'] }); put('packages/extra/levels/b.json', { from: 'base/a' })
   return { root, put }
 }
 
@@ -130,7 +130,7 @@ test('cross-package wording references retain ownership and override links resol
   const ws = openGame('demo', root, { vocabulary: schemas, layer: 'extra' })
   assert.equal(ws.content().levels.find((l) => l.id === 'extra/b').title.en, content.levels[0].title.en)
   assert.equal(ws.changes().some((c) => c.file === 'packages/extra/i18n/en.json'), false)
-  put('packages/extra/package.json', { domain: 'toy', vocabulary: 1, uses: [] })
+  put('packages/extra/package.json', { vocabulary: 1, uses: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /undeclared dependency/)
 })
 
@@ -139,7 +139,7 @@ test('multi-package sibling courses validate shared levels without rejecting the
   const { root, put } = fixture()
   put('games/peer/game.json', { packages: ['base', 'third'] })
   put('games/peer/course.json', { chapters: [{ id: 'one', levels: ['base/a', '#third/all'] }] })
-  put('packages/third/package.json', { domain: 'toy', vocabulary: 1 })
+  put('packages/third/package.json', { vocabulary: 1 })
   put('packages/third/levels/c.json', {})
   put('packages/third/tags/level/all.json', { values: ['c'] })
   const content = readContent('demo', root, { vocabulary: schemas })

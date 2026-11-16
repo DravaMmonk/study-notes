@@ -8,7 +8,7 @@ import { WIDTH, writeJson } from './json.js'
 import { lineDiff, unified } from './diff.js'
 
 // The modules' starter games: content files the kit keeps, in the house style every content file is written in.
-const MODULES = resolve(import.meta.dirname, '../../modules')
+const MODULES = resolve(import.meta.dirname, '../../templates')
 const files = readdirSync(MODULES).map((d) => resolve(MODULES, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
   resolve(g, 'game.json'), ...['levels', 'entries', 'tags/entry'].flatMap((dir) => readdirSync(resolve(g, dir)).map((f) => resolve(g, dir, f))),
 ])

@@ -31,7 +31,7 @@ export async function loadPlay(game, lang = 'en') {
   const shell = await gameOf(content)
   const { runtimeOf } = await loadModule(resolve(KIT, 'engine/runtime.js'))
   const domain = await runtimeOf(content)
-  if (!domain.play) throw new Error(`the ${content.domain} domain has no play hook`)
+  if (!domain.play) throw new Error('the selected runtime has no play hook')
   return { shell, hook: domain.play, course: domain.spec(content).course, content }
 }
 

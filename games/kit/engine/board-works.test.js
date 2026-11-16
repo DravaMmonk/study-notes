@@ -25,7 +25,7 @@ const task = (id, tests, how, more = {}) => ({ id, brief: text(id), ...ports, te
 const level = (id, tasks, more = {}) => [id, { title: text(id), tasks, ...more }]
 const course = (levels, definitions = partDefs) => definedWorks({
   id: 't',
-  ...{ domain: 't', vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), levels: levels.map(([id]) => ({ id })), links: levels.slice(1).map(([to], i) => ({ from: levels[i][0], to })) }] },
+  ...{ vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), levels: levels.map(([id]) => ({ id })), links: levels.slice(1).map(([to], i) => ({ from: levels[i][0], to })) }] },
   levels: levels.map(([id, value]) => ({ id, ...value })),
   glossary: { groups: [], entries: [] },
   partDefs: definitions,

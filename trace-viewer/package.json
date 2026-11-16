@@ -23,7 +23,8 @@
     "build:games": "node ../games/kit/app/build.mjs",
     "publish:content": "node ../games/kit/app/content.mjs",
     "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/engine/parts/*.test.js ../games/kit/shell/parts/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/views/*.test.js ../games/kit/modules/*/*.test.js ../games/kit/pipeline/*.test.js",
-    "pipeline": "node ../games/kit/pipeline/pipeline.mjs"
+    "pipeline": "node ../games/kit/pipeline/pipeline.mjs",
+    "new-package": "node ../games/kit/engine/scaffold.js package"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

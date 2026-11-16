@@ -12,8 +12,8 @@
       "id": "def-plus",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "fn": "plus",
       "on": 0,

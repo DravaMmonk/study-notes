@@ -50,7 +50,7 @@ const LEVEL = levelSchema({
 })
 
 export const vocabulary = qualifyVocabulary('tick-bus', defineVocabulary({
-  domain: 'tick-bus',
+  module: 'tick-bus',
   version: 1,
   kinds: { op: {}, family: FAMILIES, want: WANTS },
   game: GAME,

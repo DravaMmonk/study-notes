@@ -10,7 +10,7 @@ import { paramsOf } from '../../../engine/forms.js';
 import { printLines, readLines } from '../../../circuit/text.js';
 import { boardFits, isCircuitBoard } from '../../../circuit/model.js';
 import { WORLDS } from './worlds.js';
-import { isCard, PRIMITIVES } from './parts.js';
+import { isCard } from './parts.js';
 import { blank, fitted, picksOf, roleOf } from './board.js';
 
 /** The world and ports used by a robot task's circuit views. */
@@ -72,7 +72,7 @@ export function robotBlueprint(model, given, { sensors, outs }) {
   const start = fitted(blank(), given);
   return {
     read: lines => {
-      const types = [...Object.keys(PRIMITIVES), ...Object.keys(model.built)];
+      const types = [...model.types, ...Object.keys(model.built)];
       const { nodes, wires } = readLines(lines, start, parts, types);
       // Course works are kept without positions. The editor places them together with its given cards.
       return { nodes: nodes.map(({ x: _x, y: _y, ...node }) => node), wires };

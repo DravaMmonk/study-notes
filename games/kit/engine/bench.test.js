@@ -101,7 +101,7 @@ test('numbers and thresholds as a goal row writes them', () => {
 
 test('a bench is checked as data: knobs, goal, layout blocks and display items with their parameters', () => {
   const vocabulary = defineVocabulary({
-    domain: 'test', version: 1, game: S.obj({}), level: S.obj({}),
+    module: 'test', version: 1, game: S.obj({}), level: S.obj({}),
     kinds: { display: displayItems({ picture: { about: 'a picture', params: S.obj({ big: S.opt(S.bool()) }) } }) },
   })
   const schema = benchSchema({ m: { about: 'a model', setup: S.obj({ n: S.int() }), stage: S.obj({ target: S.num() }) } })

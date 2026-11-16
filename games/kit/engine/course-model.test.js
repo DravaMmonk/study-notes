@@ -69,7 +69,7 @@ test('revised forms open after their proof and carry along prerequisites', () =>
 })
 
 test('runtime selection follows task declarations when the historical domain is changed or absent', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../modules/logic'))
+  const content = readStarter(resolve(import.meta.dirname, '../templates/logic'))
   const runtime = await runtimeOf(content)
   const expected = runtime.spec(content)
   for (const domain of ['image', undefined]) {
@@ -81,7 +81,7 @@ test('runtime selection follows task declarations when the historical domain is 
 })
 
 test('circuit and row task capabilities share a course, checks and progress without a domain switch', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../modules/circuit'))
+  const content = readStarter(resolve(import.meta.dirname, '../templates/circuit'))
   const row = { id: 'sums/one', title: 'Addition', tasks: [{ id: 'sums/task', kind: 'rows:equation', brief: 'Make five.', rows: [{ total: 5, chips: [2, 3], reference: '2 + 3', naive: '2 + 2' }] }] }
   content.levels.push(row)
   content.eras.push({ id: 'sums', levels: [{ id: row.id }], links: [{ from: content.levels[0].id, to: row.id }] })
@@ -98,7 +98,7 @@ test('circuit and row task capabilities share a course, checks and progress with
 
 
 test('tasks of different mechanisms retain their positions inside one level', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../modules/circuit'))
+  const content = readStarter(resolve(import.meta.dirname, '../templates/circuit'))
   const row = { id: 'starter/addition', kind: 'rows:equation', brief: 'Make five.', rows: [{ total: 5, chips: [2, 3], reference: '2 + 3', naive: '2 + 2' }] }
   content.levels[0].tasks.push(row)
   const runtime = await runtimeOf(content)

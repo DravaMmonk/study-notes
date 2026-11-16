@@ -156,7 +156,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, 
 const SIDE_FILES = { package: ['package.json'], game: ['game.json', 'course.json'] }
 
 function GameEditor({ side, content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
-  const { domain, vocabulary: version, open } = content
+  const { vocabulary: version, open } = content
   const shows = (k) => k !== 'chapters' && SIDE_FILES[side].includes(contentFileFor([k]))
   const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => shows(k)))
   const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => shows(k))) }
@@ -164,7 +164,7 @@ function GameEditor({ side, content, base, vocabulary, order, names, levelOption
   return (
     <article className="editor">
       <header className="editor-head">
-        <span className="editor-id is-static">{domain} · v{version}</span>
+        <span className="editor-id is-static">v{version}</span>
         <h1>{L(content.title)}</h1>
       </header>
       <Rows form={formOf(schema, strip(content), { vocabulary, levels: order })} ctx={ctx} picked={field} before={beforeIn(base && strip(base))} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />

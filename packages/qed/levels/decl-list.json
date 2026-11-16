@@ -11,8 +11,8 @@
       "id": "decl-list",
       "kind": "logic:iso",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "declare": "@level.decl-list.tasks.decl-list.declare",
       "target": "List",

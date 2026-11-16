@@ -262,7 +262,7 @@ const GAME = S.obj({
 });
 
 export const vocabulary = qualifyVocabulary('table', defineVocabulary({
-  domain: 'table',
+  module: 'table',
   version: 1,
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
