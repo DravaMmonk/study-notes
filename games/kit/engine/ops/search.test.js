@@ -7,7 +7,7 @@ import assert from 'node:assert/strict'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
 import { hitKey, patternOf, replaceOps, replaced, searchContent } from './search.js'
-import { openGame } from './workspace.js'
+import { openPackage } from './workspace.js'
 import { runChangeset } from './changeset.js'
 import { proofsRoot } from './fixture.js'
 
@@ -73,7 +73,7 @@ test('replace: one text.set a text, one level.blueprint a board; ids left alone'
 
 test('on a game of a real domain: a replace runs as a changeset, and afterwards there is nothing left to find', async () => {
   const { root, id } = proofsRoot()
-  const ws = openGame(id, root)
+  const ws = openPackage(id, root)
   const content = ws.content()
   const { vocabulary } = (await import('../../domains/logic/domain.js')).default
   const query = { find: 'Saturday', kinds: ['text'] }

@@ -40,11 +40,12 @@ function siblingCourseProblems(own, content, peers, root) {
 export function dependencyProblemsInProject(content, root = PROJECT_DIR) {
   const folder = resolve(root, 'games')
   if (!existsSync(folder)) return projectDependencyProblems([content])
-  const ids = readdirSync(folder).filter((id) => id !== content.id && isDataGame(id, root))
-  const own = existsSync(resolve(gameDirectory(content.id, root), 'game.json')) ? readGameConfig(content.id, root) : null
+  const ids = readdirSync(folder).filter((id) => (content.packagePreview || id !== content.id) && isDataGame(id, root))
+  const own = content.packagePreview ? { packageIds: content.layerOrder } : existsSync(resolve(gameDirectory(content.id, root), 'game.json')) ? readGameConfig(content.id, root) : null
   // Read routes before full content. Projects without cross-game links need no other content packages.
   const peers = ids.map((id) => [id, readGameConfig(id, root)])
   const siblingProblems = siblingCourseProblems(own, content, peers, root)
+  if (content.packagePreview) return siblingProblems
   const peerHasExternal = peers.some(([, { packageDir }]) => objectFiles(packageDir, 'relations').some(([, file]) => (JSON.parse(readFileSync(file, 'utf8')).edges ?? []).some((edge) => edge.game)))
   if (!external(content.eras) && !peerHasExternal) return siblingProblems
   const loaded = peers.map(([id]) => readContent(id, root))

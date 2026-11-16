@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { domainOf, readStarter } from '../engine/content-node.js'
 import { eraLevels } from '../course.js'
-import { openGame } from '../engine/ops/workspace.js'
+import { openPackage } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
 import { bulkAdds, bulkPatch, bulkSet, bulkUnset, commonFields } from './bulk.js'
 import { paletteIndex, rankPalette, scoreOf } from './palette.js'
@@ -73,7 +73,7 @@ function openStarter(d) {
   for (const folder of [dir, pkg]) {
     const rename = (folder) => { for (const entry of readdirSync(folder, { withFileTypes: true })) { const file = join(folder, entry.name); if (entry.isDirectory()) rename(file); else if (file.endsWith('.json')) writeFileSync(file, readFileSync(file, 'utf8').replaceAll('starter/', `${d}/`)) } }; rename(folder)
   }
-  return openGame(d, root)
+  return openPackage(d, root)
 }
 
 test('on every starter: a bulk edit of its first era’s levels runs as a changeset, and they go into a group in order', async () => {

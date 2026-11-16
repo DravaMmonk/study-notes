@@ -12,7 +12,10 @@ import { pushOp } from './form.js'
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 
-export function useChangeset(game, scope) {
+/** `target`: a game id, or { package } for a package opened on its own. */
+export function useChangeset(target, scope) {
+  const game = typeof target === 'string' ? target : JSON.stringify(target)
+  const on = typeof target === 'string' ? { game: target } : target
   const [ops, setOps] = useState([])
   const [redo, setRedo] = useState([]) // operations taken back, the last first to come back
   const [why, setWhy] = useState('')
@@ -37,7 +40,7 @@ export function useChangeset(game, scope) {
   }, [game, scope])
   useEffect(() => {
     if (!game) return
-    call('preview', { game, scope, check: false }).then((r) => { setBase(r.content); setHead(r.head) }).catch(() => setBase(null))
+    call('preview', { ...on, scope, check: false }).then((r) => { setBase(r.content); setHead(r.head) }).catch(() => setBase(null))
   }, [game, scope, rev])
 
   const changeset = useMemo(() => ({ ...(why && { why }), ops }), [why, ops])
@@ -50,7 +53,7 @@ export function useChangeset(game, scope) {
     const no = ++seq.current
     setBusy(true)
     const timer = window.setTimeout(async () => {
-      const r = await call('preview', { game, scope, changeset, check: false }).catch((error) => ({ ok: false, problems: [error.message], content: null, failed: null }))
+      const r = await call('preview', { ...on, scope, changeset, check: false }).catch((error) => ({ ok: false, problems: [error.message], content: null, failed: null }))
       if (no !== seq.current) return
       setLast(r)
       if (r.content) setShown({ ...r, ops: changeset.ops })
@@ -67,7 +70,7 @@ export function useChangeset(game, scope) {
     checking.current = true
     for (;;) {
       const job = wanted.current
-      const r = await call('preview', { game: job.game, scope: job.scope, changeset: job.changeset }).catch((error) => ({ ok: false, lines: [], problems: [error.message], failed: null }))
+      const r = await call('preview', { ...job.on, scope: job.scope, changeset: job.changeset }).catch((error) => ({ ok: false, lines: [], problems: [error.message], failed: null }))
       if (wanted.current === job) {
         setChecked({ key: job.key, ok: r.ok, lines: r.lines ?? [], problems: r.problems ?? [], failed: r.failed, order: r.order ?? [] })
         break
@@ -79,7 +82,7 @@ export function useChangeset(game, scope) {
   const loaded = Boolean(shown)
   useEffect(() => {
     if (!loaded) return undefined
-    wanted.current = { game, scope, changeset, key }
+    wanted.current = { game, on, scope, changeset, key }
     const timer = window.setTimeout(runCheck, changeset.ops.length ? SETTLE : 0)
     return () => window.clearTimeout(timer)
   }, [game, scope, changeset, key, runCheck, loaded])
@@ -121,7 +124,7 @@ export function useChangeset(game, scope) {
     savingRef.current = true
     setSaving(true)
     try {
-      const r = await call('modify', { game, scope, changeset: { ...changeset, by: 'studio' }, base: head })
+      const r = await call('modify', { ...on, scope, changeset: { ...changeset, by: 'studio' }, base: head })
       setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
       if (r.ok) {
         setOps([])
@@ -139,7 +142,7 @@ export function useChangeset(game, scope) {
     }
   }
   const undo = async (no) => {
-    const r = await call('undo', { game, seq: no })
+    const r = await call('undo', { ...on, seq: no })
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) setRev((n) => n + 1)
   }

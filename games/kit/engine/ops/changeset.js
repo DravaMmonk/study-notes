@@ -26,7 +26,7 @@ import { domainOf } from '../content-node.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
 import { OPERATIONS, opScope } from './operations.js'
-import { hubCount, openGame } from './workspace.js'
+import { hubCount } from './workspace.js'
 import { append, hashOf, headOf, readLog, withLock } from './log.js'
 
 export { LOG, readLog } from './log.js'
@@ -60,6 +60,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     }
     // A domain that defines its parts as data names them by the game's pieces.json as each operation finds it.
     const vocabulary = withParts(domain.vocabulary, ws.partDefs)
+    if (args.layer && args.layer !== ws.layer) return fail([`${where}: open layer ${args.layer} to edit its objects`], k)
     if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
     if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
@@ -110,7 +111,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   const [schema, base] = targets[operation.split('.')[0]] ?? []
   if (operation.startsWith('game.') && args.value !== undefined && args.path !== undefined) {
     const gameSchema = shapeAt(vocabulary.game, ws.game, parsePath(args.path), { vocabulary })
-    args.value = expandNames(supplied.value, `@${ws.id}`, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema: gameSchema, vocabulary, textKeys: false })
+    args.value = expandNames(supplied.value, ws.packaged ? ws.packageId : `@${ws.id}`, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema: gameSchema, vocabulary, textKeys: false })
   }
   if (schema) {
     if (args.data) {
@@ -129,7 +130,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
 async function settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache }) {
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
-  const listed = hubCount(ws.hub, ws.id) === null ? null : courseLevelCount(content, ws.levels.size)
+  const listed = ws.packaged || hubCount(ws.hub, ws.id) === null ? null : courseLevelCount(content, ws.levels.size)
   let lines
   if (check) lines = await checkGame(content, { domain, listed, cache, root: ws.root })
   else {
@@ -178,7 +179,7 @@ export async function undo(ws, { seq = null, ...options } = {}) {
   const refused = (problem) => ({ ok: false, says: [], problems: [problem], failed: null, lines: [], diff: '', files: [], changes: [], content: null, inverse: null })
   if (!entry) return refused('nothing to undo')
   if (seq !== null && seq !== entry.seq) return refused(`#${seq} is not the change undo would undo now (#${entry.seq} is): the log has changed since`)
-  if (entry.layer && entry.layer !== ws.layer) return undo(openGame(ws.id, ws.root, { layer: entry.layer, vocabulary: ws.schemas }), { seq, ...options })
+  if (entry.layer && entry.layer !== ws.layer) return refused(`open layer ${entry.layer} to undo its change`)
   const disk = ws.onDisk()
   const moved = entry.files.filter((f) => (disk.has(f.file) || f.file.includes('/i18n/')) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
   if (moved.length) return refused(`#${entry.seq} cannot be undone: changed since it was made: ${moved.join(', ')}`)

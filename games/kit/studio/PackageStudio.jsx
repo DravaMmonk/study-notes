@@ -43,6 +43,8 @@ import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
+import ObjectsTab from './ObjectsTab.jsx'
+import OverrideAudit from './OverrideAudit.jsx'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -52,7 +54,7 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['overrides', '覆盖', 'Overrides'], ['review', '变更', 'Changes']]
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -60,9 +62,9 @@ const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.sett
 const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
-const remember = (game, at, tab, field, playLevel, task) => {
+const remember = (pkg, at, tab, field, playLevel, task) => {
   const url = new URL(window.location.href)
-  url.searchParams.set('game', game)
+  url.searchParams.set('package', pkg)
   url.searchParams.set('space', SCOPE)
   for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
   if (at?.level) url.searchParams.set('level', at.level)
@@ -78,12 +80,17 @@ const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'S
 const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
 
 /**
- * The package workspace. `game`: the game whose course the package's levels are played in (one that plays this
- * package); `games`: every game, { id, title, package }; `onGame` switches to another; `space` the workspace switch.
+ * The package workspace, opened on one package (games/PACKAGES.md 6, 8): `pkg` its id; `packages` every package,
+ * { id, uses }; `onPackage` opens another; `space` the workspace switch. The levels play in the course the kernel
+ * makes for the package.
  */
-export default function PackageStudio({ game, games, onGame, space }) {
+export default function PackageStudio({ pkg, packages, onPackage, space }) {
+  const game = pkg // the key the workspace's preferences and history are kept under
+  const target = useMemo(() => ({ package: pkg }), [pkg])
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
-  const pending = useChangeset(game, SCOPE)
+  const pending = useChangeset(target, SCOPE)
+  const namespace = pkg
+  const [objectAt, setObjectAt] = useState(null)
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
@@ -137,7 +144,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   useEffect(() => {
     setVocab(null)
     setRawNames(null)
-    call('vocabulary', { game }).then(setVocab)
+    call('vocabulary', target).then(setVocab)
   }, [game])
   const playRequest = useRef(null)
   useLayoutEffect(() => {
@@ -152,7 +159,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   useEffect(() => {
     if (!loaded) return undefined
     const no = ++namesSeq.current
-    const timer = window.setTimeout(() => call('names', { game, scope: SCOPE, changeset: { ops: JSON.parse(naming) } }).then((r) => no === namesSeq.current && setRawNames({ ...r, stamp: no })).catch(() => {}), naming === '[]' ? 0 : SETTLE)
+    const timer = window.setTimeout(() => call('names', { ...target, scope: SCOPE, changeset: { ops: JSON.parse(naming) } }).then((r) => no === namesSeq.current && setRawNames({ ...r, stamp: no })).catch(() => {}), naming === '[]' ? 0 : SETTLE)
     return () => window.clearTimeout(timer)
   }, [game, naming, rev, loaded])
 
@@ -274,7 +281,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   const playLevel = async (level, path = null, take = false) => {
     const request = {}
     playRequest.current = request
-    const seed = path ? await call('seed', { game, scope: SCOPE, level, path, changeset: { ops } }) : null
+    const seed = path ? await call('seed', { ...target, scope: SCOPE, level, path, changeset: { ops } }) : null
     if (playRequest.current !== request) return
     playRequest.current = null
     setPlay({ level, seed: seed?.data !== undefined ? seed : null, take: take ? { path, label: tr(`用作 ${path}`, `Use as ${path}`) } : null })
@@ -407,7 +414,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   }
   // Levels dropped in the tree: into a group at a place, or out of every group.
   const move = (levels, to) => {
-    addOps(groupMoves(levels, to, content))
+    addOps(groupMoves(levels, to, content, namespace))
     setMoving(null)
   }
   // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
@@ -562,9 +569,9 @@ export default function PackageStudio({ game, games, onGame, space }) {
   return (
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
       <StudioBar space={space} tabs={TABS} tab={tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
-        <select className="studio-game" value={games.find((g) => g.id === game)?.package ?? ''} disabled={saving} aria-label={tr('内容包', 'Package')}
-          onChange={(e) => { onGame(games.find((g) => g.package === e.target.value).id); select(null); setPlay(null) }}>
-          {[...new Set(games.map((g) => g.package))].map((id) => <option key={id} value={id}>{id}</option>)}
+        <select className="studio-game" value={pkg} disabled={saving} aria-label={tr('内容包', 'Package')}
+          onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null) }}>
+          {packages.map(({ id }) => <option key={id} value={id}>{id}</option>)}
         </select>
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
@@ -582,7 +589,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
-              : <Tree game={game} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
+              : <Tree game={game} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
                     ...(levelChoices.length ? [{
                       value: levelChoices.length === 1 ? levelChoices[0].value : 'blank',
@@ -596,13 +603,19 @@ export default function PackageStudio({ game, games, onGame, space }) {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
+                {tab === 'overrides' && <OverrideAudit content={content} layer={namespace} pending={saving || shown.ops !== ops} onOps={addOps}
+                  onOpen={(event) => {
+                    if (['tag', 'relation', 'layout'].includes(event.kind)) { setObjectAt({ [event.kind]: event.name }); setTab('arrange') }
+                    else if (event.kind === 'level') select({ level: event.name })
+                  }} />}
+                {tab === 'arrange' && <ObjectsTab content={content} namespace={namespace} at={objectAt} pending={saving || shown.ops !== ops} onAt={setObjectAt} onEdit={edit} onOps={addOps} />}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable side={SCOPE} content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : row.file.level ? null : 'game')} />
                   </article>
                 )}
-                {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}
+                {tab === 'compare' && <Compare target={target} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}
                 {tab === 'review' && (
                   <Review
                     ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
@@ -615,7 +628,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
             <GameFrame
               visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.setting !== undefined ? `settings/${at.setting}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
-              footer={at?.part !== undefined && <Flow game={game} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
+              footer={at?.part !== undefined && <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />

@@ -1,6 +1,8 @@
 // node --test games/kit/engine/ops — every operation on a toy game in a temp folder: what it changes, what it
 // refuses, and that its inverse puts the content back exactly.
-import { test } from 'node:test'
+import { after, test } from 'node:test'
+import { closeGames } from '../games.mjs'
+after(closeGames)
 import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -10,7 +12,7 @@ import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
 import { OPERATIONS } from './operations.js'
-import { openGame as openWorkspace } from './workspace.js'
+import { openGame as openWorkspace, openPackage } from './workspace.js'
 import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
@@ -18,7 +20,7 @@ import { taskLevel } from '../tasks.js'
 import { textKey } from '../i18n.js'
 import { writeContentFixture } from './fixture.js'
 
-const openGame = (id, root, options = {}) => openWorkspace(id, root, { vocabulary: id === 'ptoy' ? PVOCAB : VOCAB, ...options })
+const openGame = (id, root, options = {}) => (options.scope === 'game' ? openWorkspace : openPackage)(id, root, { vocabulary: id === 'ptoy' ? PVOCAB : VOCAB, ...options })
 
 const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS, COURSE_OPTIONS })
 const VOCAB = defineVocabulary({
@@ -52,7 +54,7 @@ function toy() {
   }]))
   writeContentFixture(root, 'toy', { game, glossary, levels }, VOCAB)
   writeFileSync(join(root, 'games', 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
-  return { root, ws: openGame('toy', root) }
+  return { root, ws: openWorkspace('toy', root, { vocabulary: VOCAB }) }
 }
 const run = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: VOCAB, domain: DOMAIN })
 const undone = (ws, inverse) => { for (const { op, ...args } of inverse) run(ws, op, args) }
@@ -141,12 +143,12 @@ test('game.set and game.unset edit the assembled configuration', () => {
 })
 
 test('named-object operations persist typed tags, relations and layouts and preserve translations', async () => {
-  const { root, ws } = toy()
+  const { root } = toy()
+  const ws = openGame('toy', root)
   const result = await runChangeset(ws, { ops: [
     { op: 'tag.put', tag: 'basics', data: { kind: 'level', title: { en: 'Basics' }, values: ['a1', 'a2'] } },
     { op: 'relation.put', relation: 'path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } },
     { op: 'layout.put', layout: 'map', data: { of: '#basics', rows: [['a1'], ['a2']] } },
-    { op: 'game.set', path: 'chapters[0].layout', value: 'toy/map' },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
   const reopened = openGame('toy', root)
@@ -169,7 +171,7 @@ test('a game puts its own wording over a package text, which the package keeps; 
   const written = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'text.override', level: 'b1', path: 'title', lang: 'en', value: 'Ours' }] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(written.ok, true, written.problems.join('\n'))
   assert.deepEqual(written.files, ['games/toy/overrides/toy/i18n/en.json'])
-  assert.equal(openGame('toy', root).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'Ours')
+  assert.equal(openWorkspace('toy', root, { vocabulary: VOCAB }).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'Ours')
   assert.equal(openGame('toy', root, { scope: 'package' }).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'b1')
   const refused = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'level.set', level: 'b1', path: 'tests', value: [] }] }, { check: false, domain: DOMAIN })
   assert.match(refused.problems[0], /the package workspace's to change/)
@@ -192,7 +194,8 @@ test('text.set edits one language at a field path and round trips', () => {
 })
 
 test('preview, apply and undo a locale edit across a workspace reopen', async () => {
-  const { root, ws } = toy()
+  const { root } = toy()
+  const ws = openGame('toy', root)
   const source = join(root, 'packages', 'toy', 'levels', 'b1.json')
   const catalog = 'packages/toy/i18n/fr.json'
   const before = readFileSync(source, 'utf8')
@@ -235,7 +238,8 @@ test('entry.put, entry.patch and entry.remove edit the encyclopedia', () => {
 })
 
 test('the log keeps each file’s hashes; a write lands only on the files and the log it was made on', async () => {
-  const { root, ws } = toy()
+  const { root } = toy()
+  const ws = openGame('toy', root)
   const one = { ops: [{ op: 'level.set', level: 'a1', path: 'brief', value: 'one' }] }
   const done = await runChangeset(ws, one, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
@@ -266,7 +270,8 @@ test('a changeset whose domain throws while it is settled is refused and leaves 
   const op = { ops: [{ op: 'level.set', level: 'a1', path: 'tests', value: [9] }] }
   // The domain's spec throws, or its checks do, while the whole game is checked.
   for (const broken of [{ ...DOMAIN, spec: () => { throw new Error('the domain broke') } }, { ...DOMAIN, validate: () => { throw new Error('the checks broke') } }]) {
-    const { root, ws } = toy()
+    const { root } = toy()
+    const ws = openGame('toy', root)
     const before = JSON.stringify(ws.content())
     const files = () => ['game.json', 'levels/a1.json'].map((f) => readFileSync(join(root, f.startsWith('levels/') ? 'packages' : 'games', 'toy', f), 'utf8')).join()
     const disk = files()
@@ -279,35 +284,32 @@ test('a changeset whose domain throws while it is settled is refused and leaves 
   }
 })
 
-test('a changeset is checked as a whole, writes only when it passes, logs, and undoes', async () => {
-  const { root, ws } = toy()
-  const refused = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'chapters[0].levels', value: ['toy/b2', 'toy/a1', 'toy/a2', 'toy/a3'] }, { op: 'game.set', path: 'chapters[1].levels', value: ['toy/b1', 'toy/c1'] }, { op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, { write: true, check: false, domain: DOMAIN })
+test('a package changeset is checked atomically, logged and undone independently of its game', async () => {
+  const { root } = toy()
+  const ws = openGame('toy', root)
+  const options = { write: true, check: false, domain: DOMAIN }
+  const refused = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, options)
   assert.equal(refused.ok, false)
-  assert.match(refused.problems[0], /levels\/toy\/a1.json.from: "toy\/gone" is no level of this game/)
+  assert.match(refused.problems.join('\n'), /toy\/gone/)
   assert.deepEqual(readLog(ws), [])
-  const bad = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'nope', path: 'title', value: 'No' }] }, { domain: DOMAIN, check: false })
+  const bad = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'nope', path: 'title', value: 'No' }] }, options)
   assert.match(bad.problems[0], /^op 1 \(level.set\): level: "nope" is no level of this game/)
-
-  const why = 'b2 first, a rewritten puzzle, a new name'
+  const why = 'a rewritten puzzle and an extra level'
   const done = await runChangeset(ws, { why, ops: [
-    { op: 'game.set', path: 'chapters[0].levels', value: ['toy/b2', 'toy/a1', 'toy/a2', 'toy/a3'] }, { op: 'game.set', path: 'chapters[1].levels', value: ['toy/b1', 'toy/c1'] },
     { op: 'level.set', level: 'a3', path: 'tests', value: [2] },
-    { op: 'level.rename', level: 'b2', to: 'first' },
     { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] } },
-    { op: 'game.set', path: 'chapters[0].levels[4]', value: 'toy/n1' },
-  ] }, { write: true, check: false, domain: DOMAIN })
+  ] }, options)
   assert.equal(done.ok, true, done.problems.join('\n'))
-  assert.ok(existsSync(join(root, 'packages', 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'packages', 'toy', 'levels', 'b2.json')))
-  assert.match(readFileSync(join(root, 'games', 'games.js'), 'utf8'), /levels: 7/)
-  assert.deepEqual(readLog(ws).map((e) => [e.seq, e.why, e.files.length]), [[1, why, 6]])
-
-  // An undo meant for a change that is no longer the last is refused: the log moved on since the caller looked.
-  assert.match((await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 0 })).problems[0], /#0 is not the change undo would undo now \(#1 is\)/)
-  const back = await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 1 })
+  assert.ok(existsSync(join(root, 'packages/toy/levels/n1.json')))
+  assert.ok(done.files.every((file) => file.startsWith('packages/toy/')))
+  assert.deepEqual(readLog(ws).map((e) => [e.seq, e.why]), [[1, why]])
+  assert.deepEqual(readLog(openWorkspace('toy', root, { vocabulary: VOCAB })), [])
+  assert.match((await undo(ws, { ...options, seq: 0 })).problems[0], /#0 is not the change/)
+  const back = await undo(ws, { ...options, seq: 1 })
   assert.equal(back.ok, true, back.problems.join('\n'))
-  assert.deepEqual(ws.game.chapters, toy().ws.game.chapters)
+  assert.equal(existsSync(join(root, 'packages/toy/levels/n1.json')), false)
   assert.deepEqual(readLog(ws).map((e) => e.undoes), [undefined, 1])
-  assert.match((await undo(ws, { domain: DOMAIN, check: false })).problems[0], /nothing to undo/)
+  assert.match((await undo(ws, options)).problems[0], /nothing to undo/)
 })
 
 test('tasks by id: task.add, task.move in a level and across levels, task.rename, task.remove, each undone', async () => {
@@ -355,7 +357,7 @@ function partsToy() {
   const partDefs = { parts: { sum } }
   const levels = { a1: { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] } }
   writeContentFixture(root, 'ptoy', { game, glossary, partDefs, levels }, PVOCAB)
-  return openGame('ptoy', root)
+  return openWorkspace('ptoy', root, { vocabulary: PVOCAB })
 }
 const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
 
@@ -438,7 +440,8 @@ test('settings have their own lifecycle, and renaming preserves piece-local keys
 })
 
 test('operations consume assembled names and keep package source references local', async () => {
-  const ws = partsToy()
+  const original = partsToy()
+  const ws = openGame('ptoy', original.root)
   const result = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'ptoy/a1', path: 'adds', value: ['ptoy/sum'] }] }, { check: false, domain: { vocabulary: PVOCAB } })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(ws.levels.get('a1').adds, ['sum'])
@@ -451,7 +454,8 @@ test('operations consume assembled names and keep package source references loca
 })
 
 test('assembled piece selectors and registry paths address layer-local source objects', async () => {
-  const ws = partsToy()
+  const original = partsToy()
+  const ws = openGame('ptoy', original.root)
   const result = await runChangeset(ws, { ops: [
     { op: 'pieces.set', path: ['parts', 'ptoy/sum', 'inputs', 0, 'label'], value: { en: 'First input' } },
     { op: 'piece.add', piece: 'ptoy/other', data: sum, after: 'ptoy/sum' },
@@ -464,12 +468,12 @@ test('assembled piece selectors and registry paths address layer-local source ob
 })
 
 test('package tags, relations and layouts persist and reopen with full names', async () => {
-  const { root, ws } = toy()
+  const { root } = toy()
+  const ws = openGame('toy', root)
   const result = await runChangeset(ws, { ops: [
     { op: 'relation.put', relation: 'toy/package-path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } },
     { op: 'tag.put', tag: 'toy/pick', data: { kind: 'level', values: ['toy/a1', 'toy/a2'] } },
     { op: 'layout.put', layout: 'toy/map', data: { of: '#pick', rows: [['toy/a1'], ['toy/a2']] } },
-    { op: 'game.set', path: 'chapters[0].layout', value: 'toy/map' },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.ok(result.files.includes('packages/toy/tags/level/pick.json'))
@@ -509,7 +513,8 @@ test('removing a level clears its tag, relation and layout placements and suppor
 
 
 test('entry identity and membership cannot be hidden by the encyclopedia projection', async () => {
-  const { ws } = toy()
+  const { root } = toy()
+  const ws = openPackage('toy', root, { vocabulary: VOCAB })
   for (const op of [{ op: 'entry.set', entry: 'e', path: 'id', value: 'other' }, { op: 'entry.patch', entry: 'e', fields: { group: 'g' } }]) {
     const result = await runChangeset(ws, { ops: [op] }, { check: false, domain: DOMAIN })
     assert.equal(result.ok, false)

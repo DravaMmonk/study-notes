@@ -41,7 +41,7 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {} }) {
+export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packagePreview = null }) {
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
   const pieces = new Set(Object.keys(partDefs?.parts ?? {})
     .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
@@ -126,7 +126,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   }
   const stripTray = (v) => ({ ...v, ...(v.tray && { tray: Array.isArray(v.tray) ? v.tray.map((n) => n.replace(/^#/, '')) : v.tray.replace(/^#/, '') }), ...(v.tasks && { tasks: v.tasks.map(stripTray) }) })
   const content = {
-    id, ...game, ...provenance, ...(eras && { eras, sourceChapters }), trays, replaces,
+    id, ...game, ...provenance, ...(packagePreview && { packagePreview }), ...(eras && { eras, sourceChapters }), trays, replaces,
     levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...stripTray(level) })),
     tags: tagMap, relations: relationMap, layouts: layoutMap, relationEdges, objectProblems, glossary,
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden, registries,

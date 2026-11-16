@@ -1,5 +1,5 @@
 // The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
-// has an intro whose figures exist, every bench proves its lesson (its item's verify, items/benches.js), and every
+// checks its authored intro figures, every bench proves its lesson (its item's verify, items/benches.js), and every
 // circuit task keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
 // naive ones; a task a built piece runs is passed by that piece alone, wired to the task's inputs. The parts'
 // own text has English too.
@@ -16,16 +16,16 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros, kit, course, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
+/** spec: { levels, intros, kit, course, packagePreview?, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
  *  pieces a task runs inside). Returns [{ text, fail?, level? }]: a line
- *  about one level names it. A notes edition's levels may go without an intro: the note introduces them. */
-export function validate({ levels, intros, kit, course, publishedBy, memo = (_id, _name, f) => f() }) {
+ *  about one level names it. Notes editions and generated package previews may omit introductions. */
+export function validate({ levels, intros, kit, course, packagePreview, publishedBy, memo = (_id, _name, f) => f() }) {
   const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
 
   for (const level of levels) {
-    if (course.notes && !intros[level.id]?.length) continue
+    if ((course.notes || packagePreview) && !intros[level.id]?.length) continue
     for (const problem of introProblems(intros[level.id], level, FIGURES, kit.types)) failAt(`${level.id}: 引言：${problem}`, level.id)
   }
 

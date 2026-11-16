@@ -2,6 +2,7 @@
 // npm run op -- … — the operation set (operations.js) from the command line, through a changeset (changeset.js):
 //
 //   npm run op -- list                                     the operations and their arguments
+//   npm run op -- --package <package> <op> key=value…    one package, its generated course and its log
 //   npm run op -- <game> <op> key=value…                   one operation (a value is read as JSON when it is JSON)
 //   npm run op -- <game> --file changeset.json             a changeset { why?, ops: [{ op, …args }] }
 //   npm run op -- <game> undo                              undo the last change in the game's change log
@@ -14,19 +15,18 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
-import { openGame } from './workspace.js'
+import { openGame, openPackage } from './workspace.js'
 import { adopt, readLog, runChangeset, undo } from './changeset.js'
 import { authorship, driftOf } from './log.js'
 import { checkCache } from '../check-cache.js'
-import { knownGames } from '../cli-args.js'
 import { PROJECT_DIR } from '../content-node.js'
 import { closeGames } from '../games.mjs'
 
-const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--fresh] [--why "…"] [--json]  ·  npm run op -- list'
+const USAGE = 'npm run op -- (<game> | --package <package>) (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--fresh] [--why "…"] [--json]  ·  npm run op -- list'
 const argv = process.argv.slice(2)
 const flag = (name) => argv.includes(name)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
-const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why', '--by', '--layer'].includes(argv[k - 1]))
+const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why', '--by', '--layer', '--package'].includes(argv[k - 1]))
 const value = (text) => {
   try {
     return JSON.parse(text)
@@ -40,9 +40,11 @@ if (words[0] === 'list') {
   process.exit(0)
 }
 
-const [game] = knownGames(words.slice(0, 1), USAGE)
-const ws = openGame(game, process.env.GAMES_ROOT ?? PROJECT_DIR, { layer: option('--layer') })
-const [what, ...rest] = words.slice(1)
+const packageId = option('--package')
+const game = packageId ?? words[0]
+if (!game) throw new Error(`usage: ${USAGE}`)
+const ws = (packageId ? openPackage : openGame)(game, process.env.GAMES_ROOT ?? PROJECT_DIR, { layer: option('--layer') })
+const [what, ...rest] = words.slice(packageId ? 0 : 1)
 if (what === 'log') {
   for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.by ? ` ${e.by}` : ''}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
   for (const a of authorship(readLog(ws))) console.log(`${a.by}: ${a.changes} change(s), ${a.files} file(s)${a.by.startsWith('agent:') ? `, ${a.revised} later changed by a person` : ''}`)
@@ -68,7 +70,7 @@ if (option('--why') && changeset) changeset.why = option('--why')
 // Who: --by, or what the caller's environment says (an agent's ./op, ../../pipeline/pipeline.mjs), or this command line.
 if (changeset && !changeset.by) changeset.by = option('--by') ?? process.env.GAMES_BY ?? 'cli'
 // The repository's games keep their checks between runs (../check-cache.js); --fresh, or a copy (GAMES_ROOT), checks afresh.
-const options = { write: !flag('--dry-run'), cache: flag('--fresh') || process.env.GAMES_ROOT ? null : checkCache(game) }
+const options = { write: !flag('--dry-run'), cache: flag('--fresh') || process.env.GAMES_ROOT || ws.packaged ? null : checkCache(game) }
 const result = what === 'undo' ? await undo(ws, options) : await runChangeset(ws, changeset, options)
 await closeGames()
 

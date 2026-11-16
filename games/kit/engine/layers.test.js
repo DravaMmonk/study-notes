@@ -6,11 +6,11 @@ import { resolve, dirname } from 'node:path'
 import { S } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
 import { applyOverride, composeLayers, orderPackages, visibleOverrides } from './layers.js'
-import { readContent, assembleLayers } from './content-node.js'
+import { readContent, readPackage, assembleLayers } from './content-node.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
-import { openGame } from './ops/workspace.js'
+import { openGame, openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 
 const schemas = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
@@ -107,7 +107,7 @@ test('disk reader and operations share layer composition, write ownership and in
   assert.deepEqual(JSON.parse(readFileSync(path)), { $merge: true, options: { x: 9 } })
   assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/base/levels/a.json'))).options, { x: 1 })
   assert.equal(readContent('demo', root, { vocabulary: schemas }).levels.find((l) => l.id === 'base/a').options.x, 9)
-  result = await undo(openGame('demo', root, { vocabulary: schemas }), { check: false, write: true, domain })
+  result = await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })
   assert.equal(result.ok, true, result.problems.join('\n'))
   ws = openGame('demo', root, { vocabulary: schemas, layer: '@demo' })
   result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: '@demo', kind: 'i18n', name: 'base/en', data: { title: 'Game' } }] }, { check: false, write: true, domain })
@@ -198,14 +198,20 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   const result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'tag', name: 'base/second', data: { replace: true, values: ['base/a'] } }] }, { check: false, write: true, domain })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/extra/overrides/base/tag/entry/second.json'))), { replace: true, values: ['base/a'] })
-  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas }), { check: false, write: true, domain })).ok, true)
+  assert.ok(result.files.every((file) => file.startsWith('packages/extra/')))
+  assert.deepEqual(openPackage('extra', root, { vocabulary: schemas }).content().glossary, readPackage('extra', root, { vocabulary: schemas }).glossary)
+  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })).ok, true)
   const own = openGame('demo', root, { vocabulary: schemas, layer: 'base' })
   const edit = await runChangeset(own, { ops: [{ op: 'entry.put', entry: 'new', data: { title: { en: 'New' }, body: [] } }, { op: 'text.set', tag: 'first', path: 'title', lang: 'en', value: 'First edited' }] }, { check: false, write: true, domain })
   assert.equal(edit.ok, true, edit.problems.join('\n'))
   assert.ok(edit.files.includes('packages/base/entries/new.json'))
+  assert.ok(edit.files.every((file) => file.startsWith('packages/base/')))
+  const reopened = openPackage('base', root, { vocabulary: schemas })
+  assert.deepEqual(reopened.content().glossary, readPackage('base', root, { vocabulary: schemas }).glossary)
+  assert.deepEqual(reopened.changes(), [])
   assert.equal(JSON.parse(readFileSync(resolve(root, 'packages/base/tags/entry/first.json'))).kind, undefined)
   assert.equal(readContent('demo', root, { vocabulary: schemas }).tags['base/first'].title.en, 'First edited')
-  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas }), { check: false, write: true, domain })).ok, true)
+  assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'base' }), { check: false, write: true, domain })).ok, true)
 })
 
 test('source files reject retired glossary and tag formats and tag overrides cannot change kind', () => {

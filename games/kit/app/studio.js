@@ -4,6 +4,9 @@
 // set, every check npm run check's.
 //
 //   GET  /studio/api/              the tools: { name: { about, params } }
+//   POST /studio/api/packages       {} → installed packages
+//   POST /studio/api/preview        { package, changeset?, check? } → generated course and pending changes
+//   POST /studio/api/modify         { package, changeset, dryRun?, base? } → checked write to that package
 //   POST /studio/api/<tool>        the tool's arguments as a JSON body → its result as JSON (an error: { error })
 //
 // Calls are answered one at a time, in order, as the MCP server answers them: a changeset sees the files the one
@@ -39,7 +42,7 @@ const courseCatalog = {
 
 /** Whether a call is a slow read (it goes to the second lane), and whether it writes (it waits for both). */
 export const slow = (name, args) => (name === 'preview' && args.check !== false) || name === 'run_tests'
-const writes = (name, args) => (['modify', 'undo'].includes(name) && !args.dryRun) || (name === 'blueprint' && args.text !== undefined && !args.dryRun)
+const writes = (name, args) => (['modify', 'undo', 'adopt'].includes(name) && !args.dryRun) || (name === 'blueprint' && args.text !== undefined && !args.dryRun)
 
 /** The second lane: the tools in a worker thread. run(name, args) → the result, or throws the tool's error. */
 export function worker() {

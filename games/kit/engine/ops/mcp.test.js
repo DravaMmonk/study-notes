@@ -44,8 +44,8 @@ test('the server speaks MCP over stdio', async () => {
   assert.equal((await ask('nothing/here')).error.code, -32601)
 
   const { tools } = (await ask('tools/list')).result
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'create_game', 'deps', 'flow', 'games', 'history', 'log', 'modify', 'names', 'objects', 'overrides', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
-  assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['game', 'changeset'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'create_game', 'deps', 'flow', 'games', 'history', 'log', 'modify', 'names', 'objects', 'overrides', 'packages', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
+  assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['changeset'])
   assert.equal((await call('modify', { game: GAME })).isError, true)
 })
 
@@ -82,34 +82,34 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
 test('changing tools: modify refuses a failing changeset and writes a passing one', async () => {
   const goal = { op: 'level.set', level: 'suppose', path: 'tasks[0].tests[0].goal', value: 'A → (B → C)' }
   // The reference no longer proves the new goal: refused, nothing written.
-  const refused = (await call('modify', { game: GAME, changeset: { ops: [goal] } })).data
+  const refused = (await call('modify', { package: GAME, changeset: { ops: [goal] } })).data
   assert.equal(refused.ok, false)
   assert.ok(refused.problems.some((p) => p.startsWith(`${GAME}/suppose`)), refused.problems.join('\n'))
-  assert.equal(existsSync(join(root, 'games', GAME, 'changes.jsonl')), false)
+  assert.equal(existsSync(join(root, 'packages', GAME, 'changes.jsonl')), false)
 
   const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', lang: 'en', value: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }
-  const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
+  const preview = (await call('modify', { package: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
   assert.match(preview.diff, new RegExp(`^--- a/packages/${GAME}/i18n/en.json`))
-  const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
+  const done = (await call('modify', { package: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
   const pkg = join(root, 'packages', GAME)
   const ref = JSON.parse(readFileSync(join(pkg, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0]
   assert.match(ref, /^@/)
   assert.equal(JSON.parse(readFileSync(join(pkg, 'i18n', 'en.json'), 'utf8'))[ref.slice(1)], hint.value)
-  assert.equal(JSON.parse(readFileSync(join(root, 'games', GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
+  assert.equal(JSON.parse(readFileSync(join(root, 'packages', GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 
 test('search and replace: hits across the game, a replace as a changeset that modify applies; history outside git says so', async () => {
-  const found = (await call('search', { game: GAME, query: { find: 'assume', kinds: ['text'] } })).data
+  const found = (await call('search', { package: GAME, query: { find: 'assume', kinds: ['text'] } })).data
   assert.ok(found.count > 0 && found.hits.every((h) => h.kind === 'text' && h.at.length), JSON.stringify(found).slice(0, 300))
-  const { changeset, changes } = (await call('replace', { game: GAME, query: { find: 'Saturday', caseSensitive: true }, with: 'Sunday' })).data
+  const { changeset, changes } = (await call('replace', { package: GAME, query: { find: 'Saturday', caseSensitive: true }, with: 'Sunday' })).data
   assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.lang === 'en' && op.value))
   assert.ok(changes.every((c) => c.after.includes('Sunday') && !c.after.includes('Saturday')))
-  const done = (await call('modify', { game: GAME, changeset })).data
+  const done = (await call('modify', { package: GAME, changeset })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal((await call('search', { game: GAME, query: { find: 'Saturday', caseSensitive: true } })).data.count, 0)
-  const old = (await call('history', { game: GAME, level: 'suppose' })).data
+  assert.equal((await call('search', { package: GAME, query: { find: 'Saturday', caseSensitive: true } })).data.count, 0)
+  const old = (await call('history', { package: GAME, level: 'suppose' })).data
   assert.equal(old.found, false)
   assert.match(old.why, /git/i)
 })

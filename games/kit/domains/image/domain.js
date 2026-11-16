@@ -19,6 +19,7 @@ function spec(content) {
     domain: 'image',
     title: content.title,
     course: image.course,
+    packagePreview: content.packagePreview,
     levels: image.LEVELS,
     intros: image.intros,
     blueprints: image.blueprints,
