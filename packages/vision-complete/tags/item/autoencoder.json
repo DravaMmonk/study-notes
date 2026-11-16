@@ -1,0 +1,9 @@
+{
+  "concept": true,
+  "values": [
+    "dg_encode",
+    "dg_decode",
+    "dg_encoder",
+    "dg_decoder"
+  ]
+}

@@ -94,5 +94,11 @@
         }
       ]
     }
+  ],
+  "local": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule"
   ]
 }

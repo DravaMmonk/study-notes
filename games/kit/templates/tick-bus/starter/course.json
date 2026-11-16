@@ -3,9 +3,6 @@
     "reg",
     "keep"
   ],
-  "concept": {
-    "keep": "reg"
-  },
   "chapters": [
     {
       "id": 1,

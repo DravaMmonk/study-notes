@@ -56,5 +56,8 @@
         "out <- c1"
       ]
     }
+  ],
+  "local": [
+    "uDecompose"
   ]
 }
