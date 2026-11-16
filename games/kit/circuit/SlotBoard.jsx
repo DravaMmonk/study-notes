@@ -1,6 +1,6 @@
 import { sourceOf, srcNode } from '../engine/wire-source.js'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import { Group, Info, EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
+import { Group, EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
 import { blockRows, rowMembers } from './blocks.js'
 import { foldedPartsOf } from './folding.js'
 import BlockHeader from './BlockHeader.jsx'
@@ -20,6 +20,7 @@ import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
 import { regionAddress } from './regions.js'
+import { cardAt } from '../drag.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -302,6 +303,15 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       onNode(node.id)
     }
   }
+  const cardInteraction = (node) => ({
+    'data-piece': node.id,
+    'data-drag': !fixed && !partitioning && canMove(node.id) ? true : undefined,
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': nameOf(node),
+    onKeyDown: (event) => activateCard(event, node),
+    onClick: (event) => { if (cardAt(event.target) === event.currentTarget) onNode(node.id) },
+  })
   const icon = (node) => {
     const i = parts.icon?.(node)
     // A packed part's glyph sits on its solid family chip, as on the desktop card.
@@ -351,9 +361,9 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const view = cardView(parts.valueView?.(node))
       const tileHeight = isFolded ? undefined : cardHeight(parts, node)
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
-        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-picture={!isFolded && view.tileHeight ? '' : undefined} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), minHeight: tileHeight }} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
+        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-picture={!isFolded && view.tileHeight ? '' : undefined} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), minHeight: tileHeight }} {...cardInteraction(node)}>
           <span className={`pb-ins ${ports.inputs.length>1?'is-many':''}`}>{inputDots(node, ports)}</span>
-          <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
+          <span className="pb-name">{icon(node)}{nameOf(node)}</span>
           {!isFolded&&<span className="pb-thumb">{thumb?.(node, 84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node, ports.outputs, isFolded)}
         </div>{tags(new Set([id]))}
       </div>)
@@ -367,7 +377,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   }
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
-  // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
+  // foot, the dot its result goes into; its name and inputs over them, its output under them.
   function frameBlock(node, slot, region, style, card) {
     const isFolded = foldedParts.has(node.id)
     const { outputs, regions: ownRegions } = card
@@ -376,8 +386,8 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const waitingForSetting = needsSetting?.(node)
     const unavailable = (text) => <Show value={null} scene="card" text={() => text} />
     const title = (
-      <div className="pb-frame-head" data-drag={fixed || partitioning || !canMove(node.id) ? undefined : true}>
-        <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
+      <div className="pb-frame-head">
+        <span className="pb-name">{icon(node)}{nameOf(node)}</span>
       </div>
     )
     let row = 1
@@ -419,9 +429,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     })
     return (
       <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
-        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} aria-label={nameOf(node)} onKeyDown={(event) => activateCard(event, node)} onClick={(event) => {
-          if (event.target.closest('[data-piece]') === event.currentTarget && !event.target.closest('button')) onNode(node.id)
-        }}>
+        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-family={parts.family(node)} style={parts.cardStyle?.(node)} {...cardInteraction(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           {regions}
           {outDots(node, outputs, isFolded)}

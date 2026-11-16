@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Sheet from '../shell/Sheet.jsx'
 import { lookupBoard } from './packed-boards.js'
@@ -56,13 +56,7 @@ export function PackedBoard(opts) {
   return <InsideBoard inside={insideOf(opts)} path={[]} />
 }
 
-const stop = (event) => event.stopPropagation()
 const ctxOf = (at, path) => ({ view: at.view, board: at, path, readOnly: true })
-
-/** Inspect a packed part from its compact header; editing stays in the detail window. */
-export function PackedTools({ onDetail }) {
-  return <button type="button" className="node-tool" aria-label={tr('详情')} title={tr('查看详情')} onPointerDown={stop} onClick={(e) => { e.stopPropagation(); onDetail() }}><Info size={13} /></button>
-}
 
 /** Edit (go to the level that builds the part) beside a read-only detail window's close button. */
 const EditAction = ({ onEdit }) => <button type="button" className="ph-head-action" onClick={onEdit} title={tr('在搭出它的关卡中编辑')}><Pencil size={13} />{tr('编辑', 'Edit')}</button>

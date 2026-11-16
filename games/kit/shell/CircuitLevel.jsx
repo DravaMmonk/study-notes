@@ -8,7 +8,6 @@ import { trayDisplay } from '../engine/trays.js'
 import { useSetting } from './useSetting.js'
 import { isValidElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
-import { Info } from 'lucide-react'
 import CanvasEditor from '../circuit/CanvasEditor.jsx'
 import Notice from '../circuit/Notice.jsx'
 import Palette from '../circuit/Palette.jsx'
@@ -22,7 +21,7 @@ import { lockedCards } from '../circuit/presets.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
 import { useCircuitEdits } from '../circuit/useCircuitEdits.js'
 import Glyph from '../circuit/Glyph.jsx'
-import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
+import { InsideBoard, PackedDetail, insideOf } from '../circuit/Inside.jsx'
 import { WORDS } from './words.js'
 import { L, tr, T } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
@@ -316,13 +315,13 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
               minFit={canvas.minFit}
               corner={canvas.corner}
               body={(node) => <>{card.body?.(node, ctx)}{detail !== node.id && settingNote(node)}</>}
-              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node) || !isPart(parts, node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
+              head={card.head && ((node) => card.head(node, ctx))}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
               wireState={(wire) => card.wireState(wire, ctx)}
               {...portNotes(card, ctx)}
               onTarget={setTarget}
-              onInspect={setDetail}
+              inspect={(node) => (details || isDefined(node) || !isPart(parts, node) || isPacked(node, top)) ? () => setDetail(node.id) : null}
               onClear={onClear}
               types={types}
               emptyNote={all.length > 0 && (canvas.emptyNote ?? EMPTY)}

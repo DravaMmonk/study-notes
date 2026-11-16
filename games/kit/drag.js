@@ -31,6 +31,9 @@ function scrollParent(el) {
 /** How much an element is scaled on screen (a zoomed or fitted board), so client pixels convert to its own. */
 export const scaleOf = el => el.getBoundingClientRect().width / el.offsetWidth || 1;
 
+/** The card under a press, excluding its ports and controls. Nested cards own their presses. */
+export const cardAt = el => el.closest('[data-p], button, a, input, select, textarea, label') ? null : el.closest('[data-piece]');
+
 /**
  * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?(), scroller?, portAt? } | null, read at each
  * pointerdown; `scroller` names the pane to auto-scroll when it is not an ancestor of what is dragged (a board above a
@@ -46,7 +49,8 @@ export function enableDrag(root, handlers) {
   const target = (el, pickedPort) => {
     const port = pickedPort || el.closest('[data-p]'), handle = el.closest('[data-drag]'), tray = el.closest('[data-tray]');
     if (port) return { kind: 'port', id: port.dataset.p, el: port };
-    if (handle) { const piece = handle.closest('[data-piece]'); if (piece) return { kind: 'piece', id: piece.dataset.piece, el: piece }; }
+    const piece = cardAt(el);
+    if (piece && handle?.closest('[data-piece]') === piece) return { kind: 'piece', id: piece.dataset.piece, el: piece };
     if (tray) return { kind: 'tray', id: tray.dataset.tray, el: tray };
     return null;
   };
@@ -75,11 +79,12 @@ export function enableDrag(root, handlers) {
     tick();
   }
 
-  function update() {
+  function update(preview = true) {
     const over = overAt(g.x, g.y);
     if (over !== g.over) { if (g.over) g.over.classList.remove('over'); if (over) over.classList.add('over'); g.over = over; }
     g.dx = (g.x - g.x0) / g.sc;
     g.dy = (g.y - g.y0 + g.scroller.scrollTop - g.st0) / g.sc;
+    if (!preview) return;
     if (g.kind === 'piece') g.el.style.transform = `translate(${g.dx}px, ${g.dy}px)`;
     if (g.ghost) g.ghost.style.transform = `translate(${g.x - 40}px, ${g.y - 26}px)`;
     if (g.h.move) g.h.move(g);
@@ -103,7 +108,12 @@ export function enableDrag(root, handlers) {
     g.frame = requestAnimationFrame(tick);
   }
 
-  function finish(drop) {
+  function finish(drop, event) {
+    if (drop && g.on && event) {
+      g.x = event.clientX;
+      g.y = event.clientY;
+      update(false);
+    }
     clearTimeout(g.timer);
     cancelAnimationFrame(g.frame);
     const done = g;

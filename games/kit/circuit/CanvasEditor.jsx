@@ -17,7 +17,7 @@ import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connec
 import { layoutAt, pipelineLayout, reflowLayout } from './layout.js'
 import SaveSlots from './SaveSlots.jsx'
 import { ChevronDown, ChevronRight, Maximize, Group, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
-import { enableDrag } from '../drag.js'
+import { cardAt, enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
@@ -34,7 +34,8 @@ import { alignTerminals, spaceNodes } from './spacing.js'
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
 // to an input dot, or onto a card, to wire it, or click one dot and then another (or the card), as on the phone;
-// click a wired input to take its wire off and carry it to another input; click a card or a wire to select it and press Delete (or the × on a card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
+// click a wired input to take its wire off and carry it to another input. A card can open its own details; the ×
+// removes it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and use the corner buttons to zoom or fit.
 // every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y. A wire the game refuses
 // (parts.refuse) is not made, and its reason shows at the top of the board for a moment.
 //
@@ -73,6 +74,7 @@ function pointerPose(pointers) {
  * @param parts      the game's description of its nodes (model.js)
  * @param body(node) what a card shows under its ports (settings, its value…)
  * @param head(node) extra marks in a card's header (a pass/fail badge…)
+ * @param inspect(node) the action that opens a card's details, if it has any
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
  *   Those outputs run down the card's right edge; the body starts on the row below the lowest port on either side.
@@ -87,7 +89,7 @@ function pointerPose(pointers) {
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. An editable board
  * receives both its change callback and its history. A display without them only pans, zooms and fits.
  */
-export default function CanvasEditor({ blocks = null, graph, onChange, history, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, regionNote, resultNote, onTarget, onClear, onInspect }) {
+export default function CanvasEditor({ blocks = null, graph, onChange, history, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, regionNote, resultNote, onTarget, onClear, inspect }) {
   const [connectionLabels] = useSetting('connectionLabels')
   const readOnly = !onChange
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
@@ -573,6 +575,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
   // A card, and for a frame its regions with the cards inside them.
   function card(node) {
     const role = parts.role(node)
+    const openDetail = inspect?.(node)
     const folded = foldedNodes.has(node.id)
     const { inputs: ports, outputs, regions } = cardPorts(parts, node)
     const named = namesPorts(parts, node, (label) => String(L(label)))
@@ -592,10 +595,18 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
         className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${folded ? 'is-body-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
-        onClick={(picking || (onInspect && role !== 'part')) ? (event) => {
-          if (event.target.closest('[data-p], button, input, select, label, .frame-regions')) return
+        role={openDetail ? 'button' : undefined}
+        tabIndex={openDetail ? 0 : undefined}
+        aria-label={openDetail ? tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`) : undefined}
+        onKeyDown={openDetail && ((event) => {
+          if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return
+          event.preventDefault()
+          openDetail()
+        })}
+        onClick={(picking || openDetail) ? (event) => {
+          if (cardAt(event.target) !== event.currentTarget || event.target.closest('.frame-regions')?.closest('[data-piece]') === event.currentTarget) return
           if (picking) clickCard(node.id)
-          else onInspect(node.id)
+          else openDetail()
         } : undefined}
         style={{ left: node.x, top: node.y, [regions.length ? 'minWidth' : 'width']: widthOf(node), ...parts.cardStyle?.(node) }}
       >

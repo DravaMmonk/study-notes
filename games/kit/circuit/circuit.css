@@ -211,9 +211,10 @@
 .pb-cell > .pb-tile { min-height: var(--pb-tile-height); }
 .pb-slot:active { background: var(--hover); }
 .pb-tile { position: relative; box-sizing: border-box; min-width: 0; padding: var(--sp-6) var(--pb-tile-padding); display: grid; justify-items: stretch; align-content: start; gap: var(--sp-1); border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card); outline: none; cursor: pointer; -webkit-touch-callout: none; animation: card-in 200ms ease; }
-.pb-tile:focus-visible { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
-.pb-tile.armed { transform: scale(1.03); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
-.pb-tile.lift { z-index: 20; pointer-events: none; box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent), 0 18px 36px -14px rgba(0, 0, 0, .55); }
+:is(.pb-tile, .pb-frame)[data-drag] { user-select: none; -webkit-user-select: none; }
+:is(.pb-tile, .pb-frame):focus-visible { outline: 2px solid var(--accent); }
+:is(.pb-tile, .pb-frame).armed { transform: scale(1.03); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
+:is(.pb-tile, .pb-frame).lift { z-index: 20; pointer-events: none; box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent), 0 18px 36px -14px rgba(0, 0, 0, .55); }
 .pb-part.ghost { position: fixed; z-index: 80; top: 0; left: 0; pointer-events: none; opacity: .94; box-shadow: inset 0 0 0 1.5px var(--accent), 0 14px 28px -12px rgba(0, 0, 0, .5); }
 .pb-part.armed { box-shadow: inset 0 0 0 2px var(--accent); }
 .pb-thumb { min-width: 0; max-width: 100%; line-height: 1.45; }
@@ -426,13 +427,12 @@
 /* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
 .frame-field { position: relative; pointer-events: auto; cursor: grab; }
 
-/* A frame on the phone board (SlotBoard frameBlock): as wide as the columns it covers, held by its name to drag it.
+/* A frame on the phone board (SlotBoard frameBlock): as wide as the columns it covers.
    It spans rows of the grid it sits in (a subgrid), for each region a head row, the region's rows and a foot row, so
    the cells beside it line up with its rows. Its edges are a cell's, as a part's are: its name and padding sit inside
    them, making its first and last rows a little taller. */
 .pb-cell.is-frame, .pb-frame, .pb-region, .pb-grid.is-region { display: grid; grid-template-rows: subgrid; grid-template-columns: subgrid; grid-column: 1 / -1; min-height: 0; gap: normal; }
 .pb-frame { grid-row: 1 / -1; position: relative; border-radius: var(--r-md); background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
-.pb-frame.lift { z-index: 20; pointer-events: none; }
 .pb-region { padding: 0; }
 /* A region's head row: its name, then the value it opens, its dot on the row's foot. */
 .pb-region-head, .pb-closes { grid-column: 1 / -1; position: relative; min-height: 0; color: var(--muted); font-size: 11.5px; }
@@ -443,9 +443,7 @@
 .pb-region-readout em { flex: none; max-width: 50%; font-style: normal; overflow-wrap: anywhere; }
 .pb-region-value { min-width: 0; overflow-wrap: anywhere; }
 .pb-thumb .vw-value, .pb-region-value .vw-value { line-height: 1.45; }
-.pb-frame:focus-visible { outline: 2px solid var(--accent); }
-.pb-frame-head { color: var(--muted); user-select: none; }
-.pb-frame-head[data-drag] { cursor: grab; touch-action: none; }
+.pb-frame-head { color: var(--muted); }
 .pb-frame-head > .pb-name { text-align: start; font-size: var(--fs-label); }
 
 
