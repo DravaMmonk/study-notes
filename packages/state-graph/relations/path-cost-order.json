@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "cheapest",
+    "slantcost",
+    "maxcoins",
+    "pits",
+    "loop"
+  ],
+  "of": "level"
+}

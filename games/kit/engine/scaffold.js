@@ -13,7 +13,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { PROJECT_DIR, gameDirectory, readCatalogs, readGameConfig } from './content-node.js'
+import { PROJECT_DIR, gameDirectory, readCatalogs, readContent } from './content-node.js'
 import { catalogReader } from './catalogs.js'
 import { firstText } from './i18n.js'
 import { expandNames } from './names.js'
@@ -87,7 +87,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   if (refused) fail(refused)
   const dir = gameDirectory(id, root)
   const packageDir = resolve(root, 'packages', id)
-  const words = { __title__: JSON.stringify(title).slice(1, -1) }
+  const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
   const game = JSON.parse(readFileSync(resolve(starter, 'game.json'), 'utf8').replaceAll('__title__', () => words.__title__))
   mkdirSync(dir, { recursive: true })
   mkdirSync(packageDir, { recursive: true })
@@ -95,7 +95,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   for (const name of readdirSync(starter)) {
     if (name === 'course.json') {
       const file = resolve(starter, name)
-      const source = JSON.parse(readFileSync(file, 'utf8'))
+      const source = JSON.parse(readFileSync(file, 'utf8').replaceAll('starter/', `${id}/`))
       const packageConfig = JSON.parse(readFileSync(resolve(starter, 'package.json'), 'utf8'))
       const piecesFile = resolve(starter, 'pieces.json')
       const pieces = new Set(existsSync(piecesFile) ? Object.keys(JSON.parse(readFileSync(piecesFile, 'utf8')).parts) : [])
@@ -111,7 +111,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ package: id, ...game }, null, 2)}\n`)
   const { title: gameTitle, lede } = catalogReader(readCatalogs(resolve(dir, 'i18n')))(game)
   const files = readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json'))
-  register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readGameConfig(id, root).game, files.length) })
+  register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readContent(id, root, { vocabulary: vocabularyAt(resolve(root, 'games/kit/domains', domain)) }), files.length) })
   return dir
 }
 
@@ -134,9 +134,9 @@ export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
   const source = gameDirectory(from ?? '', root)
   if (!from || !existsSync(resolve(source, 'game.json'))) fail(`no game ${from} to take the course settings from`)
   const { package: packageId } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
-  const { eras = [], ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
-  const { levels: _, links: __, rows: ___, ...chapter } = eras[0] ?? { id: 1 }
-  const course = { ...settings, eras: [{ ...chapter, levels: [] }] }
+  const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
+  const { levels: _, layout: __, ...chapter } = chapters[0] ?? { id: 1 }
+  const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
   const words = { zh: typeof title === 'string' ? title : title?.zh ?? id, en: typeof title === 'string' ? title : title?.en ?? id }
   mkdirSync(dir, { recursive: true })
   mkdirSync(resolve(dir, 'i18n'), { recursive: true })

@@ -1,6 +1,6 @@
 {
   "title": "@level.is-ten.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "after": "@level.is-ten.after",
   "tasks": [
     {

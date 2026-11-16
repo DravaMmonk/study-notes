@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "10-9",
+      "to": "10-10"
+    },
+    {
+      "required": true,
+      "from": "10-10",
+      "to": "10-11"
+    }
+  ]
+}

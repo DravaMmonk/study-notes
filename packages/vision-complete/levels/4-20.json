@@ -1,6 +1,6 @@
 {
   "title": "@level.4-20.title",
-  "tray": "pipeline",
+  "tray": "#pipeline",
   "after": "@level.4-20.after",
   "intro": [
     {
@@ -26,7 +26,7 @@
       "kind": "graph",
       "brief": "@level.4-20.tasks.4-20.brief",
       "hint": "@level.4-20.tasks.4-20.hint",
-      "withhold": ["softmax"],
+      "withholds": ["vision-complete/softmax"],
       "inputs": ["sx", "so", "sp"],
       "inputLabels": {
         "sx": "@level.4-20.tasks.4-20.inputLabels.sx",

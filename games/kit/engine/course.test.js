@@ -251,14 +251,25 @@ test('parallel routes distinguish skippable levels, optional levels, and strict 
 test('the map lays a chapter out a layer at a time, three to a row, around the rows the course saves', () => {
   const requires = new Map(Object.entries({ a: [], b: [], c: [], d: [], e: ['a'], f: ['e'], g: ['b'] }))
   const ids = [...requires.keys()]
-  const rows = (saved) => mapRows(ids, requires, saved).rows
+  const rows = (saved) => mapRows(ids, requires, { rows: saved }).rows
   assert.deepEqual(rows(), [['a', 'b', 'c'], ['d'], ['e', 'g'], ['f']])
   assert.deepEqual(mapRows(ids, requires).at.get('g'), { row: 2, col: 0.5 })
   // A saved row stays as written, empty places too; the rest goes around it, each layer after the one before, and a
   // level a saved one needs goes in above it, pushing it down.
   assert.deepEqual(rows([[null, 'e']]), [['a', 'b', 'c'], ['d'], ['g'], [null, 'e'], ['f']])
   assert.deepEqual(rows([[null, 'e'], ['b']]), [['a', 'c', 'd'], [null, 'e'], ['b'], ['g'], ['f']])
-  assert.deepEqual(mapRows(ids, requires, [[null, 'e']]).at.get('e'), { row: 3, col: 0.5 })
+  assert.deepEqual(mapRows(ids, requires, { rows: [[null, 'e']] }).at.get('e'), { row: 3, col: 0.5 })
   // Levels no longer on the chapter drop out of its saved rows.
-  assert.deepEqual(mapRows(['a'], new Map([['a', []]]), [['gone', 'a'], ['gone']]).rows, [['a']])
+  assert.deepEqual(mapRows(['a'], new Map([['a', []]]), { rows: [['gone', 'a'], ['gone']] }).rows, [['a']])
+})
+
+
+test('settings and values introduced by adds are gated and do not become tray pieces', () => {
+  const spec = { 1: { adds: ['a'] }, 2: { adds: ['a.mode=fast'] }, 3: {} }
+  const course = sketch([serial('1', '2', '3')], spec)
+  assert.deepEqual(course.adds({ id: '2' }), [])
+  assert.deepEqual(course.opens({ id: '2' }), ['a.mode=fast'])
+  assert.equal(holds(course, { id: '1' }, new Set())('a', 'mode', 'fast'), false)
+  assert.equal(holds(course, { id: '2' }, new Set())('a', 'mode', 'fast'), true)
+  assert.equal(holds(course, { id: '3' }, new Set())('a', 'mode', 'fast'), true)
 })

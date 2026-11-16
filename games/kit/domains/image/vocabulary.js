@@ -4,11 +4,11 @@
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
 // targets, budgets, bench models and bench displays in items/.
-import { COURSE_FIELDS } from '../../engine/course-schema.js'
+import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS } from '../../engine/trays.js'
+import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js'
+import { TRAY } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { IMAGE_OPS } from './engine/definitions.js'
@@ -70,9 +70,9 @@ const ONCE = {
   after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）') }),
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course' })),
   tray: TRAY,
-  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件') })),
+  gives: S.opt(S.list(ITEM_REFERENCE, { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件') })),
   showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
 }
 // What every task says: what it asks, how to start, and what passing it says before the next (the last task's is the
@@ -83,7 +83,7 @@ const TASK = {
   hint: S.opt(TEXT),
   after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）') })),
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段搭出的能力：后面的任务马上能用，整关通过时解锁') })),
-  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起') })),
+  withholds: S.opt(S.list(ITEM_REFERENCE, { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起') })),
   carries: S.opt(S.bool({ about: t('从上一段的电路开始') })),
 }
 /** What a circuit task says about its board. */
@@ -134,11 +134,10 @@ const GAME = S.obj({
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词') }),
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件') }),
-  trays: TRAYS,
   concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念') }),
-  replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
-  eras: S.list(ERA, { min: 1 }),
+  chapters: S.list(ERA, { min: 1 }),
+  ...COURSE_OPTIONS,
   box: S.obj({
     sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试') }),
     inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件') }),
@@ -149,11 +148,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 29,
-  removes: [
-    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
-    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
-  ],
+  version: 31,
+  removes: [{ at: 'level', why: 'Level adds accept item references, including settings and values.' }],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

@@ -1,5 +1,0 @@
-{
-  "title": "@group.variable-jumps.title",
-  "levels": [{ "id": "frog" }, { "id": "frogfar" }, { "id": "safefrog" }],
-  "links": [{ "from": "frog", "to": "frogfar" }, { "from": "frogfar", "to": "safefrog" }]
-}

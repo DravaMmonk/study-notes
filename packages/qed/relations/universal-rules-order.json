@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "q-allI",
+    "q-allE",
+    "q-rename",
+    "q-allAnd",
+    "q-capture"
+  ],
+  "of": "level"
+}

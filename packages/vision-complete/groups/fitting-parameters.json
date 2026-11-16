@@ -1,5 +1,0 @@
-{
-  "title": "@group.fitting-parameters.title",
-  "levels": [{ "id": "4-1" }, { "id": "4-2" }, { "id": "4-3" }, { "id": "4-4" }],
-  "links": [{ "from": "4-1", "to": "4-2" }, { "from": "4-2", "to": "4-3" }, { "from": "4-3", "to": "4-4" }]
-}

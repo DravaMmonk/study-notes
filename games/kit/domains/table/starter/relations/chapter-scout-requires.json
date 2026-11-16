@@ -1,0 +1,17 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "starter/copy",
+      "to": "starter/merge"
+    },
+    {
+      "from": "starter/merge",
+      "to": "starter/stamp"
+    },
+    {
+      "from": "starter/stamp",
+      "to": "starter/rocks"
+    }
+  ]
+}

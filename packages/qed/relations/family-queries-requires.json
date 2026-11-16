@@ -1,0 +1,20 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "q-children",
+      "to": "q-grand"
+    },
+    {
+      "required": true,
+      "from": "q-grand",
+      "to": "q-none"
+    },
+    {
+      "required": true,
+      "from": "q-none",
+      "to": "q-school"
+    }
+  ]
+}

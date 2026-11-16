@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "prefix",
+      "to": "rising"
+    },
+    {
+      "from": "prefix",
+      "to": "maxsub"
+    }
+  ]
+}

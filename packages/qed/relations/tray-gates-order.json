@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "gNot",
+    "gAnd",
+    "gOr",
+    "gImp",
+    "gIff"
+  ],
+  "of": "item"
+}

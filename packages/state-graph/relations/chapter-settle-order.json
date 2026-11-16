@@ -1,0 +1,12 @@
+{
+  "kind": "order",
+  "sequence": [
+    "state-graph/loop",
+    "state-graph/value",
+    "state-graph/arrows",
+    "state-graph/treasure",
+    "state-graph/slip",
+    "state-graph/ice"
+  ],
+  "of": "level"
+}

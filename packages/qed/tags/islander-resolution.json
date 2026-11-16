@@ -1,0 +1,9 @@
+{
+  "kind": "level",
+  "title": "@group.islander-resolution.title",
+  "values": [
+    "is-three",
+    "is-silent",
+    "is-ten"
+  ]
+}

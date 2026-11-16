@@ -1,0 +1,25 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "g-not",
+      "to": "g-and"
+    },
+    {
+      "from": "g-and",
+      "to": "g-tree"
+    },
+    {
+      "from": "g-tree",
+      "to": "g-or"
+    },
+    {
+      "from": "g-or",
+      "to": "g-imp"
+    },
+    {
+      "from": "g-or",
+      "to": "g-xor"
+    }
+  ]
+}

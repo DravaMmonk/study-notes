@@ -1,0 +1,33 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "r-match",
+      "to": "r-deep"
+    },
+    {
+      "from": "r-deep",
+      "to": "r-delete"
+    },
+    {
+      "from": "r-delete",
+      "to": "r-clash"
+    },
+    {
+      "from": "r-clash",
+      "to": "r-twice"
+    },
+    {
+      "from": "r-twice",
+      "to": "r-both"
+    },
+    {
+      "from": "r-both",
+      "to": "r-occurs"
+    },
+    {
+      "from": "r-occurs",
+      "to": "r-unifier"
+    }
+  ]
+}

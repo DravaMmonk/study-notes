@@ -1,6 +1,6 @@
 {
   "title": "@level.q-move.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.q-move.intro.0.t"

@@ -14,7 +14,7 @@
     }
   ],
   "adds": ["warp"],
-  "tray": "geometry",
+  "tray": "#geometry",
   "tasks": [
     {
       "id": "6-12",

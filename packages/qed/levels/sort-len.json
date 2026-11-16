@@ -1,6 +1,6 @@
 {
   "title": "@level.sort-len.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [{ "t": "@level.sort-len.intro.0.t" }],
   "after": "@level.sort-len.after",
   "tasks": [

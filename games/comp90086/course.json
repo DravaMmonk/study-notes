@@ -1,10 +1,12 @@
 {
   "mode": "notes",
-  "primitives": ["comp90086/line3", "comp90086/add"],
+  "primitives": [
+    "comp90086/line3",
+    "comp90086/add"
+  ],
   "concept": {},
-  "replaces": {},
   "views": {},
-  "eras": [
+  "chapters": [
     {
       "id": 1,
       "chapter": {
@@ -12,7 +14,9 @@
         "label": "@course.eras.1.chapter.label",
         "question": "@course.eras.1.chapter.question"
       },
-      "levels": [{ "id": "comp90086/projection" }]
+      "levels": [
+        "comp90086/projection"
+      ]
     },
     {
       "id": 2,
@@ -21,10 +25,9 @@
         "label": "@course.eras.2.chapter.label",
         "question": "@course.eras.2.chapter.question"
       },
-      "levels": [{ "id": "comp90086/separable" }, { "id": "comp90086/sinusoid" }],
-      "links": [
-        { "from": "comp90086/projection", "to": "comp90086/separable" },
-        { "from": "comp90086/separable", "to": "comp90086/sinusoid" }
+      "levels": [
+        "comp90086/separable",
+        "comp90086/sinusoid"
       ]
     }
   ]

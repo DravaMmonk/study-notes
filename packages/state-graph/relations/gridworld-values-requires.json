@@ -1,0 +1,23 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "value",
+      "to": "arrows"
+    },
+    {
+      "from": "value",
+      "to": "treasure"
+    },
+    {
+      "required": true,
+      "from": "treasure",
+      "to": "slip"
+    },
+    {
+      "required": true,
+      "from": "slip",
+      "to": "ice"
+    }
+  ]
+}

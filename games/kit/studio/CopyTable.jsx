@@ -96,7 +96,7 @@ export default function CopyTable({ side = 'package', content, vocabulary, scope
           }} aria-label={tr('范围')}>
             {side === 'game'
               ? (content.eras ?? []).map((era, index) => <option key={index} value={index}>{era.id} {L(era.title ?? era.chapter?.title) ?? ''}</option>)
-              : Object.entries(content.groups ?? {}).map(([id, group]) => <option key={id} value={`group:${id}`}>{L(group.title) || id}</option>)}
+              : Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').map(([id, group]) => <option key={id} value={`group:${id}`}>{L(group.title) || id}</option>)}
             <option value="all">{side === 'game' ? tr('整款游戏') : tr('整个内容包', 'The whole package')}</option>
             <option value="glossary">{tr('百科')}</option>
             {content.partDefs && <option value="pieces">{tr('件', 'Pieces')}</option>}

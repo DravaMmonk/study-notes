@@ -1,0 +1,25 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "au-resolve",
+      "to": "au-refute"
+    },
+    {
+      "from": "au-refute",
+      "to": "au-onepair"
+    },
+    {
+      "from": "au-onepair",
+      "to": "au-saturate"
+    },
+    {
+      "from": "au-saturate",
+      "to": "au-sledge"
+    },
+    {
+      "from": "au-saturate",
+      "to": "au-horn"
+    }
+  ]
+}

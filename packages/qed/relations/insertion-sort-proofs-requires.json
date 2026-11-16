@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "sort-ins",
+      "to": "sort-run"
+    },
+    {
+      "required": true,
+      "from": "sort-insLen",
+      "to": "sort-len"
+    }
+  ]
+}

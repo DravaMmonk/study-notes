@@ -1,7 +1,7 @@
 {
   "adds": ["gAnd", "formulaAnd"],
   "title": "@level.g-and.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "intro": [
     {
       "t": "@level.g-and.intro.0.t"

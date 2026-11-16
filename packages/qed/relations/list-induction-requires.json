@@ -1,0 +1,24 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "in-appnil",
+      "to": "in-appassoc"
+    },
+    {
+      "required": true,
+      "from": "in-appassoc",
+      "to": "in-revapp"
+    },
+    {
+      "required": true,
+      "from": "in-revapp",
+      "to": "in-revrev"
+    },
+    {
+      "required": true,
+      "from": "in-revrev",
+      "to": "in-len"
+    }
+  ]
+}

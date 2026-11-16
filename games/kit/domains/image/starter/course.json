@@ -1,9 +1,8 @@
 {
   "primitives": [],
   "concept": {},
-  "replaces": {},
   "views": {},
-  "eras": [
+  "chapters": [
     {
       "id": 0,
       "chapter": {
@@ -11,8 +10,11 @@
         "label": "@course.eras.0.chapter.label",
         "question": "@course.eras.0.chapter.question"
       },
-      "levels": [{ "id": "0-1" }, { "id": "0-2" }, { "id": "0-3" }],
-      "links": [{ "from": "0-1", "to": "0-2" }, { "from": "0-2", "to": "0-3" }]
+      "levels": [
+        "starter/0-1",
+        "starter/0-2",
+        "starter/0-3"
+      ]
     }
   ]
 }

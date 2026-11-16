@@ -1,5 +1,0 @@
-{
-  "title": "@group.encoded-connectives.title",
-  "levels": [{ "id": "h-and-make", "optional": true }, { "id": "h-or-make", "optional": true }],
-  "links": [{ "required": true, "from": "h-and-make", "to": "h-or-make" }]
-}

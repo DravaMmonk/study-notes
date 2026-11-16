@@ -1,6 +1,6 @@
 {
   "title": "@level.e-count.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "intro": [
     {
       "t": "@level.e-count.intro.0.t"

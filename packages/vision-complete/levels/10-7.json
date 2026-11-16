@@ -1,6 +1,6 @@
 {
   "title": "@level.10-7.title",
-  "tray": "recognition",
+  "tray": "#recognition",
   "after": "@level.10-7.after",
   "intro": [
     {
@@ -15,7 +15,7 @@
     }
   ],
   "unlocks": ["long-shift"],
-  "grants": ["long-shift"],
+  "gives": ["vision-complete/shift.n"],
   "tasks": [
     {
       "id": "10-7",

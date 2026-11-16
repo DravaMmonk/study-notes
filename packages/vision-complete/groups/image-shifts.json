@@ -1,5 +1,0 @@
-{
-  "title": "@group.image-shifts.title",
-  "levels": [{ "id": "0-2" }, { "id": "0-3" }],
-  "links": [{ "from": "0-2", "to": "0-3" }]
-}

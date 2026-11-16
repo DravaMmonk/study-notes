@@ -1,5 +1,0 @@
-{
-  "title": "@group.elimination-tactics.title",
-  "levels": [{ "id": "r-elim" }, { "id": "r-cases" }, { "id": "r-false" }, { "id": "r-exE" }],
-  "links": [{ "from": "r-elim", "to": "r-cases" }, { "from": "r-cases", "to": "r-false" }]
-}

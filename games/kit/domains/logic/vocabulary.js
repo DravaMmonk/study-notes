@@ -9,11 +9,11 @@
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { symbolFor } from './stripPieces.js'
-import { COURSE_FIELDS } from '../../engine/course-schema.js'
+import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS } from '../../engine/trays.js'
+import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js'
+import { TRAY } from '../../engine/trays.js'
 import { RULES } from './proof.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
@@ -144,7 +144,7 @@ const PREMISES = S.map(SENTENCE, { about: t('已知：名字 → 句子') })
 const AFTER_TEXT = S.opt(S.text({ about: t('通关后的一句（只说这一关，不剧透做法）') }))
 // A level's place in the course.
 const COURSE = {
-  adds: S.opt(S.list(PART, { section: 'course', about: t('这一关新带来的元件') })),
+  adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course', about: t('这一关新带来的元件') })),
   tray: TRAY,
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
@@ -240,20 +240,17 @@ const GAME = S.obj({
   words: WORDS,
   wordSets: S.map(S.map(S.text()), { about: t('几套词：字母、谓词、名字怎么读（{0}、{1} 是参数）') }),
   primitives: S.list(S.ref('part')),
-  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法') })),
   local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱') })),
-  eras: S.list(ERA, { min: 1 }),
+  chapters: S.list(ERA, { min: 1 }),
+  ...COURSE_OPTIONS,
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字') })),
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 17,
-  removes: [
-    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
-    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
-  ],
+  version: 19,
+  removes: [{ at: 'level', why: 'Level adds accept item references, including settings and values.' }],
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "kk-one",
+    "kk-two",
+    "kk-three"
+  ],
+  "of": "level"
+}

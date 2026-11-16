@@ -1,6 +1,6 @@
 {
   "title": "@level.in-zero.title",
-  "tray": "formula",
+  "tray": "#formula",
   "showcase": "@level.in-zero.showcase",
   "intro": [
     {
@@ -12,7 +12,7 @@
     {
       "id": "in-zero_1",
       "kind": "machine",
-      "tray": ["machine", "formula"],
+      "tray": ["#machine", "#formula"],
       "want": "proved",
       "inputs": [{ "name": "in", "label": "@level.in-zero.tasks.in-zero_1.inputs.0.label" }],
       "backtrack": true,
@@ -37,7 +37,7 @@
     {
       "id": "in-zero_2",
       "kind": "proof",
-      "tray": ["proof", "formula"],
+      "tray": ["#proof", "#formula"],
       "step": "@level.in-zero.tasks.in-zero_2.step",
       "adds": ["natInd"],
       "consts": ["zero"],
@@ -76,7 +76,7 @@
     {
       "id": "in-zero_3",
       "kind": "machine",
-      "tray": ["machine", "formula"],
+      "tray": ["#machine", "#formula"],
       "want": "proved",
       "inputs": [{ "name": "in", "label": "@level.in-zero.tasks.in-zero_3.inputs.0.label" }],
       "backtrack": true,

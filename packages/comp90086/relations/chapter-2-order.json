@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "comp90086/separable",
+    "comp90086/sinusoid"
+  ],
+  "of": "level"
+}

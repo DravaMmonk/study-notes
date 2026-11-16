@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "decl-eq",
+    "q-eq",
+    "q-sym",
+    "q-trans"
+  ],
+  "of": "level"
+}

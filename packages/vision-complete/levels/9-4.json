@@ -19,7 +19,7 @@
     }
   ],
   "adds": ["zeroUp"],
-  "tray": "recognition",
+  "tray": "#recognition",
   "unlocks": ["tconv"],
   "tasks": [
     {

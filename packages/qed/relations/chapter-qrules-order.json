@@ -1,0 +1,32 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/q-allI",
+    "qed/q-allE",
+    "qed/decl-ex",
+    "qed/q-rename",
+    "qed/q-exI",
+    "qed/q-allAnd",
+    "qed/q-exE",
+    "qed/q-capture",
+    "qed/q-witness",
+    "qed/decl-eq",
+    "qed/q-eq",
+    "qed/q-sym",
+    "qed/q-trans",
+    "qed/gen-ex",
+    "qed/h-and-make",
+    "qed/h-or-make",
+    "qed/h-eq-refl",
+    "qed/h-eq-subst",
+    "qed/h-eq-sym",
+    "qed/s-barbara",
+    "qed/s-darii",
+    "qed/s-carroll",
+    "qed/q-swap",
+    "qed/q-move",
+    "qed/q-ancestor",
+    "qed/q-bigger"
+  ],
+  "of": "level"
+}

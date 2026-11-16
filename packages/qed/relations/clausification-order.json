@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "au-negate",
+    "au-iff",
+    "au-hyps",
+    "au-skolem",
+    "au-clauses"
+  ],
+  "of": "level"
+}

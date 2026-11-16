@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "frog",
+      "to": "frogfar"
+    },
+    {
+      "from": "frogfar",
+      "to": "safefrog"
+    }
+  ]
+}

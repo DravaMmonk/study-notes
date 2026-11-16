@@ -1,0 +1,51 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/safefrog",
+      "to": "state-graph/prefix"
+    },
+    {
+      "from": "state-graph/forward",
+      "to": "state-graph/prefix"
+    },
+    {
+      "from": "state-graph/prefix",
+      "to": "state-graph/rising"
+    },
+    {
+      "from": "state-graph/rising",
+      "to": "state-graph/stones"
+    },
+    {
+      "from": "state-graph/stones",
+      "to": "state-graph/twoorders"
+    },
+    {
+      "from": "state-graph/twoorders",
+      "to": "state-graph/parse"
+    },
+    {
+      "from": "state-graph/rising",
+      "to": "state-graph/change"
+    },
+    {
+      "from": "state-graph/rising",
+      "to": "state-graph/wordbreak"
+    },
+    {
+      "required": true,
+      "from": "state-graph/wordbreak",
+      "to": "state-graph/wordcost"
+    },
+    {
+      "required": true,
+      "from": "state-graph/wordcost",
+      "to": "state-graph/segment"
+    },
+    {
+      "from": "state-graph/prefix",
+      "to": "state-graph/maxsub"
+    }
+  ]
+}

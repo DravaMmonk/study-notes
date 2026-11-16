@@ -1,0 +1,57 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/c-dist",
+      "to": "qed/sp-rw"
+    },
+    {
+      "from": "qed/q-dm",
+      "to": "qed/sp-rw"
+    },
+    {
+      "from": "qed/sp-rw",
+      "to": "qed/sp-laws"
+    },
+    {
+      "from": "qed/sp-rw",
+      "to": "qed/sp-dm"
+    },
+    {
+      "from": "qed/sp-dm",
+      "to": "qed/sp-back"
+    },
+    {
+      "from": "qed/sp-rw",
+      "to": "qed/sp-where"
+    },
+    {
+      "from": "qed/sp-where",
+      "to": "qed/sp-repeat"
+    },
+    {
+      "from": "qed/sp-laws",
+      "to": "qed/sp-simp"
+    },
+    {
+      "from": "qed/sp-back",
+      "to": "qed/sp-simp"
+    },
+    {
+      "from": "qed/sp-repeat",
+      "to": "qed/sp-simp"
+    },
+    {
+      "from": "qed/sp-simp",
+      "to": "qed/sp-nnf"
+    },
+    {
+      "from": "qed/sp-nnf",
+      "to": "qed/sp-cnf"
+    },
+    {
+      "from": "qed/sp-cnf",
+      "to": "qed/sp-order"
+    }
+  ]
+}

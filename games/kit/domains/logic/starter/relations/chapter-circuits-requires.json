@@ -1,0 +1,17 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "starter/g-not",
+      "to": "starter/g-and"
+    },
+    {
+      "from": "starter/g-and",
+      "to": "starter/g-or"
+    },
+    {
+      "from": "starter/g-or",
+      "to": "starter/g-use"
+    }
+  ]
+}

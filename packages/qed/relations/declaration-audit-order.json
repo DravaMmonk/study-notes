@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "decl-check",
+    "decl-strength",
+    "decl-three",
+    "decl-order",
+    "decl-two"
+  ],
+  "of": "level"
+}

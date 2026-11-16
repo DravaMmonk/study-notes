@@ -1,0 +1,141 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/p-only",
+      "to": "qed/q-allI"
+    },
+    {
+      "from": "qed/q-allI",
+      "to": "qed/q-allE"
+    },
+    {
+      "from": "qed/q-allE",
+      "to": "qed/q-rename"
+    },
+    {
+      "from": "qed/q-rename",
+      "to": "qed/q-allAnd"
+    },
+    {
+      "from": "qed/q-allAnd",
+      "to": "qed/q-capture"
+    },
+    {
+      "from": "qed/q-allI",
+      "to": "qed/decl-ex"
+    },
+    {
+      "from": "qed/decl-ex",
+      "to": "qed/q-exI"
+    },
+    {
+      "from": "qed/q-exI",
+      "to": "qed/q-exE"
+    },
+    {
+      "from": "qed/q-exE",
+      "to": "qed/q-witness"
+    },
+    {
+      "from": "qed/q-capture",
+      "to": "qed/decl-eq"
+    },
+    {
+      "from": "qed/q-witness",
+      "to": "qed/decl-eq"
+    },
+    {
+      "from": "qed/decl-eq",
+      "to": "qed/q-eq"
+    },
+    {
+      "from": "qed/q-eq",
+      "to": "qed/q-sym"
+    },
+    {
+      "from": "qed/q-sym",
+      "to": "qed/q-trans"
+    },
+    {
+      "from": "qed/decl-ex",
+      "to": "qed/gen-ex"
+    },
+    {
+      "required": true,
+      "from": "qed/gen-each",
+      "to": "qed/gen-ex"
+    },
+    {
+      "required": true,
+      "from": "qed/k",
+      "to": "qed/h-and-make"
+    },
+    {
+      "from": "qed/q-allE",
+      "to": "qed/h-and-make"
+    },
+    {
+      "required": true,
+      "from": "qed/h-and-make",
+      "to": "qed/h-or-make"
+    },
+    {
+      "from": "qed/decl-eq",
+      "to": "qed/h-eq-refl"
+    },
+    {
+      "required": true,
+      "from": "qed/h-or-make",
+      "to": "qed/h-eq-refl"
+    },
+    {
+      "required": true,
+      "from": "qed/h-eq-refl",
+      "to": "qed/h-eq-subst"
+    },
+    {
+      "required": true,
+      "from": "qed/h-eq-subst",
+      "to": "qed/h-eq-sym"
+    },
+    {
+      "from": "qed/q-trans",
+      "to": "qed/s-barbara"
+    },
+    {
+      "required": true,
+      "from": "qed/s-barbara",
+      "to": "qed/s-darii"
+    },
+    {
+      "required": true,
+      "from": "qed/s-darii",
+      "to": "qed/s-carroll"
+    },
+    {
+      "required": true,
+      "from": "qed/dsyll",
+      "to": "qed/q-swap"
+    },
+    {
+      "from": "qed/q-trans",
+      "to": "qed/q-swap"
+    },
+    {
+      "required": true,
+      "from": "qed/q-swap",
+      "to": "qed/q-move"
+    },
+    {
+      "required": true,
+      "from": "qed/q-move",
+      "to": "qed/q-ancestor"
+    },
+    {
+      "required": true,
+      "from": "qed/q-ancestor",
+      "to": "qed/q-bigger"
+    }
+  ]
+}

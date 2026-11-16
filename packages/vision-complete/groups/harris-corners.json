@@ -1,5 +1,0 @@
-{
-  "title": "@group.harris-corners.title",
-  "levels": [{ "id": "6-1" }, { "id": "6-2" }, { "id": "6-3" }],
-  "links": [{ "from": "6-1", "to": "6-2" }, { "from": "6-2", "to": "6-3" }]
-}

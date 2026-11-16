@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "r-elim",
+      "to": "r-cases"
+    },
+    {
+      "from": "r-cases",
+      "to": "r-false"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/copy",
+    "qed/mp",
+    "qed/assume",
+    "qed/nested",
+    "qed/box",
+    "qed/chain",
+    "qed/twice",
+    "qed/swap",
+    "qed/mergeUse",
+    "qed/k",
+    "qed/s",
+    "qed/x-k",
+    "qed/x-chain",
+    "qed/x-swap",
+    "qed/x-self",
+    "qed/x-merge",
+    "qed/mergeLong",
+    "qed/mergeBoth"
+  ],
+  "of": "level"
+}

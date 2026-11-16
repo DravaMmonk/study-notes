@@ -1,6 +1,6 @@
 {
   "adds": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "title": "@level.r-unifier.title",
   "intro": [
     {

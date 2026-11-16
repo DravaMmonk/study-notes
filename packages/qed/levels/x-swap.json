@@ -1,6 +1,6 @@
 {
   "title": "@level.x-swap.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
     {

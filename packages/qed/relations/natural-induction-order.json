@@ -1,0 +1,12 @@
+{
+  "kind": "order",
+  "sequence": [
+    "in-zero",
+    "in-succ",
+    "in-noteq",
+    "in-comm",
+    "in-assoc",
+    "in-induct"
+  ],
+  "of": "level"
+}

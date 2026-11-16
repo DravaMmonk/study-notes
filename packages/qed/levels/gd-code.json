@@ -1,6 +1,6 @@
 {
   "title": "@level.gd-code.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.gd-code.intro.0.t"

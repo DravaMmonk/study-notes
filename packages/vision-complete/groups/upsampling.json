@@ -1,5 +1,0 @@
-{
-  "title": "@group.upsampling.title",
-  "levels": [{ "id": "9-4" }, { "id": "9-5" }, { "id": "9-6" }, { "id": "9-7" }],
-  "links": [{ "from": "9-4", "to": "9-5" }, { "from": "9-5", "to": "9-6" }, { "from": "9-6", "to": "9-7" }]
-}

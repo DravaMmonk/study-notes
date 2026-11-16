@@ -19,7 +19,7 @@ const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 function plot(track, byId, saved) {
   const ids = track.filter((id) => byId.has(id))
   const requires = new Map(ids.map((id) => [id, (byId.get(id).requires ?? []).filter((from) => byId.has(from))]))
-  const { at } = mapRows(ids, requires, saved)
+  const { at } = mapRows(ids, requires, { rows: saved })
   const edges = [...requires].flatMap(([to, from]) => from.map((id) => ({ from: id, to, join: from.length > 1 })))
   return { at, edges }
 }

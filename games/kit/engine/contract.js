@@ -174,7 +174,7 @@ export function specProblems(domain, content, spec) {
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
   if (spec.domain !== domain.vocabulary.domain) say(`domain ${spec.domain}, not ${domain.vocabulary.domain}`)
   // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's and the level groups' by the kernel, the rest by names(content).
-  const given = new Set(['entry', 'group', 'levelGroup', ...Object.keys(domain.names?.(content) ?? {})])
+  const given = new Set(['entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
   for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor domain.js names(content) gives`)
   if (!sameJson(spec.title, content.title)) say('its title is not the content’s')

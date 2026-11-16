@@ -1,31 +1,25 @@
 // Server-side validation of the graph across the games installed in a project.
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { gameDirectory, isDataGame, PROJECT_DIR, readContent, readGameConfig } from './content-node.js'
+import { contentVocabulary, gameDirectory, isDataGame, objectFiles, PROJECT_DIR, readContent, readGameConfig } from './content-node.js'
 import { projectDependencyProblems } from './course-dependencies.js'
-import { expandEras } from './groups.js'
+import { assemble, assemblySource } from './content.js'
+import { referenceResolver } from './objects.js'
 
 const external = (eras) => eras?.some((era) => era.links?.some(({ fromGame }) => fromGame))
 
-/** The courses of the other games on the same package must still name only its levels and groups. */
+/** Pending package edits must preserve every sibling game's level and tag references. */
 function siblingCourseProblems(own, content, peers) {
   if (!own) return []
   const levels = new Set(content.levels.map(({ id }) => id))
-  const groups = new Set(Object.keys(content.groups ?? {}))
-  return peers.filter(([, peer]) => peer.packageId === own.packageId).flatMap(([id, { game: { eras = [], order = [] } }]) => {
-    const named = new Set(order.map((level) => ['level', level]).map(JSON.stringify))
-    const name = (kind, value) => named.add(JSON.stringify([kind, value]))
-    const end = (value) => name(groups.has(value) ? 'group' : 'level', value)
-    for (const { levels: entries = [], links = [], rows = [] } of eras) {
-      for (const entry of entries) entry.group === undefined ? name('level', entry.id) : name('group', entry.group)
-      for (const { from, to, fromGame } of links) {
-        if (!fromGame) end(from)
-        end(to)
-      }
-      for (const row of rows) for (const level of row) if (level !== null) name('level', level)
-    }
-    return [...named].map((entry) => JSON.parse(entry)).filter(([kind, value]) => !(kind === 'group' ? groups : levels).has(value))
-      .map(([kind, value]) => ({ at: `games/${id}/course.json`, says: `the course places the ${kind} ${value}, which is missing from its package` }))
+  return peers.filter(([, peer]) => peer.packageId === own.packageId).flatMap(([id, { game: { chapters = [] } }]) => {
+    const problems = []
+    const expand = referenceResolver(content.registries ?? { level: {}, piece: {}, setting: {}, entry: {}, tag: content.tags ?? {} }, problems)
+    const names = new Set(chapters.flatMap((chapter) => expand(chapter.levels, 'level')))
+    return [
+      ...problems.filter((p) => !p.says.startsWith('unknown level ')).map(({ says }) => ({ at: `games/${id}/course.json`, says })),
+      ...[...names].filter((name) => !levels.has(name)).map((value) => ({ at: `games/${id}/course.json`, says: `the course places the level ${value}, which is missing from its package` })),
+    ]
   })
 }
 
@@ -37,17 +31,21 @@ export function dependencyProblemsInProject(content, root = PROJECT_DIR) {
   // Read routes before full content. Projects without cross-game links need no other content packages.
   const peers = ids.map((id) => [id, readGameConfig(id, root)])
   const siblingProblems = siblingCourseProblems(own, content, peers)
-  if (!external(content.eras) && !peers.some(([, { game }]) => external(game.eras))) return siblingProblems
+  const peerHasExternal = peers.some(([, { packageDir }]) => objectFiles(packageDir, 'relations').some(([, file]) => (JSON.parse(readFileSync(file, 'utf8')).edges ?? []).some((edge) => edge.game)))
+  if (!external(content.eras) && !peerHasExternal) return siblingProblems
+  const loaded = peers.map(([id]) => readContent(id, root))
   const packageId = own?.packageId
   // A game on the same package plays the package as the pending change leaves it.
-  const collection = peers.map(([id, { packageId: shared }]) => {
-    const peer = readContent(id, root)
-    return shared === packageId ? {
-      ...peer, levels: content.levels, partDefs: content.partDefs, groups: content.groups,
-      ...(peer.sourceEras && { eras: expandEras(peer.sourceEras, content.groups) }),
-    } : peer
+  const collection = loaded.map((peer) => {
+    if (peers.find(([id]) => id === peer.id)?.[1].packageId !== packageId) return peer
+    const source = assemblySource(peer), pending = assemblySource(content)
+    return assemble({ ...source, schemas: contentVocabularyFor(peer), levels: pending.levels, partDefs: pending.partDefs,
+      tags: pending.tags, relations: pending.relations, layouts: pending.layouts,
+    })
   })
   const packages = new Map(peers.map(([id, { packageId }]) => [id, packageId]))
   if (packageId) packages.set(content.id, packageId)
   return [...siblingProblems, ...projectDependencyProblems([content, ...collection], packages)]
 }
+
+const contentVocabularyFor = (content) => contentVocabulary(content.domain)

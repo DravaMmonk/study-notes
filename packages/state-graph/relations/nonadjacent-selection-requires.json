@@ -1,0 +1,9 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "robber",
+      "to": "ring"
+    }
+  ]
+}

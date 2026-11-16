@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "or",
+      "to": "cases"
+    },
+    {
+      "from": "cases",
+      "to": "orSwap"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "title": "@level.r-subgoals.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.r-subgoals.intro.0.t"

@@ -1,0 +1,9 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "r-pattern",
+      "to": "r-patterns"
+    }
+  ]
+}

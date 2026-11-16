@@ -1,6 +1,6 @@
 {
   "title": "@level.1-11.title",
-  "tray": "pipeline",
+  "tray": "#pipeline",
   "after": "@level.1-11.after",
   "intro": [
     {
@@ -49,7 +49,7 @@
       "after": "@level.1-11.tasks.1-11_1.after",
       "step": "@level.1-11.tasks.1-11_1.step",
       "unlocks": ["edge-pad"],
-      "withhold": ["edge-pad"],
+      "withholds": ["vision-complete/shift.border"],
       "scene": "filter",
       "setup": { "target": { "shift": { "dx": 1, "dy": 0, "border": "edge" } } },
       "tests": [
@@ -92,7 +92,7 @@
       "hint": "@level.1-11.tasks.1-11_2.hint",
       "step": "@level.1-11.tasks.1-11_2.step",
       "unlocks": ["edge-filter"],
-      "withhold": ["edge-filter"],
+      "withholds": ["vision-complete/blur3h.border","vision-complete/box3.border","vision-complete/gauss.border","vision-complete/sobelx.border","vision-complete/sobely.border","vision-complete/kernel3.border","vision-complete/gradmag.border"],
       "scene": "filter",
       "setup": { "target": { "box": { "size": 3, "border": "edge" } } },
       "tests": [

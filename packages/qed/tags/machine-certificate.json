@@ -1,0 +1,9 @@
+{
+  "kind": "item",
+  "title": "@tray.trays.machine.items.certificate.title",
+  "values": [
+    "clausify",
+    "replay",
+    "metis"
+  ]
+}

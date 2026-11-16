@@ -1,6 +1,6 @@
 {
   "title": "@level.q-exI.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.q-exI.intro.0.t"

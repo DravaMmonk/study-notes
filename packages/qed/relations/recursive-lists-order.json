@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "decl-list",
+    "def-list",
+    "sp-lists"
+  ],
+  "of": "level"
+}

@@ -1,6 +1,6 @@
 {
   "title": "@level.in-appnil.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.in-appnil.intro.0.t"

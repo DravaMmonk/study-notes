@@ -1,5 +1,5 @@
 {
-  "tray": "formula",
+  "tray": "#formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
   "title": "@level.fo-nested.title",
   "intro": [

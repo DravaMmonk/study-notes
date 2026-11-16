@@ -8,8 +8,8 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
   const content = {
     levels: [
       { id: 'a', adds: ['p'], tasks: [{ id: 'a' }] },
-      { id: 'b', tasks: [{ id: 'b', publishes: [{ piece: 'm', variant: 'base' }] }, { id: 'b_2', withhold: ['p'] }] },
-      { id: 'c', tasks: [{ id: 'c', grants: ['p.k=1'] }] },
+      { id: 'b', tasks: [{ id: 'b', publishes: [{ piece: 'm', variant: 'base' }] }, { id: 'b_2', withholds: ['p'] }] },
+      { id: 'c', tasks: [{ id: 'c', gives: ['p.k=1'] }] },
       { id: 'd', tasks: [{ id: 'd', publishes: [{ piece: 'm', variant: 'two' }] }] },
     ],
     partDefs: { parts: { m: { inside: [{ id: 'base', reference: {} }, { id: 'two', form: 'two', reference: {} }] } } },
@@ -22,15 +22,15 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
     adds: (l) => byId.get(l.id).adds ?? [],
     needs: () => null,
     builds: (l) => (l.id === 'd' ? ['q'] : []),
-    gives: (l) => own(l).grants ?? [],
-    withholds: (l) => own(l).withhold ?? [],
+    gives: (l) => own(l).gives ?? [],
+    withholds: (l) => own(l).withholds ?? [],
     replaces: (part) => (part === 'q' ? ['p'] : []),
   })
   assert.deepEqual(pieceFlow(course, content, 'p'), [
     { kind: 'start', level: null, path: null },
     { kind: 'adds', level: 'a', path: ['adds', 0] },
-    { kind: 'withholds', level: 'b', task: 1, path: ['tasks', 1, 'withhold', 0] },
-    { kind: 'gives', level: 'c', task: 0, path: ['tasks', 0, 'grants', 0] },
+    { kind: 'withholds', level: 'b', task: 1, path: ['tasks', 1, 'withholds', 0] },
+    { kind: 'gives', level: 'c', task: 0, path: ['tasks', 0, 'gives', 0] },
     { kind: 'replaced', level: 'd', by: 'q', path: null },
   ])
   assert.deepEqual(pieceFlow(course, content, 'm'), [

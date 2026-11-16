@@ -1,0 +1,103 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "vision-complete/3-8",
+      "to": "vision-complete/4-1"
+    },
+    {
+      "from": "vision-complete/3-10",
+      "to": "vision-complete/4-1"
+    },
+    {
+      "from": "vision-complete/4-1",
+      "to": "vision-complete/4-2"
+    },
+    {
+      "from": "vision-complete/4-2",
+      "to": "vision-complete/4-3"
+    },
+    {
+      "from": "vision-complete/4-3",
+      "to": "vision-complete/4-4"
+    },
+    {
+      "from": "vision-complete/4-4",
+      "to": "vision-complete/4-5"
+    },
+    {
+      "from": "vision-complete/4-5",
+      "to": "vision-complete/4-6"
+    },
+    {
+      "from": "vision-complete/4-4",
+      "to": "vision-complete/4-7"
+    },
+    {
+      "from": "vision-complete/4-7",
+      "to": "vision-complete/4-8"
+    },
+    {
+      "from": "vision-complete/4-8",
+      "to": "vision-complete/4-9"
+    },
+    {
+      "from": "vision-complete/4-9",
+      "to": "vision-complete/4-10"
+    },
+    {
+      "from": "vision-complete/4-4",
+      "to": "vision-complete/4-11"
+    },
+    {
+      "from": "vision-complete/4-11",
+      "to": "vision-complete/4-12"
+    },
+    {
+      "from": "vision-complete/4-12",
+      "to": "vision-complete/4-13"
+    },
+    {
+      "from": "vision-complete/4-13",
+      "to": "vision-complete/4-14"
+    },
+    {
+      "from": "vision-complete/4-6",
+      "to": "vision-complete/4-15"
+    },
+    {
+      "from": "vision-complete/4-10",
+      "to": "vision-complete/4-15"
+    },
+    {
+      "from": "vision-complete/4-14",
+      "to": "vision-complete/4-15"
+    },
+    {
+      "from": "vision-complete/4-15",
+      "to": "vision-complete/4-16"
+    },
+    {
+      "from": "vision-complete/4-16",
+      "to": "vision-complete/4-17"
+    },
+    {
+      "from": "vision-complete/4-17",
+      "to": "vision-complete/4-18"
+    },
+    {
+      "from": "vision-complete/4-18",
+      "to": "vision-complete/4-19"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/4-19",
+      "to": "vision-complete/4-20"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/4-20",
+      "to": "vision-complete/4-21"
+    }
+  ]
+}

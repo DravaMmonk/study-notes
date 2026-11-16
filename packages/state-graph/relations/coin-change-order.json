@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "coinways",
+    "change"
+  ],
+  "of": "level"
+}

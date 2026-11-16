@@ -555,7 +555,7 @@ export function taskListOps(level, before, after, levels) {
 
 // Two operations edit the same thing when they are the same operation on the same file and path; the later then
 // stands for both.
-const target = (op) => JSON.stringify([op.op, op.level ?? op.group ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.move' || op.op === 'level.rename' ? op.level : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
+const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation ?? op.layout ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.rename' ? op.level : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
 
 /**
  * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
@@ -566,7 +566,7 @@ export function pushOp(ops, op) {
   // A task's id typed a letter at a time is one rename, from the id it had.
   if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename', 'group.add', 'group.remove', 'group.rename', 'group.place'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 
@@ -618,7 +618,7 @@ export function fieldAt(form, path) {
 /* ---------- a file as a form ---------- */
 
 // What game.json's form leaves out: what is not its own schema.
-const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'groups', 'sourceEras', 'overridden', 'registries']
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'tags', 'relations', 'layouts', 'sourceChapters', 'relationEdges', 'objectProblems', 'eras', 'trays', 'replaces', 'overridden', 'registries']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */

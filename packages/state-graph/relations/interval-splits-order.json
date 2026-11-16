@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "stones",
+    "parse"
+  ],
+  "of": "level"
+}

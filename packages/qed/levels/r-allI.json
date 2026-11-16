@@ -1,6 +1,6 @@
 {
   "title": "@level.r-allI.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.r-allI.intro.0.t"

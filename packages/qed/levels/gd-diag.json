@@ -1,6 +1,6 @@
 {
   "title": "@level.gd-diag.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.gd-diag.intro.0.t"

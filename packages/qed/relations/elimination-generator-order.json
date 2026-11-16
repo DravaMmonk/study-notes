@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "gen-one",
+    "gen-each",
+    "gen-ex",
+    "gen-nat"
+  ],
+  "of": "level"
+}

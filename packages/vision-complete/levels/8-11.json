@@ -14,7 +14,7 @@
       "fig": { "test": 0, "caption": "@level.8-11.intro.2.fig.caption" }
     }
   ],
-  "tray": "generative",
+  "tray": "#generative",
   "tasks": [
     {
       "id": "8-11",

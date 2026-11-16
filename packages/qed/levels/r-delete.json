@@ -1,7 +1,7 @@
 {
   "title": "@level.r-delete.title",
   "adds": ["uDelete", "uDecompose"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.r-delete.intro.0.t"

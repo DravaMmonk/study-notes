@@ -1,7 +1,7 @@
 {
   "title": "@level.s-each.title",
   "adds": ["each"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.s-each.intro.0.t"

@@ -1,0 +1,12 @@
+{
+  "kind": "order",
+  "sequence": [
+    "gd-code",
+    "gd-check",
+    "gd-diag",
+    "gd-true",
+    "gd-con",
+    "gd-second"
+  ],
+  "of": "level"
+}

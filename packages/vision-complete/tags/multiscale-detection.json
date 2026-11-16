@@ -1,0 +1,10 @@
+{
+  "kind": "level",
+  "title": "@group.multiscale-detection.title",
+  "values": [
+    "10-4",
+    "10-9",
+    "10-10",
+    "10-11"
+  ]
+}

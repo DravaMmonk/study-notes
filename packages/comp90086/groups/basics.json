@@ -1,5 +1,0 @@
-{
-  "title": "@group.basics.title",
-  "levels": [{ "id": "projection" }, { "id": "separable" }, { "id": "sinusoid" }],
-  "links": [{ "from": "projection", "to": "separable" }, { "from": "separable", "to": "sinusoid" }]
-}

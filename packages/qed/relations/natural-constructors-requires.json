@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "in-distinct",
+      "to": "in-inject"
+    },
+    {
+      "from": "in-inject",
+      "to": "in-cases"
+    }
+  ]
+}

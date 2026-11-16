@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "6-11",
+      "to": "6-12"
+    },
+    {
+      "required": true,
+      "from": "6-12",
+      "to": "6-13"
+    }
+  ]
+}

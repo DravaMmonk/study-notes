@@ -1,0 +1,17 @@
+{
+  "kind": "replaces",
+  "edges": [
+    {
+      "from": "vision-complete/arith",
+      "to": "vision-complete/add"
+    },
+    {
+      "from": "vision-complete/arith",
+      "to": "vision-complete/sub"
+    },
+    {
+      "from": "vision-complete/arith",
+      "to": "vision-complete/mul"
+    }
+  ]
+}

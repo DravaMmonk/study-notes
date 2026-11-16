@@ -21,7 +21,6 @@ import { useChangeset } from './useChangeset.js'
 import StudioBar from './StudioBar.jsx'
 import PanelResizer from './PanelResizer.jsx'
 import Editor from './Editor.jsx'
-import ChapterBoard from './ChapterBoard.jsx'
 import CopyTable from './CopyTable.jsx'
 import Review from './Review.jsx'
 import Audit from './Audit.jsx'
@@ -76,7 +75,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   }, [game, naming, rev, loaded])
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   // The course as course.json writes it: the forms and the side panel edit it so.
-  const course = useMemo(() => content && { ...content, eras: content.sourceEras ?? [] }, [content])
+  const course = useMemo(() => content && { ...content, chapters: content.sourceChapters ?? [] }, [content])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
     part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
@@ -89,7 +88,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
 
-  const eras = course?.eras ?? []
+  const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
   const select = (next) => {
     setAt(next)
@@ -99,7 +98,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
     setField({ path })
   }
-  const setEras = (value) => edit({ op: 'game.set', path: ['eras'], value })
+  const setEras = (value) => edit({ op: 'game.set', path: ['chapters'], value })
   const newChapter = () => {
     setEras([...eras, blankChapter(eras, eras.at(-1) ?? {}, (fields) => retitled(fields))])
     select({ era: eras.length })
@@ -128,7 +127,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
     const found = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (!found) return
     const path = parsePath(found[1].replace(/^\./, ''))
-    if (path[0] === 'eras' && Number.isInteger(path[1])) select({ era: path[1] })
+    if (path[0] === 'chapters' && Number.isInteger(path[1])) select({ era: path[1] })
     else select({ game: true })
     if (path.length) pickField(path)
   }
@@ -187,15 +186,14 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
           <main className="studio-main">
             <div className="studio-scroll">
               {tab === 'arrange' && (at?.game || e === null
-                ? <Editor side={SCOPE} content={course} base={base && { ...base, eras: base.sourceEras ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
+                ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                 : <>
                   <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} onCopy={(k) => { setCopyScope(k); setTab('copy') }} />
-                  <ChapterBoard key={`${game}:${e}`} content={content} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} />
                 </>)}
               {tab === 'copy' && (
                 <article className="editor is-wide">
                   <CopyTable side={SCOPE} content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={order} names={names} places={places} onEdit={edit}
-                    onJump={(row) => { if (row.file.game) { const path = parsePath(row.path); select(path[0] === 'eras' ? { era: path[1] } : { game: true }); pickField(path) } }} />
+                    onJump={(row) => { if (row.file.game) { const path = parsePath(row.path); select(path[0] === 'chapters' ? { era: path[1] } : { game: true }); pickField(path) } }} />
                 </article>
               )}
               {tab === 'review' && (

@@ -1,5 +1,0 @@
-{
-  "title": "@group.forward-reasoning.title",
-  "levels": [{ "id": "r-drule" }, { "id": "r-frule" }],
-  "links": [{ "from": "r-drule", "to": "r-frule" }]
-}

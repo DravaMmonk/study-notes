@@ -9,7 +9,7 @@
     }
   ],
   "after": "@level.decl-order.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "decl-order",

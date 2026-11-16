@@ -1,6 +1,6 @@
 {
   "title": "@level.g-xor.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "after": "@level.g-xor.after",
   "tasks": [
     {

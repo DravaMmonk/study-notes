@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "wordbreak",
+      "to": "wordcost"
+    },
+    {
+      "required": true,
+      "from": "wordcost",
+      "to": "segment"
+    }
+  ]
+}

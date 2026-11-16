@@ -1,0 +1,66 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/onerow",
+      "to": "qed/g-not"
+    },
+    {
+      "from": "qed/g-not",
+      "to": "qed/g-and"
+    },
+    {
+      "from": "qed/g-and",
+      "to": "qed/g-tree"
+    },
+    {
+      "from": "qed/g-tree",
+      "to": "qed/g-or"
+    },
+    {
+      "from": "qed/g-or",
+      "to": "qed/g-imp"
+    },
+    {
+      "from": "qed/g-imp",
+      "to": "qed/g-always"
+    },
+    {
+      "from": "qed/g-always",
+      "to": "qed/g-iff"
+    },
+    {
+      "from": "qed/g-iff",
+      "to": "qed/e-words"
+    },
+    {
+      "required": true,
+      "from": "qed/e-words",
+      "to": "qed/e-says"
+    },
+    {
+      "required": true,
+      "from": "qed/e-says",
+      "to": "qed/e-one"
+    },
+    {
+      "required": true,
+      "from": "qed/e-one",
+      "to": "qed/e-two"
+    },
+    {
+      "required": true,
+      "from": "qed/e-two",
+      "to": "qed/e-three"
+    },
+    {
+      "required": true,
+      "from": "qed/e-three",
+      "to": "qed/e-count"
+    },
+    {
+      "from": "qed/g-or",
+      "to": "qed/g-xor"
+    }
+  ]
+}

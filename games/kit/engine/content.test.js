@@ -4,11 +4,9 @@ import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { COURSE_FIELDS } from './course-schema.js'
 import { S, callOf, find, validate } from './schema.js'
 import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
-import { expandNames } from './names.js'
 import { assemble } from './content.js'
 import { isDataGame, readContent } from './content-node.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
@@ -33,24 +31,7 @@ const VOCAB = defineVocabulary({
 
 const says = (schema, value) => validate(schema, value, { vocabulary: VOCAB }).map((p) => `${p.at}: ${p.says}`)
 
-test('course edits reject circular prerequisites', () => {
-  const era = S.obj({ id: S.str(), ...COURSE_FIELDS })
-  const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
-  const content = {
-    id: 'toy', domain: 'toy', vocabulary: 1, title: 'Toy',
-    glossary: { groups: [], entries: [] },
-    levels: ['start', 'a', 'b', 'next'].map((id) => ({ id, mode: 'read', text: id })),
-    eras: [
-      { id: 'one', levels: [{ id: 'start' }, { id: 'a' }, { id: 'b' }], links: [{ from: 'b', to: 'a' }, { from: 'a', to: 'b' }] },
-      { id: 'two', levels: [{ id: 'next' }] },
-    ],
-  }
-  assert.deepEqual(checkContent({ vocabulary }, content), [
-    { at: 'game.json.eras', says: 'circular prerequisites: a → b → a' },
-  ])
-  content.eras[0].links[0].from = 'start'
-  assert.deepEqual(checkContent({ vocabulary }, content), [])
-})
+
 
 test('plain values and objects', () => {
   assert.deepEqual(says(S.int({ min: 1 }), 3), [])
@@ -160,39 +141,14 @@ test('a data game is read from its folder', () => {
   // Another game on the same package must still find what its course names.
   mkdirSync(join(dir, 'games', 'draft'), { recursive: true })
   writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ package: 'shared-toy', title: 'Draft' }))
-  writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ order: ['shared-toy/one'] }))
+  writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ chapters: [{ id: 'main', levels: ['shared-toy/one'] }] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
   assert.deepEqual(dependencyProblemsInProject({ ...content, levels: [] }, dir), [{
     at: 'games/draft/course.json',
     says: 'the course places the level shared-toy/one, which is missing from its package',
   }])
-})
 
-test('a course places whole groups, links to and from them, and keeps its map', () => {
-  const era = S.obj({ id: S.str(), ...COURSE_FIELDS })
-  const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
-  const levels = ['start', 'a', 'b', 'c', 'next'].map((id) => [id, { mode: 'read', text: id }])
-  const groups = [['basics', { title: 'Basics', levels: [{ id: 'a' }, { id: 'b' }, { id: 'c', optional: true }], links: [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }] }]]
-  const course = (eras) => assemble({ id: 'toy', schemas: vocabulary, game: { domain: 'toy', vocabulary: 1, title: 'Toy', eras: expandNames(eras, 'toy', { schema: S.list(era), vocabulary }) }, glossary: { groups: [], entries: [] }, levels, groups })
-  const content = course([
-    { id: 'one', levels: [{ id: 'toy/start' }, { group: 'toy/basics' }], links: [{ from: 'toy/start', to: 'toy/basics' }], rows: [['toy/start', null]] },
-    { id: 'two', levels: [{ id: 'toy/next' }], links: [{ from: 'toy/basics', to: 'toy/next' }] },
-  ])
-  assert.deepEqual(content.eras[0].levels.map(({ id }) => id), ['toy/start', 'toy/a', 'toy/b', 'toy/c'])
-  assert.deepEqual(content.eras[0].links, [{ from: 'toy/a', to: 'toy/b' }, { from: 'toy/a', to: 'toy/c' }, { from: 'toy/start', to: 'toy/a' }])
-  // The group's exit is its required level with nothing after it.
-  assert.deepEqual(content.eras[1].links, [{ from: 'toy/b', to: 'toy/next' }])
-  assert.equal(content.sourceEras[0].levels[1].group, 'toy/basics')
-  assert.deepEqual(checkContent({ vocabulary }, content), [])
-
-  const wrong = course([{ id: 'one', levels: [{ group: 'toy/basics' }, { id: 'toy/a' }, { group: 'nothing' }], rows: [['toy/b', 'toy/a', null, null]] }])
-  assert.deepEqual(checkContent({ vocabulary }, wrong).map(({ at, says }) => `${at}: ${says}`), [
-    'game.json.eras[0].levels[2].group: "toy/nothing" is no levelGroup of this game',
-  ])
-  const placed = course([{ id: 'one', levels: [{ group: 'toy/basics' }, { id: 'toy/a' }], rows: [['toy/b', 'toy/a', null, null]] }])
-  assert.deepEqual(checkContent({ vocabulary }, placed).map(({ at, says }) => `${at}: ${says}`), [
-    'game.json.eras[0]: level "toy/a" is placed twice',
-    'game.json.eras[0].rows[0]: a row of the map has at most three places, not 4',
-    'game.json.eras[0].rows[0]: toy/b is drawn on a row no lower than its prerequisite toy/a',
-  ])
+  for (const kind of ['tags', 'relations', 'layouts']) mkdirSync(join(dir, 'games', 'toy', kind))
+  const forbidden = readContent('toy', dir, { vocabulary: VOCAB })
+  assert.equal(checkContent({ vocabulary: VOCAB }, forbidden).filter((p) => /games cannot declare objects/.test(p.says)).length, 3)
 })

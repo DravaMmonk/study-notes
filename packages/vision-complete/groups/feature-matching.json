@@ -1,5 +1,0 @@
-{
-  "title": "@group.feature-matching.title",
-  "levels": [{ "id": "6-4" }, { "id": "6-5" }, { "id": "6-8", "optional": true }],
-  "links": [{ "from": "6-4", "to": "6-5" }, { "from": "6-5", "to": "6-8" }]
-}

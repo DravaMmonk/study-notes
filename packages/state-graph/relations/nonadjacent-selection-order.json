@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "robber",
+    "ring"
+  ],
+  "of": "level"
+}

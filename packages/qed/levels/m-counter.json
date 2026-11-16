@@ -1,5 +1,5 @@
 {
-  "tray": "formula",
+  "tray": "#formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
   "title": "@level.m-counter.title",
   "intro": [

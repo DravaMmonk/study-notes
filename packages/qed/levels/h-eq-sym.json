@@ -1,6 +1,6 @@
 {
   "title": "@level.h-eq-sym.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.h-eq-sym.intro.0.t"

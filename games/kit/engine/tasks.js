@@ -26,6 +26,9 @@ const PIECE_REVISIONS = S.opt(S.list(S.obj({
   piece: S.ref('part'), at: S.opt(S.bool()), desc: S.text(),
 })))
 
+export const ITEM_REFERENCE = S.str({ reference: 'item' })
+export const TASK_ITEMS = Object.fromEntries(['gives', 'withholds', 'opens'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
+
 const OWN = {
   id: TASK_ID_FIELD,
   step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）') })),
@@ -42,7 +45,7 @@ const owned = (s, fields) => (s.type === 'by' ? { ...s, cases: Object.fromEntrie
  * (or itself a by- or either-schema of such objects).
  */
 export const taskLevel = (once, task, { parts = false } = {}) => {
-  const keys = parts ? { ...OWN, publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : OWN
+  const keys = parts ? { ...OWN, ...TASK_ITEMS, publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : OWN
   return S.obj({
     ...(parts ? { featuredParts: FEATURED_PARTS, pieceRevisions: PIECE_REVISIONS } : {}),
     ...once,

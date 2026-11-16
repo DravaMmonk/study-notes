@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "sp-nnf",
+      "to": "sp-cnf"
+    },
+    {
+      "from": "sp-cnf",
+      "to": "sp-order"
+    }
+  ]
+}

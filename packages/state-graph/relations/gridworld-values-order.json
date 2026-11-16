@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "value",
+    "arrows",
+    "treasure",
+    "slip",
+    "ice"
+  ],
+  "of": "level"
+}

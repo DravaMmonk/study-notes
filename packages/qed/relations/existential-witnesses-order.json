@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "decl-ex",
+    "q-exI",
+    "q-exE",
+    "q-witness",
+    "r-order"
+  ],
+  "of": "level"
+}

@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "h-eq-refl",
+    "h-eq-subst",
+    "h-eq-sym"
+  ],
+  "of": "level"
+}

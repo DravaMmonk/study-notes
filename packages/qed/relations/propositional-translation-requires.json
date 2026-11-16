@@ -1,0 +1,30 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "e-words",
+      "to": "e-says"
+    },
+    {
+      "required": true,
+      "from": "e-says",
+      "to": "e-one"
+    },
+    {
+      "required": true,
+      "from": "e-one",
+      "to": "e-two"
+    },
+    {
+      "required": true,
+      "from": "e-two",
+      "to": "e-three"
+    },
+    {
+      "required": true,
+      "from": "e-three",
+      "to": "e-count"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "kind": "order",
+  "sequence": [
+    "vision-complete/5-1",
+    "vision-complete/5-2",
+    "vision-complete/5-5",
+    "vision-complete/5-3",
+    "vision-complete/5-4",
+    "vision-complete/5-7",
+    "vision-complete/5-8",
+    "vision-complete/5-9",
+    "vision-complete/5-6"
+  ],
+  "of": "level"
+}

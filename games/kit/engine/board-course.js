@@ -114,12 +114,12 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     out.solution = boardOf(task.solution, 'the answer')
     if (task.starter) out.starter = boardOf(task.starter, 'the starter')
     if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
-    for (const field of ['withhold', 'grants', 'opens']) for (const item of task[field] ?? []) {
+    for (const field of ['withholds', 'gives', 'opens']) for (const item of task[field] ?? []) {
       const problem = itemProblem(item)
       if (problem) say(where, `${field} names ${item}: ${problem}`)
     }
     for (const item of task.opens ?? []) if (!readItem(item).key) say(where, `it opens ${item}, a part: a part is brought in by adds`)
-    for (const item of task.withhold ?? []) if (out.solution.nodes.some((n) => n.type === item)) say(where, `its answer uses ${item}, which it withholds`)
+    for (const item of task.withholds ?? []) if (out.solution.nodes.some((n) => n.type === item)) say(where, `its answer uses ${item}, which it withholds`)
     return out
   }
   // Why an item (../course.js: a part, one of its settings, one value of a setting) is none of this game's, or ''.
@@ -207,6 +207,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.[level.task] ?? null)
   const solutions = (level) => (taskOf(level) ? [taskOf(level)] : played.get(level.id)).filter(isBoard).map((T) => T.solution)
   const course = defineCourse({
+    complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.unlocks })),
     eras,
     plan,
@@ -218,9 +219,9 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     // A level's pieces are built by its tasks: the tasks after each one hold it.
     builds: (level) => [...new Set((byId.get(level.id)?.builds ?? []).filter((b) => level.task === undefined || b.at <= level.task).map((b) => b.type))],
     opens: (level) => (taskOf(level) ?? byId.get(level.id))?.opened ?? [],
-    gives: (level) => taskOf(level)?.grants ?? [],
+    gives: (level) => taskOf(level)?.gives ?? [],
     featured: (level) => [...(byId.get(level.id)?.featuredParts ?? []), ...(taskOf(level)?.featuredParts ?? [])],
-    withholds: (level) => taskOf(level)?.withhold ?? [],
+    withholds: (level) => taskOf(level)?.withholds ?? [],
     concept: (part) => concept[part] ?? part,
     needed: (level) => {
       const boards = solutions(level)

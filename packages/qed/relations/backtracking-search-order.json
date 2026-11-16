@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "s-defer",
+    "s-results",
+    "s-append",
+    "s-search",
+    "s-loop"
+  ],
+  "of": "level"
+}

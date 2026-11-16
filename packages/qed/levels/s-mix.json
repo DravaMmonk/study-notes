@@ -1,6 +1,6 @@
 {
   "title": "@level.s-mix.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.s-mix.intro.0.t"

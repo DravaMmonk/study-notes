@@ -1,0 +1,10 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "h-and-make",
+      "to": "h-or-make"
+    }
+  ]
+}

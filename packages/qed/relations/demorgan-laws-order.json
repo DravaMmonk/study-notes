@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "demorgan",
+    "q-dm"
+  ],
+  "of": "level"
+}

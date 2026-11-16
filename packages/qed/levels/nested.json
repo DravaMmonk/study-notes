@@ -1,6 +1,6 @@
 {
   "title": "@level.nested.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.nested.intro.0.t"

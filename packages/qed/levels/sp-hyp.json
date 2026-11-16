@@ -1,7 +1,7 @@
 {
   "title": "@level.sp-hyp.title",
   "adds": ["hyp"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.sp-hyp.intro.0.t"

@@ -7,7 +7,7 @@
     }
   ],
   "after": "@level.decl-eq.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "decl-eq",

@@ -1,0 +1,9 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "tagging",
+      "to": "forward"
+    }
+  ]
+}

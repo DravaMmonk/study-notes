@@ -1,6 +1,6 @@
 {
   "title": "@level.u-ls.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "after": "@level.u-ls.after",
   "tasks": [
     {

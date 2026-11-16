@@ -1,0 +1,9 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "starter/1-1",
+      "to": "starter/1-2"
+    }
+  ]
+}

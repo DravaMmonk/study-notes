@@ -1,1 +1,1 @@
-{ "order": ["1-1", "1-2"] }
+{ "chapters": [{ "id": 1, "levels": ["starter/1-1", "starter/1-2"] }] }

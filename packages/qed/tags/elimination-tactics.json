@@ -1,0 +1,10 @@
+{
+  "kind": "level",
+  "title": "@group.elimination-tactics.title",
+  "values": [
+    "r-elim",
+    "r-cases",
+    "r-false",
+    "r-exE"
+  ]
+}

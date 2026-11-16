@@ -1,0 +1,16 @@
+{
+  "kind": "order",
+  "sequence": [
+    "mp",
+    "assume",
+    "nested",
+    "box",
+    "chain",
+    "twice",
+    "swap",
+    "mergeUse",
+    "mergeLong",
+    "mergeBoth"
+  ],
+  "of": "level"
+}

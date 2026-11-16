@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "s-barbara",
+      "to": "s-darii"
+    },
+    {
+      "required": true,
+      "from": "s-darii",
+      "to": "s-carroll"
+    }
+  ]
+}

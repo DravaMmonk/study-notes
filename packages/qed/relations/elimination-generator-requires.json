@@ -1,0 +1,20 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "gen-one",
+      "to": "gen-each"
+    },
+    {
+      "required": true,
+      "from": "gen-each",
+      "to": "gen-ex"
+    },
+    {
+      "required": true,
+      "from": "gen-ex",
+      "to": "gen-nat"
+    }
+  ]
+}

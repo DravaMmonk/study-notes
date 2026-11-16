@@ -1,0 +1,21 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "au-negate",
+      "to": "au-iff"
+    },
+    {
+      "from": "au-iff",
+      "to": "au-hyps"
+    },
+    {
+      "from": "au-hyps",
+      "to": "au-skolem"
+    },
+    {
+      "from": "au-skolem",
+      "to": "au-clauses"
+    }
+  ]
+}

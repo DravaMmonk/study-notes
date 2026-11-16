@@ -81,9 +81,9 @@ export function courseDependencies(content) {
     const tasks = Array.isArray(level.tasks) ? level.tasks : [level]
     for (const [index, task] of tasks.entries()) {
       const items = new Set(referenceItems(task))
-      const grants = new Set([...list(task?.grants ?? level.grants), ...list(task?.opens)])
+      const gives = new Set([...list(task?.gives ?? level.gives), ...list(task?.opens)])
       for (const item of items) {
-        if (grants.has(item)) continue
+        if (gives.has(item)) continue
         const all = providers.get(item)
         if (!all?.length) continue
         const earlier = all.filter((provider) => provider.level !== level.id || provider.task < index)

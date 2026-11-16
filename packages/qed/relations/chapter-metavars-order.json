@@ -1,0 +1,31 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/r-match",
+    "qed/r-deep",
+    "qed/r-delete",
+    "qed/r-clash",
+    "qed/r-twice",
+    "qed/r-both",
+    "qed/r-occurs",
+    "qed/r-unifier",
+    "qed/r-rule",
+    "qed/r-pattern",
+    "qed/r-assumption",
+    "qed/r-patterns",
+    "qed/r-subgoals",
+    "qed/r-meta",
+    "qed/r-lemma",
+    "qed/r-elim",
+    "qed/r-cases",
+    "qed/r-false",
+    "qed/r-allI",
+    "qed/r-exI",
+    "qed/r-drule",
+    "qed/r-frule",
+    "qed/r-exE",
+    "qed/r-dist",
+    "qed/r-order"
+  ],
+  "of": "level"
+}

@@ -1,7 +1,7 @@
 {
   "title": "@level.r-clash.title",
   "adds": ["uConflict", "uDecompose"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.r-clash.intro.0.t"

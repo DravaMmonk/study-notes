@@ -1,0 +1,64 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "vision-complete/5-4",
+      "to": "vision-complete/6-1"
+    },
+    {
+      "from": "vision-complete/5-5",
+      "to": "vision-complete/6-1"
+    },
+    {
+      "from": "vision-complete/6-1",
+      "to": "vision-complete/6-2"
+    },
+    {
+      "from": "vision-complete/6-2",
+      "to": "vision-complete/6-3"
+    },
+    {
+      "from": "vision-complete/6-3",
+      "to": "vision-complete/6-4"
+    },
+    {
+      "from": "vision-complete/6-4",
+      "to": "vision-complete/6-5"
+    },
+    {
+      "from": "vision-complete/6-5",
+      "to": "vision-complete/6-6"
+    },
+    {
+      "from": "vision-complete/6-6",
+      "to": "vision-complete/6-7"
+    },
+    {
+      "from": "vision-complete/6-2",
+      "to": "vision-complete/6-9"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/6-9",
+      "to": "vision-complete/6-10"
+    },
+    {
+      "from": "vision-complete/6-7",
+      "to": "vision-complete/6-11"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/6-11",
+      "to": "vision-complete/6-12"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/6-12",
+      "to": "vision-complete/6-13"
+    },
+    {
+      "from": "vision-complete/6-5",
+      "to": "vision-complete/6-8"
+    }
+  ]
+}

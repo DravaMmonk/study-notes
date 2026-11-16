@@ -13,7 +13,7 @@ function describe({ at, path }, content) {
   const file = at.level ? `levels/${at.level}.json` : at.part || at.setting ? 'pieces.json' : at.glossary ? 'glossary.json' : contentFileFor(path)
   const nestedRoot = at.part || at.setting || at.era !== undefined
   const ancestor = nestedRoot && path.length < 2
-  const relative = nestedRoot && !ancestor ? path.slice(2) : file === 'trays.json' ? path.slice(1) : path
+  const relative = nestedRoot && !ancestor ? path.slice(2) : path
   const label = [ancestor ? file : owner ?? file, showPath(relative)].filter(Boolean).join(' · ')
   return { label, title: [file, showPath(path)].filter(Boolean).join(' › ') }
 }

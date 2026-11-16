@@ -11,7 +11,7 @@ import { mapBlueprintNames, parse } from '../circuit/text.js'
 
 const schemas = {
   kinds: { part: { given: {} } },
-  game: S.obj({ title: S.text(), eras: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part')) }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part')) }),
   level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), piece: S.ref('part'), carry: S.level(), solution: S.board() })) }),
 }
 const t = (key, en) => ({ $key: key, en })
@@ -19,11 +19,11 @@ const t = (key, en) => ({ $key: key, en })
 test('file assembly qualifies each layer and keeps the registries independent', () => {
   const source = {
     id: 'demo', packageId: 'library', schemas,
-    game: { title: t('heading', 'Demo'), primitives: ['library/calc'], eras: [{ id: 'chapter', levels: [{ id: 'library/calc' }] }] },
+    game: { title: t('heading', 'Demo'), primitives: ['library/calc'], chapters: [{ id: 'chapter', levels: ['library/calc'] }] },
     levels: [['calc', { title: t('heading', 'Calculate'), tasks: [{ id: 'work', piece: 'calc', carry: 'other/start', solution: ['n = calc()', 'out <- n'] }] }]],
     partDefs: { settings: { calc: { control: 'number', default: 1 } }, parts: { calc: { inputs: [{ name: 'a' }], settings: [{ key: 'value', setting: 'calc' }], compute: 'a' } } },
     glossary: { groups: [{ id: 'calc', title: 'Numbers' }], entries: [{ id: 'calc', group: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
-    groups: [['calc', { title: 'Group', levels: [{ id: 'calc' }] }]],
+    tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }]],
   }
   const before = structuredClone(source)
   const content = assemble(source)
@@ -41,7 +41,8 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.equal(content.glossary.entries[0].group, 'library/calc')
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
   for (const kind of ['level', 'piece', 'setting', 'entry']) assert.ok(content.registries[kind]['library/calc'])
-  for (const kind of ['tag', 'relation', 'layout']) assert.deepEqual(Object.keys(content.registries[kind]), [])
+  assert.ok(content.registries.tag['library/calc'])
+  for (const kind of ['relation', 'layout']) assert.deepEqual(Object.keys(content.registries[kind]), [])
   assert.deepEqual(source, before)
   assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate piece library\/calc/)
   assert.throws(() => createRegistries({ level: [['lib/a', {}], ['lib/a', {}]] }), /duplicate level/)
@@ -78,8 +79,8 @@ test('blueprint tokens accept full names and rewriting preserves quoted formulas
 })
 
 test('item references and audit identities retain the game namespace', () => {
-  const expanded = expandNames({ opens: ['calc.how=minus'], withhold: ['calc'], grants: ['@demo/pin.value'] }, 'library', { pieces: new Set(['calc']) })
-  assert.deepEqual(expanded, { opens: ['library/calc.how=minus'], withhold: ['library/calc'], grants: ['@demo/pin.value'] })
+  const expanded = expandNames({ opens: ['calc.how=minus'], withholds: ['calc'], gives: ['@demo/pin.value'] }, 'library', { pieces: new Set(['calc']) })
+  assert.deepEqual(expanded, { opens: ['library/calc.how=minus'], withholds: ['library/calc'], gives: ['@demo/pin.value'] })
   assert.deepEqual(validate(OPEN, { audit: ['@demo/pin@@demo/start'] }), [])
 })
 

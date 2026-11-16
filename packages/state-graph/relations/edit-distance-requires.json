@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "replace",
+      "to": "edit"
+    },
+    {
+      "required": true,
+      "from": "edit",
+      "to": "spell"
+    }
+  ]
+}

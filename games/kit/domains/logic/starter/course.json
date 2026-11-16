@@ -1,7 +1,12 @@
 {
-  "words": ["everyday"],
-  "primitives": ["gNot", "gAnd"],
-  "eras": [
+  "words": [
+    "everyday"
+  ],
+  "primitives": [
+    "gNot",
+    "gAnd"
+  ],
+  "chapters": [
     {
       "id": "circuits",
       "machine": null,
@@ -9,11 +14,11 @@
         "title": "@course.eras.circuits.chapter.title",
         "question": "@course.eras.circuits.chapter.question"
       },
-      "levels": [{ "id": "g-not" }, { "id": "g-and" }, { "id": "g-or" }, { "id": "g-use" }],
-      "links": [
-        { "from": "g-not", "to": "g-and" },
-        { "from": "g-and", "to": "g-or" },
-        { "from": "g-or", "to": "g-use" }
+      "levels": [
+        "starter/g-not",
+        "starter/g-and",
+        "starter/g-or",
+        "starter/g-use"
       ]
     }
   ]

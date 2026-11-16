@@ -17,7 +17,7 @@ import {
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
 import { groupOf, groupTree, stays } from './groups.js'
-import { addEntry, blankChapter, emptyPlace, moveChapter, moveEntry, moveOnMap, placed, removeEntry } from './course-edit.js'
+import { blankChapter, moveChapter } from './course-edit.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
@@ -100,16 +100,16 @@ test('an edit is the operation that makes it, and edits of one field coalesce', 
   assert.deepEqual(opFor({ level: 'a' }, ['solution'], { set: ['x = add()', 'out <- x'] }, 'board'), { op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()\nout <- x' })
   assert.deepEqual(opFor({ level: 'a' }, ['tests', 0, 'input'], { set: 4 }, 'num'), { op: 'level.set', level: 'a', path: ['tests', 0, 'input'], value: 4 })
   assert.deepEqual(opFor({ level: 'a' }, ['hint'], { unset: true }), { op: 'level.unset', level: 'a', path: ['hint'] })
-  assert.deepEqual(opFor({ game: true }, ['eras', 0, 'title'], { unset: true }), { op: 'game.unset', path: ['eras', 0, 'title'] })
+  assert.deepEqual(opFor({ game: true }, ['chapters', 0, 'title'], { unset: true }), { op: 'game.unset', path: ['chapters', 0, 'title'] })
   assert.deepEqual(opFor({ level: 'a' }, [], { set: { kind: 'hand' } }, 'obj'), { op: 'level.replace', level: 'a', data: { kind: 'hand' } })
   let ops = []
   for (const set of ['乙', '乙丙', '乙丙丁']) ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set, lang: 'zh' }, 'text'))
   assert.deepEqual(ops, [{ op: 'text.set', level: 'a', path: ['title'], lang: 'zh', value: '乙丙丁' }], 'typing into one text is one operation')
   const french = opFor({ level: 'a' }, ['title'], { set: 'Titre', lang: 'fr' }, 'text')
   assert.deepEqual(pushOp(ops, french), [...ops, french], 'different languages are separate pending edits')
-  ops = pushOp(ops, { op: 'level.move', level: 'a', to: { before: 'b' } })
-  ops = pushOp(ops, { op: 'level.move', level: 'a', to: { after: 'b' } })
-  assert.equal(ops.length, 2, 'moving the same level again replaces the move')
+  ops = pushOp(ops, { op: 'relation.set', relation: 'path', path: 'sequence', value: ['a', 'b'] })
+  ops = pushOp(ops, { op: 'relation.set', relation: 'path', path: 'sequence', value: ['b', 'a'] })
+  assert.equal(ops.length, 2, 'editing the same relation again replaces the pending edit')
   ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set: { en: 'Bobs' } }, 'text'))
   assert.equal(ops.length, 3, 'an edit after another operation is a new one')
 })
@@ -124,7 +124,8 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
 })
 
 test('the package sidebar lists each group with a drop place before and after its levels, then the levels in no group', () => {
-  const content = { groups: { g: { title: 'G', levels: [{ id: 'a' }, { id: 'b' }] } }, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] }
+  const tags = { g: { kind: 'level', title: 'G', values: ['a', 'b'] } }
+  const content = { tags, registries: { tag: tags, level: { a: {}, b: {}, c: {} } }, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] }
   const tree = groupTree(content)
   assert.deepEqual(tree.sections.map(({ group, levels, slots }) => [group, levels.map(({ id }) => id), slots]), [
     ['g', ['a', 'b'], [{ group: 'g', at: 0 }, { group: 'g', after: 'a' }, { group: 'g', after: 'b' }]],
@@ -138,29 +139,10 @@ test('the package sidebar lists each group with a drop place before and after it
   assert.equal(groupOf(content, 'c'), null)
 })
 
-test('the game workspace places entries, moves and removes them with their links and map places, and moves levels on the map', () => {
-  const groups = { g: { title: 'G', levels: [{ id: 'a' }, { id: 'b' }] } }
-  const eras = [
-    { id: 1, levels: [{ id: 'x' }, { group: 'g' }], links: [{ from: 'x', to: 'g' }], rows: [['x'], ['a', null, 'b']] },
-    { id: 2, levels: [{ id: 'y' }], links: [{ from: 'g', to: 'y' }] },
-  ]
-  assert.deepEqual([...placed(eras, groups).levels], ['x', 'a', 'b', 'y'])
-  assert.deepEqual(addEntry(eras, 1, { id: 'z' })[1].levels, [{ id: 'y' }, { id: 'z' }])
-  const gone = removeEntry(eras, 'g', groups)
-  assert.deepEqual(gone[0], { id: 1, levels: [{ id: 'x' }], rows: [['x']] })
-  assert.deepEqual(gone[1], { id: 2, levels: [{ id: 'y' }] })
-  const moved = moveEntry(eras, 'g', 1, groups)
-  assert.deepEqual(moved[0], { id: 1, levels: [{ id: 'x' }], rows: [['x']] })
-  assert.deepEqual(moved[1].links, [{ from: 'g', to: 'y' }, { from: 'x', to: 'g' }])
-  assert.deepEqual(moveChapter(eras, 0, 1).map(({ id }) => id), [2, 1])
-  assert.deepEqual(blankChapter(eras, { id: 2, title: 'T', levels: [{ id: 'y' }] }, (fields) => fields), { id: 3, title: 'T', levels: [] })
-  // On the map: into a row before a place, a row of its own, and empty places in and out; a row has three places at most.
-  const rows = [['x'], ['a', null, 'b']]
-  assert.equal(moveOnMap(rows, 'x', { row: 1, slot: 1 }), rows, 'a full row takes no more')
-  assert.deepEqual(moveOnMap(rows, 'b', { row: 0, slot: 0 }), [['b', 'x'], ['a', null]])
-  assert.deepEqual(moveOnMap(rows, 'a', { row: 2, new: true }), [['x'], [null, 'b'], ['a']])
-  assert.deepEqual(emptyPlace([['x']], 0), [['x', null]])
-  assert.deepEqual(emptyPlace(rows, 1, 1), [['x'], ['a', 'b']])
+test('chapter metadata edits preserve level references and detach a copied layout', () => {
+  const chapters = [{ id: 1, levels: ['#pkg/a'] }, { id: 2, levels: ['pkg/b'] }]
+  assert.deepEqual(moveChapter(chapters, 0, 1).map(({ id }) => id), [2, 1])
+  assert.deepEqual(blankChapter(chapters, { ...chapters[1], layout: 'pkg/map', title: 'T' }, (v) => v), { id: 3, title: 'T', levels: [] })
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {

@@ -1,6 +1,6 @@
 {
   "title": "@level.g-iff.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "adds": ["formulaIff"],
   "intro": [
     {

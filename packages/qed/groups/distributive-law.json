@@ -1,4 +1,0 @@
-{
-  "title": "@group.distributive-law.title",
-  "levels": [{ "id": "dist", "optional": true }, { "id": "r-dist", "optional": true }, { "id": "c-dist" }]
-}

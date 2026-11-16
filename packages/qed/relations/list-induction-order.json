@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "in-appnil",
+    "in-appassoc",
+    "in-revapp",
+    "in-revrev",
+    "in-len"
+  ],
+  "of": "level"
+}

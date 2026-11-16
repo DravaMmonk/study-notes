@@ -1,7 +1,7 @@
 {
   "title": "@level.r-both.title",
   "adds": ["uSwap", "uDecompose", "uConflict", "uEliminate"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.r-both.intro.0.t"

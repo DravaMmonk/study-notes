@@ -1,7 +1,7 @@
 {
   "title": "@level.7-11.title",
   "carry": "7-10",
-  "tray": "geometry",
+  "tray": "#geometry",
   "after": "@level.7-11.after",
   "intro": [
     {

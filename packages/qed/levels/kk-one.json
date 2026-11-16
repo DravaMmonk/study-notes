@@ -9,12 +9,12 @@
     }
   ],
   "after": "@level.kk-one.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "kk-one_1",
       "kind": "gates",
-      "tray": ["gates", "formula"],
+      "tray": ["#gates", "#formula"],
       "step": "@level.kk-one.tasks.kk-one_1.step",
       "blind": true,
       "target": "KA ↔ ¬KA",
@@ -25,7 +25,7 @@
     {
       "id": "kk-one_2",
       "kind": "proof",
-      "tray": ["proof", "formula"],
+      "tray": ["#proof", "#formula"],
       "step": "@level.kk-one.tasks.kk-one_2.step",
       "tests": [{ "premises": { "p": "A ↔ ¬A" }, "goal": "⊥" }],
       "cases": [{ "A": "KA" }, { "A": "KC" }],

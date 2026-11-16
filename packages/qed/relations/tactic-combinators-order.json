@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "s-repeat",
+    "s-orelse",
+    "s-mix",
+    "s-try"
+  ],
+  "of": "level"
+}

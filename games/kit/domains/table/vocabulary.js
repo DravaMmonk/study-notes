@@ -6,11 +6,11 @@
 // modes in ui/modes/ (one screen each, ui/LevelScreen.jsx), and the items content calls (figures, conditions, traces,
 // panels, explains) in items/.
 
-import { COURSE_FIELDS } from '../../engine/course-schema.js';
+import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js';
 import { S } from '../../engine/schema.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
-import { taskLevel } from '../../engine/tasks.js';
-import { TRAY, TRAYS } from '../../engine/trays.js';
+import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js';
+import { TRAY } from '../../engine/trays.js';
 import { T as t } from '../../shell/i18n.js';
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) });
@@ -176,7 +176,7 @@ const ONCE = {
   mission: S.obj({ goal: S.text(), how: S.text() }),
   robot: S.opt(S.ref('robot', { about: t('玩这一关电路任务的机器人') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course' })),
   tray: TRAY,
   carry: S.opt(S.level({ about: t('第一个任务从这一关玩家留下的电路板开始（必须是先修）') })),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
@@ -244,19 +244,16 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
-  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
-  eras: S.list(ERA, { min: 1 }),
+  chapters: S.list(ERA, { min: 1 }),
+  ...COURSE_OPTIONS,
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板') })),
 });
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 12,
-  removes: [
-    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
-    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
-  ],
+  version: 14,
+  removes: [{ at: 'level', why: 'Level adds accept item references, including settings and values.' }],
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
     part: PARTS,

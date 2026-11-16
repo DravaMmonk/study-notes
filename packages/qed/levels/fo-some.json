@@ -1,5 +1,5 @@
 {
-  "tray": "formula",
+  "tray": "#formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
   "adds": ["formulaExists"],
   "title": "@level.fo-some.title",

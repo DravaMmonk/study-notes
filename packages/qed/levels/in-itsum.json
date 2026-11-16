@@ -1,6 +1,6 @@
 {
   "title": "@level.in-itsum.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.in-itsum.intro.0.t"

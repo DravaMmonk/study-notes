@@ -1,6 +1,6 @@
 {
   "title": "@level.in-comm.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "tasks": [
     {
       "id": "in-comm",

@@ -1,5 +1,0 @@
-{
-  "title": "@group.threshold-masks.title",
-  "levels": [{ "id": "0-6" }, { "id": "0-7" }, { "id": "9-1" }],
-  "links": [{ "from": "0-6", "to": "0-7" }]
-}

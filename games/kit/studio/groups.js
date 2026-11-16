@@ -1,10 +1,13 @@
-// The package's level groups (../engine/groups.js) as the package workspace reads them: which group holds a level, the
-// tree of groups (each group's levels in its order, then the levels in no group) with the places a dragged level can
-// go, and the operations that put levels there.
+// Project level tags onto the existing sidebar until the object editors replace it.
+import { referenceResolver, relationOrder } from '../engine/objects.js'
 import { sameJson } from '../engine/json-value.js'
 
-/** The group holding `level`, or null. */
-export const groupOf = (content, level) => Object.entries(content.groups ?? {}).find(([, group]) => group.levels.some(({ id }) => id === level))?.[0] ?? null
+/** Read-only sidebar projection of level tags in effective relation order. */
+export const levelTags = (content) => Object.fromEntries(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').map(([name, tag]) => {
+  const expand = referenceResolver(content.registries)
+  return [name, { ...tag, levels: relationOrder(expand(`#${name}`, 'level'), content.relationEdges?.order ?? []).map((id) => ({ id })) }]
+}))
+export const groupOf = (content, level) => Object.entries(levelTags(content)).find(([, tag]) => tag.levels.some(({ id }) => id === level))?.[0] ?? null
 
 /**
  * The tree's sections (`order`: the levels in play order, for those in no group): [{ key, group (null: the levels in no group), levels: [{ id, optional?, skippable? }], slots }],
@@ -12,7 +15,7 @@ export const groupOf = (content, level) => Object.entries(content.groups ?? {}).
  */
 export function groupTree(content, order = []) {
   const grouped = new Set()
-  const sections = Object.entries(content.groups ?? {}).map(([id, group]) => {
+  const sections = Object.entries(levelTags(content)).map(([id, group]) => {
     for (const { id: level } of group.levels) grouped.add(level)
     return { key: id, group: id, levels: group.levels, slots: [{ group: id, at: 0 }, ...group.levels.map(({ id: level }) => ({ group: id, after: level }))] }
   })
@@ -33,8 +36,11 @@ export function stays(tree, level, to) {
   })
 }
 
-/** Levels put together at a place of the tree, in the order given: each group.place after the one before. */
-export function groupMoves(levels, to) {
-  if (to.out) return levels.map((level) => ({ op: 'group.place', level }))
-  return levels.map((level, k) => ({ op: 'group.place', level, to: k === 0 ? to : { group: to.group, after: levels[k - 1] } }))
+/** Update explicit tag membership through the package operation set. */
+export function groupMoves(levels, to, content) {
+  return Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').flatMap(([tag, value]) => {
+    const values = value.values.filter((id) => !levels.includes(id))
+    if (tag === to.group) values.push(...levels)
+    return sameJson(values, value.values) ? [] : [{ op: 'tag.set', tag, path: 'values', value: values }]
+  })
 }

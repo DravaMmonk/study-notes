@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "q-children",
+    "q-grand",
+    "q-none",
+    "q-school"
+  ],
+  "of": "level"
+}

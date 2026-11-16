@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "table",
+      "to": "always"
+    },
+    {
+      "from": "always",
+      "to": "onerow"
+    }
+  ]
+}

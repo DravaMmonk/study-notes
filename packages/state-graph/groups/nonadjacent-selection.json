@@ -1,5 +1,0 @@
-{
-  "title": "@group.nonadjacent-selection.title",
-  "levels": [{ "id": "robber" }, { "id": "ring", "optional": true }],
-  "links": [{ "from": "robber", "to": "ring" }]
-}

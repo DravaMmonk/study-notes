@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "starter/copy",
+    "starter/merge",
+    "starter/stamp",
+    "starter/rocks"
+  ],
+  "of": "level"
+}

@@ -1,6 +1,6 @@
 {
   "title": "@level.q-allAnd.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "tasks": [
     {
       "id": "q-allAnd",

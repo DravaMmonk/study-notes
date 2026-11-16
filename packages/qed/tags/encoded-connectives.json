@@ -1,0 +1,8 @@
+{
+  "kind": "level",
+  "title": "@group.encoded-connectives.title",
+  "values": [
+    "h-and-make",
+    "h-or-make"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "title": "@level.in-distinct.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.in-distinct.intro.0.t"

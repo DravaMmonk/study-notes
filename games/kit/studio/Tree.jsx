@@ -1,8 +1,7 @@
-// The package workspace's tree: level groups, each its levels in its order and their tasks, then the levels in no
-// group. Dragging a level puts it at a place in a group (group.place); dragging a task moves it in or between levels.
+// The package workspace's sidebar projects level tags and the levels outside them.
 import { Fragment, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
-import { groupTree, stays } from './groups.js'
+import { groupTree, levelTags, stays } from './groups.js'
 import SidebarListTools from './SidebarListTools.jsx'
 import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
@@ -169,7 +168,7 @@ export default function Tree({ game, content, order: playOrder = [], at, selecte
         const levels = ids(section).filter((id) => visible.has(id))
         if ((filtering || section.group === null) && !levels.length && !moving) return null
         const shut = folded.has(section.key) && !filtering && !moving
-        const title = section.group === null ? tr('未分组', 'Ungrouped') : L(content.groups[section.group].title) || section.group
+        const title = section.group === null ? tr('未分组', 'Ungrouped') : L(levelTags(content)[section.group].title) || section.group
         return (
           <SidebarSection key={section.key} title={title} name={section.group ?? ''} active={section.group !== null && at?.group === section.group} collapsed={shut}
             onSelect={section.group === null ? undefined : () => onSelect({ group: section.group })} onToggle={() => fold(section.key)}>

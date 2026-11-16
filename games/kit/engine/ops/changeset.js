@@ -1,6 +1,6 @@
 // A changeset: several operations (operations.js) applied to a game together, as one change.
 //
-//   { why?: text, by?: who, ops: [{ op: 'level.move', …its arguments }] }
+//   { why?: text, by?: who, ops: [{ op: 'tag.set', …its arguments }] }
 //
 // `by` says who made the change, as the change log keeps it: a person's hand ('studio', 'cli') or an agent
 // ('agent:<step>:<model>'). What a person changed of what an agent wrote is read from it (games/DIRECTION.md 4).
@@ -16,7 +16,7 @@
 import { expandNames } from '../names.js'
 import { parsePath } from './edit.js'
 import { shapeAt, validate } from '../schema.js'
-import { GROUP } from '../groups.js'
+import { OBJECT_SCHEMAS } from '../objects.js'
 import { PART, PARTS_FILE, SETTING } from '../parts/schema.js'
 import { tasksSchema } from '../tasks.js'
 import { GLOSSARY, checkContent } from '../vocabulary.js'
@@ -87,7 +87,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = ['level', 'piece', 'part', 'setting', 'entry', 'group', 'task', 'to', 'after']
+  const selectors = ['level', 'piece', 'part', 'setting', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const source = (value, schema) => expandNames(value, ws.packageId, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
   const args = source(selected, OPERATIONS[operation].params)
@@ -95,25 +95,28 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     const path = parsePath(args.path)
     if (['parts', 'settings'].includes(path[0]) && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
   }
-  if (args.to?.group) args.to = { ...args.to, group: local(args.to.group) }
   const targets = {
     level: [vocabulary.level, ws.levels.get(args.level)],
     task: [tasksSchema(vocabulary), undefined],
     glossary: [operation === 'glossary.replace' ? GLOSSARY : GLOSSARY.fields.entries.of, undefined],
-    game: [vocabulary.game, ws.game],
-    group: [GROUP, ws.groups.get(args.group)],
+    game: [undefined, ws.game],
+    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
     piece: [PART, ws.partDefs?.parts?.[args.piece]],
     pieces: [PARTS_FILE, ws.partDefs],
     setting: [SETTING, ws.partDefs?.settings?.[args.setting]],
   }
   const [schema, base] = targets[operation.split('.')[0]] ?? []
+  if (operation.startsWith('game.') && args.value !== undefined && args.path !== undefined) {
+    const gameSchema = shapeAt(vocabulary.game, ws.game, parsePath(args.path), { vocabulary })
+    args.value = expandNames(supplied.value, `@${ws.id}`, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema: gameSchema, vocabulary, textKeys: false })
+  }
   if (schema) {
     if (args.data) {
-      args.data = source(args.data, schema)
+      args.data = source(supplied.data, schema)
       if (args.data.id) args.data = { ...args.data, id: local(args.data.id) }
     }
     if (args.fields) args.fields = source(args.fields, schema)
-    if (base && args.value !== undefined && args.path !== undefined) args.value = source(args.value, shapeAt(schema, base, parsePath(args.path), { vocabulary }))
+    if (base && args.value !== undefined && args.path !== undefined) args.value = source(supplied.value, shapeAt(schema, base, parsePath(args.path), { vocabulary }))
   }
   if (operation.startsWith('text.') && typeof args.value === 'string') args.value = source(args.value, { type: 'text' })
   if (operation === 'level.blueprint' && typeof args.text === 'string') args.text = source(args.text.split('\n'), { type: 'board' }).join('\n')

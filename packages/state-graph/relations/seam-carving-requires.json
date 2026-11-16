@@ -1,0 +1,20 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "seamline",
+      "to": "seamslant"
+    },
+    {
+      "required": true,
+      "from": "seamslant",
+      "to": "seam"
+    },
+    {
+      "required": true,
+      "from": "seam",
+      "to": "carve"
+    }
+  ]
+}

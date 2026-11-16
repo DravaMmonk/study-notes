@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "r-elim",
+    "r-cases",
+    "r-false",
+    "r-exE"
+  ],
+  "of": "level"
+}

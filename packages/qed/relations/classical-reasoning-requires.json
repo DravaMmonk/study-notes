@@ -1,0 +1,42 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "c-wall",
+      "to": "raa"
+    },
+    {
+      "from": "raa",
+      "to": "byContra"
+    },
+    {
+      "from": "raa",
+      "to": "lemCases"
+    },
+    {
+      "from": "raa",
+      "to": "s-lem"
+    },
+    {
+      "from": "byContra",
+      "to": "c-dneg"
+    },
+    {
+      "from": "lemCases",
+      "to": "c-dneg"
+    },
+    {
+      "from": "s-lem",
+      "to": "c-dneg"
+    },
+    {
+      "required": true,
+      "from": "c-contra",
+      "to": "c-either"
+    },
+    {
+      "from": "lemCases",
+      "to": "peirce"
+    }
+  ]
+}

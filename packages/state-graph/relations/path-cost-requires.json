@@ -1,0 +1,17 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "cheapest",
+      "to": "slantcost"
+    },
+    {
+      "from": "slantcost",
+      "to": "maxcoins"
+    },
+    {
+      "from": "maxcoins",
+      "to": "pits"
+    }
+  ]
+}

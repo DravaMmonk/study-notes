@@ -1,5 +1,0 @@
-{
-  "title": "@group.detection-ap.title",
-  "levels": [{ "id": "10-6" }, { "id": "10-7" }, { "id": "10-8" }],
-  "links": [{ "from": "10-6", "to": "10-7" }, { "from": "10-7", "to": "10-8" }]
-}

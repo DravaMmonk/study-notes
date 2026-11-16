@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "def-max",
+    "sp-cond",
+    "sp-hyp",
+    "sort-if"
+  ],
+  "of": "level"
+}

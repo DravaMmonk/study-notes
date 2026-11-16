@@ -1,0 +1,67 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/pits",
+      "to": "state-graph/stairs"
+    },
+    {
+      "from": "state-graph/stairs",
+      "to": "state-graph/order"
+    },
+    {
+      "from": "state-graph/stairs",
+      "to": "state-graph/nim"
+    },
+    {
+      "from": "state-graph/order",
+      "to": "state-graph/link"
+    },
+    {
+      "from": "state-graph/nim",
+      "to": "state-graph/link"
+    },
+    {
+      "from": "state-graph/link",
+      "to": "state-graph/lcs"
+    },
+    {
+      "from": "state-graph/lcs",
+      "to": "state-graph/palin"
+    },
+    {
+      "from": "state-graph/palin",
+      "to": "state-graph/brokenstairs"
+    },
+    {
+      "from": "state-graph/palin",
+      "to": "state-graph/lps"
+    },
+    {
+      "from": "state-graph/lcs",
+      "to": "state-graph/replace"
+    },
+    {
+      "required": true,
+      "from": "state-graph/replace",
+      "to": "state-graph/edit"
+    },
+    {
+      "required": true,
+      "from": "state-graph/edit",
+      "to": "state-graph/spell"
+    },
+    {
+      "from": "state-graph/nim",
+      "to": "state-graph/parity"
+    },
+    {
+      "from": "state-graph/lcs",
+      "to": "state-graph/localalign"
+    },
+    {
+      "from": "state-graph/nim",
+      "to": "state-graph/piles"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "title": "@level.e-two.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "tasks": [
     {
       "id": "e-two",

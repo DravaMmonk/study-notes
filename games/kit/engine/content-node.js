@@ -3,6 +3,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fromSnapshot } from './vocabulary.js'
 import { assemble, combineConfiguration, overridesOf } from './content.js'
+import { GLOSSARY } from './vocabulary.js'
+import { PARTS_FILE } from './parts/schema.js'
+import { OBJECT_SCHEMAS } from './objects.js'
+import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { catalogReader } from './catalogs.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
@@ -47,11 +51,10 @@ export function splitGameConfig({ package: packageId, ...game }, root = PROJECT_
 export const configPaths = (gameDir, packageDir) => ({
   'package.json': resolve(packageDir, 'package.json'),
   'course.json': resolve(gameDir, 'course.json'),
-  'trays.json': resolve(packageDir, 'trays.json'),
 })
 
 function configuration(paths) {
-  return Object.fromEntries(Object.entries(paths).map(([file, path]) => [file, file === 'trays.json' && !existsSync(path) ? undefined : json(path)]))
+  return Object.fromEntries(Object.entries(paths).map(([file, path]) => [file, json(path)]))
 }
 
 export function readGameConfig(id, root = PROJECT_DIR) {
@@ -61,10 +64,17 @@ export function readGameConfig(id, root = PROJECT_DIR) {
   return { ...location, files, game: combineConfiguration(files) }
 }
 
-/** The level groups of a content package (./groups.js), [[id, path]]. */
-export function groupFiles(packageDir) {
-  const folder = resolve(packageDir, 'groups')
-  return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => [f.slice(0, -'.json'.length), resolve(folder, f)]) : []
+/** Named objects declared by a package or game layer, [[name, path]]. */
+export function objectFiles(dir, kind) {
+  const folder = resolve(dir, kind)
+  return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => [f.slice(0, -5), resolve(folder, f)]) : []
+}
+
+/** Games arrange package objects and cannot declare objects of their own. */
+export function gameDeclarationProblems(gameDir) {
+  return ['levels', 'pieces', 'pieces.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'layouts', 'groups', 'trays.json']
+    .filter((name) => existsSync(resolve(gameDir, name)))
+    .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
 }
 
 /** The level files of a content package, [[id, path]]. */
@@ -94,16 +104,20 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
   const packageCatalogs = readCatalogs(packageLocales)
   const overrides = overrideLocales ? readCatalogs(overrideLocales) : {}
   const packageText = catalogReader(overlay(packageCatalogs, overrides), packageLocales)
-  const read = (reader, path) => reader(json(path), path)
+  const schemas = vocabulary ?? contentVocabulary(files['package.json'].domain)
+  const read = (reader, path, schema) => reader(json(path), path, schema, schemas)
   const ownText = (file) => (file === 'game.json' || file === 'course.json' ? courseText : packageText)
   return assemble({
-    id, packageId, courseNamespace, schemas: vocabulary ?? contentVocabulary(files['package.json'].domain),
-    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file)]))),
-    levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file)]),
-    groups: groupFiles(packageDir).map(([groupId, file]) => [groupId, read(packageText, file)]),
-    glossary: read(packageText, resolve(packageDir, 'glossary.json')),
-    partDefs: existsSync(parts) ? read(packageText, parts) : undefined,
-    blueprint: existsSync(blueprint) ? read(courseText, blueprint) : undefined,
+    id, packageId, courseNamespace, schemas,
+    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file, schemas.game, schemas)]))),
+    levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
+    ...Object.fromEntries(['tags', 'relations', 'layouts'].map((kind) => [kind, [
+      ...objectFiles(packageDir, kind).map(([name, file]) => [name, read(packageText, file, OBJECT_SCHEMAS[kind]), packageId]),
+    ]])),
+    declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
+    glossary: read(packageText, resolve(packageDir, 'glossary.json'), GLOSSARY),
+    partDefs: existsSync(parts) ? read(packageText, parts, PARTS_FILE) : undefined,
+    blueprint: existsSync(blueprint) ? read(courseText, blueprint, BLUEPRINT) : undefined,
     overridden: overridesOf(packageCatalogs, overrides),
     fromDisk: true,
   })

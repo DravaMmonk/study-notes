@@ -39,7 +39,7 @@ export default function Editor({ side, content, base, vocab, at, picked, field, 
   if (at?.part !== undefined || at?.setting !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove, onRemoveLevel }} />
-  if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
+  if (at?.era !== undefined && content.chapters?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
   return <GameEditor {...common} side={side} content={content} base={base} />
 }
 
@@ -138,11 +138,11 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
 }
 
 function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, onEdit, onPick, onCopy }) {
-  const era = content.eras[e]
+  const era = content.chapters[e]
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
-  const eraSchema = vocabulary.game.fields.eras.of
+  const eraSchema = vocabulary.game.fields.chapters.of
   // The era's own fields, with the course placement folded away.
-  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course)) }, era, { vocabulary, levels: order }, ['eras', e])
+  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course)) }, era, { vocabulary, levels: order }, ['chapters', e])
   return (
     <article className="editor">
       <header className="editor-head">
@@ -161,11 +161,11 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, 
 
 // The configuration a workspace edits (games/DESIGN.md 6.7): the package's (package.json, its trays), or the game's
 // (game.json, its course's settings; the chapters have their own board).
-const SIDE_FILES = { package: ['package.json', 'trays.json'], game: ['game.json', 'course.json'] }
+const SIDE_FILES = { package: ['package.json'], game: ['game.json', 'course.json'] }
 
 function GameEditor({ side, content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
   const { domain, vocabulary: version, open } = content
-  const shows = (k) => k !== 'eras' && SIDE_FILES[side].includes(contentFileFor([k]))
+  const shows = (k) => k !== 'chapters' && SIDE_FILES[side].includes(contentFileFor([k]))
   const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => shows(k)))
   const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => shows(k))) }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })

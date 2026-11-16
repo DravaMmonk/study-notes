@@ -1,0 +1,8 @@
+{
+  "kind": "item",
+  "title": "@tray.trays.machine.items.lists.title",
+  "values": [
+    "consFront",
+    "eachOf"
+  ]
+}

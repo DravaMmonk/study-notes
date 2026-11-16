@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "s-intro",
+      "to": "s-elim"
+    },
+    {
+      "from": "s-elim",
+      "to": "s-auto"
+    }
+  ]
+}

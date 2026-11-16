@@ -1,5 +1,0 @@
-{
-  "title": "@group.logical-normal-forms.title",
-  "levels": [{ "id": "sp-nnf" }, { "id": "sp-cnf" }, { "id": "sp-order" }],
-  "links": [{ "from": "sp-nnf", "to": "sp-cnf" }, { "from": "sp-cnf", "to": "sp-order" }]
-}

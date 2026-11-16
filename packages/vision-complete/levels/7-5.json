@@ -1,6 +1,6 @@
 {
   "title": "@level.7-5.title",
-  "tray": "geometry",
+  "tray": "#geometry",
   "after": "@level.7-5.after",
   "intro": [
     {
@@ -15,7 +15,7 @@
     }
   ],
   "unlocks": ["wrap"],
-  "grants": ["wrap"],
+  "gives": ["vision-complete/shift.border=wrap"],
   "tasks": [
     {
       "id": "7-5",

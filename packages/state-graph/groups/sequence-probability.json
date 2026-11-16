@@ -1,5 +1,0 @@
-{
-  "title": "@group.sequence-probability.title",
-  "levels": [{ "id": "tagging" }, { "id": "forward" }],
-  "links": [{ "from": "tagging", "to": "forward" }]
-}

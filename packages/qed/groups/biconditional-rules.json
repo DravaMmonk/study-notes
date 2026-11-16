@@ -1,4 +1,0 @@
-{
-  "title": "@group.biconditional-rules.title",
-  "levels": [{ "id": "decl-iff", "optional": true }, { "id": "iffUse" }]
-}

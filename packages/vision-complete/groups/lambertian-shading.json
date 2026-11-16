@@ -1,5 +1,0 @@
-{
-  "title": "@group.lambertian-shading.title",
-  "levels": [{ "id": "3-1" }, { "id": "3-2" }, { "id": "3-3" }, { "id": "3-4" }],
-  "links": [{ "from": "3-1", "to": "3-2" }, { "from": "3-2", "to": "3-3" }, { "from": "3-3", "to": "3-4" }]
-}

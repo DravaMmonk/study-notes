@@ -3,7 +3,7 @@
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
 // the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture
 // it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { defineCourse, eraLevels, holds, itemOf, offer, reach, readItem } from '../../course.js'
+import { defineCourse, eraLevels, holds, offer, reach, readItem } from '../../course.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { keptBoards } from '../../engine/kept-boards.js'
@@ -73,8 +73,8 @@ function playable({ intro: _, ...task }, kit, keep) {
  * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level
  * names only the parts it brings in (`adds`) and the tray it plays with (`tray`): every part met or built before it
  * carries into it, as far as its tray lists it; see ../../course.js reach and offer. What a task unlocks, the tasks after it hold at once (`opens`); a
- * level that shows a new part alone says why (`showcase`). A flag a level unlocks, gives for itself (`grants`) or
- * keeps from a task (`withhold`) stands for every item that needs it (engine/nodes.js `unlock`: a part, one of its
+ * level that shows a new part alone says why (`showcase`). A flag a level unlocks, gives for itself (`gives`) or
+ * keeps from a task (`withholds`) stands for every item that needs it (engine/nodes.js `unlock`: a part, one of its
  * settings, one option of a choice); what a task holds of them is the kernel's rule (../../course.js holds).
  * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn(level, flags), holdsIn(level, flags),
  * syncOwn(built), blueprints }: each of LEVELS the fields its level says once, its place in the course and its
@@ -168,18 +168,12 @@ export function imageCourse(config) {
     const param = types[part]?.params?.find((p) => p.key === key)
     return (value === undefined ? param?.unlock : param?.options?.find((o) => String(o[0]) === value)?.[2]) ?? null
   }
-  // Every item that needs one of some flags.
-  const needing = new Map()
-  for (const [type, spec] of Object.entries(types)) {
-    const items = [type, ...(spec.params ?? []).flatMap((p) => [itemOf(type, p.key), ...(p.options ?? []).map((o) => itemOf(type, p.key, String(o[0])))])]
-    for (const item of items) if (flagOf(item)) needing.set(flagOf(item), [...(needing.get(flagOf(item)) ?? []), item])
-  }
-  const itemsFor = (flags = []) => flags.flatMap((flag) => needing.get(flag) ?? [])
   // The flags a level's tasks up to task k have unlocked by then; its last task's passing unlocks the level's own.
   const unlockedBy = (level, k) => [...level.tasks.slice(0, k + 1).flatMap((task) => [...task.opens, ...(published.get(task.key) ?? [])]), ...(k === level.tasks.length - 1 ? level.levelUnlocks : [])]
   // Every task's answer counts: a part only the first task of a level uses is used.
   const answers = (l) => placedById[l.id].tasks.filter((task, k) => l.task === undefined || l.task === k).map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
+    complete: config.levels.every((level) => plan.place.has(level.id)),
     levels: placed.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
     plan,
@@ -190,8 +184,9 @@ export function imageCourse(config) {
     adds: (l) => placedById[l.id].adds,
     needs: flagOf,
     builds: (l) => partsFor(l.task === undefined ? placedById[l.id].unlocks : unlockedBy(placedById[l.id], l.task)),
-    gives: (l) => itemsFor(placedById[l.id].grants),
-    withholds: (l) => itemsFor(placedById[l.id].tasks[l.task]?.withhold),
+    gives: (l) => [...(content[l.id].gives ?? []), ...(content[l.id].tasks[l.task]?.gives ?? [])],
+    withholds: (l) => content[l.id].tasks[l.task]?.withholds ?? [],
+    opens: (l) => content[l.id].tasks.flatMap((task, i) => l.task === undefined || i <= l.task ? task.opens ?? [] : []),
     replaces: (p) => replaces[p] ?? [],
     featured: (l) => [...(content[l.id].featuredParts ?? []), ...(content[l.id].tasks[l.task]?.featuredParts ?? [])],
     needed: (l) => (answers(l).length ? answers(l).flatMap((s) => s.nodes.map((n) => n.type)) : null),

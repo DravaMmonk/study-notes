@@ -1,6 +1,6 @@
 {
   "title": "@level.q-none.title",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "q-none",

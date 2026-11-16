@@ -1,6 +1,6 @@
 {
   "title": "@level.q-trans.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "tasks": [
     {
       "id": "q-trans",

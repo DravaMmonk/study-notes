@@ -1,0 +1,55 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "vision-complete/0-1",
+      "to": "vision-complete/0-2"
+    },
+    {
+      "from": "vision-complete/0-2",
+      "to": "vision-complete/0-3"
+    },
+    {
+      "from": "vision-complete/0-1",
+      "to": "vision-complete/0-4"
+    },
+    {
+      "from": "vision-complete/0-4",
+      "to": "vision-complete/0-5"
+    },
+    {
+      "from": "vision-complete/0-5",
+      "to": "vision-complete/0-6"
+    },
+    {
+      "from": "vision-complete/0-3",
+      "to": "vision-complete/0-7"
+    },
+    {
+      "from": "vision-complete/0-6",
+      "to": "vision-complete/0-7"
+    },
+    {
+      "from": "vision-complete/0-7",
+      "to": "vision-complete/0-8"
+    },
+    {
+      "from": "vision-complete/0-7",
+      "to": "vision-complete/0-10"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/0-10",
+      "to": "vision-complete/0-11"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/0-11",
+      "to": "vision-complete/0-12"
+    },
+    {
+      "from": "vision-complete/0-7",
+      "to": "vision-complete/0-9"
+    }
+  ]
+}

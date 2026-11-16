@@ -1,6 +1,6 @@
 {
   "title": "@level.sort-ins.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.sort-ins.intro.0.t"

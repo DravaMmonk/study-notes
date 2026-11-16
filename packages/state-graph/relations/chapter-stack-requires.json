@@ -1,0 +1,47 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/parse",
+      "to": "state-graph/robber"
+    },
+    {
+      "from": "state-graph/change",
+      "to": "state-graph/robber"
+    },
+    {
+      "from": "state-graph/robber",
+      "to": "state-graph/breach"
+    },
+    {
+      "from": "state-graph/breach",
+      "to": "state-graph/keydoor"
+    },
+    {
+      "from": "state-graph/keydoor",
+      "to": "state-graph/stock1"
+    },
+    {
+      "from": "state-graph/stock1",
+      "to": "state-graph/cooldown"
+    },
+    {
+      "from": "state-graph/keydoor",
+      "to": "state-graph/twokeys"
+    },
+    {
+      "required": true,
+      "from": "state-graph/twokeys",
+      "to": "state-graph/threekeys"
+    },
+    {
+      "required": true,
+      "from": "state-graph/threekeys",
+      "to": "state-graph/enough"
+    },
+    {
+      "from": "state-graph/robber",
+      "to": "state-graph/ring"
+    }
+  ]
+}

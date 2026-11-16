@@ -1,6 +1,6 @@
 {
   "title": "@level.sp-cnf.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.sp-cnf.intro.0.t"

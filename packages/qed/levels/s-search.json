@@ -1,7 +1,7 @@
 {
   "title": "@level.s-search.title",
   "adds": ["search"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.s-search.intro.0.t"

@@ -1,0 +1,23 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/c-wall",
+    "qed/raa",
+    "qed/byContra",
+    "qed/lemCases",
+    "qed/s-lem",
+    "qed/c-dneg",
+    "qed/demorgan",
+    "qed/c-arrow",
+    "qed/q-dm",
+    "qed/c-dist",
+    "qed/kk-one",
+    "qed/kk-two",
+    "qed/kk-three",
+    "qed/c-contra",
+    "qed/c-either",
+    "qed/peirce",
+    "qed/drinker"
+  ],
+  "of": "level"
+}

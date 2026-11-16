@@ -1,0 +1,13 @@
+{
+  "kind": "order",
+  "sequence": [
+    "r-rule",
+    "r-assumption",
+    "r-subgoals",
+    "r-meta",
+    "r-lemma",
+    "r-allI",
+    "r-exI"
+  ],
+  "of": "level"
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "order",
+  "sequence": [
+    "vision-complete/4-1",
+    "vision-complete/4-2",
+    "vision-complete/4-3",
+    "vision-complete/4-4",
+    "vision-complete/4-5",
+    "vision-complete/4-7",
+    "vision-complete/4-11",
+    "vision-complete/4-6",
+    "vision-complete/4-8",
+    "vision-complete/4-12",
+    "vision-complete/4-9",
+    "vision-complete/4-13",
+    "vision-complete/4-10",
+    "vision-complete/4-14",
+    "vision-complete/4-15",
+    "vision-complete/4-16",
+    "vision-complete/4-17",
+    "vision-complete/4-18",
+    "vision-complete/4-19",
+    "vision-complete/4-20",
+    "vision-complete/4-21"
+  ],
+  "of": "level"
+}

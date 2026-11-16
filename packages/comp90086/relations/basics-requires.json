@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "projection",
+      "to": "separable"
+    },
+    {
+      "from": "separable",
+      "to": "sinusoid"
+    }
+  ]
+}

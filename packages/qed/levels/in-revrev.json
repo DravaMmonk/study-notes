@@ -1,6 +1,6 @@
 {
   "title": "@level.in-revrev.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "after": "@level.in-revrev.after",
   "tasks": [
     {

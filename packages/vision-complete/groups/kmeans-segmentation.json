@@ -1,5 +1,0 @@
-{
-  "title": "@group.kmeans-segmentation.title",
-  "levels": [{ "id": "9-2" }, { "id": "9-3" }],
-  "links": [{ "from": "9-2", "to": "9-3" }]
-}

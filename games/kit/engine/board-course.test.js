@@ -56,7 +56,7 @@ test('a task gives and withholds a value for itself alone, and its answer keeps 
     level('three', [three], { tasks: [{ ...three, opens: ['calc.how=minus'] }] }),
     level('four', [task('four', differences, 'minus')]),
   ]
-  const read = course(levels(task('two', differences, 'minus', { grants: ['calc.how=minus'] }), task('three', differences, 'minus')))
+  const read = course(levels(task('two', differences, 'minus', { gives: ['calc.how=minus'] }), task('three', differences, 'minus')))
   const has = (id) => read.holdsIn(read.played.get(id)[0], [])
   // Two is given the way to subtract before three brings it in; one has not got it.
   assert.deepEqual(['one', 'two', 'three', 'four'].map((id) => has(id)('calc', 'how', 'minus')), [false, true, true, true])
@@ -67,16 +67,16 @@ test('a task gives and withholds a value for itself alone, and its answer keeps 
     level('two', [task('two-a', differences, 'minus'), task('two-b', differences, 'minus', { opens: ['calc.how=minus'] })]),
   ])
   assert.match(failures(premature).join('\n'), /two: .*sets calc’s how to minus, which the level does not hold/)
-  const kept = course([...levels(task('two', sums, 'plus'), task('three', differences, 'minus')).slice(0, 3), level('four', [task('four', sums, 'plus', { withhold: ['calc.how=minus'] })])])
+  const kept = course([...levels(task('two', sums, 'plus'), task('three', differences, 'minus')).slice(0, 3), level('four', [task('four', sums, 'plus', { withholds: ['calc.how=minus'] })])])
   assert.deepEqual([kept.holdsIn(kept.played.get('four')[0], [])('calc', 'how', 'minus'), kept.holdsIn(kept.played.get('four')[0], [])('calc', 'how', 'plus')], [false, true])
   assert.deepEqual(failures(kept), [])
 })
 
 test('an item a task names is one of the game’s: a part, a setting of several values, a value of it', () => {
-  const read = course([level('one', [task('one', sums, 'plus', { withhold: ['gone'], grants: ['calc.speed'], opens: ['calc.how=times', 'calc'] })], { adds: ['calc'] })])
+  const read = course([level('one', [task('one', sums, 'plus', { withholds: ['gone'], gives: ['calc.speed'], opens: ['calc.how=times', 'calc'] })], { adds: ['calc'] })])
   assert.deepEqual(read.wrong, [
-    'one: withhold names gone: gone is no part',
-    'one: grants names calc.speed: calc has no setting speed of several values',
+    'one: withholds names gone: gone is no part',
+    'one: gives names calc.speed: calc has no setting speed of several values',
     'one: opens names calc.how=times: times is no value of calc’s how',
     'one: it opens calc, a part: a part is brought in by adds',
   ])

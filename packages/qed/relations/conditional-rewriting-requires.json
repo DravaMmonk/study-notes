@@ -1,0 +1,9 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "def-max",
+      "to": "sp-cond"
+    }
+  ]
+}

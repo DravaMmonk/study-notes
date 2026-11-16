@@ -1,0 +1,9 @@
+{
+  "kind": "level",
+  "title": "@group.word-segmentation.title",
+  "values": [
+    "wordbreak",
+    "wordcost",
+    "segment"
+  ]
+}

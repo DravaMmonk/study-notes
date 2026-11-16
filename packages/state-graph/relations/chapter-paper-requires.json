@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/trace",
+      "to": "state-graph/lastStep"
+    },
+    {
+      "from": "state-graph/lastStep",
+      "to": "state-graph/city"
+    }
+  ]
+}

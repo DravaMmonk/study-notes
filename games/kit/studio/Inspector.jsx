@@ -225,8 +225,7 @@ function longConfig(value) {
 /** Breadcrumbs always start at the original JSON file. */
 function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove, inUse }) {
   const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : contentFileFor(path)
-  const start = name === 'trays.json' ? ['trays'] : []
-  const atRoot = path.length === start.length
+  const atRoot = path.length === 0
   const canOpenRoot = !['course.json', 'package.json'].includes(name)
   const jsonLabel = tr('JSON 源码', 'JSON source')
   const pinLabel = tr('固定配置标签页', 'Pin configuration tab')
@@ -235,10 +234,9 @@ function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, on
       <button type="button" className="insp-pin" onClick={onPin} disabled={!onPin} aria-pressed={pinned}
         aria-label={pinLabel} title={pinned ? tr('取消固定', 'Unpin tab') : pinLabel}><Pin size={13} aria-hidden="true" /></button>
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick(start)} disabled={atRoot || !canOpenRoot}
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={atRoot || !canOpenRoot}
           aria-current={atRoot ? 'location' : undefined} title={atRoot ? about : undefined}>{name}</button>
         {trail.map((k, i) => {
-          if (i < start.length) return null
           const at = trail.slice(0, i + 1)
           const current = at.length === path.length
           return (

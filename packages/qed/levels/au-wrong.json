@@ -1,6 +1,6 @@
 {
   "adds": ["replay", "clausify"],
-  "tray": ["certificate", "formula"],
+  "tray": ["#certificate", "#formula"],
   "title": "@level.au-wrong.title",
   "intro": [
     {

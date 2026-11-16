@@ -1,5 +1,0 @@
-{
-  "title": "@group.hough-voting.title",
-  "levels": [{ "id": "6-9", "optional": true }, { "id": "6-10", "optional": true }],
-  "links": [{ "required": true, "from": "6-9", "to": "6-10" }]
-}

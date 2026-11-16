@@ -1,6 +1,6 @@
 {
   "title": "@level.and.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.and.intro.0.t"

@@ -1,0 +1,20 @@
+{
+  "kind": "order",
+  "sequence": [
+    "state-graph/stairs",
+    "state-graph/order",
+    "state-graph/nim",
+    "state-graph/link",
+    "state-graph/lcs",
+    "state-graph/palin",
+    "state-graph/brokenstairs",
+    "state-graph/lps",
+    "state-graph/replace",
+    "state-graph/edit",
+    "state-graph/spell",
+    "state-graph/parity",
+    "state-graph/localalign",
+    "state-graph/piles"
+  ],
+  "of": "level"
+}

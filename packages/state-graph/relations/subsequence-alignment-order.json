@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "link",
+    "lcs"
+  ],
+  "of": "level"
+}

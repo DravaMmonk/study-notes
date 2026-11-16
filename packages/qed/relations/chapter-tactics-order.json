@@ -1,0 +1,21 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/s-repeat",
+    "qed/s-defer",
+    "qed/s-orelse",
+    "qed/s-results",
+    "qed/s-mix",
+    "qed/s-try",
+    "qed/s-append",
+    "qed/s-intro",
+    "qed/s-search",
+    "qed/s-elim",
+    "qed/s-auto",
+    "qed/pl-grand",
+    "qed/pl-anc",
+    "qed/pl-order",
+    "qed/s-loop"
+  ],
+  "of": "level"
+}

@@ -1,0 +1,11 @@
+{
+  "kind": "order",
+  "sequence": [
+    "pack",
+    "knaptable",
+    "knapmany",
+    "knapmix",
+    "roll"
+  ],
+  "of": "level"
+}

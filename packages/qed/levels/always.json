@@ -10,7 +10,7 @@
     }
   ],
   "after": "@level.always.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "always",

@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "comp90086/projection",
+      "to": "comp90086/separable"
+    },
+    {
+      "from": "comp90086/separable",
+      "to": "comp90086/sinusoid"
+    }
+  ]
+}

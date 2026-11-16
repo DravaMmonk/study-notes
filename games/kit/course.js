@@ -131,12 +131,13 @@ export function dependencyLayers(ids, requires) {
 
 /**
  * A chapter's map, row by row (games/DESIGN.md 2.5): each row at most three places, a level or an empty one (null).
- * `saved`, the chapter's own rows (course.json `rows`), stays as it is, less the levels not on this map; every other
+ * The selected package layout's rows stay as authored, less the levels not on this map; every other
  * level is laid out by the map's rules around it: one layer of the prerequisite graph at a time, in rows of up to
  * three after the rows of the layers before it, below each of its prerequisites and above every saved level that needs
  * it (a row put in pushes the rows under it down). Returns { at: id → { row, col } (col 0 is the middle), rows }.
  */
-export function mapRows(ids, requires, saved = []) {
+export function mapRows(ids, requires, selectedLayout = null) {
+  const saved = selectedLayout?.rows ?? []
   const known = new Set(ids)
   const local = new Map(ids.map((id) => [id, (requires.get(id) ?? []).filter((from) => known.has(from))]))
   const rows = []
@@ -226,7 +227,11 @@ export function dependencyCycle(requires) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false }) {
+export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false }) {
+  // Settings brought by adds open along the route, while piece consumers keep receiving only pieces.
+  const brought = adds, opened = opens
+  adds = (level) => brought(level).filter(isPartItem)
+  opens = (level) => [...opened(level), ...brought(level).filter((item) => !isPartItem(item))]
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -253,7 +258,7 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, t
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, complete, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -494,6 +499,7 @@ export function againstOpen(found, open = {}) {
 
 /** Tray entries describe real course pieces, regardless of where players first meet those pieces. */
 function trayRules(course, say) {
+  if (course.complete === false) return
   const met = new Set(course.levels.flatMap((level) => [...course.adds(level), ...course.builds(level)]))
   for (const [name, entries] of Object.entries(course.trays)) for (const p of trayMembers(entries)) {
     if (!met.has(p)) say('tray-unmet', '', p, `tray ${name} lists it, and no level brings it in or builds it`)

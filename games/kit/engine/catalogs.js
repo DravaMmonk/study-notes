@@ -1,3 +1,5 @@
+import { find } from './schema.js'
+import { getAt, setAt } from './ops/edit.js'
 import { isLanguageCode, isText, isTextKey, textEntries, textKey, withTextKey } from './i18n.js'
 
 export const textReference = (key) => `@${key}`
@@ -39,9 +41,20 @@ export function catalogReader(catalogs, scope = 'i18n') {
       byKey.get(key)[lang] = text
     }
   }
-  return (value, file = scope) => resolveReferences(value, (key) => {
-    const text = byKey.get(key)
-    if (!text) throw new Error(`${file}: ${textReference(key)} has no entry in ${scope}`)
-    return withTextKey(text, key)
-  })
+  return (value, file = scope, schema = null, vocabulary) => {
+    const resolve = (key) => {
+      const text = byKey.get(key)
+      if (!text) throw new Error(`${file}: ${textReference(key)} has no entry in ${scope}`)
+      return withTextKey(text, key)
+    }
+    if (!schema) return resolveReferences(value, resolve)
+    let resolved = value
+    for (const { path } of find(schema, value, 'text', { vocabulary })) {
+      const text = getAt(value, path)
+      if (text && typeof text === 'object' && Object.hasOwn(text, '$key')) throw new Error('Use an @key catalog reference for configuration text')
+      const key = referenceKey(text)
+      if (key) resolved = path.length ? setAt(resolved, path, resolve(key)) : resolve(key)
+    }
+    return resolved
+  }
 }

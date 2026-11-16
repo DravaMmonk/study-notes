@@ -1,0 +1,11 @@
+{
+  "kind": "level",
+  "title": "@group.clausification.title",
+  "values": [
+    "au-negate",
+    "au-iff",
+    "au-hyps",
+    "au-skolem",
+    "au-clauses"
+  ]
+}

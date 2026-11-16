@@ -269,7 +269,9 @@ export function tableCourse(content) {
 
   const byId = new Map(LEVELS.map(L => [L.id, L]));
   const circuitOf = id => (read.get(id) ?? []).filter(isCircuit);
+  const sourceById = new Map(content.levels.map((level) => [level.id, level]));
   const course = defineCourse({
+    complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
     eras,
     plan,
@@ -277,6 +279,9 @@ export function tableCourse(content) {
     tray: l => trayIn(trays, byId.get(l.id).tray),
     primitives: PRIMITIVES,
     adds: l => byId.get(l.id).adds ?? [],
+    gives: l => sourceById.get(l.id).tasks[l.task]?.gives ?? [],
+    withholds: l => sourceById.get(l.id).tasks[l.task]?.withholds ?? [],
+    opens: l => sourceById.get(l.id).tasks.flatMap((task, i) => l.task === undefined || i <= l.task ? task.opens ?? [] : []),
     needs: p => (built[p] ? p : null),
     builds: l => (byId.get(l.id).builds ? [byId.get(l.id).unlock] : []),
     // A merger's models are one part with a setting.

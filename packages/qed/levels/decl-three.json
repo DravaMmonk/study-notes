@@ -5,7 +5,7 @@
       "t": "@level.decl-three.intro.0.t"
     }
   ],
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "decl-three_1",

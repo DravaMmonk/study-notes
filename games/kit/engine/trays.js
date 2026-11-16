@@ -1,22 +1,6 @@
 // Trays describe presentation: ordered pieces and optional menus for related pieces.
 import { S } from './schema.js'
 import { editorOf } from './pieces.js'
-import { T as t } from '../shell/i18n.js'
-
-const ITEM = S.either(S.ref('part'), S.name('part'))
-const MENU = S.obj({
-  id: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }),
-  title: S.text(),
-  items: S.list(ITEM, { min: 1 }),
-})
-const ENTRY = S.either(...ITEM.of, MENU)
-
-export const TRAYS = S.opt(S.map(S.obj({
-  name: S.text(),
-  desc: S.text(),
-  workshop: S.opt(S.bool({ about: t('允许在元件工坊使用。省略时允许。', 'Allow use in the component workshop. Enabled when omitted.') })),
-  items: S.list(ENTRY),
-}), { section: 'course', about: t('托盘的名称、描述和按顺序展示的元件。', 'Tray names, descriptions, and ordered pieces.') }))
 
 export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
@@ -54,14 +38,9 @@ export function trayDisplay(trays, names, shown, folded) {
   return { items, folded: more }
 }
 
-const SINGLE = S.opt(S.str({ section: 'course', about: t('这一关（这个任务）用的托盘；游戏只有一套托盘时不用写') }))
-
-/** A single group or an ordered list of groups used by a level or task. */
-export const TRAY = S.opt({
-  ...S.either(SINGLE, S.list(S.str(), { min: 1 })),
-  section: 'course',
-  about: t('这一关或任务用的托盘，可按顺序选用多组', 'Tray or ordered list of trays used in this level or task'),
-})
+/** A tray selects an item tag as a container, preserving its nested menu presentation. */
+const CONTAINER = S.name('tag', { members: 'item' })
+export const TRAY = S.opt(S.either(CONTAINER, S.list(CONTAINER, { min: 1 })))
 
 /** The names of the parts a game's levels build, for its trays (domain.js names; the vocabulary's go by reference). */
 export const partNames = (built = []) => ({ part: new Set(built) })

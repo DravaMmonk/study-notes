@@ -10,7 +10,7 @@
     { "t": "@level.onerow.intro.2.t" }
   ],
   "after": "@level.onerow.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "onerow",

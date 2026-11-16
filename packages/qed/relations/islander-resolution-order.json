@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "is-three",
+    "is-silent",
+    "is-ten"
+  ],
+  "of": "level"
+}

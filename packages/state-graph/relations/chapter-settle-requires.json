@@ -1,0 +1,31 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/cooldown",
+      "to": "state-graph/loop"
+    },
+    {
+      "from": "state-graph/loop",
+      "to": "state-graph/value"
+    },
+    {
+      "from": "state-graph/value",
+      "to": "state-graph/arrows"
+    },
+    {
+      "from": "state-graph/value",
+      "to": "state-graph/treasure"
+    },
+    {
+      "required": true,
+      "from": "state-graph/treasure",
+      "to": "state-graph/slip"
+    },
+    {
+      "required": true,
+      "from": "state-graph/slip",
+      "to": "state-graph/ice"
+    }
+  ]
+}

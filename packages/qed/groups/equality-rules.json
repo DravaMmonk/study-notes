@@ -1,9 +1,0 @@
-{
-  "title": "@group.equality-rules.title",
-  "levels": [{ "id": "decl-eq" }, { "id": "q-eq" }, { "id": "q-sym" }, { "id": "q-trans" }],
-  "links": [
-    { "from": "decl-eq", "to": "q-eq" },
-    { "from": "q-eq", "to": "q-sym" },
-    { "from": "q-sym", "to": "q-trans" }
-  ]
-}

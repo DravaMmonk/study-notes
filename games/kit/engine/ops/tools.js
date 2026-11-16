@@ -20,6 +20,7 @@ import { taskContext } from '../../shell/played-task.js'
 import { drawDeps } from '../deps.js'
 import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
+import { objectOf, courseRoute } from '../objects.js'
 import { OPERATIONS } from './operations.js'
 import { hubCount, openGame } from './workspace.js'
 import { adopt, lastUndoable, readLog, runChangeset, undo } from './changeset.js'
@@ -108,6 +109,15 @@ async function boardsOf(content, level) {
 }
 
 export const TOOLS = {
+  objects: {
+    about: 'Read registered tags, relations or layouts and the expanded course route, optionally after a pending changeset.',
+    params: { game: 'string', kind: 'string?', name: 'string?', changeset: 'object?', scope: 'string?' },
+    async run({ game, kind, name, changeset = null, scope }) {
+      const content = await contentAfter(game, changeset, scope)
+      if (kind && !['tag', 'relation', 'layout'].includes(kind)) throw new Error(`unknown object kind ${kind}`)
+      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : { tag: content.tags, relation: content.relations, layout: content.layouts }, route: courseRoute(content) }
+    },
+  },
   games: {
     about: 'The data games: each one’s id, title and the content package it plays (several may play one package).',
     params: {},

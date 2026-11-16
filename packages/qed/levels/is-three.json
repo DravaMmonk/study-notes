@@ -1,6 +1,6 @@
 {
   "title": "@level.is-three.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.is-three.intro.0.t"

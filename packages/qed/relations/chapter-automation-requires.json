@@ -1,0 +1,112 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/sp-order",
+      "to": "qed/au-negate"
+    },
+    {
+      "from": "qed/au-negate",
+      "to": "qed/au-iff"
+    },
+    {
+      "from": "qed/au-iff",
+      "to": "qed/au-hyps"
+    },
+    {
+      "from": "qed/au-hyps",
+      "to": "qed/au-skolem"
+    },
+    {
+      "from": "qed/au-skolem",
+      "to": "qed/au-clauses"
+    },
+    {
+      "from": "qed/au-clauses",
+      "to": "qed/au-resolve"
+    },
+    {
+      "from": "qed/au-resolve",
+      "to": "qed/au-refute"
+    },
+    {
+      "from": "qed/au-refute",
+      "to": "qed/au-onepair"
+    },
+    {
+      "from": "qed/au-onepair",
+      "to": "qed/au-saturate"
+    },
+    {
+      "from": "qed/au-saturate",
+      "to": "qed/au-sledge"
+    },
+    {
+      "from": "qed/au-sledge",
+      "to": "qed/au-cert"
+    },
+    {
+      "from": "qed/au-cert",
+      "to": "qed/au-replay"
+    },
+    {
+      "from": "qed/au-replay",
+      "to": "qed/au-wrong"
+    },
+    {
+      "from": "qed/au-wrong",
+      "to": "qed/au-adder"
+    },
+    {
+      "from": "qed/au-adder",
+      "to": "qed/au-machine"
+    },
+    {
+      "from": "qed/au-replay",
+      "to": "qed/is-three"
+    },
+    {
+      "required": true,
+      "from": "qed/kk-three",
+      "to": "qed/is-three"
+    },
+    {
+      "required": true,
+      "from": "qed/is-three",
+      "to": "qed/is-silent"
+    },
+    {
+      "required": true,
+      "from": "qed/is-silent",
+      "to": "qed/is-ten"
+    },
+    {
+      "from": "qed/au-machine",
+      "to": "qed/u-barber"
+    },
+    {
+      "required": true,
+      "from": "qed/kk-one",
+      "to": "qed/u-barber"
+    },
+    {
+      "required": true,
+      "from": "qed/u-barber",
+      "to": "qed/u-cantor"
+    },
+    {
+      "required": true,
+      "from": "qed/u-cantor",
+      "to": "qed/u-ls"
+    },
+    {
+      "required": true,
+      "from": "qed/u-ls",
+      "to": "qed/u-halt"
+    },
+    {
+      "from": "qed/au-saturate",
+      "to": "qed/au-horn"
+    }
+  ]
+}

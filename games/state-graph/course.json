@@ -1,210 +1,192 @@
 {
-  "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
-  "concept": { "const": "pass", "many": "msum" },
-  "eras": [
+  "primitives": [
+    "msum",
+    "mmin",
+    "mmax",
+    "many",
+    "const",
+    "pass",
+    "block",
+    "add",
+    "not",
+    "mul"
+  ],
+  "concept": {
+    "const": "pass",
+    "many": "msum"
+  },
+  "borrow": {
+    "state-graph/seam": "state-graph/seam"
+  },
+  "chapters": [
     {
       "id": "paper",
       "machine": null,
-      "chapter": { "title": "@course.eras.paper.chapter.title", "desc": "@course.eras.paper.chapter.desc" },
-      "levels": [{ "id": "state-graph/trace" }, { "id": "state-graph/lastStep" }, { "id": "state-graph/city" }],
-      "links": [
-        { "from": "state-graph/trace", "to": "state-graph/lastStep" },
-        { "from": "state-graph/lastStep", "to": "state-graph/city" }
+      "chapter": {
+        "title": "@course.eras.paper.chapter.title",
+        "desc": "@course.eras.paper.chapter.desc"
+      },
+      "levels": [
+        "state-graph/trace",
+        "state-graph/lastStep",
+        "state-graph/city"
       ]
     },
     {
       "id": "scout",
       "machine": "scout",
-      "chapter": { "title": "@course.eras.scout.chapter.title", "desc": "@course.eras.scout.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.scout.chapter.title",
+        "desc": "@course.eras.scout.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/copy" },
-        { "id": "state-graph/confluence" },
-        { "id": "state-graph/stamp" },
-        { "id": "state-graph/rocks" },
-        { "id": "state-graph/cheapest" },
-        { "id": "state-graph/reach" },
-        { "id": "state-graph/slantcost" },
-        { "id": "state-graph/slant" },
-        { "id": "state-graph/maxcoins" },
-        { "id": "state-graph/pascal" },
-        { "id": "state-graph/pits" },
-        { "id": "state-graph/seamline", "optional": true },
-        { "id": "state-graph/seamslant", "optional": true },
-        { "id": "state-graph/seam", "optional": true },
-        { "id": "state-graph/carve", "optional": true },
-        { "id": "state-graph/lawn", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/city", "to": "state-graph/copy" },
-        { "from": "state-graph/copy", "to": "state-graph/confluence" },
-        { "from": "state-graph/confluence", "to": "state-graph/stamp" },
-        { "from": "state-graph/stamp", "to": "state-graph/rocks" },
-        { "from": "state-graph/rocks", "to": "state-graph/reach" },
-        { "from": "state-graph/stamp", "to": "state-graph/cheapest" },
-        { "from": "state-graph/cheapest", "to": "state-graph/slantcost" },
-        { "from": "state-graph/reach", "to": "state-graph/slant" },
-        { "from": "state-graph/slantcost", "to": "state-graph/slant" },
-        { "from": "state-graph/slant", "to": "state-graph/pascal" },
-        { "from": "state-graph/reach", "to": "state-graph/maxcoins" },
-        { "from": "state-graph/slantcost", "to": "state-graph/maxcoins" },
-        { "from": "state-graph/pascal", "to": "state-graph/pits" },
-        { "from": "state-graph/maxcoins", "to": "state-graph/pits" },
-        { "from": "state-graph/slantcost", "to": "state-graph/seamline" },
-        { "from": "state-graph/seamline", "to": "state-graph/seamslant", "required": true },
-        { "from": "state-graph/seamslant", "to": "state-graph/seam", "required": true },
-        { "from": "state-graph/seam", "to": "state-graph/carve", "required": true },
-        { "from": "state-graph/pascal", "to": "state-graph/lawn" }
+        "state-graph/copy",
+        "state-graph/confluence",
+        "state-graph/stamp",
+        "state-graph/rocks",
+        "state-graph/cheapest",
+        "state-graph/reach",
+        "state-graph/slantcost",
+        "state-graph/slant",
+        "state-graph/maxcoins",
+        "state-graph/pascal",
+        "state-graph/pits",
+        "state-graph/seamline",
+        "state-graph/seamslant",
+        "state-graph/seam",
+        "state-graph/carve",
+        "state-graph/lawn"
       ]
     },
     {
       "id": "ranger",
       "machine": "ranger",
-      "chapter": { "title": "@course.eras.ranger.chapter.title", "desc": "@course.eras.ranger.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.ranger.chapter.title",
+        "desc": "@course.eras.ranger.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/stairs" },
-        { "id": "state-graph/order" },
-        { "id": "state-graph/nim" },
-        { "id": "state-graph/link" },
-        { "id": "state-graph/lcs" },
-        { "id": "state-graph/palin" },
-        { "id": "state-graph/brokenstairs" },
-        { "id": "state-graph/lps" },
-        { "id": "state-graph/replace", "optional": true },
-        { "id": "state-graph/edit", "optional": true },
-        { "id": "state-graph/spell", "optional": true },
-        { "id": "state-graph/parity", "optional": true },
-        { "id": "state-graph/localalign", "optional": true },
-        { "id": "state-graph/piles", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/pits", "to": "state-graph/stairs" },
-        { "from": "state-graph/stairs", "to": "state-graph/order" },
-        { "from": "state-graph/stairs", "to": "state-graph/nim" },
-        { "from": "state-graph/order", "to": "state-graph/link" },
-        { "from": "state-graph/nim", "to": "state-graph/link" },
-        { "from": "state-graph/link", "to": "state-graph/lcs" },
-        { "from": "state-graph/lcs", "to": "state-graph/palin" },
-        { "from": "state-graph/palin", "to": "state-graph/brokenstairs" },
-        { "from": "state-graph/palin", "to": "state-graph/lps" },
-        { "from": "state-graph/lcs", "to": "state-graph/replace" },
-        { "from": "state-graph/replace", "to": "state-graph/edit", "required": true },
-        { "from": "state-graph/edit", "to": "state-graph/spell", "required": true },
-        { "from": "state-graph/nim", "to": "state-graph/parity" },
-        { "from": "state-graph/lcs", "to": "state-graph/localalign" },
-        { "from": "state-graph/nim", "to": "state-graph/piles" }
+        "state-graph/stairs",
+        "state-graph/order",
+        "state-graph/nim",
+        "state-graph/link",
+        "state-graph/lcs",
+        "state-graph/palin",
+        "state-graph/brokenstairs",
+        "state-graph/lps",
+        "state-graph/replace",
+        "state-graph/edit",
+        "state-graph/spell",
+        "state-graph/parity",
+        "state-graph/localalign",
+        "state-graph/piles"
       ]
     },
     {
       "id": "reach",
       "machine": "reach",
-      "chapter": { "title": "@course.eras.reach.chapter.title", "desc": "@course.eras.reach.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.reach.chapter.title",
+        "desc": "@course.eras.reach.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/frog" },
-        { "id": "state-graph/frogfar" },
-        { "id": "state-graph/tagging" },
-        { "id": "state-graph/safefrog" },
-        { "id": "state-graph/forward" },
-        { "id": "state-graph/pack", "optional": true },
-        { "id": "state-graph/knaptable", "optional": true },
-        { "id": "state-graph/knapmany", "optional": true },
-        { "id": "state-graph/knapmix", "optional": true },
-        { "id": "state-graph/coinways", "optional": true },
-        { "id": "state-graph/roll", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/brokenstairs", "to": "state-graph/frog" },
-        { "from": "state-graph/lps", "to": "state-graph/frog" },
-        { "from": "state-graph/frog", "to": "state-graph/frogfar" },
-        { "from": "state-graph/frogfar", "to": "state-graph/safefrog" },
-        { "from": "state-graph/frog", "to": "state-graph/tagging" },
-        { "from": "state-graph/tagging", "to": "state-graph/forward" },
-        { "from": "state-graph/frogfar", "to": "state-graph/pack" },
-        { "from": "state-graph/pack", "to": "state-graph/knaptable", "required": true },
-        { "from": "state-graph/knaptable", "to": "state-graph/knapmany", "required": true },
-        { "from": "state-graph/knapmany", "to": "state-graph/knapmix", "required": true },
-        { "from": "state-graph/knapmany", "to": "state-graph/coinways", "required": true },
-        { "from": "state-graph/knapmix", "to": "state-graph/roll", "required": true }
+        "state-graph/frog",
+        "state-graph/frogfar",
+        "state-graph/tagging",
+        "state-graph/safefrog",
+        "state-graph/forward",
+        "state-graph/pack",
+        "state-graph/knaptable",
+        "state-graph/knapmany",
+        "state-graph/knapmix",
+        "state-graph/coinways",
+        "state-graph/roll"
       ]
     },
     {
       "id": "broom",
       "machine": "broom",
-      "chapter": { "title": "@course.eras.broom.chapter.title", "desc": "@course.eras.broom.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.broom.chapter.title",
+        "desc": "@course.eras.broom.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/prefix" },
-        { "id": "state-graph/rising" },
-        { "id": "state-graph/stones" },
-        { "id": "state-graph/change" },
-        { "id": "state-graph/twoorders" },
-        { "id": "state-graph/parse" },
-        { "id": "state-graph/wordbreak", "optional": true },
-        { "id": "state-graph/wordcost", "optional": true },
-        { "id": "state-graph/segment", "optional": true },
-        { "id": "state-graph/maxsub", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/safefrog", "to": "state-graph/prefix" },
-        { "from": "state-graph/forward", "to": "state-graph/prefix" },
-        { "from": "state-graph/prefix", "to": "state-graph/rising" },
-        { "from": "state-graph/rising", "to": "state-graph/stones" },
-        { "from": "state-graph/stones", "to": "state-graph/twoorders" },
-        { "from": "state-graph/twoorders", "to": "state-graph/parse" },
-        { "from": "state-graph/rising", "to": "state-graph/change" },
-        { "from": "state-graph/rising", "to": "state-graph/wordbreak" },
-        { "from": "state-graph/wordbreak", "to": "state-graph/wordcost", "required": true },
-        { "from": "state-graph/wordcost", "to": "state-graph/segment", "required": true },
-        { "from": "state-graph/prefix", "to": "state-graph/maxsub" }
+        "state-graph/prefix",
+        "state-graph/rising",
+        "state-graph/stones",
+        "state-graph/change",
+        "state-graph/twoorders",
+        "state-graph/parse",
+        "state-graph/wordbreak",
+        "state-graph/wordcost",
+        "state-graph/segment",
+        "state-graph/maxsub"
       ]
     },
     {
       "id": "stack",
       "machine": "stack",
-      "chapter": { "title": "@course.eras.stack.chapter.title", "desc": "@course.eras.stack.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.stack.chapter.title",
+        "desc": "@course.eras.stack.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/robber" },
-        { "id": "state-graph/breach" },
-        { "id": "state-graph/keydoor" },
-        { "id": "state-graph/stock1" },
-        { "id": "state-graph/cooldown" },
-        { "id": "state-graph/twokeys", "optional": true },
-        { "id": "state-graph/threekeys", "optional": true },
-        { "id": "state-graph/enough", "optional": true },
-        { "id": "state-graph/ring", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/parse", "to": "state-graph/robber" },
-        { "from": "state-graph/change", "to": "state-graph/robber" },
-        { "from": "state-graph/robber", "to": "state-graph/breach" },
-        { "from": "state-graph/breach", "to": "state-graph/keydoor" },
-        { "from": "state-graph/keydoor", "to": "state-graph/stock1" },
-        { "from": "state-graph/stock1", "to": "state-graph/cooldown" },
-        { "from": "state-graph/keydoor", "to": "state-graph/twokeys" },
-        { "from": "state-graph/twokeys", "to": "state-graph/threekeys", "required": true },
-        { "from": "state-graph/threekeys", "to": "state-graph/enough", "required": true },
-        { "from": "state-graph/robber", "to": "state-graph/ring" }
+        "state-graph/robber",
+        "state-graph/breach",
+        "state-graph/keydoor",
+        "state-graph/stock1",
+        "state-graph/cooldown",
+        "state-graph/twokeys",
+        "state-graph/threekeys",
+        "state-graph/enough",
+        "state-graph/ring"
       ]
     },
     {
       "id": "settle",
       "machine": "loop",
-      "chapter": { "title": "@course.eras.settle.chapter.title", "desc": "@course.eras.settle.chapter.desc" },
+      "chapter": {
+        "title": "@course.eras.settle.chapter.title",
+        "desc": "@course.eras.settle.chapter.desc"
+      },
       "levels": [
-        { "id": "state-graph/loop" },
-        { "id": "state-graph/value" },
-        { "id": "state-graph/arrows" },
-        { "id": "state-graph/treasure", "optional": true },
-        { "id": "state-graph/slip", "optional": true },
-        { "id": "state-graph/ice", "optional": true }
-      ],
-      "links": [
-        { "from": "state-graph/cooldown", "to": "state-graph/loop" },
-        { "from": "state-graph/loop", "to": "state-graph/value" },
-        { "from": "state-graph/value", "to": "state-graph/arrows" },
-        { "from": "state-graph/value", "to": "state-graph/treasure" },
-        { "from": "state-graph/treasure", "to": "state-graph/slip", "required": true },
-        { "from": "state-graph/slip", "to": "state-graph/ice", "required": true }
+        "state-graph/loop",
+        "state-graph/value",
+        "state-graph/arrows",
+        "state-graph/treasure",
+        "state-graph/slip",
+        "state-graph/ice"
       ]
     }
   ],
-  "borrow": { "state-graph/seam": "state-graph/seam" }
+  "optional": [
+    "state-graph/seamline",
+    "state-graph/seamslant",
+    "state-graph/seam",
+    "state-graph/carve",
+    "state-graph/lawn",
+    "state-graph/replace",
+    "state-graph/edit",
+    "state-graph/spell",
+    "state-graph/parity",
+    "state-graph/localalign",
+    "state-graph/piles",
+    "state-graph/pack",
+    "state-graph/knaptable",
+    "state-graph/knapmany",
+    "state-graph/knapmix",
+    "state-graph/coinways",
+    "state-graph/roll",
+    "state-graph/wordbreak",
+    "state-graph/wordcost",
+    "state-graph/segment",
+    "state-graph/maxsub",
+    "state-graph/twokeys",
+    "state-graph/threekeys",
+    "state-graph/enough",
+    "state-graph/ring",
+    "state-graph/treasure",
+    "state-graph/slip",
+    "state-graph/ice"
+  ]
 }

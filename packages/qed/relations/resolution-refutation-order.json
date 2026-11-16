@@ -1,0 +1,12 @@
+{
+  "kind": "order",
+  "sequence": [
+    "au-resolve",
+    "au-refute",
+    "au-onepair",
+    "au-saturate",
+    "au-sledge",
+    "au-horn"
+  ],
+  "of": "level"
+}

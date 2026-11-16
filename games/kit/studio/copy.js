@@ -10,12 +10,12 @@ import { GLOSSARY } from '../engine/vocabulary.js'
 import { showPath } from '../engine/ops/edit.js'
 import { eraLevels } from '../course.js'
 import { contentFileFor } from '../engine/content.js'
-import { GROUP, groupLevels } from '../engine/groups.js'
+import { levelTags } from './groups.js'
 import { textKey } from '../engine/i18n.js'
 
-const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'partDefs', 'groups', 'sourceEras', 'overridden']
+const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'partDefs', 'tags', 'relations', 'layouts', 'sourceChapters', 'relationEdges', 'objectProblems', 'registries', 'eras', 'trays', 'replaces', 'overridden']
 /** The copy rule a text is held to: the field it is (a task's own field for a task's text). */
-export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'eras' ? path[2] ?? '' : path[0] ?? '')
+export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'chapters' ? path[2] ?? '' : path[0] ?? '')
 
 /**
  * The rows of `scope` (an era's index, 'group:<id>', 'all', 'glossary' or 'pieces') as workspace `side` sees them,
@@ -44,9 +44,8 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
   const byId = new Map(content.levels.map((l) => [l.id, l]))
   const era = typeof scope === 'number' ? content.eras?.[scope] : null
   const group = typeof scope === 'string' && scope.startsWith('group:') ? scope.slice('group:'.length) : null
-  const ids = era ? new Set(eraLevels(era)) : group !== null ? new Set(groupLevels(content.groups?.[group])) : null
-  if (era) find(vocabulary.game.fields.eras.of, era, 'text', { vocabulary }).forEach((t) => add({ game: true }, String(era.id), 'game')({ ...t, path: ['eras', scope, ...t.path] }))
-  if (group !== null && content.groups?.[group]) find(GROUP, content.groups[group], 'text').forEach(add({ group }, group, 'group'))
+  const ids = era ? new Set(eraLevels(era)) : group !== null ? new Set((levelTags(content)[group]?.levels ?? []).map(({ id }) => id)) : null
+  if (era) find(vocabulary.game.fields.chapters.of, content.sourceChapters?.[scope] ?? era, 'text', { vocabulary }).forEach((t) => add({ game: true }, String(era.id), 'game')({ ...t, path: ['chapters', scope, ...t.path] }))
   if (scope === 'all') {
     const game = Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_GAME.includes(k)))
     find(vocabulary.game, game, 'text', { vocabulary }).forEach(add({ game: true }, side === 'game' ? 'game.json' : 'package.json', 'game'))

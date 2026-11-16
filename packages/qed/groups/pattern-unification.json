@@ -1,5 +1,0 @@
-{
-  "title": "@group.pattern-unification.title",
-  "levels": [{ "id": "r-pattern" }, { "id": "r-patterns" }],
-  "links": [{ "from": "r-pattern", "to": "r-patterns" }]
-}

@@ -1,0 +1,13 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "au-cert",
+      "to": "au-replay"
+    },
+    {
+      "from": "au-replay",
+      "to": "au-wrong"
+    }
+  ]
+}

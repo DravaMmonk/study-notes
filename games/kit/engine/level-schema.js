@@ -4,9 +4,9 @@
 //   levelSchema({ page?, ports, test, checks?, more?, shared?, kinds? })   a level
 //   GAME                                                                  game.json
 //   NAME, PORT                                                            a card's name, a port
-import { taskLevel } from './tasks.js'
-import { TRAY, TRAYS } from './trays.js'
-import { COURSE_FIELDS } from './course-schema.js'
+import { ITEM_REFERENCE, taskLevel } from './tasks.js'
+import { TRAY } from './trays.js'
+import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS } from './views.js'
 import { T as t } from '../shell/i18n.js'
@@ -14,7 +14,7 @@ import { T as t } from '../shell/i18n.js'
 /** A card's name: a port's, a register's, a built piece's. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** An item a task gives, withholds or opens (../course.js itemOf): a part, one of its settings, one value of a setting. */
-const HELD = S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
+const HELD = S.str({ reference: 'item', pattern: '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
@@ -47,8 +47,8 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串') }),
     naive: S.opt(S.list(S.str(), { view: 'board', about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败') })),
     starter: S.opt(S.list(S.str(), { view: 'board', about: t('这个任务一打开就摆在板上的蓝图：一样要修的作品。它不能直接过关') })),
-    withhold: S.opt(S.list(S.str(), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
-    grants: S.opt(S.list(HELD, { section: 'course', about: t('只在这个任务里多给的：一个元件，元件的一项设置（shift.border），或设置的一个取值（shift.border=wrap）；别的任务不因此得到它。withhold 也可以按同样的写法收起一项设置或一个取值') })),
+    withholds: S.opt(S.list(S.str({ reference: 'item' }), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
+    gives: S.opt(S.list(HELD, { section: 'course', about: t('只在这个任务里多给的：一个元件，元件的一项设置（shift.border），或设置的一个取值（shift.border=wrap）；别的任务不因此得到它。withhold 也可以按同样的写法收起一项设置或一个取值') })),
     opens: S.opt(S.list(HELD, { section: 'course', about: t('这个任务带来的设置或取值（shift.border、shift.border=wrap）：从这里起一直可用。没有哪一关带来的设置和取值，从一开始就可用') })),
     results: RESULTS,
     views: TASK_VIEWS,
@@ -61,7 +61,7 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
     after: S.opt(S.text()),
     afterShow: S.opt({ ...SHOW, about: t('点题旁显示的一个值') }),
     note: S.opt(S.text()),
-    adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+    adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course' })),
     tray: TRAY,
     showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么') })),
   }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board, { parts: true })
@@ -83,9 +83,8 @@ export const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   primitives: S.list(S.ref('part')),
-  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
-  replaces: S.opt(S.map(S.list(S.ref('part')), { about: t('搭出的件取代的搭出的件：从搭出它的那一关往后，托盘里给它，不再给那些') })),
-  eras: S.list(ERA, { min: 1 }),
+  chapters: S.list(ERA, { min: 1 }),
+  ...COURSE_OPTIONS,
   views: GAME_VIEWS,
 })

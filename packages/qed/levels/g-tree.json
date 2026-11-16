@@ -1,6 +1,6 @@
 {
   "title": "@level.g-tree.title",
-  "tray": ["gates", "formula"],
+  "tray": ["#gates", "#formula"],
   "intro": [
     {
       "t": "@level.g-tree.intro.0.t"

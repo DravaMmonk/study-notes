@@ -1,0 +1,16 @@
+{
+  "kind": "order",
+  "sequence": [
+    "c-wall",
+    "raa",
+    "byContra",
+    "lemCases",
+    "s-lem",
+    "c-dneg",
+    "c-contra",
+    "c-either",
+    "peirce",
+    "drinker"
+  ],
+  "of": "level"
+}

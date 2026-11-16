@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "table",
+    "always",
+    "onerow",
+    "g-always"
+  ],
+  "of": "level"
+}

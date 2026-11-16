@@ -1,6 +1,6 @@
 {
   "adds": ["saturate", "clausify"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "title": "@level.au-sledge.title",
   "after": "@level.au-sledge.after",
   "tasks": [

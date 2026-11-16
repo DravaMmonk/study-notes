@@ -1,6 +1,6 @@
 {
   "title": "@level.s-loop.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.s-loop.intro.0.t"

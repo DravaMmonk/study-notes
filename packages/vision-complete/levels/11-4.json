@@ -1,6 +1,6 @@
 {
   "title": "@level.11-4.title",
-  "tray": "recognition",
+  "tray": "#recognition",
   "after": "@level.11-4.after",
   "intro": [
     {

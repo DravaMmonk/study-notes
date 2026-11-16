@@ -1,0 +1,25 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "trace",
+      "to": "lastStep"
+    },
+    {
+      "from": "lastStep",
+      "to": "city"
+    },
+    {
+      "from": "confluence",
+      "to": "stamp"
+    },
+    {
+      "from": "stamp",
+      "to": "rocks"
+    },
+    {
+      "from": "slant",
+      "to": "pascal"
+    }
+  ]
+}

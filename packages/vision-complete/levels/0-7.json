@@ -20,7 +20,7 @@
     }
   ],
   "adds": ["sub"],
-  "tray": "pipeline",
+  "tray": "#pipeline",
   "tasks": [
     {
       "id": "0-7",

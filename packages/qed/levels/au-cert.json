@@ -7,12 +7,12 @@
     }
   ],
   "after": "@level.au-cert.after",
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "au-cert_1",
       "kind": "machine",
-      "tray": ["machine", "formula"],
+      "tray": ["#machine", "#formula"],
       "want": "refuted",
       "inputs": [{ "name": "in", "label": "@level.au-cert.tasks.au-cert_1.inputs.0.label" }],
       "backtrack": true,
@@ -27,7 +27,7 @@
     {
       "id": "au-cert_2",
       "kind": "proof",
-      "tray": ["resolution", "formula"],
+      "tray": ["#resolution", "#formula"],
       "step": "@level.au-cert.tasks.au-cert_2.step",
       "tests": [{ "premises": { "p": "¬A ∨ B", "q": "¬B ∨ C", "r": "A", "s": "¬C" }, "goal": "⊥" }],
       "cases": [{ "A": "Alarm", "B": "Up", "C": "Coffee" }],

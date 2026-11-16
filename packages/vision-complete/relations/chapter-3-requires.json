@@ -1,0 +1,83 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "vision-complete/2-10",
+      "to": "vision-complete/3-1"
+    },
+    {
+      "from": "vision-complete/2-11",
+      "to": "vision-complete/3-1"
+    },
+    {
+      "from": "vision-complete/3-1",
+      "to": "vision-complete/3-2"
+    },
+    {
+      "from": "vision-complete/3-2",
+      "to": "vision-complete/3-3"
+    },
+    {
+      "from": "vision-complete/3-3",
+      "to": "vision-complete/3-4"
+    },
+    {
+      "from": "vision-complete/2-10",
+      "to": "vision-complete/3-5"
+    },
+    {
+      "from": "vision-complete/2-11",
+      "to": "vision-complete/3-5"
+    },
+    {
+      "from": "vision-complete/3-5",
+      "to": "vision-complete/3-6"
+    },
+    {
+      "from": "vision-complete/3-4",
+      "to": "vision-complete/3-7"
+    },
+    {
+      "from": "vision-complete/3-6",
+      "to": "vision-complete/3-7"
+    },
+    {
+      "from": "vision-complete/3-7",
+      "to": "vision-complete/3-8"
+    },
+    {
+      "from": "vision-complete/3-4",
+      "to": "vision-complete/3-9"
+    },
+    {
+      "from": "vision-complete/3-6",
+      "to": "vision-complete/3-9"
+    },
+    {
+      "from": "vision-complete/3-9",
+      "to": "vision-complete/3-10"
+    },
+    {
+      "from": "vision-complete/3-9",
+      "to": "vision-complete/3-12"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/3-12",
+      "to": "vision-complete/3-13"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/3-13",
+      "to": "vision-complete/3-14"
+    },
+    {
+      "from": "vision-complete/3-8",
+      "to": "vision-complete/3-11"
+    },
+    {
+      "from": "vision-complete/3-10",
+      "to": "vision-complete/3-11"
+    }
+  ]
+}

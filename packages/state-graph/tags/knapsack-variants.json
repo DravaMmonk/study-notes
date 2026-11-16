@@ -1,0 +1,11 @@
+{
+  "kind": "level",
+  "title": "@group.knapsack-variants.title",
+  "values": [
+    "pack",
+    "knaptable",
+    "knapmany",
+    "knapmix",
+    "roll"
+  ]
+}

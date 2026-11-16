@@ -1,0 +1,17 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "decl-eq",
+      "to": "q-eq"
+    },
+    {
+      "from": "q-eq",
+      "to": "q-sym"
+    },
+    {
+      "from": "q-sym",
+      "to": "q-trans"
+    }
+  ]
+}

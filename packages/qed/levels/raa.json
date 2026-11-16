@@ -1,6 +1,6 @@
 {
   "title": "@level.raa.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.raa.intro.0.t"

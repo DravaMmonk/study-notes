@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "frog",
+    "frogfar",
+    "safefrog"
+  ],
+  "of": "level"
+}

@@ -405,6 +405,7 @@ export function logicCourse(content) {
     ...TASKS.filter((task) => task.kind === 'gates' && gates[task.builds]).map((task) => ({ kind: 'gate', type: task.builds, form: null, task })),
   ])
   const course = defineCourse({
+    complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
     plan,
@@ -423,17 +424,17 @@ export function logicCourse(content) {
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     // A shape an upgrade proves is held by the levels after it, and in its own level by the tasks after the one that
     // proves it (lemmaWorks).
-    opens: (l) => Object.entries(revisions).flatMap(([type, list]) => list.filter((r) => r.by === l.id).flatMap((r) => r.forms ?? [])
-      .filter((form) => l.task === undefined || references.resolve(type, form, null, { kind: 'lemma', reference: true })?.task.task < l.task).map((form) => itemOf(type, 'form', form))),
+    opens: (l) => [...(taskOf(l).opens ?? []), ...Object.entries(revisions).flatMap(([type, list]) => list.filter((r) => r.by === l.id).flatMap((r) => r.forms ?? [])
+      .filter((form) => l.task === undefined || references.resolve(type, form, null, { kind: 'lemma', reference: true })?.task.task < l.task).map((form) => itemOf(type, 'form', form)))],
     // The task supplies the rule cards of its own rule book. Tactic parts still follow course progression.
     gives: (l) => {
-      if (l.editor === 'strip') return []
+      if (l.editor === 'strip') return taskOf(l).gives ?? []
       const task = byId.get(l.id).tasks[l.task]
-      if (task?.kind !== 'machine') return []
+      if (task?.kind !== 'machine') return taskOf(l).gives ?? []
       const rules = ruleTypes(task)
-      return [...rules.keys()].filter((p) => !machineParts[p])
+      return [...(taskOf(l).gives ?? []), ...[...rules.keys()].filter((p) => !machineParts[p])]
     },
-    withholds: (l) => byId.get(l.id).tasks[l.task]?.without ?? [],
+    withholds: (l) => [...(taskOf(l).withholds ?? []), ...(byId.get(l.id).tasks[l.task]?.without ?? [])],
     featured: (l) => [...(given.get(l.id).featuredParts ?? []), ...(byId.get(l.id).tasks[l.task]?.featuredParts ?? [])],
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     // Every task's answer counts: a part the level's first task uses is used; what its board starts with does not.
@@ -451,7 +452,7 @@ export function logicCourse(content) {
   })
   const noFlags = new Set()
   for (const one of TASKS) {
-    // Machine rulebook parts are board grants. Fixed formula keys come from the same selected trays.
+    // Machine rulebook parts are board gives. Fixed formula keys come from the same selected trays.
     const keys = usable(course, { id: one.id, task: one.task, editor: 'strip' }, noFlags)
     const formulaPieces = Object.fromEntries(keys.flatMap((type) => {
       const piece = strips[type]

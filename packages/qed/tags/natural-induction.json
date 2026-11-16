@@ -1,0 +1,12 @@
+{
+  "kind": "level",
+  "title": "@group.natural-induction.title",
+  "values": [
+    "in-zero",
+    "in-succ",
+    "in-noteq",
+    "in-comm",
+    "in-assoc",
+    "in-induct"
+  ]
+}

@@ -8,7 +8,7 @@
       "t": "@level.q-children.intro.1.t"
     }
   ],
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "q-children",

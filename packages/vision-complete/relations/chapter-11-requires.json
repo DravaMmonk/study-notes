@@ -1,0 +1,50 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "vision-complete/10-5",
+      "to": "vision-complete/11-1"
+    },
+    {
+      "from": "vision-complete/10-8",
+      "to": "vision-complete/11-1"
+    },
+    {
+      "from": "vision-complete/11-1",
+      "to": "vision-complete/11-2"
+    },
+    {
+      "from": "vision-complete/11-2",
+      "to": "vision-complete/11-3"
+    },
+    {
+      "from": "vision-complete/10-5",
+      "to": "vision-complete/11-4"
+    },
+    {
+      "from": "vision-complete/10-8",
+      "to": "vision-complete/11-4"
+    },
+    {
+      "from": "vision-complete/10-5",
+      "to": "vision-complete/11-5"
+    },
+    {
+      "from": "vision-complete/10-8",
+      "to": "vision-complete/11-5"
+    },
+    {
+      "from": "vision-complete/11-3",
+      "to": "vision-complete/11-6"
+    },
+    {
+      "from": "vision-complete/11-4",
+      "to": "vision-complete/11-6"
+    },
+    {
+      "required": true,
+      "from": "vision-complete/11-6",
+      "to": "vision-complete/11-7"
+    }
+  ]
+}

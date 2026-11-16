@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "wordbreak",
+    "wordcost",
+    "segment"
+  ],
+  "of": "level"
+}

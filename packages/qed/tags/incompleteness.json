@@ -1,0 +1,12 @@
+{
+  "kind": "level",
+  "title": "@group.incompleteness.title",
+  "values": [
+    "gd-code",
+    "gd-check",
+    "gd-diag",
+    "gd-true",
+    "gd-con",
+    "gd-second"
+  ]
+}

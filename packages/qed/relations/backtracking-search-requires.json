@@ -1,0 +1,21 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "s-defer",
+      "to": "s-results"
+    },
+    {
+      "from": "s-results",
+      "to": "s-append"
+    },
+    {
+      "from": "s-append",
+      "to": "s-search"
+    },
+    {
+      "from": "s-search",
+      "to": "s-loop"
+    }
+  ]
+}

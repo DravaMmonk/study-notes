@@ -1,0 +1,12 @@
+{
+  "kind": "level",
+  "title": "@group.disjunction-cases.title",
+  "values": [
+    "decl-or",
+    "or",
+    "cases",
+    "orSwap",
+    "orImp",
+    "dsyll"
+  ]
+}

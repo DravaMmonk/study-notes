@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "seamline",
+    "seamslant",
+    "seam",
+    "carve"
+  ],
+  "of": "level"
+}

@@ -1,7 +1,7 @@
 {
   "adds": ["exI", "exE"],
   "title": "@level.decl-ex.title",
-  "tray": "formula",
+  "tray": "#formula",
   "declare": "@level.decl-ex.declare",
   "target": "∃y. Human(y)",
   "sentences": ["Human(x)", "Mortal(x)"],

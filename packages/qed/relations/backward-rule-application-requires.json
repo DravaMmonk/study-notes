@@ -1,0 +1,25 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "r-rule",
+      "to": "r-assumption"
+    },
+    {
+      "from": "r-assumption",
+      "to": "r-subgoals"
+    },
+    {
+      "from": "r-subgoals",
+      "to": "r-meta"
+    },
+    {
+      "from": "r-meta",
+      "to": "r-lemma"
+    },
+    {
+      "from": "r-allI",
+      "to": "r-exI"
+    }
+  ]
+}

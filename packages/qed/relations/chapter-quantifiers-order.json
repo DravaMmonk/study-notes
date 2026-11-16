@@ -1,0 +1,18 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/fo-atoms",
+    "qed/fo-all",
+    "qed/fo-some",
+    "qed/m-counter",
+    "qed/fo-nested",
+    "qed/p-only",
+    "qed/p-split",
+    "qed/p-exAnd",
+    "qed/q-children",
+    "qed/q-grand",
+    "qed/q-none",
+    "qed/q-school"
+  ],
+  "of": "level"
+}

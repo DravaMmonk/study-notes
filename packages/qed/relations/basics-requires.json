@@ -1,0 +1,14 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "q-ancestor",
+      "to": "q-bigger"
+    },
+    {
+      "from": "au-adder",
+      "to": "au-machine"
+    }
+  ]
+}

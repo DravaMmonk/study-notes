@@ -1,7 +1,7 @@
 {
   "title": "@level.9-9.title",
   "carry": "9-8",
-  "tray": "recognition",
+  "tray": "#recognition",
   "after": "@level.9-9.after",
   "intro": [
     {

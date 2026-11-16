@@ -1,4 +1,5 @@
-import { defineCourse, layout } from '../../course.js'
+import { defineCourse } from '../../course.js'
+import { courseLayout } from '../../engine/course-dependencies.js'
 import { judgeWorks } from '../../engine/authoring.js'
 import { judgeFor, playFor } from '../../engine/plays.js'
 import { taskLevels } from '../../engine/tasks.js'
@@ -7,18 +8,15 @@ import { judgeSums, readSum } from './sums.js'
 import { vocabulary } from './vocabulary.js'
 
 export function spec(content) {
-  const eras = [{
-    id: 1, title: content.title, levels: content.order.map((id) => ({ id })),
-    links: content.order.slice(1).map((to, i) => ({ from: content.order[i], to })),
-  }]
-  const track = layout(eras)
+  const eras = content.eras
+  const track = courseLayout(content)
   const levels = track.order.map((id) => {
     const level = content.levels.find((entry) => entry.id === id)
     const tasks = taskLevels(level).map((source) => ({ key: source.taskId, kind: source.kind, brief: source.brief, source }))
-    return { ...level, kind: tasks[0].kind, chapter: 1, requires: track.requires.get(id), tasks }
+    return { ...level, kind: tasks[0].kind, chapter: track.place.get(id).era, requires: track.requires.get(id), tasks }
   })
-  const chapters = [{ id: 1, title: content.title, track: track.tracks.get(1), rows: track.rows.get(1) }]
-  const course = defineCourse({ levels, eras, primitives: [], adds: () => [], builds: () => [], needs: () => null })
+  const chapters = eras.map(({ id }) => ({ id, title: content.title, track: track.tracks.get(id), rows: track.rows.get(id) }))
+  const course = defineCourse({ levels, eras, plan: track, primitives: [], adds: () => [], builds: () => [], needs: () => null })
   return { id: content.id, title: content.title, domain: '__name__', levels, chapters, course }
 }
 

@@ -1,7 +1,7 @@
 {
   "title": "@level.au-replay.title",
   "adds": ["replay", "saturate", "clausify"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.au-replay.intro.0.t"

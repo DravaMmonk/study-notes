@@ -1,0 +1,238 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/au-machine",
+      "to": "qed/decl-nat"
+    },
+    {
+      "from": "qed/decl-nat",
+      "to": "qed/def-plus"
+    },
+    {
+      "from": "qed/def-plus",
+      "to": "qed/nl-plus"
+    },
+    {
+      "from": "qed/nl-plus",
+      "to": "qed/sp-compute"
+    },
+    {
+      "from": "qed/sp-compute",
+      "to": "qed/sp-under"
+    },
+    {
+      "from": "qed/sp-under",
+      "to": "qed/s-each"
+    },
+    {
+      "from": "qed/s-each",
+      "to": "qed/in-distinct"
+    },
+    {
+      "from": "qed/in-distinct",
+      "to": "qed/in-inject"
+    },
+    {
+      "from": "qed/in-inject",
+      "to": "qed/in-cases"
+    },
+    {
+      "from": "qed/in-cases",
+      "to": "qed/in-zero"
+    },
+    {
+      "from": "qed/in-zero",
+      "to": "qed/decl-list"
+    },
+    {
+      "from": "qed/decl-list",
+      "to": "qed/def-list"
+    },
+    {
+      "from": "qed/def-list",
+      "to": "qed/sp-lists"
+    },
+    {
+      "from": "qed/sp-lists",
+      "to": "qed/sp-hyp"
+    },
+    {
+      "from": "qed/in-zero",
+      "to": "qed/decl-bool"
+    },
+    {
+      "from": "qed/decl-bool",
+      "to": "qed/def-max"
+    },
+    {
+      "from": "qed/def-max",
+      "to": "qed/sp-cond"
+    },
+    {
+      "from": "qed/sp-hyp",
+      "to": "qed/in-succ"
+    },
+    {
+      "from": "qed/sp-cond",
+      "to": "qed/in-succ"
+    },
+    {
+      "from": "qed/in-succ",
+      "to": "qed/in-comm"
+    },
+    {
+      "from": "qed/in-comm",
+      "to": "qed/in-assoc"
+    },
+    {
+      "from": "qed/sp-hyp",
+      "to": "qed/in-appnil"
+    },
+    {
+      "from": "qed/sp-cond",
+      "to": "qed/in-appnil"
+    },
+    {
+      "from": "qed/sp-hyp",
+      "to": "qed/in-noteq"
+    },
+    {
+      "from": "qed/sp-cond",
+      "to": "qed/in-noteq"
+    },
+    {
+      "from": "qed/in-noteq",
+      "to": "qed/in-loop"
+    },
+    {
+      "from": "qed/decl-nat",
+      "to": "qed/gen-nat"
+    },
+    {
+      "required": true,
+      "from": "qed/gen-ex",
+      "to": "qed/gen-nat"
+    },
+    {
+      "from": "qed/decl-nat",
+      "to": "qed/in-induct"
+    },
+    {
+      "required": true,
+      "from": "qed/h-eq-subst",
+      "to": "qed/in-induct"
+    },
+    {
+      "from": "qed/in-appnil",
+      "to": "qed/sort-ins"
+    },
+    {
+      "from": "qed/sp-cond",
+      "to": "qed/sort-ins"
+    },
+    {
+      "required": true,
+      "from": "qed/sort-ins",
+      "to": "qed/sort-run"
+    },
+    {
+      "required": true,
+      "from": "qed/sort-run",
+      "to": "qed/sort-if"
+    },
+    {
+      "required": true,
+      "from": "qed/sort-if",
+      "to": "qed/sort-insLen"
+    },
+    {
+      "required": true,
+      "from": "qed/sort-insLen",
+      "to": "qed/sort-len"
+    },
+    {
+      "required": true,
+      "from": "qed/c-either",
+      "to": "qed/in-appassoc"
+    },
+    {
+      "from": "qed/in-assoc",
+      "to": "qed/in-appassoc"
+    },
+    {
+      "from": "qed/in-appnil",
+      "to": "qed/in-appassoc"
+    },
+    {
+      "from": "qed/in-loop",
+      "to": "qed/in-appassoc"
+    },
+    {
+      "required": true,
+      "from": "qed/in-appassoc",
+      "to": "qed/in-revapp"
+    },
+    {
+      "required": true,
+      "from": "qed/in-revapp",
+      "to": "qed/in-revrev"
+    },
+    {
+      "required": true,
+      "from": "qed/in-revrev",
+      "to": "qed/in-len"
+    },
+    {
+      "required": true,
+      "from": "qed/in-len",
+      "to": "qed/in-itsum"
+    },
+    {
+      "from": "qed/in-assoc",
+      "to": "qed/gd-code"
+    },
+    {
+      "from": "qed/in-appnil",
+      "to": "qed/gd-code"
+    },
+    {
+      "from": "qed/in-loop",
+      "to": "qed/gd-code"
+    },
+    {
+      "required": true,
+      "from": "qed/u-halt",
+      "to": "qed/gd-code"
+    },
+    {
+      "required": true,
+      "from": "qed/gd-code",
+      "to": "qed/gd-check"
+    },
+    {
+      "required": true,
+      "from": "qed/gd-check",
+      "to": "qed/gd-diag"
+    },
+    {
+      "required": true,
+      "from": "qed/gd-diag",
+      "to": "qed/gd-true"
+    },
+    {
+      "required": true,
+      "from": "qed/gd-true",
+      "to": "qed/gd-con"
+    },
+    {
+      "required": true,
+      "from": "qed/gd-con",
+      "to": "qed/gd-second"
+    },
+    {
+      "from": "qed/in-comm",
+      "to": "qed/in-circle"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "qed/mergeUse",
+      "to": "qed/decl-and"
+    },
+    {
+      "from": "qed/decl-and",
+      "to": "qed/decl-check"
+    },
+    {
+      "from": "qed/decl-check",
+      "to": "qed/decl-strength"
+    },
+    {
+      "from": "qed/decl-strength",
+      "to": "qed/decl-or"
+    },
+    {
+      "from": "qed/decl-or",
+      "to": "qed/decl-bot"
+    },
+    {
+      "from": "qed/decl-bot",
+      "to": "qed/decl-true"
+    },
+    {
+      "required": true,
+      "from": "qed/decl-true",
+      "to": "qed/decl-iff"
+    },
+    {
+      "required": true,
+      "from": "qed/decl-iff",
+      "to": "qed/decl-three"
+    },
+    {
+      "required": true,
+      "from": "qed/decl-three",
+      "to": "qed/decl-order"
+    },
+    {
+      "required": true,
+      "from": "qed/decl-order",
+      "to": "qed/decl-two"
+    },
+    {
+      "from": "qed/decl-bot",
+      "to": "qed/gen-one"
+    },
+    {
+      "required": true,
+      "from": "qed/gen-one",
+      "to": "qed/gen-each"
+    }
+  ]
+}

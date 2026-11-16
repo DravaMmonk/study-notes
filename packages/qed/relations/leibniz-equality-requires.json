@@ -1,0 +1,15 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "required": true,
+      "from": "h-eq-refl",
+      "to": "h-eq-subst"
+    },
+    {
+      "required": true,
+      "from": "h-eq-subst",
+      "to": "h-eq-sym"
+    }
+  ]
+}

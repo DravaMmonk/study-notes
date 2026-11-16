@@ -5,12 +5,12 @@
       "t": "@level.au-iff.intro.0.t"
     }
   ],
-  "tray": "formula",
+  "tray": "#formula",
   "tasks": [
     {
       "id": "au-iff_1",
       "kind": "proof",
-      "tray": ["proof", "formula"],
+      "tray": ["#proof", "#formula"],
       "step": "@level.au-iff.tasks.au-iff_1.step",
       "tests": [{ "premises": { "p": "A ↔ B" }, "goal": "(¬A ∨ B) ∧ (¬B ∨ A)" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
@@ -23,7 +23,7 @@
     {
       "id": "au-iff_2",
       "kind": "proof",
-      "tray": ["proof", "formula"],
+      "tray": ["#proof", "#formula"],
       "step": "@level.au-iff.tasks.au-iff_2.step",
       "tests": [{ "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" }, "goal": "A ↔ B" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
@@ -40,7 +40,7 @@
     {
       "id": "au-iff_3",
       "kind": "machine",
-      "tray": ["machine", "formula"],
+      "tray": ["#machine", "#formula"],
       "want": "becomes",
       "inputs": [{ "name": "in", "label": "@level.au-iff.tasks.au-iff_3.inputs.0.label" }],
       "backtrack": true,

@@ -41,10 +41,9 @@ import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
-import GroupBoard from './GroupBoard.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
-import { groupMoves, groupOf } from './groups.js'
+import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
 import { textField } from './copy.js'
@@ -53,7 +52,7 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['groups', '分组', 'Groups'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -180,7 +179,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
     return content.levels.map((l) => {
       const group = groupOf(content, l.id)
       const shown = label.get(l.id)?.label ?? l.id
-      return { value: l.id, label: shown, title: l.title, group: group ? `${group} ${L(content.groups[group].title) ?? ''}` : null, ...(shown !== l.id && { about: l.id }), ...(Array.isArray(l.tasks) && { tasks: l.tasks.map((task) => ({ id: task.id, ...(task.step && { step: task.step }) })) }) }
+      return { value: l.id, label: shown, title: l.title, group: group ? `${group} ${L(levelTags(content)[group].title) ?? ''}` : null, ...(shown !== l.id && { about: l.id }), ...(Array.isArray(l.tasks) && { tasks: l.tasks.map((task) => ({ id: task.id, ...(task.step && { step: task.step }) })) }) }
     }).sort((a, b) => playOrder.indexOf(a.value) - playOrder.indexOf(b.value))
   }, [content, rawNames, playOrder])
 
@@ -203,7 +202,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   }
   const openTreeItem = (next, keep) => {
     select(next, keep)
-    if (next?.group !== undefined) setTab('groups')
+    if (next?.group !== undefined) setTab('copy')
     else pickField(selectionPath(next))
   }
   const removeLevel = (level) => {
@@ -408,7 +407,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   }
   // Levels dropped in the tree: into a group at a place, or out of every group.
   const move = (levels, to) => {
-    addOps(groupMoves(levels, to))
+    addOps(groupMoves(levels, to, content))
     setMoving(null)
   }
   // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
@@ -422,29 +421,20 @@ export default function PackageStudio({ game, games, onGame, space }) {
   const firstTaskSchema = vocab && tasksSchema(vocab.vocabulary)
   const levelChoices = vocab ? creationChoices(firstTaskSchema ?? vocab.vocabulary.level, newLevelContext) : []
   const addLevel = (action) => {
-    const taken = new Set([...Object.keys(content.groups), ...content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)])])
-    if (action === 'group') {
-      const group = freeName([...taken], 'group')
-      edit({ op: 'group.add', group, data: { title: T('新的一组', 'New group'), levels: [] } })
-      openTreeItem({ group })
-      return
-    }
+    const taken = new Set([...Object.keys(content.tags), ...content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)])])
     const source = content.levels.find((entry) => entry.id === at?.level)
-    const group = at?.group ?? (source && groupOf(content, source.id))
     const level = freeName([...taken], 'level')
     const make = levelChoices[action]?.make
     const draft = action === 'copy' ? source : {
       ...(firstTaskSchema ? { ...blank(vocab.vocabulary.level, newLevelContext), tasks: [make()] } : make()),
       title: T('新关卡', 'New level'),
     }
-    const to = group && (source && groupOf(content, source.id) === group ? { group, after: source.id } : { group })
-    edit({ op: 'level.add', level, data: copyLevelData(draft, level, content.levels), ...(to && { to }) })
+    edit({ op: 'level.add', level, data: copyLevelData(draft, level, content.levels) })
     openTreeItem({ level })
   }
   const duplicate = (level, id) => {
     const source = content.levels.find((l) => l.id === level)
-    const group = groupOf(content, level)
-    edit({ op: 'level.add', level: id, data: copyLevelData(source, id, content.levels), ...(group && { to: { group, after: level } }) })
+    edit({ op: 'level.add', level: id, data: copyLevelData(source, id, content.levels) })
     select({ level: id })
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
@@ -494,7 +484,6 @@ export default function PackageStudio({ game, games, onGame, space }) {
     ['copy', tr('文案表'), '', () => setTab('copy')],
     ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
     ['page', tr('画面：在游戏的页面上改'), '', () => { setTab('page'); setPageEdit(true) }],
-    ['groups', tr('关卡分组', 'Level groups'), '', () => setTab('groups')],
     ['fields', tr('字段：这一关的全部字段'), '', () => setTab('fields')],
     ...(level ? [
       ['play-ref', tr('载入参考解试玩这一关'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
@@ -601,16 +590,12 @@ export default function PackageStudio({ game, games, onGame, space }) {
                       ...(levelChoices.length > 1 && { children: levelChoices }),
                     }] : []),
                     ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
-                    { value: 'group', label: tr('新建一组', 'New group') },
                   ]} onAdd={addLevel} /> }
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
-                {tab === 'groups' && (
-                  <GroupBoard content={content} at={at} options={levelOptions} pending={saving || shown.ops !== ops} onSelect={select} onEdit={edit} onOps={addOps} />
-                )}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">

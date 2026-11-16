@@ -1,0 +1,29 @@
+{
+  "kind": "order",
+  "sequence": [
+    "qed/au-negate",
+    "qed/au-iff",
+    "qed/au-hyps",
+    "qed/au-skolem",
+    "qed/au-clauses",
+    "qed/au-resolve",
+    "qed/au-refute",
+    "qed/au-onepair",
+    "qed/au-saturate",
+    "qed/au-sledge",
+    "qed/au-cert",
+    "qed/au-replay",
+    "qed/au-wrong",
+    "qed/au-adder",
+    "qed/au-machine",
+    "qed/is-three",
+    "qed/is-silent",
+    "qed/is-ten",
+    "qed/u-barber",
+    "qed/u-cantor",
+    "qed/u-ls",
+    "qed/u-halt",
+    "qed/au-horn"
+  ],
+  "of": "level"
+}

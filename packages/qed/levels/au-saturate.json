@@ -1,7 +1,7 @@
 {
   "title": "@level.au-saturate.title",
   "adds": ["resolve"],
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.au-saturate.intro.0.t"

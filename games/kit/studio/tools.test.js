@@ -14,7 +14,6 @@ import { eraLevels } from '../course.js'
 import { openGame } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
 import { bulkAdds, bulkPatch, bulkSet, bulkUnset, commonFields } from './bulk.js'
-import { groupMoves } from './groups.js'
 import { paletteIndex, rankPalette, scoreOf } from './palette.js'
 import { filterItems, itemOf, ruleOf, stepIn, tally } from './worklist.js'
 import { copyRows } from './copy.js'
@@ -52,8 +51,6 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
     skipped: [{ level: 'c', why: 'brings in no parts' }],
   })
   // Put together into a group: the first to the place, each next right after the one before; or out of every group.
-  assert.deepEqual(groupMoves(['x', 'y', 'z'], { group: 'g', at: 0 }).map((op) => op.to), [{ group: 'g', at: 0 }, { group: 'g', after: 'x' }, { group: 'g', after: 'y' }])
-  assert.deepEqual(groupMoves(['x'], { out: true }), [{ op: 'group.place', level: 'x' }])
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
@@ -73,6 +70,9 @@ function openStarter(d) {
   const game = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
   writeFileSync(join(dir, 'game.json'), JSON.stringify({ package: d, ...game }))
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(pkg, 'levels')).length} }]\n`)
+  for (const folder of [dir, pkg]) {
+    const rename = (folder) => { for (const entry of readdirSync(folder, { withFileTypes: true })) { const file = join(folder, entry.name); if (entry.isDirectory()) rename(file); else if (file.endsWith('.json')) writeFileSync(file, readFileSync(file, 'utf8').replaceAll('starter/', `${d}/`)) } }; rename(folder)
+  }
   return openGame(d, root)
 }
 
@@ -87,10 +87,10 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
     const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { en: '同一个标题' })
     assert.deepEqual([ops.length, skipped], [ids.length, []], d)
     // The era's levels backwards, into a new group: they end up together there, in that order.
-    const grouped = [{ op: 'group.add', group: 'first', data: { title: { en: 'First' }, levels: [] } }, ...groupMoves([...ids].reverse(), { group: 'first', at: 0 })]
+    const grouped = [{ op: 'tag.put', tag: 'first', data: { kind: 'level', title: { en: 'First' }, values: ids } }]
     const r = await runChangeset(ws, { ops: [...ops, ...grouped] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
-    assert.deepEqual(r.content.groups[`${d}/first`].levels.map(({ id }) => id), [...ids].reverse(), d)
+    assert.deepEqual(r.content.tags[`${d}/first`].values, ids, d)
     assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === '同一个标题'), d)
   }
 })
@@ -162,7 +162,7 @@ test('on every starter: the copy table’s rows: an era’s own texts and its le
     const own = eraLevels(content.eras[0])
     // The era's own texts first, under its id in game.json; then only its levels' texts, each under its level.
     const head = era.findIndex((r) => !r.file.game)
-    assert.ok(head > 0 && era.slice(0, head).every((r) => r.file.game && r.path[0] === 'eras' && r.path[1] === 0 && r.name === String(content.eras[0].id)), game)
+    assert.ok(head > 0 && era.slice(0, head).every((r) => r.file.game && r.path[0] === 'chapters' && r.path[1] === 0 && r.name === String(content.eras[0].id)), game)
     assert.ok(era.slice(head).every((r) => own.includes(r.file.level) && r.name === r.file.level), game)
     assert.ok(own.every((id) => era.some((r) => r.file.level === id && r.field === 'title')), game)
     const all = copyRows(content, vocabulary, 'all', order, 'game')

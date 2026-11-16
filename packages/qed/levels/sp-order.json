@@ -1,6 +1,6 @@
 {
   "title": "@level.sp-order.title",
-  "tray": ["machine", "formula"],
+  "tray": ["#machine", "#formula"],
   "intro": [
     {
       "t": "@level.sp-order.intro.0.t"

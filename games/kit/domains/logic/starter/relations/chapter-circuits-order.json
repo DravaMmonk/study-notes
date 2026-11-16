@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "sequence": [
+    "starter/g-not",
+    "starter/g-and",
+    "starter/g-or",
+    "starter/g-use"
+  ],
+  "of": "level"
+}

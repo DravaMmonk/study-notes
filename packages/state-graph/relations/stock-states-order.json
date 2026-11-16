@@ -1,0 +1,8 @@
+{
+  "kind": "order",
+  "sequence": [
+    "stock1",
+    "cooldown"
+  ],
+  "of": "level"
+}

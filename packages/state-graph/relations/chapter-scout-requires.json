@@ -1,0 +1,84 @@
+{
+  "kind": "requires",
+  "edges": [
+    {
+      "from": "state-graph/city",
+      "to": "state-graph/copy"
+    },
+    {
+      "from": "state-graph/copy",
+      "to": "state-graph/confluence"
+    },
+    {
+      "from": "state-graph/confluence",
+      "to": "state-graph/stamp"
+    },
+    {
+      "from": "state-graph/stamp",
+      "to": "state-graph/rocks"
+    },
+    {
+      "from": "state-graph/rocks",
+      "to": "state-graph/reach"
+    },
+    {
+      "from": "state-graph/stamp",
+      "to": "state-graph/cheapest"
+    },
+    {
+      "from": "state-graph/cheapest",
+      "to": "state-graph/slantcost"
+    },
+    {
+      "from": "state-graph/reach",
+      "to": "state-graph/slant"
+    },
+    {
+      "from": "state-graph/slantcost",
+      "to": "state-graph/slant"
+    },
+    {
+      "from": "state-graph/slant",
+      "to": "state-graph/pascal"
+    },
+    {
+      "from": "state-graph/reach",
+      "to": "state-graph/maxcoins"
+    },
+    {
+      "from": "state-graph/slantcost",
+      "to": "state-graph/maxcoins"
+    },
+    {
+      "from": "state-graph/pascal",
+      "to": "state-graph/pits"
+    },
+    {
+      "from": "state-graph/maxcoins",
+      "to": "state-graph/pits"
+    },
+    {
+      "from": "state-graph/slantcost",
+      "to": "state-graph/seamline"
+    },
+    {
+      "required": true,
+      "from": "state-graph/seamline",
+      "to": "state-graph/seamslant"
+    },
+    {
+      "required": true,
+      "from": "state-graph/seamslant",
+      "to": "state-graph/seam"
+    },
+    {
+      "required": true,
+      "from": "state-graph/seam",
+      "to": "state-graph/carve"
+    },
+    {
+      "from": "state-graph/pascal",
+      "to": "state-graph/lawn"
+    }
+  ]
+}

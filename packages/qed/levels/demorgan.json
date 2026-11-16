@@ -1,6 +1,6 @@
 {
   "title": "@level.demorgan.title",
-  "tray": ["proof", "formula"],
+  "tray": ["#proof", "#formula"],
   "intro": [
     {
       "t": "@level.demorgan.intro.0.t"

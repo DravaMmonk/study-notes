@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { COURSE_FIELDS } from '../course-schema.js'
+import { COURSE_FIELDS, COURSE_OPTIONS } from '../course-schema.js'
 import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
@@ -17,16 +17,15 @@ import { withParts } from '../parts/define.js'
 import { taskLevel } from '../tasks.js'
 import { textKey } from '../i18n.js'
 import { writeContentFixture } from './fixture.js'
-import { TRAYS } from '../trays.js'
 
 const openGame = (id, root, options = {}) => openWorkspace(id, root, { vocabulary: id === 'ptoy' ? PVOCAB : VOCAB, ...options })
 
-const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS })
+const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS, COURSE_OPTIONS })
 const VOCAB = defineVocabulary({
   domain: 'toy',
   version: 1,
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
-  game: S.obj({ title: S.text(), eras: S.list(ERA), carry: S.opt(S.map(S.level())), trays: TRAYS }),
+  game: S.obj({ title: S.text(), chapters: S.list(ERA), ...COURSE_OPTIONS, carry: S.opt(S.map(S.level())) }),
   // What a toy level says once is its whole puzzle; its one task is only its id.
   level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
 })
@@ -44,7 +43,7 @@ function toy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-toy-'))
   const game = {
     domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
-    eras: [{ id: 'one', levels: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3', optional: true }], links: [{ from: 'a1', to: 'a2' }, { from: 'a1', to: 'a3' }] }, { id: 'two', levels: [{ id: 'b1' }, { id: 'b2' }, { id: 'c1' }], links: [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }] }],
+    chapters: [{ id: 'one', levels: ['toy/a1', 'toy/a2', 'toy/a3'] }, { id: 'two', levels: ['b1', 'b2', 'c1'] }], optional: ['a3'],
     carry: { x: 'a2' },
   }
   const glossary = { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] }
@@ -105,20 +104,6 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
   assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', path: 'brief', text: 'goal <- p' }), /not a board/)
 })
 
-test('level.move takes a level out of a branch and puts it anywhere', () => {
-  const { ws } = toy()
-  const done = roundTrip(ws, 'level.move', { level: 'a3', to: { before: 'b2' } })
-  assert.deepEqual(ws.game.eras[1].levels, [{ id: 'b1' }, { id: 'a3', optional: true }, { id: 'b2' }, { id: 'c1' }])
-  assert.match(done.says, /era one, level #3 → era two, level #2/)
-  roundTrip(ws, 'level.move', { level: 'a2', to: { era: 'two', at: 0 } })
-  // Moving preserves the prerequisite wires.
-  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1'])
-  roundTrip(ws, 'level.move', { level: 'a1', to: { after: 'b2' } })
-  roundTrip(ws, 'level.move', { level: 'b2', to: { era: 'two' } })
-  assert.deepEqual(ws.game.eras[1].links, [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }, { from: 'a1', to: 'a3' }, { from: 'a1', to: 'a2' }])
-  assert.throws(() => run(ws, 'level.move', { level: 'b1', to: { era: 'nowhere' } }), /no era nowhere/)
-})
-
 test('level.rename renames the file and every reference', () => {
   const { ws } = toy()
   const titleKey = textKey(level(ws, 'a2').title)
@@ -127,8 +112,7 @@ test('level.rename renames the file and every reference', () => {
   assert.ok(ws.levels.has('two') && !ws.levels.has('a2'))
   assert.equal(textKey(level(ws, 'two').title), titleKey)
   assert.equal(textKey(level(ws, 'b1').brief), briefKey)
-  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'two', 'a3'])
-  assert.deepEqual(ws.game.eras[0].links[0], { from: 'a1', to: 'two' })
+  assert.deepEqual(ws.game.chapters[0].levels, ['toy/a1', 'toy/two', 'toy/a3'])
   assert.deepEqual(ws.game.carry, { x: 'two' })
   assert.equal(level(ws, 'b1').from, 'two')
   assert.equal(level(ws, 'b1').brief.en, 'after <level-ref to="two"></level-ref>')
@@ -138,14 +122,15 @@ test('level.rename renames the file and every reference', () => {
   assert.throws(() => run(ws, 'level.rename', { level: 'two', to: 'b1' }), /already/)
 })
 
-test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
+test('level.add and level.remove update placement while preserving content references', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' } })
-  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'a2', 'a3'])
+  assert.deepEqual(ws.game.chapters[0].levels, ['toy/a1', 'toy/a2', 'toy/a3'])
   roundTrip(ws, 'level.remove', { level: 'n1' })
-  assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named at game.json carry.x, glossary.json entries\[0\].at, glossary.json entries\[0\].body\[0\], levels\/b1.json from, levels\/b1.json brief.en/)
+  assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named/)
   roundTrip(ws, 'level.remove', { level: 'c1' })
-  assert.deepEqual(ws.game.eras[1].links, [{ from: 'a3', to: 'b1' }])
+  assert.ok(!ws.game.chapters[1].levels.includes('toy/c1'))
+
 })
 
 test('game.set and game.unset edit the assembled configuration', () => {
@@ -155,51 +140,22 @@ test('game.set and game.unset edit the assembled configuration', () => {
   assert.equal(ws.game.carry, undefined)
 })
 
-test('course changes write to the game, tray changes to the package, and the package keeps other games’ translations', async () => {
-  const { root } = toy()
-  const pkg = join(root, 'packages', 'toy')
-  const other = 'level.elsewhere.title'
-  const locale = join(pkg, 'i18n', 'en.json')
-  writeFileSync(locale, JSON.stringify({ ...JSON.parse(readFileSync(locale)), [other]: 'Read by another game' }))
-
-  const ws = openGame('toy', root)
+test('named-object operations persist typed tags, relations and layouts and preserve translations', async () => {
+  const { root, ws } = toy()
   const result = await runChangeset(ws, { ops: [
-    { op: 'game.set', path: 'eras[0].title', value: { en: 'Opening' } },
-    { op: 'game.set', path: 'trays', value: { main: { name: { en: 'Main tray' }, desc: { en: 'Parts for the board' }, items: ['a', 'b'] } } },
+    { op: 'tag.put', tag: 'basics', data: { kind: 'level', title: { en: 'Basics' }, values: ['a1', 'a2'] } },
+    { op: 'relation.put', relation: 'path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } },
+    { op: 'layout.put', layout: 'map', data: { of: '#basics', rows: [['a1'], ['a2']] } },
+    { op: 'game.set', path: 'chapters[0].layout', value: 'toy/map' },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  assert.deepEqual(result.files.sort(), ['games/toy/course.json', 'games/toy/i18n/en.json', 'packages/toy/i18n/en.json', 'packages/toy/trays.json'])
-  assert.deepEqual(JSON.parse(readFileSync(join(pkg, 'trays.json'))), { main: { name: '@tray.trays.main.name', desc: '@tray.trays.main.desc', items: ['a', 'b'] } })
-  assert.equal(JSON.parse(readFileSync(locale))[other], 'Read by another game')
-  assert.equal(JSON.parse(readFileSync(join(root, 'games', 'toy', 'i18n', 'en.json')))['course.eras.one.title'], 'Opening')
-  const reopened = openGame('toy', root).game
-  assert.equal(reopened.eras[0].title.en, 'Opening')
-  assert.equal(reopened.trays.main.name.en, 'Main tray')
-  assert.equal(reopened.trays.main.desc.en, 'Parts for the board')
-})
-
-test('groups: added, filled, placed whole in the course, renamed and removed; their levels follow a rename', () => {
-  const { ws } = toy()
-  roundTrip(ws, 'group.add', { group: 'basics', data: { title: { en: 'Basics' }, levels: [] } })
-  roundTrip(ws, 'group.place', { level: 'b1', to: { group: 'basics' } })
-  roundTrip(ws, 'group.place', { level: 'b2', to: { group: 'basics', before: 'b1' } })
-  run(ws, 'group.place', { level: 'b1', to: { group: 'basics' } })
-  assert.deepEqual(ws.groups.get('basics').levels, [{ id: 'b2' }, { id: 'b1' }])
-  roundTrip(ws, 'group.set', { group: 'basics', path: 'links', value: [{ from: 'b2', to: 'b1' }] })
-  roundTrip(ws, 'level.add', { level: 'n1', data: { title: { en: 'N' }, tasks: [{ id: 'n1' }] }, to: { group: 'basics', after: 'b2' } })
-  assert.deepEqual(ws.groups.get('basics').levels.map(({ id }) => id), ['b2', 'n1', 'b1'])
-  ws.game = { ...ws.game, eras: [...ws.game.eras, { id: 'three', levels: [{ group: 'basics' }], links: [{ from: 'a1', to: 'basics' }] }] }
-  roundTrip(ws, 'level.rename', { level: 'b2', to: 'bb' })
-  assert.deepEqual(ws.groups.get('basics').links, [{ from: 'bb', to: 'b1' }])
-  roundTrip(ws, 'group.rename', { group: 'basics', to: 'start' })
-  assert.deepEqual(ws.game.eras[2], { id: 'three', levels: [{ group: 'start' }], links: [{ from: 'a1', to: 'start' }] })
-  // Taken out of its group, a level loses the group's links to it.
-  roundTrip(ws, 'group.place', { level: 'b1' })
-  assert.equal(ws.groups.get('start').links, undefined)
-  roundTrip(ws, 'level.remove', { level: 'n1' })
-  roundTrip(ws, 'group.remove', { group: 'start' })
-  assert.deepEqual(ws.game.eras[2], { id: 'three', levels: [] })
-  assert.throws(() => run(ws, 'group.add', { group: 'a1' }), /a level's id/)
+  const reopened = openGame('toy', root)
+  assert.equal(reopened.content().tags['toy/basics'].title.en, 'Basics')
+  assert.deepEqual(reopened.content().eras[0].rows, [['toy/a1'], ['toy/a2']])
+  for (const kind of ['tag', 'relation', 'layout']) {
+    const key = { tag: 'basics', relation: 'path', layout: 'map' }[kind]
+    roundTrip(reopened, `${kind}.set`, { [kind]: key, path: kind === 'tag' ? 'values' : kind === 'relation' ? 'edges' : 'rows', value: [] })
+  }
 })
 
 test('a game puts its own wording over a package text, which the package keeps; the package workspace reads its own', async () => {
@@ -325,20 +281,20 @@ test('a changeset whose domain throws while it is settled is refused and leaves 
 
 test('a changeset is checked as a whole, writes only when it passes, logs, and undoes', async () => {
   const { root, ws } = toy()
-  const refused = await runChangeset(ws, { ops: [{ op: 'level.move', level: 'b2', to: { before: 'a1' } }, { op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, { write: true, check: false, domain: DOMAIN })
+  const refused = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'chapters[0].levels', value: ['toy/b2', 'toy/a1', 'toy/a2', 'toy/a3'] }, { op: 'game.set', path: 'chapters[1].levels', value: ['toy/b1', 'toy/c1'] }, { op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(refused.ok, false)
   assert.match(refused.problems[0], /levels\/toy\/a1.json.from: "toy\/gone" is no level of this game/)
   assert.deepEqual(readLog(ws), [])
-  const bad = await runChangeset(ws, { ops: [{ op: 'level.move', level: 'nope', to: { before: 'a1' } }] }, { domain: DOMAIN, check: false })
-  assert.match(bad.problems[0], /^op 1 \(level.move\): level: "nope" is no level of this game/)
+  const bad = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'nope', path: 'title', value: 'No' }] }, { domain: DOMAIN, check: false })
+  assert.match(bad.problems[0], /^op 1 \(level.set\): level: "nope" is no level of this game/)
 
   const why = 'b2 first, a rewritten puzzle, a new name'
   const done = await runChangeset(ws, { why, ops: [
-    { op: 'level.move', level: 'b2', to: { before: 'a1' } },
+    { op: 'game.set', path: 'chapters[0].levels', value: ['toy/b2', 'toy/a1', 'toy/a2', 'toy/a3'] }, { op: 'game.set', path: 'chapters[1].levels', value: ['toy/b1', 'toy/c1'] },
     { op: 'level.set', level: 'a3', path: 'tests', value: [2] },
     { op: 'level.rename', level: 'b2', to: 'first' },
     { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] } },
-    { op: 'game.set', path: 'eras[0].levels[4]', value: { id: 'n1' } },
+    { op: 'game.set', path: 'chapters[0].levels[4]', value: 'toy/n1' },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
   assert.ok(existsSync(join(root, 'packages', 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'packages', 'toy', 'levels', 'b2.json')))
@@ -349,7 +305,7 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
   assert.match((await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 0 })).problems[0], /#0 is not the change undo would undo now \(#1 is\)/)
   const back = await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 1 })
   assert.equal(back.ok, true, back.problems.join('\n'))
-  assert.deepEqual(ws.game.eras, toy().ws.game.eras)
+  assert.deepEqual(ws.game.chapters, toy().ws.game.chapters)
   assert.deepEqual(readLog(ws).map((e) => e.undoes), [undefined, 1])
   assert.match((await undo(ws, { domain: DOMAIN, check: false })).problems[0], /nothing to undo/)
 })
@@ -388,13 +344,13 @@ const PVOCAB = defineVocabulary({
   domain: 'ptoy',
   version: 1,
   kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
-  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), eras: S.list(ERA) }),
+  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), chapters: S.list(ERA), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part') })) }),
 })
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
 function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
-  const game = { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', levels: [{ id: 'a1' }] }] }
+  const game = { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], chapters: [{ id: 'one', levels: ['a1'] }] }
   const glossary = { groups: [], entries: [] }
   const partDefs = { parts: { sum } }
   const levels = { a1: { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] } }
@@ -449,7 +405,7 @@ test('the part operations edit pieces.json, refuse to remove a part still used, 
   assert.throws(() => prun(ws, 'pieces.set', { path: 'parts.sum', value: {} }), /piece.add/)
   assert.throws(() => prun(ws, 'piece.add', { piece: 'twice', data: sum, after: 'none' }), /no part none/)
   const renamed = prun(ws, 'piece.rename', { piece: 'sum', to: 'plus' })
-  assert.deepEqual(ws.game.primitives, ['plus'])
+  assert.deepEqual(ws.game.primitives, ['ptoy/plus'])
   assert.deepEqual(ws.levels.get('a1').adds, ['plus'])
   assert.deepEqual(ws.levels.get('a1').solution, ['s = plus(a, b)', 'out <- s'])
   assert.match(ws.levels.get('a1').brief.en, /<part-ref to="plus">/)
@@ -505,4 +461,48 @@ test('assembled piece selectors and registry paths address layer-local source ob
   assert.deepEqual(Object.keys(source.parts), ['sum', 'other'])
   assert.equal(result.content.partDefs.parts['ptoy/sum'].inputs[0].label.en, 'First input')
   assert.ok(result.content.registries.piece['ptoy/other'])
+})
+
+test('package tags, relations and layouts persist and reopen with full names', async () => {
+  const { root, ws } = toy()
+  const result = await runChangeset(ws, { ops: [
+    { op: 'relation.put', relation: 'toy/package-path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } },
+    { op: 'tag.put', tag: 'toy/pick', data: { kind: 'level', values: ['toy/a1', 'toy/a2'] } },
+    { op: 'layout.put', layout: 'toy/map', data: { of: '#pick', rows: [['toy/a1'], ['toy/a2']] } },
+    { op: 'game.set', path: 'chapters[0].layout', value: 'toy/map' },
+  ] }, { write: true, check: false, domain: DOMAIN })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  assert.ok(result.files.includes('packages/toy/tags/pick.json'))
+  assert.ok(result.files.includes('packages/toy/layouts/map.json'))
+  const content = openGame('toy', root).content()
+  assert.deepEqual(content.layouts['toy/map'].rows, [['toy/a1'], ['toy/a2']])
+  assert.deepEqual(content.tags['toy/pick'].values, ['toy/a1', 'toy/a2'])
+  assert.deepEqual(content.relationEdges.requires, [{ from: 'toy/a1', to: 'toy/a2' }])
+  const refused = await runChangeset(ws, { ops: [{ op: 'tag.put', tag: '@toy/forbidden', data: { kind: 'level', values: [] } }] }, { check: false, domain: DOMAIN })
+  assert.equal(refused.ok, false)
+})
+
+
+test('level renames update typed object references and preserve same-named items and titles', () => {
+  const { ws } = toy()
+  run(ws, 'tag.put', { tag: 'levels', data: { kind: 'level', title: 'a1', values: ['a1', 'a2'] } })
+  run(ws, 'tag.put', { tag: 'items', data: { kind: 'item', values: ['a1'] } })
+  run(ws, 'relation.put', { relation: 'path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } })
+  run(ws, 'relation.put', { relation: 'items', data: { kind: 'order', of: 'item', sequence: ['a1', 'a2'] } })
+  roundTrip(ws, 'level.rename', { level: 'a1', to: 'first' })
+  assert.deepEqual(ws.tags.get('levels'), { kind: 'level', title: 'a1', values: ['first', 'a2'] })
+  assert.deepEqual(ws.tags.get('items').values, ['a1'])
+  assert.deepEqual(ws.relations.get('path').edges, [{ from: 'first', to: 'a2' }])
+  assert.deepEqual(ws.relations.get('items').sequence, ['a1', 'a2'])
+})
+
+test('removing a level clears its tag, relation and layout placements and supports undo', () => {
+  const { ws } = toy()
+  run(ws, 'tag.put', { tag: 'levels', data: { kind: 'level', values: ['c1'] } })
+  run(ws, 'relation.put', { relation: 'path', data: { kind: 'requires', edges: [{ from: 'b2', to: 'c1' }] } })
+  run(ws, 'layout.put', { layout: 'map', data: { of: '#levels', rows: [['c1']] } })
+  roundTrip(ws, 'level.remove', { level: 'c1' })
+  assert.deepEqual(ws.tags.get('levels').values, [])
+  assert.deepEqual(ws.relations.get('path').edges, [])
+  assert.deepEqual(ws.layouts.get('map').rows, [])
 })

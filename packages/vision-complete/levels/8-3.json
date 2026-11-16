@@ -1,6 +1,6 @@
 {
   "title": "@level.8-3.title",
-  "tray": "generative",
+  "tray": "#generative",
   "after": "@level.8-3.after",
   "intro": [
     {

@@ -1,0 +1,12 @@
+{
+  "kind": "order",
+  "sequence": [
+    "decl-or",
+    "or",
+    "cases",
+    "orSwap",
+    "orImp",
+    "dsyll"
+  ],
+  "of": "level"
+}
