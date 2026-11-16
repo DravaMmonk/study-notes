@@ -1,6 +1,5 @@
 import { playId } from '../engine/plays.js'
-import { editorOf } from '../engine/pieces.js'
-import { trayMembers } from '../engine/trays.js'
+import { workshopTrayNames } from '../engine/trays.js'
 import { createElement, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
@@ -309,13 +308,11 @@ export default function GameShell({ game, store, author = null }) {
   }, [game, level, author, progress, solved])
   // The workshop borrows the board of a circuit task the player has open: the one it was opened from, else the latest
   // that plays with the tray asked for.
-  const pieces = game.partDefs?.parts ?? {}
-  const circuitTrays = new Set(Object.entries(game.course?.trays ?? {}).flatMap(([name, tray]) => (
-    trayMembers(tray).some((type) => Object.hasOwn(pieces, type) && editorOf(pieces[type]) === 'circuit') ? [name] : []
-  )))
+  const circuitTrays = useMemo(() => new Set(workshopTrayNames(game.course?.trays, game.partDefs?.parts)), [game])
+  const traysForWorkshop = (source) => game.course?.tray(source)?.filter((name) => circuitTrays.has(name)) ?? ['']
+  const levelWorkshopTray = kind?.editor === 'circuit' ? traysForWorkshop(played.source)[0] : undefined
   const workshopBoards = workshopSources.flatMap((source) => {
-    const named = game.course?.tray(source.task.source)
-    const trays = named ? named.filter((name) => circuitTrays.has(name)) : ['']
+    const trays = traysForWorkshop(source.task.source)
     return trays.length ? [{ ...source, trays }] : []
   })
   const requestedTray = circuitTrays.has(bench?.tray) ? bench.tray : null
@@ -397,7 +394,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { ...task.screen, key: `${level.id}#${runAt}#${game.stamp ?? ''}`, level: played, solve, fail, ...run, theme, phone, workshop: !author && game.workshop, onWorkshop: (tray) => openBench(tray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { ...task.screen, key: `${level.id}#${runAt}#${game.stamp ?? ''}`, level: played, solve, fail, ...run, theme, phone, workshop: !author && game.workshop, onWorkshop: levelWorkshopTray === undefined ? undefined : () => openBench(levelWorkshopTray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>

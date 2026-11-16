@@ -1,6 +1,18 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { trayDisplay, trayMembers } from './trays.js'
+import { trayDisplay, trayMembers, workshopTrayNames } from './trays.js'
+
+test('the workshop lists enabled circuit trays and leaves exercise trays usable by the course', () => {
+  const pieces = { gate: {}, word: { editor: 'strip' } }
+  const trays = {
+    main: { items: ['gate'] },
+    exercise: { workshop: false, items: ['gate'] },
+    words: { workshop: true, items: ['word'] },
+    mixed: { workshop: true, items: [{ id: 'menu', items: ['word', 'gate'] }] },
+  }
+  assert.deepEqual(workshopTrayNames(trays, pieces), ['main', 'mixed'])
+  assert.deepEqual(trayMembers(trays.exercise), ['gate'])
+})
 
 test('tray menus show only available pieces and follow their main and folded placement', () => {
   const menu = { id: 'or', title: '∨', items: ['orI', 'orE', 'locked'] }

@@ -8,7 +8,7 @@ import { COURSE_FIELDS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS, TRAY_METADATA_CHANGE } from '../../engine/trays.js'
+import { TRAY, TRAYS } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { IMAGE_OPS } from './engine/definitions.js'
@@ -149,8 +149,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 25,
-  removes: [TRAY_METADATA_CHANGE],
+  version: 26,
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

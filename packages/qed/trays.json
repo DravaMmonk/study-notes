@@ -73,11 +73,13 @@
   "resolution": {
     "name": "@tray.trays.resolution.name",
     "desc": "@tray.trays.resolution.desc",
+    "workshop": false,
     "items": ["res"]
   },
   "certificate": {
     "name": "@tray.trays.certificate.name",
     "desc": "@tray.trays.certificate.desc",
+    "workshop": false,
     "items": [
       {
         "id": "certificate",

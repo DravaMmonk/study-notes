@@ -1,5 +1,6 @@
 // Trays describe presentation: ordered pieces and optional menus for related pieces.
 import { S } from './schema.js'
+import { editorOf } from './pieces.js'
 import { T as t } from '../shell/i18n.js'
 
 const ITEM = S.either(S.ref('part'), S.name('part'))
@@ -13,11 +14,18 @@ const ENTRY = S.either(...ITEM.of, MENU)
 export const TRAYS = S.opt(S.map(S.obj({
   name: S.text(),
   desc: S.text(),
+  workshop: S.opt(S.bool({ about: t('允许在元件工坊使用。省略时允许。', 'Allow use in the component workshop. Enabled when omitted.') })),
   items: S.list(ENTRY),
 }), { section: 'course', about: t('托盘的名称、描述和按顺序展示的元件。', 'Tray names, descriptions, and ordered pieces.') }))
-export const TRAY_METADATA_CHANGE = { at: 'game.trays', why: t('托盘增加名称和描述。', 'Trays carry a name and a description.') }
 
 export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
+
+/** The named circuit trays that may be opened in the workshop, in course order. */
+export function workshopTrayNames(trays = {}, pieces = {}) {
+  return Object.entries(trays)
+    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => Object.hasOwn(pieces, type) && editorOf(pieces[type]) === 'circuit'))
+    .map(([name]) => name)
+}
 
 /** Project available pieces onto the selected trays, leaving availability to the course. */
 export function trayDisplay(trays, names, shown, folded) {

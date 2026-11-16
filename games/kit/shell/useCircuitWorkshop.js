@@ -70,5 +70,5 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     }
   }
   return { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    hold, capture, put, publish, library, update, available, pickedTrays, notice }
+    hold, capture, put, publish, library, update, available, notice }
 }

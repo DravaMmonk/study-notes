@@ -124,7 +124,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   base.syncOwn(progress.built)
   const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined: gameDefined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
+    hold, capture, put, publish, library, update, available, notice: workshopNotice } = workshopState
   const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
   const opening = () => circuit.opening(level, progress)
   const state = useLevelBoard(screen, {
@@ -388,7 +388,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             ...faces,
           }}
           canvas={canvas}
-          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && screen.onWorkshop && <button type="button" className="kit-btn is-label cs-workshop" onClick={() => screen.onWorkshop(pickedTrays[0] ?? null)}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
+          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && screen.onWorkshop && <button type="button" className="kit-btn is-label cs-workshop" onClick={screen.onWorkshop}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
           below={onPhone && practice.panel}
           describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
