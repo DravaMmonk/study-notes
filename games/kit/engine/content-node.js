@@ -9,6 +9,7 @@ import { OBJECT_SCHEMAS } from './objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
 import { catalogReader } from './catalogs.js'
+import { packageCourse } from './package-course.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
 export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
@@ -147,11 +148,13 @@ export function readPackageLayers(packageIds, root = PROJECT_DIR) {
 }
 
 /** Assemble qualified layers once, after every override has been composed. */
-export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [] } = {}) {
+export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses, groups } = result
-  const game = Object.assign({}, ...configurations)
+  let game = Object.assign({}, ...configurations)
   delete game.uses
+  const packageFields = Object.keys(game).filter((key) => !['domain', 'vocabulary'].includes(key))
+  if (packageId) game = packageCourse(packageId, r, game, schemas)
   const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [name, value, name.split('/')[0]])
   const overridden = {}
   for (const event of overrideHistory) if (event.kind === 'i18n') {
@@ -160,10 +163,10 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
     values[lang] = event.before
   }
   // Glossary groups remain package metadata until the later glossary migration.
-  return assemble({ id, schemas, packageId: layers[0].id, game, qualified: true,
+  return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
     levels: entries('level'), tags: entries('tag'), relations: entries('relation'), layouts: entries('layout'),
     partDefs: { parts: r.piece, settings: r.setting }, glossary: { groups, entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
-    blueprint, declarationProblems, overridden, fromDisk: true, provenance: { sources, overrideHistory, layerOrder, layerUses },
+    blueprint, declarationProblems, overridden, fromDisk: true, ...(packageId && { packagePreview: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })
 }
 
@@ -178,6 +181,50 @@ export function readContent(id, root = PROJECT_DIR, { overrides = true, vocabula
   const blueprintPath = resolve(gameDir, 'blueprint.json')
   const blueprint = existsSync(blueprintPath) ? catalogReader(own.catalogs)(json(blueprintPath), blueprintPath, BLUEPRINT, schemas) : undefined
   return assembleLayers(id, [...layers, own], schemas, { blueprint, declarationProblems: gameDeclarationProblems(gameDir) })
+}
+
+/** Installed packages, including libraries with no game. */
+export function packageIds(root = PROJECT_DIR) {
+  const dir = resolve(root, 'packages')
+  return existsSync(dir) ? readdirSync(dir).filter((id) => existsSync(resolve(dir, id, 'package.json'))).sort() : []
+}
+
+/** Open a package with its complete dependency closure, without requiring a game. */
+export function packageLayers(id, root = PROJECT_DIR) {
+  selector(id, 'package')
+  const layers = new Map()
+  const visit = (name) => {
+    if (layers.has(name)) return
+    selector(name, 'package')
+    const layer = readLayer(name, resolve(root, 'packages', name))
+    layers.set(name, layer)
+    for (const dependency of layer.config.uses ?? []) visit(dependency)
+  }
+  visit(id)
+  return orderPackages([...layers.values()])
+}
+
+/** Bare names retain game precedence. Explicit package selection disambiguates a shared name. */
+export function contentTargets(ids = [], root = PROJECT_DIR, { package: asPackage = false, game: asGame = false } = {}) {
+  if (asPackage && asGame) throw new Error('choose --package or --game')
+  const dir = resolve(root, 'games')
+  const games = existsSync(dir) ? readdirSync(dir).filter((id) => isDataGame(id, root)).sort() : []
+  const packages = packageIds(root)
+  const target = (id) => {
+    if (!asPackage && games.includes(id)) return { id, kind: 'game' }
+    if (!asGame && packages.includes(id)) return { id, kind: 'package' }
+    throw new Error(`no ${asPackage ? 'package' : asGame ? 'game' : 'game or package'} ${id}`)
+  }
+  if (ids.length) return ids.map(target)
+  if (asPackage) return packages.map((id) => ({ id, kind: 'package' }))
+  const played = new Set(games.flatMap((id) => readGameConfig(id, root).packageIds))
+  return [...games.map((id) => ({ id, kind: 'game' })), ...(asGame ? [] : packages.filter((id) => !played.has(id)).map((id) => ({ id, kind: 'package' })))]
+}
+
+export function readPackage(id, root = PROJECT_DIR, { vocabulary } = {}) {
+  const layers = packageLayers(id, root)
+  const schemas = vocabulary ?? contentVocabulary(layers.find((layer) => layer.id === id).config.domain)
+  return assembleLayers(id, layers, schemas, { packageId: id })
 }
 
 /** A domain's uninstalled starter keeps the course and package files together. */

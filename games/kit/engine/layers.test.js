@@ -107,7 +107,7 @@ test('disk reader and operations share layer composition, write ownership and in
   assert.deepEqual(JSON.parse(readFileSync(path)), { $merge: true, options: { x: 9 } })
   assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/base/levels/a.json'))).options, { x: 1 })
   assert.equal(readContent('demo', root, { vocabulary: schemas }).levels.find((l) => l.id === 'base/a').options.x, 9)
-  result = await undo(openGame('demo', root, { vocabulary: schemas }), { check: false, write: true, domain })
+  result = await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })
   assert.equal(result.ok, true, result.problems.join('\n'))
   ws = openGame('demo', root, { vocabulary: schemas, layer: '@demo' })
   result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: '@demo', kind: 'i18n', name: 'base/en', data: { title: 'Game' } }] }, { check: false, write: true, domain })

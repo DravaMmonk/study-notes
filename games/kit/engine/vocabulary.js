@@ -30,7 +30,7 @@ import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
 import { implementationProblems } from './parts/dependencies.js'
 import { makesPieces, PARTS_FILE } from './parts/schema.js'
-import { configurationFiles, hasCatalogSource } from './content.js'
+import { configurationFiles, contentFileFor, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
 import { OBJECT_SCHEMAS, referenceResolver, expandReferences } from './objects.js'
 import { canonicalJson } from './json-value.js'
@@ -134,12 +134,13 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
-  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { packagePreview, id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
   out.push(...objectProblems)
   if (hasCatalogSource(content)) {
     const courseKeys = new Map(), packageKeys = new Map()
     for (const [file, value] of Object.entries(configurationFiles(game))) {
+      if (packagePreview && ['game.json', 'course.json'].includes(file)) continue
       out.push(...catalogTextProblems(value, vocabulary.game, file, vocabulary, file === 'game.json' || file === 'course.json' ? courseKeys : packageKeys))
     }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
@@ -157,8 +158,12 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [kind, objects] of Object.entries({ tags, relations, layouts })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
-  const gameProblems = validate(vocabulary.game, resolvedGame, { vocabulary, levels: ids, languages, names })
-  add(gameProblems, 'game.json')
+  // Generated courses have no authored game configuration. Validate the fields actually supplied by packages.
+  const packageFields = packagePreview?.fields ?? []
+  const gameSchema = packagePreview ? S.obj(Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([key]) => contentFileFor([key]) === 'package.json').map(([key, schema]) => [key, { ...schema, optional: true }]))) : vocabulary.game
+  const gameValue = packagePreview ? Object.fromEntries(packageFields.map((key) => [key, resolvedGame[key]])) : resolvedGame
+  const gameProblems = validate(gameSchema, gameValue, { vocabulary, levels: ids, languages, names })
+  add(gameProblems, packagePreview ? 'package.json' : 'game.json')
   if (!gameProblems.length && eras) {
     out.push(...courseProblems(eras))
     const dependencies = courseDependencies(content)

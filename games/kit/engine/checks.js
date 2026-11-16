@@ -42,7 +42,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // A notes course is no machine growing level by level: its course is not audited (games/DESIGN.md 12.1).
   // Trays are the package's: whether something on them is ever brought in is judged on a game placing the whole package.
   const whole = spec.levels.length >= content.levels.length
-  const findings = spec.course.notes ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])].filter((f) => whole || f.rule !== 'tray-unmet')
+  const findings = spec.course.notes || content.packagePreview ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])].filter((f) => whole || f.rule !== 'tray-unmet')
   for (const { rule, fresh, left, gone } of againstOpen(findings, content.open ?? {})) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
@@ -51,7 +51,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
     if (left.length) lines.push({ text: `OPEN course: ${text} (${left.length}, on the game's work list): ${left.join('  ')}` })
   }
 
-  if (listed !== spec.levels.length) fail(`hub: games.js lists ${listed} levels, the game has ${spec.levels.length}`)
+  if (listed != null && listed !== spec.levels.length) fail(`hub: games.js lists ${listed} levels, the game has ${spec.levels.length}`)
 
   const seen = new Set()
   for (const level of spec.levels) {
@@ -79,7 +79,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // The links are read off every text of the content, by its schema, whatever its fields are called.
   const vocabulary = withParts(domain.vocabulary, content.partDefs)
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
-  const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
+  const opensBy = (at, where) => content.packagePreview || !at || at === where || (where && spec.course.before(at, where))
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
     .flatMap(({ value }) => typeof value === 'string' ? [value] : textEntries(value).map(([, text]) => text))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))

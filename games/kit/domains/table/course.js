@@ -271,6 +271,7 @@ export function tableCourse(content) {
   const circuitOf = id => (read.get(id) ?? []).filter(isCircuit);
   const sourceById = new Map(content.levels.map((level) => [level.id, level]));
   const course = defineCourse({
+    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
     eras,

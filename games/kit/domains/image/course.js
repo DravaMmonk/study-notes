@@ -173,6 +173,7 @@ export function imageCourse(config) {
   // Every task's answer counts: a part only the first task of a level uses is used.
   const answers = (l) => placedById[l.id].tasks.filter((task, k) => l.task === undefined || l.task === k).map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
+    available: config.packagePreview ? Object.keys(config.registries.piece) : null,
     complete: config.levels.every((level) => plan.place.has(level.id)),
     levels: placed.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,

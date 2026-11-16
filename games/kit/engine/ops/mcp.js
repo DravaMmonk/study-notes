@@ -18,6 +18,7 @@ const inputSchema = (params) => ({
   properties: Object.fromEntries(Object.entries(params).map(([k, spec]) => [k, { type: typeOf(spec) }])),
   required: Object.entries(params).filter(([, spec]) => !spec.endsWith('?')).map(([k]) => k),
   additionalProperties: false,
+  ...(params.package && { oneOf: [{ required: ['game'] }, { required: ['package'] }] }),
 })
 
 const METHODS = {

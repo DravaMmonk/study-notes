@@ -207,6 +207,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.[level.task] ?? null)
   const solutions = (level) => (taskOf(level) ? [taskOf(level)] : played.get(level.id)).filter(isBoard).map((T) => T.solution)
   const course = defineCourse({
+    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.unlocks })),
     eras,

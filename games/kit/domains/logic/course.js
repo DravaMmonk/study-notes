@@ -405,6 +405,7 @@ export function logicCourse(content) {
     ...TASKS.filter((task) => task.kind === 'gates' && gates[task.builds]).map((task) => ({ kind: 'gate', type: task.builds, form: null, task })),
   ])
   const course = defineCourse({
+    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,

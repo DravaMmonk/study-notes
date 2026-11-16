@@ -2,17 +2,16 @@
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
 import { find, shapeAt } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
 import { visibleOverrides } from '../layers.js'
-import { PROJECT_DIR, domainOf, isDataGame, readContent, readGameConfig } from '../content-node.js'
+import { PROJECT_DIR, domainOf, isDataGame, readContent, readPackage, packageIds, readGameConfig } from '../content-node.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
@@ -23,25 +22,31 @@ import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { objectOf, courseRoute } from '../objects.js'
 import { OPERATIONS } from './operations.js'
-import { hubCount, openGame } from './workspace.js'
+import { hubCount, openGame, openPackage } from './workspace.js'
 import { adopt, lastUndoable, readLog, runChangeset, undo } from './changeset.js'
 import { driftOf, headOf } from './log.js'
 import { replaceOps, searchContent } from './search.js'
 
 /** The arguments a call to `tool` lacks. */
-export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
+export const lacking = (tool, args) => [
+  ...Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k),
+  ...(tool.params.package && !args?.game && !args?.package ? ['game or package'] : []),
+]
 
 // The tools use the repository layout, or a copy with games/ and packages/ under GAMES_ROOT.
 const ROOT = process.env.GAMES_ROOT ?? PROJECT_DIR
-const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games', 'games.js')).href)
-const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
+const listed = (id) => typeof id === 'object' ? null : hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
-const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
+const kept = (id) => (process.env.GAMES_ROOT || typeof id === 'object' ? null : checkCache(id))
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 // A game the studio's game workspace makes is known at once: it is read off the folder, not off the list loaded at start.
-const dataGames = () => readdirSync(resolve(ROOT, 'games')).filter((id) => isDataGame(id, ROOT)).sort()
+const dataGames = () => (existsSync(resolve(ROOT, 'games')) ? readdirSync(resolve(ROOT, 'games')) : []).filter((id) => isDataGame(id, ROOT)).sort()
 const known = (game) => {
-  if (!GAMES.some((g) => g.id === game) && !isDataGame(game, ROOT)) throw new Error(`no game ${game}; the games are ${dataGames().join(', ')}`)
+  if (typeof game === 'object' && game.package) {
+    if (!packageIds(ROOT).includes(game.package)) throw new Error(`no package ${game.package}`)
+    return game
+  }
+  if (!isDataGame(game, ROOT)) throw new Error(`no game ${game}; the games are ${dataGames().join(', ')}`)
   return game
 }
 const levelIn = (content, level) => content.levels.find((l) => l.id === level) ?? (() => { throw new Error(`${content.id} has no level ${level}`) })()
@@ -69,20 +74,25 @@ export function levelsOfLine(line, ids) {
 }
 
 /** A game opened under ROOT: its log, the seq of its last entry (what modify's base names), the change undo would undo next, and the files changed outside the log. */
-const logOf = (game) => {
-  const ws = openGame(known(game), ROOT)
+const logOf = (game, scope, layer) => {
+  const ws = open(game, scope, layer)
   return { log: readLog(ws), head: headOf(ws), undoable: lastUndoable(ws)?.seq ?? null, drift: driftOf(ws, ws.onDisk()) }
 }
 
-// The studio's two workspaces (games/DESIGN.md 6.7): scope 'package' reads the package's own texts and runs only its
-// operations, 'game' only the game's; without one, everything, read as the game plays it.
+// A game target edits its game layer. A package target generates its own course and edits only its package layer.
 const SCOPES = ['package', 'game']
 const scoped = (scope) => {
   if (scope !== undefined && !SCOPES.includes(scope)) throw new Error(`scope is ${SCOPES.join(' or ')}, not ${scope}`)
   return scope ?? null
 }
-const open = (game, scope, layer) => openGame(known(game), ROOT, { scope: scoped(scope), layer })
-const readAs = (game, scope) => readContent(known(game), ROOT, { overrides: scoped(scope) !== 'package' })
+const open = (game, scope, layer) => {
+  const selected = scoped(scope)
+  if (typeof known(game) !== 'object') return openGame(game, ROOT, { scope: selected, layer })
+  if (selected === 'game') throw new Error('a package target uses the package workspace')
+  return openPackage(game.package, ROOT, { layer })
+}
+const readTarget = (game) => typeof known(game) === 'object' ? readPackage(game.package, ROOT) : readContent(game, ROOT)
+const readAs = (game, scope) => scoped(scope) === 'package' ? open(game, scope).content() : readTarget(game)
 
 /** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
 async function contentAfter(game, changeset, scope, layer) {
@@ -109,7 +119,17 @@ async function boardsOf(content, level) {
   return find(vocabulary.level, value, 'board', { vocabulary }).map((b) => ({ path: showPath(b.path), text: b.value.join('\n') }))
 }
 
-export const TOOLS = {
+const tools = {
+  packages: {
+    about: 'List installed packages and their direct dependencies, including libraries without games.',
+    params: {},
+    async run() {
+      return packageIds(ROOT).map((id) => {
+        const config = JSON.parse(readFileSync(resolve(ROOT, 'packages', id, 'package.json'), 'utf8'))
+        return { id, uses: config.uses ?? [], domain: config.domain }
+      })
+    },
+  },
   overrides: {
     about: 'List every override visible at a layer, with object kind, full name, author and before/after values, optionally after a pending changeset.',
     params: { game: 'string', layer: 'string?', changeset: 'object?' },
@@ -149,7 +169,7 @@ export const TOOLS = {
     about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail). mutants: also, for each circuit task, how many small mistakes made to its reference answer the tests catch, and those they let pass (slow; a mutant left alive is a board the tests do not rule out, or another right answer).',
     params: { game: 'string', mutants: 'boolean?' },
     async run({ game, mutants = false }) {
-      const content = readContent(known(game), ROOT)
+      const content = readTarget(game)
       const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants, cache: kept(game), root: ROOT })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
@@ -166,7 +186,7 @@ export const TOOLS = {
     about: 'Run a level’s reference and naive answers against its tests through its domain’s checks; the lines that name the level, and whether any fails.',
     params: { game: 'string', level: 'string' },
     async run({ game, level }) {
-      const content = readContent(known(game), ROOT)
+      const content = readTarget(game)
       levelIn(content, level)
       const domain = await domainOf(content)
       const lines = await domain.validate(domain.spec(content))
@@ -179,7 +199,7 @@ export const TOOLS = {
     params: { game: 'string', level: 'string', path: 'string?', text: 'string?', dryRun: 'boolean?' },
     async run({ game, level, path, text, dryRun = false }) {
       if (text === undefined) {
-        const boards = await boardsOf(readContent(known(game), ROOT), level)
+        const boards = await boardsOf(readTarget(game), level)
         return path === undefined ? { boards } : boards.find((b) => b.path === showPath(parsePath(path))) ?? { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
       }
       return TOOLS.modify.run({ game, dryRun, changeset: { ops: [{ op: 'level.blueprint', level, ...(path !== undefined && { path }), text }] } })
@@ -225,7 +245,7 @@ export const TOOLS = {
     about: 'A game’s part dependency graph as Mermaid (dot: DOT), drawn from its course data; levels: draw the levels too.',
     params: { game: 'string', dot: 'boolean?', levels: 'boolean?' },
     async run({ game, dot = false, levels = false }) {
-      return { text: await drawDeps(readContent(known(game), ROOT), { dot, levels }) }
+      return { text: await drawDeps(readTarget(game), { dot, levels }) }
     },
   },
   preview: {
@@ -240,7 +260,7 @@ export const TOOLS = {
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
-        changes: r.changes, ...logOf(game),
+        changes: r.changes, ...logOf(game, scope, layer),
       }
     },
   },
@@ -341,8 +361,8 @@ export const TOOLS = {
     about: 'Read a course or package file from git at a revision (default HEAD). Pass a level ID or a file name relative to the course or its package.',
     params: { game: 'string', level: 'string?', file: 'string?', rev: 'string?' },
     async run({ game, level, file, rev = 'HEAD' }) {
-      const ws = openGame(known(game), ROOT)
-      const name = level !== undefined ? `levels/${level}.json` : file ?? 'game.json'
+      const ws = open(game)
+      const name = level !== undefined ? `levels/${level.replace(`${ws.packageId}/`, '')}.json` : file ?? (ws.packaged ? 'package.json' : 'game.json')
       const fileName = relative(ws.dir, resolve(ws.dir, name))
       if (fileName.startsWith('..')) throw new Error(`${name} is outside ${game}`)
       const path = ws.pathFor(fileName)
@@ -375,7 +395,7 @@ export const TOOLS = {
     about: 'Take a game’s files as they are now into its change log, after they were changed outside the operation set (by hand, by git): the log stops reporting them as drift, and an undo goes back no further than this.',
     params: { game: 'string', why: 'string' },
     async run({ game, why }) {
-      const ws = openGame(known(game), ROOT)
+      const ws = open(game)
       return { seq: adopt(ws, why), ...logOf(game) }
     },
   },
@@ -383,7 +403,7 @@ export const TOOLS = {
     about: 'Undo the last change of a game’s log not undone yet: its inverse run as a changeset, checked, and logged as an undo (dryRun: preview only). seq: the change the caller means (log gives it as undoable): refused when that is no longer the one undo would undo.',
     params: { game: 'string', dryRun: 'boolean?', seq: 'number?' },
     async run({ game, dryRun = false, seq = null }) {
-      const r = await undo(openGame(known(game), ROOT), { write: !dryRun, seq })
+      const r = await undo(open(game), { write: !dryRun, seq })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff }
     },
   },
@@ -391,7 +411,7 @@ export const TOOLS = {
     about: 'What content may be made of: a game’s domain vocabulary as data (kinds, items, schemas of game.json and a level), and the operations with their arguments.',
     params: { game: 'string' },
     async run({ game }) {
-      const content = readContent(known(game), ROOT)
+      const content = readTarget(game)
       return {
         domain: content.domain,
         vocabulary: describe((await domainOf(content)).vocabulary),
@@ -400,3 +420,18 @@ export const TOOLS = {
     },
   },
 }
+
+
+/** The same tools accept exactly one explicit target. Package calls share no game state or game log. */
+export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, tool]) => {
+  if (!tool.params.game || name === 'create_game') return [name, tool]
+  return [name, {
+    ...tool,
+    params: { ...tool.params, game: 'string?', package: 'string?' },
+    run(args) {
+      if (args.game && args.package) throw new Error('choose one target: game or package')
+      if (!args.game && !args.package) throw new Error('name a game or package')
+      return tool.run({ ...args, game: args.package ? { package: args.package } : args.game })
+    },
+  }]
+}))

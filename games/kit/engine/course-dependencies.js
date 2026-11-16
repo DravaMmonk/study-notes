@@ -60,7 +60,7 @@ function providersOf(content) {
 export function courseDependencies(content) {
   const { eras = [], levels = [] } = content
   const links = eras.flatMap((era) => (era.links ?? []).map((link) => ({ ...link, source: 'course', detail: String(era.id) })))
-  if (content.mode === 'notes') return { links, problems: [] }
+  if (content.mode === 'notes' || content.packagePreview) return { links, problems: [] }
   const placed = new Set(eras.flatMap(eraLevels))
   const problems = []
   const bindings = new Map()

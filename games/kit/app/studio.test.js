@@ -5,7 +5,7 @@
 // change), seed a level’s board, apply, read the log, undo; and the second lane the slow reads take.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { proofsRoot } from '../engine/ops/fixture.js'
@@ -44,7 +44,7 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
   assert.equal((await fetch(`${base}/elsewhere`)).status, 404)
   assert.equal((await post('nothing', {})).status, 404)
   assert.equal((await fetch(`${base}/studio/api/preview`)).status, 405)
-  assert.deepEqual(await post('preview', {}), { status: 400, body: { error: 'preview needs game' } })
+  assert.deepEqual(await post('preview', {}), { status: 400, body: { error: 'preview needs game or package' } })
   assert.equal((await post('preview', null, '{not json')).status, 400)
   const unknown = await post('preview', { game: 'nope' })
   assert.equal(unknown.status, 422)
@@ -55,34 +55,33 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   const before = onDisk('levels/suppose.json')
   const ops = [
     { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', lang: 'en', value: 'Prove it with one box.' },
-    { op: 'text.set', in: 'game', path: ['title'], lang: 'en', value: 'Proofs with assumptions' },
   ]
-  const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
+  const { status, body } = await post('preview', { package: GAME, changeset: { ops } })
   assert.equal(status, 200)
   assert.equal(body.failed, null)
   assert.equal(body.content.levels.find((l) => l.id === `${GAME}/suppose`).tasks[0].brief.en, 'Prove it with one box.')
   assert.ok(body.order.includes(`${GAME}/suppose`) && body.lines.every((l) => Array.isArray(l.levels)))
   assert.ok(body.lines.some((l) => l.levels.includes(`${GAME}/suppose`) && /^proofs\/suppose /.test(l.text)), 'a domain line is about its level')
   const catalog = `packages/${GAME}/i18n/en.json`
-  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`games/${GAME}/i18n/en.json`, catalog])
+  assert.deepEqual(body.changes.map((c) => c.file).sort(), [catalog])
   const brief = JSON.parse(before).tasks[0].brief.slice(1)
   assert.equal(JSON.parse(body.changes.find((c) => c.file === catalog).after)[brief], 'Prove it with one box.')
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
-  const bad = (await post('preview', { game: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
+  const bad = (await post('preview', { package: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
   assert.equal(bad.failed, 1)
   assert.equal(bad.content, null)
   assert.match(bad.problems[0], /^op 2 \(level.set\)/)
 })
 
 test('a board seeded for the game, drawn as SVG', async () => {
-  const seed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution' })).body
+  const seed = (await post('seed', { package: GAME, level: 'suppose', path: 'tasks[0].solution' })).body
   assert.equal(seed.task, 0)
   assert.ok(Array.isArray(seed.data.nodes) && seed.data.nodes.some((n) => n.type === `${GAME}/impI`), JSON.stringify(seed).slice(0, 300))
   const text = [`# blueprint 1 ${GAME} suppose`, 'f = impI[A=A](body: z) {', '  body {', '    m1 = mp(p, f.body)', '    z = mp(q, m1)', '  }', '}', 'goal <- f'].join('\n')
-  const changed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', path: 'tasks[0].solution', text }] } })).body
+  const changed = (await post('seed', { package: GAME, level: 'suppose', path: 'tasks[0].solution', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', path: 'tasks[0].solution', text }] } })).body
   assert.ok(changed.data.nodes.some((n) => n.id === 'z'), 'seeded from the content as the changeset leaves it')
-  const { boards } = (await post('render', { game: GAME, level: 'suppose', format: 'svg' })).body
+  const { boards } = (await post('render', { package: GAME, level: 'suppose', format: 'svg' })).body
   assert.match(boards[0].svg, /^<svg/)
 })
 
@@ -92,7 +91,7 @@ test('blueprint preview, seed, and tests use the requested task', async () => {
   const first = data.tasks[0]
   const second = { ...first, id: `${id}_2`, brief: { en: first.brief.en }, hint: [], tests: [{ premises: { p: 'A', spare: 'A' }, goal: 'A' }] }
   const changeset = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, second] } }] }
-  const request = { game: GAME, level, path: 'tasks[1].solution', changeset }
+  const request = { package: GAME, level, path: 'tasks[1].solution', changeset }
 
   const seed = (await post('seed', request)).body
   assert.equal(seed.task, 1)
@@ -115,18 +114,18 @@ test('apply, read the log, undo: the content comes back as it was', async () => 
   const before = onDisk('i18n/en.json')
   const source = onDisk('levels/given.json')
   const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', lang: 'en', value: 'Assume “Today is Saturday” and prove the claim.' }]
-  const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
+  const done = (await post('modify', { package: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.notEqual(onDisk('i18n/en.json'), before)
   assert.equal(onDisk('levels/given.json'), source)
-  const { log, undoable } = (await post('log', { game: GAME })).body
+  const { log, undoable } = (await post('log', { package: GAME })).body
   assert.equal(log.at(-1).why, 'a shorter brief')
   assert.equal(undoable, log.at(-1).seq)
-  const undone = (await post('undo', { game: GAME })).body
+  const undone = (await post('undo', { package: GAME })).body
   assert.equal(undone.written, true, undone.problems.join('\n'))
   // The same content; a line the change rewrote keeps the file format (../engine/ops/json.js), as every write does.
   assert.deepEqual(JSON.parse(onDisk('i18n/en.json')), JSON.parse(before))
-  assert.equal((await post('log', { game: GAME })).body.undoable, null, 'an undo is not itself undone')
+  assert.equal((await post('log', { package: GAME })).body.undoable, null, 'an undo is not itself undone')
 })
 
 test('the slow reads go to the second lane: a quick preview is not held up by a whole check, a write waits for both', async () => {
@@ -144,4 +143,25 @@ test('the slow reads go to the second lane: a quick preview is not held up by a 
   lane.close()
   assert.deepEqual(answers.map((a) => a.what), ['preview aside', 'preview quick', 'names', 'modify'])
   assert.deepEqual(done, ['preview quick', 'names', 'preview aside', 'modify'], 'the quick calls answer while the check runs; the write waits for it')
+})
+
+
+test('the HTTP tools list, preview and write a package that no game selects', async () => {
+  const pkg = join(root, 'packages', 'library')
+  mkdirSync(pkg, { recursive: true })
+  writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ domain: 'logic', vocabulary: 19 })}\n`)
+  writeFileSync(join(pkg, 'pieces.json'), JSON.stringify({ parts: {
+    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp' }, { name: 'a' }], compute: 'mp(imp, a)' },
+  } }))
+  const packages = (await post('packages', {})).body
+  assert.ok(packages.some((entry) => entry.id === 'library'))
+  const preview = (await post('preview', { package: 'library' })).body
+  assert.equal(preview.ok, true, preview.problems.join('\n'))
+  assert.deepEqual(preview.content.levels, [])
+  assert.equal(preview.content.packagePreview.id, 'library')
+  const modified = (await post('modify', { package: 'library', changeset: { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'A revised description.' }] } })).body
+  assert.equal(modified.written, true, modified.problems.join('\n'))
+  assert.deepEqual(modified.files, ['packages/library/pieces.json'])
+  assert.equal((await post('log', { package: 'library' })).body.head, 1)
+  assert.equal((await post('preview', { game: GAME, package: 'library' })).status, 422)
 })

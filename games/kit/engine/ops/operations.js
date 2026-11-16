@@ -607,7 +607,7 @@ for (const [kind, plural] of [['tag', 'tags'], ['relation', 'relations'], ['layo
 /** Overrides always write to the named authoring layer, never to the declaration. */
 const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders), 'i18n']), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
 const overrideFile = (ws, { layer, kind, name }) => {
-  if (layer !== `@${ws.id}` && layer !== ws.packageId) fail(`open the package workspace with layer ${layer} before editing it`)
+  if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
   return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : folders[kind]}/${id}.json`
 }

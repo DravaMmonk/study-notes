@@ -228,7 +228,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
         const l = level.lemmas[p]
         const forms = l.forms ? l.forms.map((f) => f.key).filter((key) => has(p, 'form', key)) : null
         const gives = (t) => !t.term && lemmaGives(l, Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }), forms)
-        if (level.tests.every(gives)) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
+        if (!course?.available && level.tests.every(gives)) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
       }
       // A later task of a level may use what the level builds.
       const held = course && new Set([...reach(course, { id: level.id, task: level.task }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])

@@ -4,13 +4,11 @@
 // or an operation writes one) as values an operation replaces (never mutates), the text each file had, and the hub's
 // level count for the game (games/games.js). Nothing reaches the disk until write(); diff() previews it.
 //
-// The studio opens it as one of two workspaces (games/DESIGN.md 6.7): `scope` 'package' plays the package's own texts
-// and runs only the package's operations; 'game' runs only the course's and the game's own texts. Without a scope
-// (the CLI, the MCP server) every operation runs, and the content reads as the game plays it.
+// Every workspace writes one layer and keeps its log there. Other layers are read-only inputs.
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import { combineConfiguration, configurationFiles, courseLevelCount, deepFreeze } from '../content.js'
-import { PROJECT_DIR, readPackageLayers, assembleLayers, contentVocabulary, catalogFiles, configPaths, gameDirectory, objectFiles, gameDeclarationProblems, levelFiles, splitGameConfig } from '../content-node.js'
+import { PROJECT_DIR, readPackageLayers, packageLayers as loadPackageLayers, assembleLayers, contentVocabulary, catalogFiles, configPaths, gameDirectory, objectFiles, gameDeclarationProblems, levelFiles, splitGameConfig } from '../content-node.js'
 import { catalogReader, sourceValue } from '../catalogs.js'
 import { catalogsOf, normalizeText } from '../content-text.js'
 import { orderPackages } from '../layers.js'
@@ -41,22 +39,35 @@ export const hubCount = (text, id) => (text?.match(hubEntry(id)) ? Number(text.m
 const CONFIG = ['game.json', 'package.json', 'course.json']
 const inGame = (file) => file === 'game.json' || file === 'course.json' || file === 'blueprint.json'
 
-/** Open a game, its course and its package for author operations. */
-export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = null, layer = null } = {}) {
-  const dir = gameDirectory(id, root)
-  const config = resolve(dir, 'game.json')
-  if (!existsSync(config)) throw new Error(`no data game ${id} in ${root}`)
-  const original = new Map([['game.json', read(config)]])
-  const { game, packageIds } = splitGameConfig(parse(original.get('game.json'), config), root)
-  const packageId = layer && !layer.startsWith('@') ? layer : packageIds[0]
-  if (!packageIds.includes(packageId)) throw new Error(`package ${packageId} is not selected by ${id}`)
-  if (layer?.startsWith('@') && layer !== `@${id}`) throw new Error(`unknown game layer ${layer}`)
-  if (layer) scope = layer.startsWith('@') ? 'game' : 'package'
+/** Open exactly one game layer. Package selectors open an independent package workspace. */
+export function openGame(id, root = PROJECT_DIR, options = {}) {
+  if (options.scope === 'package' || options.layer && !options.layer.startsWith('@')) {
+    const { packageIds } = splitGameConfig(parse(read(resolve(gameDirectory(id, root), 'game.json')), 'game.json'), root)
+    return openPackage(options.layer ?? packageIds[0], root, options)
+  }
+  return openWorkspace(id, root, options, false)
+}
+
+/** Open one package and read its dependencies without making them writable. */
+export function openPackage(id, root = PROJECT_DIR, options = {}) {
+  return openWorkspace(id, root, options, true)
+}
+
+function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packaged) {
+  const dir = packaged ? resolve(root, 'packages', id) : gameDirectory(id, root)
+  const config = resolve(dir, packaged ? 'package.json' : 'game.json')
+  if (!existsSync(config)) throw new Error(`no ${packaged ? 'package' : 'data game'} ${id} in ${root}`)
+  const original = new Map(packaged ? [] : [['game.json', read(config)]])
+  const { game, packageIds } = packaged ? { game: {}, packageIds: loadPackageLayers(id, root).map((layer) => layer.id) } : splitGameConfig(parse(original.get('game.json'), config), root)
+  const packageId = packaged ? id : packageIds[0]
+  if (layer && layer !== (packaged ? id : `@${id}`)) throw new Error(`unknown layer ${layer}`)
+  const scope = packaged ? 'package' : 'game'
+  layer = packaged ? id : `@${id}`
   const packageDir = resolve(root, 'packages', packageId)
-  const packageLayers = readPackageLayers(packageIds, root)
   const packageDirs = packageIds.map((id) => resolve(root, 'packages', id))
   const dependencyFiles = new Map(packageDirs.filter((path) => path !== packageDir).flatMap((dir) => overridePaths(dir).map((file) => [resolve(dir, file), read(resolve(dir, file))])))
-  const paths = configPaths(dir, packageDir)
+  const packageLayers = readPackageLayers(packageIds, root)
+  const paths = packaged ? { 'package.json': resolve(packageDir, 'package.json') } : configPaths(dir, packageDir)
   const pathFor = (file) => {
     if (file.startsWith('package/overrides/')) return relative(root, resolve(packageDir, file.slice('package/'.length)))
     if (file.startsWith(`${PACKAGE_I18N}/`)) return relative(root, resolve(packageDir, file.slice('package/'.length)))
@@ -64,7 +75,7 @@ export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = nu
     const inPackage = /^(levels|tags|relations|layouts)\//.test(file) || file === 'pieces.json' || file === 'glossary.json'
     return relative(root, resolve(inPackage ? packageDir : dir, file))
   }
-  const onDisk = (file) => read(resolve(root, pathFor(file)))
+  const onDisk = (file) => packaged && ['game.json', 'course.json', 'blueprint.json'].includes(file) ? null : read(resolve(root, pathFor(file)))
   const load = (file, optional = false) => {
     const text = onDisk(file)
     if (text === null && optional) return undefined
@@ -76,10 +87,10 @@ export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = nu
     ...objectFiles(packageDir, kind).map(([name]) => `${kind}/${name}.json`),
   ])
   const localeFiles = () => [
-    ...catalogFiles(resolve(dir, COURSE_I18N)).map(([lang]) => `${COURSE_I18N}/${lang}.json`),
+    ...(packaged ? [] : catalogFiles(resolve(dir, COURSE_I18N))).map(([lang]) => `${COURSE_I18N}/${lang}.json`),
     ...catalogFiles(resolve(packageDir, 'i18n')).map(([lang]) => `${PACKAGE_I18N}/${lang}.json`),
   ]
-  const extraOverridePaths = () => [...overridePaths(resolve(packageDir, OVERRIDES)).map((file) => `package/overrides/${file}`), ...overridePaths(resolve(dir, OVERRIDES)).map((file) => `overrides/${file}`)]
+  const extraOverridePaths = () => [...overridePaths(resolve(packageDir, OVERRIDES)).map((file) => `package/overrides/${file}`), ...(packaged ? [] : overridePaths(resolve(dir, OVERRIDES)).map((file) => `overrides/${file}`))]
   const catalog = (prefix) => Object.fromEntries(localeFiles().filter((file) => file.startsWith(`${prefix}/`))
     .map((file) => [file.slice(prefix.length + 1, -'.json'.length), load(file)]))
   const courseCatalog = catalog(COURSE_I18N)
@@ -107,6 +118,8 @@ export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = nu
     root,
     dir,
     scope, layer,
+    packaged,
+    owns: (file) => packaged ? file.startsWith(`packages/${id}/`) : file === HUB || file.startsWith(`games/${id}/`),
     packageId, packageIds, packageLayers,
     schemas,
     packageDir, packageDirs, dependencyFiles,
@@ -114,14 +127,14 @@ export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = nu
     objectPaths,
     game: gameConfig,
     glossary: readers.package(load('glossary.json', true) ?? { groups: [], entries: [] }, pathFor('glossary.json'), GLOSSARY, schemas),
-    blueprint: readers.course(load('blueprint.json', true), pathFor('blueprint.json'), BLUEPRINT, schemas),
+    blueprint: readers.course(packaged ? undefined : load('blueprint.json', true), pathFor('blueprint.json'), BLUEPRINT, schemas),
     partDefs: readers.package(load('pieces.json', true), pathFor('pieces.json'), PARTS_FILE, schemas),
     levels: new Map(levels().map((levelId) => {
       const file = `levels/${levelId}.json`
       return [levelId, readers.package(load(file), pathFor(file), schemas.level, schemas)]
     })),
     ...Object.fromEntries(Object.keys(OBJECT_SCHEMAS).map((kind) => [kind, new Map(objectPaths().filter((p) => p.startsWith(`${kind}/`)).map((file) => [file.split('/').at(-1).slice(0, -5), readers.package(load(file), pathFor(file), OBJECT_SCHEMAS[kind], schemas)]))])),
-    declarationProblems: gameDeclarationProblems(dir),
+    declarationProblems: packaged ? [] : gameDeclarationProblems(dir),
     overrideFiles: new Map(extraOverridePaths().map((file) => [file, load(file)])),
     reservations: { course: keyed(courseCatalog), package: keyed(packageCatalog) },
     original,
@@ -145,8 +158,8 @@ export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = nu
     diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws, localeFiles),
     /** The course and package files, keyed by their project-relative paths. */
-    onDisk: () => new Map([...new Set([...fileNames(levels(), objectPaths()), ...localeFiles(), ...extraOverridePaths(), ...ws.original.keys()])]
-      .map((file) => [pathFor(file), onDisk(file)])),
+    onDisk: () => new Map([...new Set([...fileNames(levels(), objectPaths(), ws.packaged), ...localeFiles(), ...extraOverridePaths(), ...ws.original.keys()])]
+      .map((file) => [pathFor(file), onDisk(file)]).filter(([file]) => ws.owns(file))),
   })
 }
 
@@ -178,9 +191,8 @@ function contentOf(ws) {
     if (folder === 'i18n') target.textOverrides.push({ namespace, lang: filename.slice(0, -5), entries: value })
     else target.overrides.push({ kind: ({ levels: 'level', pieces: 'piece', settings: 'setting', entries: 'entry', tags: 'tag', relations: 'relation', layouts: 'layout' })[folder], name: `${namespace}/${filename.slice(0, -5)}`, value })
   }
-  if (ws.scope === 'package') { game.overrides = []; game.textOverrides = [] }
   const layers = orderPackages(ws.packageLayers.map((layer) => layer.id === ws.packageId ? own : layer))
-  return assembleLayers(ws.id, [...layers, game], ws.schemas, { blueprint: ws.blueprint, declarationProblems: ws.declarationProblems })
+  return assembleLayers(ws.id, ws.packaged ? layers : [...layers, game], ws.schemas, { blueprint: ws.blueprint, declarationProblems: ws.declarationProblems, ...(ws.packaged && { packageId: ws.packageId }) })
 }
 
 /** Retire game wording keys whose declaration was deleted in the edited package. */
@@ -194,7 +206,7 @@ function activeOverrides(ws) {
   })
 }
 
-const fileNames = (levels, objects) => [...CONFIG, 'glossary.json', 'pieces.json', 'blueprint.json', ...[...levels].map((id) => `levels/${id}.json`), ...objects]
+const fileNames = (levels, objects, packaged = false) => [...CONFIG, 'glossary.json', 'pieces.json', 'blueprint.json', ...[...levels].map((id) => `levels/${id}.json`), ...objects].filter((file) => !packaged || !inGame(file))
 
 const ownCatalogs = (ws, catalogs) => Object.fromEntries(Object.entries(catalogs).map(([lang, entries]) => [lang, Object.fromEntries(Object.entries(entries).filter(([key]) => !key.includes('/') || key.startsWith(`${ws.packageId}/`)))]))
 
@@ -234,7 +246,7 @@ function changes(ws) {
   const files = configurationFiles(ws.game)
   const configuration = new Map([...Object.entries(files),
     ['game.json', { packages: ws.packageIds, ...files['game.json'] }],
-    ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]),
+    ...(ws.original.get('glossary.json') == null && !ws.glossary.entries.length && !ws.glossary.groups.length ? [] : [['glossary.json', ws.glossary]]), ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]),
     ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level]),
     ...objectEntries(ws), ...activeOverrides(ws),
   ])
@@ -248,23 +260,23 @@ function changes(ws) {
     ...[...configuration].map(([file, value]) => [file, sourceValue(value)]),
     ...localizationFiles(COURSE_I18N, catalogsOf(COURSE_I18N, files['game.json'], files['course.json'], ws.blueprint)),
     ...localizationFiles(PACKAGE_I18N, packageCatalog),
-  ])
+  ].filter(([file]) => !ws.packaged || !['game.json', 'course.json', 'blueprint.json'].includes(file)))
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
     const after = writeJson(value, before ?? ws.basis.get(file) ?? null)
     if (after !== before) out.push({ file: ws.pathFor(file), before, after })
   }
   for (const [file, before] of ws.original) if (!now.has(file) && before !== null) out.push({ file: ws.pathFor(file), before, after: null })
-  const listed = hubCount(ws.hub, ws.id)
+  const listed = ws.packaged ? null : hubCount(ws.hub, ws.id)
   const count = courseLevelCount(contentOf(ws), ws.levels.size)
   if (listed !== null && listed !== count) out.push({ file: HUB, before: ws.hub, after: ws.hub.replace(hubEntry(ws.id), `$1${count}`) })
-  return out
+  return out.filter(({ file }) => ws.owns(file))
 }
 
 function write(ws, localeFiles) {
   const done = ws.changes()
   // Catalog edits depend on every reference in the course and package, including files this edit did not touch.
-  const currentNames = fileNames(levelFiles(ws.packageDir).map(([id]) => id), ws.objectPaths())
+  const currentNames = fileNames(levelFiles(ws.packageDir).map(([id]) => id), ws.objectPaths(), ws.packaged)
   const expected = new Map([...new Set([...ws.original.keys(), ...currentNames, ...localeFiles()])]
     .map((file) => [ws.pathFor(file), ws.original.get(file) ?? null]))
   for (const { file, before } of done) expected.set(file, before)
@@ -284,7 +296,7 @@ function write(ws, localeFiles) {
     }
   }
   // What was written is what the files hold now.
-  ws.original = new Map([...fileNames(ws.levels.keys(), objectPathsOf(ws)), ...ws.overrideFiles.keys(), ...localeFiles()]
+  ws.original = new Map([...fileNames(ws.levels.keys(), objectPathsOf(ws), ws.packaged), ...ws.overrideFiles.keys(), ...localeFiles()]
     .map((file) => [file, read(resolve(ws.root, ws.pathFor(file)))]))
   ws.packageCatalog = Object.fromEntries(localeFiles().filter((file) => file.startsWith(`${PACKAGE_I18N}/`))
     .map((file) => [file.slice(PACKAGE_I18N.length + 1, -'.json'.length), parse(ws.original.get(file), ws.pathFor(file))]))
