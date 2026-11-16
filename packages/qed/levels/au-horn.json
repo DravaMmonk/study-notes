@@ -74,5 +74,8 @@
         "out <- c0"
       ]
     }
+  ],
+  "local": [
+    "resolve"
   ]
 }

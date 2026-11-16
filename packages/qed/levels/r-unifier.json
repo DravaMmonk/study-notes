@@ -75,5 +75,13 @@
         }
       ]
     }
+  ],
+  "local": [
+    "uDecompose",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck"
   ]
 }

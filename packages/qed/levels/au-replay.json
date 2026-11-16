@@ -81,5 +81,10 @@
         }
       ]
     }
+  ],
+  "local": [
+    "replay",
+    "saturate",
+    "clausify"
   ]
 }

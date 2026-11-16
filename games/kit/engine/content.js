@@ -9,7 +9,7 @@ const sourceContents = new WeakSet()
 export const hasCatalogSource = (content) => sourceContents.has(content)
 
 const gameFields = new Set(['title', 'kicker', 'lede'])
-const courseFields = new Set(['chapters', 'optional', 'skippable', 'mode', 'open', 'primitives', 'concept', 'local', 'views', 'borrow', 'words', 'power', 'box'])
+const courseFields = new Set(['chapters', 'optional', 'skippable', 'mode', 'open', 'primitives', 'views', 'borrow', 'words', 'power', 'box'])
 
 /** The owner of a field in the assembled game configuration. */
 export function contentFileFor([field]) {
@@ -89,7 +89,17 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     if (namespace.startsWith('@') || name.startsWith('@')) objectProblems.push({ at: `${kind}/${name}`, says: 'games cannot declare objects; declare them in a package' })
   }
   const resolve = referenceResolver(registries, objectProblems)
-  for (const [name, tag] of Object.entries(tagMap)) resolve(`#${name}`, tag.kind, `tags/${name}`)
+  for (const [name, tag] of Object.entries(tagMap)) {
+    resolve(`#${name}`, tag.kind, `tags/${name}`)
+    if (tag.concept && tag.kind !== 'item') objectProblems.push({ at: `tags/${name}`, says: 'concept tags must contain items' })
+  }
+  const concepts = new Map()
+  for (const [name, tag] of Object.entries(tagMap)) if (tag.concept && tag.kind === 'item') {
+    for (const item of resolve(`#${name}`, 'item')) {
+      if (concepts.has(item) && concepts.get(item) !== name) objectProblems.push({ at: `tags/${name}`, says: `${item} belongs to multiple concepts: ${concepts.get(item)}, ${name}` })
+      concepts.set(item, name)
+    }
+  }
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)
   for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, value] of Object.entries(registries[kind])) registries[kind][name] = refs(value, schema)
   const sourceChapters = game.chapters

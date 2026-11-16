@@ -3,9 +3,6 @@
     "add",
     "sub"
   ],
-  "concept": {
-    "sub": "add"
-  },
   "chapters": [
     {
       "id": 1,

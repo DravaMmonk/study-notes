@@ -255,7 +255,6 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
-  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板') })),

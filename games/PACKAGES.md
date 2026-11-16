@@ -286,6 +286,9 @@ packages/<包>/
    - 原分组顺序、组内词条顺序由 `encyclopedia-groups`、`encyclopedia-entries` 两份 `order` 关系保留。旧分组名与既有标签重名时使用 `entries-<旧名>`。四款旧百科都没有其它包级字段。
    - 前台百科是组装后的显示投影（`glossary`），不是可写内容文件；组的 `values` 是已展开的词条成员，词条注册表不含显示投影的 `group`。Studio 暂用原百科表单映射到对象操作；按对象的标签、嵌套、顺序编辑留给第 6 步。
    - 本次不迁移 `concept`、`local`，不拆 `pieces.json`；领域词汇表未改变，版本不变。
+   - **7b 已完成**：`concept` 移为包内 `tags/item/` 下的概念标签（`concept: true`），概念名取标签全名；`local` 随 `adds` 移到引入它的关卡或任务，课程设置不再接受两字段。统一课程模型优先使用概念标签，并按引入位置过滤不向后携带的项；任务里的声明沿用本关的项引入规则。
+   - 概念标签支持嵌套；非项标签不能标为概念，同一个项不能属于多个概念标签（包含嵌套展开后的重复归属）。迁移保留旧概念的隐含代表件与同类件；原 `table:pass`、`table:msum` 概念分别归入 `state-graph/pass`、`state-graph/msum`。这些约定待最终设计确认。
+   - 合并 5.4 时保留已发布的内核词汇表 v4，7b 在其上升至 v5，`removes` 记录游戏设置字段的删除；starter 概念标签归入 `kit/templates/`，保留内容种类和 arithmetic 库包，真实游戏和包分别 adopt。不调整 Studio 或前台界面。
 8. **写回手册。** 改写 `games/DESIGN.md` 的第 2、2.6、6.1、6.2、6.3、6.5、6.7、6.10、7.1 节；从 `DIRECTION.md`、`PLAN.md` 删掉和本文冲突的话；删掉这份文档。
 
 ## 11. 被本文取代的内容

@@ -186,8 +186,6 @@ const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   words: WORDS,
   primitives: S.list(S.ref('part')),
-  concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法') })),
-  local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱') })),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
 })

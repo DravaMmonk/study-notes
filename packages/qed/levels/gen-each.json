@@ -145,5 +145,12 @@
         }
       ]
     }
+  ],
+  "local": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule",
+    "eachOf"
   ]
 }

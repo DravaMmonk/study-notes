@@ -58,6 +58,9 @@
         "c1 = oracle(c0)",
         "c2 = replay(c1)",
         "out <- c2"
+      ],
+      "local": [
+        "oracle"
       ]
     },
     {
@@ -78,5 +81,9 @@
         "@level.au-wrong.tasks.au-wrong_2.hint.0"
       ]
     }
+  ],
+  "local": [
+    "replay",
+    "clausify"
   ]
 }

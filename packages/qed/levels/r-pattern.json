@@ -82,5 +82,9 @@
       "at": true,
       "desc": "@piece.unifier.revisions.0.desc"
     }
+  ],
+  "local": [
+    "uPattern",
+    "unifier"
   ]
 }

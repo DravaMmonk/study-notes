@@ -27,7 +27,7 @@
 //   uses(level) → [mechanism]              what a level's board relies on (its view, an arm, a scan order…)
 //   can(machine) → [mechanism] | null      what a machine can do: a level needs a machine that can do all it uses
 //   replaces(part) → [part]                the parts it supersedes: an upgrade, or a merger of several into one
-//   local(part) → bool                     a part that stays in the levels that bring it (`adds`, or a board's preset):
+//   local(item, level?) → bool             an item that stays in the levels that bring it (`adds`, or a board's preset):
 //                                          solving them never unlocks it, and no later level carries it (a go-between
 //                                          soon replaced, as one round of resolution by the saturator; a part one
 //                                          level's puzzle needs, as someone else's wrong prover). It is in no components
@@ -272,9 +272,9 @@ export function met(course, level) {
   if (course.available) return course.available
   const own = [...course.adds(level), ...builtBefore(course, level)]
   const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].filter(isPartItem)
-  const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)])]
+  const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => !course.local(p, l)))]
   const gone = new Set([...own, ...earlier].flatMap((p) => course.replaces(p)))
-  const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p) && !course.local(p))
+  const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p))
   return [...new Set([...own, ...carried])]
 }
 
@@ -353,10 +353,11 @@ export function holds(course, level, flags) {
   let parts = null
   let here = null
   // The settings and values opened by this level and the levels it comes after.
-  const opened = () => (here ??= new Set([...course.opens(level), ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.opens(l))]))
+  const opened = () => (here ??= new Set([...course.opens(level), ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.opens(l).filter((item) => !course.local(item, l)))]))
   const one = (item) => {
     if (withheld.has(item)) return false
     if (given.has(item) || course.plan?.externalItems?.get(level.id)?.has(item)) return true
+    if (course.local(item, level)) return true
     const need = course.needs(item)
     if (need) return flags.has(need)
     return !course.gated.has(item) || opened().has(item)
@@ -397,7 +398,7 @@ export function fresh(course, level) {
 export function introductions(course, keyOf = (p) => p) {
   const out = new Map()
   const placed = (l) => !course.plan || course.plan.place.has(l.id)
-  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p) && !course.local(p)).map(keyOf)
+  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p) && !course.local(p, l)).map(keyOf)
   for (const level of course.levels.filter(placed)) {
     const seen = new Set(course.levels.filter((l) => placed(l) && course.before(l.id, level.id)).flatMap(keys))
     for (const k of keys(level)) {
@@ -428,17 +429,17 @@ export function audit(course) {
   for (const level of levels) {
     for (const task of course.openParts(level)) if (task.staged && task.count > OPEN_PART_LIMIT) say('open-crowded', level.id, task.task, `${task.task}: ${task.count} loose parts (limit ${OPEN_PART_LIMIT}); split the task or build an earlier stage`)
     const granted = new Set(course.gives(level))
-    const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l))
+    const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l).filter((p) => !course.local(p, l)))
     // The ideas new here; a part built by the player is never new where it is first used.
     const ideas = fresh(course, level)
     for (const p of course.adds(level)) {
       const by = course.builder(p)
-      if (course.primitives.has(p)) { if (earlier.includes(p) && !course.local(p)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
+      if (course.primitives.has(p)) { if (earlier.includes(p) && !course.local(p, level)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
       // A part that stays where it is brought is brought again by name: that is no carry.
-      else if (course.before(by, level.id)) { if (!course.local(p)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`) }
+      else if (course.before(by, level.id)) { if (!course.local(p, level)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`) }
       else {
         const optional = plan?.place.get(by)?.optional
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
@@ -543,7 +544,7 @@ function idle(course, say) {
   }
   const news = new Map(placed.map((l) => {
     const seen = new Set(placed.filter((m) => course.before(m.id, l.id)).flatMap(abilities))
-    const kept = new Set(course.adds(l).filter((p) => !course.local(p)).map(course.concept))
+    const kept = new Set(course.adds(l).filter((p) => !course.local(p, l)).map(course.concept))
     return [l.id, [
       ...[...fresh(course, l)].filter((c) => kept.has(c)).map((key) => ({ key, uses: (m) => concepts(m).has(key) })),
       ...[...new Set(abilities(l))].filter((a) => !seen.has(a)).map((key) => ({ key, uses: (m) => abilities(m).includes(key) })),
