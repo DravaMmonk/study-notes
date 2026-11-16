@@ -20,11 +20,9 @@ import { loadWorkshop } from '../engine/workshop.js'
 import { courseWorkshop } from '../circuit/workshop-view.js'
 import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
-import { assetSignature, cleanRefreshURL } from './release.js'
+import { assetSignature, cleanRefreshURL, recoveryURL } from './release.js'
 import { ReleaseWatch, Unreadable } from './ReleaseWatch.jsx'
 import { pageContent } from './page-content.js'
-
-const loadedAssets = assetSignature(document, window.location.href)
 
 async function open() {
   const [{ define, vocabulary }, response] = await Promise.all([loadDomain(), fetch(new URL('content.json', window.location.href), { cache: 'no-store' })])
@@ -58,6 +56,25 @@ async function open() {
   return { page: <GameShell game={game} store={store} />, content: contentText }
 }
 
+async function start() {
+  const base = window.location.href
+  const loadedAssets = assetSignature(document, base)
+  let result
+  try {
+    result = await open()
+  } catch (error) {
+    const retry = !import.meta.env.DEV && await recoveryURL({ base, assets: loadedAssets })
+    if (retry) {
+      window.location.replace(retry)
+      return
+    }
+    result = { page: <Unreadable problems={[String(error)]} />, content: null }
+  }
+  const clean = cleanRefreshURL(base)
+  if (clean !== base) window.history.replaceState(window.history.state, '', clean)
+  createRoot(document.getElementById('root')).render(
+    <StrictMode><ReleaseWatch {...result} loadedAssets={loadedAssets} /></StrictMode>,
+  )
+}
 
-if (new URL(window.location.href).searchParams.has('_refresh')) window.history.replaceState(window.history.state, '', cleanRefreshURL(window.location.href))
-open().catch((error) => ({ page: <Unreadable problems={[String(error)]} />, content: null })).then(({ page, content }) => createRoot(document.getElementById('root')).render(<StrictMode><ReleaseWatch page={page} content={content} loadedAssets={loadedAssets} /></StrictMode>))
+void start()

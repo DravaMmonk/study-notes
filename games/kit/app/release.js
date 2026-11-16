@@ -20,8 +20,25 @@ export function cleanRefreshURL(href) {
   return url.href
 }
 
+const parsePage = (html) => new DOMParser().parseFromString(html, 'text/html')
+
+// A failed startup may still be running the previous entry script. Retry only if fresh HTML names a different build.
+export async function recoveryURL({ base, assets, fetcher = fetch, parse = parsePage, now = Date.now() }) {
+  const retry = new URL(base)
+  if (!assets || retry.searchParams.has('_refresh')) return null
+  retry.searchParams.set('_refresh', String(now))
+  try {
+    const page = await fetcher(retry, { cache: 'no-store' })
+    if (!page.ok) return null
+    const latest = assetSignature(parse(await page.text()), retry)
+    return latest && latest !== assets ? retry.href : null
+  } catch {
+    return null
+  }
+}
+
 // Check both the built page and content-only publications. An unavailable or malformed response is not an update.
-export async function releaseChanged({ base, assets, content, fetcher = fetch, parse = (html) => new DOMParser().parseFromString(html, 'text/html') }) {
+export async function releaseChanged({ base, assets, content, fetcher = fetch, parse = parsePage }) {
   try {
     const [page, data] = await Promise.all([
       fetcher(new URL('index.html', base), { cache: 'no-store' }),

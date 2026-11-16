@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { assetSignature, cleanRefreshURL, refreshURL, releaseChanged } from './release.js'
+import { assetSignature, cleanRefreshURL, recoveryURL, refreshURL, releaseChanged } from './release.js'
 
 const base = 'https://example.test/games/vision/index.html?level=3-6'
 const doc = (paths) => ({ querySelectorAll: () => paths.map(([tagName, value]) => ({ tagName, getAttribute: () => value })) })
@@ -31,4 +31,24 @@ test('refresh returns to the map and keeps other URL parameters', () => {
 
 test('an embedded level refreshes onto the same level', () => {
   assert.equal(refreshURL('https://example.test/games/notes/index.html?embed=&level=separable&lang=zh', 42), 'https://example.test/games/notes/index.html?embed=&level=separable&lang=zh&_refresh=42')
+})
+
+test('startup recovery preserves the link, retries a newer build once, and ignores unrelated failures', async () => {
+  const link = `${base}&lang=zh#x`
+  const retry = 'https://example.test/games/vision/index.html?level=3-6&lang=zh&_refresh=42#x'
+  const original = [['SCRIPT', './assets/game-old.js'], ['LINK', './assets/game-old.css']]
+  const newer = [['SCRIPT', './assets/game-new.js'], ['LINK', './assets/game-old.css']]
+  const recover = (options) => recoveryURL({ base: link, assets, parse, now: 42, ...options })
+  const serve = (paths) => async (url, options) => {
+    assert.equal(url.href, retry)
+    assert.equal(options.cache, 'no-store')
+    return { ok: true, text: async () => JSON.stringify(paths) }
+  }
+  assert.equal(await recover({ fetcher: serve(newer) }), retry)
+  assert.equal(await recover({ fetcher: serve(original) }), null)
+  assert.equal(await recover({ fetcher: serve([]) }), null)
+  assert.equal(await recover({ fetcher: async () => { throw new Error('offline') } }), null)
+  let requested = false
+  assert.equal(await recover({ base: retry, fetcher: () => { requested = true } }), null)
+  assert.equal(requested, false)
 })

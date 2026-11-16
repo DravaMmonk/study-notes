@@ -754,7 +754,7 @@ choice with every value and results row through `views/choice.js`. Results view 
 cycles the available views. Defaults give the simplest experience. New settings may alter presentation or editing,
 never the puzzle, judging or amount of hints. Content and domains cannot register settings.
 
-**版本更新**：发布版游戏在打开、回到前台和停留期间检查页面资源与内容；发现新版本就提示刷新，刷新后去关卡导航页，不沿用网址里的关卡参数。网络错误不当作更新。开发服务器不检查发布版本。游戏进度仍由存档版本规则管理。
+**版本更新**：发布版游戏在打开、回到前台和停留期间检查页面资源与内容；发现新版本就提示刷新，刷新后去关卡导航页，不沿用网址里的关卡参数。网络错误不当作更新。发布版启动失败时会请求最新页面。若页面引用了新版入口资源，就保留原链接自动重载一次。开发服务器不检查发布版本。游戏进度仍由存档版本规则管理。
 
 **原则**
 
