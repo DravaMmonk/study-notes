@@ -5,15 +5,17 @@
 // operations to it. The package's levels are played in a game that plays the package, as its course sets them up; how
 // a game arranges them is the game workspace's (GameStudio.jsx).
 //
-// The page: the tree of level groups (or search, or the package's pieces: pieces.json) on the left; in the middle the
-// level as the game shows it, which is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a +
-// adds an item), or a group's levels and their links, its fields as rows, its copy, a comparison, the changes; the
-// field picked in the side panel on the right (Inspector.jsx), with its control; the audit in a drawer under the
-// middle. Each folds away and resizes (remembered per viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every
+// The page (games/PACKAGES.md 8): lists on the left, one at a time (left-lists.js) — the tree of level groups, the
+// package's pieces (pieces.json) and settings, the encyclopedia's entries, the tags, relations and layouts
+// (ObjectLists.jsx), the kernel's capabilities, the overrides, search; in the middle what is picked: the level as the
+// game shows it, which is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item),
+// or a group's levels and their links, its fields as rows, its copy, a comparison, the changes — or the tag, relation,
+// layout, capability or override picked in an object list, in its editor; the file of what is picked on the right
+// (Inspector.jsx), the field picked in it with its control; the audit in a drawer under the middle. Each folds away and resizes (remembered per viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every
 // place and action, ? lists the keys.
 import './studio.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Command, ListTree, Search as SearchIcon, Shapes, SlidersHorizontal } from 'lucide-react'
+import { BookOpen, Cpu, Layers, LayoutGrid, ListTree, Search as SearchIcon, Shapes, SlidersHorizontal, Spline, Tag } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { find, shapeAt } from '../engine/schema.js'
@@ -43,10 +45,15 @@ import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
-import ObjectsTab from './ObjectsTab.jsx'
-import OverrideAudit from './OverrideAudit.jsx'
+import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
 import ObjectLinks from './ObjectLinks.jsx'
-import CapabilityBrowser from './CapabilityBrowser.jsx'
+import { CapabilityList, CapabilityView, currentCapability } from './CapabilityBrowser.jsx'
+import { EntryList, LayoutList, RELATION_KINDS, RelationList, TagList } from './ObjectLists.jsx'
+import TagEditor from './TagEditor.jsx'
+import RelationBoard from './RelationBoard.jsx'
+import LayoutEditor from './LayoutEditor.jsx'
+import { OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, currentOf, isObjectList, listOfKind, openParams, overrideKey, readOpen } from './left-lists.js'
+import { namespaceOf, objectsOf } from './objects-edit.js'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -56,7 +63,16 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['overrides', '覆盖', 'Overrides'], ['kernel', '能力', 'Capabilities'], ['review', '变更', 'Changes']]
+const OPENED = readOpen(QUERY)
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+// The left column's switcher (left-lists.js PACKAGE_LISTS): each list's icon and name.
+const LISTS = {
+  tree: [ListTree, '课程', 'Course'], parts: [Shapes, '件', 'Pieces'], settings: [SlidersHorizontal, '设置', 'Settings'], entries: [BookOpen, '词条', 'Entries'],
+  tags: [Tag, '标签', 'Tags'], relations: [Spline, '关系', 'Relations'], layouts: [LayoutGrid, '布局', 'Layouts'], kernel: [Cpu, '能力', 'Capabilities'],
+  overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
+}
+const OBJECT_KIND = { tags: 'tag', relations: 'relation', layouts: 'layout' }
+const RELATION_ORDER = RELATION_KINDS.map(([kind]) => kind)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -64,11 +80,12 @@ const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.sett
 const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
-const remember = (pkg, at, tab, field, playLevel, task) => {
+const remember = (pkg, at, tab, field, playLevel, task, opened) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', SCOPE)
-  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['level', 'group', 'era', 'part', 'setting', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const [k, v] of opened) url.searchParams.set(k, v)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
@@ -92,12 +109,13 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
   const pending = useChangeset(target, SCOPE)
   const namespace = pkg
-  const [objectAt, setObjectAt] = useState(null)
+  const [opened, setOpened] = useState(OPENED.open) // what each object list has open: { tag, relation, layout, capability, override }
+  const [objectField, setObjectField] = useState(null) // the field of the object open shown on the right: { of, path }
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
   const [picked, setPicked] = useState(() => new Set(at?.level ? [at.level] : []))
-  const [tab, setTab] = useState(() => {
+  const [tab, setTabState] = useState(() => {
     const requested = QUERY.get('tab')
     if (requested === 'i18n') return 'copy'
     return TABS.some(([id]) => id === requested) ? requested : 'page'
@@ -117,7 +135,19 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
   const [resize, setResize] = useState(null)
-  const [side, setSide] = usePref('side', 'tree')
+  const [savedSide, setSide] = usePref('side', 'tree')
+  // The list the address names wins over the one last shown.
+  useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const side = PACKAGE_LISTS.includes(savedSide) ? savedSide : 'tree'
+  const objectList = isObjectList(side)
+  // The level list last shown, which a level picked elsewhere goes back to.
+  const [levelList, setLevelList] = usePref('level-side', 'tree')
+  const showList = (list) => {
+    if (!isObjectList(list)) setLevelList(list)
+    setSide(list)
+  }
+  const leaveObjects = () => setSide((s) => (isObjectList(s) ? levelList : s))
+  const setTab = (next) => { setTabState(next); leaveObjects() }
   const [savedInspectorTabs, setInspectorTabs] = usePref('inspector-tabs', {})
   const inspectorTabs = savedInspectorTabs[game] ?? []
   const [copyScope, setCopyScope] = useState(null) // A group ('group:<id>'), the whole package, the glossary or the pieces.
@@ -140,7 +170,6 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     return () => window.removeEventListener('langchange', onLang)
   }, [])
   const playId = play?.level
-  useEffect(() => remember(game, at, tab, field, playId, pageTask), [game, at, tab, field, playId, pageTask])
 
   // A game opened: its vocabulary.
   useEffect(() => {
@@ -192,7 +221,33 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     }).sort((a, b) => playOrder.indexOf(a.value) - playOrder.indexOf(b.value))
   }, [content, rawNames, playOrder])
 
+  // The object open in the object list shown (the first when none is named): the middle edits it, the right shows its file.
+  const objectKind = OBJECT_KIND[side]
+  const capabilities = vocab?.vocabulary?.capabilities
+  const events = useMemo(() => visibleOverrides(content, namespace), [content, namespace])
+  // In the order the list shows them: relations by kind.
+  const listed = objectKind ? objectsOf(content, objectKind, namespace) : []
+  if (objectKind === 'relation') listed.sort((a, b) => RELATION_ORDER.indexOf(a[1].kind) - RELATION_ORDER.indexOf(b[1].kind))
+  const openObject = objectKind ? currentOf(listed, opened[objectKind])?.[0] ?? null : null
+  const openCapability = side === 'kernel' ? currentCapability(capabilities, opened.capability) : null
+  const openEvent = side === 'overrides' ? events.find((event) => overrideKey(event) === opened.override) ?? events[0] ?? null : null
+  const openKey = objectKind ? openObject : openCapability ? capabilityKey(openCapability.kind, openCapability.name) : openEvent ? overrideKey(openEvent) : null
+  const openedParams = openKey ? openParams(side, { [OBJECT_LISTS[side]]: openKey }) : []
+  useEffect(() => remember(game, at, tab, field, playId, pageTask, openedParams), [game, at, tab, field, playId, pageTask, JSON.stringify(openedParams)]) // eslint-disable-line react-hooks/exhaustive-deps
+  /** Open an object of a list (`list`, by the key its address parameter keeps): the middle shows it, the right its file. */
+  const openIn = (list, key) => {
+    setOpened((o) => ({ ...o, [OBJECT_LISTS[list]]: key }))
+    setObjectField(null)
+    showList(list)
+  }
+  const openKind = (kind, full) => openIn(listOfKind(kind), full)
+  const pickObjectField = (path) => {
+    setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
+    setObjectField({ of: openKey, path })
+  }
+  const objectPath = objectField?.of === openKey ? objectField.path : []
   const select = (next, keep = false) => {
+    leaveObjects()
     const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part || next?.setting !== at?.setting
     setAt(next)
     setMoving(null)
@@ -457,7 +512,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     : field?.path && sideFile?.glossary ? { file: 'glossary', path: JSON.stringify(field.path[0] === 'entries' && Number.isInteger(field.path[1]) ? ['entries', content.glossary.entries[field.path[1]]?.id, ...field.path.slice(2)] : field.path) }
     : null
   const openSetting = (setting) => {
-    setSide('settings')
+    showList('settings')
     select({ setting })
   }
   const sideCtx = vocab && content && {
@@ -468,8 +523,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     textField,
     lang,
     onSetting: openSetting,
-    onSettings: () => setSide('settings'),
-    onPiece: (part) => { setSide('parts'); select({ part }) },
+    onSettings: () => showList('settings'),
+    onPiece: (part) => { showList('parts'); select({ part }) },
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       before: (path) => {
@@ -481,7 +536,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     }),
   }
   const openSearch = () => {
-    setSide('search')
+    showList('search')
     setLayout((l) => ({ ...l, treeOpen: true }))
     window.setTimeout(() => document.querySelector('.search input')?.focus())
   }
@@ -567,24 +622,45 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
   const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
+  const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'entries' || content?.glossary?.entries?.length))
+  const objectPending = saving || shown?.ops !== ops
+  const listProps = { content, namespace, current: openObject, pending: objectPending, onOpen: (full) => openKind(objectKind, full), onEdit: edit }
+  const editorProps = {
+    content, namespace, full: openObject, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
+    onSelect: (full) => (full ? openKind(objectKind, full) : setOpened((o) => ({ ...o, [objectKind]: null }))),
+  }
+  // The right column of an object list: the object's file, the capability's description, the override's file.
+  const objectFile = objectKind && openObject ? { object: { kind: objectKind, full: openObject, namespace, own: namespaceOf(openObject) === namespace } }
+    : openCapability ? { capability: openCapability } : openEvent ? { override: { event: openEvent, layer: namespace } } : { game: true }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
-      <StudioBar space={space} tabs={TABS} tab={tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
+      <StudioBar space={space} tabs={TABS} tab={objectList ? null : tab} onTab={setTab} ops={ops} last={last} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
         <select className="studio-game" value={pkg} disabled={saving} aria-label={tr('内容包', 'Package')}
-          onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null) }}>
+          onChange={(e) => { onPackage(e.target.value); select(null); setPlay(null); setOpened({}) }}>
           {packages.map(({ id }) => <option key={id} value={id}>{id}</option>)}
         </select>
       </StudioBar>
       {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
-        <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
+        <div className={`studio-body is-${objectList ? 'objects' : tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
-            <div className="side-tabs" role="tablist">
-              <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程')}><ListTree size={14} aria-hidden="true" /></button>
-              <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
-              {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
-              <button type="button" role="tab" aria-selected={side === 'settings'} className={side === 'settings' ? 'is-on' : ''} onClick={() => setSide('settings')} title={tr('设置', 'Settings')}><SlidersHorizontal size={14} aria-hidden="true" /></button>
+            <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
+              {lists.map((list) => {
+                const [Icon, zh, en] = LISTS[list]
+                return (
+                  <button key={list} type="button" role="tab" aria-selected={side === list} className={side === list ? 'is-on' : ''} aria-label={tr(zh, en)}
+                    onClick={() => (list === 'search' ? openSearch() : showList(list))} title={list === 'search' ? `${tr(zh, en)} (${MOD}+Shift+F)` : tr(zh, en)}>
+                    <Icon size={14} aria-hidden="true" />
+                  </button>
+                )
+              })}
             </div>
-            {side === 'settings'
+            {side === 'tags' ? <TagList {...listProps} />
+              : side === 'relations' ? <RelationList {...listProps} />
+              : side === 'layouts' ? <LayoutList {...listProps} />
+              : side === 'kernel' ? <CapabilityList capabilities={capabilities} current={openCapability} onOpen={(kind, name) => openIn('kernel', capabilityKey(kind, name))} />
+              : side === 'overrides' ? <OverrideList events={events} layer={namespace} current={openKey} onOpen={(key) => openIn('overrides', key)} />
+              : side === 'entries' ? <EntryList glossary={content.glossary} current={at?.glossary && field?.path?.[0] === 'entries' ? field.path[1] : null} onOpen={(k) => jump(null, `entries[${k}]`, 'glossary')} />
+              : side === 'settings'
               ? <SettingsList key={game} file={content.partDefs} vocabulary={vocab.vocabulary} selected={at?.setting} onSelect={openSetting} onEdit={edit} />
               : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
@@ -602,16 +678,22 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
-            {tab !== 'page' && (
+            {objectList && (
               <div className="studio-scroll">
-                {tab === 'kernel' && <CapabilityBrowser capabilities={vocab?.vocabulary?.capabilities} />}
-                {tab === 'overrides' && <OverrideAudit content={content} layer={namespace} pending={saving || shown.ops !== ops} onOps={addOps}
+                {side === 'tags' && <TagEditor {...editorProps} />}
+                {side === 'relations' && <RelationBoard {...editorProps} />}
+                {side === 'layouts' && <LayoutEditor {...editorProps} />}
+                {side === 'kernel' && <CapabilityView current={openCapability} />}
+                {side === 'overrides' && <OverrideDetail event={openEvent} layer={namespace} pending={objectPending} onOps={addOps}
                   onOpen={(event) => {
-                    if (['tag', 'relation', 'layout'].includes(event.kind)) { setObjectAt({ [event.kind]: event.name }); setTab('arrange') }
+                    if (['tag', 'relation', 'layout'].includes(event.kind)) openKind(event.kind, event.name)
                     else if (event.kind === 'level') select({ level: event.name })
                   }} />}
-                {tab === 'arrange' && <ObjectsTab content={content} namespace={namespace} at={objectAt} pending={saving || shown.ops !== ops} onAt={setObjectAt} onEdit={edit} onOps={addOps} />}
-                {tab === 'fields' && at?.level && <ObjectLinks content={content} kind="level" full={at.level} namespace={namespace} onOpen={(next) => { setObjectAt(next); setTab('arrange') }} />}
+              </div>
+            )}
+            {!objectList && tab !== 'page' && (
+              <div className="studio-scroll">
+                {tab === 'fields' && at?.level && <ObjectLinks content={content} kind="level" full={at.level} namespace={namespace} onOpen={(next) => openKind(...Object.entries(next)[0])} />}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
@@ -629,16 +711,20 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               </div>
             )}
             <GameFrame
-              visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.setting !== undefined ? `settings/${at.setting}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={tab === 'page' && !objectList} content={content} play={play} part={at?.part ?? (at?.setting !== undefined ? `settings/${at.setting}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined && <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveLevel={removeLevel} onRemoveSelection={() => select(null)}
-              tabs={inspectorTabs} selection={inspectorSelection} onToggleTab={toggleInspectorTab} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
-              onNavigate={(path, trail) => pickField(path, false, null, trail)} />}
+            {sideCtx && (objectList
+              ? <Inspector content={content} vocab={vocab} at={objectFile} field={objectFile.object || objectFile.capability || objectFile.override ? { path: objectPath } : null} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickObjectField} onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => {}}
+                tabs={inspectorTabs} selection={objectFile} onToggleTab={() => {}} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
+                onNavigate={(path) => pickObjectField(path)} />
+              : <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveLevel={removeLevel} onRemoveSelection={() => select(null)}
+                tabs={inspectorTabs} selection={inspectorSelection} onToggleTab={toggleInspectorTab} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
+                onNavigate={(path, trail) => pickField(path, false, null, trail)} />)}
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">

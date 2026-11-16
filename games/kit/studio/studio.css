@@ -70,12 +70,14 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 }
 
 /* ---- the left panel: the tree, or search ---- */
-.side-tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 1px; padding: 4px 6px; background: var(--rail); border-bottom: 1px solid var(--hairline); }
-.side-tabs button { width: 26px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 5px; color: var(--faint); background: none; cursor: pointer; }
+.side-tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 1px; padding: 4px; overflow-x: auto; scrollbar-width: none; background: var(--rail); border-bottom: 1px solid var(--hairline); }
+.side-tabs::-webkit-scrollbar { display: none; }
+.side-tabs button { flex: 1 0 22px; min-width: 0; max-width: 26px; height: 22px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: var(--faint); background: none; cursor: pointer; }
+.side-tabs button:hover { color: var(--ink); }
 .side-tabs button.is-on { color: var(--ink); background: var(--hover); }
 
-.tree { padding: 4px 4px 32px; display: grid; gap: 6px; }
-.sidebar-section, .sidebar-section-items, .tree-levels, .tree-run { display: grid; min-width: 0; }
+.tree { padding: 4px 4px 32px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.sidebar-section, .sidebar-section-items, .tree-levels, .tree-run { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .tree-levels, .sidebar-section-items { margin-left: 16px; }
 .sidebar-section-head { display: flex; align-items: center; gap: 2px; border-radius: 5px; }
 .sidebar-section-head.is-on { background: var(--hover); }
@@ -618,7 +620,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .setting-users { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini) var(--mono); }
 .setting-users button { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: none; cursor: pointer; }
 .setting-users button:hover { background: var(--hover); }
-.parts-list { display: grid; gap: 1px; padding: 4px; }
+.parts-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; padding: 4px; }
 .parts-row { min-height: var(--row); display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; font-size: var(--fs); cursor: pointer; }
 .parts-row:hover { background: var(--hover); }
 .parts-row.is-on { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
@@ -626,6 +628,8 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .parts-row code { color: var(--faint); font: 11px var(--mono); }
 .parts-row .family-chip { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 4px; color: var(--muted); background: var(--canvas); }
 .parts-group { display: grid; gap: 1px; }
+.parts-row.is-object { grid-template-columns: 18px minmax(0, 1fr) fit-content(9em) auto; }
+.parts-row.is-object code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .parts-rule { margin: 6px 4px; border: 0; border-top: 1px solid var(--hairline); }
 .field-expr { display: grid; gap: 4px; min-width: 0; }
 .expr-line { display: flex; gap: 4px; }
@@ -715,6 +719,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .chapter-add { margin-top: 6px; align-self: flex-start; }
 .arrange-group { display: flex; align-items: center; gap: 6px; padding: 8px 0 4px; }
 .arrange-group .editor-id { width: 10em; }
+.arrange-group code.editor-id { width: auto; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .arrange-group-title { flex: 1; min-width: 0; }
 .arrange-links { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .map-layout { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -769,27 +774,17 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .copy-row [role='cell'].is-own { box-shadow: inset 2px 0 0 var(--accent); border-radius: 2px; }
 .copy-restore { position: absolute; right: 2px; bottom: 2px; width: 20px; height: 20px; }
 
-/* The arrangement tab: tags, relations and layouts, one editor at a time (ObjectsTab.jsx). */
-.objects-tab { display: flex; flex-direction: column; height: 100%; min-width: 0; }
-.objects-switch { align-self: flex-start; margin: 10px clamp(10px, 2cqi, 24px) 0; }
-.objects-tab > .arrange { flex: 1; min-height: 0; padding-top: 8px; }
-
 /* A chapter's members in the game workspace (ChapterBoard.jsx): levels and whole level tags. */
 .chapter-members { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
 .chapter-members li { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 1px 2px 1px 7px; border: 1px solid var(--hairline); border-radius: 6px; font-size: 12px; }
 .chapter-members li.is-tag { border-style: dashed; }
 .chapter-members li span { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
 
-/* The override audit (OverrideAudit.jsx): one row per override a layer can see. */
-.override-list { margin: 8px 0 0; padding: 0; list-style: none; }
-.override-list > li { border-bottom: 1px solid var(--hairline); }
-.override-row { display: flex; align-items: center; gap: 6px; min-height: 32px; min-width: 0; }
-.override-kind { flex: none; width: 4.5em; color: var(--muted); }
-.override-name { min-width: 0; overflow: hidden; padding: 0; border: 0; color: var(--accent-ink); background: none; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+/* The override picked (OverrideAudit.jsx): what it overrides, by which layer, the fields before and after. */
+.override-audit > .arrange-group { flex-wrap: wrap; }
+.override-audit .editor-id { width: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.override-kind { flex: none; color: var(--muted); }
 .override-layer { margin-left: auto; color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
-.override-list > li.is-own .override-layer { color: var(--ink); }
-.override-list .diff-fields { padding: 4px 0 10px 26px; }
-@media (max-width: 600px) { .override-kind { display: none; } }
 
 /* An object's layers (SourceMark.jsx): declared ← overridden. */
 .source-mark { color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
@@ -800,14 +795,14 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .object-link:hover { color: var(--ink); background: var(--hover); }
 .object-link code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* The kernel's capabilities, read only (CapabilityBrowser.jsx): a list and the one picked. */
-.capabilities-search { flex: 1 1 10em; min-width: 0; }
-.capabilities-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(14em, 2fr) 3fr; gap: 12px; padding-top: 8px; }
-.capabilities-list { margin: 0; padding: 0; overflow: auto; list-style: none; }
+/* The kernel's capabilities, read only (CapabilityBrowser.jsx): the list on the left, the one picked in the middle. */
+.capabilities-filters { display: grid; gap: 4px; padding: 2px 0; }
+.capabilities-filters .studio-game { width: 100%; max-width: none; }
+.capabilities-list { margin: 0; padding: 0; list-style: none; }
 .capabilities-list button { width: 100%; display: flex; align-items: baseline; gap: 8px; padding: 4px 6px; border: 0; border-radius: 5px; color: var(--ink); background: none; text-align: left; cursor: pointer; }
 .capabilities-list button:hover { background: var(--hover); }
 .capabilities-list button.is-on { background: var(--select); color: var(--select-ink); }
-.capabilities-list code { flex: none; }
+.capabilities-list code { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .capabilities-list span { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
 .capability-detail { min-width: 0; overflow: auto; }
 .capability-detail h2 { margin: 0 0 6px; font-size: 15px; }
@@ -818,4 +813,4 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .capability-ports li, .capability-fields li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
 .capability-type { color: var(--accent-ink); font: 12px var(--mono); }
 .capability-about { flex-basis: 100%; color: var(--muted); font-size: 12px; }
-@media (max-width: 760px) { .capabilities-body { grid-template-columns: 1fr; } .capabilities-list { max-height: 40vh; } }
+

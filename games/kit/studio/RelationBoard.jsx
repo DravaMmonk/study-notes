@@ -2,6 +2,7 @@
 // (ArrangementBoard.jsx). Its endpoints are cards (a level, a piece or a whole tag), its edges are wires: drag from
 // one card's output to another's input to add an edge, pick a wire to remove it or, for a prerequisite, to require a
 // pass. Requires, order and replaces are all drawn and edited the same way. Another layer's relations are read only.
+// The list of relations is the left column's (ObjectLists.jsx); its file the right's.
 import { useMemo, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -9,47 +10,26 @@ import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
 import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 import { confirmDelete } from './delete.js'
-import { freeObjectName, localName, objectsOf, ownNames, shownName, tagCandidates } from './objects-edit.js'
+import { localName, namespaceOf, shownName, tagCandidates } from './objects-edit.js'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, relationOverrideOps } from './override-edit.js'
 import { declaredEdges, endpointKind, endpointsOf, withEdge, withRequired, withoutEdge, withoutEndpoint, writeEdges } from './relation-edit.js'
 
-const KINDS = [['requires', '先修', 'Requires'], ['order', '顺序', 'Order'], ['replaces', '取代', 'Replaces']]
 const refusal = (reason) => ({
   self: tr('不能接到自己。', 'An endpoint cannot link to itself.'),
   duplicate: tr('这条连线已存在。', 'This wire already exists.'),
   cycle: tr('这条连线会形成循环。', 'This wire would create a cycle.'),
 })[reason]
 
-export default function RelationBoard({ content, namespace, selected, pending, onSelect, onEdit, onOps }) {
-  const all = objectsOf(content, 'relation', namespace)
-  const current = all.find(([full]) => full === selected) ?? all[0] ?? null
-  const create = (kind) => {
-    const name = freeObjectName(ownNames(content, 'relation', namespace), kind)
-    onEdit({ op: 'relation.put', relation: name, data: { kind, edges: [] } })
-    onSelect(`${namespace}/${name}`)
-  }
-  const bar = (
-    <header className="arrange-bar">
-      {all.length > 0 && <select className="studio-game" value={current?.[0] ?? ''} aria-label={tr('关系', 'Relation')} onChange={(e) => onSelect(e.target.value)}>
-        {KINDS.map(([kind, zh, en]) => {
-          const of = all.filter(([, value]) => value.kind === kind)
-          return of.length > 0 && <optgroup key={kind} label={tr(zh, en)}>
-            {of.map(([full]) => <option key={full} value={full}>{shownName(namespace, full)}</option>)}
-          </optgroup>
-        })}
-      </select>}
-      <Picker options={KINDS.map(([kind, zh, en]) => ({ value: kind, label: tr(zh, en) }))} icon={Plus} label={tr('新的关系', 'New relation')} searchable={false}
-        onPick={(kind) => !pending && create(kind)} />
-    </header>
-  )
-  if (!current) return <article className="arrange">{bar}</article>
-  const [full, relation, own] = current
-  return <OneRelation key={full} full={full} name={localName(namespace, full)} relation={relation} own={own} content={content} namespace={namespace}
-    pending={pending} bar={bar} onSelect={onSelect} onEdit={onEdit} onOps={onOps} />
+/** The relation `full` (picked in the left list, RelationList); `onPick(path)` shows a field of its file on the right. */
+export default function RelationBoard({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
+  const relation = content?.registries?.relation?.[full]
+  if (!relation) return <article className="arrange" />
+  return <OneRelation key={full} full={full} name={localName(namespace, full)} relation={relation} own={namespaceOf(full) === namespace} content={content} namespace={namespace}
+    pending={pending} onSelect={onSelect} onEdit={onEdit} onOps={onOps} onPick={onPick} />
 }
 
-function OneRelation({ full, name, relation, own, content, namespace, pending, bar, onSelect, onEdit, onOps }) {
+function OneRelation({ full, name, relation, own, content, namespace, pending, onSelect, onEdit, onOps, onPick }) {
   const kind = endpointKind(relation)
   const edges = useMemo(() => declaredEdges(relation), [relation])
   const [placed, setPlaced] = useState([])
@@ -109,7 +89,6 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
         removeWire()
       }
     }}>
-      {bar}
       <div className="arrange-group">
         <code className="editor-id">{shownName(namespace, full)}</code>
         <SourceMark content={content} kind="relation" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
@@ -132,7 +111,12 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
         {notice && <p className="is-error" role="status">{notice}</p>}
       </div>
       <ArrangementBoard board={board} label={label} describe={describe} active={active} picked={board.hosted.has(armed) ? armed : null} wire={highlight} pending={locked} isExternal={() => false}
-        onLevel={(id) => { reset(); setActive(active === id ? null : id) }} onWire={(edge) => { reset(); setHighlight(linkKey(edge)) }}
+        onLevel={(id) => { reset(); setActive(active === id ? null : id) }} onWire={(edge) => {
+          reset()
+          setHighlight(linkKey(edge))
+          const k = (relation.edges ?? []).findIndex((e) => linkKey(e) === linkKey(edge))
+          onPick?.(k < 0 ? ['sequence'] : ['edges', k])
+        }}
         onPick={(id) => { reset(); setArmed(armed === id ? null : id) }} onConnect={connect} onCancel={reset} />
     </article>
   )

@@ -1,20 +1,20 @@
 // The tag editor of the package workspace (games/PACKAGES.md 3.2, 8): one tag at a time, an unordered set of one kind
 // of object. Its title, its members (an object by its name and title; a nested tag as a link to it, unfolded to what
 // it holds), members added from what the kind offers and taken out, nested tags refused when they would close a ring;
-// for an item tag, whether it is a concept. Another layer's tags are read only.
+// for an item tag, whether it is a concept. Another layer's tags are read only. The list of tags is the left column's
+// (ObjectLists.jsx); its file the right's.
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Layers, Plus, Trash2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Layers, Trash2, X } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, objectsOf, shownName, tagCandidates, tagMembers } from './objects-edit.js'
+import { localName, namespaceOf, shownName, tagCandidates, tagMembers } from './objects-edit.js'
+import { tagKindWord } from './ObjectLists.jsx'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, tagOverrideOps } from './override-edit.js'
-import { TAG_KINDS, memberKnown, memberTitle, newTag, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
+import { memberKnown, memberTitle, tagValuesOp, textWith, withConcept, withMember, withoutMember } from './tag-edit.js'
 
-const KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'], setting: ['设置', 'Settings'] }
-const kindWord = (kind) => (KIND_WORDS[kind] ? tr(...KIND_WORDS[kind]) : kind)
 const refusal = (reason) => ({
   duplicate: tr('标签里已经有它了。', 'The tag already holds it.'),
   self: tr('标签不能装自己。', 'A tag cannot hold itself.'),
@@ -22,46 +22,24 @@ const refusal = (reason) => ({
   cycle: tr('这样嵌套会形成循环。', 'This nesting would create a cycle.'),
 })[reason] ?? ''
 
-export default function TagEditor({ content, namespace, selected, pending, onSelect, onEdit, onOps }) {
-  const [kind, setKind] = useState('')
-  const all = objectsOf(content, 'tag', namespace)
-  const shown = all.filter(([full, tag]) => !kind || tag.kind === kind || full === selected)
-  const current = all.find(([full]) => full === selected) ?? shown[0] ?? null
-  const kinds = TAG_KINDS.filter((k) => all.some(([, tag]) => tag.kind === k))
-  const namespaces = [...new Set(shown.map(([full]) => namespaceOf(full)))]
-  const create = (k) => {
-    if (pending) return
-    const { full, op } = newTag(content, namespace, k)
-    onEdit(op)
-    onSelect(full)
-  }
+/** The tag `full` (picked in the left list, TagList); `onSelect(full)` opens another, `onPick(path)` shows a field of its file on the right. */
+export default function TagEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
+  const tag = content?.registries?.tag?.[full]
+  if (!tag) return <article className="arrange" />
+  const own = namespaceOf(full) === namespace
   const remove = () => {
-    const [full, , own] = current
     if (!own || pending || !confirmDelete(localName(namespace, full))) return
     onEdit({ op: 'tag.remove', tag: localName(namespace, full) })
     onSelect(null)
   }
   return (
     <article className="arrange">
-      <header className="arrange-bar">
-        {kinds.length > 1 && <select className="studio-game" value={kind} aria-label={tr('种类', 'Kind')} onChange={(e) => setKind(e.target.value)}>
-          <option value="">{tr('全部', 'All')}</option>
-          {kinds.map((k) => <option key={k} value={k}>{kindWord(k)}</option>)}
-        </select>}
-        {shown.length > 0 && <select className="studio-game" value={current?.[0] ?? ''} aria-label={tr('标签', 'Tag')} onChange={(e) => onSelect(e.target.value)}>
-          {namespaces.map((ns) => <optgroup key={ns} label={ns}>
-            {shown.filter(([full]) => namespaceOf(full) === ns).map(([full]) => <option key={full} value={full}>{shownName(namespace, full)}</option>)}
-          </optgroup>)}
-        </select>}
-        <Picker options={TAG_KINDS.map((k) => ({ value: k, label: kindWord(k) }))} icon={Plus} label={tr('新的标签', 'New tag')} searchable={false} onPick={create} />
-        {current?.[2] && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除标签', 'Delete the tag')} aria-label={tr('删除标签', 'Delete the tag')} onClick={remove}><Trash2 size={14} aria-hidden="true" /></button>}
-      </header>
-      {current && <OneTag key={current[0]} full={current[0]} tag={current[1]} own={current[2]} content={content} namespace={namespace} pending={pending} onSelect={onSelect} onEdit={onEdit} onOps={onOps} />}
+      <OneTag key={full} full={full} tag={tag} own={own} content={content} namespace={namespace} pending={pending} onSelect={onSelect} onEdit={onEdit} onOps={onOps} onPick={onPick} onRemove={own ? remove : null} />
     </article>
   )
 }
 
-function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit, onOps }) {
+function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit, onOps, onPick, onRemove }) {
   const [open, setOpen] = useState(() => new Set())
   const [notice, setNotice] = useState('')
   const lang = getLang()
@@ -91,13 +69,13 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
     return next
   })
   const options = tagCandidates(content, tag.kind, full).filter((v) => !tag.values.includes(v)).map((v) => ({
-    value: v, label: shownName(namespace, v), title: titleOf(v) ?? undefined, group: v.startsWith('#') ? tr('标签', 'Tags') : kindWord(tag.kind),
+    value: v, label: shownName(namespace, v), title: titleOf(v) ?? undefined, group: v.startsWith('#') ? tr('标签', 'Tags') : tagKindWord(tag.kind),
   }))
   return (
     <div className="tag-editor">
       <div className="object-head">
         <code className="editor-id is-static">{shownName(namespace, full)}</code>
-        <span className="object-kind">{kindWord(tag.kind)}</span>
+        <span className="object-kind">{tagKindWord(tag.kind)}</span>
         <span className="object-count" title={tr('展开后的成员数', 'Members once expanded')}>{count}</span>
         <SourceMark content={content} kind="tag" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
         {tag.kind === 'item' && <label className="object-flag">
@@ -105,8 +83,10 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
             onChange={(e) => onEdit({ op: 'tag.put', tag: name, data: withConcept(namespace, tag, e.target.checked) })} />
           {tr('概念', 'Concept')}
         </label>}
+        <span className="kit-spacer" />
+        {onRemove && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除标签', 'Delete the tag')} aria-label={tr('删除标签', 'Delete the tag')} onClick={onRemove}><Trash2 size={14} aria-hidden="true" /></button>}
       </div>
-      <div className="object-title">
+      <div className="object-title" onFocus={() => onPick?.(['title'])} onClick={() => onPick?.(['title'])}>
         {own
           ? <TextField key={lang} lang={lang} value={tag.title} label={tr('标题', 'Title')} placeholder={tr('标题', 'Title')} compact
             onSet={(text) => { if (!pending) onEdit({ op: 'tag.set', tag: name, path: 'title', value: textWith(namespace, tag.title, lang, text) }) }} />
@@ -117,13 +97,13 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
         {notice && <p className="is-error" role="status">{notice}</p>}
       </div>
       <ul className="tag-members" aria-label={tr('成员', 'Members')}>
-        {tag.values.map((member) => member.startsWith('#')
+        {tag.values.map((member, k) => member.startsWith('#')
           ? <li key={member}>
             <div className={`tag-member is-tag ${known(member) ? '' : 'is-unknown'}`}>
               <button type="button" className="kit-btn editor-tool" aria-expanded={open.has(member)} aria-label={tr('展开', 'Expand')} onClick={() => toggle(member)}>
                 {open.has(member) ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
               </button>
-              <button type="button" className="tag-link" onClick={() => onSelect(member.slice(1))}>
+              <button type="button" className="tag-link" onClick={() => { onPick?.(['values', k]); onSelect(member.slice(1)) }}>
                 <Layers size={13} aria-hidden="true" /><code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
                 <small className="object-count">{tagMembers(content, member.slice(1)).length}</small>
               </button>
@@ -135,7 +115,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
               </li>)}
             </ul>}
           </li>
-          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`}>
+          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])}>
             <code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
             {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
           </li>)}

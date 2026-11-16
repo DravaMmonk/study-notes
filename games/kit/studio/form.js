@@ -31,6 +31,7 @@ import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { newTaskId } from '../engine/tasks.js'
+import { objectOp, objectSchema, objectValue } from './object-file.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const fits = (schema, value, vocabulary) => validate(schema, value, { vocabulary }).length === 0
@@ -485,11 +486,12 @@ export function glossaryTarget(glossary, keys) {
 
 /**
  * The operation that makes an edit, on a file of the game: `file` { level } | { game: true } | { parts: true } |
- * { glossary } (the glossary as it is). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
+ * { glossary } (the glossary as it is) | { object } (a tag, relation or layout: object-file.js). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
  * there ('text' and 'board' have operations of their own). Null for an edit no operation makes (the glossary's own
  * list of groups or of entries, edited as a whole).
  */
 export function opFor(file, path, edit, type = null) {
+  if (file.object) return objectOp(file.object, path, edit, type)
   const keys = parsePath(path)
   if (type === 'text' && !edit.unset) {
     const where = file.glossary ? glossaryTarget(file.glossary, keys) : file.level !== undefined ? { level: file.level } : { in: file.parts ? 'pieces' : 'game' }
@@ -640,6 +642,10 @@ export const gameFields = (content) => Object.fromEntries(Object.entries(content
 
 /** The form of the file `at` holds, as the content has it now. */
 export function fileForm(content, vocabulary, at, order) {
+  if (at?.object) {
+    const value = objectValue(content, at.object.kind, at.object.full)
+    return value && { value, form: formOf(objectSchema(at.object.kind), value, { vocabulary, levels: order }) }
+  }
   if (at?.glossary) return { value: content.glossary, form: formOf(GLOSSARY, content.glossary, { vocabulary, levels: order }) }
   if (at?.parts) {
     const value = content.partDefs ?? { parts: {} }
