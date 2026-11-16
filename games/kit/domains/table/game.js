@@ -72,7 +72,7 @@ export default function tableGame(content) {
     return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
   }
   const descOf = (k) => (modelsOf(k) ? T('用所选模式把几个输入合并成一个值。', 'Combines the inputs into one value using the selected mode.') : PRIMITIVES[k].desc)
-  const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
+  const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, piece: k, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
 
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
   // games/DESIGN.md 2.1). It joins the box once the first level of its era is passed.
@@ -100,7 +100,7 @@ export default function tableGame(content) {
     intro: (level) => level.intro,
     IntroFigure,
     kinds: playKinds(plays, { ...hand, robot: robotScreenFor(table) }, icons),
-    unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
+    unlocked: (level) => level.unlocks.map((k) => ({ piece: k, label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {
       // The primitives, and the parts a level that is played unlocks (a retired level's card would never be earned).

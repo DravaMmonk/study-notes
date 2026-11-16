@@ -133,7 +133,7 @@ export function courseLayout(content) {
     const bypass = new Map()
     for (const { fromGame, from, to, required } of links) {
       if (fromGame) bind(to, fromGame, from)
-      else if (!required && plan.place.get(from)?.optional && !plan.required.get(to)?.includes(from)) {
+      else if (!required && plan.place.get(from)?.skippable && !plan.required.get(to)?.includes(from)) {
         if (!bypass.has(to)) bypass.set(to, new Set())
         bypass.get(to).add(from)
       }

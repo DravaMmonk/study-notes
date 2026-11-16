@@ -240,7 +240,7 @@
         { "id": "4-18" },
         { "id": "4-19", "optional": true },
         { "id": "4-20", "optional": true },
-        { "id": "4-21", "optional": true }
+        { "id": "4-21", "optional": true, "skippable": true }
       ],
       "links": [
         { "from": "3-8", "to": "4-1" },
@@ -265,8 +265,8 @@
         { "from": "4-16", "to": "4-17" },
         { "from": "4-17", "to": "4-18" },
         { "from": "4-18", "to": "4-19" },
-        { "from": "4-19", "to": "4-20" },
-        { "from": "4-20", "to": "4-21" }
+        { "from": "4-19", "to": "4-20", "required": true },
+        { "from": "4-20", "to": "4-21", "required": true }
       ]
     },
     {

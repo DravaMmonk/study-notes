@@ -88,6 +88,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .tree-level.is-on, .tree-task.is-on { color: var(--select-ink); background: var(--select); box-shadow: none; }
 .tree-level.is-moving { opacity: .45; }
 .tree-optional { flex: none; margin-left: auto; padding: 1px 4px; border: 1px solid currentColor; border-radius: 4px; color: inherit; opacity: .75; font: var(--fs-mini)/1.1 var(--sans); }
+.tree-optional + .tree-optional { margin-left: 0; }
 .tree-tasks { display: grid; margin: 0 0 2px 7px; padding-left: 9px; border-left: 1px solid var(--line); }
 .tree-task { min-width: 0; height: 19px; display: flex; align-items: center; gap: 5px; padding: 0 4px; border: 0; border-radius: 4px; color: var(--muted); background: none; font: 11.5px/1 var(--sans); text-align: left; cursor: grab; }
 .tree-task.is-moving { opacity: .45; }

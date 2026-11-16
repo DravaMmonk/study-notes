@@ -1,4 +1,5 @@
 import { earnedUnlocks, passedLevelIn, taskOpen } from './progress.js'
+import { editorOf } from '../engine/pieces.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -41,7 +42,8 @@ export { PHONE, useMedia } from './useMedia.js'
  *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
  *                 preview?(part, { progress }) → { sample?, experiment?, inside? } for the editor (../circuit/preview.jsx),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
- *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
+ *   unlocked(level)  what passing a level awards [{ piece?, label, icon?, family? }]
+ *   extraPieces   introduced pieces used outside the components box, in its same record format
  *   passed(level)    more for the passed dialog, after the level's key idea: { label, lines } or null, such as the
  *                    rules a level declared
  *   core(level)   whether the map draws a level full size (a milestone: ../course.js isCore) or smaller
@@ -61,7 +63,7 @@ export function defineGame(def) {
   const plan = def.course?.plan
   const levels = plan ? def.levels.map((level) => {
     const place = plan.place.get(level.id)
-    return { ...level, optional: place?.optional ?? false }
+    return { ...level, optional: place?.optional ?? false, skippable: place?.skippable ?? false }
   }) : def.levels
   const byId = Object.fromEntries(levels.map((level) => [level.id, level]))
   const index = new Map(levels.map((level, i) => [level.id, i]))
@@ -124,24 +126,27 @@ export function defineGame(def) {
   game.textFor = (text, progress) => revise(text, (r) => (r.at ? Boolean(byId[r.at]) && isOpen(byId[r.at], new Set(progress.solved), progress.all) : progress.all || progress.solved.includes(r.by)))
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
+  game.isCircuitPiece = (type) => Boolean(type && editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
   // A built part is earned by solving its level; a primitive when its introducing task becomes available.
   // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
-  if (def.parts) {
-    game.parts = {
-      ...def.parts,
-      earned: (progress) => {
-        if (progress.all) return def.parts.all.map((part) => part.key)
-        const solved = new Set(progress.solved)
-        const introduced = (part, id) => {
-          const level = byId[id]
-          if (!level || !isOpen(level, solved)) return false
-          if (!part.atTasks) return true
-          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && taskOpen(game, progress, id, k))
-        }
-        const met = def.parts.all.filter((part) => part.at?.some((id) => introduced(part, id)))
-        return [...game.flagsOf(progress), ...met.map((part) => part.key)]
-      },
+  const earned = (progress, parts) => {
+    if (progress.all) return parts.map((part) => part.key)
+    const solved = new Set(progress.solved)
+    const introduced = (part, id) => {
+      const level = byId[id]
+      if (!level || !isOpen(level, solved)) return false
+      if (!part.atTasks) return true
+      return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && taskOpen(game, progress, id, k))
     }
+    return [...game.flagsOf(progress), ...parts.filter((part) => part.at?.some((id) => introduced(part, id))).map((part) => part.key)]
+  }
+  const pieces = [...(def.parts?.all ?? []), ...(def.extraPieces ?? [])].filter(({ piece }) => piece)
+  game.earnedPieces = (progress) => {
+    const keys = new Set(earned(progress, pieces))
+    return pieces.filter(({ key }) => keys.has(key))
+  }
+  if (def.parts) {
+    game.parts = { ...def.parts, earned: (progress) => earned(progress, def.parts.all) }
   }
   return game
 }

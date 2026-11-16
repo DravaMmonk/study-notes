@@ -13,7 +13,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, nextRequiredTask, taskOpen } from './progress.js'
+import { completionUnlocks, firstTask as openTask, nextRequiredTask, taskOpen } from './progress.js'
 import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
@@ -125,7 +125,7 @@ export default function GameShell({ game, store, author = null }) {
     }
   }, [phone, levelId, benchOpen, viewportRoot])
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
-  const [won, setWon] = useState(null) // the level just passed
+  const [won, setWon] = useState(null) // the level just passed and the course rewards it opened
   const [failure, setFailure] = useState(null) // { info, fails } of the last run that missed
   const [fails, setFails] = useState(0) // misses on the current level this visit
   const [sheet, setSheet] = useState(null) // 'parts' | 'wiki'
@@ -181,15 +181,16 @@ export default function GameShell({ game, store, author = null }) {
   const context = useMemo(() => level && taskContext(game, progress, level, taskAt), [game, progress, level, taskAt])
   const task = context && playedTask(context, { go: goTask, update })
   const key = task?.key ?? null
-  const played = task && { ...task.screen.level, optionalLevel: Boolean(level.optional), skipLevel: () => open(null) }
+  const played = task && { ...task.screen.level, skipLevel: level.skippable && !solved.has(level.id) ? () => open(null) : undefined }
 
   // What a level screen can do to the shell.
   // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score, work) => {
+    const before = store.load()
     const done = task.screen.solve(score, work)
     if (!done) return
     setFailure(null)
-    if (done.solved.includes(level.id)) setWon(level.id)
+    if (done.solved.includes(level.id)) setWon({ id: level.id, ...completionUnlocks(game, level, before, done) })
     else setTaskWon({ index: taskAt, next: nextRequiredTask(game, done, level.id, taskAt) })
   }
   const fail = (info) => {
@@ -418,8 +419,8 @@ export default function GameShell({ game, store, author = null }) {
         {taskWon !== null && (
           <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} revisit={taskWon.next >= 0 && taskWon.next < taskWon.index} onStay={() => setTaskWon(null)} onNext={taskWon.next >= 0 ? () => goTask(taskWon.next) : () => open(null)} />
         )}
-        {won && level && won === level.id && (
-          <SolvedDialog game={game} level={{ ...level, unlocks: earnedUnlocks(level, progress) }} onStay={() => setWon(null)} onExit={() => open(null)} />
+        {won && level && won.id === level.id && (
+          <SolvedDialog game={game} level={level} unlocked={won} onStay={() => setWon(null)} onExit={() => open(null)} />
         )}
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}

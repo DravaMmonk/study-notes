@@ -231,17 +231,19 @@ test('a task holds its level’s part once a task before it has built it; the ta
   assert.deepEqual(usable(course, { id: '3', task: 0 }, flags), ['a', 'P'])
 })
 
-test('parallel routes, optional unlocks, numeric labels are independent', () => {
+test('parallel routes distinguish skippable levels, optional levels, and strict prerequisites', () => {
   const era = {
-    id: 0, levels: [{ id: 'start' }, { id: 'a' }, { id: 'c' }, { id: 'b', optional: true }, { id: 'd' }, { id: 'join' }, { id: 'extra', optional: true }, { id: 'last', optional: true }],
-    links: wires(['start','a'], ['start','c'], ['a','b'], ['c','d'], ['b','join'], ['d','join'], ['a','extra'], ['c','extra'], ['extra','last',true])
+    id: 0, levels: [{ id: 'start' }, { id: 'a' }, { id: 'c' }, { id: 'b', skippable: true }, { id: 'd' }, { id: 'join' }, { id: 'extra', optional: true }, { id: 'last', optional: true }],
+    links: wires(['start','a'], ['start','c'], ['a','b'], ['c','d'], ['b','join'], ['b','extra',true], ['d','join'], ['a','extra'], ['c','extra'], ['extra','last'])
   }
   const { place, requires, required } = layout([era])
   assert.deepEqual(requires.get('join'), ['b', 'd'])
   assert.deepEqual(required.get('join'), ['a', 'd'])
-  assert.deepEqual(required.get('extra'), ['a', 'c'])
+  assert.deepEqual(required.get('extra'), ['b', 'a', 'c'])
   assert.deepEqual(required.get('last'), ['extra'])
   assert.equal(place.get('extra').optional, true)
+  assert.equal(place.get('extra').skippable, false)
+  assert.equal(place.get('b').optional, false)
   const labels = levelLabels([era])
   assert.deepEqual([...labels], [['start', '0-1'], ['a', '0-2'], ['c', '0-3'], ['b', '0-4'], ['d', '0-5'], ['join', '0-6'], ['extra', '0-7'], ['last', '0-8']])
 })

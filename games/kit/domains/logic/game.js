@@ -68,11 +68,12 @@ export default function logicGame(content) {
   // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
-  const primitives = [...introductions(logic.course)].filter(([type]) => !logic.strips[type]).map(([type, at]) => {
-    const text = logic.defs[type] ?? pieces[type]
+  const introduced = [...introductions(logic.course)].map(([type, at]) => {
+    const text = logic.defs[type] ?? logic.strips[type] ?? pieces[type]
     const rules = kernelRules(type)
-    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? Cpu, at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
   })
+  const primitives = introduced.filter(({ piece }) => !logic.strips[piece])
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
@@ -123,14 +124,15 @@ export default function logicGame(content) {
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [
-      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ label: pieces[type].name })),
-      ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
+      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ piece: type, label: pieces[type].name })),
+      ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.piece === type)).filter(Boolean).map((p) => ({ piece: p.piece, label: p.name, icon: p.icon, family: 'rule' })),
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
       return declared ? declaredLines(declared) : null
     },
     core: (level) => isCore(logic.course, level),
+    extraPieces: introduced.filter(({ piece }) => logic.strips[piece]),
     parts: {
       all: [
         ...primitives,

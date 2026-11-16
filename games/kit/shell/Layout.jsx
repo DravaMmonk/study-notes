@@ -113,7 +113,7 @@ export function Brief({ game, level, sections = TASK_BOARD_SECTIONS, text, tip, 
 
 export function TaskNavigation({ level }) {
   const edit = useEdit()
-  const skip = level.optionalLevel && !edit
+  const skip = level.skipLevel && !edit
   const steps = level.steps && (edit || level.steps.names.length > 1)
   if (!skip && !steps) return null
   return (

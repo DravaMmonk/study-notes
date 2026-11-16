@@ -220,6 +220,24 @@ export function earnedUnlocks(level, progress) {
   })
 }
 
+/** The course rewards made available by this completion, in course order. */
+export function completionUnlocks(game, level, before, after) {
+  const wasSolved = new Set(before.solved)
+  const solved = new Set(after.solved)
+  const known = new Set(game.earnedPieces({ ...before, all: false }).map(({ piece }) => piece))
+  const pieces = new Map()
+  if (!wasSolved.has(level.id)) {
+    for (const part of game.unlocked({ ...level, unlocks: earnedUnlocks(level, after) })) {
+      if (part.piece) pieces.set(part.piece, part)
+    }
+  }
+  for (const part of game.earnedPieces({ ...after, all: false })) {
+    if (!known.has(part.piece)) pieces.set(part.piece, { ...part, label: part.name })
+  }
+  const levels = game.levels.filter((next) => !solved.has(next.id) && !game.isOpen(next, wasSolved) && game.isOpen(next, solved))
+  return { pieces: [...pieces.values()], levels }
+}
+
 /** The work and the exact dependencies the game selected when the task passed. */
 export function recordSolution(game, p, level, taskAt, work) {
   const task = level.tasks[taskAt]

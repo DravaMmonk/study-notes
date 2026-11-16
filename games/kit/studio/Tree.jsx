@@ -18,8 +18,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
   const view = !moving && sortOptions.some(({ value }) => value === sort) ? sort : 'chapter'
   const filtering = !moving && Boolean(query.trim())
   const order = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
-  const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) =>
-    era.levels.filter((entry) => entry.optional).map(({ id }) => id))), [tree])
+  const placements = useMemo(() => new Map(tree.eras.flatMap(({ era }) => era.levels.map((entry) => [entry.id, entry]))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
   const { folded, toggle: fold } = useSidebarFolds('folded-eras', game)
@@ -88,7 +87,8 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     >
       <code className="tree-level-id" title={id}>{id}</code>
       <span>{L(byId.get(id)?.title)}</span>
-      {optional.has(id) && <small className="tree-optional">{tr('可选')}</small>}
+      {placements.get(id)?.optional && <small className="tree-optional">{tr('可选')}</small>}
+      {placements.get(id)?.skippable && <small className="tree-optional">{tr('可跳过', 'Skippable')}</small>}
     </button>
   )
   /** What makes a row a place a dragged task goes. */

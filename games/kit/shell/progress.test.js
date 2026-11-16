@@ -1,7 +1,7 @@
 // node --test games/kit/shell — a game's progress in the browser: kept task by task for the puzzle each was made on.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, saved, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
+import { completionUnlocks, createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, saved, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { passedLevelIn, recordSolution } from './progress.js'
 import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot } from './slots.js'
@@ -153,6 +153,26 @@ test('passing records the circuit that ran even when the task has never saved it
   }
 })
 
+
+test('completion reports newly opened branches and their pieces, and waits for every gate at a join', () => {
+  const level = { id: 'start', tasks: [{ key: 'start' }], unlocks: ['built', 'mode'] }
+  const left = { id: 'left', requires: ['start'] }
+  const right = { id: 'right', requires: ['start'] }
+  const join = { id: 'join', requires: ['start', 'other'] }
+  const game = {
+    levels: [level, left, right, join],
+    isOpen: (entry, solved) => (entry.requires ?? []).every((id) => solved.has(id)),
+    unlocked: (entry) => entry.unlocks.map((flag) => flag === 'built' ? { piece: 'gate', label: 'Gate' } : { label: 'Mode' }),
+    earnedPieces: ({ solved }) => solved.includes('start') ? [{ piece: 'gate', name: 'Gate' }, { piece: 'symbol', name: 'Symbol' }] : [],
+  }
+  const before = { ...fresh(), all: true }
+  const after = { ...before, solved: ['start'] }
+  const rewards = completionUnlocks(game, level, before, after)
+  assert.deepEqual(rewards.pieces.map(({ piece }) => piece), ['gate', 'symbol'])
+  assert.deepEqual(rewards.levels, [left, right])
+  assert.deepEqual(completionUnlocks(game, level, after, after), { pieces: [], levels: [] })
+  assert.deepEqual(completionUnlocks(game, level, { ...before, solved: ['other'] }, { ...after, solved: ['other', 'start'] }).levels, [left, right, join])
+})
 
 test('optional tasks can be skipped without granting their rewards or appearing passed', () => {
   const l = { id: 'mixed', tasks: [{ key: 'extra', optional: true, opens: ['extra-part'] }, { key: 'required' }], unlocks: ['level-part', 'extra-part'] }

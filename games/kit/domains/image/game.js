@@ -53,7 +53,7 @@ export default function imageGame(content) {
   const PART_OF_FLAG = partOfFlag(types)
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
-    if (type && types[type]) return { key: flag, ...((image.pieces[type] || kit.defs[type]) ? { piece: type } : {}), label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
+    if (type && types[type]) return { key: flag, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's

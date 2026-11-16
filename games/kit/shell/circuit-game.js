@@ -31,7 +31,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
     const { name, desc, icon, revisions } = cards[type]
-    return { key: `part:${type}`, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
+    return { key: `part:${type}`, piece: type, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
   // The built pieces, in the order the course builds them.
   const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, ...defined({ revisions: circuit.pieces[type].revisions }), icon: CircuitBoard }))
@@ -85,7 +85,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
         return { inside: { course: circuit, cards } }
       },
     },
-    unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
+    unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ piece: b.piece, label: b.name, icon: b.icon })),
   })
   game.circuit = circuit
   return game

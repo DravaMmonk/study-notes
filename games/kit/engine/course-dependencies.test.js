@@ -8,7 +8,7 @@ const inspect = (id, solution, hints = {}) => ({ id, ...hints, tasks: [{ id: `${
 
 test('package prerequisites upgrade an optional authored edge and reject a missing binding', () => {
   const c = course('world', [{ id: 'a' }, { id: 'b', requires: ['a'] }],
-    [{ id: 'a', optional: true }, { id: 'b' }], [{ from: 'a', to: 'b' }])
+    [{ id: 'a', optional: true, skippable: true }, { id: 'b' }], [{ from: 'a', to: 'b' }])
   assert.deepEqual(courseLayout(c).requires.get('b'), ['a'])
   assert.deepEqual(courseLayout(c).required.get('b'), ['a'])
   c.eras[0].levels.shift()
@@ -56,7 +56,7 @@ test('cross-game pass provides shared package awards and carries through skipped
   const a = inspect('a', [], { task: { publishes: [{ piece: 'adder', variant: 'simple' }], opens: ['adder.width=3'] } })
   const source = course('source', [a], [{ id: 'a' }])
   const receiving = course('target', [a, { id: 'b', requires: ['a'] }, { id: 'c' }],
-    [{ id: 'b', optional: true }, { id: 'c' }], [{ fromGame: 'source', from: 'a', to: 'b' }, { from: 'b', to: 'c' }])
+    [{ id: 'b', optional: true, skippable: true }, { id: 'c' }], [{ fromGame: 'source', from: 'a', to: 'b' }, { from: 'b', to: 'c' }])
   const plan = courseLayout(receiving)
   assert.deepEqual(plan.external.get('c'), [{ game: 'source', level: 'a' }])
   assert.deepEqual([...plan.externalItems.get('c')], ['adder.width=3', 'adder'])

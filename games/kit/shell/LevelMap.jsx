@@ -119,6 +119,10 @@ function LevelButton({ game, level, style, solved, all, best, current, next, nee
       </span>
       <span className="map-node-title">{L(level.title)}</span>
       {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
+      {(level.optional || level.skippable) && <span className="map-node-tags">
+        {level.optional && <span className="map-node-tag">{tr('可选', 'Optional')}</span>}
+        {level.skippable && <span className="map-node-tag">{tr('可跳过', 'Skippable')}</span>}
+      </span>}
     </button>
   )
 }
@@ -134,7 +138,11 @@ function Tree({ game, track, byId, solved, all, best = () => null, current, next
   // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks, less
   // what a level before it unlocked already (an upgrade of a part shows no chip of its own).
   const firstUnlocks = (level) => ({ ...level, unlocks: (level.unlocks ?? []).filter((flag) => !game.unlocksBefore(level).includes(flag)) })
-  const chipOf = (level) => [...game.introduced(level).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })), ...game.unlocked(firstUnlocks(level)).map((part) => ({ label: part.label, open: all || solved.has(level.id) }))]
+  const circuitPiece = ({ piece }) => game.isCircuitPiece(piece)
+  const chipOf = (level) => [
+    ...game.introduced(level).filter(circuitPiece).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })),
+    ...game.unlocked(firstUnlocks(level)).filter(circuitPiece).map((part) => ({ label: part.label, open: all || solved.has(level.id) })),
+  ]
   // A level's own box: full size, or smaller; and the gap under it.
   const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
   const chip = (id) => Boolean(byId.get(id) && chipOf(byId.get(id)).length)
@@ -187,7 +195,7 @@ function Tree({ game, track, byId, solved, all, best = () => null, current, next
 
 /**
  * What a level brings, on the wire just under it: the primitives it brings in (fresh, named once the level opens) and
- * the parts (or options) passing it gives (named once it is passed), ？？？ until then. Once there, a part stays usable
+ * the circuit parts passing it gives (named once it is passed), ？？？ until then. Once there, a part stays usable
  * in every level after it (../course.js offer).
  */
 function UnlockChip({ items, style }) {

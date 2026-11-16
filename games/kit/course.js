@@ -4,8 +4,8 @@
 // as that part against the level's tests. The design behind these rules is games/DESIGN.md.
 //
 // A chapter lists its level ids in display order. Links go from prerequisite to successor; the chapter holding the
-// successor owns the link. Optional levels are bypassed on ordinary links. A required link explicitly waits for an
-// optional predecessor. Groups are independent of both numbering and links.
+// successor owns the link. Skippable levels are bypassed on ordinary links. A required link waits for a pass.
+// Groups are independent of both numbering and links.
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
 //   eras?                                  the course's eras, for the era rules of the audit
@@ -134,8 +134,8 @@ export function layout(eras, { notes = false, links = eras.flatMap((era) => era.
   const place = new Map(), requires = new Map(), tracks = new Map()
   const incoming = new Map()
   for (const era of eras) {
-    for (const { id, optional = false } of era.levels) {
-      place.set(id, { era: era.id, optional })
+    for (const { id, optional = false, skippable = false } of era.levels) {
+      place.set(id, { era: era.id, optional, skippable })
       incoming.set(id, [])
     }
     tracks.set(era.id, eraLevels(era))
@@ -146,7 +146,7 @@ export function layout(eras, { notes = false, links = eras.flatMap((era) => era.
   const order = dependencyOrder([...place.keys()], requires)
   const required = new Map()
   for (const id of order) {
-    const direct = incoming.get(id).flatMap(({ from, required: strict }) => place.get(from)?.optional && !strict
+    const direct = incoming.get(id).flatMap(({ from, required: strict }) => place.get(from)?.skippable && !strict
       ? required.get(from) ?? [from]
       : [from])
     required.set(id, [...new Set(direct)])

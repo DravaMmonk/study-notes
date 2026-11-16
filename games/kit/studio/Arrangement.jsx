@@ -60,7 +60,7 @@ export default function Arrangement({ content, base, at, options, pending, save,
     const title = nameOfLevel(id)
     return title ? `${id} ${title}` : id
   }
-  const label = (id) => <><code>{id}</code><span>{nameOfLevel(id)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
+  const label = (id) => <><code>{id}</code><span>{nameOfLevel(id)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}{place.get(id)?.skippable && <small>{tr('可跳过', 'Skippable')}</small>}</>
   const resetWire = () => { setArmed(null); setHighlight(null); setNotice('') }
   const setField = (path, values) => onEdit(values.length ? { op: 'game.set', path, value: values } : { op: 'game.unset', path })
   const updateLink = (link, value) => {
@@ -85,6 +85,12 @@ export default function Arrangement({ content, base, at, options, pending, save,
     setHighlight(linkKey(edge))
   }
   const chooseWire = (edge) => { resetWire(); setHighlight(linkKey(edge)) }
+  const setLevelTag = (tag, checked) => {
+    const chapter = indices.get(place.get(selected).era)
+    const levelIndex = eras[chapter].levels.findIndex(({ id }) => id === selected)
+    const path = ['eras', chapter, 'levels', levelIndex, tag]
+    onEdit(checked ? { op: 'game.set', path, value: true } : { op: 'game.unset', path })
+  }
   const removeWire = () => {
     if (wire?.source !== 'course' || pending || !confirmDelete(`${wire.from} → ${wire.to}`)) return
     updateLink(wire, null)
@@ -126,11 +132,11 @@ export default function Arrangement({ content, base, at, options, pending, save,
         {wire ? <>
           <strong>{describe(wire.from)} → {describe(wire.to)}</strong>
           {reasons.length > 0 && <span>{reasons.join(' / ')}</span>}
-          {wire.source === 'course' && reasons.length === 0 && place.get(wire.from)?.optional && <label>
+          {wire.source === 'course' && reasons.length === 0 && place.get(wire.from)?.skippable && <label>
             <input type="checkbox" checked={wire.required ?? false} disabled={pending} onChange={(e) => {
               updateLink(wire, { from: wire.from, to: wire.to, ...(e.target.checked && { required: true }) })
             }} />
-            {tr('须完成可选前置', 'Require this optional level')}
+            {tr('须通过这个前置', 'Require a pass on this prerequisite')}
           </label>}
           {wire.source === 'course'
             ? <button type="button" className="kit-btn is-label" disabled={pending} onClick={removeWire}>
@@ -142,13 +148,12 @@ export default function Arrangement({ content, base, at, options, pending, save,
         </> : selected ? <>
           <strong>{describe(selected)}</strong>
           <label>
-            <input type="checkbox" checked={place.get(selected).optional} disabled={pending} onChange={(e) => {
-              const chapter = indices.get(place.get(selected).era)
-              const levelIndex = eras[chapter].levels.findIndex(({ id }) => id === selected)
-              const path = ['eras', chapter, 'levels', levelIndex, 'optional']
-              onEdit(e.target.checked ? { op: 'game.set', path, value: true } : { op: 'game.unset', path })
-            }} />
+            <input type="checkbox" checked={place.get(selected).optional} disabled={pending} onChange={(e) => setLevelTag('optional', e.target.checked)} />
             {tr('可选', 'Optional')}
+          </label>
+          <label>
+            <input type="checkbox" checked={place.get(selected).skippable} disabled={pending} onChange={(e) => setLevelTag('skippable', e.target.checked)} />
+            {tr('可跳过', 'Skippable')}
           </label>
           <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onMove(selected)}>
             <ListOrdered size={13} aria-hidden="true" />{tr('调整课程顺序', 'Reorder level')}

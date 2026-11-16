@@ -249,7 +249,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 14,
+  version: 15,
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

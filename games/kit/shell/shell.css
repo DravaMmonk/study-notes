@@ -98,6 +98,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-node.is-locked .map-pad { color: var(--faint); background: var(--canvas); box-shadow: 0 0 0 1px var(--rule); }
 .map-node-id { flex: none; color: var(--muted); }
 .map-node-number { display: inline-flex; align-items: baseline; gap: var(--sp-2); min-width: 0; font-family: var(--mono); font-size: 10.5px; }
+.map-node-tags { position: absolute; left: var(--sp-4); bottom: 3px; display: flex; gap: var(--sp-2); color: var(--muted); font-size: 9px; line-height: 1.1; }
 .map-node-title { flex: 1; min-width: 0; overflow: hidden; font-size: 13.5px; white-space: nowrap; text-overflow: ellipsis; }
 .map-node-kind { flex: none; color: var(--faint); display: grid; }
 .map-node-best { flex: none; color: var(--faint); font-family: var(--mono); font-size: 10px; }
@@ -115,6 +116,9 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-list.is-compact .map-node.is-minor .map-pad, .map-tree.is-compact .map-node.is-minor .map-pad { width: 12px; height: 12px; }
 .map-list.is-compact .map-node.is-minor .map-node-number, .map-tree.is-compact .map-node.is-minor .map-node-number { font-size: 9px; }
 .map-list.is-compact .map-node.is-minor .map-node-title, .map-tree.is-compact .map-node.is-minor .map-node-title { font-size: 11px; }
+.map-node:has(.map-node-tags) { padding-bottom: 12px; }
+:is(.map-list, .map-tree).is-compact .map-node:has(.map-node-tags) { row-gap: 1px; padding-bottom: 0; }
+:is(.map-list, .map-tree).is-compact .map-node-tags { position: static; grid-column: 1 / -1; }
 .map-node.is-here { box-shadow: 0 0 0 2px var(--ink); }
 .map-unlock { position: absolute; z-index: 2; transform: translate(-50%, -50%); height: 20px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-2); overflow: hidden; border-radius: var(--r-full); font-size: 11px; line-height: 1; white-space: nowrap; pointer-events: auto; }
 .map-unlock span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -201,7 +205,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .solved-mark path { stroke-dasharray: 26; stroke-dashoffset: 26; animation: draw 320ms 420ms ease forwards; }
 .unlocked { margin-top: var(--sp-6); padding: var(--sp-5) var(--sp-5); border-radius: var(--r-md); background: var(--canvas); }
 .unlocked .panel-label { margin-bottom: var(--sp-4); }
-.unlocked-list { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.unlocked-list { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: 0; padding: 0; list-style: none; }
 .unlocked-part { min-height: 32px; padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-2); display: inline-flex; align-items: center; gap: var(--gap-local); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; animation: rise-in 300ms 500ms ease both; }
 .dialog-actions { margin-top: var(--sp-6); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-4); }
 /* A long dialog scrolls; its buttons stay in reach at the bottom. */

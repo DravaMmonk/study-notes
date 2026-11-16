@@ -1,5 +1,5 @@
 import { createElement, isValidElement } from 'react'
-import { L, keyOf, tr } from './i18n.js'
+import { L, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
 import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
@@ -50,9 +50,8 @@ export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay
 }
 
 /** A level passed: what it taught, what it unlocked, its key idea, and the way back to the map. */
-export function SolvedDialog({ game, level, onStay, onExit }) {
+export function SolvedDialog({ game, level, unlocked, onStay, onExit }) {
   const overlay = useOverlay(onStay)
-  const unlocked = game.unlocked(level)
   const note = game.note(level)
   // What else passing it gives, as the game says it: a label and its lines (rules declared, a sentence's skeleton…).
   const passed = game.passed(level)
@@ -71,17 +70,25 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
             <div className="dialog-lines">{passed.lines.map((line, k) => <code key={k}>{L(line)}</code>)}</div>
           </div>
         )}
-        {unlocked.length > 0 && (
+        {unlocked.pieces.length > 0 && (
           <div className="unlocked">
-            <span className="panel-label">{tr('解锁')}</span>
-            <div className="unlocked-list">
-              {unlocked.map((part) => (
-                <span key={keyOf(part.label)} className="unlocked-part" data-family={part.family}>
+            <span className="panel-label">{tr('解锁的件', 'Pieces unlocked')}</span>
+            <ul className="unlocked-list">
+              {unlocked.pieces.map((part) => (
+                <li key={part.piece} className="unlocked-part" data-family={part.family}>
                   {part.icon && <i className="family-chip">{createElement(part.icon, { size: 14, strokeWidth: 1.7 })}</i>}
                   {L(part.label)}
-                </span>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
+        )}
+        {unlocked.levels.length > 0 && (
+          <div className="unlocked">
+            <span className="panel-label">{tr('解锁的关卡', 'Levels unlocked')}</span>
+            <ul className="unlocked-list">
+              {unlocked.levels.map((next) => <li key={next.id} className="unlocked-part"><span className="map-node-id">{game.levelLabel(next)}</span>{L(next.title)}</li>)}
+            </ul>
           </div>
         )}
         <div className="dialog-actions">
