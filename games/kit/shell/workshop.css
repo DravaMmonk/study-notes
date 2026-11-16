@@ -61,3 +61,14 @@
   .ws-term-ports li { min-height: calc(var(--sp-8) + var(--sp-5)); }
   .ws-tool { width: calc(var(--sp-8) + var(--sp-4)); height: calc(var(--sp-8) + var(--sp-4)); }
 }
+
+@media (max-width: 760px) {
+  html.is-game-playing:has(.ws-package-scrim) body { position: fixed; inset: 0; overflow: clip; }
+  .game.is-playing:has(> .ws-package-scrim) { overflow: clip; }
+  /* Use the play surface's visual-viewport height, with no separate keyboard or safe-area gap. */
+  .game.is-playing > .ws-package-scrim { position: absolute; overflow: clip; }
+  .ws-package-scrim .ph-sheet { max-height: 100%; animation: none; }
+  .ws-package-scrim :is(.ph-sheet-head, .ph-handle) { flex: none; }
+  .ws-package-scrim .ph-sheet:not(:has(.ph-sheet-foot)) .ph-sheet-body { min-height: 0; padding-bottom: var(--sp-6); scrollbar-width: none; }
+  .ws-package-scrim .ph-sheet-body::-webkit-scrollbar { display: none; }
+}
