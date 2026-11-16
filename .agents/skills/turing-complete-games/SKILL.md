@@ -21,8 +21,12 @@ The design rules live in the repository, not in this skill. Before designing or 
    especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), interface (§6.9), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 4. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-5. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts), `levels/<id>.json`
-   and `glossary.json`, written in its domain's vocabulary (`games/kit/domains/<domain>/vocabulary.js`).
+5. The game's content (`games/DESIGN.md` §2, §6.1): the package it plays (`packages/<package>/`: `levels/<id>.json`,
+   level groups `groups/<id>.json`, `pieces.json`, `glossary.json`) and the game's own course
+   (`games/<game>/course.json`: chapters placing whole groups or single levels, links, map `rows`) and wording
+   over the package's texts (`overrides/<lang>.json`), written in its domain's vocabulary
+   (`games/kit/domains/<domain>/vocabulary.js`). Levels are designed a group at a time (studio's level design
+   workspace); a game arranges them into a route (studio's game arrangement workspace).
 
 Keep the relevant game design and handbook aligned with the implemented course. Document substantive design
 changes and general lessons where they help future work; use the user's scope and judgment to choose the detail.
