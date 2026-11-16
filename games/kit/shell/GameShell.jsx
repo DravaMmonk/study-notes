@@ -105,8 +105,8 @@ export default function GameShell({ game, store, author = null }) {
     const update = () => {
       const editing = document.activeElement?.matches('input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]')
       const frame = playFrame(viewport, Math.max(window.innerHeight, document.documentElement.clientHeight), editing)
-      root.style.setProperty('--play-height', `${frame.height}px`)
-      root.style.setProperty('--play-top', `${frame.top}px`)
+      root.style.setProperty('--play-height', frame ? `${frame.height}px` : '')
+      root.style.setProperty('--play-top', frame ? `${frame.top}px` : '')
     }
     update()
     viewport.addEventListener('resize', update)
