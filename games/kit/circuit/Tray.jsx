@@ -11,7 +11,7 @@ export default function Tray({ items, folded = [], onPick, start }) {
   const [more, setMore] = useState(false)
   const host = useRef(null)
   const piece = (item) => (
-    <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.type} data-family={item.family} onClick={() => onPick(item.type)} title={L(item.desc)}>
+    <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.onPick ? undefined : item.type} data-family={item.family} onClick={item.onPick ?? (() => onPick(item.type))} title={L(item.desc)}>
       {item.icon && <i className="family-chip"><Glyph icon={item.icon} size={13} /></i>}
       <b>{L(item.label)}</b>
       {item.fresh && <em className="pb-new">{tr('新')}</em>}

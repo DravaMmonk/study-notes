@@ -1,13 +1,13 @@
 // Player-owned circuit artifacts. Versions are immutable; the visible library points at the latest publication.
-import { packed, source, withBoardRuntime } from './boards.js'
+import { packed, sink, source, withBoardRuntime } from './boards.js'
 import { canonicalJson } from './json-value.js'
 import { defaultOf } from './parts/define.js'
 import { resolveSettings } from './pieces.js'
 import { sourceOf, splitSource } from './wire-source.js'
 import { trayMembers } from './trays.js'
+import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from './workshop-terminals.js'
 
 export const WORKSHOP_KEY = 'games.workshop.v1'
-const INPUT = '$workshopInput'
 export const isWorkshopType = (type) => typeof type === 'string' && type.startsWith('user_')
 export const usesWorkshop = (board) => Array.isArray(board?.nodes) && board.nodes.some(({ type }) => isWorkshopType(type))
 const empty = () => ({ pieces: {}, published: {}, featured: {}, drafts: {} })
@@ -55,7 +55,7 @@ export function removeWorkshopPart(library, id) {
   return { ...library, pieces: { ...library.pieces, [id]: { ...piece, deleted: true } }, featured }
 }
 
-/** Keep a tray's unfinished board: { graph, names }, or nothing once it is cleared. */
+/** Keep a tray's unfinished board, or nothing once it is cleared. */
 export function draftWorkshop(library, tray, draft) {
   const { [tray]: _gone, ...drafts } = library.drafts
   return { ...library, drafts: draft ? { ...drafts, [tray]: draft } : drafts }
@@ -89,62 +89,6 @@ export function workshopIdentity(domain, definitions, type) {
   }])
 }
 
-const NAME_LENGTH = 24
-const plain = (parts, node) => !parts.outputs?.(node)
-const endsOf = (graph, parts, side) => graph.nodes.filter((node) => parts.role(node) === (side === 'inputs' ? 'source' : 'sink'))
-
-/**
- * The interface a board would be packaged with, in board order: { inputs, outputs }, each port
- * { ref, node, name, wired, plain }. A terminal of its own (`plain`) is one port, wired or not; a source that gives
- * several outputs is a port for each output a wire reads. `names` renames ports by side and ref.
- */
-export function workshopPorts(graph, parts, names = {}) {
-  const read = new Set(graph.wires.map(({ from }) => from))
-  const fed = new Set(graph.wires.map(({ to }) => to))
-  const named = (side, ref, base) => names[side]?.[ref] ?? base
-  const inputs = endsOf(graph, parts, 'inputs').flatMap((node) => plain(parts, node)
-    ? [{ ref: node.id, node: node.id, name: named('inputs', node.id, node.params?.name ?? node.id), wired: read.has(node.id), plain: true }]
-    : parts.outputs(node).map(({ key }) => sourceOf(node.id, key)).filter((ref) => read.has(ref))
-      .map((ref) => ({ ref, node: node.id, name: named('inputs', ref, splitSource(ref)[1]), wired: true, plain: false })))
-  const outputs = endsOf(graph, parts, 'outputs').map((node) => ({
-    ref: node.id, node: node.id, name: named('outputs', node.id, node.params?.name ?? node.id), wired: fed.has(node.id), plain: true,
-  }))
-  return { inputs, outputs }
-}
-
-/** Another terminal on one side of the board, made like the last one there; null when the side has none to copy. */
-export function addWorkshopPort(graph, parts, side) {
-  const like = endsOf(graph, parts, side).filter((node) => plain(parts, node)).at(-1)
-  if (!like) return null
-  const taken = new Set(graph.nodes.map(({ id }) => id))
-  const stem = side === 'inputs' ? 'in' : 'out'
-  let k = 1
-  while (taken.has(`${stem}${k}`)) k += 1
-  const column = graph.nodes.filter((node) => parts.role(node) === parts.role(like) && Number.isFinite(node.y))
-  const ys = column.map(({ y }) => y).sort((a, b) => a - b)
-  const gap = ys.length > 1 ? ys.at(-1) - ys.at(-2) : 120
-  const place = Number.isFinite(like.x) ? { x: like.x, y: ys.at(-1) + gap } : {}
-  return { ...graph, nodes: [...graph.nodes, { id: `${stem}${k}`, type: like.type, params: { ...like.params, name: `${stem}${k}` }, ...place }] }
-}
-
-/** The board without one of its own terminals and that terminal's wires; a side keeps its last one. */
-export function dropWorkshopPort(graph, parts, side, ref) {
-  const own = endsOf(graph, parts, side).filter((node) => plain(parts, node))
-  if (own.length < 2 || !own.some(({ id }) => id === ref)) return graph
-  return {
-    ...graph,
-    nodes: graph.nodes.filter(({ id }) => id !== ref),
-    wires: graph.wires.filter(({ from, to }) => splitSource(from)[0] !== ref && to !== ref),
-  }
-}
-
-/** `names` with one port renamed, or null when the name is empty, too long, or another port's on that side. */
-export function nameWorkshopPort(names, ports, side, ref, text) {
-  const name = text.trim()
-  if (!name || name.length > NAME_LENGTH || ports[side].some((port) => port.ref !== ref && port.name === name)) return null
-  return { ...names, [side]: { ...names[side], [ref]: name } }
-}
-
 /** Snapshot the board's executable interface, including nested implementations and their base requirements.
  *  `names` ({ inputs, outputs } by ref) and `order` (input refs) are the interface the workshop page shows. */
 export function captureWorkshop(graph, options) {
@@ -152,7 +96,7 @@ export function captureWorkshop(graph, options) {
   const gather = (board, parts, open, face, ancestry) => {
     const sourcePins = new Map()
     const nodes = [], requirements = [], children = {}, nestedTerminals = new Set()
-    const inputSignals = {}
+    const inputSignals = Object.create(null)
     const sourceNodes = new Map(board.nodes.filter((node) => parts.role(node) === 'source').map((node) => [node.id, node]))
     const taken = new Set(board.nodes.map(({ id }) => id))
     const labels = new Set()
@@ -166,11 +110,11 @@ export function captureWorkshop(graph, options) {
       const prefix = port
       for (let suffix = 2; labels.has(port); suffix += 1) port = `${prefix}_${suffix}`
       labels.add(port)
-      if (parts.signalOf) inputSignals[port] = parts.signalOf(board, ref)
+      if (parts.signalOf && from.type !== WORKSHOP_INPUT) inputSignals[port] = parts.signalOf(board, ref)
       let pin = `pin_${sourcePins.size + 1}`
       while (taken.has(pin)) pin += '_'
       taken.add(pin)
-      sourcePins.set(ref, { id: pin, type: INPUT, x: from.x, y: (from.y ?? 40) + sourcePins.size * 35, params: { name: port } })
+      sourcePins.set(ref, { id: pin, type: WORKSHOP_INPUT, x: from.x, y: (from.y ?? 40) + sourcePins.size * 35, params: { name: port } })
     }
     const wires = board.wires.map((wire) => sourcePins.has(wire.from) ? { ...wire, from: sourceOf(sourcePins.get(wire.from).id) } : wire)
     for (const node of board.nodes) {
@@ -238,7 +182,7 @@ export function workshopCompatible(piece, { domain, identity, resolve }) {
   return piece?.domain === domain && Array.isArray(piece?.requirements) && Array.isArray(piece.terminals)
     && piece.requirements.every(({ type, identity: signature }) =>
     Boolean(resolve(type)) && identity(type) === signature)
-    && piece.terminals.every((type) => Boolean(resolve(type)))
+    && piece.terminals.every((type) => (type === WORKSHOP_OUTPUT || Boolean(resolve(type))))
 }
 
 export function workshopAvailable(piece, context) {
@@ -265,7 +209,8 @@ export function workshopParts(library, resolve, { ticks = false } = {}) {
   const definitions = new Map()
   const entries = workshopDefinitions(library)
   const partOf = (type) => {
-    if (type === INPUT) return input
+    if (type === WORKSHOP_INPUT) return input
+    if (type === WORKSHOP_OUTPUT) return output
     if (!entries.has(type)) return resolve(type)
     if (!definitions.has(type)) {
       const { graph, inputs, outputs, name, description } = entries.get(type)
@@ -280,13 +225,14 @@ export function workshopParts(library, resolve, { ticks = false } = {}) {
 }
 
 const input = source()
-export const workshopInput = (node) => node.type === INPUT
+const output = sink()
+export const workshopInput = (node) => node.type === WORKSHOP_INPUT
 
 /** Count a player wrapper by its constituent nodes when a challenge scores the board. */
 export function workshopNodes(graph, resolve, path = []) {
   return graph.nodes.flatMap((node) => {
     const piece = resolve?.definition(node.type)
     if (piece) return workshopNodes(piece.graph, resolve, [...path, node.id])
-    return workshopInput(node) ? [] : [{ node, path }]
+    return workshopInput(node) || node.type === WORKSHOP_OUTPUT ? [] : [{ node, path }]
   })
 }

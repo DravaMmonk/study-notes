@@ -1,34 +1,20 @@
 /* The workshop page: metadata, ports, published parts and the tray selector. */
-.ws-panel { min-width: 0; display: flex; flex-direction: column; gap: var(--gap-section); }
-.ws-face { display: flex; flex-direction: column; gap: var(--gap-group); }
-.ws-name, .ws-desc, .ws-port-name { min-width: 0; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
-.ws-name:focus, .ws-desc:focus, .ws-port-name:focus { outline: none; }
-.ws-name::placeholder, .ws-desc::placeholder { color: var(--faint); }
-.ws-name { padding-bottom: var(--sp-3); border-bottom: 1px solid var(--rule); color: var(--heading); font: 500 var(--fs-h3)/1.3 var(--serif); letter-spacing: -.01em; }
-.ws-name:focus { border-bottom-color: var(--accent); }
-.ws-desc { resize: none; field-sizing: content; color: var(--body); font: var(--fs-small)/var(--lh-ui) var(--sans); }
-
-.ws-ports, .ws-shelf { display: grid; gap: var(--sp-3); }
-.ws-ports[data-side='inputs'] { --io: var(--select); }
-.ws-ports[data-side='outputs'] { --io: var(--accent); }
-.ws-ports header, .ws-shelf header { min-height: var(--sp-7); display: flex; align-items: center; justify-content: space-between; }
-.ws-ports h2, .ws-shelf h2 { margin: 0; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: var(--track-label); }
-.ws-ports ul, .ws-shelf ul { margin: 0; padding: 0; display: grid; gap: var(--sp-2); list-style: none; }
-.ws-ports li { min-height: var(--sp-8); padding: 0 var(--sp-2) 0 var(--sp-4); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); border-radius: var(--r-md); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline), inset 3px 0 0 var(--io); }
-.ws-ports li:focus-within { box-shadow: inset 0 0 0 1px var(--rule), inset 3px 0 0 var(--io); }
-.ws-ports li.ws-none { display: block; min-height: 0; padding: 0; background: none; box-shadow: none; color: var(--faint); font-size: var(--fs-label); line-height: var(--lh-ui); }
-.ws-dot { width: var(--sp-4); height: var(--sp-4); border-radius: var(--r-full); box-shadow: inset 0 0 0 1.5px var(--port-mark); }
-.ws-ports[data-side='outputs'] li:not(.is-wired) .ws-dot { box-shadow: inset 0 0 0 1.5px var(--fail); }
-.ws-ports li.is-wired .ws-dot { background: var(--io); box-shadow: none; }
-.ws-ports li:not(.is-wired) .ws-port-name { color: var(--muted); }
-.ws-port-name { height: var(--sp-7); color: var(--ink); font: var(--fs-ui)/1 var(--mono); text-overflow: ellipsis; }
-.ws-port-name[aria-invalid] { color: var(--fail); }
+.ws-fields { display: grid; gap: var(--gap-group); }
+.ws-fields label { display: grid; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-ui); }
+.ws-fields input, .ws-fields textarea { width: 100%; min-width: 0; padding: var(--sp-3) var(--sp-4); color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-sm); font: inherit; }
+.ws-fields input[type='number'] { width: 7ch; }
+.ws-fields textarea { resize: vertical; }
+.ws-fields .ws-remove { justify-self: start; }
+.ws-fields .run-go { justify-content: center; }
+.ws-shelf { display: grid; gap: var(--sp-3); }
+.ws-shelf header { min-height: var(--sp-7); display: flex; align-items: center; }
+.ws-shelf h2 { margin: 0; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: var(--track-label); }
+.ws-shelf ul { margin: 0; padding: 0; display: grid; gap: var(--sp-2); list-style: none; }
 .ws-tool { width: var(--sp-7); height: var(--sp-7); padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--r-sm); color: var(--muted); background: transparent; cursor: pointer; }
 .ws-tool:hover, .ws-tool.is-on { color: var(--ink); background: var(--hover); }
 .ws-tool.is-on { color: var(--accent-ink); }
 .ws-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.ws-io { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-group); }
 .ws-tray-picker { flex: none; display: flex; align-items: center; }
 .ws-tray-toggle { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--r-md); color: var(--muted); background: var(--canvas); cursor: pointer; }
 .ws-tray-toggle:hover, .ws-tray-toggle[aria-expanded='true'] { color: var(--ink); background: var(--hover); }
@@ -52,12 +38,10 @@
 .cs-workshop { align-self: flex-start; margin-left: calc(var(--sp-4) * -1); }
 
 @media (max-width: 760px) {
-  .ws-level .ws-face { padding: var(--sp-3) var(--sp-3) var(--sp-5); }
   .ws-level .ws-shelf { margin-top: var(--sp-6); }
   .ws-tray-toggle { width: 44px; height: 44px; }
   .ws-level .run-dock { flex-wrap: wrap; }
   .ws-level .run-meta { flex-basis: 100%; }
-  .ws-desc, .ws-port-name { font-size: var(--fs-touch-input); }
-  .ws-ports li { min-height: calc(var(--sp-8) + var(--sp-5)); }
+  .ws-fields input, .ws-fields textarea { font-size: var(--fs-touch-input); }
   .ws-tool { width: calc(var(--sp-8) + var(--sp-4)); height: calc(var(--sp-8) + var(--sp-4)); }
 }

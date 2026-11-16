@@ -124,7 +124,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   base.syncOwn(progress.built)
   const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined: gameDefined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    hold, capture, put, publish, library, update, available, notice: workshopNotice } = workshopState
+    hold, capture, publish, library, update, available, notice: workshopNotice } = workshopState
   const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
   const opening = () => circuit.opening(level, progress)
   const state = useLevelBoard(screen, {
@@ -345,7 +345,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     <SettingsContext.Provider value={views}>
       <Workshop screen={screen} tray={screen.workshopTray} carry={screen.workshopCarry} board={drawn} parts={parts} packed={packed} cards={itemOf}
         defined={definedFaces} defaults={defaults} types={offers.types} library={library}
-        available={available} capture={capture} put={put} update={update} />
+        available={available} capture={capture} update={update} />
     </SettingsContext.Provider>
   )
   return (

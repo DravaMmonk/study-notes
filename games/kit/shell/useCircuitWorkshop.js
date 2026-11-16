@@ -47,7 +47,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     scope: `user_${crypto.randomUUID().replaceAll('-', '')}`,
     open: (node) => openForCapture(node, { level, circuit: graph, parts }),
     needsSnapshot: (type) => Boolean(game.partDefs?.parts?.[type]?.inside),
-    ...details, domain: profile.domain, parts, resolve: runtime, identity,
+    ...details, domain: profile.domain, parts: details.parts ?? parts, resolve: runtime, identity,
     defaults: (type) => definition?.of(type) ? definition.defaults(type) : defaults?.(type),
     book: library,
   })
@@ -70,5 +70,5 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     }
   }
   return { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    hold, capture, put, publish, library, update, available, notice }
+    hold, capture, publish, library, update, available, notice }
 }

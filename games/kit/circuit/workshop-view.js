@@ -1,5 +1,6 @@
 import { withBoardRuntime } from '../engine/boards.js'
 import { isWorkshopType, usesWorkshop, workshopCompatible, workshopDefinitions, workshopIdentity, workshopInput, workshopParts } from '../engine/workshop.js'
+import { WORKSHOP_OUTPUT } from '../engine/workshop-terminals.js'
 
 const captured = Symbol('captured workshop parts')
 
@@ -114,11 +115,12 @@ export function openWorkshopPart(node, parent, activeWorkshop) {
 
 /** Draw the ports of a personal part on its own board. */
 export function workshopWiring(parts) {
+  const output = (node) => node.type === WORKSHOP_OUTPUT
   return {
     ...parts,
-    role: (node) => workshopInput(node) ? 'source' : parts.role(node),
-    label: (node) => workshopInput(node) ? node.params.name : parts.label(node),
-    inputs: (node) => workshopInput(node) ? [] : parts.inputs(node),
-    outputs: (node) => workshopInput(node) ? null : parts.outputs(node),
+    role: (node) => workshopInput(node) ? 'source' : output(node) ? 'sink' : parts.role(node),
+    label: (node) => workshopInput(node) || output(node) ? node.params.name : parts.label(node),
+    inputs: (node) => workshopInput(node) ? [] : output(node) ? ['in'] : parts.inputs(node),
+    outputs: (node) => workshopInput(node) || output(node) ? null : parts.outputs(node),
   }
 }

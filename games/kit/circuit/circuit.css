@@ -641,3 +641,8 @@
 .pb-tray .tray-menu { display: flex; flex: none; }
 .tray-menu-row { position: absolute; z-index: 60; inset-inline: 0; bottom: 100%; display: flex; gap: var(--sp-4); overflow-x: auto; scrollbar-width: none; padding: var(--sp-4) var(--sp-5); border-top: 1px solid var(--line); background: var(--paper); box-shadow: var(--lift); }
 .tray-menu-row::-webkit-scrollbar { display: none; }
+
+.cl-terminal-info { display: grid; gap: var(--sp-3); margin: 0; }
+.cl-terminal-info > div { display: grid; gap: var(--sp-1); }
+.cl-terminal-info dt { color: var(--muted); font-size: var(--fs-label); }
+.cl-terminal-info dd { margin: 0; color: var(--ink); }

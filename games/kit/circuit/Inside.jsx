@@ -6,6 +6,7 @@ import Sheet from '../shell/Sheet.jsx'
 import { lookupBoard } from './packed-boards.js'
 import { portNotes } from './card-ports.js'
 import Schematic from './Schematic.jsx'
+import TerminalInfo from './TerminalInfo.jsx'
 import { insideAt } from '../engine/trace.js'
 
 // The board a packed part runs (a part the player built: engine/boards.js packed), opened on the board it sits on, the
@@ -105,7 +106,8 @@ export function InsideBoard({ inside, path }) {
   // A chip holds something only once the run has reached it: an untouched board is its wiring alone.
   const reached = (n) => at.view.values.has(n.id) || at.view.errors.has(n.id)
   const node = detail && at.circuit.nodes.find((n) => n.id === detail)
-  const edit = node && inside.edit(node, at)
+  const packedPart = node && parts.role(node) === 'part'
+  const edit = packedPart && inside.edit(node, at)
   return (
     <div className="cl-inside" ref={box}>
       <Schematic
@@ -115,14 +117,17 @@ export function InsideBoard({ inside, path }) {
         param={card.tileExtra && ((n) => card.tileExtra(n, ctx))}
         {...portNotes(card, ctx)}
         lit={lit}
-        onOpen={(id) => inside.is(at.circuit.nodes.find((n) => n.id === id), at) && setDetail(id)}
+        onOpen={(id) => {
+          const picked = at.circuit.nodes.find((n) => n.id === id)
+          if (parts.role(picked) !== 'part' || inside.is(picked, at)) setDetail(id)
+        }}
       />
       {node && createPortal(
         <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)} actions={edit && <EditAction onEdit={() => { setDetail(null); edit() }} />}>
           <div className="cl-sheet cl-readonly">
             {inside.describe(node, ctx)}
             {inside.sheet(node, ctx)}
-            <InsideBoard inside={inside} path={[...path, node.id]} />
+            {packedPart ? <InsideBoard inside={inside} path={[...path, node.id]} /> : <TerminalInfo node={node} parts={parts} />}
           </div>
         </Sheet>,
         // Beside the sheet it opens from, so it is drawn in the game's own styles.

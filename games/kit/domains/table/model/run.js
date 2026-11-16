@@ -5,6 +5,7 @@
 import { splitSource } from '../../../engine/wire-source.js';
 import { Halt, evaluate as engineEvaluate } from '../../../engine/circuit.js';
 import { sink } from '../../../engine/boards.js';
+import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from '../../../engine/workshop-terminals.js';
 import { MAX_ROUNDS, walk } from '../../../engine/machine.js';
 import { tr } from '../lang.js';
 import { isCard } from './parts.js';
@@ -124,6 +125,7 @@ export function modelOf(parts) {
     seen.add(src);
     const [id, pick] = splitSource(src), n = board.nodes.find(x => x.id === id);
     if (!n) return 'any';
+    if (n.type === WORKSHOP_INPUT) return 'any';
     if (isCard(n.type)) return io.sensors[pick]?.type ?? 'any';
     if (n.type === 'tap') return io.sensors[n.params.sensor]?.type ?? 'any';
     if (n.type === 'port') return 'num';
@@ -138,6 +140,7 @@ export function modelOf(parts) {
   /** What a port takes: a part's input type, or the world's type for an output. */
   function sinkType(board, io, to, port) {
     const n = board.nodes.find(x => x.id === to);
+    if (n.type === WORKSHOP_OUTPUT) return 'workshop-any';
     if (n.type === 'out') return io.outs.find(o => o[0] === to)?.[3] || 'num';
     const custom = io.workshop?.[n.type];
     return custom ? custom.inputSignals[port] ?? 'workshop-any' : parts.def(n.type).ins[+port];

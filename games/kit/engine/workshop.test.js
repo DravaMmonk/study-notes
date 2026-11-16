@@ -2,9 +2,14 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, runBoard, sink, source } from './boards.js'
 import {
-  addWorkshopPort, captureWorkshop, draftWorkshop, dropWorkshopPort, featureWorkshop, loadWorkshop, nameWorkshopPort,
-  publishWorkshop, removeWorkshopPart, workshopAvailable, workshopEntries, workshopPorts, trayKey, workshopIdentity, workshopInTray, workshopParts,
+  captureWorkshop, draftWorkshop, featureWorkshop, loadWorkshop,
+  publishWorkshop, removeWorkshopPart, workshopAvailable, workshopCompatible, workshopEntries, trayKey, workshopIdentity, workshopInTray, workshopParts,
 } from './workshop.js'
+
+import {
+  addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, resizeTerminalPorts, terminalPorts,
+  workshopTerminalParts, WORKSHOP_OUTPUT,
+} from './workshop-terminals.js'
 
 const inNode = (id) => ({ id, type: 'in', params: { name: id } })
 const outNode = (id) => ({ id, type: 'out', params: { name: id } })
@@ -148,37 +153,47 @@ test('publishing a replacement for another reward works even when its old reward
   assert.equal(publishWorkshop(installed, take(base()), { id: 'older', lineage: 'old' }), installed)
 })
 
-test('the interface lists a board\'s own terminals and the outputs read from a shared source', () => {
-  const shared = { ...drawing, role: ({ type }) => type === 'bank' ? 'source' : drawing.role({ type }), outputs: ({ type }) => type === 'bank' ? [{ key: 'x' }, { key: 'y' }] : null }
-  const graph = {
-    nodes: [inNode('a'), { id: 'bank', type: 'bank' }, { id: 'mul', type: 'multiply', params: { factor: 2 } }, outNode('out')],
-    wires: [wire('bank#y', 'mul'), wire('mul', 'out')],
-  }
-  const ports = workshopPorts(graph, shared, { inputs: { 'bank#y': 'height' } })
-  assert.deepEqual(ports.inputs.map(({ ref, name, wired, plain }) => [ref, name, wired, plain]), [['a', 'a', false, true], ['bank#y', 'height', true, false]])
-  assert.deepEqual(ports.outputs.map(({ ref, name, wired }) => [ref, name, wired]), [['out', 'out', true]])
+test('draft terminals can be added, resized, labelled, and removed along with their wires', () => {
+  const start = { nodes: [], wires: [] }
+  const graph = addWorkshopTerminal(addWorkshopTerminal(start, drawing, 'source', 'Input'), drawing, 'sink', 'Output')
+  const [input, output] = graph.nodes
+  const draft = editWorkshopTerminal(graph, drawing, input.id, {
+    text: 'External source', ports: resizeTerminalPorts(terminalPorts(drawing, input), 2, 'in'),
+  })
+  const rendered = workshopTerminalParts(drawing)
+  assert.equal(rendered.label(draft.nodes[0]), 'External source')
+  assert.equal(rendered.outputs(draft.nodes[0]).length, 2)
+  const extra = draft.nodes[0].terminal.ports[1].key
+  const wired = { ...draft, wires: [wire(input.id, output.id), wire(`${input.id}#${extra}`, output.id)] }
+  const shrunk = editWorkshopTerminal(wired, drawing, input.id, {
+    text: 'External source', ports: resizeTerminalPorts(terminalPorts(drawing, draft.nodes[0]), 1, 'in'),
+  })
+  assert.deepEqual(shrunk.wires, [wire(input.id, output.id)])
+  assert.deepEqual(editWorkshopTerminal(shrunk, drawing, output.id, null).wires, [])
+  assert.equal(editWorkshopTerminal(shrunk, drawing, output.id, null).nodes.length, 1)
 })
 
-test('terminals are added beside the last of their side and removed with their wires, never the last one', () => {
-  const start = { nodes: [{ ...inNode('in'), x: 20, y: 40 }, { ...outNode('out'), x: 900, y: 40 }], wires: [] }
-  const two = addWorkshopPort(start, drawing, 'inputs')
-  assert.deepEqual(two.nodes.at(-1), { id: 'in1', type: 'in', params: { name: 'in1' }, x: 20, y: 160 })
-  const three = addWorkshopPort(two, drawing, 'inputs')
-  assert.equal(three.nodes.at(-1).y, 280)
-  assert.equal(addWorkshopPort(start, drawing, 'outputs').nodes.at(-1).id, 'out1')
-  const wired = { ...two, wires: [wire('in1', 'out')] }
-  assert.deepEqual(dropWorkshopPort(wired, drawing, 'inputs', 'in1'), { ...start, wires: [] })
-  assert.equal(dropWorkshopPort(start, drawing, 'inputs', 'in'), start)
-  assert.equal(addWorkshopPort({ nodes: [outNode('out')], wires: [] }, drawing, 'inputs'), null)
-})
-
-test('a port name is trimmed and must be unique on its side', () => {
-  const graph = addWorkshopPort(base(), drawing, 'inputs')
-  const ports = workshopPorts(graph, drawing)
-  assert.deepEqual(nameWorkshopPort({}, ports, 'inputs', 'in', ' 底数 '), { inputs: { in: '底数' } })
-  assert.equal(nameWorkshopPort({}, ports, 'inputs', 'in', 'in1'), null)
-  assert.equal(nameWorkshopPort({}, ports, 'inputs', 'in', '  '), null)
-  assert.deepEqual(nameWorkshopPort({}, ports, 'outputs', 'out', 'in1'), { outputs: { out: 'in1' } })
+test('a multiport draft packages each wired input and every output as an independent port', () => {
+  const raw = addWorkshopTerminal(addWorkshopTerminal({ nodes: [], wires: [] }, drawing, 'source', 'Input'), drawing, 'sink', 'Output')
+  let [a, b] = raw.nodes
+  const widen = (node, names) => ({
+    ...node, terminal: { ...node.terminal, ports: resizeTerminalPorts(node.terminal.ports, names.length, 'p')
+      .map((port, i) => ({ ...port, label: names[i] })) },
+  })
+  a = widen(a, ['left', 'right', 'unused'])
+  b = widen(b, ['first', 'second'])
+  const [first, second] = b.terminal.ports
+  const graph = { nodes: [a, b], wires: [wire(a.id, b.id, first.key), wire(`${a.id}#${a.terminal.ports[1].key}`, b.id, second.key)] }
+  const draft = flattenWorkshopTerminals(graph, drawing)
+  assert.deepEqual(draft.missing, [])
+  assert.deepEqual(flattenWorkshopTerminals({ ...graph, wires: graph.wires.slice(0, 1) }, drawing).missing, ['second'])
+  const piece = take(draft.graph, { parts: workshopTerminalParts(drawing), names: draft.names, order: draft.order })
+  assert.deepEqual(piece.inputs, ['left', 'right'])
+  assert.deepEqual(piece.outputs, ['first', 'second'])
+  assert.deepEqual(piece.terminals, [WORKSHOP_OUTPUT])
+  assert.equal(workshopCompatible(piece, { domain: 'math', resolve, identity }), true)
+  const engine = workshopParts({ pieces: { [piece.id]: piece } }, resolve)
+  assert.deepEqual(runBoard(piece.graph, { parts: engine, bind: { left: 7, right: 3 } }).outputs, { first: 7, second: 3 })
 })
 
 test('a snapshot takes the interface\'s names and input order, and runs under them', () => {

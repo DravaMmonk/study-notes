@@ -68,7 +68,7 @@ function draw(root, graph, parts, paths) {
  * @param outNote(node, key)        what each of several outputs carries
  * @param regionNote, resultNote    (node, region) in a frame's region: what it opens, and what the frame gives
  * @param lit                       the id of the part the current step is in
- * @param onOpen(id)                for a packed part (parts.packed): pressed, it opens the board inside it
+ * @param onOpen(id)                opens the detail of a terminal or packed part
  */
 export default function Schematic({ graph, parts, value, param, outNote, regionNote, resultNote, lit = null, onOpen }) {
   const root = useRef(null)
@@ -114,7 +114,12 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
     'data-piece': node.id,
     'data-family': parts.family(node),
     style: parts.cardStyle?.(node),
-    ...(onOpen && parts.packed?.(node) ? { role: 'button', tabIndex: 0, onClick: () => onOpen(node.id) } : {}),
+    ...(onOpen && (parts.role(node) !== 'part' || parts.packed?.(node)) ? {
+      role: 'button', tabIndex: 0, onClick: () => onOpen(node.id),
+      onKeyDown: (event) => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(node.id) }
+      },
+    } : {}),
   })
   const name = (node) => <span className="sk-name">{icon(node)}{L(parts.label(node))}</span>
 

@@ -87,7 +87,7 @@ function pointerPose(pointers) {
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. An editable board
  * receives both its change callback and its history. A display without them only pans, zooms and fits.
  */
-export default function CanvasEditor({ blocks = null, graph, onChange, history, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ blocks = null, graph, onChange, history, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, regionNote, resultNote, onTarget, onClear, onInspect }) {
   const [connectionLabels] = useSetting('connectionLabels')
   const readOnly = !onChange
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
@@ -575,7 +575,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
     const role = parts.role(node)
     const folded = foldedNodes.has(node.id)
     const { inputs: ports, outputs, regions } = cardPorts(parts, node)
-    const plainOutput = outputs.length === 1 && outputs[0].key === null
+    const plainOutput = outputs.length === 1 && outputs[0].key === null && !node.terminal
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
     const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接')} onClick={() => clickPort(outPort(src))}><i /></i>
@@ -591,7 +591,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
         className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${folded ? 'is-body-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
-        onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label, .frame-regions') && clickCard(node.id) : undefined}
+        onClick={(picking || (onInspect && role !== 'part')) ? (event) => {
+          if (event.target.closest('[data-p], button, input, select, label, .frame-regions')) return
+          if (picking) clickCard(node.id)
+          else onInspect(node.id)
+        } : undefined}
         style={{ left: node.x, top: node.y, [regions.length ? 'minWidth' : 'width']: widthOf(node), ...parts.cardStyle?.(node) }}
       >
         {regions.length > 0 && <div className="frame-back" />}

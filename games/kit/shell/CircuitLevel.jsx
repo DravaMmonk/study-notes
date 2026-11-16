@@ -14,6 +14,7 @@ import Palette from '../circuit/Palette.jsx'
 import PartActions from '../circuit/PartActions.jsx'
 import SlotBoard from '../circuit/SlotBoard.jsx'
 import Tray from '../circuit/Tray.jsx'
+import TerminalInfo from '../circuit/TerminalInfo.jsx'
 import { canRemoveCard, editNodeSettings, isPart, spotIn } from '../circuit/model.js'
 import { isOpenRegion } from '../circuit/regions.js'
 import { lockedCards } from '../circuit/presets.js'
@@ -199,7 +200,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayActions = [], trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, terminalDetail, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -252,6 +253,10 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
   const all = [...items, ...folded]
   const source = level.source ?? level
   const display = trayDisplay(game.course?.trays ?? {}, trayNames ?? game.course?.tray(source) ?? [], items, folded)
+  const trayItems = [...trayActions, ...display.items]
+  const terminalBody = (node, graph, close) => terminalDetail
+    ? terminalDetail(node, { graph, change, close })
+    : <TerminalInfo node={node} parts={parts} />
   const partDefaults = (type) => defined?.of(type) ? defined.defaults(type) : defaults(type)
   const make = create ?? ((graph, type, { slot, region } = {}) => {
     const taken = new Set(graph.nodes.map((n) => n.id))
@@ -276,7 +281,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems, terminalBody, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -285,7 +290,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       rootRef={root}
       className={`cl-level ${className}`}
       brief={briefEl}
-      parts={(trayControl || all.length > 0 || edit) && <>{(trayControl || all.length > 0) && <Palette compact start={trayControl} items={display.items} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
+      parts={(trayControl || trayItems.length > 0 || all.length > 0 || edit) && <>{(trayControl || trayItems.length > 0 || all.length > 0) && <Palette compact start={trayControl} items={trayItems} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
           <div className="cl-board">
@@ -300,12 +305,13 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
               minFit={canvas.minFit}
               corner={canvas.corner}
               body={(node) => <>{card.body?.(node, ctx)}{detail !== node.id && settingNote(node)}</>}
-              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
+              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node) || !isPart(parts, node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
               wireState={(wire) => card.wireState(wire, ctx)}
               {...portNotes(card, ctx)}
               onTarget={setTarget}
+              onInspect={setDetail}
               onClear={onClear}
               types={types}
               emptyNote={all.length > 0 && (canvas.emptyNote ?? EMPTY)}
@@ -322,7 +328,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
     />
     {detailNode && (isPacked(detailNode, top)
       ? <PackedDetail inside={inside} node={detailNode} at={top} path={[detailNode.id]} onClose={() => setDetail(null)}>{describeOf(detailNode, ctx)}{detailOf(detailNode, ctx)}</PackedDetail>
-      : <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{detailOf(detailNode, ctx)}</div></Sheet>)}
+      : <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{detailOf(detailNode, ctx)}{!isPart(parts, detailNode) && terminalBody(detailNode, circuit, () => setDetail(null))}</div></Sheet>)}
   </>
 }
 
@@ -341,7 +347,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, trayControl, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, trayControl, terminalBody, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -388,6 +394,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const edit = packedHere && inside.edit(node, ctx.board)
   const desc = node && describeOf(node, ctx)
   const body = node && sheetBody(node, ctx)
+  const terminal = node && role !== 'part' && terminalBody(node, circuit, close)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
@@ -420,11 +427,12 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
       />
       {below}
       <Notice editing={editing} prompt={partitionHint} />
-      {node && (desc || body || packedHere || removable) && (
+      {node && (desc || body || terminal || packedHere || removable) && (
         <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={edit ? () => { close(); edit() } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
           <div className="cl-sheet">
             {desc}
             {body}
+            {terminal}
             {packedHere && <InsideBoard inside={inside} path={[node.id]} />}
           </div>
         </Sheet>

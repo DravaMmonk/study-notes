@@ -20,7 +20,7 @@ export default function Palette({ items, folded = [], onAdd, compact = false, st
     item.dataset.tip = item.getBoundingClientRect().right + 12 + tip.offsetWidth > edge ? 'left' : 'right'
   }
   const piece = (item, tooltip = compact) => (
-    <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={tooltip ? undefined : L(item.desc)} onPointerEnter={tooltip ? aim : undefined} onFocus={tooltip ? aim : undefined} aria-description={tooltip ? L(item.desc) : undefined}>
+    <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={item.onPick ?? (() => onAdd(item.type))} title={tooltip ? undefined : L(item.desc)} onPointerEnter={tooltip ? aim : undefined} onFocus={tooltip ? aim : undefined} aria-description={tooltip ? L(item.desc) : undefined}>
       <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
       <span className="palette-text">
         <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</span>
