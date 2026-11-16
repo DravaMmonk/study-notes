@@ -116,7 +116,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-list.is-compact .map-node.is-minor .map-pad, .map-tree.is-compact .map-node.is-minor .map-pad { width: 12px; height: 12px; }
 .map-list.is-compact .map-node.is-minor .map-node-number, .map-tree.is-compact .map-node.is-minor .map-node-number { font-size: 9px; }
 .map-list.is-compact .map-node.is-minor .map-node-title, .map-tree.is-compact .map-node.is-minor .map-node-title { font-size: 11px; }
-.map-node:has(.map-node-tags) { padding-bottom: 12px; }
+.map-node:has(.map-node-tags) { padding-bottom: var(--sp-5); }
 :is(.map-list, .map-tree).is-compact .map-node:has(.map-node-tags) { row-gap: 1px; padding-bottom: 0; }
 :is(.map-list, .map-tree).is-compact .map-node-tags { position: static; grid-column: 1 / -1; }
 .map-node.is-here { box-shadow: 0 0 0 2px var(--ink); }
