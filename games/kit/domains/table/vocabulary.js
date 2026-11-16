@@ -252,7 +252,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 10,
+  version: 11,
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
     part: PARTS,

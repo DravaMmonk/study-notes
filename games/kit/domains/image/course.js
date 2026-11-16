@@ -156,7 +156,7 @@ export function imageCourse(config) {
     return { ...once, id, levelUnlocks: once.unlocks ?? [], kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...(once.unlocks ?? []), ...all.flatMap((t) => t.unlocks)])], tasks: all }
   })
   const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))
-  const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id) }))
+  const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
 
   // A node that names an `unlock` flag is built by the first level whose `unlocks` set it.
   const partsFor = (flags) => Object.keys(types).filter((t) => flags.includes(types[t].unlock))

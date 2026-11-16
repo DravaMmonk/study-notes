@@ -17,7 +17,7 @@ export function spec(content) {
     const tasks = taskLevels(level).map((source) => ({ key: source.taskId, kind: source.kind, brief: source.brief, source }))
     return { ...level, kind: tasks[0].kind, chapter: 1, requires: track.requires.get(id), tasks }
   })
-  const chapters = [{ id: 1, title: content.title, track: track.tracks.get(1) }]
+  const chapters = [{ id: 1, title: content.title, track: track.tracks.get(1), rows: track.rows.get(1) }]
   const course = defineCourse({ levels, eras, primitives: [], adds: () => [], builds: () => [], needs: () => null })
   return { id: content.id, title: content.title, domain: '__name__', levels, chapters, course }
 }

@@ -1,1 +1,1 @@
-{ "course": "main", "title": "@course.title", "kicker": "@course.kicker", "lede": "@course.lede" }
+{ "title": "@course.title", "kicker": "@course.kicker", "lede": "@course.lede" }

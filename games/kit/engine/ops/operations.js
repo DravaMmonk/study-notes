@@ -9,7 +9,7 @@
 import { S, find, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
-import { describe, locate, moveLevel, putIn, takeOut } from './place.js'
+import { describe, dropFromRows, locate, moveLevel, putIn, takeOut } from './place.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { settingReferences } from '../pieces.js'
 import { GLOSSARY } from '../vocabulary.js'
@@ -18,6 +18,8 @@ import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
+import { contentFileFor } from '../content.js'
+import { GROUP, GROUP_ID } from '../groups.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
@@ -25,6 +27,11 @@ const PLACE = S.obj({
   before: S.opt(S.level()), after: S.opt(S.level()),
   era: S.opt(S.either(S.str(), S.int())), at: S.opt(S.int({ min: 0 })),
 }, { about: t('课程里的一个位置（place.js）') })
+
+const GROUP_NAME = S.str({ pattern: GROUP_ID, about: t('关卡组的 id（也是文件名）', 'a level group\'s id (its file name too)') })
+const GROUP_PLACE = S.obj({
+  group: GROUP_NAME, before: S.opt(S.level()), after: S.opt(S.level()), at: S.opt(S.int({ min: 0 })),
+}, { about: t('一组关卡里的一个位置', 'a place in a level group') })
 
 const fail = (message) => { throw new Error(message) }
 const levelOf = (ws, id) => ws.levels.get(id) ?? fail(`no level ${id}`)
@@ -65,6 +72,35 @@ const renameInside = (ws, from, to) => {
   if (!ws.partDefs) return
   for (const { path } of find(PARTS_FILE, ws.partDefs, 'task').filter((hit) => hit.value === from)) ws.partDefs = setAt(ws.partDefs, path, to)
 }
+const groupOf = (ws, id) => ws.groups.get(id) ?? fail(`no group ${id}`)
+// The groups as place.js reads chapters, and back.
+const asChapters = (ws) => [...ws.groups].map(([id, group]) => ({ id, ...structuredClone(group) }))
+const fromChapters = (ws, chapters) => { ws.groups = new Map(chapters.map(({ id, ...group }) => [id, group])) }
+/** Level `level` out of whichever group holds it, with the links touching it there: where it was, or null. */
+function ungroup(ws, level) {
+  const chapters = asChapters(ws)
+  const { eras, was, entry } = takeOut(chapters, level)
+  if (!was) return null
+  fromChapters(ws, eras)
+  return { group: chapters[was.era].id, entry, place: was.index === 0 ? { at: 0 } : { after: chapters[was.era].levels[was.index - 1].id } }
+}
+/** Level `entry` into a group at `to` ({ group, before?, after?, at? }). */
+function regroup(ws, entry, { group, ...to }) {
+  groupOf(ws, group)
+  fromChapters(ws, putIn(asChapters(ws), entry, { era: group, ...to }))
+}
+/** The course without group `id`: its entries, and the links to and from it. */
+const withoutGroup = (eras, id) => eras.map((era) => {
+  const levels = era.levels.filter((entry) => entry.group !== id)
+  const links = (era.links ?? []).filter(({ fromGame, from, to }) => (fromGame || from !== id) && to !== id)
+  const { links: _, ...rest } = era
+  return { ...rest, levels, ...(links.length && { links }) }
+})
+const renameGroupIn = (eras, from, to) => eras.map((era) => ({
+  ...era,
+  levels: era.levels.map((entry) => (entry.group === from ? { ...entry, group: to } : entry)),
+  ...(era.links && { links: era.links.map((link) => ({ ...link, ...(!link.fromGame && link.from === from && { from: to }), ...(link.to === from && { to }) })) }),
+}))
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
   return /^#\s*blueprint\b/.test(lines[0]) ? lines.slice(1) : lines
@@ -144,13 +180,14 @@ export const OPERATIONS = {
     },
   },
   'level.add': {
-    about: t('加一关：它的内容，和它在课程里的位置'),
-    params: S.obj({ level: NEW_ID, data: S.map(S.any()), to: S.opt(PLACE) }),
+    about: t('加一关：它的内容，和它在哪一组里的位置', 'Add a level: its content, and its place in a level group'),
+    params: S.obj({ level: NEW_ID, data: S.map(S.any()), to: S.opt(GROUP_PLACE) }),
     apply(ws, { level, data, to }) {
       if (ws.levels.has(level)) fail(`there is a level ${level} already`)
+      if (ws.groups.has(level)) fail(`${level} is a group's id`)
       ws.levels.set(level, data)
-      if (to) ws.game = { ...ws.game, eras: putIn(ws.game.eras, { id: level }, to) }
-      return { says: `${level}: added${to ? ` at ${describe(ws.game.eras, locate(ws.game.eras, level))}` : ''}`, inverse: [{ op: 'level.remove', level }] }
+      if (to) regroup(ws, { id: level }, to)
+      return { says: `${level}: added${to ? ` to the group ${to.group}` : ''}`, inverse: [{ op: 'level.remove', level }] }
     },
   },
   'level.remove': {
@@ -158,15 +195,16 @@ export const OPERATIONS = {
     params: S.obj({ level: S.level() }),
     apply(ws, { level }, { vocabulary }) {
       const data = levelOf(ws, level)
-      const others = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json` && !(r.file === 'game.json' && isOwnPlace(r.path)))
+      const others = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json` && !isOwnPlace(r))
       if (others.length) fail(`${level} is still named at ${others.map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}`)
       const eras = ws.game.eras
       const { eras: left, was } = takeOut(eras, level)
-      ws.game = { ...ws.game, eras: left }
+      ws.game = { ...ws.game, eras: left.map((era) => { const chapter = structuredClone(era); dropFromRows(chapter, level); return chapter }) }
+      const grouped = ungroup(ws, level)
       ws.levels.delete(level)
       return {
-        says: `${level}: removed from ${describe(eras, was)}`,
-        inverse: [{ op: 'level.add', level, data }, { op: 'game.set', path: ['eras'], value: eras }],
+        says: `${level}: removed from ${describe(eras, was)}${grouped ? ` and the group ${grouped.group}` : ''}`,
+        inverse: [{ op: 'level.add', level, data, ...(grouped && { to: { group: grouped.group, ...grouped.place } }) }, { op: 'game.set', path: ['eras'], value: eras }],
       }
     },
   },
@@ -175,6 +213,7 @@ export const OPERATIONS = {
     params: S.obj({ level: S.level(), to: NEW_ID }),
     apply(ws, { level, to }, { vocabulary }) {
       if (ws.levels.has(to)) fail(`there is a level ${to} already`)
+      if (ws.groups.has(to)) fail(`${to} is a group's id`)
       if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
       const old = levelOf(ws, level)
       const data = old.tasks?.some((x) => x.id === level) ? { ...old, tasks: old.tasks.map((x) => (x.id === level ? { ...x, id: to } : x)) } : old
@@ -275,9 +314,10 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('修改某个语言的字段文本'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
-    apply(ws, { level, in: where, path, lang, value: text }, { vocabulary }) {
-      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or pieces')
+    params: S.obj({ level: S.opt(S.level()), group: S.opt(GROUP_NAME), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
+    apply(ws, { level, group, in: where, path, lang, value: text }, { vocabulary }) {
+      if ([level, group, where].filter((x) => x !== undefined).length !== 1) fail('name the text’s file: a level, a group, or in: game, glossary or pieces')
+      if (group !== undefined) return setGroupText(ws, group, path, lang, text, vocabulary)
       if (where === 'pieces' && ws.partDefs === undefined) fail('the game has no pieces.json')
       const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, GLOSSARY]
       const keys = parsePath(path)
@@ -514,5 +554,143 @@ export const OPERATIONS = {
   },
 }
 
-// Chapter placement, optional flags and incident wires are removed with the level.
-const isOwnPlace = (path) => path[0] === 'eras' && ['levels', 'links'].includes(path[2])
+// A level's places go with it: in the course (its entry, its links, its place on the map) and in its group.
+const isOwnPlace = ({ file, path }) => (file === 'game.json' && path[0] === 'eras' && ['levels', 'links', 'rows'].includes(path[2]))
+  || (file.startsWith('groups/') && ['levels', 'links'].includes(path[0]))
+
+/** Edit a text of group `group`'s file, as text.set edits a level's. */
+function setGroupText(ws, group, path, lang, text) {
+  const base = groupOf(ws, group)
+  const keys = parsePath(path)
+  if (shapeAt(GROUP, base, keys)?.type !== 'text') fail(`${showPath(keys)} is not a text`)
+  const old = getAt(base, keys)
+  if (lang && !isLanguageCode(lang)) fail(`unknown language code ${lang}`)
+  if (lang && typeof text !== 'string') fail('editing one language needs one string')
+  const next = lang ? { ...old, [lang]: text } : text
+  const key = textKey(next) ?? textKey(old)
+  ws.groups.set(group, setAt(base, keys, key && typeof next === 'object' ? withTextKey(next, key) : next))
+  return { says: `group ${group}: ${showPath(keys)} reads anew`, inverse: [restore('group', base, keys, { group })] }
+}
+
+/** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
+function packageText(ws, { level, group, in: where }, keys, vocabulary) {
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : group !== undefined ? [groupOf(ws, group), GROUP]
+    : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : where === 'glossary' ? [ws.glossary, GLOSSARY] : [ws.game, vocabulary.game]
+  if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
+  if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
+  const text = getAt(value, keys)
+  if (!textKey(text)) fail(`${showPath(keys)} is a text in no language: the game has nothing to put over it`)
+  return text
+}
+
+Object.assign(OPERATIONS, {
+  'group.add': {
+    about: t('加一组关卡：它的名字、它的关卡和组内的连线（关卡要已在包里、不在别的组）', 'Add a level group: its name, its levels and the links between them'),
+    params: S.obj({ group: GROUP_NAME, data: S.opt(S.map(S.any())) }),
+    apply(ws, { group, data = { title: t('新的一组', 'New group'), levels: [] } }) {
+      if (ws.groups.has(group)) fail(`there is a group ${group} already`)
+      if (ws.levels.has(group)) fail(`${group} is a level's id`)
+      ws.groups.set(group, data)
+      return { says: `group ${group}: added`, inverse: [{ op: 'group.remove', group }] }
+    },
+  },
+  'group.remove': {
+    about: t('删掉一组：组里的关卡留在包里；课程里整组放进来的地方和连到它的线一起去掉', 'Remove a level group: its levels stay in the package; where a course places the whole group goes too'),
+    params: S.obj({ group: GROUP_NAME }),
+    apply(ws, { group }) {
+      const data = groupOf(ws, group)
+      const eras = ws.game.eras
+      ws.groups.delete(group)
+      ws.game = { ...ws.game, eras: withoutGroup(eras, group) }
+      return { says: `group ${group}: removed`, inverse: [{ op: 'group.add', group, data }, { op: 'game.set', path: ['eras'], value: eras }] }
+    },
+  },
+  'group.rename': {
+    about: t('给一组换 id：文件名和课程里提到它的地方一起改', 'Give a level group a new id, with the places a course names it'),
+    params: S.obj({ group: GROUP_NAME, to: GROUP_NAME }),
+    apply(ws, { group, to }) {
+      const data = groupOf(ws, group)
+      if (ws.groups.has(to)) fail(`there is a group ${to} already`)
+      if (ws.levels.has(to)) fail(`${to} is a level's id`)
+      ws.groups = new Map([...ws.groups].map(([id, g]) => (id === group ? [to, data] : [id, g])))
+      ws.basis.set(`groups/${to}.json`, ws.original.get(`groups/${group}.json`) ?? ws.basis.get(`groups/${group}.json`))
+      ws.game = { ...ws.game, eras: renameGroupIn(ws.game.eras, group, to) }
+      return { says: `group ${group} → ${to}`, inverse: [{ op: 'group.rename', group: to, to: group }] }
+    },
+  },
+  'group.set': {
+    about: t('设一组的一个字段（名字、关卡、组内连线……）', 'Set a field of a level group (its name, levels, links…)'),
+    params: S.obj({ group: GROUP_NAME, path: PATH, value: S.any() }),
+    apply(ws, { group, path, value }) {
+      const base = groupOf(ws, group)
+      if (!parsePath(path).length) fail('the path is empty')
+      const inverse = [restore('group', base, path, { group })]
+      ws.groups.set(group, setAt(base, path, value, orderOf(GROUP, base, null)))
+      return { says: `group ${group}: set ${showPath(path)}`, inverse }
+    },
+  },
+  'group.unset': {
+    about: t('去掉一组的一个字段，或列表里的一项', 'Remove a field of a level group, or an item of a list'),
+    params: S.obj({ group: GROUP_NAME, path: PATH }),
+    apply(ws, { group, path }) {
+      const keys = parsePath(path)
+      const base = groupOf(ws, group)
+      const at = typeof keys.at(-1) === 'number' ? keys.slice(0, -1) : keys
+      ws.groups.set(group, unsetAt(base, keys))
+      return { says: `group ${group}: removed ${showPath(keys)}`, inverse: [{ op: 'group.set', group, path: at, value: getAt(base, at) }] }
+    },
+  },
+  'group.place': {
+    about: t('把一关放进一组里的一个位置（挪进、挪出或在组内挪动；to 不给就不在任何组里）；它在旧组里的连线去掉', 'Put a level at a place in a group (in, out, or within one; no to: in no group); its links in the old group go'),
+    params: S.obj({ level: S.level(), to: S.opt(GROUP_PLACE) }),
+    apply(ws, { level, to }) {
+      levelOf(ws, level)
+      const before = new Map(ws.groups)
+      const was = ungroup(ws, level)
+      if (to) regroup(ws, was?.entry ?? { id: level }, to)
+      const touched = [...new Set([was?.group, to?.group].filter(Boolean))]
+      return {
+        says: `${level}: ${was ? `group ${was.group}` : 'no group'} → ${to ? `group ${to.group}` : 'no group'}`,
+        inverse: touched.map((group) => ({ op: 'group.replace', group, data: before.get(group) })),
+      }
+    },
+  },
+  'group.replace': {
+    about: t('把一组整个换成新的内容（id 不变）', 'Replace a level group\'s whole content (its id stays)'),
+    params: S.obj({ group: GROUP_NAME, data: S.map(S.any()) }),
+    apply(ws, { group, data }) {
+      const base = groupOf(ws, group)
+      ws.groups.set(group, data)
+      return { says: `group ${group}: replaced`, inverse: [{ op: 'group.replace', group, data: base }] }
+    },
+  },
+  'text.override': {
+    about: t('这款游戏在包的一处文案上写它自己的（不改包里的原文）；value 为 null 时恢复原文', 'The game\'s own wording over a text of its package (the package is left as it is); value null: back to the package\'s'),
+    params: S.obj({
+      level: S.opt(S.level()), group: S.opt(GROUP_NAME), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH,
+      lang: S.str({ pattern: LANGUAGE_CODE }), value: S.either(S.str(), S.oneOf([null])),
+    }),
+    apply(ws, { level, group, in: where, path, lang, value }, { vocabulary }) {
+      if ([level, group, where].filter((x) => x !== undefined).length !== 1) fail('name the text’s file: a level, a group, or in: game, glossary or pieces')
+      if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
+      const keys = parsePath(path)
+      const key = textKey(packageText(ws, { level, group, in: where }, keys, vocabulary))
+      const old = ws.overrides[lang]?.[key] ?? null
+      const entries = { ...ws.overrides[lang] }
+      if (value === null) delete entries[key]
+      else entries[key] = value
+      ws.overrides = { ...ws.overrides, [lang]: entries }
+      const file = { ...(level !== undefined && { level }), ...(group !== undefined && { group }), ...(where !== undefined && { in: where }) }
+      return { says: `${level ?? group ?? where}: ${showPath(keys)} (${lang}) ${value === null ? 'reads as its package writes it' : 'reads the game\'s own way'}`, inverse: [{ op: 'text.override', ...file, path: keys, lang, value: old }] }
+    },
+  },
+})
+
+/** Which workspace an operation belongs to (games/DESIGN.md 6.7): 'package' (the levels, their groups, pieces and encyclopedia) or 'game' (the course and the game's own texts). */
+export function opScope({ op, path, in: where }) {
+  if (op === 'level.move' || op === 'text.override' || op.startsWith('blueprint.')) return 'game'
+  if (op === 'game.set' || op === 'game.unset' || (op === 'text.set' && where === 'game')) {
+    return ['game.json', 'course.json'].includes(contentFileFor(parsePath(path))) ? 'game' : 'package'
+  }
+  return 'package'
+}

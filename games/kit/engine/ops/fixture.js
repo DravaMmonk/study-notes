@@ -13,6 +13,7 @@ import { catalogsOf, normalizeText } from '../content-text.js'
 import { sourceValue } from '../catalogs.js'
 import { configurationFiles } from '../content.js'
 import { GLOSSARY as GLOSSARY_SCHEMA } from '../vocabulary.js'
+import { GROUP } from '../groups.js'
 import { PARTS_FILE } from '../parts/schema.js'
 import { withParts } from '../parts/define.js'
 import { domainOf } from '../content-node.js'
@@ -113,13 +114,12 @@ const LEVELS = {
   },
 }
 
-/** Write a temporary course and package in the same format as checked-in content. */
-export function writeContentFixture(root, id, { game, glossary, partDefs, levels }, domainVocabulary) {
+/** Write a temporary game (its course) and package in the same format as checked-in content. */
+export function writeContentFixture(root, id, { game, glossary, partDefs, levels, groups = {} }, domainVocabulary) {
   const course = join(root, 'games', id)
   const pkg = join(root, 'packages', id)
   mkdirSync(course, { recursive: true })
   mkdirSync(join(pkg, 'levels'), { recursive: true })
-  mkdirSync(join(pkg, 'courses'), { recursive: true })
   const put = (file, value) => writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
   const putCatalogs = (dir, ...values) => {
     mkdirSync(join(dir, 'i18n'), { recursive: true })
@@ -132,14 +132,17 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const piecesText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'pieces')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
-  put(join(course, 'game.json'), { package: id, course: 'main', ...sourceValue(shell) })
-  put(join(pkg, 'courses', 'main.json'), sourceValue(route))
+  const groupText = Object.entries(groups).map(([group, value]) => [group, normalize(value, GROUP, `group.${group}`)])
+  put(join(course, 'game.json'), { package: id, ...sourceValue(shell) })
+  put(join(course, 'course.json'), sourceValue(route))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
   put(join(pkg, 'glossary.json'), sourceValue(glossaryText))
   if (piecesText !== undefined) put(join(pkg, 'pieces.json'), sourceValue(piecesText))
   for (const [level, value] of levelText) put(join(pkg, 'levels', `${level}.json`), sourceValue(value))
-  putCatalogs(course, shell)
-  putCatalogs(pkg, route, ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value))
+  if (groupText.length) mkdirSync(join(pkg, 'groups'), { recursive: true })
+  for (const [group, value] of groupText) put(join(pkg, 'groups', `${group}.json`), sourceValue(value))
+  putCatalogs(course, shell, route)
+  putCatalogs(pkg, ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value), ...groupText.map(([, value]) => value))
 }
 
 export function proofsRoot() {

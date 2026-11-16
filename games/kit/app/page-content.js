@@ -14,7 +14,7 @@ export async function pageContent(manifest, base, fetcher = fetch) {
   }
   const [courseText, packageText] = await Promise.all([reader('course'), reader('package')])
   const configuration = Object.fromEntries(Object.entries(configurationFiles(game)).map(([file, value]) => [
-    file, (file === 'game.json' ? courseText : packageText)(value, file),
+    file, (file === 'game.json' || file === 'course.json' ? courseText : packageText)(value, file),
   ]))
   return assemble({
     id,

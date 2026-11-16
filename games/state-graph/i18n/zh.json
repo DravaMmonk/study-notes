@@ -1,4 +1,18 @@
 {
+  "course.eras.broom.chapter.desc": "扫描臂扫过一整段格子，来路的数量不再固定。",
+  "course.eras.broom.chapter.title": "一格多来路",
+  "course.eras.paper.chapter.desc": "用小问题的答案，拼出大问题的答案。",
+  "course.eras.paper.chapter.title": "纸笔",
+  "course.eras.ranger.chapter.desc": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。",
+  "course.eras.ranger.chapter.title": "看得更远",
+  "course.eras.reach.chapter.desc": "伸缩臂能够到任意远的一格。",
+  "course.eras.reach.chapter.title": "伸长手臂",
+  "course.eras.scout.chapter.desc": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。",
+  "course.eras.scout.chapter.title": "造一台机器",
+  "course.eras.settle.chapter.desc": "箭头绕成了圈，就一遍一遍地扫。",
+  "course.eras.settle.chapter.title": "扫到不再变",
+  "course.eras.stack.chapter.desc": "一个数记不住的时候，就多记一件事。",
+  "course.eras.stack.chapter.title": "状态不够用",
   "course.kicker": "从零开始的动态规划解谜",
   "course.lede": "不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。",
   "course.title": "状态之图"

@@ -1,4 +1,10 @@
 {
+  "course.eras.1.chapter.label": "第 2 讲",
+  "course.eras.1.chapter.question": "一张图里的数从哪里来？",
+  "course.eras.1.chapter.title": "图像怎样形成和表示",
+  "course.eras.2.chapter.label": "第 3–4 讲",
+  "course.eras.2.chapter.question": "一个核、一道波怎样改变一张图？",
+  "course.eras.2.chapter.title": "怎样用固定规则处理图像",
   "course.kicker": "COMP90086 笔记版",
   "course.lede": "嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。",
   "course.title": "计算机视觉笔记"

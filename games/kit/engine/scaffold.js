@@ -3,7 +3,7 @@
 //
 //   npm run new-domain -- <name> --mechanism <mechanism> [--game <id>]   kit/domains/<name>/ from kit/scaffold/<mechanism>/,
 //                                                                         and its starter game as games/<id> (default <name>)
-//   npm run new-game -- <id> --domain <domain> [--title <title>]         games/<id>/ and packages/<id>/ from the domain's starter/
+//   npm run new-game -- <id> --domain <domain> [--title <title>]         games/<id>/ (its course) and packages/<id>/ from the domain's starter/
 //
 // A template is a working domain whose files say `__name__` where the domain's name goes (in their text and their
 // names) and whose starter game says `__title__` for its title; the result passes the domain contract (contract.js),
@@ -87,8 +87,10 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   const game = JSON.parse(readFileSync(resolve(starter, 'game.json'), 'utf8').replaceAll('__title__', () => words.__title__))
   mkdirSync(dir, { recursive: true })
   mkdirSync(packageDir, { recursive: true })
+  // The course is the game's; everything else of the starter is its package.
   for (const name of readdirSync(starter)) {
-    if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
+    if (name === 'course.json') fill(resolve(starter, name), resolve(dir, name), words)
+    else if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
   }
   for (const [scope, target] of [['course', dir], ['package', packageDir]]) {
     const source = resolve(starter, 'i18n', scope)

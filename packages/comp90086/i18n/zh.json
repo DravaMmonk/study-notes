@@ -1,10 +1,4 @@
 {
-  "course.eras.1.chapter.label": "第 2 讲",
-  "course.eras.1.chapter.question": "一张图里的数从哪里来？",
-  "course.eras.1.chapter.title": "图像怎样形成和表示",
-  "course.eras.2.chapter.label": "第 3–4 讲",
-  "course.eras.2.chapter.question": "一个核、一道波怎样改变一张图？",
-  "course.eras.2.chapter.title": "怎样用固定规则处理图像",
   "course.power.lines.0": "每一关对应笔记里的一个知识点。",
   "course.power.title": "计算机视觉笔记",
   "level.projection.after": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。",

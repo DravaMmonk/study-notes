@@ -339,5 +339,5 @@ export function tableCourse(content) {
     return values.length ? [{ key: 'value', label: T('数值', 'Value'), values: values.map(value => ({ value, label: String(value) })) }] : [];
   };
 
-  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn: own.sync, opening, offerIn, settingsIn, blueprints, wrong };
+  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, ROWS: plan.rows, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn: own.sync, opening, offerIn, settingsIn, blueprints, wrong };
 }

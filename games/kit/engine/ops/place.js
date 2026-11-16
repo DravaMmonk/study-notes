@@ -1,4 +1,5 @@
-// Placement is display order. Moving a level preserves its wires and optional status.
+// Placement is display order. Moving a level preserves its wires and optional status; moving it to another chapter
+// takes it off the old chapter's map (rows).
 const same = (a, b) => String(a) === String(b)
 
 export function locate(eras, id) {
@@ -25,7 +26,16 @@ export function takeOut(eras, id) {
   const chapter = next[was.era]
   const [entry] = chapter.levels.splice(was.index, 1)
   for (const era of next) if (era.links) setLinks(era, era.links.filter(({ fromGame, from, to }) => (fromGame || from !== id) && to !== id))
+  dropFromRows(chapter, id)
   return { eras: next, was, entry }
+}
+
+/** A chapter's map without level `id`: its place left out of its row, and a row left with no level gone. */
+export function dropFromRows(chapter, id) {
+  if (!chapter.rows) return
+  const rows = chapter.rows.map((row) => row.filter((x) => x !== id)).filter((row) => row.some((x) => x !== null))
+  if (rows.length) chapter.rows = rows
+  else delete chapter.rows
 }
 
 /** Put an unplaced level before/after a neighbour, or at a position in a chapter. */
@@ -50,6 +60,8 @@ export function moveLevel(eras, id, to) {
   const next = putIn(removed.eras, removed.entry, to)
   const { era: from } = removed.was
   const { era: into } = locate(next, id)
+  // Within its chapter it keeps its place on the map.
+  if (from === into && eras[from].rows) next[into].rows = structuredClone(eras[from].rows)
   const source = eras[from]
   for (const [i, chapter] of eras.entries()) {
     const links = chapter.links ?? []

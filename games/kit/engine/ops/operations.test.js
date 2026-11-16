@@ -138,8 +138,8 @@ test('level.rename renames the file and every reference', () => {
 
 test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
   const { ws } = toy()
-  roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
-  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'n1', 'a2', 'a3'])
+  roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' } })
+  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'a2', 'a3'])
   roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named at game.json carry.x, glossary.json entries\[0\].at, glossary.json entries\[0\].body\[0\], levels\/b1.json from, levels\/b1.json brief.en/)
   roundTrip(ws, 'level.remove', { level: 'c1' })
@@ -153,15 +153,12 @@ test('game.set and game.unset edit the assembled configuration', () => {
   assert.equal(ws.game.carry, undefined)
 })
 
-test('course and tray changes write to the package and retain other courses’ translations', async () => {
+test('course changes write to the game, tray changes to the package, and the package keeps other games’ translations', async () => {
   const { root } = toy()
   const pkg = join(root, 'packages', 'toy')
-  const other = 'course.other.one.title'
-  writeFileSync(join(pkg, 'courses', 'other.json'), JSON.stringify({
-    eras: [{ id: 'one', title: `@${other}`, levels: [{ id: 'b1' }] }],
-  }))
+  const other = 'level.elsewhere.title'
   const locale = join(pkg, 'i18n', 'en.json')
-  writeFileSync(locale, JSON.stringify({ ...JSON.parse(readFileSync(locale)), [other]: 'An alternate opening' }))
+  writeFileSync(locale, JSON.stringify({ ...JSON.parse(readFileSync(locale)), [other]: 'Read by another game' }))
 
   const ws = openGame('toy', root)
   const result = await runChangeset(ws, { ops: [
@@ -169,13 +166,55 @@ test('course and tray changes write to the package and retain other courses’ t
     { op: 'game.set', path: 'trays', value: { main: { name: { en: 'Main tray' }, desc: { en: 'Parts for the board' }, items: ['a', 'b'] } } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  assert.deepEqual(result.files.sort(), ['packages/toy/courses/main.json', 'packages/toy/i18n/en.json', 'packages/toy/trays.json'])
+  assert.deepEqual(result.files.sort(), ['games/toy/course.json', 'games/toy/i18n/en.json', 'packages/toy/i18n/en.json', 'packages/toy/trays.json'])
   assert.deepEqual(JSON.parse(readFileSync(join(pkg, 'trays.json'))), { main: { name: '@tray.trays.main.name', desc: '@tray.trays.main.desc', items: ['a', 'b'] } })
-  assert.equal(JSON.parse(readFileSync(locale))[other], 'An alternate opening')
+  assert.equal(JSON.parse(readFileSync(locale))[other], 'Read by another game')
+  assert.equal(JSON.parse(readFileSync(join(root, 'games', 'toy', 'i18n', 'en.json')))['course.eras.one.title'], 'Opening')
   const reopened = openGame('toy', root).game
   assert.equal(reopened.eras[0].title.en, 'Opening')
   assert.equal(reopened.trays.main.name.en, 'Main tray')
   assert.equal(reopened.trays.main.desc.en, 'Parts for the board')
+})
+
+test('groups: added, filled, placed whole in the course, renamed and removed; their levels follow a rename', () => {
+  const { ws } = toy()
+  roundTrip(ws, 'group.add', { group: 'basics', data: { title: { en: 'Basics' }, levels: [] } })
+  roundTrip(ws, 'group.place', { level: 'b1', to: { group: 'basics' } })
+  roundTrip(ws, 'group.place', { level: 'b2', to: { group: 'basics', before: 'b1' } })
+  run(ws, 'group.place', { level: 'b1', to: { group: 'basics' } })
+  assert.deepEqual(ws.groups.get('basics').levels, [{ id: 'b2' }, { id: 'b1' }])
+  roundTrip(ws, 'group.set', { group: 'basics', path: 'links', value: [{ from: 'b2', to: 'b1' }] })
+  roundTrip(ws, 'level.add', { level: 'n1', data: { title: { en: 'N' }, tasks: [{ id: 'n1' }] }, to: { group: 'basics', after: 'b2' } })
+  assert.deepEqual(ws.groups.get('basics').levels.map(({ id }) => id), ['b2', 'n1', 'b1'])
+  ws.game = { ...ws.game, eras: [...ws.game.eras, { id: 'three', levels: [{ group: 'basics' }], links: [{ from: 'a1', to: 'basics' }] }] }
+  roundTrip(ws, 'level.rename', { level: 'b2', to: 'bb' })
+  assert.deepEqual(ws.groups.get('basics').links, [{ from: 'bb', to: 'b1' }])
+  roundTrip(ws, 'group.rename', { group: 'basics', to: 'start' })
+  assert.deepEqual(ws.game.eras[2], { id: 'three', levels: [{ group: 'start' }], links: [{ from: 'a1', to: 'start' }] })
+  // Taken out of its group, a level loses the group's links to it.
+  roundTrip(ws, 'group.place', { level: 'b1' })
+  assert.equal(ws.groups.get('start').links, undefined)
+  roundTrip(ws, 'level.remove', { level: 'n1' })
+  roundTrip(ws, 'group.remove', { group: 'start' })
+  assert.deepEqual(ws.game.eras[2], { id: 'three', levels: [] })
+  assert.throws(() => run(ws, 'group.add', { group: 'a1' }), /a level's id/)
+})
+
+test('a game puts its own wording over a package text, which the package keeps; the package workspace reads its own', async () => {
+  const { root, ws } = toy()
+  const original = level(ws, 'b1').title
+  roundTrip(ws, 'text.override', { level: 'b1', path: 'title', lang: 'en', value: 'Ours' })
+  assert.equal(ws.content().levels.find(({ id }) => id === 'b1').title.en, 'Ours')
+  assert.deepEqual(level(ws, 'b1').title, original)
+  assert.deepEqual(ws.content().overridden, { [textKey(original)]: { en: 'b1' } })
+  assert.throws(() => run(ws, 'text.override', { in: 'game', path: 'title', lang: 'en', value: 'x' }), /the game's own text/)
+  const written = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'text.override', level: 'b1', path: 'title', lang: 'en', value: 'Ours' }] }, { write: true, check: false, domain: DOMAIN })
+  assert.equal(written.ok, true, written.problems.join('\n'))
+  assert.deepEqual(written.files, ['games/toy/overrides/en.json'])
+  assert.equal(openGame('toy', root).content().levels.find(({ id }) => id === 'b1').title.en, 'Ours')
+  assert.equal(openGame('toy', root, { scope: 'package' }).content().levels.find(({ id }) => id === 'b1').title.en, 'b1')
+  const refused = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'level.set', level: 'b1', path: 'tests', value: [] }] }, { check: false, domain: DOMAIN })
+  assert.match(refused.problems[0], /the package workspace's to change/)
 })
 
 test('text.set edits one language at a field path and round trips', () => {
@@ -296,7 +335,8 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
     { op: 'level.move', level: 'b2', to: { before: 'a1' } },
     { op: 'level.set', level: 'a3', path: 'tests', value: [2] },
     { op: 'level.rename', level: 'b2', to: 'first' },
-    { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] }, to: { after: 'first' } },
+    { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] } },
+    { op: 'game.set', path: 'eras[0].levels[4]', value: { id: 'n1' } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
   assert.ok(existsSync(join(root, 'packages', 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'packages', 'toy', 'levels', 'b2.json')))

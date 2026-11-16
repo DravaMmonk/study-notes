@@ -1,6 +1,6 @@
 import { Text } from './Layout.jsx'
 import { GAMES } from '../../games.js'
-import { dependencyLayers } from '../course.js'
+import { mapRows } from '../course.js'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useOverlay } from './useOverlay.js'
@@ -16,18 +16,10 @@ const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, plain: 16, minor: { w: 1
 const R = 8
 const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 
-function plot(track, byId) {
+function plot(track, byId, saved) {
   const ids = track.filter((id) => byId.has(id))
   const requires = new Map(ids.map((id) => [id, (byId.get(id).requires ?? []).filter((from) => byId.has(from))]))
-  const at = new Map()
-  let row = 0
-  for (const layer of dependencyLayers(ids, requires)) {
-    for (let i = 0; i < layer.length; i += 3) {
-      const band = layer.slice(i, i + 3)
-      band.forEach((id, col) => at.set(id, { row, col: col - (band.length - 1) / 2 }))
-      row += 1
-    }
-  }
+  const { at } = mapRows(ids, requires, saved)
   const edges = [...requires].flatMap(([to, from]) => from.map((id) => ({ from: id, to, join: from.length > 1 })))
   return { at, edges }
 }
@@ -127,9 +119,9 @@ function LevelButton({ game, level, style, solved, all, best, current, next, nee
   )
 }
 
-function Tree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen, needed = null }) {
+function Tree({ game, track, rows, byId, solved, all, best = () => null, current, next, compact, onOpen, needed = null }) {
   const { w, h, col, gap, plain, minor } = compact ? SIZE.compact : SIZE.full
-  const { at, edges } = useMemo(() => plot(track, byId), [track, byId])
+  const { at, edges } = useMemo(() => plot(track, byId, rows), [track, byId, rows])
   const scroll = useRef(null)
   const spots = [...at.values()]
   const half = Math.max(0, ...spots.map((p) => Math.abs(p.col)))
@@ -325,7 +317,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
                 {chapter.question && <p>{L(chapter.question)}</p>}
                 <span className="chapter-meter"><i style={{ width: `${(finished / inChapter.length) * 100}%` }} /></span>
               </header>
-              <LevelTree game={game} track={chapter.track} byId={byId} solved={solved} all={progress.all} best={(id) => progress.best[id]} next={next} compact={phone} onOpen={onOpen} needed={needed} />
+              <LevelTree game={game} track={chapter.track} rows={chapter.rows} byId={byId} solved={solved} all={progress.all} best={(id) => progress.best[id]} next={next} compact={phone} onOpen={onOpen} needed={needed} />
             </section>
           )
         })}

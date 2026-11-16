@@ -5,7 +5,8 @@
 // `by` says who made the change, as the change log keeps it: a person's hand ('studio', 'cli') or an agent
 // ('agent:<step>:<model>'). What a person changed of what an agent wrote is read from it (games/DIRECTION.md 4).
 //
-// Each operation's arguments are checked against its schema, then it runs on the workspace (workspace.js) in order;
+// A workspace opened for one side (workspace.js `scope`: the package, or the game) runs only that side's operations
+// (operations.js opScope). Each operation's arguments are checked against its schema, then it runs on the workspace (workspace.js) in order;
 // one that fails stops the changeset with nothing written. Then the game is checked as a whole: its content against
 // its vocabulary, the course audit, the copy checks and its domain's checks (reference answers run, naive ones fail) —
 // npm run check's rules (../checks.js). Only a changeset with no failure is written, with an entry in the game's change
@@ -19,7 +20,7 @@ import { checkGame } from '../checks.js'
 import { domainOf } from '../content-node.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
-import { OPERATIONS } from './operations.js'
+import { OPERATIONS, opScope } from './operations.js'
 import { hubCount } from './workspace.js'
 import { append, hashOf, headOf, readLog, withLock } from './log.js'
 
@@ -47,6 +48,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     const where = `op ${k + 1} (${name})`
     if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)
+    if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
     if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
     try {

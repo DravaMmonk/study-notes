@@ -32,6 +32,7 @@ import { implementationProblems } from './parts/dependencies.js'
 import { makesPieces, PARTS_FILE } from './parts/schema.js'
 import { configurationFiles, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
+import { GROUP, groupProblems } from './groups.js'
 import { canonicalJson } from './json-value.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
@@ -132,47 +133,36 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
-  // the one it may have: the audit findings it leaves open.
-  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
+  // the one it may have: the audit findings it leaves open. The course is checked as course.json writes it, its
+  // groups unexpanded.
+  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, groups = {}, sourceEras, overridden = {}, ...played } = content
+  const game = sourceEras ? { ...played, eras: sourceEras } : played
   if (hasCatalogSource(content)) {
     const courseKeys = new Map(), packageKeys = new Map()
     for (const [file, value] of Object.entries(configurationFiles(game))) {
-      out.push(...catalogTextProblems(file === 'trays.json' ? { trays: value } : value, vocabulary.game, file, vocabulary, file === 'game.json' ? courseKeys : packageKeys))
+      out.push(...catalogTextProblems(file === 'trays.json' ? { trays: value } : value, vocabulary.game, file, vocabulary, file === 'game.json' || file === 'course.json' ? courseKeys : packageKeys))
     }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
     out.push(...catalogTextProblems(glossary, GLOSSARY, 'glossary.json', vocabulary, packageKeys))
     out.push(...catalogTextProblems(parts, PARTS_FILE, 'pieces.json', vocabulary, packageKeys))
     for (const level of levels) out.push(...catalogTextProblems(level, vocabulary.level, `levels/${level.id}.json`, vocabulary, packageKeys))
+    for (const [id, group] of Object.entries(groups)) out.push(...catalogTextProblems(group, GROUP, `groups/${id}.json`, vocabulary, packageKeys))
   }
+  for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
-  // What the content itself names (S.name): the encyclopedia's entries and groups, and what the domain says.
-  const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }
+  // What the content itself names (S.name): the encyclopedia's entries and groups, the package's level groups, and what the domain says.
+  const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), levelGroup: new Set(Object.keys(groups)), ...domainNames(content) }
+  for (const [id, group] of Object.entries(groups)) add(validate(GROUP, group, { vocabulary, levels: ids, languages, names }), `groups/${id}.json`)
+  out.push(...groupProblems(groups, ids))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
   const gameProblems = validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names })
   add(gameProblems, 'game.json')
   if (!gameProblems.length && game.eras) {
-    const placed = new Set()
-    for (const [e, era] of game.eras.entries()) {
-      const prefix = `game.json.eras[${e}]`
-      for (const id of eraLevels(era)) {
-        if (placed.has(id)) out.push({ at: prefix, says: `level "${id}" is placed twice` })
-        placed.add(id)
-      }
-    }
-    for (const [e, era] of game.eras.entries()) {
-      const local = new Set(eraLevels(era)), pairs = new Set()
-      for (const [k, { fromGame, from, to }] of (era.links ?? []).entries()) {
-        const at = `game.json.eras[${e}].links[${k}]`
-        const key = JSON.stringify([fromGame, from, to])
-        if ((!fromGame && !placed.has(from)) || !local.has(to)) out.push({ at, says: 'the source must be placed and the destination must be in this chapter' })
-        if (pairs.has(key)) out.push({ at, says: 'this prerequisite link is already present' })
-        pairs.add(key)
-      }
-    }
+    out.push(...courseProblems(game.eras, played.eras, groups))
     const dependencies = courseDependencies(content)
     out.push(...dependencies.problems)
-    const cycle = dependencyCycle(layout(game.eras, { links: dependencies.links }).requires)
+    const cycle = dependencyCycle(layout(played.eras, { links: dependencies.links }).requires)
     if (cycle) out.push({ at: 'game.json.eras', says: `circular prerequisites: ${cycle.join(' → ')}` })
   }
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
@@ -185,5 +175,53 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     out.push(...(problems.length ? problems : implementationProblems(parts)))
   }
   else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces.json', says: `the ${domainVocabulary.domain} domain's pieces are data: the game needs a pieces.json` })
+  return out
+}
+
+/**
+ * What is wrong with where a course places things (`eras` as course.json writes them, `played` with its groups
+ * expanded): a level or a group placed twice, a link whose source is not placed or whose destination is not in its
+ * chapter, a map row naming a level of another chapter, more than three places to a row, or a level drawn above a
+ * prerequisite.
+ */
+function courseProblems(eras, played, groups) {
+  const out = []
+  const placed = new Set(), placedGroups = new Set()
+  for (const [e, era] of played.entries()) for (const id of eraLevels(era)) {
+    if (placed.has(id)) out.push({ at: `game.json.eras[${e}]`, says: `level "${id}" is placed twice` })
+    placed.add(id)
+  }
+  for (const [e, era] of eras.entries()) for (const [k, entry] of era.levels.entries()) if (entry.group !== undefined) {
+    if (placedGroups.has(entry.group)) out.push({ at: `game.json.eras[${e}].levels[${k}]`, says: `the group "${entry.group}" is placed twice` })
+    placedGroups.add(entry.group)
+  }
+  const inChapter = (era, id) => era.levels.some((entry) => entry.id === id || entry.group === id)
+  for (const [e, era] of eras.entries()) {
+    const pairs = new Set()
+    for (const [k, { fromGame, from, to }] of (era.links ?? []).entries()) {
+      const at = `game.json.eras[${e}].links[${k}]`
+      const key = JSON.stringify([fromGame, from, to])
+      const source = fromGame || placed.has(from) || (Object.hasOwn(groups, from) && placedGroups.has(from))
+      if (!source || !inChapter(era, to)) out.push({ at, says: 'the source must be placed and the destination must be in this chapter' })
+      if (pairs.has(key)) out.push({ at, says: 'this prerequisite link is already present' })
+      pairs.add(key)
+    }
+  }
+  const plan = layout(played)
+  for (const [e, era] of played.entries()) {
+    const own = new Set(eraLevels(era)), drawn = new Map()
+    for (const [r, row] of (era.rows ?? []).entries()) {
+      const at = `game.json.eras[${e}].rows[${r}]`
+      if (row.length > 3) out.push({ at, says: `a row of the map has at most three places, not ${row.length}` })
+      for (const id of row) if (id !== null) {
+        if (!own.has(id)) out.push({ at, says: `${id} is not in this chapter` })
+        else if (drawn.has(id)) out.push({ at, says: `${id} is on the map twice` })
+        else drawn.set(id, r)
+      }
+    }
+    for (const [id, r] of drawn) for (const from of plan.requires.get(id) ?? []) {
+      if (drawn.has(from) && drawn.get(from) >= r) out.push({ at: `game.json.eras[${e}].rows[${r}]`, says: `${id} is drawn on a row no lower than its prerequisite ${from}` })
+    }
+  }
   return out
 }

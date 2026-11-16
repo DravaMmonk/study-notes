@@ -1,6 +1,4 @@
 {
-  "course.eras.scout.chapter.desc": "On every cell the robot runs the same circuit board, and a finished board becomes a component.",
-  "course.eras.scout.chapter.title": "Build a machine",
   "glossary.entries.board.body.0": "The rule for one cell: wired once, the robot runs it on every cell.",
   "glossary.entries.board.title": "circuit board",
   "glossary.groups.robot.title": "The robot",

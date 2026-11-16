@@ -1,6 +1,5 @@
 {
   "package": "qed",
-  "course": "main",
   "title": "@course.title",
   "kicker": "@course.kicker",
   "lede": "@course.lede"

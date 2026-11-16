@@ -6,13 +6,14 @@ import { configurationFiles } from '../engine/content.js'
 
 export const CONTENT_FILE = 'content.json'
 
-export function contentAssets(content) {
+/** The content as the page plays it: its chapters as played, without what only authoring reads. */
+export function contentAssets({ groups: _groups, sourceEras: _source, overridden: _overridden, ...content }) {
   const { id: _, levels, glossary, partDefs, blueprint, ...game } = content
-  const { 'game.json': meta, ...configuration } = configurationFiles(game)
+  const { 'game.json': meta, 'course.json': course, ...configuration } = configurationFiles(game)
   const assets = new Map()
   const manifests = {}
   for (const [scope, catalogs] of Object.entries({
-    course: catalogsOf('course', meta, blueprint),
+    course: catalogsOf('course', meta, course, blueprint),
     package: catalogsOf('package', ...Object.values(configuration), levels, glossary, partDefs),
   })) {
     manifests[scope] = Object.fromEntries(Object.entries(catalogs).map(([lang, entries]) => {

@@ -23,7 +23,12 @@
 
 ## 2. 课程结构
 
-每章在内容包的 `courses/<课程>.json` 中通过 `eras` 配置路线和可选关。
+关卡设计和游戏编排分开做。关卡设计师在内容包里以**关卡组**为单位开发关卡；游戏编排师在游戏里用 `games/<游戏>/course.json` 的 `eras` 排出整条学习路线：讲授一个比单个知识点更大的话题，决定各知识点的讲授顺序，可以混着讲，也可以分出并行的支线。
+
+**关卡组**（`packages/<内容包>/groups/<组>.json`，`kit/engine/groups.js`）把一个较复杂的知识点用一组关卡讲透，简单的关卡也可以合成一组（如「基础关卡」）。组文件写组名 `title`、组内关卡及顺序 `levels`（`{ id, optional?, skippable? }`）和组内连线 `links`。这份组内编排只是推荐，不直接构成任何游戏的路线。一关最多属于一个组，组 id 不和关卡 id 重名。
+
+**章**。`levels` 的一项是单关 `{ id }` 或整组 `{ group, optional? }`：整组导入时带来组内的关卡和连线，作为一个整件和其他关卡、组建立依赖。游戏也可以只导入组里的个别关卡，自己排。`links` 的两端可以是关或组：连到一个组，就是连到组里没有组内前置的每一关；从一个组连出，就是从组里没有组内后续的每一关连出（组里有必修关时只取必修的）。整组的 `optional` 让组里每一关都成为可选关。`rows` 是这一章路线图的布局（第 2.6 节）。
+
 
 - `levels` 列出本章的关卡及编号顺序。`links` 写从前置关到后续关的 `{ from, to }`。多条线接入同一关时要满足全部前置。跨章连线写在目标关所在章。跨游戏前置在连线上写 `fromGame`，按来源游戏的通关记录解锁。
 - 在关卡条目中分别配置 `optional: true`（可选）和 `skippable: true`（可跳过）。普通前置要求通过。可跳过的关卡可直接退出，后续关的普通连线改等它的前置。系列内必须通过的依赖，以及知识或参考解要求的前置，使用 `required: true`，即使来源关标为可跳过也要通过。关内任务的 `optional` 独立于关卡标签。
@@ -83,6 +88,7 @@
 - 地图按章内先修关系分层，同一层依课程顺序排列，每行最多三关。跨章先修通过锁关提示查看。
 - 关卡统一用章号和章内数字序号，取自 `levels` 的顺序。关卡的内容 ID 用于编排板、引用和存档。
 - 可选关用虚线描边，关卡分别显示「可选」和「可跳过」标签。里程碑用较大的按钮，包括每章第一关、带来新概念或解锁元件的关。按钮右侧显示玩法图标，通关后可显示成绩。线路图的解锁标记显示电路元件。通关弹窗列出本次新获得的件，以及在课程中刚满足全部前置的关卡。
+- 章的 `rows` 保存路线图布局：每一行从左到右放哪些关卡，`null` 是空位，用来让关卡排得更整齐；一行最多三个位置，关卡要在它每个章内前置的下面。没有保存布局，或布局没写到的关卡，在满足已有布局的前提下按上面的规则排（`kit/course.js` 的 `mapRows`）：按先修关系一层一层排在前面各层的行之后，每行最多三关，排在它前置的下面、需要它的已排关卡的上面（插进的行把下面的行往下推）。
 - 排得紧：一关只往下排到必须的位置（它的来路和同一列上面那关的下方，再避开横穿它这一列的连线拐弯），同一行的关不必对齐；连线上没有标签时，两关之间只留一小段线。
 - 点一个还锁着的关，它和所有还要先通过的关一起高亮（跨章也算），并列出现在就能做的那几关，点一下直接去。
 - 每关下面的连线上标出它带来的东西：这一关新带来的原始元件（这一关打开后显示名字，`introductions`），和通过它解锁的元件（通过后显示名字）。
@@ -264,8 +270,8 @@ games/kit/
 ├── pipeline/  agent 流水线：每一步的 brief 和闸门、课程蓝图的 schema 和审计、文案 lint、npm run pipeline（第 7.2 节）
 ├── studio/    studio：审、改、玩内容的页面，schema 驱动，操作集上的一层皮（第 6.7 节）
 └── app/       每款游戏的页面入口和构建；studio 在开发服务器上的桥（studio.js）
-games/<游戏>/       游戏入口 game.json、课程蓝图和创作记录
-packages/<内容包>/  关卡 levels/、件 pieces.json、百科 glossary.json
+games/<游戏>/       游戏入口 game.json、课程 course.json、对包内文案的覆盖、课程蓝图和创作记录
+packages/<内容包>/  关卡 levels/、关卡组 groups/、件 pieces.json、百科 glossary.json
 games/<插图>/   每款游戏的标题图（boxy、press、detach）：用 anatomy 技能的等距套件画的一台机器，build.mjs 生成一个模块，
                 同时挂在游戏列表的卡片和关卡地图上；配色取自 kit/tokens.css（kit/anatomy.css）
 ```
@@ -274,15 +280,17 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach）：用 anat
 
 ### 6.1 内容：数据游戏的形状
 
-平台在 `games/games.js` 登记游戏。每款游戏的 `game.json` 通过 `package` 选择内容包，并通过 `course` 选择包内的课程。当前每款游戏各使用一个同名包。关卡 ID 和件 ID 在包内使用局部名字。
+平台在 `games/games.js` 登记游戏。每款游戏的 `game.json` 通过 `package` 选择内容包，课程是游戏自己的 `course.json`。几款游戏可以共用一个内容包，各自编排；当前每款游戏各使用一个同名包。关卡 ID、组 ID 和件 ID 在包内使用局部名字。
 
 一款数据游戏（《状态之图》《视觉完备》）的文件夹：
 
 | 文件 | 内容 |
 |---|---|
-| `games/<游戏>/game.json` | 内容包和课程选择，以及入口的标题、简介 |
+| `games/<游戏>/game.json` | 内容包选择，以及入口的标题、简介 |
+| `games/<游戏>/course.json` | 课程：`eras`（章、章里的关和组、连线、路线图布局，第 2 节）、`primitives`、`concept`、`replaces`、课程审计与教学安排 |
+| `games/<游戏>/overrides/<lang>.json` | 游戏对内容包文案的修改和覆盖：键是包里文案的键，值是这款游戏自己的写法；包里的原文不动，只在这款游戏里读出来不一样（第 6.10 节） |
 | `packages/<内容包>/package.json` | `domain`、`vocabulary` 和领域的包级配置，如 Q.E.D. 的词表 |
-| `packages/<内容包>/courses/<课程>.json` | `eras`、`primitives`、`concept`、`replaces`、课程审计与教学安排 |
+| `packages/<内容包>/groups/<组>.json` | 关卡组：组名、组内关卡和组内推荐的连线（第 2 节） |
 | `packages/<内容包>/trays.json` | 托盘 ID 对应 `{name, desc, items}`。每个 `items` 条目是件 ID 或含 `id`、`title`、`items` 的二级菜单 |
 | `packages/<内容包>/levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `packages/<内容包>/glossary.json` | 百科：`{ groups, entries }` |
@@ -911,7 +919,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 ### 6.10 多语言文案
 
-**磁盘格式。** 可翻译字段用 `@键` 引用文案，与语言无关的符号可以使用共享字符串。游戏入口的 `game.json` 从 `games/<游戏>/i18n/<lang>.json` 取文案；内容包的课程、关卡、元件、托盘和百科从 `packages/<内容包>/i18n/<lang>.json` 取文案。同一内容包供多款游戏使用时共用其文案。各语言文件就是扁平的「键 → 文本」表。以《状态之图》的路线计数器为例，`pieces.json` 中的文案字段可以写成：
+**磁盘格式。** 可翻译字段用 `@键` 引用文案，与语言无关的符号可以使用共享字符串。游戏入口的 `game.json` 和课程 `course.json` 从 `games/<游戏>/i18n/<lang>.json` 取文案；内容包的关卡、关卡组、元件、托盘和百科从 `packages/<内容包>/i18n/<lang>.json` 取文案。同一内容包供多款游戏使用时共用其文案；一款游戏想换一种说法，把它写进 `games/<游戏>/overrides/<lang>.json`（同一个键），只在这款游戏里盖过包里的原文。包里那段文案没了，覆盖也跟着去掉（操作集写盘时清掉，`npm run check` 报出盘上剩下的）。各语言文件就是扁平的「键 → 文本」表。以《状态之图》的路线计数器为例，`pieces.json` 中的文案字段可以写成：
 
 ```json
 {
@@ -999,13 +1007,18 @@ A documentation-only local change does not require a deployment.
 | `level.set`、`level.unset`、`level.patch`、`level.replace` | 改一关的一个字段（路径 `tests[0].goal`）、去掉一个字段或列表的一项、按 JSON merge patch 改几个字段、整关换掉；新字段按 schema 的字段顺序放 |
 | `level.blueprint` | 把一关的一块板（参考解、naive 解……，schema 里的 `S.board()`）写成蓝图文本，先按蓝图语法读一遍 |
 | `level.adds` | 一关新带来的元件里加上、拿掉几样 |
-| `level.add`、`level.remove` | 加一关（内容和课程里的位置）；删一关（文件和位置，掏空的分支、专题一起去掉），别处还提到它时拒绝并列出在哪里 |
-| `level.rename` | 换 id：文件名和提到它的每一处（`S.level()` 的字段、文字里的链接、`open`） |
-| `level.move` | 挪到课程里的另一个位置：同一章或跨章调整编号位置，连线跟随关卡（位置的写法见 `ops/place.js`） |
+| `level.add`、`level.remove` | 加一关（内容，`to` 给出它在哪一组的位置）；删一关（文件、它在组里和课程里的位置、连线和路线图上的位置），别处还提到它时拒绝并列出在哪里 |
+| `level.rename` | 换 id：文件名和提到它的每一处（`S.level()` 的字段，组和课程里的也算；文字里的链接、`open`） |
+| `level.move` | 挪到课程里的另一个位置：同一章或跨章调整编号位置，连线跟随关卡；跨章时离开原章的路线图（位置的写法见 `ops/place.js`） |
+| `group.add`、`group.remove`、`group.rename`、`group.set`、`group.unset`、`group.replace` | 加一组、删一组（组里的关留在包里，课程里整组放进来的地方和连到它的线一起去掉）、换 id（课程里提到它的地方一起改）、改组的字段 |
+| `group.place` | 把一关放进一组里的一个位置，在组内挪动，或挪出所有组；它在原组里的连线去掉 |
 | `task.add`、`task.remove`、`task.move`、`task.rename` | 一关是一串有 id 的任务的领域（第 4 节）：加一个任务（放在某个任务后面、最前或最后；不给 id 就起一个），删一个（一关至少留一个，整关不要用 `level.remove`），挪到关内别的位置或另一关（`to: { level, after? / first? }`；挪走一关唯一的任务时，同一个变更集里要删掉那一关，否则检查不过），换 id；按 id 找任务，id 在整款游戏里唯一（`npm run check` 查）；几关合成一关就是把任务挪过去、删掉空了的关，拆开是加关再挪任务 |
 | `game.set`、`game.unset` | 改 `game.json` 的一个字段（课程、元件、标题……） |
-| `text.set` | 按路径和 `lang` 修改该语言的字段文本（关卡、`game.json`、百科或 `pieces.json`），写入字段引用的语言表。共享字面值按原字段编辑 |
+| `text.set` | 按路径和 `lang` 修改该语言的字段文本（关卡、关卡组、`game.json`、百科或 `pieces.json`），写入字段引用的语言表。共享字面值按原字段编辑 |
+| `text.override` | 游戏在包里一处文案的某个语言上写自己的说法（`overrides/<lang>.json`），`value: null` 恢复包里的原文；不改包 |
 | `glossary.put`、`glossary.set`、`glossary.remove` | 写一条百科、改几个字段、删一条 |
+
+**两个工作区。** 操作分属包和游戏两边（`ops/operations.js` 的 `opScope`）：关卡、任务、关卡组、件、设置、百科和包的配置（`package.json`、托盘）是包的；课程（`course.json`、`game.json`、`level.move`）、游戏自己的文案覆盖（`text.override`）和课程蓝图是游戏的。studio 打开工作区时带上 `scope`（`openGame(id, root, { scope })`），变更集里有另一边的操作就拒绝；包的工作区读出的是包里的原文，不带游戏的覆盖。命令行和 MCP 不带 `scope`，两边的操作都能跑。删一关、给一关换 id 会顺着引用改到课程。
 
 **一个变更集怎么跑**（`ops/changeset.js`）：每个操作先按它参数的 schema 查（提到的关必须存在），再依次改内存里的内容，哪一个失败整个变更集作废；然后把整款游戏按 `npm run check` 的规则查一遍（词汇表、课程审计、文案和链接、领域检查：参考解跑测试、naive 解失败）。全部清零才写盘，否则什么都不写，并列出每一处问题。写盘时只动改了的行（第 6.1 节的格式），游戏 `games.js` 里的关卡数跟着改，修改日志 `changes.jsonl` 加一行，记下撤销它的变更集。写盘、记日志在游戏的锁里做（`changes.lock`，写着持有它的进程；进程死了留下的锁会被接手）：盘上的文件和打开游戏时读到的不一样就拒绝（另一个写者先改了）；调用方给了 `base`（它看到的日志最后一条的序号，`preview`、`log` 给出 `head`；studio 总是给）而日志已经往前走了，也拒绝。撤销只从那一条留下的状态往回改：它改过的文件此后又变了（手改、后来的修改），就拒绝。文件在操作集之外被改过，`log`、`npm run check` 报出来（不算失败），`npm run op -- <游戏> adopt --why …` 把现状收进日志。
 

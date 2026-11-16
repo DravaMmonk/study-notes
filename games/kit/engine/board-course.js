@@ -201,7 +201,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const orderOf = ({ type, variant }) => artifactOrder.get(JSON.stringify([type, variant]))
   revisions.sort((a, b) => orderOf(a) - orderOf(b))
   for (const { task } of revisions) tasksByWork.set(task.taskId, task)
-  const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
+  const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
   const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.[level.task] ?? null)

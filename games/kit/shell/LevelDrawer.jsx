@@ -52,7 +52,7 @@ export default function LevelDrawer({ game, current, solved, all, onOpen, onClos
                 <span className="drawer-chapter-count">{finished}/{inChapter.length}</span>
                 <ChevronDown size={14} className="drawer-chevron" />
               </button>
-              {expanded && <LevelTree game={game} track={chapter.track} byId={new Map(inChapter.map((level) => [level.id, level]))} solved={solved} all={all} current={current} compact onOpen={onOpen} needed={needed} />}
+              {expanded && <LevelTree game={game} track={chapter.track} rows={chapter.rows} byId={new Map(inChapter.map((level) => [level.id, level]))} solved={solved} all={all} current={current} compact onOpen={onOpen} needed={needed} />}
             </section>
           )
         })}

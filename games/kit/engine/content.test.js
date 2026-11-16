@@ -145,10 +145,9 @@ test('a data game is read from its folder', () => {
   const dir = mkdtempSync(join(tmpdir(), 'games-'))
   mkdirSync(join(dir, 'games', 'toy'), { recursive: true })
   mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
-  mkdirSync(join(dir, 'packages', 'shared-toy', 'courses'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ package: 'shared-toy', course: 'main', title: 'Toy' }))
+  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ package: 'shared-toy', title: 'Toy' }))
+  writeFileSync(join(dir, 'games', 'toy', 'course.json'), '{}')
   writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ domain: 'toy', vocabulary: 1 }))
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'courses', 'main.json'), '{}')
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'glossary.json'), JSON.stringify({ groups: [], entries: [] }))
   assert.equal(isDataGame('toy', dir), true)
@@ -157,10 +156,42 @@ test('a data game is read from its folder', () => {
   assert.deepEqual(content.levels, [{ id: 'one', mode: 'read', text: 'hello' }])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content), [])
 
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'courses', 'draft.json'), JSON.stringify({ order: ['one'] }))
+  // Another game on the same package must still find what its course names.
+  mkdirSync(join(dir, 'games', 'draft'), { recursive: true })
+  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ package: 'shared-toy', title: 'Draft' }))
+  writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ order: ['one'] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
   assert.deepEqual(dependencyProblemsInProject({ ...content, levels: [] }, dir), [{
-    at: 'packages/shared-toy/courses/draft.json',
-    says: 'the course references one, which is missing from its package',
+    at: 'games/draft/course.json',
+    says: 'the course places the level one, which is missing from its package',
   }])
+})
+
+test('a course places whole groups, links to and from them, and keeps its map', () => {
+  const era = S.obj({ id: S.str(), ...COURSE_FIELDS })
+  const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
+  const levels = ['start', 'a', 'b', 'c', 'next'].map((id) => [id, { mode: 'read', text: id }])
+  const groups = [['basics', { title: 'Basics', levels: [{ id: 'a' }, { id: 'b' }, { id: 'c', optional: true }], links: [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }] }]]
+  const course = (eras) => assemble({ id: 'toy', game: { domain: 'toy', vocabulary: 1, title: 'Toy', eras }, glossary: { groups: [], entries: [] }, levels, groups })
+  const content = course([
+    { id: 'one', levels: [{ id: 'start' }, { group: 'basics' }], links: [{ from: 'start', to: 'basics' }], rows: [['start', null]] },
+    { id: 'two', levels: [{ id: 'next' }], links: [{ from: 'basics', to: 'next' }] },
+  ])
+  assert.deepEqual(content.eras[0].levels.map(({ id }) => id), ['start', 'a', 'b', 'c'])
+  assert.deepEqual(content.eras[0].links, [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }, { from: 'start', to: 'a' }])
+  // The group's exit is its required level with nothing after it.
+  assert.deepEqual(content.eras[1].links, [{ from: 'b', to: 'next' }])
+  assert.equal(content.sourceEras[0].levels[1].group, 'basics')
+  assert.deepEqual(checkContent({ vocabulary }, content), [])
+
+  const wrong = course([{ id: 'one', levels: [{ group: 'basics' }, { id: 'a' }, { group: 'nothing' }], rows: [['b', 'a', null, null]] }])
+  assert.deepEqual(checkContent({ vocabulary }, wrong).map(({ at, says }) => `${at}: ${says}`), [
+    'game.json.eras[0].levels[2].group: "nothing" is no levelGroup of this game',
+  ])
+  const placed = course([{ id: 'one', levels: [{ group: 'basics' }, { id: 'a' }], rows: [['b', 'a', null, null]] }])
+  assert.deepEqual(checkContent({ vocabulary }, placed).map(({ at, says }) => `${at}: ${says}`), [
+    'game.json.eras[0]: level "a" is placed twice',
+    'game.json.eras[0].rows[0]: a row of the map has at most three places, not 4',
+    'game.json.eras[0].rows[0]: b is drawn on a row no lower than its prerequisite a',
+  ])
 })

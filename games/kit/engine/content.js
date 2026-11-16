@@ -1,8 +1,15 @@
-// A data game selects a content package and one of its courses in games/<id>/game.json. A game made by the agent pipeline also holds its
+// A data game selects a content package in games/<id>/game.json and holds its own course, games/<id>/course.json: the
+// package is the levels, their level groups (groups/<id>.json, ./groups.js) and what they are built from; the course
+// arranges them into chapters. A game may also put its own wording over the package's texts without changing them
+// (games/<id>/overrides/<lang>.json, keyed as the package's catalog). A game made by the agent pipeline also holds its
 // course blueprint, blueprint.json (../pipeline/blueprint.js), which the checks read and the page does not. The page's
 // build (../app/vite.js) and the checks (content-node.js) both read the files and assemble them here into one content:
 //
-//   { id, …configuration, levels: [{ id, …levels/<id>.json }], glossary, partDefs? (pieces.json), blueprint? }
+//   { id, …configuration, eras (the chapters as played, groups expanded), sourceEras (as course.json writes them),
+//     levels: [{ id, …levels/<id>.json }], groups: { id: groups/<id>.json }, glossary, partDefs? (pieces.json),
+//     blueprint?, overridden: { key: { lang: the package's text } | null } }
+import { expandEras } from './groups.js'
+import { textEntries, textKey, withTextKey } from './i18n.js'
 
 const sourceContents = new WeakSet()
 export const hasCatalogSource = (content) => sourceContents.has(content)
@@ -41,14 +48,42 @@ export function combineConfiguration(files) {
 }
 
 /** The packaged levels can include content the selected course does not schedule. */
-export const courseLevelCount = (configuration, total) => configuration.eras
-  ? configuration.eras.reduce((count, era) => count + era.levels.length, 0)
+export const courseLevelCount = (configuration, total, groups = {}) => configuration.eras
+  ? expandEras(configuration.eras, groups).reduce((count, era) => count + era.levels.length, 0)
   : configuration.order?.length ?? total
 
-/** One content from a game's files. `levels`: [[id, level]] in any order (they are kept sorted by id). */
-export function assemble({ id, game, levels, glossary, partDefs, blueprint, fromDisk = false }) {
-  const sorted = [...levels].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-  const content = { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}) }
+/** What each of a game's own texts stands over: key → { lang: the package's text (undefined: the package lacks that language) }, or null for a key the package has no text under. */
+export function overridesOf(catalogs, overrides) {
+  const out = {}
+  for (const [lang, entries] of Object.entries(overrides)) for (const key of Object.keys(entries)) {
+    const known = Object.values(catalogs).some((catalog) => Object.hasOwn(catalog ?? {}, key))
+    if (!known) out[key] = null
+    else (out[key] ??= {})[lang] = catalogs[lang]?.[key]
+  }
+  return out
+}
+
+/** A value with the game's own texts (lang → key → text) in place of its package's. */
+export function overlayTexts(value, overrides) {
+  if (!value || typeof value !== 'object') return value
+  const key = textKey(value)
+  if (key) {
+    const own = Object.entries(overrides).filter(([, entries]) => Object.hasOwn(entries, key))
+    return own.length ? withTextKey({ ...Object.fromEntries(textEntries(value)), ...Object.fromEntries(own.map(([lang, entries]) => [lang, entries[key]])) }, key) : value
+  }
+  if (Array.isArray(value)) return value.map((child) => overlayTexts(child, overrides))
+  return Object.fromEntries(Object.entries(value).map(([k, child]) => [k, overlayTexts(child, overrides)]))
+}
+
+/** One content from a game's files. `levels`, `groups`: [[id, value]] in any order (they are kept sorted by id). */
+export function assemble({ id, game, levels, groups = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false }) {
+  const byId = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)
+  const groupMap = Object.fromEntries([...groups].sort(byId))
+  const played = game.eras ? { eras: expandEras(game.eras, groupMap), sourceEras: game.eras } : {}
+  const content = {
+    id, ...game, ...played, levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...level })), groups: groupMap, glossary,
+    ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden,
+  }
   if (fromDisk) sourceContents.add(content)
   return content
 }

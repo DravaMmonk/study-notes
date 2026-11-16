@@ -15,11 +15,11 @@ test('the page loads independent course and package catalogs, and a translation 
   const manifest = JSON.parse(assets.get(CONTENT_FILE))
   assert.equal(manifest.title, '@heading')
   assert.equal(manifest.levels[0].title, '@heading')
-  assert.deepEqual(JSON.parse(assets.get(manifest.locales.package.zh)), { chapter: '开场', heading: '关卡' })
-  assert.deepEqual(JSON.parse(assets.get(manifest.locales.course.zh)), { heading: '课程' })
+  assert.deepEqual(JSON.parse(assets.get(manifest.locales.package.zh)), { heading: '关卡' })
+  assert.deepEqual(JSON.parse(assets.get(manifest.locales.course.zh)), { chapter: '开场', heading: '课程' })
 
   const restored = await pageContent(manifest, 'https://example.test/toy/', (url) => new Response(assets.get(url.pathname.slice('/toy/'.length))))
-  assert.deepEqual(restored, content)
+  assert.deepEqual(restored, { ...content, sourceEras: content.eras, groups: {}, overridden: {} })
 
   const revised = contentAssets({ ...content, title: { ...content.title, en: 'Course title' } })
   const next = JSON.parse(revised.get(CONTENT_FILE))

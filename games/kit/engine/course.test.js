@@ -2,7 +2,7 @@
 // under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, itemOf, offer, reach, readItem, usable } from '../course.js'
+import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, itemOf, mapRows, offer, reach, readItem, usable } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
@@ -246,4 +246,19 @@ test('parallel routes distinguish skippable levels, optional levels, and strict 
   assert.equal(place.get('b').optional, false)
   const labels = levelLabels([era])
   assert.deepEqual([...labels], [['start', '0-1'], ['a', '0-2'], ['c', '0-3'], ['b', '0-4'], ['d', '0-5'], ['join', '0-6'], ['extra', '0-7'], ['last', '0-8']])
+})
+
+test('the map lays a chapter out a layer at a time, three to a row, around the rows the course saves', () => {
+  const requires = new Map(Object.entries({ a: [], b: [], c: [], d: [], e: ['a'], f: ['e'], g: ['b'] }))
+  const ids = [...requires.keys()]
+  const rows = (saved) => mapRows(ids, requires, saved).rows
+  assert.deepEqual(rows(), [['a', 'b', 'c'], ['d'], ['e', 'g'], ['f']])
+  assert.deepEqual(mapRows(ids, requires).at.get('g'), { row: 2, col: 0.5 })
+  // A saved row stays as written, empty places too; the rest goes around it, each layer after the one before, and a
+  // level a saved one needs goes in above it, pushing it down.
+  assert.deepEqual(rows([[null, 'e']]), [['a', 'b', 'c'], ['d'], ['g'], [null, 'e'], ['f']])
+  assert.deepEqual(rows([[null, 'e'], ['b']]), [['a', 'c', 'd'], [null, 'e'], ['b'], ['g'], ['f']])
+  assert.deepEqual(mapRows(ids, requires, [[null, 'e']]).at.get('e'), { row: 3, col: 0.5 })
+  // Levels no longer on the chapter drop out of its saved rows.
+  assert.deepEqual(mapRows(['a'], new Map([['a', []]]), [['gone', 'a'], ['gone']]).rows, [['a']])
 })

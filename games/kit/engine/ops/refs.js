@@ -1,9 +1,10 @@
 // Where a game's content names a level: every field its domain's schema types as a level (schema.js S.level, the
-// eras' items included), every <level-ref> link inside a text, and the audit findings game.json leaves open
+// eras' items and the groups' included), every <level-ref> link inside a text, and the audit findings game.json leaves open
 // ('part@level').
 import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
+import { GROUP } from '../groups.js'
 import { textEntries } from '../i18n.js'
 import { getAt, setAt } from './edit.js'
 
@@ -18,6 +19,7 @@ const files = (ws, vocabulary) => [
   ['glossary.json', ws.glossary, GLOSSARY, (v) => { ws.glossary = v }],
   ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs, PARTS_FILE, (v) => { ws.partDefs = v }]]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level, (v) => { ws.levels.set(id, v) }]),
+  ...[...(ws.groups ?? [])].map(([id, group]) => [`groups/${id}.json`, group, GROUP, (v) => { ws.groups.set(id, v) }]),
 ]
 
 const texts = (value) => typeof value === 'string'

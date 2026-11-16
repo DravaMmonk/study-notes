@@ -373,7 +373,7 @@ export function logicCourse(content) {
   }))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!given.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   const LABELS = levelLabels(eras)
-  const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
+  const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
   // Every axiom part stays in the levels that state it, and is no new idea: it is the level's own given.
   const axioms = [...new Set(TASKS.filter((t) => t.kind === 'machine').flatMap(axiomPartsOf))]
   // A level's reference boards, every task's (or a task's own, `task` its index), without what each board starts with.

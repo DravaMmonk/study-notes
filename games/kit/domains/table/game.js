@@ -39,7 +39,7 @@ function IntroFigure({ fig }) {
  */
 export default function tableGame(content) {
   const table = tableCourse(content)
-  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course, played } = table
+  const { LEVELS, REQUIRES, TRACKS, ROWS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}
   // Every level's last task: the one whose board a part it builds runs, shown on the part's bench.
@@ -93,7 +93,7 @@ export default function tableGame(content) {
     kicker: content.kicker,
     lede: content.lede,
     Hero,
-    chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
+    chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era), rows: ROWS.get(chapter.era) })),
     levels,
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
