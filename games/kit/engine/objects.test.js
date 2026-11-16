@@ -237,3 +237,11 @@ test('imports include unscheduled prerequisite closures, using dependency order 
   content.registries.relation['toy/sequence'].sequence = ['toy/b', 'toy/a', 'toy/start', 'toy/c', 'toy/end']
   assert.deepEqual(importLevelOrder(content, 'toy/b'), ['toy/start', 'toy/a', 'toy/b'])
 })
+
+
+test('import display order retains paths through levels outside the imported selection', () => {
+  const input = source()
+  input.game.chapters = []
+  input.relations = [['display', { kind: 'order', sequence: ['c', 'end', 'a'] }]]
+  assert.deepEqual(importLevelOrder(assemble(input), ['toy/a', 'toy/c']), ['toy/c', 'toy/a'])
+})

@@ -210,7 +210,7 @@ export function objectOf(content, kind, name) {
 /** Expanded chapter order and prerequisite edges for route maps and relation boards. */
 export const courseRoute = (content) => ({ chapters: content.eras ?? [], edges: content.relationEdges?.requires ?? [] })
 
-/** Import levels or level tags with their complete local prerequisite closure, before game scheduling. */
+/** Import from assembled package content, including local prerequisite closure before game scheduling. */
 export function importLevelOrder(content, references) {
   const problems = []
   const expand = referenceResolver(content.registries, problems)
@@ -225,7 +225,7 @@ export function importLevelOrder(content, references) {
   }
   for (const id of selected) visit(id)
   if (problems.length) throw new Error(problems.map(({ at, says }) => `${at}: ${says}`).join('\n'))
-  const display = relationOrder([...selected], edges.order)
+  const display = relationOrder([...ids], edges.order).filter(id => selected.has(id))
   const pending = new Set(display), out = []
   while (pending.size) {
     const next = display.find(id => pending.has(id) && !edges.requires.some(edge => !edge.game && edge.to === id && pending.has(edge.from)))
