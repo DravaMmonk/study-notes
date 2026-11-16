@@ -1,0 +1,9 @@
+{
+  "name": "@piece.uDelete.name",
+  "desc": "@piece.uDelete.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "compute": "logic:uDelete(in)",
+  "outputType": "logic:machine-value"
+}

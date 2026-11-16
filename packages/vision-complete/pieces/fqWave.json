@@ -1,0 +1,16 @@
+{
+  "name": "@piece.fqWave.name",
+  "desc": "@piece.fqWave.desc",
+  "icon": "Waves",
+  "family": "image:family-frequency",
+  "inputs": [],
+  "settings": {
+    "k": { "label": "@piece.fqWave.settings.k.label" },
+    "form": {
+      "label": "@piece.fqWave.settings.form.label",
+      "options": [{ "value": "cos", "label": "cos" }, { "value": "sin", "label": "sin" }]
+    }
+  },
+  "compute": "image:fqWave($k, $form)",
+  "outputType": "image:image"
+}

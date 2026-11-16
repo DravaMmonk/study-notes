@@ -1,0 +1,25 @@
+{
+  "name": "@piece.saturate.name",
+  "desc": "@piece.saturate.desc",
+  "family": "logic:family-built",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "c0 = repeat(in, body: c1) {",
+          "  body {",
+          "    c1 = resolve(c0.body)",
+          "  }",
+          "}",
+          "out <- c0"
+        ],
+        "want": "logic:want-decide",
+        "inputs": [{ "name": "in", "label": "in" }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "outputType": "logic:machine-value"
+}

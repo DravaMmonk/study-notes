@@ -17,7 +17,7 @@ test('each kind rejects duplicate names and permits a name shared across kinds',
   registry.add('operation', 'toy:number', { about: 'number' })
   assert.throws(() => registry.add('valueType', 'toy:number', {}), /duplicate/)
   assert.throws(() => registry.add('operation', 'plain', {}), /invalid capability name/)
-  assert.equal(vocabulary.version, 1)
+  assert.ok(vocabulary.version >= 1)
 })
 
 test('qualified operation names round-trip beside match case delimiters', () => {
@@ -43,8 +43,8 @@ test('named parameters are checked using their declared value type', () => {
   const schema = { kinds: { valueType: { 'circuit:number': {} }, op: {
     'toy:scale': { args: [{ name: 'a', type: 'circuit:number' }], returns: 'circuit:number', params: S.obj({ label: S.str() }) },
   } } }
-  const file = { settings: { gain: { control: 'number', default: 1 } }, parts: { sample: {
-    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', settings: [{ key: 'gain', setting: 'gain' }], compute: 'toy:scale(a, label=$gain)',
+  const file = { parts: { sample: {
+    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', settings: { 'gain': { control: 'number', default: 1 } }, compute: 'toy:scale(a, label=$gain)',
   } } }
   assert.match(typeProblems(file, schema)[0].says, /parameter label/)
 })

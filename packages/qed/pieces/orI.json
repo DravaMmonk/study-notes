@@ -1,0 +1,21 @@
+{
+  "name": "@piece.orI.name",
+  "desc": "@piece.orI.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [{ "name": "a", "label": "@piece.orI.inputs.0.label", "type": "logic:judgment" }],
+  "settings": {
+    "other": { "control": "tree", "label": "@piece.orI.settings.other.label" },
+    "side": {
+      "control": "buttons",
+      "label": "@piece.orI.settings.side.label",
+      "options": [
+        { "value": "left", "label": "@piece.orI.settings.side.options.0.label" },
+        { "value": "right", "label": "@piece.orI.settings.side.options.1.label" }
+      ],
+      "default": "right"
+    }
+  },
+  "compute": "logic:orI(a)",
+  "outputType": "logic:judgment"
+}

@@ -37,7 +37,7 @@ export function combineConfiguration(files) {
 }
 
 export const courseLevelCount = (configuration, total, tags = configuration.tags ?? {}) => configuration.chapters
-  ? configuration.chapters.reduce((count, chapter) => count + referenceResolver({ tag: tags, level: {}, piece: {}, setting: {}, entry: {} })(chapter.levels, 'level').length, 0)
+  ? configuration.chapters.reduce((count, chapter) => count + referenceResolver({ tag: tags, level: {}, piece: {}, entry: {} })(chapter.levels, 'level').length, 0)
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
@@ -55,7 +55,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   levels = levels.map(([name, value]) => [fullName(packageId, name), expand(value, packageId, schemas?.level)])
   glossary = expand(glossary, packageId, GLOSSARY)
   if (partDefs) partDefs = Object.fromEntries(Object.entries(partDefs).map(([kind, values]) => [kind,
-    registryOf(kind === 'parts' ? 'piece' : 'setting', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
+    registryOf('piece', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
   ]))
   blueprint = expand(blueprint, `@${id}`)
   overridden = Object.fromEntries(Object.entries(overridden).map(([key, value]) => [fullName(packageId, key), value]))
@@ -66,7 +66,6 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
     const endpointName = endpoint && referenceName(namespace, endpoint)
     const taggedKind = endpoint?.startsWith('#') && tags.find(([id, , ns = packageId]) => fullName(ns, id) === endpointName.slice(1))?.[1].kind
     const objectKind = levels.some(([id]) => id === endpointName) ? 'level'
-      : Object.hasOwn(partDefs?.settings ?? {}, endpointName) ? 'setting'
       : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'item'
     const relationKind = value.of ?? (taggedKind || objectKind)
     const item = kind === 'tags' ? value.kind === 'item' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'item')
@@ -77,7 +76,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   let layoutMap = objects('layouts', layouts)
   const relationMap = objects('relations', relations)
   const registries = createRegistries({
-    level: levels, piece: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }), setting: Object.entries(partDefs?.settings ?? {}),
+    level: levels, piece: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
     entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
     tag: Object.entries(tagMap), relation: Object.entries(relationMap), layout: Object.entries(layoutMap),
   })

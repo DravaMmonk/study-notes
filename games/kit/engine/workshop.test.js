@@ -59,8 +59,8 @@ test('workshop compatibility follows resolved settings and executable checks acr
   }
   const setting = { control: 'number', default: 2, min: 1, max: 8 }
   const catalog = (id, definition, part = declaration) => ({
-    settings: { [id]: definition },
-    parts: { multiply: { ...part, settings: [{ key: 'factor', setting: id }] } },
+
+    parts: { multiply: { ...part, settings: { 'factor': definition } } },
   })
   const identityFor = (file) => (type) => workshopIdentity(file, type)
   const original = identityFor(catalog('original', setting))

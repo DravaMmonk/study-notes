@@ -282,7 +282,7 @@ const tools = {
       const domain = await domainOf(content)
       return {
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
-        // Each with the piece it is (its type in pieces.json) and the level that first gives it: a primitive's first level
+        // Each with the piece it is (its type in pieces/<name>.json) and the level that first gives it: a primitive's first level
         // bringing it in, a built one's level earning its flag.
         parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, piece: p.piece ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
         entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),
@@ -371,8 +371,8 @@ const tools = {
         const text = git('show', `${tree}:${path}`)
         if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
         let value = JSON.parse(text)
-        const isObject = /^(levels|entries|tags|relations|layouts)\//.test(fileName)
-        if (isObject || ['game.json', 'pieces.json', 'blueprint.json'].includes(fileName)) {
+        const isObject = /^(levels|pieces|entries|tags|relations|layouts)\//.test(fileName)
+        if (isObject || ['game.json', 'blueprint.json'].includes(fileName)) {
           const scope = join(isObject ? path.slice(0, -fileName.length) : dirname(path), 'i18n')
           const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))
           const catalogs = Object.fromEntries(files.map((file) => [file.slice(scope.length + 1, -'.json'.length), JSON.parse(git('show', `${tree}:${file}`))]))

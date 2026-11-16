@@ -1,0 +1,9 @@
+{
+  "name": "@piece.oracle.name",
+  "desc": "@piece.oracle.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "compute": "logic:oracle(in)",
+  "outputType": "logic:machine-value"
+}

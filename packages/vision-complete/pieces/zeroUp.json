@@ -1,0 +1,9 @@
+{
+  "name": "@piece.zeroUp.name",
+  "desc": "@piece.zeroUp.desc",
+  "icon": "Minimize2",
+  "family": "image:family-size",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:zeroUp(in)",
+  "outputType": "image:image"
+}

@@ -8,7 +8,7 @@ import { fieldDiff } from './diff.js'
 import { DiffFields } from './DiffView.jsx'
 import { confirmDelete } from './delete.js'
 
-const KINDS = { level: ['关卡', 'Level'], piece: ['件', 'Piece'], setting: ['设置', 'Setting'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
+const KINDS = { level: ['关卡', 'Level'], piece: ['件', 'Piece'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
 
 /** The overrides visible from `layer`, in load order: its own and those of every layer it loads on. */
 export function visibleOverrides(content, layer) {

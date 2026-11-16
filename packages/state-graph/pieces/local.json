@@ -1,0 +1,25 @@
+{
+  "name": "@piece.local.name",
+  "desc": "@piece.local.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "a = table:add(view.ul, facts.score)",
+          "k = table:const[value=-1]()",
+          "z = table:const[value=0]()",
+          "b = table:add(view.up, k)",
+          "c = table:add(view.left, k)",
+          "m = table:mmax(a, b, c)",
+          "n = table:mmax(m, z)",
+          "cell <- n"
+        ],
+        "world": "table:world-local",
+        "robot": "table:robot-ranger",
+        "facts": ["score"]
+      }
+    }
+  ]
+}

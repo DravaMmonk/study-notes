@@ -1,0 +1,9 @@
+{
+  "name": "@piece.uCheck.name",
+  "desc": "@piece.uCheck.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "compute": "logic:uCheck(in)",
+  "outputType": "logic:machine-value"
+}

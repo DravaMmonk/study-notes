@@ -1,0 +1,29 @@
+{
+  "name": "@piece.addNoise.name",
+  "desc": "@piece.addNoise.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "one = const()",
+          "s1 = sqrt(ab)",
+          "om = arith[op=sub](one, ab)",
+          "s2 = sqrt(om)",
+          "a = arith[op=mul](x0, s1)",
+          "b = arith[op=mul](eps, s2)",
+          "x = arith[op=add](a, b)",
+          "out <- x"
+        ],
+        "inputs": ["x0", "eps", "ab"]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "x0", "type": "image:image" },
+    { "name": "eps", "type": "image:image" },
+    { "name": "ab", "type": "image:image" }
+  ],
+  "outputType": "image:image"
+}

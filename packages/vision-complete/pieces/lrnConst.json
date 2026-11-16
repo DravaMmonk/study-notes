@@ -1,0 +1,10 @@
+{
+  "name": "@piece.lrnConst.name",
+  "desc": "@piece.lrnConst.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [],
+  "settings": { "p": { "label": "@piece.lrnConst.settings.p.label", "fixed": true } },
+  "compute": "image:lrnConst($p)",
+  "outputType": "image:image"
+}

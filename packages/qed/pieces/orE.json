@@ -1,0 +1,25 @@
+{
+  "name": "@piece.orE.name",
+  "desc": "@piece.orE.desc",
+  "icon": "Box",
+  "family": "logic:family-box",
+  "inputs": [{ "name": "ab", "label": "@piece.orE.inputs.0.label", "type": "logic:judgment" }],
+  "regions": [
+    {
+      "name": "left",
+      "label": "@piece.orE.regions.0.label",
+      "opens": true,
+      "closes": true,
+      "type": "logic:judgment"
+    },
+    {
+      "name": "right",
+      "label": "@piece.orE.regions.1.label",
+      "opens": true,
+      "closes": true,
+      "type": "logic:judgment"
+    }
+  ],
+  "compute": "logic:orE(ab, left, right)",
+  "outputType": "logic:judgment"
+}

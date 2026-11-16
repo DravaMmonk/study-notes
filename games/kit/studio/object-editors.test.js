@@ -10,7 +10,6 @@ const CONTENT = {
   registries: {
     level: { 'p/a': { title: { en: 'A' } }, 'p/b': { title: { en: 'B' } }, 'p/c': {}, 'o/d': { title: { en: 'D' } } },
     piece: { 'p/and': { name: { en: 'And' } }, not: {} },
-    setting: {},
     entry: { 'p/e': { title: { en: 'E' } } },
     tag: {
       'p/first': { kind: 'level', values: ['p/a', '#p/second'] },

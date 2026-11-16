@@ -1,0 +1,18 @@
+{
+  "name": "@piece.repeat.name",
+  "desc": "@piece.repeat.desc",
+  "icon": "Repeat",
+  "family": "logic:family-loop",
+  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
+  "regions": [
+    {
+      "name": "body",
+      "label": "@piece.repeat.regions.0.label",
+      "opens": true,
+      "closes": true,
+      "type": "logic:machine-value"
+    }
+  ],
+  "compute": "logic:repeat(in, body)",
+  "outputType": "logic:machine-value"
+}

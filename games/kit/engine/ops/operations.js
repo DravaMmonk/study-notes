@@ -11,9 +11,8 @@ import { parse } from '../../circuit/text.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { assertStableIds, mergePatch, setAt, unsetAt } from './identity.js'
 import { levelRefs, partRefs } from './refs.js'
-import { settingReferences } from '../pieces.js'
 import { ENTRY } from '../vocabulary.js'
-import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
+import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
@@ -53,7 +52,7 @@ const indexIn = (tasks, level, { after, first }) => {
 }
 /** The place a task is at in its level, said as task.move and task.add take it. */
 const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
-/** The game's pieces.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
+/** The game's pieces/<name>.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
 const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
@@ -249,7 +248,7 @@ export const OPERATIONS = {
     params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
     apply(ws, { level, entry, tag, in: where, path, lang, value: text }, { vocabulary }) {
       if ([level, entry, tag, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, or in: game or pieces')
-      if (where === 'pieces' && ws.partDefs === undefined) fail('the game has no pieces.json')
+      if (where === 'pieces' && ws.partDefs === undefined) fail('the content has no pieces')
       const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
@@ -276,7 +275,7 @@ export const OPERATIONS = {
     },
   },
   'piece.add': {
-    about: t('加一个件（pieces.json）：它的定义，after 那个件后面'),
+    about: t('加一个件，写入 pieces/<件>.json', 'Add a piece in pieces/<piece>.json'),
     params: S.obj({ piece: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
     apply(ws, { piece: part, data, after }, { vocabulary }) {
       partsOf(ws)
@@ -289,7 +288,7 @@ export const OPERATIONS = {
     },
   },
   'piece.remove': {
-    about: t('删掉一个件（pieces.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉'),
+    about: t('删除没有被课程、关卡、板或文字引用的件', 'Delete a piece with no course, level, board or text references'),
     params: S.obj({ piece: PART_NAME }),
     apply(ws, { piece: part }, { vocabulary }) {
       partsOf(ws)
@@ -302,63 +301,37 @@ export const OPERATIONS = {
       return { says: `pieces: removed ${part}`, inverse: [{ op: 'piece.add', piece: part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
     },
   },
-  'setting.add': {
-    about: t('新建独立的设置定义', 'Create a setting definition'),
-    params: S.obj({ setting: PART_NAME, data: SETTING }),
-    apply(ws, { setting, data }) {
-      const file = partsOf(ws)
-      if (Object.hasOwn(file.settings ?? {}, setting)) fail(`there is a setting ${setting} already`)
-      const path = file.settings === undefined ? ['settings'] : ['settings', setting]
-      ws.partDefs = { ...file, settings: { ...file.settings, [setting]: data } }
-      return { says: `pieces: added setting ${setting}`, inverse: [restore('pieces', file, path, {})] }
-    },
-  },
-  'setting.remove': {
-    about: t('删除没有被件引用的设置定义', 'Delete an unused setting definition'),
-    params: S.obj({ setting: PART_NAME }),
-    apply(ws, { setting }) {
-      const file = partsOf(ws)
-      if (!Object.hasOwn(file.settings ?? {}, setting)) fail(`no setting ${setting}`)
-      const uses = settingReferences(file, setting)
-      if (uses.length) fail(`${setting} is still used by ${uses.map(({ piece, key }) => `${piece}.${key}`).join(', ')}`)
-      ws.partDefs = unsetAt(file, ['settings', setting])
-      return { says: `pieces: removed setting ${setting}`, inverse: [restore('pieces', file, ['settings'], {})] }
-    },
-  },
   'pieces.set': {
-    about: t('设 pieces.json 的一个字段：parts.<件>.settings[0].setting、settings.<设置>.options……'),
+    about: t('修改件的字段，路径为 parts.<件>.<字段>', 'Edit a piece field at parts.<piece>.<field>'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (!keys.length) fail('the path is empty: use piece.add/remove or setting.add/remove to manage objects')
+      if (!keys.length || keys[0] !== 'parts') fail('use piece.add/remove to manage objects; settings belong to a piece')
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is added with piece.add; id cannot change: create a new object, then delete the old one')
-      if (keys.length === 1 && keys[0] === 'settings') {
-        const identities = (values) => Object.keys(values ?? {}).map((id) => ({ id }))
-        assertStableIds(identities(ws.partDefs.settings), identities(value), keys)
-      }
       // A first face can be written independently even before the part has a views object.
       const parent = keys.slice(0, -1)
       if (keys.length === 4 && keys[0] === 'parts' && keys[2] === 'views' && getAt(ws.partDefs, parent) === undefined) {
         const inverse = [restore('pieces', ws.partDefs, parent, {})]
         ws.partDefs = setAt(ws.partDefs, parent, { [keys[3]]: value }, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-        return { says: `pieces.json: set ${showPath(keys)}`, inverse }
+        return { says: `pieces: set ${showPath(keys)}`, inverse }
       }
       const inverse = [restore('pieces', ws.partDefs, keys, {})]
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      return { says: `pieces.json: set ${showPath(keys)}`, inverse }
+      return { says: `pieces: set ${showPath(keys)}`, inverse }
     },
   },
   'pieces.unset': {
-    about: t('去掉 pieces.json 的一个字段，或列表里的一项'),
+    about: t('去掉件的一个字段或列表项', 'Remove a piece field or list item'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is removed with piece.remove')
+      if (!keys.length || keys[0] !== 'parts') fail('settings belong to a piece')
+      if (keys.length < 3) fail('a whole piece is removed with piece.remove')
       const back = typeof keys.at(-1) === 'number' ? { op: 'pieces.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'pieces.set', path: keys, value: getAt(ws.partDefs, keys) }
       ws.partDefs = unsetAt(ws.partDefs, keys)
-      return { says: `pieces.json: removed ${showPath(keys)}`, inverse: [back] }
+      return { says: `pieces: removed ${showPath(keys)}`, inverse: [back] }
     },
   },
   'blueprint.put': {
@@ -507,7 +480,7 @@ const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders),
 const overrideFile = (ws, { layer, kind, name }) => {
   if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
-  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tag/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : folders[kind]}/${id}.json`
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tag/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : kind === 'piece' ? 'piece' : folders[kind]}/${id}.json`
 }
 Object.assign(OPERATIONS, {
   'override.put': {

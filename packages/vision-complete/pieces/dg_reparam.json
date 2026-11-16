@@ -1,0 +1,13 @@
+{
+  "name": "@piece.dg_reparam.name",
+  "desc": "@piece.dg_reparam.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [
+    { "name": "mu", "label": "μ", "type": "image:image" },
+    { "name": "sigma", "label": "σ", "type": "image:image" },
+    { "name": "eps", "label": "ε", "type": "image:image" }
+  ],
+  "compute": "image:dg_reparam(mu, sigma, eps)",
+  "outputType": "image:image"
+}

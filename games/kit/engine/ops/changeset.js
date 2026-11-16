@@ -18,7 +18,7 @@ import { parsePath } from './edit.js'
 import { assertStableIds } from './identity.js'
 import { shapeAt, validate } from '../schema.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
-import { PART, PARTS_FILE, SETTING } from '../parts/schema.js'
+import { PART, PARTS_FILE } from '../parts/schema.js'
 import { tasksSchema } from '../tasks.js'
 import { ENTRY, checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
@@ -59,7 +59,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     } catch (error) {
       return fail([`${where}: ${error.en ?? error.message}`], k)
     }
-    // A domain that defines its parts as data names them by the game's pieces.json as each operation finds it.
+    // A domain that defines its parts as data names them by the game's pieces/<name>.json as each operation finds it.
     const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     if (args.layer && args.layer !== ws.layer) return fail([`${where}: open layer ${args.layer} to edit its objects`], k)
     if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
@@ -89,7 +89,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = ['level', 'piece', 'part', 'setting', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
+  const selectors = ['level', 'piece', 'part', 'entry', 'tag', 'relation', 'layout', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const source = (value, schema) => expandNames(value, ws.packageId, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
   const args = source(selected, OPERATIONS[operation].params)
@@ -97,7 +97,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   if (args.tag !== undefined) args.tag = local(args.tag)
   if (args.path !== undefined && (operation.startsWith('pieces.') || args.in === 'pieces')) {
     const path = parsePath(args.path)
-    if (['parts', 'settings'].includes(path[0]) && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
+    if (path[0] === 'parts' && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
   }
   const targets = {
     level: [vocabulary.level, ws.levels.get(args.level)],
@@ -107,7 +107,6 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
     piece: [PART, ws.partDefs?.parts?.[args.piece]],
     pieces: [PARTS_FILE, ws.partDefs],
-    setting: [SETTING, ws.partDefs?.settings?.[args.setting]],
   }
   const [schema, base] = targets[operation.split('.')[0]] ?? []
   if (operation.startsWith('game.') && args.value !== undefined && args.path !== undefined) {

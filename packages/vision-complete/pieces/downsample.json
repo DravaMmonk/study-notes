@@ -1,0 +1,9 @@
+{
+  "name": "@piece.downsample.name",
+  "desc": "@piece.downsample.desc",
+  "icon": "Minimize2",
+  "family": "image:family-size",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:downsample(in)",
+  "outputType": "image:image"
+}

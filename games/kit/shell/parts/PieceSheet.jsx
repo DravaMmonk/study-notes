@@ -1,15 +1,13 @@
-import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { L, tr } from '../i18n.js'
 import { iconOf } from './icons.js'
-import SettingField from './SettingField.jsx'
-import { defaultOf } from '../../engine/parts/define.js'
+import { settingsOf } from '../../engine/pieces.js'
 
 // A piece's own fields as the studio's piece page draws them (games/DESIGN.md 6.7): each carries its path in the piece
 // (data-pf); in edit mode a click picks it (picker, on the page around them), and a + adds an item to a list.
-// PieceSheet shows the piece's independent implementations and settings. SettingSheet previews a setting definition.
+// PieceSheet shows the piece's independent implementations and settings.
 //
-//   def   the piece as pieces.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
+//   def   the piece as pieces/<name>.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
 
 const at = (path) => JSON.stringify(path)
 
@@ -32,12 +30,12 @@ export const picker = (edit) => (e) => {
 /** A row of chips, one a item of the list `key` of the piece, named by `name`; a + adds one. */
 export function Chips({ def, edit, keys, name }) {
   const { mark, add } = marker(edit)
-  const rows = keys.filter((key) => def[key]?.length || edit)
+  const rows = keys.filter((key) => Object.keys(def[key] ?? {}).length || edit)
   if (!rows.length) return null
   return rows.map((key) => (
     <ol key={key} className="pp-list is-row">
       <li className="pp-code-label">{key}</li>
-      {(def[key] ?? []).map((item, k) => <li key={k} className="pp-chip" {...mark([key, k])}>{name(item)}</li>)}
+      {(Array.isArray(def[key]) ? def[key].map((item, k) => [k, item]) : Object.entries(def[key] ?? {})).map(([k, item]) => <li key={k} className="pp-chip" {...mark([key, k])}>{name(item)}</li>)}
       {edit && <li className="pp-list-add">{add([key])}</li>}
     </ol>
   ))
@@ -49,7 +47,7 @@ const settingName = (s) => (s.label ? L(s.label) : s.key)
 /** A primitive's ports, in and out. */
 export const Ports = ({ def, edit }) => <Chips def={def} edit={edit} keys={['inputs', 'outputs']} name={portName} />
 /** A piece's settings, every one (the faces draw only those a player can move). */
-export const Settings = ({ def, edit }) => <Chips def={def} edit={edit} keys={['settings']} name={settingName} />
+export const Settings = ({ def, edit }) => <Chips def={{ settings: Object.fromEntries(settingsOf(def).map((setting) => [setting.key, setting])) }} edit={edit} keys={['settings']} name={settingName} />
 
 /** A built piece's named implementations. */
 export function Implementations({ def, edit }) {
@@ -81,26 +79,6 @@ export default function PieceSheet({ def, edit }) {
       <Implementations def={def} edit={edit} />
       {def.card && <div className="pp-code" {...mark(['card'])}><span className="pp-code-label">card</span><code>{def.card}</code></div>}
       <Settings def={def} edit={edit} />
-    </div>
-  )
-}
-
-/** A setting definition of pieces.json: the control it draws (moved as a player would), its label and its options. */
-export function SettingSheet({ name, setting, game, edit }) {
-  const { mark } = marker(edit)
-  const [value, setValue] = useState(undefined)
-  if (!setting) return null
-  const { label: _, ...rest } = setting
-  const shown = { key: name, ...rest }
-  return (
-    <div className="pp-built">
-      <div className={`pp-sheet ${edit ? 'is-editing' : ''}`} onClickCapture={picker(edit)}>
-        <h3 {...mark(['label'])}>{setting.label ? L(setting.label) : name}</h3>
-        <div {...mark(['control'])}>
-          <SettingField setting={shown} value={value ?? defaultOf(setting)} allowed={null} roomy widgets={game.defined?.widgets} language={game.defined?.language} onChange={setValue} />
-        </div>
-        <Chips def={setting} edit={edit} keys={['options']} name={(o) => (o.label ? L(o.label) : String(o.value))} />
-      </div>
     </div>
   )
 }

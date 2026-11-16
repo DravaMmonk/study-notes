@@ -1,0 +1,12 @@
+{
+  "name": "@piece.rule.name",
+  "desc": "@piece.rule.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [
+    { "name": "in", "type": "logic:machine-value" },
+    { "name": "rules", "label": "@piece.rule.inputs.1.label", "type": "logic:machine-value" }
+  ],
+  "compute": "logic:rule(in, rules)",
+  "outputType": "logic:machine-value"
+}

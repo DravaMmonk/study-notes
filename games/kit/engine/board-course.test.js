@@ -13,11 +13,9 @@ const OPS = {
   sub: { about: text('a − b'), args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => a - b },
 }
 // One part of two ways: `how` picks adding or subtracting.
-const partDefs = { settings: {
-  how: { control: 'select', label: text('怎么算'), default: 'plus', options: [{ value: 'plus', label: text('加') }, { value: 'minus', label: text('减') }] },
-}, parts: { calc: {
+const partDefs = { parts: { calc: {
   name: text('算'), desc: text('算两个数'), icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }],
-  settings: [{ key: 'how', setting: 'how' }],
+  settings: { 'how': { control: 'select', label: text('怎么算'), default: 'plus', options: [{ value: 'plus', label: text('加') }, { value: 'minus', label: text('减') }] } },
   compute: 'match $how { plus: add(a, b), minus: sub(a, b) }',
 } } }
 const ports = { inputs: [{ name: 'a', label: text('a') }, { name: 'b', label: text('b') }], outputs: [{ name: 'out', label: text('结果') }] }

@@ -1,0 +1,12 @@
+{
+  "name": "@piece.mkRule.name",
+  "desc": "@piece.mkRule.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [
+    { "name": "premises", "label": "@piece.mkRule.inputs.0.label", "type": "logic:machine-value" },
+    { "name": "conclusion", "label": "@piece.mkRule.inputs.1.label", "type": "logic:machine-value" }
+  ],
+  "compute": "logic:mkRule(premises, conclusion)",
+  "outputType": "logic:machine-value"
+}

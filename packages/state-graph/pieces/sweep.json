@@ -1,0 +1,16 @@
+{
+  "name": "@piece.sweep.name",
+  "desc": "@piece.sweep.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": ["a = table:add(view.prev, facts.money)", "cell <- a"],
+        "world": "table:world-prefix",
+        "robot": "table:robot-broom",
+        "facts": ["money"]
+      }
+    }
+  ]
+}

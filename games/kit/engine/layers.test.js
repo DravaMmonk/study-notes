@@ -64,7 +64,7 @@ test('independent overrides conflict; an explicit dependency resolves the ambigu
 })
 
 test('game overrides are limited to layouts and level relations', () => {
-  for (const kind of ['level', 'piece', 'setting', 'entry', 'tag']) {
+  for (const kind of ['level', 'piece', 'entry', 'tag']) {
     const a = base()
     if (!a.objects.some((o) => o.kind === kind)) a.objects.push(obj(kind, 'a', {}))
     assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : 'base/a', { $merge: true })])], schemas), /games cannot override/)

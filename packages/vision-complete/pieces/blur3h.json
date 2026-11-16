@@ -1,0 +1,18 @@
+{
+  "name": "@piece.blur3h.name",
+  "desc": "@piece.blur3h.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": {
+    "border": {
+      "label": "@piece.blur3h.settings.border.label",
+      "options": [
+        { "value": "zero", "label": "@piece.blur3h.settings.border.options.0.label" },
+        { "value": "edge", "label": "@piece.blur3h.settings.border.options.1.label" }
+      ]
+    }
+  },
+  "compute": "image:blur3h(in, $border)",
+  "outputType": "image:image"
+}

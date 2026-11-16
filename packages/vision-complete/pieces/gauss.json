@@ -1,0 +1,19 @@
+{
+  "name": "@piece.gauss.name",
+  "desc": "@piece.gauss.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": {
+    "sigma": { "label": "σ" },
+    "border": {
+      "label": "@piece.gauss.settings.border.label",
+      "options": [
+        { "value": "zero", "label": "@piece.gauss.settings.border.options.0.label" },
+        { "value": "edge", "label": "@piece.gauss.settings.border.options.1.label" }
+      ]
+    }
+  },
+  "compute": "image:gauss(in, $sigma, $border)",
+  "outputType": "image:image"
+}

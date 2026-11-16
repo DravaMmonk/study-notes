@@ -7,20 +7,20 @@ import { useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { ExprError, parse, problemsOf } from '../engine/parts/expr.js'
-import { resolveSettings, settingReferences } from '../engine/pieces.js'
+import { resolveSettings } from '../engine/pieces.js'
 import { BUILTIN_ITEMS } from '../engine/parts/builtins.js'
 import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
-import { creationChoices, formOf } from './form.js'
+import { creationChoices } from './form.js'
 import { AddMenu, usePickerPopup } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
-/** The part an expression at `path` belongs to in pieces.json, and whether it may read the part's inputs. */
+/** The part an expression at `path` belongs to in pieces/<name>.json, and whether it may read the part's inputs. */
 function partAt(file, path) {
   if (path[0] !== 'parts' || !file?.parts?.[path[1]]) return null
   const raw = file.parts[path[1]]
-  const settings = Object.fromEntries(resolveSettings(file, raw).map((s) => [s.key, s]))
+  const settings = Object.fromEntries(resolveSettings(raw).map((s) => [s.key, s]))
   return { inputs: path[2] === 'compute' ? (raw.inputs ?? []).map((p) => p.name) : [], settings }
 }
 
@@ -117,31 +117,6 @@ function IconOptions({ anchor, icon, label, onClose, onOutside, onPick }) {
       </div>
     </div>
   )
-}
-
-/** Bind a setting definition to a unique local key on this piece. */
-export function AttachSetting({ field, ctx, onAttach }) {
-  const options = formOf(field.of.fields.setting, undefined, ctx).options
-  const label = tr('引用设置', 'Attach setting')
-  const pick = (setting) => {
-    const keys = new Set(field.items.map(({ value }) => value.key))
-    let key = setting
-    for (let n = 2; keys.has(key); n += 1) key = `${setting}${n}`
-    onAttach({ key, setting })
-  }
-  return options.length
-    ? <AddMenu options={options} onPick={pick} label={label} />
-    : <button className="kit-btn is-label" type="button" onClick={ctx.onSettings}>{tr('打开设置管理', 'Open settings manager')}</button>
-}
-
-/** Show which pieces will see edits to this setting, with a link to each reference. */
-export function SettingUsers({ file, id, onPiece }) {
-  const uses = settingReferences(file, id)
-  if (!uses.length) return null
-  return <div className="setting-users">
-    <span>{tr('引用此设置的件', 'Pieces using this setting')}</span>
-    {uses.map(({ piece, key }) => <button key={`${piece}:${key}`} type="button" onClick={() => onPiece(piece)}>{piece}.{key}</button>)}
-  </div>
 }
 
 /** Add an optional field offered by the current engine schema. */

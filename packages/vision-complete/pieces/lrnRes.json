@@ -1,0 +1,10 @@
+{
+  "name": "@piece.lrnRes.name",
+  "desc": "@piece.lrnRes.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": { "w": { "label": "@piece.lrnRes.settings.w.label", "fixed": true } },
+  "compute": "image:lrnRes(in, $w)",
+  "outputType": "image:image"
+}

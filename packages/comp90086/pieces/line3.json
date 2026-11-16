@@ -1,0 +1,28 @@
+{
+  "name": "@piece.line3.name",
+  "desc": "@piece.line3.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "settings": {
+    "axis": {
+      "label": "@piece.line3.settings.axis.label",
+      "options": [
+        { "value": "x", "label": "@piece.line3.settings.axis.options.0.label" },
+        { "value": "y", "label": "@piece.line3.settings.axis.options.1.label" }
+      ]
+    },
+    "a": { "label": "a" },
+    "b": { "label": "b" },
+    "c": { "label": "c" },
+    "border": {
+      "label": "@piece.line3.settings.border.label",
+      "options": [
+        { "value": "zero", "label": "@piece.line3.settings.border.options.0.label" },
+        { "value": "edge", "label": "@piece.line3.settings.border.options.1.label" }
+      ]
+    }
+  },
+  "compute": "image:line3(in, $axis, $a, $b, $c, $border)",
+  "outputType": "image:image"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@piece.botE.name",
+  "desc": "@piece.botE.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [{ "name": "bot", "label": "@piece.botE.inputs.0.label", "type": "logic:judgment" }],
+  "settings": { "C": { "control": "tree", "label": "@piece.botE.settings.C.label" } },
+  "compute": "logic:botE(bot)",
+  "outputType": "logic:judgment"
+}

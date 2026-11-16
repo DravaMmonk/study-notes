@@ -1,0 +1,12 @@
+{
+  "name": "@piece.andI.name",
+  "desc": "@piece.andI.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [
+    { "name": "a", "label": "@piece.andI.inputs.0.label", "type": "logic:judgment" },
+    { "name": "b", "label": "@piece.andI.inputs.1.label", "type": "logic:judgment" }
+  ],
+  "compute": "logic:andI(a, b)",
+  "outputType": "logic:judgment"
+}

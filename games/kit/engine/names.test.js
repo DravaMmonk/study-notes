@@ -21,7 +21,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
     id: 'demo', packageId: 'library', schemas,
     game: { title: t('heading', 'Demo'), primitives: ['library/calc'], chapters: [{ id: 'chapter', levels: ['library/calc'] }] },
     levels: [['calc', { title: t('heading', 'Calculate'), tasks: [{ id: 'work', piece: 'calc', carry: 'other/start', solution: ['n = calc()', 'out <- n'] }] }]],
-    partDefs: { settings: { calc: { control: 'number', default: 1 } }, parts: { calc: { inputs: [{ name: 'a' }], settings: [{ key: 'value', setting: 'calc' }], compute: 'a' } } },
+    partDefs: { parts: { calc: { inputs: [{ name: 'a' }], settings: { 'value': { control: 'number', default: 1 } }, compute: 'a' } } },
     glossary: { groups: [], entries: [{ id: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
     tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }], ['entries-calc', { kind: 'entry', title: 'Numbers', values: ['calc'] }]],
   }
@@ -34,13 +34,12 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.equal(content.levels[0].tasks[0].piece, 'library/calc')
   assert.equal(content.levels[0].tasks[0].carry, 'other/start')
   assert.deepEqual(content.levels[0].tasks[0].solution, ['n = library/calc()', 'out <- n'])
-  assert.equal(content.partDefs.parts['library/calc'].settings[0].setting, 'library/calc')
-  assert.equal(content.partDefs.parts['library/calc'].settings[0].key, 'value')
+  assert.deepEqual(Object.keys(content.partDefs.parts['library/calc'].settings), ['value'])
   assert.equal(content.partDefs.parts['library/calc'].inputs[0].name, 'a')
   assert.equal(content.glossary.entries[0].at, 'library/calc')
   assert.equal(content.glossary.entries[0].group, 'library/entries-calc')
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
-  for (const kind of ['level', 'piece', 'setting', 'entry']) assert.ok(content.registries[kind]['library/calc'])
+  for (const kind of ['level', 'piece', 'entry']) assert.ok(content.registries[kind]['library/calc'])
   assert.ok(content.registries.tag['library/calc'])
   for (const kind of ['relation', 'layout']) assert.deepEqual(Object.keys(content.registries[kind]), [])
   assert.deepEqual(source, before)

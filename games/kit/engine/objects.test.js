@@ -115,13 +115,6 @@ test('cycles between tag endpoints cannot vanish during boundary expansion', () 
   assert.ok(assemble(input).objectProblems.some((p) => /circular requires/.test(p.says)))
 })
 
-test('setting tags validate definitions and expand through typed references', () => {
-  const problems = []
-  const expand = referenceResolver({ tag: { options: { kind: 'setting', values: ['p/gain'] } }, setting: { 'p/gain': {} }, level: {}, piece: {}, entry: {} }, problems)
-  assert.deepEqual(expandReferences(['#options'], S.list(S.name('setting')), expand), ['p/gain'])
-  assert.deepEqual(problems, [])
-})
-
 test('game namespaces cannot declare tags, relations or layouts', () => {
   const input = source()
   input.tags.push(['illegal', { kind: 'level', values: [] }, '@toy'])
@@ -163,9 +156,17 @@ test('order qualification follows the referenced kind when a level shares a nati
 
 test('item tags distinguish setting definitions from a piece setting and its values', () => {
   const input = source()
-  input.partDefs = { parts: { knob: { settings: [{ key: 'mode', setting: 'mode' }] } }, settings: { mode: { options: [{ value: 'on' }] } } }
+  input.partDefs = { parts: { knob: { settings: { 'mode': { options: [{ value: 'on' }] } } } } }
   input.tags.push(['settings', { kind: 'item', values: ['mode'] }], ['knob', { kind: 'item', values: ['knob.mode', 'knob.mode=on'] }])
   const content = assemble(input)
   assert.ok(content.objectProblems.some((p) => /unknown item toy\/mode/.test(p.says)))
   assert.ok(!content.objectProblems.some((p) => /unknown item toy\/knob/.test(p.says)))
+})
+
+test('settings have neither a registry nor a tag kind', () => {
+  const input = source()
+  input.tags.push(['obsolete', { kind: 'setting', values: [] }])
+  const content = assemble(input)
+  assert.equal(Object.hasOwn(content.registries, 'setting'), false)
+  assert.ok(checkContent({ vocabulary }, content).some((problem) => /tags\/toy\/obsolete/.test(problem.at)))
 })

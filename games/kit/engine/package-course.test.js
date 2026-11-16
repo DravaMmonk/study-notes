@@ -27,9 +27,7 @@ const fixture = () => {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
   }
   put('packages/library/package.json', { domain: 'logic', vocabulary: 1 })
-  put('packages/library/pieces.json', { parts: {
-    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' },
-  } })
+  put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' })
   return { root, put }
 }
 
@@ -100,7 +98,7 @@ test('package dependencies are readable while only the selected layer can be edi
   assert.equal(gameOp.ok, false)
   const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'piece', name: 'library/apply', merge: true, data: { desc: 'Local override' } }] }, { write: true })
   assert.equal(edited.ok, true, edited.problems.join('\n'))
-  assert.deepEqual(edited.files, ['packages/extra/overrides/library/pieces/apply.json'])
+  assert.deepEqual(edited.files, ['packages/extra/overrides/library/piece/apply.json'])
   assert.equal(readPackage('library', root).partDefs.parts['library/apply'].desc, 'Apply an implication.')
   assert.equal(readPackage('extra', root).partDefs.parts['library/apply'].desc, 'Local override')
   assert.deepEqual(readLog(openPackage('library', root)), [])
@@ -110,13 +108,13 @@ test('games can edit only their own layer and cannot undo a package log entry', 
   const { root, id } = proofsRoot()
   roots.push(root)
   const ws = openGame(id, root)
-  const before = readFileSync(resolve(root, 'packages', id, 'pieces.json'), 'utf8')
+  const before = readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8')
   const refused = await runChangeset(ws, { ops: [{ op: 'pieces.set', path: ['parts', 'mp', 'desc'], value: 'Forbidden' }] })
   assert.equal(refused.ok, false)
   const result = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'title', value: 'New game title' }] }, { write: true })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(result.files, [`games/${id}/game.json`, `games/${id}/i18n/en.json`])
-  assert.equal(readFileSync(resolve(root, 'packages', id, 'pieces.json'), 'utf8'), before)
+  assert.equal(readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8'), before)
   assert.equal(readContent(id, root).title, 'New game title')
   assert.equal((await undo(openPackage(id, root))).ok, false)
 })

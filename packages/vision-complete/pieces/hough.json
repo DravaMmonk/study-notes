@@ -1,0 +1,9 @@
+{
+  "name": "@piece.hough.name",
+  "desc": "@piece.hough.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "compute": "image:hough(in)",
+  "outputType": "image:image"
+}
