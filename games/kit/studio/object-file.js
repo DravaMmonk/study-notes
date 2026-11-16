@@ -35,11 +35,12 @@ export function ownObjectData(namespace, value) {
   return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ownObjectData(namespace, v)]))
 }
 
-/** The file an object is written in, in its package. */
-export function objectFileName(kind, full, value) {
+/** The file an object is written in: in `namespace`'s own package by its path there, another's prefixed with it. */
+export function objectFileName(kind, full, value, namespace = null) {
   const name = full.slice(full.indexOf('/') + 1)
   const folder = kind === 'tag' ? `tags/${value?.kind ?? 'level'}` : OBJECT_KINDS[kind]
-  return `${namespaceOf(full) ?? ''}/${folder}/${name}.json`
+  const owner = namespaceOf(full) ?? ''
+  return owner === namespace ? `${folder}/${name}.json` : `${owner}/${folder}/${name}.json`
 }
 
 /**

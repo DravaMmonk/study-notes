@@ -53,6 +53,7 @@ test('an object’s file is the registry’s value without its id, written back 
   assert.equal(objectValue(content, 'tag', 'demo/none'), null)
   assert.equal(objectFileName('tag', 'demo/first', { kind: 'level' }), 'demo/tags/level/first.json')
   assert.equal(objectFileName('layout', 'demo/map', {}), 'demo/layouts/map.json')
+  assert.equal(objectFileName('layout', 'demo/map', {}, 'demo'), 'layouts/map.json')
   assert.deepEqual(ownObjectData('demo', objectValue(content, 'tag', 'demo/first')),
     { kind: 'level', title: { en: 'First', $key: 'tags.first' }, values: ['a', 'other/b', '#inner'] })
 })
