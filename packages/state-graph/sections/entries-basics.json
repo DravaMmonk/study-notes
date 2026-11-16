@@ -1,0 +1,18 @@
+{
+  "title": "@section.entries-basics.title",
+  "values": [
+    "dag",
+    "dp",
+    "recurrence",
+    "base",
+    "countOpt",
+    "backtrack",
+    "overlap",
+    "speed",
+    "state",
+    "layers",
+    "counterexample",
+    "stateSize",
+    "recognise"
+  ]
+}

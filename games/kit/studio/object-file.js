@@ -11,7 +11,7 @@ import { localName, namespaceOf } from './objects-edit.js'
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', layout: 'layouts' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays', section: 'sections' }
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 

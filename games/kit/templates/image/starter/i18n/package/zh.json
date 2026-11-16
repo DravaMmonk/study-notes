@@ -26,5 +26,6 @@
   "level.0-3.tasks.0-3.hidden.0.label": "随机纹理",
   "level.0-3.tasks.0-3.tests.0.label": "方块",
   "level.0-3.tasks.0-3.tests.1.label": "字母 T",
-  "level.0-3.title": "挪两格"
+  "level.0-3.title": "挪两格",
+  "section.image.title": "图"
 }

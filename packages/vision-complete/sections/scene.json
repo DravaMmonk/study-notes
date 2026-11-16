@@ -1,0 +1,10 @@
+{
+  "title": "@section.scene.title",
+  "values": [
+    "upsample",
+    "kmeans",
+    "unet",
+    "iou",
+    "detect"
+  ]
+}

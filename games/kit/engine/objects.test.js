@@ -11,15 +11,14 @@ const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part'))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
-  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], layout: 'toy/map' }], optional: ['#toy/extras'] },
+  game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', '#toy/core', 'toy/end'], rows: [['toy/a'], ['toy/b', 'toy/c']] }], optional: ['#toy/extras'] },
   levels: ['start', 'a', 'b', 'c', 'end'].map((id) => [id, { title: id }]),
   glossary: { groups: [], entries: [] },
   tags: [['core', { kind: 'level', title: 'Core', values: ['a', '#extras', 'b'] }], ['extras', { kind: 'level', values: ['c'] }]],
   relations: [['path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }, { from: 'start', to: '#core' }, { from: '#core', to: 'end' }] }], ['sequence', { kind: 'order', sequence: ['start', 'a', 'b', 'c', 'end'] }]],
-  layouts: [['map', { of: '#core', rows: [['a'], ['b', 'c']] }]],
 })
 
-test('tags, relation boundaries and selected layouts assemble the route; all relations take effect', () => {
+test('tags, relation boundaries and chapter rows assemble the route; all relations take effect', () => {
   const content = assemble(source())
   assert.deepEqual(checkContent({ vocabulary }, content), [])
   assert.deepEqual(content.eras[0].levels.map((l) => l.id), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
@@ -53,7 +52,7 @@ test('checks reject separate relation cycles, duplicate chapter membership, inva
   const wrong = source()
   wrong.relations.push(['loop', { kind: 'requires', edges: [{ from: 'b', to: 'a' }] }], ['order-loop', { kind: 'order', edges: [{ from: 'end', to: 'start' }] }])
   wrong.game.chapters.push({ id: 'two', levels: ['toy/a'] })
-  wrong.layouts[0][1].rows = [['b', 'a', 'c', null]]
+  wrong.game.chapters[0].rows = [['toy/b', 'toy/a', 'toy/c', null]]
   const problems = checkContent({ vocabulary }, assemble(wrong)).map((p) => p.says)
   for (const pattern of [/circular requires/, /circular order/, /placed twice/, /no lower/, /at most|max|more than/]) assert.ok(problems.some((s) => pattern.test(s)), String(pattern) + problems.join('\n'))
 })
@@ -91,9 +90,9 @@ test('schema-aware catalogs resolve text while preserving package object referen
   const { catalogReader } = await import('./catalogs.js')
   const { catalogsOf } = await import('./content-text.js')
   const reader = catalogReader({ en: { 'toy/name': 'Translated title' } })
-  const result = reader({ title: '@toy/name', layout: 'toy/name' }, 'course.json', S.obj({ title: S.text(), layout: S.name('layout') }))
+  const result = reader({ title: '@toy/name', section: 'toy/name' }, 'section.json', S.obj({ title: S.text(), section: S.name('section') }))
   assert.equal(result.title.en, 'Translated title')
-  assert.equal(result.layout, 'toy/name')
+  assert.equal(result.section, 'toy/name')
   assert.deepEqual(catalogsOf('course', result), { en: { 'toy/name': 'Translated title' } })
 })
 
@@ -115,19 +114,21 @@ test('cycles between tag endpoints cannot vanish during boundary expansion', () 
   assert.ok(assemble(input).objectProblems.some((p) => /circular requires/.test(p.says)))
 })
 
-test('game namespaces cannot declare tags, relations or layouts', () => {
+test('game namespaces cannot declare tags, relations or sections', () => {
   const input = source()
   input.tags.push(['illegal', { kind: 'level', values: [] }, '@toy'])
   assert.ok(checkContent({ vocabulary }, assemble(input)).some((p) => /games cannot declare objects/.test(p.says)))
 })
 
-test('nested item tags produce ordered menus, expand task items and apply replacements on load', () => {
+test('explicit trays produce ordered menus, expand task items and apply replacements on load', () => {
   const input = source()
-  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('tag', { members: 'piece' }), adds: S.list(S.ref('part')), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'piece' })) })) }) }
+  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('tray'), adds: S.list(S.ref('part')), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'piece' })) })) }) }
   input.partDefs = { parts: { one: {}, two: {}, three: {} } }
   input.tags.push(['menu', { kind: 'piece', title: 'Menu', values: ['one', 'two'] }], ['tray', { kind: 'piece', title: 'Tray', values: ['three', '#menu'] }])
+  input.trays = [['tray', { title: 'Tray', values: ['three'], menus: [{ id: 'menu', title: 'Menu', values: ['#menu'] }] }]]
+  input.relations.push(['menu-order', { kind: 'order', of: 'piece', sequence: ['menu', 'three'] }])
   input.relations.push(['items', { kind: 'order', sequence: ['two', 'one', 'three'] }], ['upgrade', { kind: 'replaces', edges: [{ from: 'three', to: 'one' }] }])
-  input.levels[0][1] = { title: 'Start', tray: '#tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
+  input.levels[0][1] = { title: 'Start', tray: 'tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
   const content = assemble(input)
   const start = content.levels.find(({ id }) => id === 'toy/start')
   assert.equal(start.tray, 'toy/tray')
@@ -137,9 +138,10 @@ test('nested item tags produce ordered menus, expand task items and apply replac
   assert.deepEqual(content.replaces, { 'toy/three': ['toy/one'] })
 })
 
-test('a selected layout projects onto a partial chapter and retains its empty positions', () => {
+test('chapter rows retain authored empty positions', () => {
   const input = source()
   input.game.chapters[0].levels = ['toy/a', 'toy/b']
+  input.game.chapters[0].rows = [['toy/a'], ['toy/b', null]]
   input.game.optional = []
   const content = assemble(input)
   assert.deepEqual(content.eras[0].rows, [['toy/a'], ['toy/b', null]])
@@ -172,15 +174,12 @@ test('settings have neither a registry nor a tag kind', () => {
 })
 
 
-test('concept declarations reject non-item tags and ambiguous membership', () => {
+test('tags reject teaching metadata and never implicitly declare trays', () => {
   const input = source()
-  input.tags.push(['bad', { kind: 'level', concept: true, values: ['a'] }],
-    ['idea', { kind: 'piece', concept: true, values: ['piece'] }],
-    ['other-idea', { kind: 'piece', concept: true, values: ['#idea'] }])
-  input.partDefs = { parts: { piece: {} } }
-  const problems = assemble(input).objectProblems.map((p) => p.says)
-  assert.ok(problems.some((p) => p.includes('concept tags must contain items')))
-  assert.ok(problems.some((p) => p.includes('belongs to multiple concepts')))
+  input.tags.push(['idea', { kind: 'piece', concept: true, values: [] }])
+  const content = assemble(input)
+  assert.deepEqual(content.trays, {})
+  assert.ok(checkContent({ vocabulary }, content).some(problem => /concept/.test(problem.at)))
 })
 
 

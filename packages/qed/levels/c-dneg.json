@@ -1,9 +1,6 @@
 {
   "title": "@level.c-dneg.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.c-dneg.intro.0.t"

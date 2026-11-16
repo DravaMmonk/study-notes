@@ -16,7 +16,6 @@
   "level.merge.mission.goal": "The start already holds 1. Have the robot work out the routes to every crossing: up + left.",
   "level.merge.mission.how": "Wire “up” and “left” into one Merger, then the Merger to “this cell”.",
   "level.merge.short": "Merge two numbers in one component",
-  "level.merge.showcase": "the first part placed on a board: it sits between the inputs and the output and gathers several ways in into one number",
   "level.merge.tasks.merge.hints.0": "Wire both inputs into the same Merger.",
   "level.merge.title": "Two roads meet",
   "level.rocks.debrief.body.0": "The part stays as it is; a gate outside it is enough.",
@@ -36,5 +35,6 @@
   "level.stamp.tasks.stamp.hints.0": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger.",
   "level.stamp.title": "Count the routes",
   "piece.counter.desc": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”.",
-  "piece.counter.name": "Route Counter"
+  "piece.counter.name": "Route Counter",
+  "section.robot.title": "The robot"
 }

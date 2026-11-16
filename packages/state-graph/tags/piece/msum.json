@@ -1,9 +1,0 @@
-{
-  "concept": true,
-  "values": [
-    "table:many",
-    "table:msum",
-    "table:mmin",
-    "table:mmax"
-  ]
-}

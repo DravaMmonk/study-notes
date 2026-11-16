@@ -12,7 +12,7 @@
     }
   ],
   "after": "@level.table.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "table",

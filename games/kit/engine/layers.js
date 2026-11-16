@@ -7,7 +7,7 @@ import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', layout: 'layouts', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
+export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
 export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
@@ -34,12 +34,20 @@ const same = (a, b) => typeof a === 'string' ? a === b : Object.keys(a).length =
 /** Apply the override rules without retaining patch control fields in objects. */
 export function applyOverride(kind, before, patch) {
   const { $merge, replace, remove = [], ...data } = patch
-  if (kind !== 'tag' && kind !== 'relation') return $merge ? mergePatch(before, data) : data
+  if (!['tag', 'relation', 'tray', 'section'].includes(kind)) return $merge ? mergePatch(before, data) : data
   if (kind === 'tag' && data.kind && data.kind !== before.kind) throw new Error('a tag override cannot change its member kind')
-  const field = kind === 'tag' ? 'values' : 'edges'
-  const values = kind === 'tag' ? (v) => v.values ?? [] : edges
-  const result = [...(replace ? [] : values(before)).filter((v) => !remove.some((r) => kind === 'tag' ? r === v : Object.entries(r).every(([key, value]) => v[key] === value))), ...values(data)]
+  const field = kind === 'relation' ? 'edges' : 'values'
+  const values = kind === 'relation' ? edges : (v) => v.values ?? []
+  const result = [...(replace ? [] : values(before)).filter((v) => !remove.some((r) => kind !== 'relation' ? r === v : Object.entries(r).every(([key, value]) => v[key] === value))), ...values(data)]
   const { sequence: _sequence, ...merged } = { ...before, ...data }
+  if (kind === 'tray') {
+    const menus = new Map((replace ? [] : before.menus ?? []).filter(menu => !remove.includes(menu.id)).map(menu => [menu.id, menu]))
+    for (const menu of data.menus ?? []) {
+      const old = menus.get(menu.id)
+      menus.set(menu.id, { ...old, ...menu, values: [...new Set([...(old?.values ?? []).filter(value => !remove.includes(value)), ...menu.values])] })
+    }
+    merged.menus = [...menus.values()]
+  }
   return { ...merged, [field]: result.filter((v, i) => result.findIndex((other) => same(v, other)) === i) }
 }
 
@@ -118,7 +126,7 @@ export function composeLayers(layers, schemas) {
       const endpointTag = typeof endpoint === 'string' && endpoint.startsWith('#') ? registries.tag[fullName(layer.id, endpoint.slice(1))] ?? layer.objects.find((o) => o.kind === 'tag' && o.name === endpoint.slice(1))?.value : null
       const item = kind === 'tag' && value.kind === 'piece' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'piece' || endpointTag?.kind === 'piece' || schemas.kinds?.part?.[endpoint]))
       const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
-      if (['tag', 'relation', 'layout'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
+      if (['tag', 'relation', 'section', 'tray'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
     if (!layer.id.startsWith('@')) {
@@ -137,7 +145,7 @@ export function composeLayers(layers, schemas) {
       if (before === undefined) throw new Error(`${layer.id}: cannot override unknown ${kind} ${id}`)
       const after = applyOverride(kind, before, object(kind, value))
       const levelRelation = (value) => ['requires', 'order'].includes(value.kind) && (!value.of || value.of === 'level') && edges(value).every((edge) => [edge.from, edge.to].every((ref) => ref.startsWith('#') ? registries.tag[ref.slice(1)]?.kind === 'level' : Boolean(registries.level[ref]) || Boolean(edge.game && ref === edge.from)))
-      if (layer.id.startsWith('@') && !(kind === 'layout' || kind === 'relation' && levelRelation(before) && levelRelation(after))) throw new Error(`${layer.id}: games cannot override ${kind} ${id}`)
+      if (layer.id.startsWith('@') && !(kind === 'relation' && levelRelation(before) && levelRelation(after))) throw new Error(`${layer.id}: games cannot override ${kind} ${id}`)
       record(kind, id, after, layer, true)
     }
   }

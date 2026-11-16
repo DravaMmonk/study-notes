@@ -1,19 +1,15 @@
-// The encyclopedia is a display projection; entries, membership and ordering are authored independently.
+// Sections are authored objects; the glossary is their ordered display projection.
 import { relationOrder } from './objects.js'
 
-export function encyclopedia(entries, tags, relations, resolve, order) {
-  const names = Object.keys(tags).filter((name) => tags[name].kind === 'entry')
-  const edges = Object.values(relations).filter((r) => r.kind === 'order').flatMap((r) => [
-    ...(r.edges ?? []), ...(r.sequence ?? []).slice(1).map((to, i) => ({ from: r.sequence[i], to })),
-  ])
-  const groups = relationOrder(names.map((name) => `#${name}`), edges).map((ref) => ({
-    id: ref.slice(1), title: tags[ref.slice(1)].title ?? ref.slice(1),
-    values: relationOrder(resolve(ref, 'entry'), order, 'entry'),
+export function encyclopedia(entries, sections, resolve, order) {
+  const groups = relationOrder(Object.keys(sections), order, 'section').map(id => ({
+    id, title: sections[id].title, desc: sections[id].desc,
+    values: relationOrder(resolve(sections[id].values, 'entry', `sections/${id}`), order, 'entry'),
   }))
   const grouped = entries.map(({ group: _group, ...entry }) => ({
-    ...entry, group: groups.find((g) => g.values.includes(entry.id))?.id ?? '',
+    ...entry, group: groups.find(group => group.values.includes(entry.id))?.id ?? '',
   }))
-  const ungrouped = grouped.filter((entry) => !entry.group).map((entry) => entry.id)
-  if (ungrouped.length) groups.push({ id: '', title: '', values: ungrouped })
+  const ungrouped = grouped.filter(entry => !entry.group).map(entry => entry.id)
+  if (ungrouped.length) groups.push({ id: '', title: { zh: '其它', en: 'Other' }, values: ungrouped })
   return { groups, entries: grouped }
 }

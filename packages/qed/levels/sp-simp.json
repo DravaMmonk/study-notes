@@ -1,9 +1,6 @@
 {
   "title": "@level.sp-simp.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.sp-simp.intro.0.t"

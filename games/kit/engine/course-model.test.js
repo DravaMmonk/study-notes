@@ -9,7 +9,7 @@ import { runtimeOf } from './runtime.js'
 const sample = () => ({
   partDefs: { parts: { base: { settings: { border: { control: 'select', options: [{ value: 'edge' }] } }, stages: [{ id: 'base-wrap', settings: { border: { options: [{ value: 'edge' }, { value: 'wrap' }] } } }] } } },
   id: 'sample', domain: 'irrelevant', primitives: ['base', 'local'],
-  tags: { 'sample/number': { kind: 'piece', concept: true, values: ['base'] } }, replaces: { built: ['base'] },
+  replaces: { built: ['base'] },
   trays: { tools: { items: ['base', 'local', 'built'] } },
   eras: [{ id: 'chapter', levels: [{ id: 'first' }, { id: 'next' }], links: [{ from: 'first', to: 'next' }] }],
   levels: [
@@ -22,7 +22,6 @@ test('all mechanisms use the same publication, local, replacement and three-grai
   const content = sample()
   const publications = publicationEvents(content.levels, [{ task: 'publish', type: 'built' }])
   const course = contentCourse(content, { publications })
-  assert.equal(course.concept('base'), 'sample/number')
   assert.equal(course.builder('built'), 'first')
   assert.equal(holds(course, { id: 'first', task: 0 }, new Set())('base', 'border', 'wrap'), true)
   assert.equal(holds(course, { id: 'first', task: 1 }, new Set())('base', 'border', 'wrap'), false)
@@ -108,18 +107,6 @@ test('tasks of different mechanisms retain their positions inside one level', as
 })
 
 
-test('nested concept tags take precedence over inferred work concepts and keep their full names', () => {
-  const content = sample()
-  content.tags = {
-    'library/numbers': { kind: 'piece', concept: true, values: ['#library/atoms'] },
-    'library/atoms': { kind: 'piece', values: ['base', 'local'] },
-  }
-  const course = contentCourse(content, { concepts: { base: 'inferred', extra: null } })
-  assert.equal(course.concept('base'), 'library/numbers')
-  assert.equal(course.concept('local'), 'library/numbers')
-  assert.equal(course.concept('extra'), null)
-  assert.equal(course.concept('other'), 'other')
-})
 
 test('local belongs to the introducing level and does not suppress a later permanent introduction', () => {
   const content = sample()

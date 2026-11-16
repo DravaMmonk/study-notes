@@ -1,9 +1,6 @@
 {
   "title": "@level.c-wall.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.c-wall.intro.0.t"

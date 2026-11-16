@@ -6,10 +6,7 @@
     "consFront",
     "mkRule"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.gen-one.intro.0.t"

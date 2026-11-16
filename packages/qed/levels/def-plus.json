@@ -6,7 +6,7 @@
     }
   ],
   "after": "@level.def-plus.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "def-plus",

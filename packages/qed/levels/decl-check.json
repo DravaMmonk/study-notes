@@ -1,6 +1,6 @@
 {
   "title": "@level.decl-check.title",
-  "tray": "#formula",
+  "tray": "formula",
   "declare": "@level.decl-check.declare",
   "target": "Rain ∧ Wind",
   "sentences": [

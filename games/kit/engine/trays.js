@@ -40,9 +40,8 @@ export function trayDisplay(trays, names, shown, folded, pieceOf = id => id) {
   return { items, folded: more }
 }
 
-/** A tray selects an item tag as a container, preserving its nested menu presentation. */
-const CONTAINER = S.name('tag', { members: 'piece' })
-export const TRAY = S.opt(S.either(CONTAINER, S.list(CONTAINER, { min: 1 })))
+/** A task names a declared tray; membership is resolved by the content assembler. */
+export const TRAY = S.opt(S.name('tray'))
 
 /** The names of the parts a game's levels build, for its trays (domain.js names; the vocabulary's go by reference). */
 export const partNames = (built = []) => ({ part: new Set(built) })

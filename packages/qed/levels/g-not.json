@@ -4,10 +4,7 @@
     "formulaNot"
   ],
   "title": "@level.g-not.title",
-  "tray": [
-    "#gates",
-    "#formula"
-  ],
+  "tray": "gates-formula",
   "intro": [
     {
       "t": "@level.g-not.intro.0.t"

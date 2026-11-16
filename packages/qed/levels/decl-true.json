@@ -6,7 +6,7 @@
     }
   ],
   "after": "@level.decl-true.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-true",

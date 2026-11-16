@@ -4,11 +4,7 @@
     "repeat",
     "uDecompose"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
-  "showcase": "@level.r-deep.showcase",
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-deep.intro.0.t"

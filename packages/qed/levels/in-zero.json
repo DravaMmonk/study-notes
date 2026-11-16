@@ -1,7 +1,6 @@
 {
   "title": "@level.in-zero.title",
-  "tray": "#formula",
-  "showcase": "@level.in-zero.showcase",
+  "tray": "formula",
   "intro": [
     {
       "t": "@level.in-zero.intro.0.t"
@@ -12,10 +11,7 @@
     {
       "id": "in-zero_1",
       "kind": "logic:machine",
-      "tray": [
-        "#machine",
-        "#formula"
-      ],
+      "tray": "machine-formula",
       "want": "logic:want-proved",
       "inputs": [
         {
@@ -58,10 +54,7 @@
     {
       "id": "in-zero_2",
       "kind": "logic:proof",
-      "tray": [
-        "#proof",
-        "#formula"
-      ],
+      "tray": "proof-formula",
       "step": "@level.in-zero.tasks.in-zero_2.step",
       "adds": [
         "natInd"
@@ -113,10 +106,7 @@
     {
       "id": "in-zero_3",
       "kind": "logic:machine",
-      "tray": [
-        "#machine",
-        "#formula"
-      ],
+      "tray": "machine-formula",
       "want": "logic:want-proved",
       "inputs": [
         {

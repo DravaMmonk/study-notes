@@ -5,15 +5,12 @@
       "t": "@level.au-iff.intro.0.t"
     }
   ],
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "au-iff_1",
       "kind": "logic:proof",
-      "tray": [
-        "#proof",
-        "#formula"
-      ],
+      "tray": "proof-formula",
       "step": "@level.au-iff.tasks.au-iff_1.step",
       "tests": [
         {
@@ -53,10 +50,7 @@
     {
       "id": "au-iff_2",
       "kind": "logic:proof",
-      "tray": [
-        "#proof",
-        "#formula"
-      ],
+      "tray": "proof-formula",
       "step": "@level.au-iff.tasks.au-iff_2.step",
       "tests": [
         {
@@ -99,10 +93,7 @@
     {
       "id": "au-iff_3",
       "kind": "logic:machine",
-      "tray": [
-        "#machine",
-        "#formula"
-      ],
+      "tray": "machine-formula",
       "want": "logic:want-becomes",
       "inputs": [
         {

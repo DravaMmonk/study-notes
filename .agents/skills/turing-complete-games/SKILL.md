@@ -95,6 +95,31 @@ changes and general lessons where they help future work; use the user's scope an
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
   `games/DESIGN.md` §6): symbols go in labels; a notation that is symbolic by nature gets a `parts.text` spelling.
 
+## Level authoring standards
+
+Read `games/DESIGN.md` §5.1 when authoring or reviewing levels. These are human and agent review duties,
+not kernel gates or content fields. `games/PACKAGES.md` takes precedence while the package migration is active.
+
+- Introduce a main idea through a real problem, judging cognitive load rather than counting pieces. Do not create
+  concept tags or a `concept()` mapping; tags are development collections with no runtime behavior.
+- Put a new capability to work when it appears and reuse it soon in subsequent tasks or packed works. Reconsider
+  early introductions instead of adding filler to satisfy counts or intervals (`many-new`, `idle-idea`).
+- Make first encounters observable and meaningful. A tool that a sentence explains should enter a real task;
+  an abstract tool may warrant a focused encounter with intermediate states and contrasting cases. Explain this in
+  design notes, never a `showcase` exception field (`bare-intro`).
+- Review reuse of built works and repeated structures. Prefer an appropriate abstraction where it serves the task;
+  terminal works may stand on their own (`unused`, `bypass`).
+- Review loose pieces and the actual phone workflow after staging. Eight loose pieces is a review prompt, not an
+  enforced limit; split tasks or build intermediate works when the observed load warrants it (`open-crowded`).
+- Prefer meaningful construction, but lend tools or givens through `gives` where appropriate. Avoid redundant
+  introduction declarations when they add no clarity (`granted`, `carried`).
+- Interpret attempts, hints, abandonment and time with player context and sample size. Difficulty thresholds do not
+  decide pedagogical correctness (`difficulty-spike`).
+- Check still enforces schemas, references, types, passing references, failing naive works, reachable unlocks,
+  prerequisites and introduced tray pieces/stages. A passing check does not establish teaching quality.
+- New badges follow the first introduction of each piece or stage on the prerequisite route; a new stage marks its
+  existing piece card. They are independent of how the author explains the underlying ideas.
+
 ## Learning design and copy
 
 The handbook's teaching guidance is advisory: apply expert judgment to the subject, players and user request,

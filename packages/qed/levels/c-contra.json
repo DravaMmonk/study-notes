@@ -1,9 +1,6 @@
 {
   "title": "@level.c-contra.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.c-contra.intro.0.t"

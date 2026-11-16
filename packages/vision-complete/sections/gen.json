@@ -1,0 +1,9 @@
+{
+  "title": "@section.gen.title",
+  "values": [
+    "autoencoder",
+    "reparam",
+    "gan",
+    "diffusion"
+  ]
+}

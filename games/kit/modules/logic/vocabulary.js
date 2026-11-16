@@ -94,7 +94,6 @@ const COURSE = {
   adds: S.opt(S.list(ITEM_REFERENCE, { section: 'course', about: t('这一关新带来的元件') })),
   tray: TRAY,
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）') })),
-  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
 }
 // How a task's sentences read and what it asks, said by the task or, for all its tasks, by its level.
 const READING = {

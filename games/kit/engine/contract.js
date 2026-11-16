@@ -141,7 +141,6 @@ function hookProblems(course) {
     list('uses', course.uses(level))
     const tray = course.tray(level)
     if (tray !== null && !strings(tray)) say(`tray(${at}) is neither a list of trays nor null`)
-    list('declares', course.declares(level))
     list('carries', course.carries(level))
     const needed = course.needed(level)
     if (needed !== null) list('needed', needed)
@@ -153,19 +152,14 @@ function hookProblems(course) {
       const can = course.can(machine)
       if (can !== null && !strings(can)) say(`can(${machine}) is neither a list of mechanisms nor null`)
     }
-    const showcase = course.showcase(level)
-    if (showcase !== null && !isText(showcase)) say(`showcase(${at}) is neither a reason nor null`)
   }
   for (const [name, list] of Object.entries(course.trays)) if (!Array.isArray(list.items) || !strings(trayMembers(list))) say(`tray ${name} does not resolve to a list of parts`)
   for (const p of parts) {
-    const c = course.concept(p)
-    if (c !== null && typeof c !== 'string') say(`concept(${p}) is neither a name nor null`)
     if (!strings(course.replaces(p))) say(`replaces(${p}) is not a list of parts`)
     if (typeof course.local(p) !== 'boolean') say(`local(${p}) is not true or false`)
     const flag = course.needs(p)
     if (flag !== null && typeof flag !== 'string') say(`needs(${p}) is neither a flag nor null`)
   }
-  if (typeof course.abstraction !== 'boolean') say('abstraction is not true or false')
   for (const f of audit(course)) if (!RULE_TEXT[f.rule]) say(`the audit reports ${f.rule}, which is no rule`)
   return out
 }
@@ -175,7 +169,7 @@ export function specProblems(domain, content, spec) {
   const say = (text) => out.push(`spec: ${text}`)
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
   // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's and the level groups' by the kernel, the rest by names(content).
-  const given = new Set([...Object.keys(contentKindSchemas), 'entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(domain.names?.(content) ?? {})])
+  const given = new Set([...Object.keys(contentKindSchemas), 'entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
   for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor runtime.js names(content) gives`)
   if (!sameJson(spec.title, content.title)) say('its title is not the content’s')

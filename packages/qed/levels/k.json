@@ -1,9 +1,6 @@
 {
   "title": "@level.k.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.k.intro.0.t"

@@ -138,7 +138,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
-  const { packageTarget, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { packageTarget, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
   out.push(...objectProblems)
   const courseKeys = new Map(), packageKeys = new Map()
@@ -156,14 +156,17 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), layout: new Set(Object.keys(layouts)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.tray ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
   for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
-  for (const [kind, objects] of Object.entries({ tags, relations, layouts })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+  for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) {
+    add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+    if (kind !== 'tags' && hasCatalogSource(content)) out.push(...catalogTextProblems(object, OBJECT_SCHEMAS[kind], `${kind}/${name}.json`, vocabulary, packageKeys))
+  }
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the kernel vocabulary has versions 1 to ${vocabulary.version}` })
   // Packages validate their authored configuration without requiring game or course fields.
   const packageFields = packageTarget?.fields ?? []
@@ -171,7 +174,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const gameValue = packageTarget ? Object.fromEntries(packageFields.map((key) => [key, resolvedGame[key]])) : resolvedGame
   const gameProblems = validate(gameSchema, gameValue, { vocabulary, levels: ids, languages, names })
   add(gameProblems, packageTarget ? 'package.json' : 'game.json')
-  if (!gameProblems.length && eras) {
+  if (eras) {
     out.push(...courseProblems(eras))
     const dependencies = courseDependencies(content)
     out.push(...dependencies.problems)
@@ -188,28 +191,19 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     out.push(...(problems.length ? problems : implementationProblems(parts)))
   }
   else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces', says: `the ${domainVocabulary.module} module's pieces are data: the game needs pieces` })
-  for (const [name, map] of Object.entries(layouts)) {
-    const own = new Set(expand(map.of, 'level'))
-    const drawn = new Map()
-    for (const [r, row] of (map.rows ?? []).entries()) for (const id of row) if (id !== null) {
-      if (!own.has(id)) out.push({ at: `layouts/${name}`, says: `${id} is not in ${map.of}` })
-      if (drawn.has(id)) out.push({ at: `layouts/${name}`, says: `${id} is on the map twice` })
-      drawn.set(id, r)
-    }
-    for (const edge of content.relationEdges?.requires ?? []) if (!edge.game && drawn.has(edge.from) && drawn.has(edge.to) && drawn.get(edge.from) >= drawn.get(edge.to)) out.push({ at: `layouts/${name}`, says: `${edge.to} is drawn on a row no lower than its prerequisite ${edge.from}` })
-  }
   return out
 }
 
 /**
- * Validate selected layouts after projecting them onto their chapters.
+ * Validate selected sections after projecting them onto their chapters.
  */
 function courseProblems(played) {
   const out = []
   const plan = layout(played)
   for (const [e, era] of played.entries()) {
     const own = new Set(eraLevels(era)), drawn = new Map()
-    for (const [r, row] of (era.rows ?? []).entries()) {
+    for (const [r, row] of (Array.isArray(era.rows) ? era.rows : []).entries()) {
+      if (!Array.isArray(row)) continue
       const at = `game.json.eras[${e}].rows[${r}]`
       if (row.length > 3) out.push({ at, says: `a row of the map has at most three places, not ${row.length}` })
       for (const id of row) if (id !== null) {

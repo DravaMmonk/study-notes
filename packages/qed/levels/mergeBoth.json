@@ -1,9 +1,6 @@
 {
   "title": "@level.mergeBoth.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "tasks": [
     {
       "id": "mergeBoth",

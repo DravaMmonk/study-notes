@@ -1,6 +1,6 @@
 {
   "title": "@level.q-grand.title",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-grand",

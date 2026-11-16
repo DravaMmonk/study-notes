@@ -13,7 +13,7 @@
     }
   ],
   "after": "@level.decl-bot.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-bot",

@@ -2,9 +2,7 @@
 // progression, item granularity, trays, local pieces and replacements are interpreted here.
 import { defineCourse } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
-import { referenceResolver } from './objects.js'
 import { standaloneItems, standalonePieces } from './package-play.js'
-import { pieceStages } from './piece-stages.js'
 import { trayIn } from './trays.js'
 
 const unique = (items) => [...new Set(items)]
@@ -12,10 +10,10 @@ const unique = (items) => [...new Set(items)]
 /** Build a curriculum from content plus facts obtained while reading its works. No domain selects these rules. */
 export function contentCourse(content, {
   levels = content.levels, plan = courseLayout(content), parts = {}, publications = [],
-  intrinsic = [], local = [], concepts = {}, additions = null, builds = null,
+  intrinsic = [], local = [], additions = null, builds = null,
   grants = () => [], withheld = () => [], opened = () => [],
   boards = () => [], needed = null, machine = () => null, uses = () => [], can = () => null,
-  declares = () => [], carries = null, openParts = () => [], references = null,
+  carries = null, references = null,
 } = {}) {
   const source = new Map(content.levels.map((level) => [level.id, level]))
   const played = new Map(levels.map((level) => [level.id, level]))
@@ -34,11 +32,6 @@ export function contentCourse(content, {
     ...awards(at),
   ]
   const build = (at) => unique([...(builds?.(at) ?? []), ...awards(at), ...Object.keys(parts).filter((part) => parts[part].unlock && unlocked(at).includes(parts[part].unlock))])
-  const resolve = referenceResolver(content.registries ?? { tag: content.tags ?? {}, piece: parts })
-  const stageIndex = pieceStages(content.partDefs?.parts)
-  const taggedConcepts = new Map(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'piece' && tag.concept)
-    .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
-    .flatMap(([name]) => resolve(`#${name}`, 'piece').map((item) => [stageIndex.get(item)?.piece ?? item, name])))
   const localAt = (part, at) => local.includes(part) || (level(at).local ?? []).includes(part)
     || tasks(at).some((task, index) => (at.task === undefined || index === at.task) && (task.local ?? []).includes(part))
   const isLocal = (part, at) => at ? localAt(part, at) : local.includes(part)
@@ -56,7 +49,6 @@ export function contentCourse(content, {
     tray: (at) => trayIn(content.trays ?? {}, task(at)?.tray ?? played.get(at.id)?.tray ?? level(at).tray),
     primitives: unique([...(content.primitives ?? []), ...intrinsic]),
     adds, needs: flagOf, builds: build,
-    concept: (part) => taggedConcepts.get(part) ?? (Object.hasOwn(concepts, part) ? concepts[part] : part),
     local: isLocal,
     replaces: (part) => content.replaces?.[part] ?? [],
     gives: (at) => unique([...(level(at).gives ?? []), ...(task(at)?.gives ?? []), ...grants(at)]),
@@ -65,10 +57,9 @@ export function contentCourse(content, {
       .flatMap((task, index) => at.task === undefined || index <= at.task ? task.opens ?? [] : []), ...opened(at)]),
     featured: (at) => [...(level(at).featuredParts ?? []), ...(task(at)?.featuredParts ?? [])],
     boards, needed: (at) => { const observed = needed?.(at); if (observed !== undefined) return observed; const works = boards(at); return works.length ? works.flatMap((work) => work.nodes.map((node) => node.type)) : null },
-    machine, uses, can, declares,
+    machine, uses, can,
     carries: (at) => carries?.(at) ?? (level(at).carry ? [level(at).carry] : []),
-    showcase: (at) => level(at).showcase ?? null,
-    openParts, references, abstraction: true, notes: content.mode === 'notes',
+    references, notes: content.mode === 'notes',
   })
   return course
 }
@@ -128,12 +119,11 @@ export function readWorkSet(content, readers) {
     publications: all.flatMap((facts) => facts.publications ?? []),
     intrinsic: all.flatMap((facts) => facts.intrinsic ?? []),
     local: all.flatMap((facts) => facts.local ?? []),
-    concepts: Object.assign({}, ...all.map((facts) => facts.concepts)),
     additions: call('additions', undefined), builds: call('builds', undefined),
     grants: call('grants', []), withheld: call('withheld', []), opened: call('opened', []),
     boards: call('boards', []), needed: call('needed', undefined),
     machine: call('machine', null), uses: call('uses', []), can: (machine) => all.map((facts) => facts.can?.(machine)).find(Boolean) ?? null,
-    declares: call('declares', []), carries: call('carries', undefined), openParts: call('openParts', []),
+    carries: call('carries', undefined),
     references: combinedReferences,
   })
   return pending.map(({ iterator }) => {

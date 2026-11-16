@@ -21,7 +21,7 @@ import domain from './runtime.js'
 
 const L = (zh, en = zh) => ({ zh, en })
 // A level of one task (its id the level's): what it says once, then the task.
-const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase']
+const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without']
 const one = ({ id, ...fields }) => ({
   id,
   ...Object.fromEntries(Object.entries(fields).filter(([k]) => ONCE.includes(k))),

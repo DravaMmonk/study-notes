@@ -4,10 +4,7 @@
     "uConflict",
     "uDecompose"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-clash.intro.0.t"

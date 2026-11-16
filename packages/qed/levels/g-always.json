@@ -1,9 +1,6 @@
 {
   "title": "@level.g-always.title",
-  "tray": [
-    "#gates",
-    "#formula"
-  ],
+  "tray": "gates-formula",
   "intro": [
     {
       "t": "@level.g-always.intro.0.t"

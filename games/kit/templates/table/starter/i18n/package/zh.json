@@ -16,7 +16,6 @@
   "level.merge.mission.goal": "起点已经写好 1。让机器人算出每个路口的路线数：上面 + 左边。",
   "level.merge.mission.how": "把「上面」和「左边」都接进一个汇合器，再接到「本格」。",
   "level.merge.short": "把两个数汇进一个元件",
-  "level.merge.showcase": "第一次往板上放元件：元件放在输入和输出之间，几条来路收成一个数",
   "level.merge.tasks.merge.hints.0": "两个输入都接进同一个汇合器。",
   "level.merge.title": "两路汇合",
   "level.rocks.debrief.body.0": "元件不用改，外面加一道闸就够了。",
@@ -36,5 +35,6 @@
   "level.stamp.tasks.stamp.hints.0": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。",
   "level.stamp.title": "数路线",
   "piece.counter.desc": "把两条来路的数加起来；「起点」口是「是」时，再加 1。",
-  "piece.counter.name": "路线计数器"
+  "piece.counter.name": "路线计数器",
+  "section.robot.title": "机器人"
 }

@@ -3,10 +3,7 @@
   "adds": [
     "skolem"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.au-skolem.intro.0.t"

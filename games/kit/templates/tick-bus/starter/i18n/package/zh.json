@@ -20,5 +20,6 @@
   "piece.keep.settings.reg.label": "名字",
   "piece.const.settings.value.label": "数值",
   "piece.reg.settings.reg.label": "名字",
-  "piece.reg.settings.start.label": "初值"
+  "piece.reg.settings.start.label": "初值",
+  "section.line.title": "线"
 }

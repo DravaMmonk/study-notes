@@ -1,9 +1,6 @@
 {
   "title": "@level.chain.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.chain.intro.0.t"

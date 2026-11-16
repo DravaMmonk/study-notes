@@ -1,9 +1,6 @@
 {
   "title": "@level.peirce.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.peirce.intro.0.t"

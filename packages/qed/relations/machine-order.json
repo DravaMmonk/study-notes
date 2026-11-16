@@ -1,0 +1,73 @@
+{
+  "kind": "order",
+  "sequence": [
+    "anyR",
+    "swapConcl",
+    "mkRule",
+    "keepBound",
+    "elimGen",
+    "consFront",
+    "eachOf",
+    "uDecompose-r-pattern-desc",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck-r-pattern-desc",
+    "uPattern",
+    "unifier-r-pattern-desc",
+    "repeat-s-results-desc",
+    "append-s-results-desc",
+    "defer",
+    "search",
+    "each",
+    "rule",
+    "assumption-s-results-desc",
+    "erule-s-results-desc",
+    "frule",
+    "introRules",
+    "elimRules",
+    "auto",
+    "rw-au-hyps-desc",
+    "simp-au-hyps-desc",
+    "logic:hyp",
+    "skolem",
+    "toClauses",
+    "resolve",
+    "saturate",
+    "clausify",
+    "replay",
+    "metis"
+  ],
+  "of": "piece",
+  "edges": [
+    {
+      "from": "machine-rule-building",
+      "to": "machine-lists"
+    },
+    {
+      "from": "machine-lists",
+      "to": "machine-unification"
+    },
+    {
+      "from": "machine-unification",
+      "to": "machine-flow"
+    },
+    {
+      "from": "machine-flow",
+      "to": "machine-reasoning"
+    },
+    {
+      "from": "machine-reasoning",
+      "to": "machine-equality"
+    },
+    {
+      "from": "machine-equality",
+      "to": "machine-clauses"
+    },
+    {
+      "from": "machine-clauses",
+      "to": "machine-certificate"
+    }
+  ]
+}

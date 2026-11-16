@@ -3,11 +3,7 @@
   "adds": [
     "rule"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
-  "showcase": "@level.r-rule.showcase",
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-rule.intro.0.t"

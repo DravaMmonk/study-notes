@@ -1,7 +1,6 @@
 {
   "title": "@tray.trays.resolution.name",
   "desc": "@tray.trays.resolution.desc",
-  "workshop": false,
   "values": [
     "res"
   ]

@@ -3,10 +3,7 @@
   "adds": [
     "uDecompose"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-match.intro.0.t"

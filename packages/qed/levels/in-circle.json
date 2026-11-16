@@ -1,9 +1,6 @@
 {
   "title": "@level.in-circle.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.in-circle.intro.0.t"

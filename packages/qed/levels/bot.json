@@ -1,9 +1,6 @@
 {
   "title": "@level.bot.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.bot.intro.0.t"

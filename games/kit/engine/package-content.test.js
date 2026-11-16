@@ -61,7 +61,7 @@ test('a pieces-only package opens without a course, checks and writes its own lo
 test('single-level play uses task trays, ignores prerequisites and opens settings without progress', async () => {
   const { root, id } = proofsRoot()
   roots.push(root)
-  const dir = resolve(root, 'packages', id, 'tags/piece')
+  const dir = resolve(root, 'packages', id, 'trays')
   mkdirSync(dir, { recursive: true })
   writeFileSync(resolve(dir, 'tools.json'), JSON.stringify({ values: ['impI'] }))
   const content = readPackage(id, root)

@@ -1,0 +1,16 @@
+{
+  "title": "@section.fol.title",
+  "values": [
+    "fol",
+    "predicate",
+    "quantifier",
+    "bound",
+    "free",
+    "world",
+    "countermodel",
+    "query",
+    "vacuous",
+    "capture",
+    "equality"
+  ]
+}

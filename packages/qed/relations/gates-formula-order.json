@@ -1,0 +1,54 @@
+{
+  "kind": "order",
+  "of": "piece",
+  "edges": [
+    {
+      "from": "gNot",
+      "to": "gAnd"
+    },
+    {
+      "from": "gAnd",
+      "to": "gOr"
+    },
+    {
+      "from": "gOr",
+      "to": "gImp"
+    },
+    {
+      "from": "gImp",
+      "to": "gIff"
+    },
+    {
+      "from": "gIff",
+      "to": "formulaForall"
+    },
+    {
+      "from": "formulaForall",
+      "to": "formulaExists"
+    },
+    {
+      "from": "formulaExists",
+      "to": "formulaNot"
+    },
+    {
+      "from": "formulaNot",
+      "to": "formulaAnd"
+    },
+    {
+      "from": "formulaAnd",
+      "to": "formulaOr"
+    },
+    {
+      "from": "formulaOr",
+      "to": "formulaImplies"
+    },
+    {
+      "from": "formulaImplies",
+      "to": "formulaIff"
+    },
+    {
+      "from": "formulaIff",
+      "to": "formulaFalse"
+    }
+  ]
+}

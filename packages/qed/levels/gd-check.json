@@ -1,9 +1,6 @@
 {
   "title": "@level.gd-check.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.gd-check.intro.0.t"

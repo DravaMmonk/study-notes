@@ -2,8 +2,6 @@
 // terminals stay outside stages so changing a task's interface never hides its inputs or outputs.
 import { srcNode } from './wire-source.js'
 
-export const OPEN_PART_LIMIT = 8
-
 export function stagesOf({ task, board, chain = [], isFixed = (node) => ['in', 'out'].includes(node.type) }) {
   const terminals = new Set([...(task.inputs ?? []), ...(task.outputs ?? [])].map((p) => p.name))
   const parts = board.nodes.filter((n) => !isFixed(n) && !terminals.has(n.id))

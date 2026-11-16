@@ -127,7 +127,7 @@ export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
   if (!from || !existsSync(resolve(source, 'game.json'))) fail(`no game ${from} to take the course settings from`)
   const { packages } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
   const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
-  const { levels: _, layout: __, ...chapter } = chapters[0] ?? { id: 1 }
+  const { levels: _, rows: __, ...chapter } = chapters[0] ?? { id: 1 }
   const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
   const words = { zh: typeof title === 'string' ? title : title?.zh ?? id, en: typeof title === 'string' ? title : title?.en ?? id }
   mkdirSync(dir, { recursive: true })

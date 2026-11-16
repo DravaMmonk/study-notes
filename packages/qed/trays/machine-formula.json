@@ -1,0 +1,72 @@
+{
+  "title": "@tray.machine-formula.title",
+  "workshop": false,
+  "values": [
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ],
+  "menus": [
+    {
+      "id": "machine-rule-building",
+      "title": "@tray.machine-formula.menu.machine-rule-building.title",
+      "values": [
+        "#machine-rule-building"
+      ]
+    },
+    {
+      "id": "machine-lists",
+      "title": "@tray.machine-formula.menu.machine-lists.title",
+      "values": [
+        "#machine-lists"
+      ]
+    },
+    {
+      "id": "machine-unification",
+      "title": "@tray.machine-formula.menu.machine-unification.title",
+      "values": [
+        "#machine-unification"
+      ]
+    },
+    {
+      "id": "machine-flow",
+      "title": "@tray.machine-formula.menu.machine-flow.title",
+      "values": [
+        "#machine-flow"
+      ]
+    },
+    {
+      "id": "machine-reasoning",
+      "title": "@tray.machine-formula.menu.machine-reasoning.title",
+      "values": [
+        "#machine-reasoning"
+      ]
+    },
+    {
+      "id": "machine-equality",
+      "title": "@tray.machine-formula.menu.machine-equality.title",
+      "values": [
+        "#machine-equality"
+      ]
+    },
+    {
+      "id": "machine-clauses",
+      "title": "@tray.machine-formula.menu.machine-clauses.title",
+      "values": [
+        "#machine-clauses"
+      ]
+    },
+    {
+      "id": "machine-certificate",
+      "title": "@tray.machine-formula.menu.machine-certificate.title",
+      "values": [
+        "#machine-certificate"
+      ]
+    }
+  ]
+}

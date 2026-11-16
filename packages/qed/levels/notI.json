@@ -1,9 +1,6 @@
 {
   "title": "@level.notI.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.notI.intro.0.t"

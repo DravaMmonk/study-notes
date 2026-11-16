@@ -341,7 +341,6 @@
   "level.confluence.mission.goal": "Streets only go right or down, and the start already holds 1. Have the robot work out the number of routes to every crossing: each crossing = up + left.",
   "level.confluence.mission.how": "Click the “up” and “left” cells in the view, place a Merger, wire both outputs of the View part into it, then wire the Merger to “this cell”.",
   "level.confluence.short": "Merge two numbers in one component",
-  "level.confluence.showcase": "the first part ever placed on a board: a part sits between the inputs and the output, wires go into its ports and out of its output; a Merger gathers several ways in into one number",
   "level.confluence.tasks.confluence.guide.0.say": "Step 1: click “up” and “left” in the view: the “View” part then has two outputs.",
   "level.confluence.tasks.confluence.guide.1.say": "Step 2: drag the <part-ref to=\"part:table:msum\"></part-ref> from the tray onto an empty slot of the board, or just click it.",
   "level.confluence.tasks.confluence.guide.2.say": "Step 3: wire each of the View’s two outputs into a dot on the Merger’s left, then wire the Merger’s right-hand dot to “this cell”.",
@@ -1422,5 +1421,12 @@
   "piece.wordbreak.desc": "If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too.",
   "piece.wordbreak.name": "Word Breaker",
   "tray.trays.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
-  "tray.trays.main.name": "Robot components"
+  "tray.trays.main.name": "Robot components",
+  "tray.main.title": "Robot components",
+  "tray.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
+  "section.classic.title": "Classic problems",
+  "section.further.title": "Further afield",
+  "section.entries-basics.title": "Core ideas",
+  "section.play.title": "How to play",
+  "section.order.title": "Order of computation"
 }

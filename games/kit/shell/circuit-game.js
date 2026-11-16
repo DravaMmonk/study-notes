@@ -16,7 +16,7 @@
 //     own way), and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and as the circuit editor previews them (../circuit/preview.jsx)
 import { CircuitBoard } from 'lucide-react'
-import { introductions, isCore, levelLabels } from '../course.js'
+import { fresh, introductions, isCore, levelLabels } from '../course.js'
 import { definePlays } from '../engine/plays.js'
 import { playKinds } from './plays/Play.jsx'
 import { defineGame } from './index.js'
@@ -56,7 +56,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
       return {
         id: L.id,
         index,
-        fresh: L.adds,
+        fresh: [...fresh(course, L)].map(course.pieceOf),
         chapter: L.era,
         requires: L.requires,
         title: L.title,
@@ -69,7 +69,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
         note: L.note,
         tasks: tasks.map((T, k) => {
           const { step, brief, hint, intro, after, carries } = L.tasks[k]
-          return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), fresh: T.fresh, source: T }
+          return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), fresh: [...fresh(course, { id: L.id, task: k })].map(course.pieceOf), source: T }
         }),
       }
     }),

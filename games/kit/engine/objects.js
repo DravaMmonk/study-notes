@@ -1,26 +1,27 @@
 import { contentKindSchemas } from './content-kinds.js'
 import { pieceStages } from './piece-stages.js'
-// Typed collections, directed relations and selected map layouts share one reference resolver.
+// Typed collections, presentation objects and directed relations share one reference resolver.
 import { S, validate } from './schema.js'
 import { fullName } from './names.js'
 import { dependencyCycle, dependencyOrder } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), concept: S.opt(S.bool()), values: S.list(REFERENCE) })
+export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'piece', 'entry', 'tag'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
-export const LAYOUT = S.obj({ of: S.str({ pattern: '^#(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$' }), rows: S.list(S.list(S.either(S.level(), S.oneOf([null])), { min: 1, max: 3 })) })
-export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, layouts: LAYOUT }
+export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'piece', 'entry', 'tag', 'section'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
+export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'piece' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'piece' }) }))) })
+export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION, trays: TRAY_OBJECT }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
 
 /** Qualify each object at its declaring layer, including relation patches. */
 export function qualifyObject(kind, value, namespace, text = (v) => v, resolve = referenceName) {
   const ref = (v) => resolve(namespace, v)
-  if (kind === 'tags') return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.remove && { remove: value.remove.map(ref) }) }
+  if (['tags', 'trays', 'sections'].includes(kind)) return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.menus && { menus: value.menus.map(menu => ({ ...menu, id: ref(menu.id), title: text(menu.title), values: menu.values.map(ref) })) }), ...(value.remove && { remove: value.remove.map(ref) }) }
   const edge = (e) => ({ ...e, from: ref(e.from), to: ref(e.to) })
   if (kind === 'relations') return { ...value, ...(value.edges && { edges: value.edges.map(edge) }), ...(value.sequence && { sequence: value.sequence.map(ref) }), ...(value.remove && { remove: value.remove.map(edge) }) }
-  return { ...value, ...(value.of !== undefined && { of: ref(value.of) }), ...(value.rows !== undefined && { rows: value.rows.map((row) => row.map((id) => id === null ? null : ref(id))) }) }
+  throw new Error(`unknown object kind ${kind}`)
 }
 
 /** One resolver for every typed reference field and relation endpoint. Tags are unordered sets. */
@@ -52,9 +53,10 @@ export function referenceResolver(registries, problems = []) {
     })
     return [...new Set(out)].sort()
   }
+  expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
   expand.pieceOf = id => stages.get(id)?.piece ?? id
   expand.kindOf = (id) => id.startsWith('#') ? registries.tag[id.slice(1)]?.kind
-    : ['level', 'entry', 'piece'].find((kind) => has(kind, id))
+    : ['level', 'entry', 'piece', 'section'].find((kind) => has(kind, id))
   return expand
 }
 
@@ -104,7 +106,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     const endpoint = endpoints.find((v) => v.startsWith('#')) ?? endpoints[0]
     const inferredKind = endpoint && expand.kindOf?.(endpoint)
     const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'piece' : relation.of ?? inferredKind ?? 'any'
-    const ends = (id, external = false) => (external && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const ends = (id, external = false) => ((external || relation.kind === 'order' && kind === 'piece' && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
       if (expand(endpoint, 'piece').some(id => expand.pieceOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base pieces; stages upgrade in their declared order' })
@@ -129,7 +131,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     }
     for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) result[relation.kind]?.push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'piece', 'entry', 'tag', 'any']) {
+  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'piece', 'entry', 'tag', 'section', 'any']) {
     const edges = result[kind].filter((e) => !e.game && (kind !== 'order' || e.of === of))
     const graph = new Map([...new Set(edges.flatMap((e) => [e.from, e.to]))].map((id) => [id, edges.filter((e) => e.to === id).map((e) => e.from)]))
     const cycle = dependencyCycle(graph)
@@ -176,8 +178,8 @@ export function orderedTags(content, kind) {
   return out
 }
 
-/** The runtime route consumed by courseLayout, maps and domains; no authored links or rows live in chapters. */
-export function assembleChapters(chapters, { expand, relations, layouts, optional = [], skippable = [], problems = [] }) {
+/** The runtime route consumed by courseLayout, maps and domains; chapter rows belong to the game. */
+export function assembleChapters(chapters, { expand, relations, optional = [], skippable = [], problems = [] }) {
   const opt = new Set(expand(optional, 'level')), skip = new Set(expand(skippable, 'level'))
   const seen = new Set()
   return chapters.map((chapter) => {
@@ -185,9 +187,7 @@ export function assembleChapters(chapters, { expand, relations, layouts, optiona
     for (const id of ids) { if (seen.has(id)) problems.push({ at: 'chapters', says: `${id} is placed twice` }); seen.add(id) }
     const requires = new Map(ids.map((id) => [id, relations.requires.filter((e) => !e.game && e.to === id).map((e) => e.from)]))
     const order = dependencyOrder(relationOrder(ids, relations.order), requires)
-    const map = chapter.layout && layouts[chapter.layout]
-    if (chapter.layout && !map) problems.push({ at: 'chapters', says: `unknown layout ${chapter.layout}` })
-    return { ...chapter, levels: order.map((id) => ({ id, ...(opt.has(id) && { optional: true }), ...(skip.has(id) && { skippable: true }) })), links: relations.requires.filter((e) => ids.includes(e.to)).map(({ game, ...e }) => ({ ...e, ...(game && { fromGame: game }) })), ...(map && { rows: map.rows.map((row) => row.map((id) => ids.includes(id) ? id : null)) }) }
+    return { ...chapter, levels: order.map((id) => ({ id, ...(opt.has(id) && { optional: true }), ...(skip.has(id) && { skippable: true }) })), links: relations.requires.filter((e) => ids.includes(e.to)).map(({ game, ...e }) => ({ ...e, ...(game && { fromGame: game }) })) }
   })
 }
 

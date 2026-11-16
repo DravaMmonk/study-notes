@@ -23,6 +23,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
     levels: [['calc', { title: t('heading', 'Calculate'), tasks: [{ id: 'work', piece: 'calc', carry: 'other/start', solution: ['n = calc()', 'out <- n'] }] }]],
     partDefs: { parts: { calc: { inputs: [{ name: 'a' }], settings: { 'value': { control: 'number', default: 1 } }, op: 'circuit:constant' } } },
     glossary: { groups: [], entries: [{ id: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
+    sections: [['entries-calc', { title: 'Numbers', values: ['#entries-calc'] }]],
     tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }], ['entries-calc', { kind: 'entry', title: 'Numbers', values: ['calc'] }]],
   }
   const before = structuredClone(source)
@@ -41,7 +42,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
   for (const kind of ['level', 'piece', 'entry']) assert.ok(content.registries[kind]['library/calc'])
   assert.ok(content.registries.tag['library/calc'])
-  for (const kind of ['relation', 'layout']) assert.deepEqual(Object.keys(content.registries[kind]), [])
+  for (const kind of ['relation']) assert.deepEqual(Object.keys(content.registries[kind]), [])
   assert.deepEqual(source, before)
   assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate piece library\/calc/)
   assert.throws(() => createRegistries({ level: [['lib/a', {}], ['lib/a', {}]] }), /duplicate level/)

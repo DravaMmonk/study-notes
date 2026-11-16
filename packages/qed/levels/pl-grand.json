@@ -1,9 +1,6 @@
 {
   "title": "@level.pl-grand.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.pl-grand.intro.0.t"

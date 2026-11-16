@@ -20,5 +20,6 @@
   "piece.keep.settings.reg.label": "Name",
   "piece.const.settings.value.label": "Value",
   "piece.reg.settings.reg.label": "Name",
-  "piece.reg.settings.start.label": "Start"
+  "piece.reg.settings.start.label": "Start",
+  "section.line.title": "The line"
 }

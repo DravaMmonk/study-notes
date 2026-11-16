@@ -33,7 +33,7 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
   for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
     const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
     for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'piece', `${at}.${field}`)
-    for (const tray of [entry.tray ?? []].flat()) expand(`#${tray.replace(/^#/, '')}`, 'piece', `${at}.tray`)
+    if (entry.tray) expand(entry.tray, 'tray', `${at}.tray`)
   }
   const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
   if (wrong.length) return lines

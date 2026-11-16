@@ -1,6 +1,6 @@
 {
   "title": "@level.q-witness.title",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-witness",

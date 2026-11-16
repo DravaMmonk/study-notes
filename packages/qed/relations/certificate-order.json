@@ -1,0 +1,9 @@
+{
+  "kind": "order",
+  "sequence": [
+    "clausify",
+    "replay"
+  ],
+  "of": "piece",
+  "edges": []
+}

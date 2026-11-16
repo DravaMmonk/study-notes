@@ -16,7 +16,7 @@ import { runChangeset, undo } from './ops/changeset.js'
 const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
 const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { vocabulary: 1, uses }, objects, overrides, catalogs: {} })
 const obj = (kind, name, value) => ({ kind, name, value })
-const base = () => layer('base', [], [obj('level', 'a', { title: 'A', options: { x: 1, y: 2 } }), obj('level', 'b', { title: 'B' }), obj('tag', 'all', { kind: 'level', values: ['a'] }), obj('relation', 'path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }] }), obj('layout', 'map', { of: '#all', rows: [['a']] })])
+const base = () => layer('base', [], [obj('level', 'a', { title: 'A', options: { x: 1, y: 2 } }), obj('level', 'b', { title: 'B' }), obj('tag', 'all', { kind: 'level', values: ['a'] }), obj('relation', 'path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }] }), obj('section', 'map', { title: 'Map', values: [] })])
 const game = (overrides = []) => ({ id: '@demo', config: { chapters: [{ id: 'one', levels: ['base/a', 'base/b'] }] }, objects: [], catalogs: {}, overrides })
 
 test('dependencies are complete, direct, acyclic and deterministically ordered', () => {
@@ -63,16 +63,16 @@ test('independent overrides conflict; an explicit dependency resolves the ambigu
   assert.throws(() => composeLayers([base(), b, c], schemas), /undeclared dependency/)
 })
 
-test('game overrides are limited to layouts and level relations', () => {
-  for (const kind of ['level', 'piece', 'entry', 'tag']) {
+test('game overrides are limited to level relations', () => {
+  for (const kind of ['level', 'piece', 'entry', 'tag', 'section', 'tray']) {
     const a = base()
     if (!a.objects.some((o) => o.kind === kind)) a.objects.push(obj(kind, 'a', {}))
-    assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : 'base/a', { $merge: true })])], schemas), /games cannot override/)
+    assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : kind === 'section' ? 'base/map' : 'base/a', { $merge: true })])], schemas), /games cannot override/)
   }
-  assert.doesNotThrow(() => composeLayers([base(), game([obj('layout', 'base/map', { $merge: true, rows: [['base/b', 'base/a']] }), obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
+  assert.doesNotThrow(() => composeLayers([base(), game([obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
   const a = base(); a.objects.push(obj('piece', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'piece', edges: [{ from: 'p', to: 'p' }] }))
   assert.throws(() => composeLayers([a, game([obj('relation', 'base/items', { replace: true, edges: [] })])], schemas), /games cannot override/)
-  assert.throws(() => composeLayers([base(), game([obj('layout', 'base/missing', {})])], schemas), /unknown layout/)
+  assert.throws(() => composeLayers([base(), game([obj('section', 'base/missing', {})])], schemas), /unknown section/)
 })
 
 test('wording merges by key, adds translations and records before and after values', () => {
@@ -156,7 +156,7 @@ test('the published frontend restores composed multi-package registries', async 
   assert.deepEqual(restored.levels, content.levels)
   assert.deepEqual(restored.tags, content.tags)
   assert.deepEqual(restored.relations, content.relations)
-  assert.deepEqual(restored.layouts, content.layouts)
+  assert.deepEqual(restored.sections, content.sections)
 })
 
 
@@ -178,14 +178,16 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   put('packages/base/entries/c.json', { title: 'C', body: [] })
   put('packages/base/relations/within-first.json', { kind: 'order', of: 'entry', sequence: ['z', 'c'] })
   put('packages/base/tags/entry/first.json', { title: '@entry-group', values: ['z'] })
+  put('packages/base/sections/first.json', { title: 'First', values: ['#first'] })
+  put('packages/base/sections/second.json', { title: 'Second', values: ['#second'] })
   put('packages/base/tags/entry/second.json', { title: 'Second', values: ['a'] })
   put('packages/base/i18n/en.json', { title: 'Original', 'entry-z': 'Z', 'entry-group': 'First' })
-  put('packages/base/relations/encyclopedia.json', { kind: 'order', sequence: ['#first', '#second'] })
+  put('packages/base/relations/encyclopedia.json', { kind: 'order', of: 'section', sequence: ['first', 'second'] })
   put('packages/extra/overrides/base/tag/entry/first.json', { values: ['base/c'] })
   put('packages/extra/overrides/base/entries/z.json', { $merge: true, body: ['Changed'] })
   const content = readContent('demo', root, { vocabulary: schemas })
   assert.deepEqual(content.glossary.groups.map((g) => g.id), ['base/first', 'base/second'])
-  assert.deepEqual(content.glossary.entries.map((e) => e.id), ['base/z', 'base/c', 'base/a'])
+  assert.deepEqual(content.glossary.entries.map((e) => e.id), ['base/a', 'base/z', 'base/c'])
   assert.deepEqual(content.glossary.groups[0].values, ['base/z', 'base/c'])
   assert.deepEqual(content.registries.entry['base/z'].body, ['Changed'])
   assert.equal(content.registries.entry['base/z'].group, undefined)

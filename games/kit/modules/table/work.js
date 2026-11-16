@@ -17,7 +17,7 @@ import { eraLevels, levelLabels, offer, reach } from '../../course.js';
 import { courseLayout } from '../../engine/course-dependencies.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
-import { isGiven, modelsOf, partsOf, PRIMITIVES as primitiveParts } from './model/parts.js';
+import { isGiven, modelsOf, partsOf } from './model/parts.js';
 import { blank, fitted, portsProblem } from './model/board.js';
 import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';
 import { ROBOTS } from './model/robots.js';
@@ -279,7 +279,6 @@ export function* prepareTableWorks(content) {
   const course = yield {
     levels: LEVELS.map(L => ({ ...L, unlocks: L.unlock ? [L.unlock] : [] })), plan,
     publications: publicationEvents(content.levels, implementations.filter(entry => built[entry.type]), content.taskPositions),
-    concepts: Object.fromEntries([...Object.keys(primitiveParts), ...Object.keys(pieces)].map(p => [p, (modelsOf(p) || [p])[0]])),
     machine: l => byId.get(l.id).robot ?? null,
     uses: l => usesOf(circuitOf(l.id)),
     can: m => ROBOTS[m]?.can ?? null,

@@ -4,10 +4,7 @@
     "uPattern",
     "unifier"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-pattern.intro.0.t"

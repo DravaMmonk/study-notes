@@ -1,9 +1,6 @@
 {
   "title": "@level.in-induct.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "consts": [
     "zero"
   ],

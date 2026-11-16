@@ -1,0 +1,63 @@
+{
+  "title": "@tray.machine.title",
+  "desc": "@tray.machine.desc",
+  "values": [],
+  "menus": [
+    {
+      "id": "machine-rule-building",
+      "title": "@tray.machine.menu.machine-rule-building.title",
+      "values": [
+        "#machine-rule-building"
+      ]
+    },
+    {
+      "id": "machine-lists",
+      "title": "@tray.machine.menu.machine-lists.title",
+      "values": [
+        "#machine-lists"
+      ]
+    },
+    {
+      "id": "machine-unification",
+      "title": "@tray.machine.menu.machine-unification.title",
+      "values": [
+        "#machine-unification"
+      ]
+    },
+    {
+      "id": "machine-flow",
+      "title": "@tray.machine.menu.machine-flow.title",
+      "values": [
+        "#machine-flow"
+      ]
+    },
+    {
+      "id": "machine-reasoning",
+      "title": "@tray.machine.menu.machine-reasoning.title",
+      "values": [
+        "#machine-reasoning"
+      ]
+    },
+    {
+      "id": "machine-equality",
+      "title": "@tray.machine.menu.machine-equality.title",
+      "values": [
+        "#machine-equality"
+      ]
+    },
+    {
+      "id": "machine-clauses",
+      "title": "@tray.machine.menu.machine-clauses.title",
+      "values": [
+        "#machine-clauses"
+      ]
+    },
+    {
+      "id": "machine-certificate",
+      "title": "@tray.machine.menu.machine-certificate.title",
+      "values": [
+        "#machine-certificate"
+      ]
+    }
+  ]
+}

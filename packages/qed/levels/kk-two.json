@@ -5,15 +5,12 @@
       "t": "@level.kk-two.intro.0.t"
     }
   ],
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "kk-two_1",
       "kind": "logic:gates",
-      "tray": [
-        "#gates",
-        "#formula"
-      ],
+      "tray": "gates-formula",
       "step": "@level.kk-two.tasks.kk-two_1.step",
       "blind": true,
       "target": "KA ↔ ¬KA ∧ ¬KB",
@@ -32,10 +29,7 @@
     {
       "id": "kk-two_2",
       "kind": "logic:proof",
-      "tray": [
-        "#proof",
-        "#formula"
-      ],
+      "tray": "proof-formula",
       "step": "@level.kk-two.tasks.kk-two_2.step",
       "tests": [
         {

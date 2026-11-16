@@ -4,7 +4,7 @@
     "orE"
   ],
   "title": "@level.decl-or.title",
-  "tray": "#formula",
+  "tray": "formula",
   "declare": "@level.decl-or.declare",
   "target": "Sat ∨ Sun",
   "sentences": [

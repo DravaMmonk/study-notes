@@ -2,10 +2,7 @@
   "adds": [
     "frule"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "title": "@level.r-frule.title",
   "intro": [
     {

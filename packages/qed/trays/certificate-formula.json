@@ -1,0 +1,23 @@
+{
+  "title": "@tray.certificate-formula.title",
+  "workshop": false,
+  "values": [
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ],
+  "menus": [
+    {
+      "id": "certificate-certificate",
+      "title": "@tray.certificate-formula.menu.certificate-certificate.title",
+      "values": [
+        "#certificate-certificate"
+      ]
+    }
+  ]
+}

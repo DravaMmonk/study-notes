@@ -1,10 +1,8 @@
-// node --test games/kit/engine — the course audit's placement and abstraction rules (../course.js), the board matching
-// under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
+// Technical course checks and dependency graphs on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, mapRows, offer, reach, usable } from '../course.js'
+import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, mapRows, fresh, offer, reach, usable } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
-import { rebuilt } from './match.js'
 
 const wires = (...pairs) => pairs.map(([from, to, required]) => ({ from, to, ...(required && { required: true }) }))
 const serial = (...levels) => ({ levels: levels.map((id) => ({ id })), links: levels.slice(1).map((to, i) => ({ from: levels[i], to })) })
@@ -29,57 +27,6 @@ function sketch(eras, spec, extra = {}) {
     ...extra,
   })
 }
-const idle = (course) => audit(course).filter((f) => f.rule === 'idle-idea').map((f) => `${f.part}@${f.level}`)
-const bypass = (course) => audit(course).filter((f) => f.rule === 'bypass').map((f) => `${f.part}@${f.level}`)
-
-test('a new idea is put to work before two more new ideas come in; no number of levels is asked for', () => {
-  // a: used by 2, right after it. b: 3 brings c before b returns at 4, one idea between, fine. d: e and f come in
-  // before d's first use at 7.
-  const spec = {
-    1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], uses: ['a', 'b'] }, 3: { adds: ['c'], uses: ['c'] }, 4: { uses: ['b', 'c'] },
-    5: { adds: ['d'], uses: ['d'] }, 6: { adds: ['e'], uses: ['e'] }, 6.5: { adds: ['f'], uses: ['f', 'e'] }, 7: { uses: ['d', 'f'] },
-  }
-  const course = sketch([serial('1', '2', '3', '4', '5', '6', '6.5', '7')], spec)
-  assert.deepEqual(idle(course), ['d@5'])
-  assert.match(audit(course).find((f) => f.rule === 'idle-idea').text, /first put to work at 7, after 2 other new ideas \(e, f\)/)
-})
-
-test('an idea its own level does not use, or that no later level uses, is idle; a declaration uses what it declares', () => {
-  const spec = { 1: { adds: ['a', 'b'], uses: ['a'] }, 2: { adds: ['c'], uses: ['a', 'c'] }, 3: { uses: ['a', 'b'] } }
-  assert.deepEqual(idle(sketch([serial('1', '2', '3')], spec)), ['b@1', 'c@2'])
-  const declaring = sketch([serial('1', '2', '3')], spec, { declares: (l) => (l.id === '1' ? ['b'] : []) })
-  assert.deepEqual(idle(declaring), ['c@2'])
-  // The last level's idea has nothing after it to wait for.
-  assert.deepEqual(idle(sketch([serial('1')], { 1: { adds: ['a'], uses: ['a'] } })), [])
-})
-
-test('an idea keeps working inside a built part, and other branches bring nothing in between', () => {
-  // a is next used only through P, built from it. On the parallel set, y's new idea is not between 1 and z.
-  const spec = {
-    1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, x: { adds: ['c'], uses: ['c'] }, y: { adds: ['d'], uses: ['d'] },
-    z: { uses: ['P', 'c'] }, w: { uses: ['d'] },
-  }
-  const eras = [{ levels: [{ id: '1' }, { id: '2' }, { id: 'x' }, { id: 'z' }, { id: 'y' }, { id: 'w' }], links: wires(['1','2'], ['2','x'], ['x','z'], ['2','y'], ['y','w']) }]
-  assert.deepEqual(idle(sketch(eras, spec)), [])
-  // Without P, a waits for z behind b and c.
-  assert.deepEqual(idle(sketch(eras, { ...spec, 2: { adds: ['b'], uses: ['b'] }, z: { uses: ['a', 'b', 'c'] } })), ['a@1'])
-})
-
-test('an ability of the machine is an idea too, and an idea is a concept', () => {
-  const spec = {
-    1: { adds: ['a'], uses: ['a'], can: ['view'] }, 2: { adds: ['b'], uses: ['b'], can: ['view', 'far'] }, 3: { adds: ['c'], uses: ['c'], can: ['view'] },
-    4: { adds: ['e'], uses: ['e'], can: ['view'] }, 5: { uses: ['a', 'c', 'e'], can: ['far'] },
-  }
-  // b is a's concept, so 2 brings only far; far waits at 5 behind c and e.
-  assert.deepEqual(idle(sketch([serial('1', '2', '3', '4', '5')], spec, { concept: (p) => (p === 'b' ? 'a' : p) })), ['far@2'])
-})
-
-// Boards in the shared circuit model: in → parts → out.
-const board = (nodes, wires) => ({ nodes: [{ id: 'in', type: 'in' }, { id: 'in2', type: 'in' }, { id: 'out', type: 'out' }, ...nodes], wires })
-const wire = (text) => text.split(' ').map((s) => { const [from, to] = s.split('>'); const [id, port] = to.split('.'); return { from, to: id, port } })
-const isPart = (t) => !['in', 'out'].includes(t)
-const TRIPLE = board([{ id: 'x', type: 'a' }, { id: 'y', type: 'b', params: { k: 1 } }, { id: 'z', type: 'c' }], wire('in>x.p x>y.p in>y.q y>z.p z>out.p'))
-
 test('a level starts only from a board it has seen', () => {
   const rules = (course, rule) => audit(course).filter((f) => f.rule === rule).map((f) => `${f.part}@${f.level}`)
   const eras = [{ levels: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }, { id: 't1', optional: true }, { id: 't2', optional: true }, { id: 't3', optional: true }], links: wires(['a1','a2'], ['a2','a3'], ['a1','t1'], ['t1','t2',true], ['t2','t3',true]) }]
@@ -88,32 +35,8 @@ test('a level starts only from a board it has seen', () => {
 
 })
 
-test('a board is found inside another, wired alike, whatever its inputs read', () => {
-  const host = board([{ id: 'u', type: 'd' }, { id: 'x1', type: 'a' }, { id: 'y1', type: 'b', params: { k: 1 } }, { id: 'z1', type: 'c' }],
-    wire('in2>u.p u>x1.p x1>y1.p u>y1.q y1>z1.p z1>out.p'))
-  assert.deepEqual([...rebuilt(TRIPLE, host, isPart)].sort(), [['x', 'x1'], ['y', 'y1'], ['z', 'z1']])
-})
 
-test('other settings, other wiring, inputs read apart, or a value read from inside are no match', () => {
-  const nodes = (k = 1) => [{ id: 'x1', type: 'a' }, { id: 'y1', type: 'b', params: { k } }, { id: 'z1', type: 'c' }]
-  assert.equal(rebuilt(TRIPLE, board(nodes(2), wire('in>x1.p x1>y1.p in>y1.q y1>z1.p z1>out.p')), isPart), null)
-  assert.equal(rebuilt(TRIPLE, board(nodes(), wire('in>x1.p x1>y1.q in>y1.p y1>z1.p z1>out.p')), isPart), null)
-  assert.equal(rebuilt(TRIPLE, board(nodes(), wire('in>x1.p x1>y1.p in2>y1.q y1>z1.p z1>out.p')), isPart), null)
-  assert.equal(rebuilt(TRIPLE, board([...nodes(), { id: 'w', type: 'd' }], wire('in>x1.p x1>y1.p in>y1.q y1>z1.p z1>out.p y1>w.p w>out.q')), isPart), null)
-})
 
-test('bypass: a board of primitives rebuilding a held part of three pieces, not one of two', () => {
-  const host = board([{ id: 'x1', type: 'a' }, { id: 'y1', type: 'b', params: { k: 1 } }, { id: 'z1', type: 'c' }, { id: 'v', type: 'd' }],
-    wire('in>x1.p x1>y1.p in>y1.q y1>z1.p z1>v.p v>out.p'))
-  const pair = board([{ id: 'x', type: 'a' }, { id: 'y', type: 'b', params: { k: 1 } }], wire('in>x.p x>y.p in>y.q y>out.p'))
-  const spec = {
-    1: { adds: ['a', 'b', 'c', 'd'], builds: 'P', uses: ['a', 'b', 'c'], boards: [TRIPLE] },
-    2: { builds: 'Q', uses: ['a', 'b'], boards: [pair] },
-    3: { uses: ['a', 'b', 'c', 'd'], boards: [host] },
-    4: { uses: ['P', 'd'], boards: [] },
-  }
-  assert.deepEqual(bypass(sketch([serial('1', '2', '3', '4')], spec)), ['P@3'])
-})
 
 test('the part dependency graph: where each part comes in, what a built part is made of, who uses it', () => {
   const spec = {
@@ -138,32 +61,15 @@ test('the part dependency graph: where each part comes in, what a built part is 
 })
 
 test('findings a game leaves open are listed, new ones and ones met since are not', () => {
-  const found = [{ rule: 'idle-idea', level: '1', part: 'a' }, { rule: 'idle-idea', level: '1', part: 'a' }, { rule: 'idle-idea', level: '5', part: 'b' }, { rule: 'bypass', level: '3', part: 'P' }]
-  assert.deepEqual(againstOpen(found, { 'idle-idea': ['a@1', 'c@7'] }), [
-    { rule: 'idle-idea', fresh: ['b@5'], left: ['a@1'], gone: ['c@7'] },
-    { rule: 'bypass', fresh: ['P@3'], left: [], gone: [] },
+  const found = [{ rule: 'not-built', level: '1', part: 'a' }, { rule: 'not-built', level: '1', part: 'a' }, { rule: 'not-built', level: '5', part: 'b' }, { rule: 'built-later', level: '3', part: 'P' }]
+  assert.deepEqual(againstOpen(found, { 'not-built': ['a@1', 'c@7'] }), [
+    { rule: 'not-built', fresh: ['b@5'], left: ['a@1'], gone: ['c@7'] },
+    { rule: 'built-later', fresh: ['P@3'], left: [], gone: [] },
   ])
   assert.deepEqual(againstOpen([], { nothing: ['x@1'] }), [{ rule: 'nothing', fresh: [], left: [], gone: ['x@1'] }])
 })
 
-test('carrying a published board into its next revision is reuse, not an abstraction bypass', () => {
-  const spec = { first: { builds: 'P', uses: ['a', 'b', 'c'] }, next: { builds: 'P', uses: ['a', 'b', 'c'] }, use: { uses: ['P'] } }
-  const c = sketch([serial('first', 'next', 'use')], spec, { abstraction: true, carries: (l) => l.id === 'next' ? ['first'] : [] })
-  assert.deepEqual(audit(c).filter((f) => ['unused', 'bypass'].includes(f.rule)), [])
-  const end = sketch([serial('first')], { first: spec.first }, { abstraction: true })
-  assert.ok(audit(end).some((f) => f.rule === 'unused'))
-  const instrument = { ...end, showcase: () => 'A terminal instrument callable from the parts book.' }
-  assert.ok(!audit(instrument).some((f) => f.rule === 'unused'))
-})
 
-
-test('only staged tasks exceeding the open-part limit are crowded', () => {
-  const course = sketch([serial('base', 'upgrade')], {}, { openParts: (l) => l.id === 'upgrade' ? [{ task: 'within', staged: true, count: 8 }, { task: 'crowded', staged: true, count: 9 }, { task: 'plain', staged: false, count: 20 }] : [] })
-  const findings = audit(course).filter((f) => f.rule === 'open-crowded')
-  assert.equal(findings.length, 1)
-  assert.equal(findings[0].part, 'crowded')
-  assert.match(findings[0].text, /9 loose parts/)
-})
 
 test('a tray orders available parts, while the reference and featured parts set what first appears', () => {
   const trays = { gates: { items: ['b', 'a'] }, proof: { items: ['c', 'x', 'd'] } }
@@ -263,4 +169,20 @@ test('a stage introduced by adds upgrades its stable piece identity', () => {
   assert.deepEqual(course.opens({ id: '2' }), ['a-fast'])
   assert.equal(holds(course, { id: '1' }, new Set())('a', 'mode', 'fast'), false)
   assert.equal(holds(course, { id: '3' }, new Set())('a', 'mode', 'fast'), true)
+})
+
+test('new markers distinguish pieces and stages, including earlier tasks and prerequisite branches', () => {
+  const stages = { tool: { stages: [{ id: 'tool-wide' }, { id: 'tool-all' }] }, other: {} }
+  const course = defineCourse({
+    pieces: stages, levels: [{ id: 'start' }, { id: 'next' }, { id: 'branch' }],
+    eras: [{ id: 'chapter', levels: [{ id: 'start' }, { id: 'next' }, { id: 'branch' }], links: [{ from: 'start', to: 'next' }, { from: 'start', to: 'branch' }] }],
+    primitives: ['tool', 'other'], adds: () => ['tool', 'other'], needs: () => null, builds: () => [],
+    opens: at => at.id === 'next' ? at.task === 0 ? ['tool-wide'] : ['tool-wide', 'tool-all'] : [],
+  })
+  assert.deepEqual([...fresh(course, { id: 'start' })], ['tool', 'other'])
+  assert.deepEqual([...fresh(course, { id: 'next', task: 0 })], ['tool-wide'])
+  assert.deepEqual([...fresh(course, { id: 'next', task: 1 })], ['tool-all'])
+  assert.deepEqual([...fresh(course, { id: 'branch' })], [])
+  assert.equal(Object.hasOwn(course, 'concept'), false)
+  assert.deepEqual(audit(course), [])
 })

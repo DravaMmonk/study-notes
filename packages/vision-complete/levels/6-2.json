@@ -1,6 +1,6 @@
 {
   "title": "@level.6-2.title",
-  "tray": "#geometry",
+  "tray": "geometry",
   "after": "@level.6-2.after",
   "intro": [
     {

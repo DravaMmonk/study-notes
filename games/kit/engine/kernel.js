@@ -14,13 +14,9 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 6,
+  version: 9,
   removes: [
-    ...["circuit:held", "image:arith", "image:attention", "image:blur3h", "image:box3", "image:const", "image:dg_decode", "image:dg_encode", "image:dg_mu", "image:dg_sigma", "image:disparity", "image:fqLowpass", "image:fqWave", "image:gauss", "image:gradmag", "image:harris", "image:homography", "image:kernel3", "image:learn3", "image:line3", "image:lrnConst", "image:lrnConv", "image:lrnDense", "image:lrnRes", "image:lrnRgb", "image:ransac", "image:sense", "image:shade", "image:shift", "image:sobelx", "image:sobely", "image:tconv", "image:threshold"].flatMap(name =>
-      ["capabilities.operation", "kinds.op"].map(kind => ({ at: `${kind}.${name}`, why: 'Piece stages replace granular unlocks and description revisions; operations own their named parameters.' }))),
-    ...["image:unlock-dg-weights-hidden", "image:unlock-edge-filter", "image:unlock-edge-pad", "image:unlock-long-shift", "image:unlock-wrap"].flatMap(name =>
-      ["capabilities.content", "kinds.unlock"].map(kind => ({ at: `${kind}.${name}`, why: 'Piece stages replace granular unlocks and description revisions; operations own their named parameters.' }))),
-    ...["courses.circuit.level", "courses.image.level", "courses.logic.level", "courses.rows.level", "courses.table.level", "courses.tick-bus.level", "level"].map(at => ({ at, why: 'Piece stages replace granular unlocks and description revisions; operations own their named parameters.' })),
+    ...["courses.circuit.level", "courses.image.level", "courses.logic.level", "courses.table.level", "courses.tick-bus.level", "level"].map(at => ({ at, why: 'Teaching guidance and showcase exceptions belong in the author handbook, not executable content.' })),
   ],
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,

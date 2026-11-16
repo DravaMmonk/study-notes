@@ -1,9 +1,6 @@
 {
   "title": "@level.is-silent.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "tasks": [
     {
       "id": "is-silent",

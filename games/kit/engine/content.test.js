@@ -147,7 +147,7 @@ test('a data game is read from its folder', () => {
     says: 'the course places the level shared-toy/one, which is missing from its package',
   }])
 
-  for (const kind of ['tags', 'relations', 'layouts']) mkdirSync(join(dir, 'games', 'toy', kind))
+  for (const kind of ['tags', 'relations', 'sections']) mkdirSync(join(dir, 'games', 'toy', kind))
   const forbidden = readContent('toy', dir, { vocabulary: VOCAB })
   assert.equal(checkContent({ vocabulary: VOCAB }, forbidden).filter((p) => /games cannot declare objects/.test(p.says)).length, 3)
 })

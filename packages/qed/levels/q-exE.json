@@ -1,10 +1,6 @@
 {
   "title": "@level.q-exE.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
-  "showcase": "@level.q-exE.showcase",
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.q-exE.intro.0.t"

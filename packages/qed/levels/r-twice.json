@@ -6,10 +6,7 @@
     "uDelete",
     "uConflict"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-twice.intro.0.t"
