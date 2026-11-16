@@ -20,7 +20,7 @@ lib/
 !trace-viewer/src/lib/**
 lib64/
 parts/
-!games/kit/domains/image/engine/parts/
+!games/kit/modules/image/engine/parts/
 !games/kit/engine/parts/
 !games/kit/shell/parts/
 sdist/
