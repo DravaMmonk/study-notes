@@ -516,7 +516,7 @@ export function opFor(file, path, edit, type = null) {
     if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
-  // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
+  // pieces.json: a field of it (a whole part is added and removed by the part operations).
   if (file.parts) {
     if (edit.unset && keys.length === 2) {
       if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }

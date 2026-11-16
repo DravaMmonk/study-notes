@@ -3,11 +3,11 @@
 // place in the course, its tasks (form.js sectionOf), Alt+1… to jump, each folding away (remembered per viewer); several
 // levels picked in the tree, as a bulk edit (Bulk.jsx); an era (its place in game.json, and the copy table of its
 // levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
-// The level's own actions are operations: level.rename, level.add (a copy after it), level.remove, and moving it in
-// the tree. A row says how many findings of the check are on its field and whether the pending changes touched it. A
+// The level's own actions are operations: level.add (a copy after it), level.remove, and moving it in the tree; its
+// id never changes (games/PACKAGES.md 3.1). A row says how many findings of the check are on its field and whether the pending changes touched it. A
 // part of pieces.json (and a setting definition) is a file of its own here: its fields as rows, and its own actions —
-// piece.rename, piece.add (a copy after it), piece.remove.
-import { useEffect, useMemo, useState } from 'react'
+// piece.add (a copy after it), piece.remove.
+import { useMemo } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
@@ -17,7 +17,6 @@ import { copyLevelData, fieldAt, fileForm, formOf, gameFields, opFor, placeFindi
 import { holdsLevels } from '../engine/schema.js'
 import { contentFileFor } from '../engine/content.js'
 import { settingReferences } from '../engine/pieces.js'
-import { NAME as PART_NAME } from '../engine/parts/schema.js'
 import { freeName } from './PartsList.jsx'
 import { Field, FieldTags } from './Fields.jsx'
 import Rows from './Rows.jsx'
@@ -27,8 +26,6 @@ import { usePref } from './prefs.js'
 import { confirmDelete } from './delete.js'
 import { MOD } from './Shortcuts.jsx'
 
-const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
-const PIECE_ID = new RegExp(PART_NAME.pattern)
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
@@ -67,15 +64,8 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { lang: getLang() })
   const before = beforeIn(was && (({ id: __, ...v }) => v)(was))
   const sections = form.kind === 'obj' ? sectionsOf(form) : null
-  // The id is shown and typed as the package's short name; the level is a full name everywhere else.
-  const prefix = id.includes('/') ? id.slice(0, id.indexOf('/') + 1) : ''
-  const short = id.slice(prefix.length)
-  const [name, setName] = useState(short)
-  const rename = () => {
-    if (name === short || !ID.test(name) || order.includes(prefix + name)) return setName(short)
-    onEdit({ op: 'level.rename', level: id, to: name })
-    onSelect({ level: prefix + name })
-  }
+  // The id is shown by the package's short name; the level is a full name everywhere else.
+  const short = id.slice(id.indexOf('/') + 1)
   const copy = () => {
     let k = 2
     while (order.includes(`${id}-${k}`)) k += 1
@@ -104,7 +94,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   return (
     <article className="editor">
       <header className="editor-head">
-        <input className="editor-id" value={name} onChange={(e) => setName(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} aria-label={tr('关卡 id')} size={Math.max(3, name.length)} />
+        <code className="editor-id is-static" title={id}>{short}</code>
         <h1>{L(value.title)}</h1>
         {form.tags && <FieldTags tags={form.tags} />}
         {sections && (
@@ -195,15 +185,8 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   const path = [`${kind}s`, selected]
   const hit = fieldAt(shown.form, path)
   const taken = Object.keys(content.partDefs?.[path[0]] ?? {})
-  const [id, setId] = useState(selected)
-  useEffect(() => setId(selected), [selected])
   if (!hit?.field) return <article className="editor"><p className="editor-note">{tr('这一项已经不在了。')}</p></article>
   const { at: findings } = placeFindings(shown.form, places.filter((p) => p.file === 'parts'))
-  const rename = () => {
-    if (id === selected || !PIECE_ID.test(id) || taken.includes(id)) return
-    onEdit(isPiece ? { op: 'piece.rename', piece: selected, to: id } : { op: 'setting.rename', setting: selected, to: id })
-    onSelect({ [kind]: id })
-  }
   const copy = () => {
     const to = freeName(taken, `${selected}_`)
     const data = copyWithoutTextKeys(hit.field.value)
@@ -220,8 +203,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   return (
     <article className="editor">
       <header className="editor-head">
-        <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
-          aria-label={isPiece ? tr('件的类型名') : tr('设置 ID', 'Setting ID')} spellCheck={false} />
+        <code className="editor-id is-static" title={selected}>{selected.slice(selected.indexOf('/') + 1)}</code>
         <h1>{L(isPiece ? definition.name : definition.label) || selected}</h1>
         <span className="kit-spacer" />
         <span className="editor-tools">

@@ -497,7 +497,6 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       ['play-ref', tr('载入参考解试玩这一关'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
       ['play', tr('试玩这一关（不显示编辑标记）'), level, () => { setPageEdit(false); playFrom(level, false) }],
       ['duplicate', tr('复制这一关成新的一关……'), level, (id) => duplicate(level, id), { placeholder: tr(`${level} 的副本的 id`, `The id of ${level}’s copy`), value: `${level}-2` }],
-      ['rename', tr('给这一关换 id……'), level, (id) => { edit({ op: 'level.rename', level, to: id }); select({ level: id }) }, { placeholder: tr(`${level} 的新 id`, `${level}’s new id`), value: level }],
       ['move', tr('移动这一关'), level, () => setMoving([level])],
     ] : []),
     ['next', tr('下一处检查结果'), 'F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: 1 }))],
