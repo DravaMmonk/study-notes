@@ -3,7 +3,7 @@
 // their package reference board or the passed work supplied by a publishing task, and
 // game.json's `replaces` says which built pieces supersede which. A domain says how its own fields and tests read:
 //
-//   circuitCourse(content, { board, parts, read?, test?, kinds?, holds?, unwanted? }) → { LEVELS, played, builtBy,
+//   circuitWorks(content, { board, parts, read?, test?, kinds?, holds?, unwanted? }) → { LEVELS, played, builtBy,
 //     CHAPTERS, course, partOf, BUILT, pieces, types, blueprints, wrong, offerIn, introductions, carried, opening,
 //     syncOwn }
 //       board  its circuitBoard (./board-cards.js)
@@ -16,9 +16,9 @@
 //       pieces { type: piece } the built pieces, as pieces.json names and describes them
 //     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
 //     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
-//   partsCourse(content, ops, options) → circuitCourse's, with { defs, defaultsOf }: the course of a domain whose games
-//     define their parts as data (pieces.json) over its engine resources `ops`, circuitCourse's options beside
-//   definedCourse(content, { board, ops, read? }) → partsCourse's: the course of a domain
+//   partsWorks(content, ops, options) → circuitWorks's, with { defs, defaultsOf }: the course of a domain whose games
+//     define their parts as data (pieces.json) over its engine resources `ops`, circuitWorks's options beside
+//   definedWorks(content, { board, ops, read? }) → partsWorks's: the course of a domain
 //     whose games define their own parts (pieces.json, ./parts/define.js) over its engine resources `ops`, and whose
 //     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
 //     a value as content writes it made a value on the wires
@@ -34,15 +34,16 @@ import { taskLevels } from './tasks.js'
 import { fitsCircuit, previousCircuitTask } from './board-view.js'
 import { keptBoards } from './kept-boards.js'
 import { workView } from '../circuit/workshop-view.js'
-import { trayIn } from './trays.js'
-import { defineCourse, eraLevels, holds as holding, offer, readItem } from '../course.js'
+import { readWorks, publicationEvents } from './course-model.js'
+import { eraLevels, holds as holding, offer, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
 import { T as t } from '../shell/i18n.js'
 import { inheritedBoard } from '../shell/progress.js'
 
-export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
-  const { eras, trays, primitives, levels, concept = {}, replaces = {} } = content
-  const notes = content.mode === 'notes'
+export const circuitWorks = (content, options) => readWorks(content, (scope) => prepareCircuitWorks(scope, options))
+
+export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
+  const { eras, primitives, levels } = content
   const wrong = []
   const say = (where, text) => wrong.push(`${where}: ${text}`)
   const plan = courseLayout(content)
@@ -178,7 +179,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   }).map((id) => {
     const level = given.get(id)
     // A task holds what the level adds and what its tasks up to it add; it brings in (`fresh`) its own, the first the level's too.
-    const tasks = taskLevels(level).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0, k + 1).flatMap((T) => T.adds ?? [])])], opened: [...new Set(level.tasks.slice(0, k + 1).flatMap((T) => T.opens ?? []))], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
+    const tasks = taskLevels(level, content.taskPositions).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0, k + 1).flatMap((T) => T.adds ?? [])])], opened: [...new Set(level.tasks.slice(0, k + 1).flatMap((T) => T.opens ?? []))], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
     // The pieces its tasks publish, each at the task it refers to (a later task of the level then holds it).
     const builds = []
     const read = tasks.map((task, k) => {
@@ -189,7 +190,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       if (!publishes.length || !isBoard(last)) return last
       for (const entry of publishes) {
         register(entry, last)
-        builds.push({ type: entry.type, form: entry.form, at: k })
+        builds.push({ type: entry.type, form: entry.form, at: task.task })
       }
       return last
     })
@@ -204,44 +205,25 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
-  const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.[level.task] ?? null)
+  const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.find(task => task.task === level.task) ?? null)
   const solutions = (level) => (taskOf(level) ? [taskOf(level)] : played.get(level.id)).filter(isBoard).map((T) => T.solution)
-  const course = defineCourse({
-    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
-    complete: content.levels.every((level) => plan.place.has(level.id)),
-    levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.unlocks })),
-    eras,
-    plan,
-    trays,
-    tray: (level) => trayIn(trays, given.get(level.id)?.tray),
-    primitives,
-    adds: (level) => (taskOf(level) ?? byId.get(level.id))?.adds ?? [],
-    needs: (part) => (pieces[part] ? part : null),
-    // A level's pieces are built by its tasks: the tasks after each one hold it.
-    builds: (level) => [...new Set((byId.get(level.id)?.builds ?? []).filter((b) => level.task === undefined || b.at <= level.task).map((b) => b.type))],
-    opens: (level) => (taskOf(level) ?? byId.get(level.id))?.opened ?? [],
-    gives: (level) => taskOf(level)?.gives ?? [],
-    featured: (level) => [...(byId.get(level.id)?.featuredParts ?? []), ...(taskOf(level)?.featuredParts ?? [])],
-    withholds: (level) => taskOf(level)?.withholds ?? [],
-    concept: (part) => concept[part] ?? part,
+  const course = yield {
+    levels: LEVELS, plan,
+    publications: publicationEvents(levels, implementations, content.taskPositions),
+    boards: solutions,
     needed: (level) => {
       const boards = solutions(level)
       if (!boards.length) return null
       return [...new Set(boards.flatMap((b) => b.nodes).map((n) => n.type)
         .filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))]
     },
-    boards: (level) => solutions(level),
-    showcase: (level) => byId.get(level.id)?.showcase ?? null,
-    replaces: (part) => replaces[part] ?? [],
     carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
     openParts: (level) => (played.get(level.id) ?? []).filter(isBoard).map((task) => {
       const shown = stagesOf({ task, board: task.solution, chain: result.stageChain(task), isFixed: (n) => board.isFixed(n.type) })
       return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
     }),
     references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
-    abstraction: true,
-    notes,
-  })
+  }
   const { references } = course
   wrong.push(...references.problems())
   const scopes = new Map()
@@ -356,21 +338,24 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
  * The course of a domain whose games define their own parts (content.partDefs: pieces.json) over its engine resources,
  * its tests giving a value on every input and expecting one of every output.
  */
-export function definedCourse(content, { board, ops, parts, read: readValue = (v) => v }) {
+export function* prepareDefinedWorks(content, { board, ops, parts, read: readValue = (v) => v }) {
   const test = (t, task, say) => {
     for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
     for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
     const values = (given) => Object.fromEntries(Object.entries(given).map(([name, v]) => [name, readValue(v, name, say)]))
     return { ...t, inputs: values(t.inputs), expect: values(t.expect) }
   }
-  return partsCourse(content, ops, { board, parts, test })
+  return yield* preparePartsWorks(content, ops, { board, parts, test })
 }
 
 /**
  * The course of a domain whose games define their parts (content.partDefs: pieces.json) over its engine resources `ops`
- * (code parts `parts` beside them): circuitCourse's, its parts those, with { defs, defaultsOf }.
+ * (code parts `parts` beside them): circuitWorks's, its parts those, with { defs, defaultsOf }.
  */
-export function partsCourse(content, ops, { parts, ...options }) {
+export function* preparePartsWorks(content, ops, { parts, ...options }) {
   const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops, parts)
-  return { ...circuitCourse(content, { ...options, parts: PARTS }), defs, defaultsOf }
+  return { ...(yield* prepareCircuitWorks(content, { ...options, parts: PARTS })), defs, defaultsOf }
 }
+
+export const definedWorks = (content, options) => readWorks(content, (scope) => prepareDefinedWorks(scope, options))
+export const partsWorks = (content, ops, options) => readWorks(content, (scope) => preparePartsWorks(scope, ops, options))

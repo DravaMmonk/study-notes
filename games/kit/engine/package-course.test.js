@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
-import { contentTargets, domainOf, readContent, readPackage } from './content-node.js'
+import { contentTargets, runtimeOf, readContent, readPackage } from './content-node.js'
 import { checkGame } from './checks.js'
 import { closeGames, gameOf } from './games.mjs'
 import { holds, usable } from '../course.js'
@@ -41,7 +41,7 @@ test('a pieces-only package opens, generates a course, checks and writes its own
   assert.deepEqual(content.levels, [])
   assert.deepEqual(content.eras.map((era) => era.levels), [[]])
   assert.ok(content.primitives.includes('library/apply'))
-  const domain = await domainOf(content)
+  const domain = await runtimeOf(content)
   assert.deepEqual((await checkGame(content, { domain, root })).filter((line) => line.fail), [])
   const game = await gameOf(content)
   assert.deepEqual(game.levels, [])
@@ -82,10 +82,10 @@ test('tag chapters retain titles, nesting, layouts, cross-chapter relations and 
   assert.ok(content.relationEdges.requires.some((edge) => edge.from === `${id}/given` && edge.to === `${id}/apply`))
   assert.deepEqual(openPackage(id, root).content().eras, content.eras)
   assert.ok(content.glossary.groups.some((group) => group.id === `${id}/terms`))
-  const { course } = (await domainOf(content)).spec(content)
+  const { course } = (await runtimeOf(content)).spec(content)
   assert.ok(usable(course, { id: `${id}/given`, task: 0 }, new Set()).includes(`${id}/impI`))
   assert.equal(holds(course, { id: `${id}/given`, task: 0 }, new Set())(`${id}/impI`, 'A'), true)
-  assert.deepEqual((await checkGame(content, { domain: await domainOf(content), root })).filter((line) => line.fail), [])
+  assert.deepEqual((await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail), [])
 })
 
 test('package dependencies are readable while only the selected layer can be edited', async () => {
@@ -149,6 +149,6 @@ test('generated courses still reject invalid authored package fields', async () 
   const { root, put } = fixture()
   put('packages/library/package.json', { domain: 'logic', vocabulary: 1, unknownField: true })
   const content = readPackage('library', root)
-  const failures = (await checkGame(content, { domain: await domainOf(content), root })).filter((line) => line.fail)
+  const failures = (await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail)
   assert.ok(failures.some((line) => line.text.includes('unknownField')), failures.map((line) => line.text).join('\n'))
 })

@@ -12,12 +12,12 @@ import { workshopOf } from '../../circuit/workshop-view.js';
 import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
-import { trayIn } from '../../engine/trays.js';
-import { defineCourse, eraLevels, levelLabels, offer, reach } from '../../course.js';
+import { readWorks, publicationEvents } from '../../engine/course-model.js';
+import { eraLevels, levelLabels, offer, reach } from '../../course.js';
 import { courseLayout } from '../../engine/course-dependencies.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
-import { isGiven, modelsOf, partsOf } from './model/parts.js';
+import { isGiven, modelsOf, partsOf, PRIMITIVES as primitiveParts } from './model/parts.js';
 import { blank, fitted, portsProblem } from './model/board.js';
 import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';
 import { ROBOTS } from './model/robots.js';
@@ -96,11 +96,13 @@ const isCircuit = T => T.mode === 'table:circuit';
  * instead of throwing, syncOwn(built) the boards the player passed its building levels with, opening(task, data) the
  * board a task opens on. Everything is the course's own: two courses read in one process never see each other's boards.
  */
-export function tableCourse(content) {
+export const tableWorks = (content) => readWorks(content, prepareTableWorks)
+
+export function* prepareTableWorks(content) {
   // The content with its texts made bilingual strings (lang.js hydrate), a copy frozen as the content is: what the
   // course works out is built beside it, never written into it.
   const hydrated = deepFreeze(hydrate(content));
-  const { eras, trays, primitives: PRIMITIVES } = hydrated;
+  const { eras, primitives: PRIMITIVES } = hydrated;
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
@@ -154,7 +156,7 @@ export function tableCourse(content) {
     levels: eraLevels(era),
   }));
 
-  const plan = courseLayout(hydrated);
+  const plan = courseLayout(content);
   const given = new Map(levels.map(L => [L.id, L]));
   for (const entry of implementations) if (entry.reference.ports) registerBuilt(entry);
   const ordered = plan.order.filter(id => given.has(id)).map(id => given.get(id));
@@ -205,7 +207,7 @@ export function tableCourse(content) {
   // Each level's tasks as read (`read`; their palettes follow once the course is known), its chapter and introduction.
   const read = new Map();
   const LEVELS = ordered.map(L => {
-    const tasks = taskLevels(L);
+    const tasks = taskLevels(L, content.taskPositions);
     const circuit = tasks.some(isCircuit);
     if (circuit && !ROBOTS[L.robot]) say(L.id, 'it has circuit tasks but no robot');
     const robot = ROBOTS[L.robot] ?? ROBOTS['table:robot-scout'];
@@ -274,37 +276,16 @@ export function tableCourse(content) {
 
   const byId = new Map(LEVELS.map(L => [L.id, L]));
   const circuitOf = id => (read.get(id) ?? []).filter(isCircuit);
-  const sourceById = new Map(content.levels.map((level) => [level.id, level]));
-  const course = defineCourse({
-    available: content.packagePreview ? Object.keys(content.registries.piece) : null,
-    complete: content.levels.every((level) => plan.place.has(level.id)),
-    levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
-    eras,
-    plan,
-    trays,
-    tray: l => trayIn(trays, byId.get(l.id).tray),
-    primitives: PRIMITIVES,
-    adds: l => byId.get(l.id).adds ?? [],
-    gives: l => sourceById.get(l.id).tasks[l.task]?.gives ?? [],
-    withholds: l => sourceById.get(l.id).tasks[l.task]?.withholds ?? [],
-    opens: l => sourceById.get(l.id).tasks.flatMap((task, i) => l.task === undefined || i <= l.task ? task.opens ?? [] : []),
-    needs: p => (built[p] ? p : null),
-    builds: l => (byId.get(l.id).builds ? [byId.get(l.id).unlock] : []),
-    // A merger's models are one part with a setting.
-    concept: p => content.concept?.[p] ?? (modelsOf(p) || [p])[0],
-    // A circuit level uses the abilities of its robot.
+  const course = yield {
+    levels: LEVELS.map(L => ({ ...L, unlocks: L.unlock ? [L.unlock] : [] })), plan,
+    publications: publicationEvents(content.levels, implementations.filter(entry => built[entry.type]), content.taskPositions),
+    concepts: Object.fromEntries([...Object.keys(primitiveParts), ...Object.keys(pieces)].map(p => [p, content.concept?.[p] ?? (modelsOf(p) || [p])[0]])),
     machine: l => byId.get(l.id).robot ?? null,
     uses: l => usesOf(circuitOf(l.id)),
     can: m => ROBOTS[m]?.can ?? null,
-    // What a level's reference boards use (the parts placed, not what the level gives).
-    featured: l => [...(byId.get(l.id).featuredParts ?? []), ...(read.get(l.id)?.[l.task]?.featuredParts ?? [])],
     needed: l => { const sols = circuitOf(l.id).filter(s => l.task === undefined || s.task === l.task).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
     boards: l => circuitOf(l.id).map(s => s.solution).filter(Boolean),
-    showcase: l => byId.get(l.id).showcase ?? null,
-    // A level that starts from an earlier level's board (`carry`) requires that level.
-    carries: l => (byId.get(l.id).carry ? [byId.get(l.id).carry] : []),
-    abstraction: true,
-  });
+  };
 
   // A circuit task's palette is everything it can hold (../../course.js reach): the parts its level brings in, then the
   // ones carried from earlier levels.

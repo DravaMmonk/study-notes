@@ -7,7 +7,7 @@ import process from 'node:process'
 import { GAMES } from '../../games.js'
 import { checkGame } from '../engine/checks.js'
 import { closeGames } from '../engine/games.mjs'
-import { domainOf, readContent } from '../engine/content-node.js'
+import { runtimeOf, readContent } from '../engine/content-node.js'
 import { ALL_GAMES, knownGames } from '../engine/cli-args.js'
 import { contentAssets } from './content-assets.js'
 
@@ -22,7 +22,7 @@ for (const id of knownGames(asked.length ? asked : ALL_GAMES, 'npm run publish:c
     continue
   }
   const content = readContent(id)
-  const failed = (await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((g) => g.id === id).levels })).filter((l) => l.fail)
+  const failed = (await checkGame(content, { domain: await runtimeOf(content), listed: GAMES.find((g) => g.id === id).levels })).filter((l) => l.fail)
   if (failed.length) {
     console.log(`${id}: not published, ${failed.length} problem(s) (npm run check -- ${id})`)
     refused += 1

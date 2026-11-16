@@ -14,7 +14,7 @@ import { query, translation } from './formulaWork.js'
 import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
-import { logicCourse } from './course.js'
+import { logicWorks } from './work.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
 import { gatesScreen } from './ui/gates.js'
@@ -37,7 +37,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'logic:
  * glossary }.
  */
 export default function logicGame(content) {
-  const logic = logicCourse(content)
+  const logic = logicWorks(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
   const { gates, lemmas, pieces } = logic
   // The parts the game defines (pieces.json's and its lemmas'), as the circuit screen draws them.

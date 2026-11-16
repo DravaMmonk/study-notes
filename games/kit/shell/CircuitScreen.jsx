@@ -50,7 +50,7 @@ import './training.css'
 // task lays out (`results`) or the domain's default ones, of the entries the domain offers.
 //
 // A domain brings only what is its own:
-//   course                the course read (engine/board-course.js circuitCourse): forTask(task) → the task's view (its
+//   course                the course read (engine/board-works.js circuitWorks): forTask(task) → the task's view (its
 //                         `defined`, when it registers parts of its own per task: engine/board-view.js)
 //   cards                 { type: { name, desc, icon, family } } its cards as the tray and boards show them (a fixed
 //                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')

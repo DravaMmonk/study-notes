@@ -24,7 +24,7 @@ import { checkIso, sentenceOf } from './iso.js'
 import { auditCaseProblems, runAudit } from './audit-cases.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
-import { presetIds } from './course.js'
+import { presetIds } from './work.js'
 
 const compare = (inspect, level) => checkWorks(inspect, { reference: level.solution, naive: level.naive })
 const reportNaive = (out, { id: level }, naive) => {

@@ -17,7 +17,7 @@ import './ui/tick-bus.css'
 import { definedGame } from '../../shell/circuit-game.js'
 import { screen } from './ui/screen.js'
 import { CARDS } from './ui/catalog.js'
-import { tickBusCourse } from './course.js'
+import { tickBusWorks } from './work.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => definedGame(content, tickBusCourse(content), { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen, cards: CARDS })
+export default (content) => definedGame(content, tickBusWorks(content), { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen, cards: CARDS })

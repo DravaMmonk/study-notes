@@ -6,7 +6,7 @@
 // --dot; --levels draws the levels as well, each wired from the parts its reference uses and to the parts it brings.
 import { pathToFileURL } from 'node:url'
 import { introductions } from '../course.js'
-import { domainOf, readContent } from './content-node.js'
+import { runtimeOf, readContent } from './content-node.js'
 import { knownGames } from './cli-args.js'
 
 /**
@@ -95,7 +95,7 @@ export function dot(graph, { levels = false } = {}) {
 
 /** A game's dependency graph from its content, as Mermaid or (`dot`) DOT text. */
 export async function drawDeps(content, { dot: asDot = false, levels = false } = {}) {
-  const graph = dependencies((await domainOf(content)).spec(content).course)
+  const graph = dependencies((await runtimeOf(content)).spec(content).course)
   return asDot ? dot(graph, { levels }) : mermaid(graph, { levels })
 }
 

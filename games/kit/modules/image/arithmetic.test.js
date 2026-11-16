@@ -1,11 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { imageCourse } from './course.js'
+import { imageWorks } from './work.js'
 import { image } from './engine/image.js'
 import { tidyImageBoard } from './engine/board.js'
 
 const text = (s) => ({ zh: s, en: s })
-const course = imageCourse({
+const course = imageWorks({
   primitives: ["image:arith"],
   eras: [{ id: 0, levels: [{ id: 'sample' }], chapter: { title: text('c'), label: text('l'), question: text('q') } }],
   levels: [{ id: 'sample', title: text('sample'), after: text('a'), intro: [{ t: text('i') }], tasks: [{ id: 'sample', kind: 'image:graph', brief: text('b'), scene: "image:scene-filter", setup: { target: "image:target-same" }, tests: [{ label: text('t'), in: "image:picture-disk" }] }] }],

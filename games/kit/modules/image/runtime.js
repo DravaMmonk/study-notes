@@ -2,7 +2,7 @@
 // its levels in play order, the texts a player reads), the domain's checks, and its play hook for blind sessions
 // (play.js). Nothing here draws: the page's side is game.js.
 import { vocabulary } from './vocabulary.js'
-import { imageCourse } from './course.js'
+import { imageWorks, prepareImageWorks } from './work.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
 import { partNames } from '../../engine/trays.js'
@@ -12,12 +12,11 @@ import { builtPieces } from '../../engine/pieces.js'
 const names = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
 
 /** An image game's spec, as the checks read one (../../engine/checks.js). */
-function spec(content) {
-  const image = imageCourse(content)
+function spec(content, works = imageWorks(content)) {
+  const image = works
   return {
     id: content.id,
     packagePreview: Boolean(content.packagePreview),
-    domain: 'image',
     title: content.title,
     course: image.course,
     levels: image.LEVELS,
@@ -35,4 +34,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, names, spec, validate, play }
+export default { prepare: prepareImageWorks, vocabulary, names, spec, validate, play }

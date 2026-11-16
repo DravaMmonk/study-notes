@@ -1,5 +1,5 @@
 // A course read as the circuit screen plays it (../shell/CircuitScreen.jsx `course`), for a domain that reads its course
-// its own way: what circuitCourse (./board-course.js) gives a circuit-base game, made of the domain's reading.
+// its own way: what circuitWorks (./board-works.js) gives a circuit-base game, made of the domain's reading.
 //
 //   boardView({ board, parts(task), built?(task), builder?(type, task), defined?(task), offerIn, holdsIn, syncOwn, tasksAt?, opening? })
 //       board    its circuitBoard (./board-cards.js)

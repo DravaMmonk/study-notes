@@ -1,9 +1,9 @@
-// node --test (npm test) — what a task on the circuit preset holds (board-course.js over ../course.js holds): a part,
+// node --test (npm test) — what a task on the circuit preset holds (board-works.js over ../course.js holds): a part,
 // one of its settings, one value of a setting, by the course's progress and by what the task gives or withholds.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkCircuitTasks } from './circuit-preset.js'
-import { definedCourse } from './board-course.js'
+import { definedWorks } from './board-works.js'
 import { flowBoard } from './board-cards.js'
 import { onceRun } from './circuit-run.js'
 
@@ -25,7 +25,7 @@ const sums = [{ inputs: { a: 5, b: 3 }, expect: { out: 8 } }, { inputs: { a: 1, 
 const differences = [{ inputs: { a: 5, b: 3 }, expect: { out: 2 } }, { inputs: { a: 1, b: 4 }, expect: { out: -3 } }]
 const task = (id, tests, how, more = {}) => ({ id, brief: text(id), ...ports, tests, solution: [`c = calc[how=${how}](a, b)`, 'out <- c'], ...more })
 const level = (id, tasks, more = {}) => [id, { title: text(id), tasks, ...more }]
-const course = (levels, definitions = partDefs) => definedCourse({
+const course = (levels, definitions = partDefs) => definedWorks({
   id: 't',
   ...{ domain: 't', vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), levels: levels.map(([id]) => ({ id })), links: levels.slice(1).map(([to], i) => ({ from: levels[i][0], to })) }] },
   levels: levels.map(([id, value]) => ({ id, ...value })),

@@ -7,7 +7,7 @@
 import { firstText } from './i18n.js'
 import { checkGame } from './checks.js'
 import { closeGames } from './games.mjs'
-import { PROJECT_DIR, domainOf, readContent, readPackage, contentTargets } from './content-node.js'
+import { PROJECT_DIR, runtimeOf, readContent, readPackage, contentTargets } from './content-node.js'
 import { deepFreeze } from './content.js'
 import { hubCount, openGame, openPackage } from './ops/workspace.js'
 import { driftOf } from './ops/log.js'
@@ -28,7 +28,7 @@ for (const { id, kind } of contentTargets(asked, root, { package: process.argv.i
     const ws = (packaged ? openPackage : openGame)(id, root)
     const content = deepFreeze((packaged ? readPackage : readContent)(id, root))
     head = `${firstText(content.title)} (${id})`
-    lines = await checkGame(content, { domain: await domainOf(content), listed: packaged ? null : hubCount(ws.hub, id), mutants, cache: packaged || process.env.GAMES_ROOT ? null : checkCache(id, { fresh }), root })
+    lines = await checkGame(content, { domain: await runtimeOf(content), listed: packaged ? null : hubCount(ws.hub, id), mutants, cache: packaged || process.env.GAMES_ROOT ? null : checkCache(id, { fresh }), root })
     // Files changed outside the operation set since its log last says: noted, not failed (adopt takes them).
     const drift = driftOf(ws, ws.onDisk())
     if (drift.length) lines.push({ text: `OPEN log: changed outside the operation set: ${drift.join(', ')} (npm run op -- ${packaged ? `--package ${id}` : id} adopt --why "…")` })

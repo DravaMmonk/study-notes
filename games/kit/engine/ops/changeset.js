@@ -23,7 +23,7 @@ import { tasksSchema } from '../tasks.js'
 import { ENTRY, checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
-import { domainOf } from '../content-node.js'
+import { runtimeOf } from '../content-node.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
 import { OPERATIONS, opScope } from './operations.js'
@@ -40,7 +40,7 @@ export { LOG, readLog } from './log.js'
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
-  const domain = given ?? (await domainOf(ws.content()))
+  const domain = given ?? (await runtimeOf(ws.content()))
   ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []

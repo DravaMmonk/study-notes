@@ -1,3 +1,4 @@
+import { readWorks } from '../../engine/course-model.js'
 // A tick-bus game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): the play order and level tree from its eras (../../course.js layout); each level's tasks
 // (../../engine/tasks.js), each read with its tests on the line its world says and what its outputs must be
@@ -10,7 +11,7 @@
 // blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, an output with nothing wanted).
-import { partsCourse } from '../../engine/board-course.js'
+import { preparePartsWorks } from '../../engine/board-works.js'
 import { bitsOf } from './line.js'
 import { board } from './board.js'
 import { wantOf } from './wants.js'
@@ -21,7 +22,9 @@ const testOf = (t) => {
   return { ...t, line, ticks: line.length }
 }
 
-export function tickBusCourse(content) {
+export const tickBusWorks = (content) => readWorks(content, prepareWorks)
+
+export function* prepareWorks(content) {
   // A test read: what reading it finds that its schema cannot say, then its line.
   const test = (t, task, say) => {
     for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
@@ -29,5 +32,5 @@ export function tickBusCourse(content) {
   }
   // A task's wants read; a built part keeps its own registers.
   // The parts are the game's pieces.json over the domain's resources.
-  return partsCourse(content, {}, { board, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
+  return yield* preparePartsWorks(content, {}, { board, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
 }

@@ -4,7 +4,7 @@
 // checks (reference answers pass, naive ones fail, …). npm run check (check.js) and every changeset (ops/changeset.js)
 // run it.
 //
-// A game is checked through its spec, which its domain makes under node (../modules/<domain>/domain.js: { vocabulary,
+// A game is checked through its spec, which its domain makes under node (../modules/<domain>/runtime.js: { vocabulary,
 // spec(content), validate(spec) }): { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level,
 // part, text? }] }.
 // `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that
@@ -25,7 +25,7 @@ import { dependencyProblemsInProject } from './project-dependencies.js'
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
- * `domain`: its domain module (content-node.js domainOf). Content that does not fit the vocabulary is not built into a course: what
+ * `domain`: its domain module (content-node.js runtimeOf). Content that does not fit the vocabulary is not built into a course: what
  * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task. `cache`: the game's
  * kept checks (check-cache.js), which the domain's checks of an unchanged level are read from; never with `mutants`.
  */

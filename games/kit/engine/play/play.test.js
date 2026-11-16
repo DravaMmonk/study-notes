@@ -20,8 +20,8 @@ after(() => closeGames())
 
 const DOMAINS = resolve(import.meta.dirname, '../../modules')
 const withPlay = []
-for (const name of readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'domain.js')))) {
-  if ((await import(resolve(DOMAINS, name, 'domain.js'))).default.play) withPlay.push(name)
+for (const name of readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'runtime.js')))) {
+  if ((await import(resolve(DOMAINS, name, 'runtime.js'))).default.play) withPlay.push(name)
 }
 
 /**
@@ -42,7 +42,7 @@ const typed = (lines) => Array.isArray(lines) && lines.every((m) => typeof m ===
 function answers(content, id, task) {
   const level = content.levels.find((l) => l.id === id)
   const played = { ...level, ...level.tasks[task] }
-  return { ref: played.solution, naive: played.naive, hidden: (played.hidden ?? []).map((t) => t.label?.en).filter(Boolean), visible: (played.tests ?? []).map((t) => t.label?.en) }
+  return { ref: played.rows ? played.rows.map((row) => row.reference) : played.solution, naive: played.rows ? played.rows.map((row) => row.naive) : played.naive, hidden: (played.hidden ?? []).map((t) => t.label?.en).filter(Boolean), visible: (played.tests ?? []).map((t) => t.label?.en) }
 }
 
 test('every domain with a play hook has a starter game to play it on', () => {

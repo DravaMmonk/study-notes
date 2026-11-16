@@ -10,7 +10,7 @@ import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
-import domain from './domain.js'
+import domain from './runtime.js'
 
 // The starter's parts (its pieces.json), over the kernel's builtins.
 const { PARTS } = defineParts(readStarter(import.meta.dirname).partDefs, {})

@@ -19,7 +19,7 @@ import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T } from './lang.js'
-import { tableCourse } from './course.js'
+import { tableWorks } from './work.js'
 
 const briefOf = ({ mission, hints }) => ({ text: [mission.goal, mission.how], hint: hints })
 const hand = Object.fromEntries(Object.entries(handResources).map(([name, useBoard]) => [name, { useBoard, briefOf }]))
@@ -38,7 +38,7 @@ function IntroFigure({ fig }) {
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
 export default function tableGame(content) {
-  const table = tableCourse(content)
+  const table = tableWorks(content)
   const { LEVELS, REQUIRES, TRACKS, ROWS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}

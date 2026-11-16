@@ -7,7 +7,7 @@
 import { T } from '../../../shell/i18n.js'
 import { withPreset } from '../../../circuit/presets.js'
 import { runMachine } from '../machine.js'
-import { presetFor } from '../course.js'
+import { presetFor } from '../work.js'
 import { machineReadout, machineTextOf, machineTermOf } from '../circuit-readouts.js'
 
 export const machineScreen = {

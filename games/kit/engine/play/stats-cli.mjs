@@ -3,7 +3,7 @@
 // each level played (in play order) with its sessions, pass rate, attempts to pass, hints, difficulty and time, then the
 // difficulty-spike findings. Reads games/<game>/playtests/; plays nothing.
 import { GAMES } from '../../../games.js'
-import { isDataGame, readContent, readPlaytests } from '../content-node.js'
+import { isDataGame, readContent, readPlaytests, runtimeOf } from '../content-node.js'
 import { SPIKE, perLevel, spikes } from './stats.js'
 
 const asked = process.argv.slice(2)
@@ -11,7 +11,7 @@ for (const id of asked.length ? asked : GAMES.map((g) => g.id)) {
   const records = readPlaytests(id)
   if (!records.length || !isDataGame(id)) continue
   const content = readContent(id)
-  const spec = (await import(`../../modules/${content.domain}/domain.js`)).default.spec(content)
+  const spec = (await runtimeOf(content)).spec(content)
   const stats = perLevel(records)
   const skipped = new Set(records.flatMap((r) => r.levels.filter((e) => e.outcome === 'skipped').map((e) => e.level)))
   console.log(`\n${spec.title.zh} ${spec.title.en}: ${records.length} session(s) (${records.map((r) => `${r.session}: ${r.player.kind}${r.player.model ? ` ${r.player.model}` : ''}`).join('; ')})`)

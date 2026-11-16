@@ -11,7 +11,7 @@ import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
 import { visibleOverrides } from '../layers.js'
-import { PROJECT_DIR, domainOf, isDataGame, readContent, readPackage, packageIds, readGameConfig } from '../content-node.js'
+import { PROJECT_DIR, runtimeOf, isDataGame, readContent, readPackage, packageIds, readGameConfig } from '../content-node.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
@@ -114,7 +114,7 @@ function boardAt(content, level, path, vocabulary) {
 
 /** Every board (blueprint text) a level holds: [{ path, text }]. */
 async function boardsOf(content, level) {
-  const { vocabulary } = await domainOf(content)
+  const { vocabulary } = await runtimeOf(content)
   const { id: _, ...value } = levelIn(content, level)
   return find(vocabulary.level, value, 'board', { vocabulary }).map((b) => ({ path: showPath(b.path), text: b.value.join('\n') }))
 }
@@ -170,7 +170,7 @@ const tools = {
     params: { game: 'string', mutants: 'boolean?' },
     async run({ game, mutants = false }) {
       const content = readTarget(game)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants, cache: kept(game), root: ROOT })
+      const lines = await checkGame(content, { domain: await runtimeOf(content), listed: listed(game), mutants, cache: kept(game), root: ROOT })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
@@ -188,7 +188,7 @@ const tools = {
     async run({ game, level }) {
       const content = readTarget(game)
       levelIn(content, level)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       const lines = await domain.validate(domain.spec(content))
       const mine = about(lines, level)
       return { ok: !mine.some((l) => l.fail), lines: mine.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`), ...(mine.length ? {} : { note: 'no line names this level: this domain reports a level only when it fails' }) }
@@ -226,7 +226,7 @@ const tools = {
       }
       const pick = (v) => (v && typeof v === 'object' && 'en' in v ? v.en : v)
       // What sort of level it is: its fields that pick one of a few (its kind or mode, its world, its robot…), by its schema.
-      const { vocabulary } = await domainOf(content)
+      const { vocabulary } = await runtimeOf(content)
       const shape = shapeAt(vocabulary.level, value, [], { vocabulary })
       const picks = Object.entries(shape?.fields ?? {}).filter(([k, s]) => ['oneOf', 'ref'].includes(s.type) && value[k] !== undefined).map(([k]) => k)
       const rows = [
@@ -256,7 +256,7 @@ const tools = {
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).
-      const ids = !content ? [] : !check || r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await domainOf(content)).spec(content).levels.map((l) => l.id)
+      const ids = !content ? [] : !check || r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await runtimeOf(content)).spec(content).levels.map((l) => l.id)
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
@@ -269,7 +269,7 @@ const tools = {
     params: { game: 'string', piece: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, piece, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       return { events: pieceFlow(domain.spec(content).course, content, piece) }
     },
   },
@@ -279,7 +279,7 @@ const tools = {
     async run({ game, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
       const shown = await gameOf(content)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       return {
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
         // Each with the piece it is (its type in pieces.json) and the level that first gives it: a primitive's first level
@@ -295,7 +295,7 @@ const tools = {
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       if (!domain.play) return { covered: false, why: `the ${content.domain} domain gives no play hook` }
       const board = boardAt(content, level, path, domain.vocabulary)
       if (!board) return { covered: false, why: `${level} has no board at ${path}` }
@@ -326,7 +326,7 @@ const tools = {
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      const domain = await domainOf(content)
+      const domain = await runtimeOf(content)
       const board = boardAt(content, level, path, domain.vocabulary)
       if (!board) return { note: `${level} has no board at ${path}` }
       const { lines, task } = board
@@ -344,7 +344,7 @@ const tools = {
     params: { game: 'string', query: 'object', changeset: 'object?', scope: 'string?' },
     async run({ game, query, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      const hits = searchContent(content, (await domainOf(content)).vocabulary, query)
+      const hits = searchContent(content, (await runtimeOf(content)).vocabulary, query)
       return { count: hits.length, hits }
     },
   },
@@ -353,7 +353,7 @@ const tools = {
     params: { game: 'string', query: 'object', with: 'string', pick: 'array?', changeset: 'object?', scope: 'string?' },
     async run({ game, query, with: replacement, pick = null, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      const { ops, changes, skipped } = replaceOps(content, (await domainOf(content)).vocabulary, query, replacement, pick)
+      const { ops, changes, skipped } = replaceOps(content, (await runtimeOf(content)).vocabulary, query, replacement, pick)
       return { changeset: { why: `replace ${JSON.stringify(query.find)} with ${JSON.stringify(replacement)}`, ops }, changes, skipped: skipped.map((h) => ({ file: h.file, path: showPath(h.path), text: h.text })) }
     },
   },
@@ -414,7 +414,7 @@ const tools = {
       const content = readTarget(game)
       return {
         domain: content.domain,
-        vocabulary: describe((await domainOf(content)).vocabulary),
+        vocabulary: describe((await runtimeOf(content)).vocabulary),
         operations: Object.fromEntries(Object.entries(OPERATIONS).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }
     },

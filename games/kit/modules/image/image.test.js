@@ -15,10 +15,10 @@ import { ransacLine, robustHomography } from './engine/match.js'
 import { MATCHING } from './engine/parts/matching.js'
 import { picture } from './items/pictures.js'
 import { constraintOf, depthOf } from './items/constraints.js'
-import { imageCourse } from './course.js'
+import { imageWorks } from './work.js'
 import { imageBoards } from './engine/board-view.js'
 import { play } from './play.js'
-import domain from './domain.js'
+import domain from './runtime.js'
 
 // A course of three levels: one a built piece runs, one holds that piece, one is two tasks.
 const L = (s) => ({ zh: s, en: s })
@@ -36,7 +36,7 @@ const content = deepFreeze({
   ],
   partDefs: { parts: { widen: { name: L('p'), desc: L('d'), inside: [{ id: 'base', reference: { solution: wide } }] } } },
 })
-const image = imageCourse(content)
+const image = imageWorks(content)
 const { fromText, toText } = image.kit
 
 test('shared neighbourhood filters preserve signs, scaling and edge padding', () => {
@@ -103,7 +103,7 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   image.syncOwn({ wide: fromText(['out <- in']) })
   assert.notDeepEqual(run(), reference)
   // Another read of the same content keeps circuits of its own: the first read's is not its part.
-  assert.deepEqual(runOf(imageCourse(content))(), reference)
+  assert.deepEqual(runOf(imageWorks(content))(), reference)
   assert.notDeepEqual(run(), reference)
   const dangling = fromText(['out <- in'])
   image.syncOwn({ wide: { ...dangling, wires: [{ from: 'missing', to: 'out', port: 'in' }] } })
@@ -113,7 +113,7 @@ test('a packed part runs the circuit the player passed its level with, in its ow
 })
 
 test('a course reward runs and displays the exact workshop version used by its passing board', () => {
-  const made = imageCourse(content)
+  const made = imageWorks(content)
   const circuit = imageBoards(made)
   const source = made.levelById.wide.tasks[0]
   const game = { circuit, partDefs: content.partDefs, workshop: {}, levels: [{ tasks: [{ key: 'wide', source }] }] }
