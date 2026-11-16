@@ -32,12 +32,17 @@ export function vocabularyFor(course) {
   const choices = ids.map((id) => selectModuleVocabulary(vocabulary, id))
   const selected = choices.length === 1 ? choices[0] : {
     ...vocabulary,
-    game: S.obj(Object.assign({}, ...choices.map((choice) => choice.game.fields))),
+    game: S.obj(Object.fromEntries([...new Set(choices.flatMap(choice => Object.keys(choice.game.fields)))].map(key => {
+      const schemas = choices.map(choice => choice.game.fields[key]).filter(Boolean)
+      const schema = schemas.length === 1 ? schemas[0] : key === 'chapters'
+        ? S.list(S.either(...schemas.map(schema => schema.of)), { min: 1 }) : S.either(...schemas)
+      return [key, schemas.length < choices.length || schemas.some(schema => schema.optional) ? S.opt(schema) : schema]
+    }))),
     level: S.obj({
       ...Object.fromEntries([...new Set(choices.flatMap(choice => Object.keys(choice.level.fields)))].filter(key => key !== 'tasks').map(key => {
         const schemas = choices.map(choice => choice.level.fields[key]).filter(Boolean)
         const schema = schemas.length === 1 ? schemas[0] : S.either(...schemas)
-        return [key, schemas.length < choices.length || schemas.every(schema => schema.optional) ? S.opt(schema) : schema]
+        return [key, schemas.length < choices.length || schemas.some(schema => schema.optional) ? S.opt(schema) : schema]
       })),
       tasks: S.list(S.either(...choices.map(choice => choice.level.fields.tasks.of)), { min: 1 }),
     }),

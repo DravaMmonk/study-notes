@@ -29,8 +29,7 @@ const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh ?? head.e
  * ideas its levels unlock), borrow?: { part: level id }
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
-export default function tableGame(content) {
-  const table = tableWorks(content)
+export default function tableGame(content, table = tableWorks(content)) {
   const { LEVELS, REQUIRES, TRACKS, ROWS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}

@@ -33,8 +33,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'logic:
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-export default function logicGame(content) {
-  const logic = logicWorks(content)
+export default function logicGame(content, logic = logicWorks(content)) {
   const { LEVELS, CHAPTERS, LABELS } = logic
   const { gates, lemmas, pieces } = logic
   // The parts the game defines (pieces.json's and its lemmas'), as the circuit screen draws them.

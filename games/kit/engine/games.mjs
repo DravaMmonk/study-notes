@@ -8,6 +8,7 @@ import { gameModule } from './game-module.js'
 import { runtimeIds } from './runtime.js'
 
 const ROOT = resolve(import.meta.dirname, '../../../trace-viewer')
+const KIT_DIR = resolve(import.meta.dirname, '..')
 const DOMAINS = resolve(import.meta.dirname, '../modules')
 
 const noop = () => {}
@@ -33,8 +34,12 @@ export async function loadModule(file) {
 /** The game made from `content` as the shell gets it (its domain's game.js over it). */
 export async function gameOf(content) {
   await serve()
-  const defineGame = (await server.ssrLoadModule(gameModule(DOMAINS, runtimeIds(content)[0]))).default
-  return defineGame(content)
+  const modules = await Promise.all(runtimeIds(content).map(async id => ({
+    id, define: (await server.ssrLoadModule(gameModule(DOMAINS, id))).default,
+    runtime: (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
+  })))
+  const { composeGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/compose-game.js'))
+  return composeGame(content, modules)
 }
 
 async function serve() {

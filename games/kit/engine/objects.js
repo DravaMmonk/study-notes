@@ -1,7 +1,7 @@
 import { contentKindSchemas } from './content-kinds.js'
 import { pieceStages } from './piece-stages.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
-import { S, validate } from './schema.js'
+import { S, shapeAt } from './schema.js'
 import { fullName } from './names.js'
 import { dependencyCycle } from '../course.js'
 
@@ -66,7 +66,7 @@ export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.m
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
   if (value === undefined || value === null) return value
   if (schema?.type === 'either') {
-    const selected = (typeof value === 'string' && value.startsWith('#') && schema.of.find((s) => referenceKind(s))) || schema.of.find((s) => validate(s, value, { vocabulary }).length === 0) || schema.of.find((s) => s.type === (Array.isArray(value) ? 'list' : typeof value === 'object' ? 'obj' : 'str'))
+    const selected = (typeof value === 'string' && value.startsWith('#') && schema.of.find((s) => referenceKind(s))) || shapeAt(schema, value, [], { vocabulary })
     return expandReferences(value, selected, expand, vocabulary, at)
   }
   if (schema?.members && typeof value === 'string') {

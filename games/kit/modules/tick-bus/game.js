@@ -20,4 +20,4 @@ import { tickBusWorks } from './work.js'
 const ui = await loadDisplays(['tick-bus:screen', 'tick-bus:catalog'])
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => definedGame(content, tickBusWorks(content), { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen: ui['tick-bus:screen'], cards: ui['tick-bus:catalog'] })
+export default (content, works = tickBusWorks(content)) => definedGame(content, works, { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen: ui['tick-bus:screen'], cards: ui['tick-bus:catalog'] })

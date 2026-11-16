@@ -27,8 +27,7 @@ const partOfFlag = (types) => {
  * content (../../engine/content.js): { id, title, kicker, lede, power, eras, primitives, concept, replaces, views,
  * levels, glossary }.
  */
-export default function imageGame(content) {
-  const image = imageWorks(content)
+export default function imageGame(content, image = imageWorks(content)) {
   const { CHAPTERS, LEVELS, course, kit } = image
   const { types } = kit
   const PART_OF_FLAG = partOfFlag(types)
@@ -42,7 +41,7 @@ export default function imageGame(content) {
   const shownUnlocks = (level) => level.unlocks.filter((flag) => !level.tasks.slice(0, -1).some((task) => task.opens.includes(flag)))
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
+  const primitives = [...introductions(course)].filter(([type]) => types[type]).map(([type, at]) => ({ key: `part:${type}`, type, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
   const boards = imageBoards(image)
   const cards = Object.fromEntries(Object.keys(types).map((type) => [type, {
     name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types),

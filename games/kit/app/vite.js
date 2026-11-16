@@ -21,7 +21,12 @@ const q = JSON.stringify
 function gameModule(id) {
   const modules = runtimeIds(readContent(id))
   return [
-    `import define from ${q(domainEntry(resolve(KIT, 'modules'), modules[0]))}`,
+    ...modules.flatMap((id, index) => [
+      `import define${index} from ${q(domainEntry(resolve(KIT, 'modules'), id))}`,
+      `import { ${({ logic: 'prepareLogicWorks', image: 'prepareImageWorks', table: 'prepareTableWorks', rows: 'prepare' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, id === 'rows' ? 'runtime.js' : 'work.js'))}`,
+    ]),
+    `import { composeGame } from ${q(resolve(KIT, 'app/compose-game.js'))}`,
+    `const define = content => composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}])`,
     `import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`,
     `const vocabulary = vocabularyFor(${q(modules)})`,
     'export default { define, vocabulary }',

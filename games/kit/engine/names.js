@@ -2,7 +2,7 @@
 import { CONTENT_KINDS } from './content-kinds.js'
 import { mapBlueprintNames } from '../circuit/text.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
-import { shapeAt, validate } from './schema.js'
+import { shapeAt } from './schema.js'
 
 export const OBJECT_KINDS = ['level', 'piece', 'entry', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS)]
 
@@ -56,8 +56,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v
     if (s?.type === 'either') {
-      const shape = s.of.find((option) => validate(option, v, { vocabulary }).length === 0)
-      return walk(v, shape ?? s.of.find((option) => option.type === (Array.isArray(v) ? 'list' : typeof v === 'object' ? 'obj' : 'str')), path)
+      return walk(v, shapeAt(s, v, [], { vocabulary }), path)
     }
     if (s?.type === 'by') return walk(v, s.cases[v[s.field]], path)
     if (s?.type === 'text') {

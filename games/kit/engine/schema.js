@@ -199,7 +199,23 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
 }
 
 // Of an either's shapes, the first of the kind of `v` that has all its fields.
-const kin = (s, v) => s.of.find((x) => (isObj(v) ? (x.type === 'obj' && Object.keys(v).every((k) => k in x.fields)) || x.type === 'by' || x.type === 'map' : Array.isArray(v) ? x.type === 'list' : false))
+const sameShape = (s, v) => {
+  if (v === undefined) return true
+  if (s.type === 'either') return s.of.some(option => sameShape(option, v))
+  if (s.type === 'by') return isObj(v) && Boolean(s.cases[v[s.field]]) && sameShape(s.cases[v[s.field]], v)
+  if (s.type === 'obj') return isObj(v) && Object.entries(v).every(([key, value]) => s.fields[key] && sameShape(s.fields[key], value))
+  if (s.type === 'list') return Array.isArray(v) && v.every(value => sameShape(s.of, value))
+  if (s.type === 'map') return isObj(v)
+  if (s.type === 'oneOf') return s.values.includes(v)
+  if (s.type === 'text') return typeof v === 'string' || isText(v)
+  if (['str', 'ref', 'name', 'level', 'task', 'syntax'].includes(s.type)) return typeof v === 'string'
+  if (['num', 'int'].includes(s.type)) return typeof v === 'number'
+  if (s.type === 'bool') return typeof v === 'boolean'
+  if (s.type === 'board') return Array.isArray(v)
+  return true
+}
+const kin = (s, v) => s.of.find(option => sameShape(option, v))
+
 
 /**
  * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value,

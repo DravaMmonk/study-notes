@@ -19,4 +19,4 @@ import { OPS } from './ops.js'
 const ui = await loadDisplays(['circuit:screen'])
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, circuitWorks(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: ui['circuit:screen'], ops: OPS })
+export default (content, works = circuitWorks(content)) => definedGame(content, works, { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: ui['circuit:screen'], ops: OPS })
