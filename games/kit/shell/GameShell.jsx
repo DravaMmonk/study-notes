@@ -365,7 +365,7 @@ export default function GameShell({ game, store, author = null }) {
             onAll={() => update((p) => ({ ...p, all: true }))}
             onOpen={open}
             focus={left}
-            onReset={() => update((p) => ({ ...store.blank(), all: p.all }))}
+            onReset={() => update(store.blank)}
             onParts={game.parts && (() => setSheet('parts'))}
             onWorkshop={workshop && (() => openBench())}
             partsNew={box.unread.length}

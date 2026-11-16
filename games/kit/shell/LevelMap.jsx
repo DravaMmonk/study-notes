@@ -342,8 +342,8 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
             ? <strong role="status"><LockOpen size={14} />{tr('已全部解锁')}</strong>
             : <button type="button" className="kit-btn is-label" onClick={onAll}><Lock size={14} />{tr('全部解锁')}</button>}
           <small>{progress.all
-            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。')
-            : tr('开放所有关卡、任务、元件和百科。开启后不能关闭。')}</small>
+            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。清空进度会恢复正常解锁。')
+            : tr('开放所有关卡、任务、元件和百科。')}</small>
         </div>
         <div className="progress-clear">
           <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。')}</p>
