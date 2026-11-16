@@ -12,7 +12,8 @@ import { PIECE_REFERENCE_FIELDS } from '../pieces.js'
 import { T as t } from '../../shell/i18n.js'
 
 
-export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$', about: t('ASCII 名字：字母或下划线开头') })
+const LOCAL_NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$', about: t('ASCII 名字：字母或下划线开头') })
+export const NAME = { ...LOCAL_NAME, pattern: '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_]*$' }
 const WORD = S.str({ pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$', about: t('ASCII 值：写进蓝图文本') })
 export const EXPR = S.str({ view: 'expr', about: t('一行式子：调用领域的引擎资源') })
 export const ICON = S.str({ view: 'icon', about: t('内核图标表里的一个名字') })
@@ -62,14 +63,14 @@ export function settingControlOptions(vocabulary) {
 }
 
 const SETTING_BINDING = S.obj({
-  key: NAME,
+  key: LOCAL_NAME,
   setting: S.ref('setting', { about: t('此件引用的设置定义', 'The setting definition this piece uses') }),
 })
 
 const leaf = {
-  value: S.obj({ show: S.oneOf(['value']), output: S.opt(NAME) }, { about: t('输出上的值') }),
-  settings: S.obj({ show: S.oneOf(['settings']), keys: S.opt(S.list(NAME)) }, { about: t('设置的控件') }),
-  setting: S.obj({ show: S.oneOf(['setting']), key: NAME, as: S.opt(S.oneOf(['control', 'label'])) }, { about: t('一个设置：控件，或此刻的值的字') }),
+  value: S.obj({ show: S.oneOf(['value']), output: S.opt(LOCAL_NAME) }, { about: t('输出上的值') }),
+  settings: S.obj({ show: S.oneOf(['settings']), keys: S.opt(S.list(LOCAL_NAME)) }, { about: t('设置的控件') }),
+  setting: S.obj({ show: S.oneOf(['setting']), key: LOCAL_NAME, as: S.opt(S.oneOf(['control', 'label'])) }, { about: t('一个设置：控件，或此刻的值的字') }),
   summary: S.obj({ show: S.oneOf(['summary']), text: S.opt(S.text({ about: t('带 {设置} 的一句话') })) }, { about: t('一行设置摘要') }),
   readout: S.obj({ show: S.oneOf(['readout']), label: S.text(), expr: EXPR, unit: S.opt(S.text()), digits: S.opt(S.int({ min: 0, max: 8 })) }, { about: t('由设置算出的读数') }),
   action: S.obj({ show: S.oneOf(['action']), label: S.text(), set: S.map(EXPR, { about: t('设置 → 按下后的新值') }), when: S.opt(EXPR) }, { about: t('按下把几个设置改成算出的值') }),
@@ -87,11 +88,11 @@ const VIEW = S.list(BLOCK)
 export const FACES = ['card', 'tile', 'detail']
 
 /** A rule: when setting `on` changes (any setting, without it), and `when` holds, the settings in `set` take new values. */
-const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子') }) })
+const RULE = S.obj({ on: S.opt(LOCAL_NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子') }) })
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
-const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
-const REGION = S.obj({ name: NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)), when: S.opt(EXPR) })
+const PORT = S.obj({ name: LOCAL_NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
+const REGION = S.obj({ name: LOCAL_NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(LOCAL_NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
   settings: S.opt(S.list(SETTING_BINDING, { view: 'setting-bindings' })),
@@ -119,7 +120,7 @@ export const PRIMITIVE = S.obj({
   ...SETTINGS,
   regions: S.opt(S.list(REGION)),
   ...PAINT,
-  keeps: S.opt(S.obj({ input: NAME, register: NAME }, { about: t('把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute') })),
+  keeps: S.opt(S.obj({ input: LOCAL_NAME, register: LOCAL_NAME }, { about: t('把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute') })),
   compute: S.opt(S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') }))),
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
@@ -131,8 +132,8 @@ const REFERENCE = S.obj(Object.fromEntries(PIECE_REFERENCE_FIELDS
 { about: t('可独立读取的参考作品和接口', 'A standalone reference work and its interface') })
 
 export const INSIDE = S.list(S.obj({
-  id: NAME,
-  form: S.opt(NAME),
+  id: LOCAL_NAME,
+  form: S.opt(LOCAL_NAME),
   label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })),
   reference: REFERENCE,
 }), { min: 1 })
@@ -182,5 +183,5 @@ export const builtPart = (reference, name) => ({ name: { en: name }, desc: { en:
 /** pieces.json. */
 export const PARTS_FILE = S.obj({
   settings: S.opt(S.map(SETTING, { keys: NAME.pattern })),
-  parts: S.map(PART, { keys: '^[A-Za-z_][A-Za-z0-9_]*$' }),
+  parts: S.map(PART, { keys: NAME.pattern }),
 })

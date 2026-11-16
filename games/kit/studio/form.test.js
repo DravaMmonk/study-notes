@@ -1,7 +1,7 @@
 // node --test games/kit/studio — a task list edited as a whole becomes task operations, each task known by its id.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { copyLevelData, creationChoices, taskListOps } from './form.js'
+import { copyLevelData, creationChoices, gameFields, taskListOps } from './form.js'
 import { sourceOps } from './source.js'
 import { removesContent } from './delete.js'
 import { sourceValue } from '../engine/catalogs.js'
@@ -93,4 +93,8 @@ test('source deletion detection distinguishes removed fields and items from edit
   assert.equal(removesContent({ tasks: [a, b] }, { tasks: [b, { id: 'c' }] }), true)
   assert.equal(removesContent({ tasks: [a, b] }, { tasks: [a, { id: 'b' }] }), true)
   assert.equal(removesContent({ names: ['a', 'b'] }, { names: ['a'] }), true)
+})
+
+test('assembled registries stay outside the editable course fields', () => {
+  assert.deepEqual(gameFields({ id: 'toy', title: 'Toy', registries: { level: {} } }), { title: 'Toy' })
 })

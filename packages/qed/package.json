@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 13,
+  "vocabulary": 17,
   "wordSets": {
     "everyday": {
       "Rain": "@course.wordSets.everyday.Rain",

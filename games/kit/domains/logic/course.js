@@ -18,6 +18,7 @@ import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { MACHINE_BOARD, RULE_PIECE, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, rulePieces, startMachine } from './machine.js'
+import { parse as parseExpression } from '../../engine/parts/expr.js'
 import { compileParts } from '../../engine/parts/define.js'
 import { presetCardIds, presetOf, withPreset } from '../../circuit/presets.js'
 import { T } from '../../shell/i18n.js'
@@ -294,6 +295,9 @@ export function logicCourse(content) {
   const gatePieces = {}
   // The parts: pieces.json's and the lemmas', each on the board of its family.
   const { PARTS, defs, defaultsOf } = partsOf(content.partDefs, lemmas)
+  const resourcesOf = (def) => (typeof def.compute === 'string' ? [def.compute] : Object.values(def.compute ?? {})).map((expression) => parseExpression(expression).call).filter(Boolean)
+  const partResources = Object.fromEntries(Object.entries(defs).map(([type, def]) => [type, resourcesOf(def)[0]]))
+  const piecesForResource = Object.fromEntries(Object.entries(defs).flatMap(([type, def]) => resourcesOf(def).map((resource) => [resource, type])))
   const onBoard = (...families) => Object.fromEntries(Object.entries(PARTS).filter(([type]) => families.includes(defs[type].family)))
   const primitiveGates = onBoard('gate')
   const boardGates = Object.fromEntries(Object.entries(primitiveGates).map(([type, part]) => [type, { ...part, name: defs[type].name, desc: defs[type].desc }]))
@@ -493,6 +497,7 @@ export function logicCourse(content) {
       const later = one.task > 0
       // A task has what the tasks before it in its level proved.
       const before = references.prior('fact', one).filter(({ task }) => task.id === one.id).map(({ type }) => type)
+      one.rulePieces = piecesForResource
       one.holds = met(course, { id: level.id, task: one.task })
       one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       const has = holds(course, { id: level.id, task: one.task }, new Set())
@@ -526,6 +531,7 @@ export function logicCourse(content) {
   const running = new Map()
   const machineTypes = [...new Set(references.entriesOf('machine').map(({ type }) => type))]
   for (const one of TASKS) {
+    one.partResources = partResources
     const has = holds(course, one, new Set())
     const part = (type, strict) => {
       const options = { strict, reference: true, kind: 'machine' }
@@ -609,5 +615,5 @@ export function logicCourse(content) {
     })
     return [...named, ...proofWorkReferences(task, work)]
   }
-  return { machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { partResources, machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

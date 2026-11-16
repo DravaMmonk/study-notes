@@ -26,7 +26,7 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
 
   for (const level of levels) {
     if (course.notes && !intros[level.id]?.length) continue
-    for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
+    for (const problem of introProblems(intros[level.id], level, FIGURES, kit.types)) failAt(`${level.id}: 引言：${problem}`, level.id)
   }
 
   // Every task is checked as a level of its own, a task of a level of several named by its place (`1-11/1`); `home` is

@@ -6,7 +6,8 @@ const row = S.obj({ total: S.int(), chips: S.list(S.int(), { min: 1 }), referenc
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 2,
+  version: 3,
+  removes: [{ at: 'level.tasks', why: 'Task ids accept package-qualified names.' }],
   kinds: { kind: { equation: { about: { zh: '补齐等式右边的加法式' } } } },
   game: S.obj({ title: S.text(), kicker: S.text(), lede: S.text(), order: S.list(S.level(), { min: 1 }) }),
   level: taskLevel({ title: S.text() }, {

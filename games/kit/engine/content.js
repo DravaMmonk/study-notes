@@ -8,7 +8,10 @@
 //   { id, …configuration, eras (the chapters as played, groups expanded), sourceEras (as course.json writes them),
 //     levels: [{ id, …levels/<id>.json }], groups: { id: groups/<id>.json }, glossary, partDefs? (pieces.json),
 //     blueprint?, overridden: { key: { lang: the package's text } | null } }
-import { expandEras } from './groups.js'
+import { PARTS_FILE } from './parts/schema.js'
+import { GLOSSARY } from './vocabulary.js'
+import { createRegistries, expandNames, fullName, registryOf } from './names.js'
+import { GROUP, expandEras } from './groups.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 
 const sourceContents = new WeakSet()
@@ -76,7 +79,28 @@ export function overlayTexts(value, overrides) {
 }
 
 /** One content from a game's files. `levels`, `groups`: [[id, value]] in any order (they are kept sorted by id). */
-export function assemble({ id, game, levels, groups = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false }) {
+export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id}`, game, levels, groups = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false }) {
+  if (!schemas) throw new Error('content assembly needs the domain vocabulary')
+  const pieces = new Set(Object.keys(partDefs?.parts ?? {})
+    .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
+    .map((name) => name.includes('/') ? name.slice(name.indexOf('/') + 1) : name))
+  const pieceRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, piece]) => piece.inside && ['lemma', 'rule'].includes(piece.family)).map(([name]) => name))
+  const expand = (value, namespace, schema, context = '') => expandNames(value, namespace, { pieces, pieceRules, schema, vocabulary: schemas, context })
+  game = Object.fromEntries(Object.entries(configurationFiles(game)).flatMap(([file, value]) => {
+    const namespace = file === 'game.json' || file === 'course.json' ? courseNamespace : packageId
+    const expanded = expand(value, namespace, file === 'trays.json' ? schemas?.game?.fields?.trays : schemas?.game, 'configuration')
+    if (file !== 'trays.json') return Object.entries(expanded)
+    if (value === undefined) return []
+    return [['trays', Object.fromEntries(Object.entries(expanded).map(([name, tray]) => [fullName(namespace, name), tray]))]]
+  }))
+  levels = levels.map(([name, value]) => [fullName(packageId, name), expand(value, packageId, schemas?.level)])
+  groups = groups.map(([name, value]) => [fullName(packageId, name), expand(value, packageId, GROUP)])
+  glossary = expand(glossary, packageId, GLOSSARY)
+  if (partDefs) partDefs = Object.fromEntries(Object.entries(partDefs).map(([kind, values]) => [kind,
+    registryOf(kind === 'parts' ? 'piece' : 'setting', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
+  ]))
+  blueprint = expand(blueprint, `@${id}`)
+  overridden = Object.fromEntries(Object.entries(overridden).map(([key, value]) => [fullName(packageId, key), value]))
   const byId = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)
   const groupMap = Object.fromEntries([...groups].sort(byId))
   const played = game.eras ? { eras: expandEras(game.eras, groupMap), sourceEras: game.eras } : {}
@@ -84,6 +108,11 @@ export function assemble({ id, game, levels, groups = [], glossary, partDefs, bl
     id, ...game, ...played, levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...level })), groups: groupMap, glossary,
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden,
   }
+  content.registries = createRegistries({
+    level: content.levels.map((level) => [level.id, level]),
+    piece: Object.entries(partDefs?.parts ?? {}), setting: Object.entries(partDefs?.settings ?? {}),
+    entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
+  })
   if (fromDisk) sourceContents.add(content)
   return content
 }

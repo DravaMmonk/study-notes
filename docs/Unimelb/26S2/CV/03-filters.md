@@ -183,7 +183,7 @@ $$
 
 原本一个 $k\times k$ 卷积核每个像素约需 $k^2$ 次乘法；拆开后约需 $2k$ 次， $k$ 较大时差别很明显。高斯卷积核常常接近或可以构造成可分离卷积核。
 
-<!-- task: comp90086/separable -->
+<!-- task: comp90086/comp90086/separable -->
 
 ![Slide 40 - Separable filter calculation](assets/03-filters/slide-40.png)
 

@@ -292,7 +292,7 @@ export default function GameShell({ game, store, author = null }) {
   useEffect(() => {
     const refresh = (event) => {
       settings.notify(event)
-      if (event.key?.endsWith('.v2') && event.key !== store.key) refreshExternalPasses((value) => value + 1)
+      if (event.key?.endsWith('.v3') && event.key !== store.key) refreshExternalPasses((value) => value + 1)
     }
     window.addEventListener('storage', refresh)
     return () => window.removeEventListener('storage', refresh)

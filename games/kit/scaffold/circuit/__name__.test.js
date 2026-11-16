@@ -23,12 +23,12 @@ test('the resources compute; a part made of them gives 「—」 when an input i
   assert.equal(OPS.add.run([2, 3]), 5)
   assert.throws(() => OPS.sub.run([2, 'x']), /not a number/)
   assert.deepEqual(partProblems(content.partDefs, vocabulary), [])
-  assert.equal(PARTS.add.eval({ a: 2, b: 3 }, { params: {} }), 5)
-  assert.equal(PARTS.add.eval({ a: 2, b: null }, { params: {} }), null)
+  assert.equal(PARTS['starter/add'].eval({ a: 2, b: 3 }, { params: {} }), 5)
+  assert.equal(PARTS['starter/add'].eval({ a: 2, b: null }, { params: {} }), null)
 })
 
 test('a board reads from blueprint text, runs, and writes back as the same text', () => {
-  const lines = ['s = add(a, b)', 'sum <- s']
+  const lines = ['s = starter/add(a, b)', 'sum <- s']
   const made = fromText(lines, level, plain)
   assert.equal(runLevel(level, made, partOf).pass, true)
   assert.deepEqual(toText(made, level, plain), lines)

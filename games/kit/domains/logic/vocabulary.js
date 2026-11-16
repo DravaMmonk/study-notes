@@ -249,7 +249,11 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 16,
+  version: 17,
+  removes: [
+    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
+    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
+  ],
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

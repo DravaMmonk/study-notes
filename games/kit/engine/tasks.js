@@ -9,7 +9,7 @@
 import { S } from './schema.js'
 import { T as t } from '../shell/i18n.js'
 
-export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
+export const TASK_ID = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 
 /** A task's id, which every task has (a domain writing its own task schema puts this in it). */
 export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）') })
@@ -18,7 +18,7 @@ const FEATURED_PARTS = S.opt(S.list(S.ref('part'), {
   section: 'course', about: t('默认展开的可用元件，参考解所用的件会自动展开。', 'Available parts to show alongside those used by the reference answer.'),
 }))
 
-const PUBLISHES = S.opt(S.list(S.obj({ piece: S.ref('part'), variant: S.str({ pattern: TASK_ID }) }), {
+const PUBLISHES = S.opt(S.list(S.obj({ piece: S.ref('part'), variant: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }) }), {
   section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named piece variant.'),
 }))
 

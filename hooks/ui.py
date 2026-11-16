@@ -1,6 +1,6 @@
 """Package the notes site's shared UI without building or publishing games, and embed the levels of a notes edition.
 
-A note marks a level of a notes edition (games/DESIGN.md 12.1) with <!-- task: game/level --> on its own line; it
+A note marks a level of a notes edition (games/DESIGN.md 12.1) with <!-- task: game/namespace/level --> on its own line; it
 becomes the game's published page, embedded (docs/javascripts/site.js gives it the page's language and its height).
 """
 
@@ -19,7 +19,7 @@ def on_post_build(config, **kwargs):
         shutil.copy2(KIT / name, target / name)
 
 
-TASK = re.compile(r"^[ \t]*<!--\s*task:\s*([a-z0-9-]+)/([a-z0-9-]+)\s*-->[ \t]*$", re.M)
+TASK = re.compile(r"^[ \t]*<!--\s*task:\s*([a-z0-9-]+)/(@?[a-z][a-z0-9-]*/[A-Za-z0-9_][A-Za-z0-9_-]*)\s*-->[ \t]*$", re.M)
 
 
 def on_page_markdown(markdown, page, config, **kwargs):

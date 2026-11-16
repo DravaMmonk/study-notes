@@ -32,6 +32,7 @@ after(async () => {
 })
 
 const post = async (tool, args, raw = null) => {
+  if (args?.level && ['seed', 'render', 'run_tests', 'blueprint', 'run_reference'].includes(tool) && !args.level.includes('/')) args = { ...args, level: `${GAME}/${args.level}` }
   const res = await fetch(`${base}/studio/api/${tool}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: raw ?? JSON.stringify(args) })
   return { status: res.status, body: await res.json() }
 }
@@ -59,9 +60,9 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
   assert.equal(body.failed, null)
-  assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.en, 'Prove it with one box.')
-  assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
-  assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
+  assert.equal(body.content.levels.find((l) => l.id === `${GAME}/suppose`).tasks[0].brief.en, 'Prove it with one box.')
+  assert.ok(body.order.includes(`${GAME}/suppose`) && body.lines.every((l) => Array.isArray(l.levels)))
+  assert.ok(body.lines.some((l) => l.levels.includes(`${GAME}/suppose`) && /^proofs\/suppose /.test(l.text)), 'a domain line is about its level')
   const catalog = `packages/${GAME}/i18n/en.json`
   assert.deepEqual(body.changes.map((c) => c.file).sort(), [`games/${GAME}/i18n/en.json`, catalog])
   const brief = JSON.parse(before).tasks[0].brief.slice(1)
@@ -77,7 +78,7 @@ test('a pending changeset previewed: its content, lines by level and files, noth
 test('a board seeded for the game, drawn as SVG', async () => {
   const seed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution' })).body
   assert.equal(seed.task, 0)
-  assert.ok(Array.isArray(seed.data.nodes) && seed.data.nodes.some((n) => n.type === 'impI'), JSON.stringify(seed).slice(0, 300))
+  assert.ok(Array.isArray(seed.data.nodes) && seed.data.nodes.some((n) => n.type === `${GAME}/impI`), JSON.stringify(seed).slice(0, 300))
   const text = [`# blueprint 1 ${GAME} suppose`, 'f = impI[A=A](body: z) {', '  body {', '    m1 = mp(p, f.body)', '    z = mp(q, m1)', '  }', '}', 'goal <- f'].join('\n')
   const changed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', path: 'tasks[0].solution', text }] } })).body
   assert.ok(changed.data.nodes.some((n) => n.id === 'z'), 'seeded from the content as the changeset leaves it')
@@ -87,7 +88,7 @@ test('a board seeded for the game, drawn as SVG', async () => {
 
 test('blueprint preview, seed, and tests use the requested task', async () => {
   const level = 'given'
-  const { id, ...data } = readContent(GAME, root).levels.find((item) => item.id === level)
+  const { id, ...data } = readContent(GAME, root).levels.find((item) => item.id === `${GAME}/${level}`)
   const first = data.tasks[0]
   const second = { ...first, id: `${id}_2`, brief: { en: first.brief.en }, hint: [], tests: [{ premises: { p: 'A', spare: 'A' }, goal: 'A' }] }
   const changeset = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, second] } }] }

@@ -1,6 +1,5 @@
 import { createElement } from 'react'
 import { createFigureHost } from '../../../../../trace-viewer/src/figures/host.js'
-import { NODE_TYPES } from '../engine/nodes.js'
 import { figureTask, figureTest, partFigure } from '../intros.js'
 import { WORDS } from '../../../shell/words.js'
 import IntroFigure, { FigureHost } from '../../../shell/IntroFigure.jsx'
@@ -22,7 +21,7 @@ export function imageHero({ theme }) {
   return createElement(FigureHost, { mount: createFigureHost, name: 'conv-press', theme, bare: true })
 }
 
-export function imageIntroduction({ fig, level, theme }) {
+export function imageIntroduction({ fig, level, theme, types }) {
   const { caption, view } = fig
   if (fig.figure) return createElement(IntroFigure, { caption, art: createElement(FigureHost, { mount: createFigureHost, name: fig.figure, theme }) })
   if (fig.test !== undefined) {
@@ -35,9 +34,9 @@ export function imageIntroduction({ fig, level, theme }) {
   }
   if (!fig.part) return null
   try {
-    const made = partFigure(fig, level)
+    const made = partFigure(fig, level, types)
     const inputs = made.ins.map((image, index) => item(made.ins.length > 1 ? String.fromCharCode(97 + index) : INPUT, image, view))
-    return createElement(IntroFigure, { caption, inputs, part: NODE_TYPES[fig.part].label, outputs: [item(OUTPUT, made.out, view)] })
+    return createElement(IntroFigure, { caption, inputs, part: types[fig.part].label, outputs: [item(OUTPUT, made.out, view)] })
   } catch {
     return null
   }

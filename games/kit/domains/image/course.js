@@ -14,8 +14,8 @@ import { trayIn } from '../../engine/trays.js'
 import { gridProbe } from '../../engine/grid-probe.js'
 import { imageDefinitions } from './engine/definitions.js'
 import { ownPart } from './engine/own.js'
-import { imageKit } from './engine/kit.js'
 import { NODE_TYPES } from './engine/nodes.js'
+import { imageKit } from './engine/kit.js'
 import { picture } from './items/pictures.js'
 import { testsOf } from './items/scenes/index.js'
 import { constraintOf } from './items/constraints.js'
@@ -46,7 +46,7 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
     ...(solution && { solution: board(solution) }),
     ...(naive && { naive: board(naive, true) }),
     ...(alsoFails && { alsoFails: alsoFails.map((lines) => board(lines, true)) }),
-    ...(constraint && { constraint: constraintOf(constraint) }),
+    ...(constraint && { constraint: constraintOf(constraint, kit.types) }),
   }
 }
 
@@ -56,7 +56,7 @@ function playable({ intro: _, ...task }, kit, keep) {
   if (task.kind === 'probe') {
     const { probes, part, question, answers, answer, wrong, ...rest } = task
     const examples = probes.map(({ label, picture: source }) => ({ label, input: picture(source) }))
-    const run = (input) => NODE_TYPES[part].eval({ in: input })
+    const run = (input) => (part.includes('/') ? kit.types[part] : NODE_TYPES[part]).eval({ in: input })
     const { verify, ...probe } = gridProbe({ examples, run, question, answers, answer, wrong })
     return { ...rest, probe, verify }
   }

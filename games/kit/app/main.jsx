@@ -29,7 +29,7 @@ async function open() {
   if (!response.ok) return { page: <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />, content: null }
   // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
   const contentText = await response.text()
-  const parsed = await pageContent(JSON.parse(contentText), window.location.href)
+  const parsed = await pageContent(JSON.parse(contentText), window.location.href, fetch, vocabulary)
   const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }

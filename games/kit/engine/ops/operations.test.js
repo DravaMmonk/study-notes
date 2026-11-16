@@ -10,7 +10,7 @@ import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
 import { OPERATIONS } from './operations.js'
-import { openGame } from './workspace.js'
+import { openGame as openWorkspace } from './workspace.js'
 import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
@@ -18,6 +18,8 @@ import { taskLevel } from '../tasks.js'
 import { textKey } from '../i18n.js'
 import { writeContentFixture } from './fixture.js'
 import { TRAYS } from '../trays.js'
+
+const openGame = (id, root, options = {}) => openWorkspace(id, root, { vocabulary: id === 'ptoy' ? PVOCAB : VOCAB, ...options })
 
 const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS })
 const VOCAB = defineVocabulary({
@@ -204,15 +206,15 @@ test('a game puts its own wording over a package text, which the package keeps; 
   const { root, ws } = toy()
   const original = level(ws, 'b1').title
   roundTrip(ws, 'text.override', { level: 'b1', path: 'title', lang: 'en', value: 'Ours' })
-  assert.equal(ws.content().levels.find(({ id }) => id === 'b1').title.en, 'Ours')
+  assert.equal(ws.content().levels.find(({ id }) => id === 'toy/b1').title.en, 'Ours')
   assert.deepEqual(level(ws, 'b1').title, original)
-  assert.deepEqual(ws.content().overridden, { [textKey(original)]: { en: 'b1' } })
+  assert.deepEqual(ws.content().overridden, { [`toy/${textKey(original)}`]: { en: 'b1' } })
   assert.throws(() => run(ws, 'text.override', { in: 'game', path: 'title', lang: 'en', value: 'x' }), /the game's own text/)
   const written = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'text.override', level: 'b1', path: 'title', lang: 'en', value: 'Ours' }] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(written.ok, true, written.problems.join('\n'))
   assert.deepEqual(written.files, ['games/toy/overrides/en.json'])
-  assert.equal(openGame('toy', root).content().levels.find(({ id }) => id === 'b1').title.en, 'Ours')
-  assert.equal(openGame('toy', root, { scope: 'package' }).content().levels.find(({ id }) => id === 'b1').title.en, 'b1')
+  assert.equal(openGame('toy', root).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'Ours')
+  assert.equal(openGame('toy', root, { scope: 'package' }).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'b1')
   const refused = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'level.set', level: 'b1', path: 'tests', value: [] }] }, { check: false, domain: DOMAIN })
   assert.match(refused.problems[0], /the package workspace's to change/)
 })
@@ -243,7 +245,7 @@ test('preview, apply and undo a locale edit across a workspace reopen', async ()
   const options = { check: false, domain: DOMAIN }
   const preview = await runChangeset(ws, { ops }, options)
   assert.equal(preview.ok, true, preview.problems.join('\n'))
-  assert.equal(preview.content.levels.find((level) => level.id === 'b1').brief.fr, 'Ensuite')
+  assert.equal(preview.content.levels.find((level) => level.id === 'toy/b1').brief.fr, 'Ensuite')
   assert.deepEqual(preview.files, [catalog])
   assert.equal(existsSync(join(root, catalog)), false)
 
@@ -325,7 +327,7 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
   const { root, ws } = toy()
   const refused = await runChangeset(ws, { ops: [{ op: 'level.move', level: 'b2', to: { before: 'a1' } }, { op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(refused.ok, false)
-  assert.match(refused.problems[0], /levels\/a1.json.from: "gone" is no level of this game/)
+  assert.match(refused.problems[0], /levels\/toy\/a1.json.from: "toy\/gone" is no level of this game/)
   assert.deepEqual(readLog(ws), [])
   const bad = await runChangeset(ws, { ops: [{ op: 'level.move', level: 'nope', to: { before: 'a1' } }] }, { domain: DOMAIN, check: false })
   assert.match(bad.problems[0], /^op 1 \(level.move\): level: "nope" is no level of this game/)
@@ -477,4 +479,30 @@ test('settings have their own lifecycle, and renaming preserves piece-local keys
   assert.deepEqual(ws.partDefs.parts.sum.settings, [{ key: 'k', setting: 'amount' }])
   for (const done of [rename, attach, add]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
   assert.deepEqual(ws.content(), before)
+})
+
+test('operations consume assembled names and keep package source references local', async () => {
+  const ws = partsToy()
+  const result = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'ptoy/a1', path: 'adds', value: ['ptoy/sum'] }] }, { check: false, domain: { vocabulary: PVOCAB } })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  assert.deepEqual(ws.levels.get('a1').adds, ['sum'])
+  assert.deepEqual(result.content.levels[0].adds, ['ptoy/sum'])
+  const before = ws.snapshot()
+  const refused = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'ptoy/a1', path: 'adds', value: ['library/missing'] }] }, { check: false, domain: { vocabulary: PVOCAB } })
+  assert.equal(refused.ok, false)
+  assert.match(refused.problems.join('\n'), /library\/missing/)
+  assert.deepEqual(ws.snapshot(), before)
+})
+
+test('assembled piece selectors and registry paths address layer-local source objects', async () => {
+  const ws = partsToy()
+  const result = await runChangeset(ws, { ops: [
+    { op: 'pieces.set', path: ['parts', 'ptoy/sum', 'inputs', 0, 'label'], value: { en: 'First input' } },
+    { op: 'piece.add', piece: 'ptoy/other', data: sum, after: 'ptoy/sum' },
+  ] }, { check: false, domain: { vocabulary: PVOCAB } })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  const source = JSON.parse(result.changes.find(({ file }) => file.endsWith('/pieces.json')).after)
+  assert.deepEqual(Object.keys(source.parts), ['sum', 'other'])
+  assert.equal(result.content.partDefs.parts['ptoy/sum'].inputs[0].label.en, 'First input')
+  assert.ok(result.content.registries.piece['ptoy/other'])
 })

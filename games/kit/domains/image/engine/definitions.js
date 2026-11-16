@@ -1,9 +1,14 @@
 // Keep the image operations, scoring and course unlocks. Studio owns the parts' data and expressions.
+import { parse } from '../../../engine/parts/expr.js'
 import { applyRules, defineParts, shows } from '../../../engine/parts/define.js'
 import { NODE_TYPES } from './nodes.js'
 
 const named = (names, values) => Object.fromEntries(names.map((name, index) => [name, values[index]]))
 const native = Object.entries(NODE_TYPES).filter(([, spec]) => !spec.fixed)
+const nativeForResource = new Map(native.flatMap(([type, spec]) => {
+  const outputs = typeof spec.outputs === 'function' ? spec.outputs() : [null]
+  return outputs.map((output) => [['image', type, output].filter(Boolean).join('_'), { type, spec }])
+}))
 
 /** One resource for each result of an existing image operation. */
 export const IMAGE_OPS = Object.fromEntries(native.flatMap(([type, spec]) => {
@@ -47,17 +52,32 @@ const settingOf = (setting, old = {}) => {
 
 export function imageDefinitions(file) {
   const defined = defineParts(file, IMAGE_OPS)
-  const types = { ...NODE_TYPES }
+  const resources = new Map(Object.entries(defined.defs).map(([type, def]) => {
+    const expressions = typeof def.compute === 'string' ? [def.compute] : Object.values(def.compute ?? {})
+    return [type, expressions.map((expression) => parse(expression).call)]
+  }))
+  const authoredTypes = new Set([...resources.values()].flat().map((resource) => nativeForResource.get(resource)?.type))
+  const types = Object.fromEntries(Object.entries(NODE_TYPES).filter(([type, spec]) => spec.fixed || !authoredTypes.has(type)))
   for (const [type, def] of Object.entries(defined.defs)) {
     if (types[type]?.fixed) continue
-    const original = NODE_TYPES[type]
+    const nativeSpec = nativeForResource.get(resources.get(type)[0])
+    const nativeType = nativeSpec?.type
+    const original = nativeSpec?.spec
     const part = defined.PARTS[type]
+    const namespace = type.includes('/') ? type.slice(0, type.indexOf('/') + 1) : ''
+    const flag = (value) => value ? `${namespace}${value}` : value
     const params = def.settings.map((setting) => settingOf(
       { ...setting, default: part.defaults[setting.key] },
       original?.params?.find(({ key }) => key === setting.key),
     ))
+    for (const param of params) {
+      if (param.unlock) param.unlock = flag(param.unlock)
+      if (param.options) param.options = param.options.map(([value, label, unlock]) => [value, label, flag(unlock)])
+    }
     types[type] = {
       ...original,
+      resource: nativeType,
+      unlock: flag(original?.unlock),
       label: def.name,
       description: def.desc,
       inputs: part.inputs,

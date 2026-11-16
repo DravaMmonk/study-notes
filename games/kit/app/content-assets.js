@@ -7,7 +7,7 @@ import { configurationFiles } from '../engine/content.js'
 export const CONTENT_FILE = 'content.json'
 
 /** The content as the page plays it: its chapters as played, without what only authoring reads. */
-export function contentAssets({ groups: _groups, sourceEras: _source, overridden: _overridden, ...content }) {
+export function contentAssets({ groups: _groups, sourceEras: _source, overridden: _overridden, registries: _registries, ...content }) {
   const { id: _, levels, glossary, partDefs, blueprint, ...game } = content
   const { 'game.json': meta, 'course.json': course, ...configuration } = configurationFiles(game)
   const assets = new Map()

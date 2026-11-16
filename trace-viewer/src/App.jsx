@@ -205,7 +205,11 @@ function App() {
       const key = `${activeDocument.path}#${index}#${slot.dataset.figure ?? slot.dataset.task}`
       used.add(key)
       const lang = activeDocument.lang ?? langRef.current
-      if (!hosts.has(key)) hosts.set(key, slot.dataset.task ? createTaskHost(...slot.dataset.task.split('/'), { lang }) : createFigureHost(slot.dataset.figure, themeRef.current, { lang }))
+      if (!hosts.has(key)) {
+        const task = slot.dataset.task
+        const slash = task?.indexOf('/')
+        hosts.set(key, task ? createTaskHost(task.slice(0, slash), task.slice(slash + 1), { lang }) : createFigureHost(slot.dataset.figure, themeRef.current, { lang }))
+      }
       slot.replaceWith(hosts.get(key).host)
     })
     hosts.forEach((figure, key) => {

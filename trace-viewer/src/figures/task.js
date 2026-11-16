@@ -1,4 +1,4 @@
-// A level of a notes edition (games/DESIGN.md 12.1) where a note writes <!-- task: <game>/<level> --> on its own line:
+// A level of a notes edition (games/DESIGN.md 12.1) where a note writes <!-- task: <game>/<namespace>/<level> --> on its own line:
 // the game's own page, embedded (?embed, games/kit/shell/EmbedShell.jsx), as tall as the page tells it it is. The page
 // follows the reader's theme through the shared storage key, and reads in the note's language.
 const HEIGHT = 'kit-embed-height'

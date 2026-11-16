@@ -17,7 +17,7 @@ import { openWorkshopPart } from '../circuit/workshop-view.js'
 import { solutionStamp } from '../engine/stamp.js'
 
 /** The key a game's progress is saved under in this browser. */
-export const saveKey = (id) => `${id}.v2`
+export const saveKey = (id) => `${id}.v3`
 
 /** Read another game's recorded level pass on the site's shared origin. */
 export function passedLevelIn(game, level) {

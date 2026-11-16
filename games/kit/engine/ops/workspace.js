@@ -7,10 +7,11 @@
 // The studio opens it as one of two workspaces (games/DESIGN.md 6.7): `scope` 'package' plays the package's own texts
 // and runs only the package's operations; 'game' runs only the course's and the game's own texts. Without a scope
 // (the CLI, the MCP server) every operation runs, and the content reads as the game plays it.
+import { expandNames } from '../names.js'
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import { assemble, combineConfiguration, configurationFiles, courseLevelCount, deepFreeze, overlayTexts, overridesOf } from '../content.js'
-import { PROJECT_DIR, catalogFiles, configPaths, gameDirectory, groupFiles, levelFiles, splitGameConfig } from '../content-node.js'
+import { PROJECT_DIR, contentVocabulary, catalogFiles, configPaths, gameDirectory, groupFiles, levelFiles, splitGameConfig } from '../content-node.js'
 import { catalogReader, sourceValue } from '../catalogs.js'
 import { catalogsOf, normalizeText } from '../content-text.js'
 import { GLOSSARY } from '../vocabulary.js'
@@ -40,7 +41,7 @@ const CONFIG = ['game.json', 'package.json', 'course.json', 'trays.json']
 const inGame = (file) => file === 'game.json' || file === 'course.json' || file === 'blueprint.json'
 
 /** Open a game, its course and its package for author operations. */
-export function openGame(id, root = PROJECT_DIR, { scope = null } = {}) {
+export function openGame(id, root = PROJECT_DIR, { scope = null, vocabulary = null } = {}) {
   const dir = gameDirectory(id, root)
   const config = resolve(dir, 'game.json')
   if (!existsSync(config)) throw new Error(`no data game ${id} in ${root}`)
@@ -88,6 +89,7 @@ export function openGame(id, root = PROJECT_DIR, { scope = null } = {}) {
     dir,
     scope,
     packageId,
+    schemas: vocabulary ?? contentVocabulary(gameConfig.domain),
     packageDir,
     pathFor,
     game: gameConfig,
@@ -109,6 +111,7 @@ export function openGame(id, root = PROJECT_DIR, { scope = null } = {}) {
     basis: new Map(),
     hub: read(resolve(root, HUB)),
   }
+  ws.game = courseNames(ws, ws.game, true)
   // Several games may share a package: keep the translations of texts this game does not read.
   ws.packageCatalog = packageCatalog
   ws.activePackageKeys = keyed(catalogsOf(PACKAGE_I18N, ...packageValues(ws)))
@@ -130,17 +133,29 @@ export function openGame(id, root = PROJECT_DIR, { scope = null } = {}) {
   })
 }
 
+/** The author workspace edits local package ids. Course files spell their package references explicitly. */
+function courseNames(ws, game, local = false) {
+  const prefix = `${ws.packageId}/`
+  const pieces = new Set(Object.keys(ws.partDefs?.parts ?? {}))
+  const files = configurationFiles(game)
+  for (const file of ['game.json', 'course.json']) files[file] = expandNames(files[file], ws.packageId, {
+    pieces, vocabulary: ws.schemas, schema: ws.schemas?.game, context: 'configuration', textKeys: false,
+    ...(local && { resolve: (name) => typeof name === 'string' && name.startsWith(prefix) ? name.slice(prefix.length) : name }),
+  })
+  return combineConfiguration(files)
+}
+
 /** The package's texts with what the game puts over them, unless the package is what is being edited. */
 function contentOf(ws) {
   const own = ws.scope === 'package' ? {} : liveOverrides(ws)
   const over = (value) => (Object.keys(own).length ? overlayTexts(value, own) : value)
-  const game = Object.fromEntries(Object.entries(configurationFiles(ws.game)).flatMap(([file, value]) => {
+  const game = Object.fromEntries(Object.entries(configurationFiles(courseNames(ws, ws.game))).flatMap(([file, value]) => {
     const shown = inGame(file) ? value : over(value)
     return file === 'trays.json' ? (shown === undefined ? [] : [['trays', shown]]) : Object.entries(shown)
   }))
   const packaged = catalogsOf(PACKAGE_I18N, ...packageValues(ws))
   return assemble({
-    id: ws.id, game, glossary: over(ws.glossary), partDefs: over(ws.partDefs), blueprint: ws.blueprint,
+    id: ws.id, packageId: ws.packageId, schemas: ws.schemas, game, glossary: over(ws.glossary), partDefs: over(ws.partDefs), blueprint: ws.blueprint,
     levels: [...ws.levels].map(([id, level]) => [id, over(level)]), groups: [...ws.groups].map(([id, group]) => [id, over(group)]),
     overridden: overridesOf(packaged, own), fromDisk: true,
   })
@@ -190,7 +205,7 @@ const sortedKeys = (entries) => Object.fromEntries(Object.entries(entries).sort(
 
 function changes(ws) {
   const out = []
-  const files = configurationFiles(ws.game)
+  const files = configurationFiles(courseNames(ws, ws.game))
   const configuration = new Map([...Object.entries(files),
     ['game.json', { package: ws.packageId, ...files['game.json'] }],
     ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]),

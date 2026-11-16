@@ -141,11 +141,11 @@ function slugify(value, seen) {
   return count ? `${base}-${count + 1}` : base
 }
 
-// An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes; <!-- task: game/level
+// An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes; <!-- task: game/namespace/level
 // --> where a level of a notes edition goes (games/DESIGN.md 12.1). Obsidian hides the comment; here it becomes an
 // empty slot the app fills.
 const figurePattern = /^[ \t]*<!--\s*figure:\s*([a-z0-9-]+)\s*-->[ \t]*$/gm
-const taskPattern = /^[ \t]*<!--\s*task:\s*([a-z0-9-]+)\/([a-z0-9-]+)\s*-->[ \t]*$/gm
+const taskPattern = /^[ \t]*<!--\s*task:\s*([a-z0-9-]+)\/(@?[a-z][a-z0-9-]*\/[A-Za-z0-9_][A-Za-z0-9_-]*)\s*-->[ \t]*$/gm
 
 export function renderMarkdown(markdown, sourcePath) {
   const withFigures = markdown

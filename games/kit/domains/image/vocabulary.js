@@ -149,7 +149,11 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 28,
+  version: 29,
+  removes: [
+    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
+    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
+  ],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

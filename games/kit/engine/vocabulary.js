@@ -48,7 +48,7 @@ export const GLOSSARY = S.obj({
  * (../course.js) its curriculum has not met yet, each on the work list in the game's design doc. npm run check lists them
  * without failing, and fails on any other finding and on one listed that is gone.
  */
-export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
+export const OPEN = S.map(S.list(S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*/)?[^@]*@(?:@?[a-z][a-z0-9-]*/)?[^@]+$' })))
 
 
 export function defineVocabulary({ domain, version, kinds, game, level, languages = {}, removes }) {
@@ -135,7 +135,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. The course is checked as course.json writes it, its
   // groups unexpanded.
-  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, groups = {}, sourceEras, overridden = {}, ...played } = content
+  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, groups = {}, sourceEras, overridden = {}, registries: _registries, ...played } = content
   const game = sourceEras ? { ...played, eras: sourceEras } : played
   if (hasCatalogSource(content)) {
     const courseKeys = new Map(), packageKeys = new Map()

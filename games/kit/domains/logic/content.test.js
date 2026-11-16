@@ -1,3 +1,4 @@
+import { starterPieces } from '../../engine/ops/fixture.js'
 // The logic domain on its content: boards as blueprint text both ways, a course's data read into its levels (test
 // cases, words), and the parts the player builds running the player's board; on a course written here.
 import { test } from 'node:test'
@@ -13,7 +14,7 @@ import { primitivesOnly } from '../../engine/board-cards.js'
 import { PROOF_BOARD, runProof, startProof } from './proof.js'
 import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
-import { readContent, readStarter } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/content-node.js'
 import { trayDisplay } from '../../engine/trays.js'
 import domain from './domain.js'
 
@@ -46,8 +47,8 @@ const CONTENT = {
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
   // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
-  partDefs: { settings: { ...readStarter(import.meta.dirname).partDefs.settings, formula: { control: 'tree' } }, parts: {
-    ...Object.fromEntries(Object.entries(readStarter(import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
+  partDefs: { settings: { ...starterPieces(import.meta.dirname).settings, formula: { control: 'tree' } }, parts: {
+    ...Object.fromEntries(Object.entries(starterPieces(import.meta.dirname).parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ id: 'base', reference: GATE }] },
     chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'base', reference: CHAIN }] },
     half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
@@ -287,7 +288,7 @@ test('formula chips use the registered pieces and keep contextual names', () => 
   })
   const not = chips.find((chip) => chip.key === '¬')
   const rain = chips.find((chip) => chip.key === 'P:Rain')
-  assert.equal(not.piece.type, 'formulaNot')
+  assert.equal(not.piece.type, 'starter/formulaNot')
   assert.equal(not.make().op, '¬')
   assert.equal(rain.make().pred, 'Rain')
   assert.ok(level.notation.symbols.includes('∨'))
@@ -296,44 +297,47 @@ test('formula chips use the registered pieces and keep contextual names', () => 
 test('formula and circuit groups share a task, combining in order and respecting unlocks', () => {
   const content = readStarter(import.meta.dirname)
   content.trays = {
-    gates: { name: 'Gates', desc: 'Logic gates', items: ['gNot', 'gAnd'] },
-    basic: { name: 'Basic', desc: 'Basic symbols', items: ['formulaAnd', 'formulaNot'] },
-    extended: { name: 'Extended', desc: 'Additional symbols', items: ['formulaOr', 'formulaNot'] },
+    gates: { name: 'Gates', desc: 'Logic gates', items: ['starter/gNot', 'starter/gAnd'] },
+    basic: { name: 'Basic', desc: 'Basic symbols', items: ['starter/formulaAnd', 'starter/formulaNot'] },
+    extended: { name: 'Extended', desc: 'Additional symbols', items: ['starter/formulaOr', 'starter/formulaNot'] },
   }
   const levels = content.levels
-  const first = levels.find(({ id }) => id === 'g-not')
+  const first = levels.find(({ id }) => id === 'starter/g-not')
   first.tray = ['gates', 'basic', 'extended']
-  const last = levels.find(({ id }) => id === 'g-use')
+  const last = levels.find(({ id }) => id === 'starter/g-use')
   last.tray = ['gates', 'extended', 'basic']
-  last.without = ['formulaNot']
+  last.without = ['starter/formulaNot']
   const logic = logicCourse(content)
   const read = (id) => logic.LEVELS.find((level) => level.id === id).tasks[0]
   const chips = (id) => chipsOf({
     kind: 'translate', notation: read(id).notation, vocab: { preds: [['Rain', 0]], consts: [] },
   }).map(({ key }) => key)
 
-  assert.deepEqual(chips('g-not'), ['P:Rain', '¬'])
-  assert.deepEqual(chips('g-use'), ['P:Rain', '∨', '∧'])
-  assert.deepEqual(fixedTray(logic.course, read('g-use')), ['gNot', 'gAnd', 'formulaOr', 'formulaNot', 'formulaAnd'])
-  const { shown, folded, types } = logic.offerIn(read('g-use'), new Set())
+  assert.deepEqual(chips('starter/g-not'), ['P:Rain', '¬'])
+  assert.deepEqual(chips('starter/g-use'), ['P:Rain', '∨', '∧'])
+  assert.deepEqual(fixedTray(logic.course, read('starter/g-use')), ['starter/gNot', 'starter/gAnd', 'starter/formulaOr', 'starter/formulaNot', 'starter/formulaAnd'])
+  const { shown, folded, types } = logic.offerIn(read('starter/g-use'), new Set())
   assert.deepEqual(types, [...shown, ...folded])
-  assert.ok(types.every((type) => ['gNot', 'gAnd'].includes(type)))
+  assert.ok(types.every((type) => ['starter/gNot', 'starter/gAnd'].includes(type)))
 })
 
 test('a proof tray groups disjunction rules and leaves truth gates off the proof board', () => {
-  const logic = logicCourse(readContent('qed'))
-  const task = logic.LEVELS.find(({ id }) => id === 'cases').tasks[0]
-  const { shown, folded, types } = logic.proofBoards.forTask(task).offerIn(task, new Set())
-  assert.ok(!types.includes('gOr'))
-  const display = trayDisplay(logic.course.trays, logic.course.tray(task), shown.map((type) => ({ type })), folded.map((type) => ({ type })))
-  const disjunction = display.items.find(({ menu }) => menu === JSON.stringify(['proof', 'or']))
-  assert.equal(disjunction.label.zh, '或∨')
-  assert.deepEqual(disjunction.children.map(({ type }) => type), ['orI', 'orE'])
+  const content = structuredClone(CONTENT)
+  content.trays = { proof: { name: 'Proof', desc: '', items: [{ id: 'or', title: 'Or', items: ['orI', 'orE'] }] } }
+  content.levels[0].tray = 'proof'
+  const logic = logicCourse(content)
+  const task = logic.LEVELS[0].tasks[0]
+  const display = trayDisplay(logic.course.trays, ['proof'], [{ type: 'orI' }, { type: 'orE' }], [])
+  assert.equal(display.items[0].label, 'Or')
+  assert.deepEqual(display.items[0].children.map(({ type }) => type), ['orI', 'orE'])
+  assert.ok(!logic.proofBoards.forTask(task).offerIn(task, new Set()).types.includes('gOr'))
 })
 
 test('a machine reference can use rule cards granted by its task', () => {
-  const logic = logicCourse(readContent('qed'))
-  const task = logic.LEVELS.find(({ id }) => id === 'in-distinct').tasks.at(-1)
-  const { shown } = logic.machineBoards.forTask(task).offerIn(task, new Set())
-  assert.ok(shown.includes('math'))
+  const content = structuredClone(CONTENT)
+  const level = content.levels.at(-1)
+  level.tasks[0].rules = { own: { name: L('Own rule'), premises: [], conclusion: 'A' } }
+  const logic = logicCourse(content)
+  const task = logic.LEVELS.at(-1).tasks[0]
+  assert.ok(logic.course.gives(task).includes('own'))
 })

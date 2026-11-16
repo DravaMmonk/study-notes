@@ -90,7 +90,7 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
     const grouped = [{ op: 'group.add', group: 'first', data: { title: { en: 'First' }, levels: [] } }, ...groupMoves([...ids].reverse(), { group: 'first', at: 0 })]
     const r = await runChangeset(ws, { ops: [...ops, ...grouped] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
-    assert.deepEqual(r.content.groups.first.levels.map(({ id }) => id), [...ids].reverse(), d)
+    assert.deepEqual(r.content.groups[`${d}/first`].levels.map(({ id }) => id), [...ids].reverse(), d)
     assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === '同一个标题'), d)
   }
 })

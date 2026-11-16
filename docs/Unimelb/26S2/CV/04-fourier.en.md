@@ -29,7 +29,7 @@ Increasing $\omega$ makes the ripples denser; increasing $A$ makes the peaks and
 
 ![Slide 8 - Sinusoid parameters](assets/04-fourier/slide-08.png)
 
-<!-- task: comp90086/sinusoid -->
+<!-- task: comp90086/comp90086/sinusoid -->
 
 For images, slowly varying large-scale outlines are low frequencies; edges, fine textures and small details are high frequencies. The value of the frequency domain is that some variations which are not obvious in the spatial image become very obvious in the frequency distribution.
 

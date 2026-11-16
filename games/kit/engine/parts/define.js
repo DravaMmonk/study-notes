@@ -261,7 +261,9 @@ export function withParts(vocabulary, file) {
   if (!file) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
   const setting = Object.assign(Object.create(null), Object.fromEntries(Object.entries(file.settings ?? {}).map(([id, def]) => [id, { about: def?.label ?? def?.about }])))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part), setting } }
+  const namespaces = [...new Set(Object.keys(file.parts).filter((name) => name.includes('/')).map((name) => name.split('/')[0]))]
+  const unlock = { ...vocabulary.kinds.unlock, ...Object.fromEntries(namespaces.flatMap((namespace) => Object.entries(vocabulary.kinds.unlock ?? {}).map(([name, item]) => [`${namespace}/${name}`, item]))) }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part), setting, ...(vocabulary.kinds.unlock && { unlock }) } }
 }
 
 /** Every place a pieces.json does not hold together, as [{ at, says }] (at: pieces.json and the path in it). */

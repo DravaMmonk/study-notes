@@ -183,7 +183,7 @@ If a 2D kernel can be written as the outer product of a column vector and a row 
 
 A $k\times k$ kernel originally needs about $k^2$ multiplications per pixel; after splitting it needs about $2k$ , and the difference is significant when $k$ is large. Gaussian kernels are often close to separable, or can be constructed as separable kernels.
 
-<!-- task: comp90086/separable -->
+<!-- task: comp90086/comp90086/separable -->
 
 ![Slide 40 - Separable filter calculation](assets/03-filters/slide-40.png)
 

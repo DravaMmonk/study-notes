@@ -66,7 +66,7 @@ export default function logicGame(content) {
   // The parts box lists circuit pieces, each from the levels that bring it in.
   // The rules a proof-board part gives as a rule part on the machine board (the kernel's rules it is), and those a
   // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
-  const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
+  const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === logic.partResources[type]).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const introduced = [...introductions(logic.course)].map(([type, at]) => {
     const text = logic.defs[type] ?? logic.strips[type] ?? pieces[type]

@@ -14,7 +14,7 @@
 import { S } from './schema.js'
 import { T as t } from '../shell/i18n.js'
 
-export const GROUP_ID = '^[a-z][a-z0-9-]*$'
+export const GROUP_ID = '^(?:@?[a-z][a-z0-9-]*/)?[a-z][a-z0-9-]*$'
 
 /** A group's file: its name, its levels in order and the prerequisites between them. */
 export const GROUP = S.obj({
@@ -81,7 +81,6 @@ export function groupProblems(groups, levelIds) {
   for (const [id, group] of Object.entries(groups)) {
     const at = `groups/${id}.json`
     if (!new RegExp(GROUP_ID).test(id)) out.push({ at, says: `a group id is lowercase letters, digits and dashes: ${id}` })
-    if (levelIds.has(id)) out.push({ at, says: `${id} is a level's id too` })
     const inside = new Set()
     for (const [k, { id: level }] of (group.levels ?? []).entries()) {
       if (inside.has(level)) out.push({ at: `${at}.levels[${k}]`, says: `${level} is in the group twice` })

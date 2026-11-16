@@ -6,17 +6,18 @@
 //
 // The game: `given` (the given is the goal), `apply` (two Applies in a row), `suppose` (an assumption box around them);
 // every brief and hint in everyday words, the English side naming “Saturday” and “Assume” for search and replace.
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { catalogsOf, normalizeText } from '../content-text.js'
-import { sourceValue } from '../catalogs.js'
+import { catalogReader, sourceValue } from '../catalogs.js'
 import { configurationFiles } from '../content.js'
 import { GLOSSARY as GLOSSARY_SCHEMA } from '../vocabulary.js'
 import { GROUP } from '../groups.js'
 import { PARTS_FILE } from '../parts/schema.js'
 import { withParts } from '../parts/define.js'
-import { domainOf } from '../content-node.js'
+import { expandNames } from '../names.js'
+import { readCatalogs, domainOf } from '../content-node.js'
 
 const T = (en) => ({ en })
 
@@ -134,7 +135,7 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const groupText = Object.entries(groups).map(([group, value]) => [group, normalize(value, GROUP, `group.${group}`)])
   put(join(course, 'game.json'), { package: id, ...sourceValue(shell) })
-  put(join(course, 'course.json'), sourceValue(route))
+  put(join(course, 'course.json'), sourceValue(expandNames(route, id, { pieces: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
   put(join(pkg, 'glossary.json'), sourceValue(glossaryText))
   if (piecesText !== undefined) put(join(pkg, 'pieces.json'), sourceValue(piecesText))
@@ -150,4 +151,10 @@ export function proofsRoot() {
   writeContentFixture(root, ID, { game: GAME, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS }, proofVocabulary)
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
+}
+
+/** Source definitions for unit tests that compose their own small content over the starter's resources. */
+export function starterPieces(domainDir) {
+  const dir = join(domainDir, 'starter')
+  return catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(join(dir, 'pieces.json'), 'utf8')))
 }

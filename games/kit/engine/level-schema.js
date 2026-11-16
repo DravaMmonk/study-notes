@@ -14,7 +14,7 @@ import { T as t } from '../shell/i18n.js'
 /** A card's name: a port's, a register's, a built piece's. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** An item a task gives, withholds or opens (../course.js itemOf): a part, one of its settings, one value of a setting. */
-const HELD = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
+const HELD = S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
@@ -85,7 +85,7 @@ export const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
-  replaces: S.opt(S.map(S.list(NAME), { about: t('搭出的件取代的搭出的件：从搭出它的那一关往后，托盘里给它，不再给那些') })),
+  replaces: S.opt(S.map(S.list(S.ref('part')), { about: t('搭出的件取代的搭出的件：从搭出它的那一关往后，托盘里给它，不再给那些') })),
   eras: S.list(ERA, { min: 1 }),
   views: GAME_VIEWS,
 })

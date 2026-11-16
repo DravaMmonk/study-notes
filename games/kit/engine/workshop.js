@@ -7,7 +7,7 @@ import { sourceOf, splitSource } from './wire-source.js'
 import { trayMembers } from './trays.js'
 import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from './workshop-terminals.js'
 
-export const WORKSHOP_KEY = 'games.workshop.v1'
+export const WORKSHOP_KEY = 'games.workshop.v2'
 export const isWorkshopType = (type) => typeof type === 'string' && type.startsWith('user_')
 export const usesWorkshop = (board) => Array.isArray(board?.nodes) && board.nodes.some(({ type }) => isWorkshopType(type))
 const empty = () => ({ pieces: {}, published: {}, featured: {}, drafts: {} })

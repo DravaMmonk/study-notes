@@ -71,7 +71,7 @@ export function ruleBookOf(level) {
     const shaped = (type, l) => (r) => !l.forms || !level.forms?.[type] || level.forms[type].includes(r.key.split('.')[1] ?? l.forms[0].key)
     const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l).filter(shaped(type, l)))
     const facts = factsOf(level).map(([type, f]) => ({ ...ruleOf(type, f.name, f.rule?.premises ?? [], f.rule?.conclusion ?? f.statement), fact: true }))
-    books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL).map((r) => ({ ...r, part: level.rulePieces?.[r.part] ?? r.part })).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
 }
@@ -481,7 +481,9 @@ function clausify(s0, ctx) {
     return r.fail ? { ...firstOf(s), error: r.fail } : r.results[0]
   }
   let s = step(step(s0, (x) => rule(x, KERNEL.raa)), (x) => rule(x, KERNEL.impI))
-  s = step(s, (x) => simplify(x, CNF_LAWS.map((k) => ctx.rewrites?.[k]).filter(Boolean), 'hyps'))
+  const source = ctx.pieceForRule?.raa
+  const namespace = source?.slice(0, source.lastIndexOf('/') + 1) ?? ''
+  s = step(s, (x) => simplify(x, CNF_LAWS.map((key) => ctx.rewrites?.[`${namespace}${key}`]).filter(Boolean), 'hyps'))
   s = step(s, skolemStep)
   if (s.error) throw new PartError(s.error)
   return toClauses(s)
@@ -681,7 +683,7 @@ const failsAsState = (run) => (ins, node, ctx) => {
 
 // What a machine runs with: the level's books and rule parts, whether it backtracks, and the board input that is a
 // constant (a level's rules, for a frame's region: ../../circuit/frames.js runRegion).
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), constants: ['rules'], ...extra })
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, pieceForRule: level.rulePieces, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), constants: ['rules'], ...extra })
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */

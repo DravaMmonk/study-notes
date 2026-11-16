@@ -85,10 +85,10 @@ test('robot blueprints refuse a second wire, sink sources and unavailable sensor
 test('a grouped merger stays available to blueprints under each unlocked model', () => {
   const content = readStarter(import.meta.dirname);
   content.primitives = [...content.primitives, 'mmin'];
-  const merge = content.levels.find((level) => level.id === 'merge');
+  const merge = content.levels.find((level) => level.id === 'starter/merge');
   merge.adds = [...merge.adds, 'mmin'];
   const course = tableCourse(content);
-  const task = course.played.get('merge')[0];
+  const task = course.played.get('starter/merge')[0];
   const { shown, folded, types } = course.offerIn(task, new Set());
   assert.deepEqual([...shown, ...folded].filter((type) => type === 'msum' || type === 'mmin'), ['msum']);
   assert.deepEqual(types.filter((type) => type === 'msum' || type === 'mmin'), ['msum', 'mmin']);

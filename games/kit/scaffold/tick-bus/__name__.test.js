@@ -27,7 +27,7 @@ test('the line is 1 when anyone says 1', () => {
 test('a board keeps a register and says it a tick late', () => {
   const inputs = { b: [1, 0, 1] }
   const level = { talks: true, inputs: [{ name: 'b', label: 'b' }], want: wantOf({ say: { delayed: { input: 'b', first: 0 } } }), tests: [{ line: bitsOf('...'), inputs }] }
-  const lines = ['r = reg[reg=A, start=0]()', 'k = keep[reg=A](b)', 'say <- r']
+  const lines = ['r = starter/reg[reg=A, start=0]()', 'k = starter/keep[reg=A](b)', 'say <- r']
   const made = fromText(lines, level, plain)
   const run = runLevel(level, made, partOf)
   assert.equal(run.pass, true)

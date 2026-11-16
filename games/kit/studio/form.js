@@ -618,7 +618,7 @@ export function fieldAt(form, path) {
 /* ---------- a file as a form ---------- */
 
 // What game.json's form leaves out: what is not its own schema.
-const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'groups', 'sourceEras', 'overridden']
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'groups', 'sourceEras', 'overridden', 'registries']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */

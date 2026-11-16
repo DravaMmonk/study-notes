@@ -13,8 +13,13 @@
 // log (<game>/changes.jsonl, append only): what ran, the files and the changeset that undoes it. One that is refused,
 // or only previewed, leaves the workspace as it found it. `cache`: the game's kept checks (../check-cache.js), so only the
 // levels the changeset touches, and the levels after them its puzzles and answers reach, are checked again.
-import { validate } from '../schema.js'
-import { checkContent } from '../vocabulary.js'
+import { expandNames } from '../names.js'
+import { parsePath } from './edit.js'
+import { shapeAt, validate } from '../schema.js'
+import { GROUP } from '../groups.js'
+import { PART, PARTS_FILE, SETTING } from '../parts/schema.js'
+import { tasksSchema } from '../tasks.js'
+import { GLOSSARY, checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
 import { domainOf } from '../content-node.js'
@@ -35,6 +40,7 @@ export { LOG, readLog } from './log.js'
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
   const domain = given ?? (await domainOf(ws.content()))
+  ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []
   const inverse = []
@@ -42,12 +48,18 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     ws.restore(start)
     return { ok: false, says, problems, failed: op, lines: [], diff: '', files: [], changes: [], content: null, inverse: null }
   }
-  for (const [k, { op: name, ...args }] of (changeset.ops ?? []).entries()) {
+  for (const [k, { op: name, ...supplied }] of (changeset.ops ?? []).entries()) {
     const op = OPERATIONS[name]
-    // A domain that defines its parts as data names them by the game's pieces.json as each operation finds it.
-    const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     const where = `op ${k + 1} (${name})`
     if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)
+    let args
+    try {
+      args = sourceArguments(ws, name, supplied, domain.vocabulary)
+    } catch (error) {
+      return fail([`${where}: ${error.en ?? error.message}`], k)
+    }
+    // A domain that defines its parts as data names them by the game's pieces.json as each operation finds it.
+    const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
     if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
@@ -69,6 +81,43 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   } catch (error) {
     return fail([`the changeset could not be settled: ${error.message}`])
   }
+}
+
+// Tool results carry full names. Operations edit this layer's source spelling before writing it back.
+function sourceArguments(ws, operation, supplied, vocabulary) {
+  const prefix = `${ws.packageId}/`
+  const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
+  const selectors = ['level', 'piece', 'part', 'setting', 'entry', 'group', 'task', 'to', 'after']
+  const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
+  const source = (value, schema) => expandNames(value, ws.packageId, { pieces: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
+  const args = source(selected, OPERATIONS[operation].params)
+  if (args.path !== undefined && (operation.startsWith('pieces.') || args.in === 'pieces')) {
+    const path = parsePath(args.path)
+    if (['parts', 'settings'].includes(path[0]) && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
+  }
+  if (args.to?.group) args.to = { ...args.to, group: local(args.to.group) }
+  const targets = {
+    level: [vocabulary.level, ws.levels.get(args.level)],
+    task: [tasksSchema(vocabulary), undefined],
+    glossary: [operation === 'glossary.replace' ? GLOSSARY : GLOSSARY.fields.entries.of, undefined],
+    game: [vocabulary.game, ws.game],
+    group: [GROUP, ws.groups.get(args.group)],
+    piece: [PART, ws.partDefs?.parts?.[args.piece]],
+    pieces: [PARTS_FILE, ws.partDefs],
+    setting: [SETTING, ws.partDefs?.settings?.[args.setting]],
+  }
+  const [schema, base] = targets[operation.split('.')[0]] ?? []
+  if (schema) {
+    if (args.data) {
+      args.data = source(args.data, schema)
+      if (args.data.id) args.data = { ...args.data, id: local(args.data.id) }
+    }
+    if (args.fields) args.fields = source(args.fields, schema)
+    if (base && args.value !== undefined && args.path !== undefined) args.value = source(args.value, shapeAt(schema, base, parsePath(args.path), { vocabulary }))
+  }
+  if (operation.startsWith('text.') && typeof args.value === 'string') args.value = source(args.value, { type: 'text' })
+  if (operation === 'level.blueprint' && typeof args.text === 'string') args.text = source(args.text.split('\n'), { type: 'board' }).join('\n')
+  return args
 }
 
 // The whole game's check, and the write or the restore, after every operation of a changeset has run.

@@ -214,7 +214,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const consts = level.consts ?? []
       // Induction is no first-order consequence (worlds with numbers past every S…S 0 satisfy the definitions and not
       // the conclusion), so a proof that uses it is not held to the countermodel search.
-      const induction = (level.solution?.nodes ?? []).some((n) => n.type === 'natInd')
+      const induction = (level.solution?.nodes ?? []).some((n) => (level.partResources?.[n.type] ?? n.type) === 'natInd')
       for (const test of induction ? [] : level.tests) {
         const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
         const m = countermodel(premises, parse(test.goal, { consts }))
@@ -240,7 +240,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const sentenceChips = chipsFrom(offer.formula, { consts: level.consts ?? [] })
       for (const n of level.solution.nodes) {
         for (const [key, value] of Object.entries(n.params ?? {})) {
-          const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
+          const kind = SETTING_KINDS[level.partResources?.[n.type] ?? n.type]?.[key] ?? 'formula'
           if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(level.parts[n.type]?.params ?? []).includes(key)) continue
           // A sentence is built from the pieces of the level's sentences; a thing is picked from those offered.
           if (kind === 'formula' || kind === 'exists') {

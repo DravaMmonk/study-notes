@@ -19,7 +19,7 @@ export function isLanguageCode(lang) {
   return known.get(lang)
 }
 
-export const TEXT_KEY = '^[a-zA-Z0-9_-]+(?:\\.[a-zA-Z0-9_-]+)*$'
+export const TEXT_KEY = '^(?:@?[a-z][a-z0-9-]*/)?[a-zA-Z0-9_-]+(?:\\.[a-zA-Z0-9_-]+)*$'
 const keyPattern = new RegExp(TEXT_KEY)
 export const isTextKey = (key) => typeof key === 'string' && keyPattern.test(key)
 export const textKey = (value) => isTextKey(value?.$key) ? value.$key : undefined

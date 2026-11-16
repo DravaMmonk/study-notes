@@ -1,11 +1,21 @@
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { fromSnapshot } from './vocabulary.js'
 import { assemble, combineConfiguration, overridesOf } from './content.js'
 import { catalogReader } from './catalogs.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
 export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
+
+/** Read the published schema alongside a domain. Author tools can supply a vocabulary for an uninstalled test domain. */
+export function vocabularyAt(dir) {
+  const versions = resolve(dir, 'versions')
+  if (!existsSync(versions)) return undefined
+  const latest = Math.max(...readdirSync(versions).filter((name) => /^\d+\.json$/.test(name)).map((name) => Number(name.slice(0, -5))))
+  return Number.isFinite(latest) ? fromSnapshot(json(resolve(versions, `${latest}.json`))) : undefined
+}
+export const contentVocabulary = (domain) => vocabularyAt(resolve(PROJECT_DIR, 'games/kit/domains', domain))
 
 const json = (file) => {
   try {
@@ -77,7 +87,7 @@ export function readPlaytests(id, dir = GAMES_DIR) {
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
-function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocales, overrideLocales = null }) {
+function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocales, overrideLocales = null, vocabulary, courseNamespace, packageId = packageDir.split('/').at(-1) }) {
   const blueprint = resolve(gameDir, 'blueprint.json')
   const parts = resolve(packageDir, 'pieces.json')
   const courseText = catalogReader(readCatalogs(courseLocales), courseLocales)
@@ -87,7 +97,7 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
   const read = (reader, path) => reader(json(path), path)
   const ownText = (file) => (file === 'game.json' || file === 'course.json' ? courseText : packageText)
   return assemble({
-    id,
+    id, packageId, courseNamespace, schemas: vocabulary ?? contentVocabulary(files['package.json'].domain),
     game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file)]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file)]),
     groups: groupFiles(packageDir).map(([groupId, file]) => [groupId, read(packageText, file)]),
@@ -104,11 +114,11 @@ function overlay(catalogs, overrides) {
   return Object.fromEntries([...new Set([...Object.keys(catalogs), ...Object.keys(overrides)])].map((lang) => [lang, { ...catalogs[lang], ...overrides[lang] }]))
 }
 
-export function readContent(id, root = PROJECT_DIR, { overrides = true } = {}) {
+export function readContent(id, root = PROJECT_DIR, { overrides = true, vocabulary } = {}) {
   const { files, packageDir } = readGameConfig(id, root)
   const gameDir = gameDirectory(id, root)
   return readFiles(id, files, {
-    packageDir, gameDir, courseLocales: resolve(gameDir, 'i18n'), packageLocales: resolve(packageDir, 'i18n'),
+    packageDir, gameDir, vocabulary, courseLocales: resolve(gameDir, 'i18n'), packageLocales: resolve(packageDir, 'i18n'),
     overrideLocales: overrides ? resolve(gameDir, 'overrides') : null,
   })
 }
@@ -117,7 +127,7 @@ export function readContent(id, root = PROJECT_DIR, { overrides = true } = {}) {
 export function readStarter(domainDir) {
   const dir = resolve(domainDir, 'starter')
   const files = { 'game.json': json(resolve(dir, 'game.json')), ...configuration(configPaths(dir, dir)) }
-  return readFiles('starter', files, { packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
+  return readFiles('starter', files, { vocabulary: vocabularyAt(domainDir), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
 /** The domain module (../domains/<domain>/domain.js) of a content. */

@@ -50,7 +50,12 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 23,
+  version: 24,
+  removes: [
+    { at: 'level.tasks', why: 'Task ids accept package-qualified names.' },
+    { at: 'game.eras', why: 'Cross-game prerequisites use qualified level names.' },
+    { at: 'game.replaces', why: 'Replacement targets refer to registered pieces.' },
+  ],
   kinds: { op: {}, family: FAMILIES, want: WANTS },
   game: GAME,
   level: LEVEL,

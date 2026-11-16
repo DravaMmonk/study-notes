@@ -1,3 +1,4 @@
+import { starterPieces } from '../../engine/ops/fixture.js'
 // node --test games/kit/domains/logic — formulas, rules as parts, boxes, and countermodels. Boards are written short,
 // by the helpers below.
 import { test } from 'node:test'
@@ -16,13 +17,12 @@ import { compileParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { PROOF_BOARD, RULES, lemmaGives, runProof } from './proof.js'
 import { partsOf } from './ops.js'
-import { readStarter } from '../../engine/content-node.js'
 import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
 import { T } from '../../shell/i18n.js'
 
 // A proof runs on the parts the starter defines (its pieces.json) and the level's lemmas.
-const STARTER = readStarter(import.meta.dirname).partDefs
+const STARTER = starterPieces(import.meta.dirname)
 const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
 const run = (level, circuit) => runProof({ parts: proofParts(level.lemmas), ...level }, circuit)
 // A machine runs on the starter's machine parts, and a rule part for every rule part type.

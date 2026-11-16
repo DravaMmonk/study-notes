@@ -15,7 +15,7 @@ export const COURSE_FIELDS = {
   )),
   links: S.opt(S.list(S.either(
     S.obj({ from: END, to: END, required: S.opt(S.bool()) }),
-    S.obj({ fromGame: S.str({ pattern: '^[a-z][a-z0-9-]*$' }), from: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }), to: END }),
+    S.obj({ fromGame: S.str({ pattern: '^[a-z][a-z0-9-]*$' }), from: S.str({ pattern: '^@?[a-z][a-z0-9-]*/[A-Za-z0-9][A-Za-z0-9_-]*$' }), to: END }),
   ))),
   rows: S.opt(S.list(S.list(S.either(S.level(), S.oneOf([null])), { min: 1 }), {
     about: t('路线图的每一行从左到右放哪些关卡（null 是空位）', 'the map, row by row: its levels from left to right (null: an empty place)'),

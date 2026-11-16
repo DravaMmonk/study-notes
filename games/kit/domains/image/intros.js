@@ -30,11 +30,11 @@ export function source(spec, task) {
 export const figureTest = (fig, level) => figureTask(fig, level)?.tests?.[fig.test] ?? null
 
 // A part figure shows a part every course starts from.
-const { defaultParams, inputsOf } = specsOf(NODE_TYPES)
 
 // What a part makes of its inputs, for a { part } figure. Throws on anything the figure cannot draw.
-export function partFigure(fig, level) {
-  const spec = NODE_TYPES[fig.part]
+export function partFigure(fig, level, types = NODE_TYPES) {
+  const { defaultParams, inputsOf } = specsOf(types)
+  const spec = types[fig.part]
   if (!spec || spec.fixed) throw new Error(`没有元件 ${fig.part}`)
   const ports = inputsOf(fig.part)
   const specs = fig.inputs ?? [fig.input ?? 'square']
@@ -52,7 +52,7 @@ export function partFigure(fig, level) {
 }
 
 // Every problem with a level's intro: missing pages, empty text, or figures that point at nothing.
-export function introProblems(pages, level, figures) {
+export function introProblems(pages, level, figures, types = NODE_TYPES) {
   if (!pages?.length) return ['没有引言']
   const problems = []
   pages.forEach((page, i) => {
@@ -65,7 +65,7 @@ export function introProblems(pages, level, figures) {
     if (fig.figure && !figures.includes(fig.figure)) problems.push(`${where}没有插图 ${fig.figure}`)
     if (fig.part) {
       try {
-        partFigure(fig, level)
+        partFigure(fig, level, types)
       } catch (error) {
         problems.push(`${where}${error.message}`)
       }

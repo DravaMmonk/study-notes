@@ -2,7 +2,7 @@ import { catalogReader } from '../engine/catalogs.js'
 import { assemble, combineConfiguration, configurationFiles } from '../engine/content.js'
 
 /** Resolve the separately published language files once at startup so switching languages needs no reload. */
-export async function pageContent(manifest, base, fetcher = fetch) {
+export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   const { id, locales, levels, glossary, partDefs, blueprint, ...game } = manifest
   async function reader(scope) {
     const catalogs = await Promise.all(Object.entries(locales[scope]).map(async ([lang, path]) => {
@@ -17,7 +17,7 @@ export async function pageContent(manifest, base, fetcher = fetch) {
     file, (file === 'game.json' || file === 'course.json' ? courseText : packageText)(value, file),
   ]))
   return assemble({
-    id,
+    id, schemas: vocabulary,
     game: combineConfiguration(configuration),
     levels: levels.map(({ id: level, ...value }) => [level, packageText(value, `levels/${level}.json`)]),
     glossary: packageText(glossary, 'glossary.json'),

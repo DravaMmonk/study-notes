@@ -16,6 +16,8 @@ import { pathToFileURL } from 'node:url'
 import { PROJECT_DIR, gameDirectory, readCatalogs, readGameConfig } from './content-node.js'
 import { catalogReader } from './catalogs.js'
 import { firstText } from './i18n.js'
+import { expandNames } from './names.js'
+import { vocabularyAt } from './content-node.js'
 import { courseLevelCount } from './content.js'
 import { writeJson } from './ops/json.js'
 
@@ -91,7 +93,15 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   mkdirSync(packageDir, { recursive: true })
   // The course is the game's; everything else of the starter is its package.
   for (const name of readdirSync(starter)) {
-    if (name === 'course.json') fill(resolve(starter, name), resolve(dir, name), words)
+    if (name === 'course.json') {
+      const file = resolve(starter, name)
+      const source = JSON.parse(readFileSync(file, 'utf8'))
+      const packageConfig = JSON.parse(readFileSync(resolve(starter, 'package.json'), 'utf8'))
+      const piecesFile = resolve(starter, 'pieces.json')
+      const pieces = new Set(existsSync(piecesFile) ? Object.keys(JSON.parse(readFileSync(piecesFile, 'utf8')).parts) : [])
+      const vocabulary = vocabularyAt(resolve(root, 'games/kit/domains', packageConfig.domain))
+      writeFileSync(resolve(dir, name), writeJson(expandNames(source, id, { pieces, vocabulary, schema: vocabulary?.game, context: 'configuration' }), null))
+    }
     else if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
   }
   for (const [scope, target] of [['course', dir], ['package', packageDir]]) {

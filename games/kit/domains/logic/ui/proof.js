@@ -30,7 +30,7 @@ export const proofScreen = {
   play: { ...proofReadout, runLevel: (task, board, _parts, options) => runProof(task, board, options) },
   language,
   context: (task, test) => ({ task, text: textOf(task, test) }),
-  card: { phoneRegionLabel: (node, index) => node.type === 'orE' ? '①②'[index] : undefined },
+  card: { phoneRegionLabel: (node, index) => node.type.split('/').at(-1) === 'orE' ? '①②'[index] : undefined },
   // A script the proof follows, a line each, indented as its blocks are.
   told: (task, test) => (task.script ? scriptLines(task.script, (t) => textOf(task, test)(parse(t, { consts: [...(task.consts ?? []), ...(task.things ?? [])] }))).map(([depth, text]) => ({ text: `${'  '.repeat(depth)}${text}` })) : []),
   readouts: (_task, _circuit, { score }) => [{ value: score.steps, label: T('步数') }],

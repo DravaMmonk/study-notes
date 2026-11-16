@@ -30,6 +30,7 @@ const ask = (method, params) => new Promise((done) => {
   server.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, ...(params && { params }) })}\n`)
 })
 const call = async (name, args) => {
+  if (args?.level && ['seed', 'render', 'run_tests', 'blueprint', 'run_reference'].includes(name) && !args.level.includes('/')) args = { ...args, level: `${GAME}/${args.level}` }
   const { result } = await ask('tools/call', { name, arguments: args })
   return { ...result, data: result.structuredContent ?? null }
 }
@@ -55,10 +56,10 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
 
   const audit = (await call('audit', { game: GAME })).data
   assert.equal(audit.ok, true, audit.failures.join('\n'))
-  assert.ok(audit.lines.some((l) => l.startsWith('suppose ')))
+  assert.ok(audit.lines.some((l) => l.startsWith(`${GAME}/suppose `)))
 
   const reference = (await call('run_reference', { game: GAME, level: 'apply' })).data
-  assert.deepEqual(reference, { ok: true, lines: ['apply Apply: solution PASS [2 steps]'] })
+  assert.deepEqual(reference, { ok: true, lines: [`${GAME}/apply Apply: solution PASS [2 steps]`] })
 
   const proof = (await call('run_tests', { game: GAME, level: 'suppose' })).data
   assert.equal(proof.covered && proof.pass, true)
@@ -67,9 +68,9 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
 
   const { boards } = (await call('blueprint', { game: GAME, level: 'suppose' })).data
   assert.deepEqual(boards.map((b) => b.path), ['tasks[0].solution'])
-  assert.match(boards[0].text, /^f = impI\[A=A\]\(body: m2\) \{/)
+  assert.match(boards[0].text, /^f = proofs\/impI\[A=A\]\(body: m2\) \{/)
 
-  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^suppose · Suppose\n[\s\S]*tasks\[0\]\.solution:\n {2}f = impI/)
+  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^proofs\/suppose · Suppose\n[\s\S]*tasks\[0\]\.solution:\n {2}f = proofs\/impI/)
   const svg = (await call('render', { game: GAME, level: 'suppose', format: 'svg' })).data
   assert.deepEqual(svg.boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(svg.boards[0].svg, /^<svg [^>]*viewBox[\s\S]*impI[\s\S]*<\/svg>$/)
@@ -83,7 +84,7 @@ test('changing tools: modify refuses a failing changeset and writes a passing on
   // The reference no longer proves the new goal: refused, nothing written.
   const refused = (await call('modify', { game: GAME, changeset: { ops: [goal] } })).data
   assert.equal(refused.ok, false)
-  assert.ok(refused.problems.some((p) => p.startsWith('suppose')), refused.problems.join('\n'))
+  assert.ok(refused.problems.some((p) => p.startsWith(`${GAME}/suppose`)), refused.problems.join('\n'))
   assert.equal(existsSync(join(root, 'games', GAME, 'changes.jsonl')), false)
 
   const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', lang: 'en', value: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }

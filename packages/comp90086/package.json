@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 24,
+  "vocabulary": 29,
   "power": { "title": "@course.power.title", "lines": ["@course.power.lines.0"] },
   "box": { "sample": "separable", "inLevel": {} }
 }

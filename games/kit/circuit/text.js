@@ -32,7 +32,7 @@ import { regionAddress, regionProblems, regionsOf, terminalRegionProblem } from 
 // A blueprint declares parts. The level supplies the inputs and outputs; the text connects them and can list
 // settings they expose. Preset parts are written as parts, with their locks supplied by the level on import.
 
-const WORD = /^[A-Za-z_][A-Za-z0-9_-]*$/
+const WORD = /^(?:@?[a-z][a-z0-9-]*\/)?[A-Za-z_][A-Za-z0-9_-]*$/
 const NUMBER = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/
 const RESERVED = new Set(['true', 'false', 'null', '_'])
 const HEADER = 'blueprint'
@@ -131,6 +131,7 @@ function tokens(text) {
   text.split(/\r?\n/).forEach((raw, k) => {
     const line = k + 1
     let i = 0
+    const push = (token) => out.push({ ...token, column: i })
     while (i < raw.length) {
       const c = raw[i]
       if (c === ' ' || c === '\t') i += 1
@@ -143,23 +144,55 @@ function tokens(text) {
         if (/[^\x20-\x7e]/.test(t)) throw say(line, '只能用 ASCII 字符（引号里也一样，别的字符写成 \\u 转义）。', 'Only ASCII characters, inside quotes too (write others as \\u escapes).')
         let decoded
         try { decoded = JSON.parse(t) } catch { throw say(line, '引号内的转义无效。', 'Invalid escape in quoted text.') }
-        out.push({ t, line, str: true, decoded })
+        push({ t, line, str: true, decoded })
         i = j + 1
       } else if (raw.startsWith('<-', i)) {
-        out.push({ t: '<-', line, p: true })
+        push({ t: '<-', line, p: true })
         i += 2
       } else if ('=[](),:{}.'.includes(c)) {
-        out.push({ t: c, line, p: true })
+        push({ t: c, line, p: true })
         i += 1
       } else {
-        const m = /^-?\d+(\.\d+)?([eE][-+]?\d+)?(?![A-Za-z0-9_-])|^[A-Za-z0-9_][A-Za-z0-9_-]*/.exec(raw.slice(i))
+        const m = /^-?\d+(\.\d+)?([eE][-+]?\d+)?(?![A-Za-z0-9_-])|^(?:@?[a-z][a-z0-9-]*\/)?[A-Za-z0-9_][A-Za-z0-9_-]*/.exec(raw.slice(i))
         if (!m) throw /[^\x20-\x7e]/.test(c) ? say(line, `只能用 ASCII 字符，这里有「${c}」。`, `Only ASCII characters; found “${c}”.`) : say(line, `看不懂「${c}」。`, `Cannot read “${c}”.`)
-        out.push({ t: m[0], line })
+        push({ t: m[0], line })
         i += m[0].length
       }
     }
   })
   return out
+}
+
+/** Rewrite only identifier tokens, preserving comments, spacing and the contents of quoted formulas. */
+export function mapBlueprintNames(lines, typeName, ruleName = (value) => value) {
+  const lexed = tokens(lines.join('\n'))
+  const replacements = new Map()
+  const replace = (token, resolve) => {
+    const original = token.str ? token.decoded : token.t
+    const resolved = resolve(original)
+    if (resolved === original) return
+    const changes = replacements.get(token.line) ?? []
+    changes.push({ from: token.column, to: token.column + token.t.length, text: name(resolved) })
+    replacements.set(token.line, changes)
+  }
+  for (let index = 0; index < lexed.length; index += 1) {
+    const token = lexed[index]
+    if (!token.p && lexed[index - 1]?.t === '=' && ['(', '['].includes(lexed[index + 1]?.t)) replace(token, typeName)
+    if (token.t !== 'use' || lexed[index + 1]?.t !== '=') continue
+    let at = index + 2
+    if (lexed[at]?.t === '[') {
+      at += 1
+      while (at < lexed.length && lexed[at].t !== ']') {
+        if (!lexed[at].p) replace(lexed[at], ruleName)
+        at += 1
+      }
+    } else if (lexed[at] && !lexed[at].p) replace(lexed[at], ruleName)
+  }
+  return lines.map((line, index) => {
+    let result = line
+    for (const change of (replacements.get(index + 1) ?? []).sort((a, b) => b.from - a.from)) result = result.slice(0, change.from) + change.text + result.slice(change.to)
+    return result
+  })
 }
 
 /**

@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 25,
+  "vocabulary": 29,
   "power": {
     "title": "@course.power.title",
     "lines": [

@@ -30,7 +30,7 @@ const blackBox = ({ probe }) => ({ ...probe, rangeFor: rangeOf })
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
   const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
-  return { ...map, shift: 'shift', invert: 'invert' }
+  return map
 }
 // What a setting (not a part of its own) does, for the parts box.
 const OPTION_DESCRIPTIONS = {
@@ -54,7 +54,7 @@ export default function imageGame(content) {
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
     if (type && types[type]) return { key: flag, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
-    return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
+    return { key: flag, label: OPTION_NAMES[flag.split('/').at(-1)] ?? flag, name: OPTION_NAMES[flag.split('/').at(-1)] ?? flag, desc: OPTION_DESCRIPTIONS[flag.split('/').at(-1)] }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
   // replicate edge, before the filters') is part of what the level unlocks, not an item of its own.
@@ -81,7 +81,7 @@ export default function imageGame(content) {
     chapters: CHAPTERS,
     levels,
     intro: (level) => image.intros[level.id],
-    IntroFigure: imageIntroduction,
+    IntroFigure: (props) => imageIntroduction({ ...props, types }),
     kinds: playKinds(plays, { imageCircuit: imageCircuit(image, cards), parameters, probe: blackBox }, {
       graph: { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
       board: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
