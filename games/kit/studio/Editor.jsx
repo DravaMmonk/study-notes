@@ -67,11 +67,14 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { lang: getLang() })
   const before = beforeIn(was && (({ id: __, ...v }) => v)(was))
   const sections = form.kind === 'obj' ? sectionsOf(form) : null
-  const [name, setName] = useState(id)
+  // The id is shown and typed as the package's short name; the level is a full name everywhere else.
+  const prefix = id.includes('/') ? id.slice(0, id.indexOf('/') + 1) : ''
+  const short = id.slice(prefix.length)
+  const [name, setName] = useState(short)
   const rename = () => {
-    if (name === id || !ID.test(name) || order.includes(name)) return setName(id)
+    if (name === short || !ID.test(name) || order.includes(prefix + name)) return setName(short)
     onEdit({ op: 'level.rename', level: id, to: name })
-    onSelect({ level: name })
+    onSelect({ level: prefix + name })
   }
   const copy = () => {
     let k = 2

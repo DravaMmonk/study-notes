@@ -225,7 +225,7 @@ function longConfig(value) {
 
 /** Breadcrumbs always start at the original JSON file. */
 function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove, inUse }) {
-  const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
+  const name = file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json` : file.parts ? 'pieces.json' : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
   const atRoot = path.length === 0
   const canOpenRoot = !['course.json', 'package.json'].includes(name)
   const jsonLabel = tr('JSON 源码', 'JSON source')

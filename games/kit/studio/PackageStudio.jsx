@@ -45,6 +45,7 @@ import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
 import ObjectsTab from './ObjectsTab.jsx'
 import OverrideAudit from './OverrideAudit.jsx'
+import ObjectLinks from './ObjectLinks.jsx'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -609,6 +610,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                     else if (event.kind === 'level') select({ level: event.name })
                   }} />}
                 {tab === 'arrange' && <ObjectsTab content={content} namespace={namespace} at={objectAt} pending={saving || shown.ops !== ops} onAt={setObjectAt} onEdit={edit} onOps={addOps} />}
+                {tab === 'fields' && at?.level && <ObjectLinks content={content} kind="level" full={at.level} namespace={namespace} onOpen={(next) => { setObjectAt(next); setTab('arrange') }} />}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
