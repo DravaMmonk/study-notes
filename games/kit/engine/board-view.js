@@ -36,7 +36,7 @@ export function openCircuit(view, task, progress, saved, prepare = (board) => bo
 }
 
 export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, runtime, tasksAt, opening }) {
-  const builtBy = (task) => (type) => (built(task)[type] ? builder(type, task) : null)
+  const builtBy = (task) => (type, params) => (built(task)[type] ? builder(type, task, params) : null)
   const views = new WeakMap()
   const open = (task, progress, viewOf) => {
     const previous = tasksAt && previousCircuitTask(task, tasksAt)

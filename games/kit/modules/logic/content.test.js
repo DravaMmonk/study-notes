@@ -16,6 +16,7 @@ import { PROOF_BOARD, runProof, startProof } from './proof.js'
 import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
 import { readStarter } from '../../engine/content-node.js'
+import { openPackedPart, packedBoards } from '../../circuit/packed-boards.js'
 import { trayDisplay } from '../../engine/trays.js'
 import domain from './runtime.js'
 
@@ -341,4 +342,30 @@ test('a machine reference can use rule cards granted by its task', () => {
   const logic = logicWorks(content)
   const task = logic.LEVELS.at(-1).tasks[0]
   assert.ok(logic.course.gives(task).includes('own'))
+})
+
+
+test('proof-board lemma cards expose packed boards and selected forms to workshop expansion', () => {
+  const logic = logicWorks(CONTENT)
+  const use = logic.LEVELS.find(level => level.id === 'useChain').tasks[0]
+  const view = logic.proofBoards.forTask(use)
+  const node = use.solution.nodes.find(node => node.type === 'chain')
+  assert.ok(view.BUILT.chain)
+  const opened = openPackedPart(view, node)
+  const proof = logic.proofs.chain['']
+  assert.equal(opened.circuit, proof.board())
+  assert.equal(opened.level, proof.level)
+  const workshop = packedBoards(logic.proofBoards, (opened, scope) => ({ opened, scope }))
+  assert.equal(workshop.open(node, { level: use }).opened.circuit, proof.board())
+  assert.equal(workshop.builder(node, { level: use }), proof.level)
+  assert.equal(workshop.root('chain').opened.level, proof.level)
+  const forms = logic.proofBoards.forTask(use)
+  assert.equal(forms.BUILT.half.opens({ form: 'right' }).level, logic.proofs.half.right.level)
+  assert.equal(forms.builtBy('half', { form: 'right' }), logic.proofs.half.right.level)
+  assert.equal(forms.BUILT.half.opens({ form: 'obsolete' }).level, logic.proofs.half.left.level)
+  // Opening follows the current passed board, rather than freezing its reference during view creation.
+  const own = { ...proof.board() }
+  logic.syncOwn({ chain: own })
+  assert.equal(openPackedPart(view, node).circuit, own)
+  assert.equal(workshop.open(node, { level: use }).opened.circuit, own)
 })

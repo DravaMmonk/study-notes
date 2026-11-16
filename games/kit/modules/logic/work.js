@@ -550,7 +550,18 @@ export function* prepareLogicWorks(content) {
   const truthCircuits = gateCourse({ built: gatePieces, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
   // The proofs, the same way: their parts are the proof rules and the lemmas (proofParts).
   const proofBoards = {
-    ...boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks }),
+    ...boardView({
+      board: PROOF_BOARD, parts: () => proofParts,
+      built: () => Object.fromEntries(Object.keys(lemmaPieces).filter(type => !lemmas[type].card).map(type => [type, {
+        ...proofParts[type],
+        opens: params => {
+          const proof = lemmaReference({ type, params }, lemmas, lemmaPieces)
+          return proof && { circuit: proof.board(), level: proof.level }
+        },
+      }])),
+      builder: (type, _task, params) => lemmaReference({ type, params }, lemmas, lemmaPieces)?.level ?? null,
+      offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks,
+    }),
     runtimeReferences: proofWorkReferences,
   }
   // The machines: the parts the player built as packed parts, a task's rule parts registered for it.
