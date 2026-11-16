@@ -1,74 +1,67 @@
 {
   "gates": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
   "proof": [
-    "mp",
-    "impI",
-    "chain",
-    "merge",
-    "swap",
-    "axK",
-    "axS",
-    "andI",
-    "andE",
-    { "id": "or", "title": "∨", "items": ["orI", "orE"] },
-    "botE",
-    "allI",
-    "allE",
-    "exI",
-    "exE",
-    "rewrite",
-    "refl",
-    "raa",
-    "lem",
-    "liar",
-    "dneg",
-    "arrow",
-    "dist",
-    "dm",
-    "iff",
+    {
+      "id": "implication",
+      "title": "@tray.trays.proof.implication.title",
+      "items": ["mp", "impI", "chain", "merge", "swap", "axK", "axS"]
+    },
+    { "id": "and", "title": "@tray.trays.proof.and.title", "items": ["andI", "andE"] },
+    { "id": "or", "title": "@tray.trays.proof.or.title", "items": ["orI", "orE"] },
+    { "id": "contradiction", "title": "@tray.trays.proof.contradiction.title", "items": ["botE", "liar"] },
+    { "id": "forall", "title": "@tray.trays.proof.forall.title", "items": ["allI", "allE"] },
+    { "id": "exists", "title": "@tray.trays.proof.exists.title", "items": ["exI", "exE"] },
+    { "id": "equality", "title": "@tray.trays.proof.equality.title", "items": ["rewrite", "refl"] },
+    { "id": "classical", "title": "@tray.trays.proof.classical.title", "items": ["raa", "lem"] },
+    {
+      "id": "equivalences",
+      "title": "@tray.trays.proof.equivalences.title",
+      "items": ["dneg", "arrow", "dist", "dm", "iff"]
+    },
     "natInd"
   ],
   "machine": [
-    "anyR",
-    "swapConcl",
-    "consFront",
-    "mkRule",
-    "eachOf",
-    "keepBound",
-    "uDecompose",
-    "repeat",
-    "uDelete",
-    "uConflict",
-    "uEliminate",
-    "uSwap",
-    "uCheck",
-    "rule",
-    "assumption",
-    "erule",
-    "uPattern",
-    "unifier",
-    "frule",
-    "append",
-    "defer",
-    "search",
-    "introRules",
-    "elimRules",
-    "auto",
-    "rw",
-    "simp",
-    "hyp",
-    "skolem",
-    "toClauses",
-    "resolve",
-    "saturate",
-    "clausify",
-    "replay",
-    "metis",
-    "each",
-    "elimGen"
+    {
+      "id": "rule-building",
+      "title": "@tray.trays.machine.rule-building.title",
+      "items": ["anyR", "swapConcl", "mkRule", "keepBound", "elimGen"]
+    },
+    { "id": "lists", "title": "@tray.trays.machine.lists.title", "items": ["consFront", "eachOf"] },
+    {
+      "id": "unification",
+      "title": "@tray.trays.machine.unification.title",
+      "items": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck", "uPattern", "unifier"]
+    },
+    {
+      "id": "flow",
+      "title": "@tray.trays.machine.flow.title",
+      "items": ["repeat", "append", "defer", "search", "each"]
+    },
+    {
+      "id": "reasoning",
+      "title": "@tray.trays.machine.reasoning.title",
+      "items": ["rule", "assumption", "erule", "frule", "introRules", "elimRules", "auto"]
+    },
+    { "id": "equality", "title": "@tray.trays.machine.equality.title", "items": ["rw", "simp", "hyp"] },
+    {
+      "id": "clauses",
+      "title": "@tray.trays.machine.clauses.title",
+      "items": ["skolem", "toClauses", "resolve", "saturate"]
+    },
+    {
+      "id": "certificate",
+      "title": "@tray.trays.machine.certificate.title",
+      "items": ["clausify", "replay", "metis"]
+    }
   ],
   "resolution": ["res"],
-  "certificate": ["clausify", "replay"],
+  "certificate": [
+    {
+      "id": "certificate",
+      "title": "@tray.trays.certificate.certificate.title",
+      "items": ["clausify", "replay"]
+    }
+  ],
   "formula": [
     "formulaForall",
     "formulaExists",

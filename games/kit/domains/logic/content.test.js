@@ -326,7 +326,9 @@ test('a proof tray groups disjunction rules and leaves truth gates off the proof
   const { shown, folded, types } = logic.proofBoards.forTask(task).offerIn(task, new Set())
   assert.ok(!types.includes('gOr'))
   const display = trayDisplay(logic.course.trays, logic.course.tray(task), shown.map((type) => ({ type })), folded.map((type) => ({ type })))
-  assert.deepEqual(display.items.find(({ menu }) => menu).children.map(({ type }) => type), ['orI', 'orE'])
+  const disjunction = display.items.find(({ menu }) => menu === JSON.stringify(['proof', 'or']))
+  assert.equal(disjunction.label.zh, '或∨')
+  assert.deepEqual(disjunction.children.map(({ type }) => type), ['orI', 'orE'])
 })
 
 test('a machine reference can use rule cards granted by its task', () => {

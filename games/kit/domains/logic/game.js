@@ -63,16 +63,15 @@ export default function logicGame(content) {
   }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !logic.course.local(type)
-  // The rules and gates the course starts from, each from the levels that bring it in.
+  // The parts box lists circuit pieces, each from the levels that bring it in.
   // The rules a proof-board part gives as a rule part on the machine board (the kernel's rules it is), and those a
   // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
-  const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const strip = logic.strips[type]
-    const text = logic.defs[type] ?? pieces[type] ?? strip
+  const primitives = [...introductions(logic.course)].filter(([type]) => !logic.strips[type]).map(([type, at]) => {
+    const text = logic.defs[type] ?? pieces[type]
     const rules = kernelRules(type)
-    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? (strip ? partIcon(strip.icon) : Cpu), at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? Cpu, at, ...(rules.length ? { rules } : {}) }
   })
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({

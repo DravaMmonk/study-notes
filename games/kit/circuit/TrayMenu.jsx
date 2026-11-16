@@ -1,6 +1,5 @@
 import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDown, ChevronUp } from 'lucide-react'
 import { L } from '../shell/i18n.js'
 import Popover from '../shell/Popover.jsx'
 import { useOverlay } from '../shell/useOverlay.js'
@@ -16,13 +15,11 @@ export default function TrayMenu({ entry, className, compact, phoneHost, renderP
   const panel = useOverlay(() => { close(); toggle.current?.focus() }, {
     active: phone && Boolean(anchor), onOutside: close, anchor: () => anchor,
   })
-  const Chevron = phone ? ChevronUp : ChevronDown
   return (
     <div className="tray-menu">
       <button ref={toggle} type="button" className={`${className} tray-menu-toggle`} aria-expanded={Boolean(anchor)} aria-controls={anchor ? id : undefined}
         onClick={(event) => setAnchor(anchor ? null : event.currentTarget)}>
         <span>{L(entry.label)}</span>
-        <Chevron size={14} aria-hidden="true" />
       </button>
       {anchor && (phone
         ? createPortal(<div id={id} ref={panel} className="tray-menu-row" role="group" aria-label={L(entry.label)}>{entry.children.map(renderPiece)}</div>, phoneHost.current)

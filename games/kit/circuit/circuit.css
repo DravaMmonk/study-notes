@@ -628,10 +628,10 @@
 .cs-card .vw-value, .pf-value .vw-value { white-space: pre-line; }
 
 /* A tray menu reveals related pieces without placing a card. */
-.tray-menu-toggle svg { transition: transform 120ms ease; }
-.tray-menu-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
-.palette .tray-menu-toggle { width: 100%; justify-content: space-between; text-align: left; }
+.tray-menu-toggle[aria-expanded='true'] { background: var(--hover); }
+.palette .tray-menu-toggle { width: 100%; justify-content: flex-start; text-align: left; }
 .kit-pop.tray-menu-pop { width: max-content; max-width: calc(100vw - var(--sp-7)); }
+.kit-pop.tray-menu-pop::before { display: none; }
 .tray-menu-pop .kit-pop-body { padding: var(--sp-2); }
 .pb-tray-wrap { position: relative; flex: none; min-width: 0; }
 .pb-tray .tray-menu { display: flex; flex: none; }
