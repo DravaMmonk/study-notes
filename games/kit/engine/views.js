@@ -52,7 +52,7 @@ const DEFAULT_CARD_WIDTH = 140
 const CARD_VIEWS = {
   sentence: { cardWidth: 190, sentence: true },
   entries: { cardWidth: 200 },
-  sensor: { cardWidth: 230 },
+  sensor: { cardWidth: 230, sourceMinWidth: 260 },
 }
 
 export const cardView = (name) => ({ cardWidth: DEFAULT_CARD_WIDTH, ...(CARD_VIEWS[name] ?? VIEWS[name]) })

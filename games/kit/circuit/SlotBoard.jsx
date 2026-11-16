@@ -444,7 +444,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       <div className="pb-terms is-sources">
         {sources.map((node) => {
           const ports = cardPorts(parts, node)
-          return <div key={node.id} className={`pb-term ${ports.outputs.length > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          const view = parts.valueView?.(node)
+          const { sourceMinWidth, tileHeight } = cardView(view)
+          const style = { ...parts.cardStyle?.(node), ...(sourceMinWidth && { '--pb-source-min-width': `${sourceMinWidth}px` }) }
+          return <div key={node.id} className={`pb-term ${ports.outputs.length > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={view} data-picture={tileHeight ? '' : undefined} data-io={tr('输入', 'IN')} style={style} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
             {ports.inputs.length > 0 && <span className={`pb-ins ${ports.inputs.length > 1 ? 'is-many' : ''}`}>{inputDots(node, ports)}</span>}
             <span className="pb-thumb">{thumb(node, 64)}</span>

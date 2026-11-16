@@ -431,10 +431,8 @@ img{max-width:100%}
 .sg-level.is-circuit .cview { --vc: 52px; }
 .sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: var(--sp-2); }
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
-/* An input card on a phone holds what it reads (CircuitScreen.jsx): the robot's window or the cell's facts, each
-   tapped to add or remove its output. The two cards share a row, each as wide as half of it. */
-.sg-shared-circuit .pb-terms.is-sources > .pb-term { max-width: none; }
-.sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: var(--sp-3); line-height: 1.25; }
+/* The sensor view declares the phone card width. The drawing sizes its cells within that width. */
+.sg-cardview { --vc: var(--pb-target, 34px); width: 100%; display: grid; justify-items: center; gap: var(--sp-3); line-height: 1.25; }
 .sg-cardview .varm-row { gap: var(--sp-7); }
 .sg-shared-circuit .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
 /* What a card reads takes the card's spare height, so its name sits at the bottom, level with its neighbour's. */
@@ -445,14 +443,13 @@ img{max-width:100%}
 .sg-cardview .vwins { display: flex; justify-content: center; }
 /* The window fills its card's width (the card is a size container): 3×3 up to 56px a cell, 5×5 edge to edge. */
 .sg-cardview[data-drawing=view] { container-type: inline-size; }
-.sg-cardview .vwin { --vc: min(56px, calc((100cqi - 6px) / 3)); }
-.sg-cardview .vwin.n5 { --vc: calc((100cqi - 8px) / 5); }
-/* The facts fill the height the row gives their card (its neighbour's, or room for three) and scroll past it: they
-   never make the row taller. */
-.sg-shared-circuit .pb-term:has([data-drawing=facts]) > .pb-thumb { flex: 1 1 0; min-height: 118px; contain: size; }
+.sg-cardview .vwin { --vc: min(56px, calc((100cqi - 2 * var(--sp-1)) / 3)); }
+.sg-cardview .vwin.n5 { --vc: calc((100cqi - 4 * var(--sp-1)) / 5); }
+/* Keep short lists compact on phones and scroll beyond three touch rows. */
+.sg-shared-circuit .pb-term .sg-cardview .vfacts { max-height: calc(3 * var(--pb-target) + 2 * var(--sp-2) + 2px); }
 .sg-cardview[data-drawing=facts] { height: 100%; }
 .sg-cardview .vfacts { display: grid; gap: var(--sp-2); justify-items: stretch; align-content: start; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 1px; }
-.sg-cardview .vfact { min-height: 34px; padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); font-size: 12px; border-width: 1.2px; border-radius: var(--r-md); }
+.sg-cardview .vfact { min-height: var(--pb-target, 34px); padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); font-size: 12px; border-width: 1.2px; border-radius: var(--r-md); }
 .sg-cardview .vfact .vv { font-size: 12px; }
 .sg-cardview .vfact .tag { display: none; }
 .sg-cardview .vsub { font-size: 10px; }

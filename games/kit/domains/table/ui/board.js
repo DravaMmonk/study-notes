@@ -50,6 +50,7 @@ export function robotWiring(model, terms) {
   const glyph = m => (m?.family === 'here' && ICONS[m.icon] ? `<svg class="glyph" viewBox="0 0 48 32" aria-hidden="true">${ICONS[m.icon]}</svg>` : undefined);
   return {
     ...rules,
+    valueView: node => (isCard(node.type) ? 'sensor' : 'value'),
     outputs: node => rules.outputs(node)?.map(port => {
       const sensor = terms.sensors[port.key];
       return { ...port, short: String(sensor?.short ?? port.key), glyph: glyph(sensor) };
@@ -94,7 +95,6 @@ export function experimentParts(model, b, task, view) {
     // A port input and a sensor go by their short name; an output by an arrow; a part shows its look (looks.js).
     icon: node => (node.type === 'tap' ? String(u.sensors[node.params.sensor].short) : node.type === 'port' ? String(u.ports?.[node.id]?.short ?? '') : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: node => ({ '--fam': colour(node) }),
-    valueView: node => (isCard(node.type) ? 'sensor' : 'value'),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, srcNode(wire.from))) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     packed: node => Boolean(rules.packed?.(node) || model.def(node.type)?.built),

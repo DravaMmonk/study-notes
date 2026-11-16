@@ -184,8 +184,8 @@
 .pb-terms > .pb-term { flex: 0 0 calc((100% - (var(--cols, 1) - 1) * 8px) / var(--cols, 1)); max-width: 160px; }
 /* An output shows what is expected beside what came out, so it may take the room two pictures need. */
 .pb-terms.is-outputs > .pb-term { max-width: 320px; }
-/* Input widths follow their content, centred: short scalars share a row; a wide image or statement gets room. */
-.pb-terms.is-sources > .pb-term { flex: 0 1 auto; width: max-content; min-width: min(128px, 100%); max-width: 100%; }
+/* Inputs fit their content and any minimum from the card view, capped at the width of the board. */
+.pb-terms.is-sources > .pb-term { flex: 0 1 auto; width: max-content; min-width: min(var(--pb-source-min-width, 128px), 100%); max-width: 100%; }
 .pb-term { box-sizing: border-box; position: relative; min-width: 0; padding: var(--sp-4) var(--sp-4) var(--sp-6); display: grid; justify-items: center; gap: var(--sp-2); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
 .pb-term.is-output { padding: var(--sp-6) var(--sp-4) var(--sp-4); }
 /* The circuit's ends on a phone, as on the desktop canvas: an opaque card tinted with its own colour and ringed in it,
@@ -445,7 +445,7 @@
 .pb-tile[data-picture] .pb-thumb, .pb-term[data-picture] .pb-thumb { line-height: 0; }
 .pb-tile .number-view { max-width: 100%; }
 .pb-tile[data-picture]:has(> .pb-out.is-many > .pb-o:not(.has-note)) { padding-bottom: var(--sp-8); }
-.pb-terms > .pb-term:not([data-picture], [data-view="sensor"], .is-wide) { flex: 0 1 auto; width: max-content; min-width: min(112px, 100%); max-width: 100%; padding-inline: var(--sp-5); }
+.pb-terms > .pb-term:not([data-picture], [data-view="sensor"], .is-wide) { flex: 0 1 auto; width: max-content; min-width: min(var(--pb-source-min-width, 112px), 100%); max-width: 100%; padding-inline: var(--sp-5); }
 .pb-terms > .pb-term:not([data-picture], [data-view="sensor"]) > .pb-name { order: -1; color: var(--muted); font-size: var(--fs-label); }
 
 /* Parts folded away (../course.js offer): a 「更多」 button at the end of the palette or the tray, and the parts it opens
