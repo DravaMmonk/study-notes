@@ -44,7 +44,7 @@ test('creation offers every nested task type and writes its discriminators into 
   ])
 })
 
-test('JSON editing preserves existing types and writes an id like any field, for the kernel to refuse', () => {
+test('JSON editing preserves existing types and rejects identity changes', () => {
   const config = (kind) => S.obj({ kind: S.oneOf([kind]), value: S.int() })
   const vocabulary = { kinds: {}, level: taskLevel({ title: S.str() }, S.by('kind', { a: config('a'), b: config('b') })) }
   const value = { title: 'Level', tasks: [{ id: 'first', kind: 'a', value: 1 }] }
@@ -54,7 +54,7 @@ test('JSON editing preserves existing types and writes an id like any field, for
     { op: 'level.set', level: 'l', path: ['title'], value: 'New title' },
     { op: 'level.set', level: 'l', path: ['tasks', 0], value: { id: 'first', kind: 'a', value: 2 } },
   ])
-  assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'level.set', level: 'l', path: ['tasks', 0, 'id'], value: 'renamed' }])
+  assert.throws(() => edit(['tasks', 0, 'id'], 'other'), /id cannot change/)
   assert.throws(() => edit(['tasks', 0, 'kind'], 'b'), /change its type|类型/)
   assert.throws(() => edit(['tasks', 0, 'value'], 'text'), /whole number/)
 })

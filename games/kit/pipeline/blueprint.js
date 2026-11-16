@@ -426,21 +426,6 @@ export function auditBlueprint(bp) {
   return out
 }
 
-/**
- * The blueprint with slot `from` renamed `to`, wherever it names it (a level renamed: ops level.rename). When the
- * blueprint has a slot `to` already, the level is moving to a slot the blueprint planned, and the blueprint stays.
- */
-export function renameSlot(bp, from, to) {
-  if (slotsOf(bp).some((s) => s.id === to)) return bp
-  const one = (id) => (id === from ? to : id)
-  const many = (v) => (Array.isArray(v) ? v.map(one) : v === undefined ? v : one(v))
-  return {
-    ...bp,
-    eras: bp.eras.map((era) => ({ ...era, series: era.series.map((x) => ({ ...x, ...(x.after !== undefined ? { after: many(x.after) } : {}), slots: x.slots.map((slot) => ({ ...slot, id: one(slot.id) })) })) })),
-    ...(bp.requests ? { requests: bp.requests.map((r) => ({ ...r, for: r.for.map(one) })) } : {}),
-  }
-}
-
 /** The rules a game's levels are checked by against its blueprint (conformance). */
 export const CONFORMANCE_RULES = {
   'bp-levels': 'a slot has no level, or a level no slot',

@@ -582,7 +582,7 @@ const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation 
  */
 export function pushOp(ops, op) {
   const last = ops.at(-1)
-  // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
+  // Adding and removing never stand for one another; nor do task operations, each placed against the one before.
   if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }

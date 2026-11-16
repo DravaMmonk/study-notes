@@ -4,21 +4,22 @@
 // An operation is { about, params (schema.js: its arguments as data), apply(ws, args, ctx) }. apply edits the
 // workspace (workspace.js) and returns { says, inverse }: what it did, in words, and the operations that undo it.
 // ctx: { vocabulary, domain }. A level's tasks (../tasks.js) are added, removed, moved (in a level or to another: two
-// levels made one, or one split) and renamed by id. No operation looks after players' saves: while the games are in
+// levels made one, or one split) by stable id. No operation looks after players' saves: while the games are in
 // development a save made on other puzzles is not read (../stamp.js).
-import { S, find, shapeAt } from '../schema.js'
+import { S, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
-import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
-import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
+import { getAt, parsePath, showPath } from './edit.js'
+import { assertStableIds, mergePatch, setAt, unsetAt } from './identity.js'
+import { levelRefs, partRefs } from './refs.js'
 import { settingReferences } from '../pieces.js'
 import { ENTRY } from '../vocabulary.js'
 import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
-import { renameSlot } from '../../pipeline/blueprint.js'
 import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
 import { contentFileFor } from '../content.js'
-import { folders } from '../layers.js'
+import { folders, schemaForKind } from '../layers.js'
+import { expandNames } from '../names.js'
 import { sourceValue } from '../catalogs.js'
 import { OBJECT_NAME, OBJECT_SCHEMAS } from '../objects.js'
 
@@ -56,12 +57,6 @@ const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1]
 const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
-}
-/** Every reference to task `from` in pieces.json (each `S.task()` field: a built piece's inside) made to name `to` (a
- *  task renamed, or a level with its task). */
-const renameInside = (ws, from, to) => {
-  if (!ws.partDefs) return
-  for (const { path } of find(PARTS_FILE, ws.partDefs, 'task').filter((hit) => hit.value === from)) ws.partDefs = setAt(ws.partDefs, path, to)
 }
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
@@ -105,6 +100,7 @@ export const OPERATIONS = {
     params: S.obj({ level: S.level(), data: S.map(S.any()) }),
     apply(ws, { level, data }) {
       const base = levelOf(ws, level)
+      assertStableIds(base, data)
       ws.levels.set(level, data)
       return { says: `${level}: replaced`, inverse: [{ op: 'level.replace', level, data: base }] }
     },
@@ -187,22 +183,6 @@ export const OPERATIONS = {
       return { says: `${level}: removed`, inverse }
     },
   },
-  'level.rename': {
-    about: t('给一关换 id：文件名和所有提到它的地方一起改；和关同名的任务一起换（玩家存下的东西按 id 跟着走）'),
-    params: S.obj({ level: S.level(), to: NEW_ID }),
-    apply(ws, { level, to }, { vocabulary }) {
-      if (ws.levels.has(to)) fail(`there is a level ${to} already`)
-      if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
-      const old = levelOf(ws, level)
-      const data = old.tasks?.some((x) => x.id === level) ? { ...old, tasks: old.tasks.map((x) => (x.id === level ? { ...x, id: to } : x)) } : old
-      ws.levels = new Map([...ws.levels].map(([id, l]) => (id === level ? [to, data] : [id, l])))
-      if (data !== old) renameInside(ws, level, to)
-      ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
-      const n = renameRefs(ws, vocabulary, level, to)
-      if (ws.blueprint !== undefined) ws.blueprint = renameSlot(ws.blueprint, level, to)
-      return { says: `${level} → ${to} (${n} reference(s))`, inverse: [{ op: 'level.rename', level: to, to: level }] }
-    },
-  },
   'task.add': {
     about: t('给一关加一个任务：它的字段（id 不给就生成一个），排在 after 那个任务后面（first 时最前，都不给就在最后）'),
     params: S.obj({ level: S.level(), data: S.map(S.any()), after: S.opt(TASK), first: S.opt(S.bool()) }),
@@ -243,19 +223,6 @@ export const OPERATIONS = {
       ws.levels.set(to.level, { ...target, tasks: [...target.tasks.slice(0, k), moving, ...target.tasks.slice(k)] })
       const back = { op: 'task.move', task, to: { level: from, ...placeOf(source.tasks, at) } }
       return { says: `${task}: ${from === to.level ? `moved in ${from}` : `${from} → ${to.level}`} (${k + 1} of ${levelOf(ws, to.level).tasks.length})`, inverse: [back] }
-    },
-  },
-  'task.rename': {
-    about: t('给一个任务换 id；搭出的件对它的引用和玩家存下的东西跟着换'),
-    params: S.obj({ task: TASK, to: TASK }),
-    apply(ws, { task, to }, { vocabulary }) {
-      const { level, at } = taskOf(ws, task)
-      if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
-      if (to !== level && ws.levels.has(to)) fail(`${to} is a level’s id`)
-      const base = levelOf(ws, level)
-      ws.levels.set(level, { ...base, tasks: base.tasks.map((x, k) => (k === at ? { ...x, id: to } : x)) })
-      renameInside(ws, task, to)
-      return { says: `${level}: task ${task} → ${to}`, inverse: [{ op: 'task.rename', task: to, to: task }] }
     },
   },
   'game.set': {
@@ -335,21 +302,6 @@ export const OPERATIONS = {
       return { says: `pieces: removed ${part}`, inverse: [{ op: 'piece.add', piece: part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
     },
   },
-  'piece.rename': {
-    about: t('给一个件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改；pieces.json 还没有、只在内容里提到的件也可以'),
-    params: S.obj({ piece: S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*$' }), to: PART_NAME }),
-    apply(ws, { piece: part, to }, { vocabulary, domain }) {
-      partsOf(ws)
-      if (!ws.partDefs.parts[part] && !partRefs(ws, vocabulary, part).length) fail(`no part ${part}`)
-      if (Object.hasOwn(domain?.vocabulary.kinds.part ?? {}, part)) {
-        fail(`the engine uses the part id ${part}; edit its name instead`)
-      }
-      if (ws.partDefs.parts[to]) fail(`there is a part ${to} already`)
-      ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, def]) => [type === part ? to : type, def])) }
-      const n = renamePartRefs(ws, vocabulary, part, to)
-      return { says: `pieces: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'piece.rename', piece: to, to: part }] }
-    },
-  },
   'setting.add': {
     about: t('新建独立的设置定义', 'Create a setting definition'),
     params: S.obj({ setting: PART_NAME, data: SETTING }),
@@ -359,24 +311,6 @@ export const OPERATIONS = {
       const path = file.settings === undefined ? ['settings'] : ['settings', setting]
       ws.partDefs = { ...file, settings: { ...file.settings, [setting]: data } }
       return { says: `pieces: added setting ${setting}`, inverse: [restore('pieces', file, path, {})] }
-    },
-  },
-  'setting.rename': {
-    about: t('更改设置定义的 ID 并更新所有引用', 'Rename a setting definition and update its references'),
-    params: S.obj({ setting: PART_NAME, to: PART_NAME }),
-    apply(ws, { setting, to }) {
-      const file = partsOf(ws)
-      if (!Object.hasOwn(file.settings ?? {}, setting)) fail(`no setting ${setting}`)
-      if (Object.hasOwn(file.settings, to)) fail(`there is a setting ${to} already`)
-      const uses = settingReferences(file, setting)
-      const parts = { ...file.parts }
-      for (const piece of new Set(uses.map((use) => use.piece))) {
-        const def = parts[piece]
-        parts[piece] = { ...def, settings: def.settings.map((ref) => ref.setting === setting ? { ...ref, setting: to } : ref) }
-      }
-      const settings = Object.fromEntries(Object.entries(file.settings).map(([id, def]) => [id === setting ? to : id, def]))
-      ws.partDefs = { ...file, parts, settings }
-      return { says: `pieces: setting ${setting} → ${to}`, inverse: [{ op: 'setting.rename', setting: to, to: setting }] }
     },
   },
   'setting.remove': {
@@ -397,7 +331,12 @@ export const OPERATIONS = {
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is added with piece.add, renamed with piece.rename')
+      if (!keys.length) fail('the path is empty: use piece.add/remove or setting.add/remove to manage objects')
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is added with piece.add; id cannot change: create a new object, then delete the old one')
+      if (keys.length === 1 && keys[0] === 'settings') {
+        const identities = (values) => Object.keys(values ?? {}).map((id) => ({ id }))
+        assertStableIds(identities(ws.partDefs.settings), identities(value), keys)
+      }
       // A first face can be written independently even before the part has a views object.
       const parent = keys.slice(0, -1)
       if (keys.length === 4 && keys[0] === 'parts' && keys[2] === 'views' && getAt(ws.partDefs, parent) === undefined) {
@@ -427,6 +366,7 @@ export const OPERATIONS = {
     params: S.obj({ data: S.map(S.any()) }),
     apply(ws, { data }) {
       const old = ws.blueprint
+      assertStableIds(old, data)
       ws.blueprint = data
       return { says: `blueprint: ${old === undefined ? 'written' : 'rewritten'}`, inverse: [old === undefined ? { op: 'blueprint.remove' } : { op: 'blueprint.put', data: old }] }
     },
@@ -525,6 +465,7 @@ for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation'
       params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : OBJECT_SCHEMAS[plural] }),
       apply(ws, args) {
         const name = target(ws, args[kind]), old = ws[plural].get(name)
+        assertStableIds(old ?? {}, args.data)
         ws[plural].set(name, args.data)
         return { says: `${kind} ${name}: written`, inverse: [old ? { op: `${kind}.put`, [kind]: name, data: old } : { op: `${kind}.remove`, [kind]: name }] }
       },
@@ -572,7 +513,7 @@ Object.assign(OPERATIONS, {
   'override.put': {
     about: t('在本层覆盖对象或文案', 'Override an object or catalog in this layer'),
     params: S.obj({ ...overrideParams, data: S.opt(S.map(S.any())), merge: S.opt(S.bool()) }),
-    apply(ws, args) {
+    apply(ws, args, { vocabulary }) {
       const file = overrideFile(ws, args)
       const old = ws.overrideFiles.get(file)
       if (args.kind === 'tag' && Object.hasOwn(args.data ?? {}, 'kind')) fail('tag kind belongs in the override path')
@@ -585,6 +526,12 @@ Object.assign(OPERATIONS, {
           const { id: _id, ...value } = sourceValue(object)
           data = args.merge ? {} : args.kind === 'tag' ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'kind')) : value
         }
+      }
+      if (args.kind !== 'i18n') {
+        const object = ws.content().registries[args.kind]?.[args.name]
+        const { id: _id, ...base } = sourceValue(object ?? {})
+        const qualified = expandNames(data, ws.layer, { schema: schemaForKind(args.kind, vocabulary), vocabulary })
+        assertStableIds(base, args.merge || data?.$merge ? mergePatch(base, qualified) : qualified)
       }
       ws.overrideFiles.set(file, { ...(args.merge && { $merge: true }), ...data })
       return { says: `${args.layer}: override ${args.kind} ${args.name}`, inverse: [old === undefined ? { op: 'override.remove', layer: args.layer, kind: args.kind, name: args.name } : { op: 'override.put', layer: args.layer, kind: args.kind, name: args.name, data: old }] }

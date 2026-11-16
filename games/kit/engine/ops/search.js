@@ -3,8 +3,7 @@ import { OBJECT_SCHEMAS } from '../objects.js'
 // of the levels, game.json and the encyclopedia (each side on its own; a link tag is never matched inside, so a
 // replace cannot break one), every line of every board, and the ids of levels and entries. A replace is never an edit
 // of its own: it is the operations that make it — text.set for each language it changes, level.blueprint with the board's
-// new text — for a changeset to preview, check and apply like any other. Ids are found, never replaced (level.rename
-// changes an id and every place naming it). Node-safe and browser-safe: the studio searches as one types with this
+// new text — for a changeset to preview, check and apply like any other. Ids are found, never replaced (ids cannot change). Node-safe and browser-safe: the studio searches as one types with this
 // module, and the MCP's search and replace tools (tools.js) are this module too.
 //
 //   query: { find, regex?, caseSensitive?, word?, kinds?: ['text', 'board', 'id'] }

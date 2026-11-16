@@ -4,7 +4,7 @@
 //
 // Every task has an id, unique in the game and never another level's id (a level's one task usually has the level's
 // own). What a player keeps of a task — its board, whether it is passed — is kept by that id (the operations task.add,
-// task.remove, task.move, task.rename, ops/operations.js). The shell plays each task as the level with the task's
+// task.remove, task.move, ops/operations.js). The shell plays each task as the level with the task's
 // fields over it (../shell/GameShell.jsx), and so does every domain reading one (taskLevels).
 import { S } from './schema.js'
 import { T as t } from '../shell/i18n.js'

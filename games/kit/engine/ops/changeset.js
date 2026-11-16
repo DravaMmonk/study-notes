@@ -15,6 +15,7 @@
 // levels the changeset touches, and the levels after them its puzzles and answers reach, are checked again.
 import { expandNames } from '../names.js'
 import { parsePath } from './edit.js'
+import { assertStableIds } from './identity.js'
 import { shapeAt, validate } from '../schema.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
 import { PART, PARTS_FILE, SETTING } from '../parts/schema.js'
@@ -117,6 +118,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     if (args.data) {
       args.data = source(supplied.data, schema)
       if (args.data.id) args.data = { ...args.data, id: local(args.data.id) }
+      if (operation.endsWith('.put')) assertStableIds(base ?? {}, args.data)
     }
     if (args.fields) args.fields = source(args.fields, schema)
     if (base && args.value !== undefined && args.path !== undefined) args.value = source(supplied.value, shapeAt(schema, base, parsePath(args.path), { vocabulary }))

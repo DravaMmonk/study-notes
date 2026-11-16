@@ -3,7 +3,7 @@
 import { layout } from '../course.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { auditBlueprint, conformance, erasOf, renameSlot } from './blueprint.js'
+import { auditBlueprint, conformance, erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { boardShape, lintPedagogy } from './pedagogy.js'
 
@@ -119,18 +119,6 @@ test('the eras a blueprint lays out: routes and optional levels', () => {
   assert.deepEqual(layout([era]).requires.get('1-8'), ['1-3'])
   assert.deepEqual(layout([era]).requires.get('N1'), ['1-5'])
   assert.deepEqual(era.levels.filter(({ optional }) => optional), [{ id: 'N1', optional: true }])
-})
-
-test('a slot renamed with its level, wherever the blueprint names it', () => {
-  const bp = base()
-  bp.eras[0].series.push(series('top', [slot('N1', { role: 'intro', uses: ['counter'] })], { kind: 'topic', after: '1-5' }))
-  bp.requests = [{ id: 'r', kind: 'domain', about: t('x'), for: ['1-5'], status: 'open' }]
-  const renamed = renameSlot(bp, '1-5', '1-6')
-  assert.equal(renamed.eras[0].series[1].slots[1].id, '1-6')
-  assert.equal(renamed.eras[0].series[2].after, '1-6')
-  assert.deepEqual(renamed.requests[0].for, ['1-6'])
-  // A level moving onto a slot the blueprint already plans leaves the blueprint as it is.
-  assert.equal(renameSlot(bp, '1-5', '1-4'), bp)
 })
 
 test('the copy lint names the rule each text breaks', () => {
