@@ -29,5 +29,43 @@
     "iff-intro",
     "natInd"
   ],
-  "of": "piece"
+  "of": "piece",
+  "edges": [
+    {
+      "from": "proof-implication",
+      "to": "proof-and"
+    },
+    {
+      "from": "proof-and",
+      "to": "proof-or"
+    },
+    {
+      "from": "proof-or",
+      "to": "proof-contradiction"
+    },
+    {
+      "from": "proof-contradiction",
+      "to": "proof-forall"
+    },
+    {
+      "from": "proof-forall",
+      "to": "proof-exists"
+    },
+    {
+      "from": "proof-exists",
+      "to": "proof-equality"
+    },
+    {
+      "from": "proof-equality",
+      "to": "proof-classical"
+    },
+    {
+      "from": "proof-classical",
+      "to": "proof-equivalences"
+    },
+    {
+      "from": "proof-equivalences",
+      "to": "natInd"
+    }
+  ]
 }

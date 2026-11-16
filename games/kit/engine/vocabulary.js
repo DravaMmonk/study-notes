@@ -163,7 +163,10 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
-  for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+  for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) {
+    add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+    if (kind !== 'tags' && hasCatalogSource(content)) out.push(...catalogTextProblems(object, OBJECT_SCHEMAS[kind], `${kind}/${name}.json`, vocabulary, packageKeys))
+  }
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the kernel vocabulary has versions 1 to ${vocabulary.version}` })
   // Packages validate their authored configuration without requiring game or course fields.
   const packageFields = packageTarget?.fields ?? []

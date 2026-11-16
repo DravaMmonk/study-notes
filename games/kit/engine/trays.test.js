@@ -49,3 +49,21 @@ test('tray overrides append members and merge menus by id, with explicit removal
   assert.deepEqual(applyOverride('tray', next, { remove: ['a', 'group'] }).menus.map(menu => menu.id), ['other'])
   assert.deepEqual(applyOverride('tray', source, { replace: true, values: ['z'], menus: [] }), { title: 'Tools', values: ['z'], menus: [] })
 })
+
+test('tray order interleaves menus and direct members without changing menu-member order', async () => {
+  const { assemble } = await import('./content.js')
+  const { S } = await import('./schema.js')
+  const content = assemble({ id: 'sample', schemas: { game: S.obj({}), level: S.obj({}), kinds: {} }, game: {}, levels: [],
+    partDefs: { parts: { one: {}, two: {}, last: {} } },
+    trays: [['tools', { title: 'Tools', values: ['last'], menus: [
+      { id: 'z-menu', title: 'First', values: ['two', 'one'] },
+      { id: 'a-menu', title: 'Second', values: ['two'] },
+    ] }]],
+    relations: [['tools-order', { kind: 'order', of: 'piece', edges: [
+      { from: 'z-menu', to: 'last' }, { from: 'last', to: 'a-menu' }, { from: 'two', to: 'one' },
+    ] }]],
+  })
+  assert.deepEqual(content.objectProblems, [])
+  assert.deepEqual(content.trays['sample/tools'].items.map(item => typeof item === 'string' ? item : item.id), ['sample/z-menu', 'sample/last', 'sample/a-menu'])
+  assert.deepEqual(content.trays['sample/tools'].items[0].items, ['sample/two', 'sample/one'])
+})
