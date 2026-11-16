@@ -10,16 +10,20 @@ const MENU = S.obj({
 })
 const ENTRY = S.either(...ITEM.of, MENU)
 
-export const TRAYS = S.opt(S.map(S.list(ENTRY), { section: 'course', about: t('托盘里的元件与二级菜单，按显示顺序排列。', 'Pieces and submenus in display order.') }))
-export const TRAY_SCHEMA_CHANGE = { at: 'game.trays.about', why: t('托盘描述元件的显示方式。', 'Trays describe how pieces are presented.') }
+export const TRAYS = S.opt(S.map(S.obj({
+  name: S.text(),
+  desc: S.text(),
+  items: S.list(ENTRY),
+}), { section: 'course', about: t('托盘的名称、描述和按顺序展示的元件。', 'Tray names, descriptions, and ordered pieces.') }))
+export const TRAY_METADATA_CHANGE = { at: 'game.trays', why: t('托盘增加名称和描述。', 'Trays carry a name and a description.') }
 
-export const trayMembers = (entries) => entries.flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
+export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
 /** Project available pieces onto the selected trays, leaving availability to the course. */
 export function trayDisplay(trays, names, shown, folded) {
   const first = new Set(shown.map(({ type }) => type))
   const remaining = new Map([...shown, ...folded].map((item) => [item.type, item]))
-  const menus = names.flatMap((name) => (trays[name] ?? [])
+  const menus = names.flatMap((name) => (trays[name]?.items ?? [])
     .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, key: JSON.stringify([name, entry.id]) })))
   const items = [], more = []
   const add = (item, visible) => (visible ? items : more).push(item)

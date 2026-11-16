@@ -34,7 +34,7 @@ export default function RunDock({ meta, lead, secondary, controls = [], go, clas
         <button type="button" className="run-sec" onClick={secondary.onClick} aria-label={secondary.label} title={secondary.label} {...secondary.attrs}>{secondary.icon}<span>{secondary.label}</span></button>
       )}
       {go && (
-        <button type="button" className={`run-go ${go.busy ? 'is-busy' : ''} ${go.pass ? 'is-pass' : ''} ${go.pulse ? 'is-pulse' : ''}`} onClick={showing(go.onClick)} {...go.attrs}>
+        <button type="button" className={`run-go ${go.busy ? 'is-busy' : ''} ${go.pass ? 'is-pass' : ''} ${go.pulse ? 'is-pulse' : ''}`} onClick={go.onClick && showing(go.onClick)} {...go.attrs}>
           {icon}<span>{go.label}</span>
         </button>
       )}

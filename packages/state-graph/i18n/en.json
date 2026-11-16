@@ -1415,5 +1415,7 @@
   "piece.viterbi.desc": "For every tag in every column, keep the cheapest explanation up to here: each row of the previous column plus its transition cost, then the min.",
   "piece.viterbi.name": "Viterbi",
   "piece.wordbreak.desc": "If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too.",
-  "piece.wordbreak.name": "Word Breaker"
+  "piece.wordbreak.name": "Word Breaker",
+  "tray.trays.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
+  "tray.trays.main.name": "Robot components"
 }

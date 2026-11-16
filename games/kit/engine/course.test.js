@@ -166,7 +166,7 @@ test('only staged tasks exceeding the open-part limit are crowded', () => {
 })
 
 test('a tray orders available parts, while the reference and featured parts set what first appears', () => {
-  const trays = { gates: ['b', 'a'], proof: ['c', 'x', 'd'] }
+  const trays = { gates: { items: ['b', 'a'] }, proof: { items: ['c', 'x', 'd'] } }
   const spec = { 1: { adds: ['a'], tray: 'gates' }, 2: { adds: ['b'], tray: 'gates' }, 3: { adds: ['c'], tray: 'proof' }, 4: { builds: 'x', uses: ['c'], tray: 'proof' }, 5: { adds: ['d'], tray: 'proof', uses: ['d'] }, 6: { tray: 'gates', uses: ['a'], featured: ['d'] } }
   const course = sketch([serial('1', '2', '3', '4'), { levels: [{ id: '5' }, { id: '6' }], links: wires(['4', '5'], ['5', '6']) }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null, featured: (l) => spec[l.id]?.featured ?? [] })
   assert.deepEqual(reach(course, { id: '5' }), ['c', 'x', 'd', 'a', 'b'])
@@ -178,7 +178,7 @@ test('a tray orders available parts, while the reference and featured parts set 
 
 test('a tray part nothing brings in is reported', () => {
   const spec = { 1: { adds: ['a', 'b'] } }
-  const course = sketch([serial('1')], spec, { trays: { only: ['a', 'c'] }, tray: () => 'only' })
+  const course = sketch([serial('1')], spec, { trays: { only: { items: ['a', 'c'] } }, tray: () => 'only' })
   assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')).map((f) => `${f.rule} ${f.part}`), ['tray-unmet c'])
 })
 

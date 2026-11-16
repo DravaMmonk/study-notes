@@ -5,9 +5,9 @@ import { trayDisplay, trayMembers } from './trays.js'
 test('tray menus show only available pieces and follow their main and folded placement', () => {
   const menu = { id: 'or', title: '∨', items: ['orI', 'orE', 'locked'] }
   const entries = [menu, 'swap']
-  const trays = { proof: entries }
+  const trays = { proof: { name: 'Proof', desc: 'Proof tools', items: entries } }
   const piece = (type) => ({ type })
-  assert.deepEqual(trayMembers(entries), ['orI', 'orE', 'locked', 'swap'])
+  assert.deepEqual(trayMembers(trays.proof), ['orI', 'orE', 'locked', 'swap'])
 
   const pinned = trayDisplay(trays, ['proof'], [piece('orI')], [piece('orE'), piece('swap')])
   assert.deepEqual(pinned.items.map(({ children }) => children), [[piece('orI'), piece('orE')]])
@@ -21,8 +21,8 @@ test('tray menus show only available pieces and follow their main and folded pla
 test('switching trays groups only the pieces in the selected tray', () => {
   const items = [{ type: 'orI' }, { type: 'orE' }]
   const trays = {
-    proof: [{ id: 'or', title: '∨', items: ['orI', 'orE'] }],
-    rules: ['orI', 'orE'],
+    proof: { name: 'Proof', desc: 'Proof tools', items: [{ id: 'or', title: '∨', items: ['orI', 'orE'] }] },
+    rules: { name: 'Rules', desc: 'Rules', items: ['orI', 'orE'] },
   }
   assert.deepEqual(trayDisplay(trays, ['proof'], items, []).items[0].children, items)
   assert.deepEqual(trayDisplay(trays, ['rules'], items, []).items, items)

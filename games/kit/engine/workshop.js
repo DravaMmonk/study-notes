@@ -64,7 +64,7 @@ export function draftWorkshop(library, tray, draft) {
 export const workshopEntries = (library) => Object.values(library.pieces)
   .filter(({ id, lineage, deleted }) => !deleted && (!lineage || library.published[lineage] === id))
 
-export const trayTypes = (trays, name) => new Set(trayMembers(trays[name] ?? []))
+export const trayTypes = (trays, name) => new Set(trayMembers(trays[name]))
 export const trayKey = (game, name) => JSON.stringify([game, name])
 export const workshopInTray = (piece, tray, types) => piece.tray === tray
   || ((!piece.tray || JSON.parse(piece.tray)[0] !== JSON.parse(tray)[0]) && piece.requirements.every(({ type }) => types.has(type)))

@@ -1,4 +1,4 @@
-/* The workshop page (Workshop.jsx): the draft's interface beside its board, and the parts made on the tray. */
+/* The workshop page: metadata, ports, published parts and the tray selector. */
 .ws-panel { min-width: 0; display: flex; flex-direction: column; gap: var(--gap-section); }
 .ws-face { display: flex; flex-direction: column; gap: var(--gap-group); }
 .ws-name, .ws-desc, .ws-port-name { min-width: 0; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
@@ -26,10 +26,12 @@
 .ws-tool { width: var(--sp-7); height: var(--sp-7); padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--r-sm); color: var(--muted); background: transparent; cursor: pointer; }
 .ws-tool:hover, .ws-tool.is-on { color: var(--ink); background: var(--hover); }
 .ws-tool.is-on { color: var(--accent-ink); }
-.ws-tool:focus-visible, .ws-pack:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.ws-pack { min-height: calc(var(--sp-8) + var(--sp-4)); margin-top: var(--sp-3); padding: 0 var(--sp-6); display: flex; align-items: center; justify-content: center; gap: var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--paper); background: var(--ink); font: 600 var(--fs-ui)/1 var(--sans); letter-spacing: .02em; cursor: pointer; }
-.ws-pack:hover { background: var(--heading); box-shadow: var(--lift); }
+.ws-io { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-group); }
+.ws-tray-picker { flex: none; width: min(10rem, 42vw); min-width: 0; display: grid; align-content: center; }
+.ws-tray-picker select { width: 100%; min-width: 0; color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--sp-2); font: 600 var(--fs-ui)/var(--lh-ui) var(--sans); }
+.ws-tray-picker small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); font: var(--fs-label)/var(--lh-ui) var(--sans); }
 .ws-notice { margin: 0; color: var(--muted); font: var(--fs-ui)/var(--lh-ui) var(--sans); }
 .ws-notice.is-fail { color: var(--fail); }
 
@@ -38,15 +40,16 @@
 .ws-shelf li span { overflow: hidden; color: var(--ink); font-size: var(--fs-ui); white-space: nowrap; text-overflow: ellipsis; }
 .ws-shelf li small { color: var(--faint); font: var(--fs-label)/1 var(--mono); }
 
-/* In the top bar: the page's name, then its trays. */
 .bench-title { flex: none; }
-.bench-trays { min-width: 0; flex: 1; display: flex; gap: var(--sp-1); overflow-x: auto; scrollbar-width: none; }
-.game-bar .bench-trays .kit-btn { flex: none; width: auto; padding: 0 var(--sp-4); }
 /* The way in from a circuit level's brief. */
 .cs-workshop { align-self: flex-start; margin-left: calc(var(--sp-4) * -1); }
 
 @media (max-width: 760px) {
-  .ws-panel { padding: var(--sp-6) var(--sp-5) var(--sp-7); }
+  .ws-level .ws-face { padding: var(--sp-3) var(--sp-3) var(--sp-5); }
+  .ws-level .ws-shelf { margin-top: var(--sp-6); }
+  .pb-tray .ws-tray-picker { position: sticky; z-index: 1; inset-inline-start: 0; margin-inline-start: calc(var(--sp-5) * -1); padding-inline-start: var(--sp-5); background: var(--paper); }
+  .ws-level .run-dock { flex-wrap: wrap; }
+  .ws-level .run-meta { flex-basis: 100%; }
   .ws-desc, .ws-port-name { font-size: var(--fs-touch-input); }
   .ws-ports li { min-height: calc(var(--sp-8) + var(--sp-5)); }
   .ws-tool { width: calc(var(--sp-8) + var(--sp-4)); height: calc(var(--sp-8) + var(--sp-4)); }

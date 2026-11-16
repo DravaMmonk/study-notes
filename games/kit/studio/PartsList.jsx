@@ -80,7 +80,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
           {types.map(row)}
         </div>
       ) : (
-        <SidebarSection key={`tray:${tray}`} title={tray} name={tray} active={activeTray === tray} collapsed={!filtering && folded.has(tray)}
+        <SidebarSection key={`tray:${tray}`} title={L(content.trays[tray].name)} name={tray} active={activeTray === tray} collapsed={!filtering && folded.has(tray)}
           onSelect={() => onTray(tray)} onToggle={() => toggle(tray)}>
           {types.map(row)}
         </SidebarSection>

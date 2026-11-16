@@ -10,7 +10,7 @@ import { COURSE_FIELDS } from '../../engine/course-schema.js';
 import { S } from '../../engine/schema.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
 import { taskLevel } from '../../engine/tasks.js';
-import { TRAY, TRAYS, TRAY_SCHEMA_CHANGE } from '../../engine/trays.js';
+import { TRAY, TRAYS, TRAY_METADATA_CHANGE } from '../../engine/trays.js';
 import { T as t } from '../../shell/i18n.js';
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) });
@@ -252,8 +252,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 7,
-  removes: [TRAY_SCHEMA_CHANGE],
+  version: 8,
+  removes: [TRAY_METADATA_CHANGE],
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
     part: PARTS,

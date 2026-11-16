@@ -7,7 +7,7 @@ import TrayMenu, { trayItemCount } from './TrayMenu.jsx'
 // The phone's parts tray, the same in every game: tap a part to drop it into the next free slot, or hold and drag
 // it onto a slot. Dragging a placed block back onto the tray removes it ([data-trash]). `folded` parts wait behind a
 // 「更多」 chip at the end, as in the desktop Palette.
-export default function Tray({ items, folded = [], onPick }) {
+export default function Tray({ items, folded = [], onPick, start }) {
   const [more, setMore] = useState(false)
   const host = useRef(null)
   const piece = (item) => (
@@ -21,10 +21,11 @@ export default function Tray({ items, folded = [], onPick }) {
     ? <TrayMenu key={item.menu} entry={item} className="pb-part" phoneHost={host} renderPiece={(child) => piece({ ...child, folded: hidden })} />
     : piece({ ...item, folded: hidden })
   const count = trayItemCount(folded)
-  if (!items.length && !folded.length) return null
+  if (!start && !items.length && !folded.length) return null
   return (
     <div ref={host} className="pb-tray-wrap">
       <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子')}>
+        {start}
         {items.map((item) => entry(item))}
         {more && folded.map((item) => entry(item, true))}
         {folded.length > 0 && (

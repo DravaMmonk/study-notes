@@ -2965,5 +2965,13 @@
   "setting.shift_border.options.1.label": "Replicate edge",
   "setting.shift_border.options.2.label": "Wrap round",
   "setting.shift_n.label": "Steps",
-  "setting.tconv_w.label": "Weights"
+  "setting.tconv_w.label": "Weights",
+  "tray.trays.generative.desc": "Generate or reconstruct images from latent representations.",
+  "tray.trays.generative.name": "Generative models",
+  "tray.trays.geometry.desc": "Work with coordinates, projections, and image transformations.",
+  "tray.trays.geometry.name": "Visual geometry",
+  "tray.trays.pipeline.desc": "Combine pixel operations, filters, and sampling.",
+  "tray.trays.pipeline.name": "Image processing",
+  "tray.trays.recognition.desc": "Extract features and use them to recognize images.",
+  "tray.trays.recognition.name": "Visual recognition"
 }

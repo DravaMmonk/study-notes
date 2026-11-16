@@ -1,75 +1,103 @@
 {
-  "gates": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
-  "proof": [
-    {
-      "id": "implication",
-      "title": "@tray.trays.proof.implication.title",
-      "items": ["mp", "impI", "chain", "merge", "swap", "axK", "axS"]
-    },
-    { "id": "and", "title": "@tray.trays.proof.and.title", "items": ["andI", "andE"] },
-    { "id": "or", "title": "@tray.trays.proof.or.title", "items": ["orI", "orE"] },
-    { "id": "contradiction", "title": "@tray.trays.proof.contradiction.title", "items": ["botE", "liar"] },
-    { "id": "forall", "title": "@tray.trays.proof.forall.title", "items": ["allI", "allE"] },
-    { "id": "exists", "title": "@tray.trays.proof.exists.title", "items": ["exI", "exE"] },
-    { "id": "equality", "title": "@tray.trays.proof.equality.title", "items": ["rewrite", "refl"] },
-    { "id": "classical", "title": "@tray.trays.proof.classical.title", "items": ["raa", "lem"] },
-    {
-      "id": "equivalences",
-      "title": "@tray.trays.proof.equivalences.title",
-      "items": ["dneg", "arrow", "dist", "dm", "iff"]
-    },
-    "natInd"
-  ],
-  "machine": [
-    {
-      "id": "rule-building",
-      "title": "@tray.trays.machine.rule-building.title",
-      "items": ["anyR", "swapConcl", "mkRule", "keepBound", "elimGen"]
-    },
-    { "id": "lists", "title": "@tray.trays.machine.lists.title", "items": ["consFront", "eachOf"] },
-    {
-      "id": "unification",
-      "title": "@tray.trays.machine.unification.title",
-      "items": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck", "uPattern", "unifier"]
-    },
-    {
-      "id": "flow",
-      "title": "@tray.trays.machine.flow.title",
-      "items": ["repeat", "append", "defer", "search", "each"]
-    },
-    {
-      "id": "reasoning",
-      "title": "@tray.trays.machine.reasoning.title",
-      "items": ["rule", "assumption", "erule", "frule", "introRules", "elimRules", "auto"]
-    },
-    { "id": "equality", "title": "@tray.trays.machine.equality.title", "items": ["rw", "simp", "hyp"] },
-    {
-      "id": "clauses",
-      "title": "@tray.trays.machine.clauses.title",
-      "items": ["skolem", "toClauses", "resolve", "saturate"]
-    },
-    {
-      "id": "certificate",
-      "title": "@tray.trays.machine.certificate.title",
-      "items": ["clausify", "replay", "metis"]
-    }
-  ],
-  "resolution": ["res"],
-  "certificate": [
-    {
-      "id": "certificate",
-      "title": "@tray.trays.certificate.certificate.title",
-      "items": ["clausify", "replay"]
-    }
-  ],
-  "formula": [
-    "formulaForall",
-    "formulaExists",
-    "formulaNot",
-    "formulaAnd",
-    "formulaOr",
-    "formulaImplies",
-    "formulaIff",
-    "formulaFalse"
-  ]
+  "gates": {
+    "name": "@tray.trays.gates.name",
+    "desc": "@tray.trays.gates.desc",
+    "items": ["gNot", "gAnd", "gOr", "gImp", "gIff"]
+  },
+  "proof": {
+    "name": "@tray.trays.proof.name",
+    "desc": "@tray.trays.proof.desc",
+    "items": [
+      {
+        "id": "implication",
+        "title": "@tray.trays.proof.items.implication.title",
+        "items": ["mp", "impI", "chain", "merge", "swap", "axK", "axS"]
+      },
+      { "id": "and", "title": "@tray.trays.proof.items.and.title", "items": ["andI", "andE"] },
+      { "id": "or", "title": "@tray.trays.proof.items.or.title", "items": ["orI", "orE"] },
+      {
+        "id": "contradiction",
+        "title": "@tray.trays.proof.items.contradiction.title",
+        "items": ["botE", "liar"]
+      },
+      { "id": "forall", "title": "@tray.trays.proof.items.forall.title", "items": ["allI", "allE"] },
+      { "id": "exists", "title": "@tray.trays.proof.items.exists.title", "items": ["exI", "exE"] },
+      { "id": "equality", "title": "@tray.trays.proof.items.equality.title", "items": ["rewrite", "refl"] },
+      { "id": "classical", "title": "@tray.trays.proof.items.classical.title", "items": ["raa", "lem"] },
+      {
+        "id": "equivalences",
+        "title": "@tray.trays.proof.items.equivalences.title",
+        "items": ["dneg", "arrow", "dist", "dm", "iff"]
+      },
+      "natInd"
+    ]
+  },
+  "machine": {
+    "name": "@tray.trays.machine.name",
+    "desc": "@tray.trays.machine.desc",
+    "items": [
+      {
+        "id": "rule-building",
+        "title": "@tray.trays.machine.items.rule-building.title",
+        "items": ["anyR", "swapConcl", "mkRule", "keepBound", "elimGen"]
+      },
+      { "id": "lists", "title": "@tray.trays.machine.items.lists.title", "items": ["consFront", "eachOf"] },
+      {
+        "id": "unification",
+        "title": "@tray.trays.machine.items.unification.title",
+        "items": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck", "uPattern", "unifier"]
+      },
+      {
+        "id": "flow",
+        "title": "@tray.trays.machine.items.flow.title",
+        "items": ["repeat", "append", "defer", "search", "each"]
+      },
+      {
+        "id": "reasoning",
+        "title": "@tray.trays.machine.items.reasoning.title",
+        "items": ["rule", "assumption", "erule", "frule", "introRules", "elimRules", "auto"]
+      },
+      { "id": "equality", "title": "@tray.trays.machine.items.equality.title", "items": ["rw", "simp", "hyp"] },
+      {
+        "id": "clauses",
+        "title": "@tray.trays.machine.items.clauses.title",
+        "items": ["skolem", "toClauses", "resolve", "saturate"]
+      },
+      {
+        "id": "certificate",
+        "title": "@tray.trays.machine.items.certificate.title",
+        "items": ["clausify", "replay", "metis"]
+      }
+    ]
+  },
+  "resolution": {
+    "name": "@tray.trays.resolution.name",
+    "desc": "@tray.trays.resolution.desc",
+    "items": ["res"]
+  },
+  "certificate": {
+    "name": "@tray.trays.certificate.name",
+    "desc": "@tray.trays.certificate.desc",
+    "items": [
+      {
+        "id": "certificate",
+        "title": "@tray.trays.certificate.items.certificate.title",
+        "items": ["clausify", "replay"]
+      }
+    ]
+  },
+  "formula": {
+    "name": "@tray.trays.formula.name",
+    "desc": "@tray.trays.formula.desc",
+    "items": [
+      "formulaForall",
+      "formulaExists",
+      "formulaNot",
+      "formulaAnd",
+      "formulaOr",
+      "formulaImplies",
+      "formulaIff",
+      "formulaFalse"
+    ]
+  }
 }

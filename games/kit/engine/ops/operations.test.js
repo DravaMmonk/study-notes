@@ -166,13 +166,16 @@ test('course and tray changes write to the package and retain other courses’ t
   const ws = openGame('toy', root)
   const result = await runChangeset(ws, { ops: [
     { op: 'game.set', path: 'eras[0].title', value: { en: 'Opening' } },
-    { op: 'game.set', path: 'trays', value: { main: ['a', 'b'] } },
+    { op: 'game.set', path: 'trays', value: { main: { name: { en: 'Main tray' }, desc: { en: 'Parts for the board' }, items: ['a', 'b'] } } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(result.files.sort(), ['packages/toy/courses/main.json', 'packages/toy/i18n/en.json', 'packages/toy/trays.json'])
-  assert.deepEqual(JSON.parse(readFileSync(join(pkg, 'trays.json'))), { main: ['a', 'b'] })
+  assert.deepEqual(JSON.parse(readFileSync(join(pkg, 'trays.json'))), { main: { name: '@tray.trays.main.name', desc: '@tray.trays.main.desc', items: ['a', 'b'] } })
   assert.equal(JSON.parse(readFileSync(locale))[other], 'An alternate opening')
-  assert.equal(openGame('toy', root).game.eras[0].title.en, 'Opening')
+  const reopened = openGame('toy', root).game
+  assert.equal(reopened.eras[0].title.en, 'Opening')
+  assert.equal(reopened.trays.main.name.en, 'Main tray')
+  assert.equal(reopened.trays.main.desc.en, 'Parts for the board')
 })
 
 test('text.set edits one language at a field path and round trips', () => {

@@ -296,9 +296,9 @@ test('formula chips use the registered pieces and keep contextual names', () => 
 test('formula and circuit groups share a task, combining in order and respecting unlocks', () => {
   const content = readStarter(import.meta.dirname)
   content.trays = {
-    gates: ['gNot', 'gAnd'],
-    basic: ['formulaAnd', 'formulaNot'],
-    extended: ['formulaOr', 'formulaNot'],
+    gates: { name: 'Gates', desc: 'Logic gates', items: ['gNot', 'gAnd'] },
+    basic: { name: 'Basic', desc: 'Basic symbols', items: ['formulaAnd', 'formulaNot'] },
+    extended: { name: 'Extended', desc: 'Additional symbols', items: ['formulaOr', 'formulaNot'] },
   }
   const levels = content.levels
   const first = levels.find(({ id }) => id === 'g-not')

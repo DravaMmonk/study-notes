@@ -154,7 +154,7 @@ function hookProblems(course) {
     const showcase = course.showcase(level)
     if (showcase !== null && !isText(showcase)) say(`showcase(${at}) is neither a reason nor null`)
   }
-  for (const [name, list] of Object.entries(course.trays)) if (!Array.isArray(list) || !strings(trayMembers(list))) say(`tray ${name} does not resolve to a list of parts`)
+  for (const [name, list] of Object.entries(course.trays)) if (!Array.isArray(list.items) || !strings(trayMembers(list))) say(`tray ${name} does not resolve to a list of parts`)
   for (const p of parts) {
     const c = course.concept(p)
     if (c !== null && typeof c !== 'string') say(`concept(${p}) is neither a name nor null`)

@@ -174,6 +174,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   items, folded   the parts to place [{ type, label, desc, icon, family, packed?, fresh?, tag? }] and those folded away
  *   types           all types that blueprints may place, including models grouped in the tray
  *   trayNames       the selected trays when the editor has its own selection (the workshop)
+ *   trayControl     a control at the start of the tray or palette
  *   trayParts       the fixed tray's faces when the task or player can change the faces of its playable parts
  *   create?(graph, type, { slot, region }) → { graph, id }   a new card (default: `defaults(type)` its settings, in a free spot)
  *   view            what the board shows now: { values, errors } (the default wire state reads it)
@@ -184,6 +185,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it;
  *                   an element stands in its place (a board that is no level: the workshop); null: none
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
+ *   above           on a phone, over the board
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
  *   follow          on a phone, { began, key }: while a run shows under the board, the page keeps to its bottom
  *   describe(node, ctx), sheet(node, ctx)   a card's detail content: description and body (default: card.body)
@@ -197,7 +199,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -274,7 +276,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -283,7 +285,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       rootRef={root}
       className={`cl-level ${className}`}
       brief={briefEl}
-      parts={(all.length > 0 || edit) && <>{all.length > 0 && <Palette compact items={display.items} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
+      parts={(trayControl || all.length > 0 || edit) && <>{(trayControl || all.length > 0) && <Palette compact start={trayControl} items={display.items} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
           <div className="cl-board">
@@ -339,7 +341,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, trayControl, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -388,7 +390,8 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const body = node && sheetBody(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+      {above}
       <SlotBoard
         boardRef={boardRef}
         blocks={{ ...blocks, ...blockActions(circuit, parts, change) }}

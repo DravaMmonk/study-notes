@@ -9,7 +9,7 @@ import TrayMenu, { trayItemCount } from './TrayMenu.jsx'
 // in a tooltip, for a floating window over the board. `folded` parts (still usable, but not what this level's puzzle is
 // about: ../course.js offer) wait behind a 「更多」 button at the end. A packed part (`packed`: one that runs a circuit the
 // player built) has a solid family chip, as on the board.
-export default function Palette({ items, folded = [], onAdd, compact = false }) {
+export default function Palette({ items, folded = [], onAdd, compact = false, start }) {
   const [more, setMore] = useState(false)
   // A tooltip opens to the right of its part, or to the left when the right would run past the board (or the window).
   const aim = (event) => {
@@ -34,9 +34,10 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
     ? <TrayMenu key={item.menu} entry={item} className="palette-more" compact={compact} renderPiece={(child) => piece({ ...child, folded: hidden }, false)} />
     : piece({ ...item, folded: hidden })
   const count = trayItemCount(folded)
-  if (!items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>
+  if (!start && !items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>
   return (
     <div className={`palette ${compact ? 'is-compact' : ''}`}>
+      {start}
       {items.map((item) => entry(item))}
       {more && folded.map((item) => entry(item, true))}
       {folded.length > 0 && (

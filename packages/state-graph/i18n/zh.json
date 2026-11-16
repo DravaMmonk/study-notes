@@ -1415,5 +1415,7 @@
   "piece.viterbi.desc": "每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。",
   "piece.viterbi.name": "维特比",
   "piece.wordbreak.desc": "前面某个位置能切开，而且那一截刚好是个词，这里就能切开。",
-  "piece.wordbreak.name": "切词"
+  "piece.wordbreak.name": "切词",
+  "tray.trays.main.desc": "组合信号和传感器读数，控制机器人填表。",
+  "tray.trays.main.name": "机器人元件"
 }

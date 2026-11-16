@@ -313,7 +313,7 @@ export default function GameShell({ game, store, author = null }) {
     ?? workshopSources.find((source) => bench?.tray && onTray(source))
     ?? workshopSources[0]
   const benchTask = bench && workshop ? playedTask(taskContext(game, progress, workshop.candidate, workshop.at)) : null
-  const benchTray = benchTask && (bench.tray ?? traysOf(workshop.task)[0] ?? '')
+  const benchTray = benchTask && (bench.tray && onTray(workshop) ? bench.tray : traysOf(workshop.task)[0] ?? '')
   const benchTrays = Object.keys(game.course?.trays ?? {}).filter((name) => workshopSources.some(({ task }) => traysOf(task).includes(name)))
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
@@ -340,14 +340,7 @@ export default function GameShell({ game, store, author = null }) {
               {chapter && <small>{L(chapter.title)}</small>}
             </span>
           )}
-          {benchTask && (
-            <>
-              <span className="game-level-title bench-title"><span>{tr('元件工坊', 'Component workshop')}</span></span>
-              <div className="bench-trays" role="tablist">
-                {benchTrays.length > 1 && benchTrays.map((name) => <button key={name} type="button" role="tab" aria-selected={name === benchTray} className={`kit-btn is-label ${name === benchTray ? 'is-on' : ''}`} onClick={() => openBench(name, bench.back)}>{name}</button>)}
-              </div>
-            </>
-          )}
+          {benchTask && <span className="game-level-title bench-title"><span>{tr('元件工坊', 'Component workshop')}</span></span>}
           {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言')}><BookOpen size={16} /><span>{tr('引言')}</span></button>}
           {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言')}</span></button>}
           {level && game.glossary && (
@@ -402,7 +395,8 @@ export default function GameShell({ game, store, author = null }) {
           <div className="level-shell">
             {createElement(workshop.kind.Screen, {
               ...benchTask.screen, key: `${benchTask.key}#${benchTray}`, phone, theme, workshop: game.workshop,
-              workshopOnly: true, workshopTray: benchTray, workshopCarry: Boolean(bench.back),
+              workshopOnly: true, workshopTray: benchTray, workshopTrays: benchTrays, workshopCarry: Boolean(bench.back),
+              onWorkshopTray: (tray) => openBench(tray, bench.back),
             })}
           </div>
         )}

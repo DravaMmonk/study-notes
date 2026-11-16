@@ -409,7 +409,7 @@ test('a task is picked from the tasks of the game, grouped by level in course or
 test('the parts list groups pieces by tray, in the order the course gives them; the rest go last', () => {
   const order = ['1', '2', '3']
   const at = (type) => ({ a: '3', b: '1', c: '2', d: '2' })[type] ?? null
-  assert.deepEqual(pieceGroups(['a', 'b', 'c', 'd', 'e', 'p'], { trays: { main: ['a', 'b.k=1', 'p'], more: ['a', 'c'], shared: ['a'], empty: [] }, at, order, primitives: ['p'] }), [
+  assert.deepEqual(pieceGroups(['a', 'b', 'c', 'd', 'e', 'p'], { trays: { main: { items: ['a', 'b.k=1', 'p'] }, more: { items: ['a', 'c'] }, shared: { items: ['a'] }, empty: { items: [] } }, at, order, primitives: ['p'] }), [
     { tray: 'main', types: ['p', 'b', 'a'] },
     { tray: 'more', types: ['c'] },
     { tray: 'shared', types: [] },

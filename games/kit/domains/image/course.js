@@ -67,7 +67,7 @@ function playable({ intro: _, ...task }, kit, keep) {
 /**
  * content: { eras (games/DESIGN.md 2: each with its chapter { title, label, question }), levels (in any order: the
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
- * from the start), primitives (the parts no circuit builds), trays: { tray: [part] } (../../course.js trays),
+ * from the start), primitives (the parts no circuit builds), trays: { tray: { name, desc, items } } (../../course.js trays),
  * concept: { part: idea } parts that are one new idea together, replaces: { part: [part] } the parts a part supersedes
  * once met }, mode: 'notes' for a notes edition (every level open, no audit).
  * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level

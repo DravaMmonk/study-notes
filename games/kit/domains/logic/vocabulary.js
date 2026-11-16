@@ -13,7 +13,7 @@ import { COURSE_FIELDS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS, TRAY_SCHEMA_CHANGE } from '../../engine/trays.js'
+import { TRAY, TRAYS, TRAY_METADATA_CHANGE } from '../../engine/trays.js'
 import { RULES } from './proof.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
@@ -249,8 +249,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 12,
-  removes: [TRAY_SCHEMA_CHANGE],
+  version: 13,
+  removes: [TRAY_METADATA_CHANGE],
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
