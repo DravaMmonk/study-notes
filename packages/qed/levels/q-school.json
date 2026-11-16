@@ -1,6 +1,6 @@
 {
   "title": "@level.q-school.title",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-school",

@@ -11,15 +11,12 @@
     }
   ],
   "after": "@level.au-cert.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "au-cert_1",
       "kind": "logic:machine",
-      "tray": [
-        "#machine",
-        "#formula"
-      ],
+      "tray": "machine-formula",
       "want": "logic:want-refuted",
       "inputs": [
         {
@@ -52,10 +49,7 @@
     {
       "id": "au-cert_2",
       "kind": "logic:proof",
-      "tray": [
-        "#resolution",
-        "#formula"
-      ],
+      "tray": "resolution-formula",
       "step": "@level.au-cert.tasks.au-cert_2.step",
       "tests": [
         {

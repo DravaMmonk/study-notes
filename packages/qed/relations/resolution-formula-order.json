@@ -1,0 +1,15 @@
+{
+  "kind": "order",
+  "of": "piece",
+  "sequence": [
+    "res",
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ]
+}

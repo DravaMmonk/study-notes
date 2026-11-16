@@ -2999,5 +2999,13 @@
   "piece.kernel3.settings.w.label": "Weights",
   "piece.lrnConst.settings.p.label": "Value",
   "piece.learn3.settings.w.label": "Weights",
-  "piece.ransac.settings.k.label": "Rounds k"
+  "piece.ransac.settings.k.label": "Rounds k",
+  "tray.geometry.title": "Visual geometry",
+  "tray.geometry.desc": "Work with coordinates, projections, and image transformations.",
+  "tray.recognition.title": "Visual recognition",
+  "tray.recognition.desc": "Extract features and use them to recognize images.",
+  "tray.generative.title": "Generative models",
+  "tray.generative.desc": "Generate or reconstruct images from latent representations.",
+  "tray.pipeline.title": "Image processing",
+  "tray.pipeline.desc": "Combine pixel operations, filters, and sampling."
 }

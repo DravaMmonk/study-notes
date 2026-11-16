@@ -2,10 +2,7 @@
   "adds": [
     "res"
   ],
-  "tray": [
-    "#resolution",
-    "#formula"
-  ],
+  "tray": "resolution-formula",
   "title": "@level.au-refute.title",
   "intro": [
     {

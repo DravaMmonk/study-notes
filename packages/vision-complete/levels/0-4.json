@@ -20,7 +20,7 @@
     }
   ],
   "adds": ["mul", "const", "add"],
-  "tray": "#pipeline",
+  "tray": "pipeline",
   "unlocks": ["image:unlock-invert"],
   "tasks": [
     {

@@ -4,10 +4,7 @@
     "toClauses",
     "skolem"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.au-clauses.intro.0.t"

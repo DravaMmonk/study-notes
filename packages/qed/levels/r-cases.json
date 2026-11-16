@@ -1,9 +1,6 @@
 {
   "title": "@level.r-cases.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.r-cases.intro.0.t"

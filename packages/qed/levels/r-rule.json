@@ -3,10 +3,7 @@
   "adds": [
     "rule"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "showcase": "@level.r-rule.showcase",
   "intro": [
     {

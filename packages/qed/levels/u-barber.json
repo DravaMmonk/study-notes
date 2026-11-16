@@ -1,9 +1,6 @@
 {
   "title": "@level.u-barber.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.u-barber.intro.0.t"

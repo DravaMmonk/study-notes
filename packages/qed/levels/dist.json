@@ -1,9 +1,6 @@
 {
   "title": "@level.dist.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "tasks": [
     {
       "id": "dist",

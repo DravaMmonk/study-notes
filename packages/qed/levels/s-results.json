@@ -1,9 +1,6 @@
 {
   "title": "@level.s-results.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "showcase": "@level.s-results.showcase",
   "intro": [
     {

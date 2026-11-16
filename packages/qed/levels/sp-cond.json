@@ -1,9 +1,6 @@
 {
   "title": "@level.sp-cond.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.sp-cond.intro.0.t"

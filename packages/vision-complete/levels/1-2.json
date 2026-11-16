@@ -1,6 +1,6 @@
 {
   "title": "@level.1-2.title",
-  "tray": "#pipeline",
+  "tray": "pipeline",
   "after": "@level.1-2.after",
   "intro": [
     {

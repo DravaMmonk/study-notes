@@ -1,9 +1,6 @@
 {
   "title": "@level.s-try.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.s-try.intro.0.t"

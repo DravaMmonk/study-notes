@@ -1,0 +1,24 @@
+{
+  "kind": "order",
+  "of": "piece",
+  "sequence": [
+    "natInd",
+    "proof-implication",
+    "proof-and",
+    "proof-or",
+    "proof-contradiction",
+    "proof-forall",
+    "proof-exists",
+    "proof-equality",
+    "proof-classical",
+    "proof-equivalences",
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ]
+}

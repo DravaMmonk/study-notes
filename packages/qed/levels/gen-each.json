@@ -7,10 +7,7 @@
     "mkRule",
     "eachOf"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.gen-each.intro.0.t"

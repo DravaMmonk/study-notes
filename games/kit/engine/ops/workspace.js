@@ -85,7 +85,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     return parse(text, pathFor(file))
   }
   const levels = () => levelFiles(packageDir).map(([levelId]) => levelId).sort()
-  const objectPaths = () => ['pieces', 'entries', 'tags', 'relations', 'layouts', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
+  const objectPaths = () => ['pieces', 'entries', 'tags', 'relations', 'layouts', 'trays', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
     ...objectFiles(packageDir, kind).map(([name]) => `${kind}/${name}.json`),
   ])
   const localeFiles = () => [
@@ -196,7 +196,7 @@ function contentOf(ws) {
       ...[...ws.levels].map(([name, value]) => ({ kind: 'level', name, value })),
       ...Object.entries(ws.partDefs?.parts ?? {}).map(([name, value]) => ({ kind: 'piece', name, value })),
       ...[...ws.entries].map(([name, value]) => ({ kind: 'entry', name, value })),
-      ...Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts' }).flatMap(([kind, plural]) => [...ws[plural]].map(([name, value]) => ({ kind, name, value }))),
+      ...Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts', tray: 'trays' }).flatMap(([kind, plural]) => [...ws[plural]].map(([name, value]) => ({ kind, name, value }))),
     ], overrides: [], textOverrides: [],
   }
   const game = { id: `@${ws.id}`, config: { ...files['game.json'], ...files['course.json'] }, objects: [], catalogs: catalogsOf(COURSE_I18N, files['game.json'], files['course.json'], ws.blueprint), overrides: [], textOverrides: [] }

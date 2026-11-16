@@ -3,10 +3,7 @@
     "formulaOr"
   ],
   "title": "@level.g-or.title",
-  "tray": [
-    "#gates",
-    "#formula"
-  ],
+  "tray": "gates-formula",
   "intro": [
     {
       "t": "@level.g-or.intro.0.t"

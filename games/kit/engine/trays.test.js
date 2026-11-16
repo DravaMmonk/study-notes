@@ -39,3 +39,13 @@ test('switching trays groups only the pieces in the selected tray', () => {
   assert.deepEqual(trayDisplay(trays, ['proof'], items, []).items[0].children, items)
   assert.deepEqual(trayDisplay(trays, ['rules'], items, []).items, items)
 })
+
+test('tray overrides append members and merge menus by id, with explicit removal and replacement', async () => {
+  const { applyOverride } = await import('./layers.js')
+  const source = { title: 'Tools', values: ['a'], menus: [{ id: 'group', title: 'Group', values: ['b'] }] }
+  const next = applyOverride('tray', source, { values: ['c', 'a'], menus: [{ id: 'group', values: ['d', 'b'] }, { id: 'other', title: 'Other', values: ['e'] }] })
+  assert.deepEqual(next.values, ['a', 'c'])
+  assert.deepEqual(next.menus[0], { id: 'group', title: 'Group', values: ['b', 'd'] })
+  assert.deepEqual(applyOverride('tray', next, { remove: ['a', 'group'] }).menus.map(menu => menu.id), ['other'])
+  assert.deepEqual(applyOverride('tray', source, { replace: true, values: ['z'], menus: [] }), { title: 'Tools', values: ['z'], menus: [] })
+})

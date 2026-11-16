@@ -1,9 +1,6 @@
 {
   "title": "@level.u-halt.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "after": "@level.u-halt.after",
   "tasks": [
     {

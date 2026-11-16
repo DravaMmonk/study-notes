@@ -110,7 +110,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],
     game: [undefined, ws.game],
-    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
+    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', layout: 'layouts', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
     piece: [PART, ws.partDefs?.parts?.[args.piece]],
     pieces: [PARTS_FILE, ws.partDefs],
   }

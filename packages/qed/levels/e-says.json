@@ -1,9 +1,6 @@
 {
   "title": "@level.e-says.title",
-  "tray": [
-    "#gates",
-    "#formula"
-  ],
+  "tray": "gates-formula",
   "intro": [
     {
       "t": "@level.e-says.intro.0.t"

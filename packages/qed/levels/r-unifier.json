@@ -7,10 +7,7 @@
     "uSwap",
     "uCheck"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "title": "@level.r-unifier.title",
   "intro": [
     {

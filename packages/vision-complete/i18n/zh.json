@@ -2999,5 +2999,13 @@
   "piece.kernel3.settings.w.label": "权重",
   "piece.lrnConst.settings.p.label": "值",
   "piece.learn3.settings.w.label": "权重",
-  "piece.ransac.settings.k.label": "轮数 k"
+  "piece.ransac.settings.k.label": "轮数 k",
+  "tray.geometry.title": "视觉几何",
+  "tray.geometry.desc": "用坐标、投影和变换处理图像。",
+  "tray.recognition.title": "视觉识别",
+  "tray.recognition.desc": "提取特征并用它们识别图像。",
+  "tray.generative.title": "生成模型",
+  "tray.generative.desc": "从潜在表示生成或重建图像。",
+  "tray.pipeline.title": "图像处理",
+  "tray.pipeline.desc": "组合像素运算、滤波及采样。"
 }

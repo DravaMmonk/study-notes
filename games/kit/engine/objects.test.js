@@ -121,13 +121,15 @@ test('game namespaces cannot declare tags, relations or layouts', () => {
   assert.ok(checkContent({ vocabulary }, assemble(input)).some((p) => /games cannot declare objects/.test(p.says)))
 })
 
-test('nested item tags produce ordered menus, expand task items and apply replacements on load', () => {
+test('explicit trays produce ordered menus, expand task items and apply replacements on load', () => {
   const input = source()
-  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('tag', { members: 'piece' }), adds: S.list(S.ref('part')), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'piece' })) })) }) }
+  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('tray'), adds: S.list(S.ref('part')), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'piece' })) })) }) }
   input.partDefs = { parts: { one: {}, two: {}, three: {} } }
   input.tags.push(['menu', { kind: 'piece', title: 'Menu', values: ['one', 'two'] }], ['tray', { kind: 'piece', title: 'Tray', values: ['three', '#menu'] }])
+  input.trays = [['tray', { title: 'Tray', values: ['three'], menus: [{ id: 'menu', title: 'Menu', values: ['#menu'] }] }]]
+  input.relations.push(['menu-order', { kind: 'order', of: 'piece', sequence: ['menu', 'three'] }])
   input.relations.push(['items', { kind: 'order', sequence: ['two', 'one', 'three'] }], ['upgrade', { kind: 'replaces', edges: [{ from: 'three', to: 'one' }] }])
-  input.levels[0][1] = { title: 'Start', tray: '#tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
+  input.levels[0][1] = { title: 'Start', tray: 'tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
   const content = assemble(input)
   const start = content.levels.find(({ id }) => id === 'toy/start')
   assert.equal(start.tray, 'toy/tray')

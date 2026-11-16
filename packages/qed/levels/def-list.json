@@ -5,7 +5,7 @@
       "t": "@level.def-list.intro.0.t"
     }
   ],
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "def-list_1",

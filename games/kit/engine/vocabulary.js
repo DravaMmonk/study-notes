@@ -156,14 +156,14 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), layout: new Set(Object.keys(layouts)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.tray ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), layout: new Set(Object.keys(layouts)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
   for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
-  for (const [kind, objects] of Object.entries({ tags, relations, layouts })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+  for (const [kind, objects] of Object.entries({ tags, relations, layouts, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the kernel vocabulary has versions 1 to ${vocabulary.version}` })
   // Packages validate their authored configuration without requiring game or course fields.
   const packageFields = packageTarget?.fields ?? []

@@ -1,9 +1,6 @@
 {
   "title": "@level.lemCases.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.lemCases.intro.0.t"

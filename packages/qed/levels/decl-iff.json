@@ -1,6 +1,6 @@
 {
   "title": "@level.decl-iff.title",
-  "tray": "#formula",
+  "tray": "formula",
   "declare": "@level.decl-iff.declare",
   "target": "Rain ↔ Wet",
   "sentences": [

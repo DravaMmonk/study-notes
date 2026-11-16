@@ -1,9 +1,6 @@
 {
   "title": "@level.u-cantor.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "after": "@level.u-cantor.after",
   "tasks": [
     {

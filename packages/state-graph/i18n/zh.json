@@ -1422,5 +1422,7 @@
   "piece.wordbreak.desc": "前面某个位置能切开，而且那一截刚好是个词，这里就能切开。",
   "piece.wordbreak.name": "切词",
   "tray.trays.main.desc": "组合信号和传感器读数，控制机器人填表。",
-  "tray.trays.main.name": "机器人元件"
+  "tray.trays.main.name": "机器人元件",
+  "tray.main.title": "机器人元件",
+  "tray.main.desc": "组合信号和传感器读数，控制机器人填表。"
 }

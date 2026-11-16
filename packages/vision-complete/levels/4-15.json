@@ -24,7 +24,7 @@
     }
   ],
   "adds": ["lrnConv"],
-  "tray": "#pipeline",
+  "tray": "pipeline",
   "tasks": [
     {
       "id": "4-15",

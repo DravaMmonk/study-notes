@@ -1,9 +1,6 @@
 {
   "title": "@level.sp-where.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.sp-where.intro.0.t"

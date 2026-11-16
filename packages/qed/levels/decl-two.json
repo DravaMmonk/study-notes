@@ -9,7 +9,7 @@
     }
   ],
   "after": "@level.decl-two.after",
-  "tray": "#formula",
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-two",

@@ -20,7 +20,7 @@
     }
   ],
   "adds": ["arith", "merge"],
-  "tray": "#pipeline",
+  "tray": "pipeline",
   "unlocks": ["image:unlock-blur3h"],
   "tasks": [
     {

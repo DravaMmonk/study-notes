@@ -1,9 +1,6 @@
 {
   "title": "@level.gen-nat.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.gen-nat.intro.0.t"

@@ -5,10 +5,7 @@
     "saturate",
     "clausify"
   ],
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.au-replay.intro.0.t"

@@ -1,9 +1,6 @@
 {
   "title": "@level.au-machine.title",
-  "tray": [
-    "#machine",
-    "#formula"
-  ],
+  "tray": "machine-formula",
   "intro": [
     {
       "t": "@level.au-machine.intro.0.t"

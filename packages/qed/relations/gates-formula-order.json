@@ -1,0 +1,19 @@
+{
+  "kind": "order",
+  "of": "piece",
+  "sequence": [
+    "gNot",
+    "gAnd",
+    "gOr",
+    "gImp",
+    "gIff",
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ]
+}

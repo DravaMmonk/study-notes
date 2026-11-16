@@ -1,9 +1,6 @@
 {
   "title": "@level.h-and-make.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.h-and-make.intro.0.t"

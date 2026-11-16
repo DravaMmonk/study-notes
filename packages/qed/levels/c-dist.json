@@ -1,9 +1,6 @@
 {
   "title": "@level.c-dist.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.c-dist.intro.0.t"

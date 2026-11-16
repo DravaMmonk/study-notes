@@ -1,9 +1,6 @@
 {
   "title": "@level.gd-second.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.gd-second.intro.0.t"

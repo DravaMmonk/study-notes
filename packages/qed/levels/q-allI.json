@@ -3,10 +3,7 @@
   "adds": [
     "allI"
   ],
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "showcase": "@level.q-allI.showcase",
   "intro": [
     {

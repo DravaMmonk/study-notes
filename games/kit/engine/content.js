@@ -42,7 +42,7 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packageTarget = null }) {
+export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], layouts = [], trays = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packageTarget = null }) {
   game = { ...game }
   delete game.uses
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
@@ -76,16 +76,17 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     return [fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
   }))
   const tagMap = objects('tags', tags)
+  const trayMap = objects('trays', trays)
   let layoutMap = objects('layouts', layouts)
   const relationMap = objects('relations', relations)
   const registries = createRegistries({
     level: levels, piece: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
     entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
     ...Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, contentKindSchemas[kind])])])),
-    tag: Object.entries(tagMap), relation: Object.entries(relationMap), layout: Object.entries(layoutMap),
+    tag: Object.entries(tagMap), relation: Object.entries(relationMap), layout: Object.entries(layoutMap), tray: Object.entries(trayMap),
   })
   const objectProblems = [...declarationProblems]
-  for (const [kind, entries] of Object.entries({ tags, relations, layouts })) for (const [name, , namespace = packageId] of entries) {
+  for (const [kind, entries] of Object.entries({ tags, relations, layouts, trays })) for (const [name, , namespace = packageId] of entries) {
     if (namespace.startsWith('@') || name.startsWith('@')) objectProblems.push({ at: `${kind}/${name}`, says: 'games cannot declare objects; declare them in a package' })
   }
   const resolve = referenceResolver(registries, objectProblems)
@@ -121,27 +122,19 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const eras = sourceChapters && assembleChapters(game.chapters, { expand: resolve, relations: relationEdges, layouts: layoutMap, optional: game.optional, skippable: game.skippable, problems: objectProblems })
   const replaces = {}
   for (const { from, to } of relationEdges.replaces) (replaces[from] ??= []).push(to)
-  const trays = {}
-  const nested = new Set(Object.values(tagMap).flatMap((tag) => tag.values.filter((v) => v.startsWith('#')).map((v) => v.slice(1))))
-  const namedTrays = new Set(levels.flatMap(([, value]) => [value, ...(value.tasks ?? [])].flatMap((v) => v.tray ? [v.tray].flat().map((v) => v.replace(/^#/, '')) : [])))
-  for (const [name, tag] of Object.entries(tagMap)) if (tag.kind === 'piece' && (!nested.has(name) || namedTrays.has(name))) {
-    const ids = relationOrder(resolve(`#${name}`, 'piece'), relationEdges.order, 'piece')
-    const menus = tag.values.filter((v) => v.startsWith('#')).map((v) => {
-      const child = tagMap[v.slice(1)]
-      return { id: v.slice(1), title: child?.title, items: relationOrder(resolve(v, 'piece'), relationEdges.order, 'piece') }
-    })
-    const used = new Set()
-    trays[name] = { name: tag.title, desc: tag.desc, ...(tag.workshop !== undefined && { workshop: tag.workshop }), items: ids.flatMap((id) => {
-      const menu = menus.find((m) => m.items.includes(id))
-      if (!menu) return [id]
-      if (used.has(menu.id)) return []
-      used.add(menu.id); return [menu]
-    }) }
+  const displayedTrays = {}
+  for (const [name, tray] of Object.entries(trayMap)) {
+    const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: relationOrder(resolve(menu.values, 'piece', `trays/${name}/menus/${menu.id}`), relationEdges.order, 'piece') }))
+    const ids = menus.map(menu => menu.id)
+    if (new Set(ids).size !== ids.length) objectProblems.push({ at: `trays/${name}`, says: 'duplicate menu id' })
+    const direct = relationOrder(resolve(tray.values, 'piece', `trays/${name}`), relationEdges.order, 'piece')
+    const order = relationEdges.order
+    displayedTrays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop,
+      items: relationOrder([...direct, ...menus.map(menu => menu.id)], order, 'piece').map(id => menus.find(menu => menu.id === id) ?? id) }
   }
-  const stripTray = (v) => ({ ...v, ...(v.tray && { tray: Array.isArray(v.tray) ? v.tray.map((n) => n.replace(/^#/, '')) : v.tray.replace(/^#/, '') }), ...(v.tasks && { tasks: v.tasks.map(stripTray) }) })
   const content = {
-    id, ...game, ...provenance, ...(packageTarget && { packageTarget }), ...(eras && { eras, sourceChapters }), trays, replaces,
-    levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...stripTray(level) })),
+    id, ...game, ...provenance, ...(packageTarget && { packageTarget }), ...(eras && { eras, sourceChapters }), trays: displayedTrays, replaces,
+    levels: [...levels].sort(byId).map(([levelId, level]) => ({ id: levelId, ...level })),
     tags: tagMap, relations: relationMap, layouts: layoutMap, relationEdges, objectProblems, glossary,
     ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), overridden, registries,
   }
@@ -168,6 +161,6 @@ export function assemblySource(content) {
   return {
     id, game, contentObjects: Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, _registries?.[kind] ?? {}])), glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
     levels: levels.map(({ id, ...level }) => [id, level]),
-    ...Object.fromEntries(Object.entries({ tags, relations, layouts }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [name, object, name.split('/')[0]])])),
+    ...Object.fromEntries(Object.entries({ tags, relations, layouts, trays: _registries?.tray ?? {} }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [name, object, name.split('/')[0]])])),
   }
 }

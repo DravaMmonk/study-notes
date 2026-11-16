@@ -7,17 +7,18 @@ import { dependencyCycle, dependencyOrder } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), concept: S.opt(S.bool()), values: S.list(REFERENCE) })
+export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), concept: S.opt(S.bool()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
 export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'piece', 'entry', 'tag'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const LAYOUT = S.obj({ of: S.str({ pattern: '^#(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$' }), rows: S.list(S.list(S.either(S.level(), S.oneOf([null])), { min: 1, max: 3 })) })
-export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, layouts: LAYOUT }
+export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list(REFERENCE), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list(REFERENCE) }))) })
+export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, layouts: LAYOUT, trays: TRAY_OBJECT }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
 
 /** Qualify each object at its declaring layer, including relation patches. */
 export function qualifyObject(kind, value, namespace, text = (v) => v, resolve = referenceName) {
   const ref = (v) => resolve(namespace, v)
-  if (kind === 'tags') return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.remove && { remove: value.remove.map(ref) }) }
+  if (kind === 'tags' || kind === 'trays') return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.menus && { menus: value.menus.map(menu => ({ ...menu, id: ref(menu.id), title: text(menu.title), values: menu.values.map(ref) })) }), ...(value.remove && { remove: value.remove.map(ref) }) }
   const edge = (e) => ({ ...e, from: ref(e.from), to: ref(e.to) })
   if (kind === 'relations') return { ...value, ...(value.edges && { edges: value.edges.map(edge) }), ...(value.sequence && { sequence: value.sequence.map(ref) }), ...(value.remove && { remove: value.remove.map(edge) }) }
   return { ...value, ...(value.of !== undefined && { of: ref(value.of) }), ...(value.rows !== undefined && { rows: value.rows.map((row) => row.map((id) => id === null ? null : ref(id))) }) }
@@ -52,6 +53,7 @@ export function referenceResolver(registries, problems = []) {
     })
     return [...new Set(out)].sort()
   }
+  expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
   expand.pieceOf = id => stages.get(id)?.piece ?? id
   expand.kindOf = (id) => id.startsWith('#') ? registries.tag[id.slice(1)]?.kind
     : ['level', 'entry', 'piece'].find((kind) => has(kind, id))
@@ -104,7 +106,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     const endpoint = endpoints.find((v) => v.startsWith('#')) ?? endpoints[0]
     const inferredKind = endpoint && expand.kindOf?.(endpoint)
     const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'piece' : relation.of ?? inferredKind ?? 'any'
-    const ends = (id, external = false) => (external && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const ends = (id, external = false) => ((external || relation.kind === 'order' && kind === 'piece' && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
       if (expand(endpoint, 'piece').some(id => expand.pieceOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base pieces; stages upgrade in their declared order' })

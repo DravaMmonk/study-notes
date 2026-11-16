@@ -1,0 +1,22 @@
+{
+  "kind": "order",
+  "of": "piece",
+  "sequence": [
+    "machine-rule-building",
+    "machine-lists",
+    "machine-unification",
+    "machine-flow",
+    "machine-reasoning",
+    "machine-equality",
+    "machine-clauses",
+    "machine-certificate",
+    "formulaForall",
+    "formulaExists",
+    "formulaNot",
+    "formulaAnd",
+    "formulaOr",
+    "formulaImplies",
+    "formulaIff",
+    "formulaFalse"
+  ]
+}

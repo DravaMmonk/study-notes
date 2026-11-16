@@ -1422,5 +1422,7 @@
   "piece.wordbreak.desc": "If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too.",
   "piece.wordbreak.name": "Word Breaker",
   "tray.trays.main.desc": "Combine signals and sensor readings to control how the robot fills a table.",
-  "tray.trays.main.name": "Robot components"
+  "tray.trays.main.name": "Robot components",
+  "tray.main.title": "Robot components",
+  "tray.main.desc": "Combine signals and sensor readings to control how the robot fills a table."
 }

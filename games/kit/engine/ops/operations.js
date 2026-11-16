@@ -154,7 +154,7 @@ export const OPERATIONS = {
       const references = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json`)
       const placement = ({ file, path, how }) => how === 'field' && (file === 'game.json'
         ? ['chapters', 'optional', 'skippable'].includes(path[0])
-        : /^(tags|relations|layouts)\//.test(file))
+        : /^(tags|relations|layouts|trays)\//.test(file))
       const others = references.filter((r) => !placement(r))
       if (others.length) fail(`${level} is still named at ${others.map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}`)
       const inverse = [{ op: 'level.add', level, data }]
@@ -167,7 +167,7 @@ export const OPERATIONS = {
           inverse.push({ op: 'game.set', path: [field], value: old })
         }
       }
-      for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) for (const [name, old] of ws[plural]) {
+      for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts'], ['tray', 'trays']]) for (const [name, old] of ws[plural]) {
         if (!references.some((r) => r.file === `${plural}/${name}.json`)) continue
         const next = { ...old }
         if (kind === 'tag') next.values = old.values.filter((id) => !matches(id))
@@ -450,7 +450,7 @@ export function opScope({ op, path, in: where, layer }) {
 }
 
 // The same operations edit entries, tags, relations and layouts. Reads use ws.content().registries[kind][fullName].
-for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
+for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts'], ['tray', 'trays'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
   const objects = (ws) => contentKindSchemas[kind] ? ws.contentObjects[kind] : ws[plural]
   const selector = { [kind]: S.str({ pattern: OBJECT_NAME }) }
   const target = (ws, name) => {

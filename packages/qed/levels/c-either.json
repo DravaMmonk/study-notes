@@ -1,9 +1,6 @@
 {
   "title": "@level.c-either.title",
-  "tray": [
-    "#proof",
-    "#formula"
-  ],
+  "tray": "proof-formula",
   "intro": [
     {
       "t": "@level.c-either.intro.0.t"
