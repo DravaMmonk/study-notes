@@ -54,7 +54,6 @@
 @media (max-width: 760px) {
   .ws-level .ws-face { padding: var(--sp-3) var(--sp-3) var(--sp-5); }
   .ws-level .ws-shelf { margin-top: var(--sp-6); }
-  .pb-tray .ws-tray-picker { position: sticky; z-index: 1; inset-inline-start: 0; margin-inline-start: calc(var(--sp-5) * -1); padding-inline-start: var(--sp-5); background: var(--paper); }
   .ws-tray-toggle { width: 44px; height: 44px; }
   .ws-level .run-dock { flex-wrap: wrap; }
   .ws-level .run-meta { flex-basis: 100%; }

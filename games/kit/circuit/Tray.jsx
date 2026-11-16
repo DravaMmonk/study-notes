@@ -25,15 +25,17 @@ export default function Tray({ items, folded = [], onPick, start }) {
   return (
     <div ref={host} className="pb-tray-wrap">
       <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子')}>
-        {start}
-        {items.map((item) => entry(item))}
-        {more && folded.map((item) => entry(item, true))}
-        {folded.length > 0 && (
-          <button type="button" className={`pb-part pb-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more}>
-            <b>{more ? tr('收起', 'Show fewer') : tr(`更多 ${count}`, `${count} more`)}</b>
-            <ChevronRight size={14} />
-          </button>
-        )}
+        {start && <div className="pb-tray-start">{start}</div>}
+        <div className="pb-tray-parts">
+          {items.map((item) => entry(item))}
+          {more && folded.map((item) => entry(item, true))}
+          {folded.length > 0 && (
+            <button type="button" className={`pb-part pb-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more}>
+              <b>{more ? tr('收起', 'Show fewer') : tr(`更多 ${count}`, `${count} more`)}</b>
+              <ChevronRight size={14} />
+            </button>
+          )}
+        </div>
       </section>
     </div>
   )
