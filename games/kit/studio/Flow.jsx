@@ -16,14 +16,14 @@ const SAYS = {
   step: (e) => tr(`里面跑这个任务的作品${e.form ? `（${e.form}）` : ''}`, `runs this task’s work inside${e.form ? ` (${e.form})` : ''}`),
 }
 
-export default function Flow({ game, piece, changeset, label, onOpen }) {
+export default function Flow({ target, piece, changeset, label, onOpen }) {
   const [events, setEvents] = useState([])
   const key = JSON.stringify(changeset.ops)
   useEffect(() => {
     let live = true
-    const timer = window.setTimeout(() => call('flow', { game, piece, changeset }).then((r) => live && setEvents(r.events)).catch(() => live && setEvents([])), 300)
+    const timer = window.setTimeout(() => call('flow', { ...target, piece, changeset }).then((r) => live && setEvents(r.events)).catch(() => live && setEvents([])), 300)
     return () => { live = false; window.clearTimeout(timer) }
-  }, [game, piece, key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [target, piece, key]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!events.length) return null
   // One tick a level (the start its own), its events in order.
   const ticks = []
