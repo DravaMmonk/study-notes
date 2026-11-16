@@ -3,7 +3,5 @@
   "desc": "@piece.uConflict.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "compute": "logic:uConflict(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:uConflict"
 }

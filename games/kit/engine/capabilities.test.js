@@ -33,9 +33,9 @@ test('types check nested operations, branches and outputs across modules', () =>
       'picture:blur': { args: [{ name: 'a', type: 'toy:image' }], returns: 'toy:image', params: S.obj({}) },
     },
   } }
-  const piece = { inputs: [{ name: 'a', type: 'toy:number' }], outputType: 'toy:number', compute: 'math:add(a, a)' }
+  const piece = { inputs: [{ name: 'a', type: 'toy:number' }], outputType: 'toy:number', op: 'math:add' }
   assert.deepEqual(typeProblems({ parts: { sample: piece } }, vocabulary), [])
-  assert.match(typeProblems({ parts: { sample: { ...piece, compute: 'picture:blur(a)' } } }, vocabulary)[0].says, /input types/)
+  assert.match(typeProblems({ parts: { sample: { ...piece, outputType: 'toy:image', op: 'picture:blur' } } }, vocabulary)[0].says, /input types/)
   assert.match(typeProblems({ parts: { sample: { ...piece, outputType: 'toy:image' } } }, vocabulary)[0].says, /output type/)
 })
 
@@ -44,7 +44,7 @@ test('named parameters are checked using their declared value type', () => {
     'toy:scale': { args: [{ name: 'a', type: 'circuit:number' }], returns: 'circuit:number', params: S.obj({ label: S.str() }) },
   } } }
   const file = { parts: { sample: {
-    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', settings: { 'gain': { control: 'number', default: 1 } }, compute: 'toy:scale(a, label=$gain)',
+    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', settings: { 'label': { control: 'number', default: 1 } }, op: 'toy:scale',
   } } }
   assert.match(typeProblems(file, schema)[0].says, /parameter label/)
 })
@@ -63,9 +63,9 @@ test('module contracts reject missing implementations and incomplete signatures'
 test('operations from another module execute through the normal piece compiler', async () => {
   const { defineParts } = await import('./parts/define.js')
   const { PARTS } = defineParts({ parts: { sample: {
-    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', compute: 'circuit:add(a, a)',
+    inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', op: 'circuit:add',
   } } }, {})
-  assert.equal(PARTS.sample.eval({ a: 3 }, {}), 6)
+  assert.equal(PARTS.sample.eval({ a: 3, b: 3 }, {}), 6)
 })
 
 test('circuit evaluation rejects an incompatible typed wire', async () => {

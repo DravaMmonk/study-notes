@@ -3,16 +3,28 @@
   "desc": "@piece.reg.desc",
   "icon": "ArrowUpFromLine",
   "family": "tick-bus:family-memory",
-  "inputs": [],
   "settings": {
+    "start": {
+      "label": "@piece.reg.settings.start.label"
+    },
     "reg": {
       "control": "select",
       "label": "@piece.reg.settings.reg.label",
-      "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
-      "default": "A"
-    },
-    "start": { "control": "number", "label": "@piece.reg.settings.start.label", "default": null }
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ]
+    }
   },
-  "compute": "circuit:held($reg, $start)",
-  "outputType": "circuit:number"
+  "op": "circuit:held"
 }

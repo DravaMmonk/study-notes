@@ -3,10 +3,17 @@
   "desc": "@piece.exI.desc",
   "icon": "GitFork",
   "family": "logic:family-rule",
-  "inputs": [{ "name": "a", "label": "@piece.exI.inputs.0.label", "type": "logic:judgment" }],
+  "inputs": [
+    {
+      "name": "a",
+      "label": "@piece.exI.inputs.0.label"
+    }
+  ],
   "settings": {
-    "target": { "control": "tree", "label": "@piece.exI.settings.target.label", "optional": true }
+    "target": {
+      "label": "@piece.exI.settings.target.label",
+      "optional": true
+    }
   },
-  "compute": "logic:exI(a)",
-  "outputType": "logic:judgment"
+  "op": "logic:exI"
 }

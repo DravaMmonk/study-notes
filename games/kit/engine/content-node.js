@@ -75,7 +75,7 @@ export function objectFiles(dir, kind) {
     const children = readdirSync(folder, { withFileTypes: true })
     if (children.some((entry) => entry.isFile() && entry.name.endsWith('.json'))) throw new Error(`${folder}: tags belong in <kind>/<name>.json`)
     return children.filter((entry) => entry.isDirectory()).sort((a, b) => a.name.localeCompare(b.name)).flatMap((entry) => {
-      if (!['level', 'item', 'entry'].includes(entry.name)) throw new Error(`${folder}: unknown tag kind ${entry.name}`)
+      if (!['level', 'piece', 'entry'].includes(entry.name)) throw new Error(`${folder}: unknown tag kind ${entry.name}`)
       return objectFiles(folder, entry.name).map(([name, file]) => [`${entry.name}/${name}`, file])
     })
   }

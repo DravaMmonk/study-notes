@@ -26,11 +26,11 @@ function objectReferenceSchema(ws, kind, value, schema) {
   const local = (id) => id?.replace(`#${ws.packageId}/`, '').replace(`${ws.packageId}/`, '').replace(/^#/, '')
   const endpoints = [...(value.edges ?? []).flatMap(({ from, to }) => [from, to]), ...(value.sequence ?? [])]
   const first = endpoints.find((id) => id.startsWith('#')) ?? endpoints[0]
-  const of = value.of ?? (first?.startsWith('#') ? ws.tags.get(local(first))?.kind : ws.levels.has(local(first)) ? 'level' : 'item')
-  const reference = (type) => type === 'level' ? S.level() : type === 'item' ? S.ref('part') : S.str()
+  const of = value.of ?? (first?.startsWith('#') ? ws.tags.get(local(first))?.kind : ws.levels.has(local(first)) ? 'level' : 'piece')
+  const reference = (type) => type === 'level' ? S.level() : type === 'piece' ? S.ref('part') : S.str()
   if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.list(reference(value.kind)) } }
   if (kind === 'relations') {
-    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'item' : of)
+    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'piece' : of)
     const edge = S.obj({ from: ref, to: ref })
     return { ...schema, fields: { ...schema.fields, edges: S.list(edge), sequence: S.list(ref) } }
   }
@@ -60,10 +60,10 @@ const placing = (type) => new RegExp(`(=\\s*)${escape(type)}(?=\\s*[[(])`, 'g')
 /** Typed item fields include references to a piece's settings and individual values. */
 const itemHits = (schema, value, vocabulary) => [
   ...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary }),
-  ...find(schema, value, 'str', { vocabulary }).filter((hit) => hit.schema.reference === 'item'),
-].filter((hit) => hit.schema.kind === 'part' || hit.schema.reference === 'item')
+  ...find(schema, value, 'str', { vocabulary }).filter((hit) => hit.schema.reference === 'piece'),
+].filter((hit) => hit.schema.kind === 'part' || hit.schema.reference === 'piece')
 
-const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].some((base) => value === base || value.startsWith(`${base}.`))
+const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].some((base) => value === base)
 
 /**
  * Every place naming part `type` (pieces/<name>.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
@@ -72,8 +72,9 @@ const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].som
  */
 export function partRefs(ws, vocabulary, type) {
   const out = []
+  const names = [type, ...(ws.partDefs?.parts[type]?.stages ?? []).map(stage => stage.id)]
   for (const [file, value, schema] of files(ws, vocabulary)) {
-    for (const hit of itemHits(schema, value, vocabulary)) if (namesItem(hit.value, type, ws.packageId)) out.push({ file, path: hit.path, how: 'field' })
+    for (const hit of itemHits(schema, value, vocabulary)) if (names.some(name => namesItem(hit.value, name, ws.packageId))) out.push({ file, path: hit.path, how: 'field' })
     for (const t of find(schema, value, 'text', { vocabulary })) for (const s of texts(t.value)) if (partLink(type, ws.packageId).test(s.value)) out.push({ file, path: [...t.path, ...s.path], how: 'link' })
     for (const b of find(schema, value, 'board', { vocabulary })) b.value.forEach((line, k) => { if (placing(type).test(line)) out.push({ file, path: [...b.path, k], how: 'board' }) })
   }

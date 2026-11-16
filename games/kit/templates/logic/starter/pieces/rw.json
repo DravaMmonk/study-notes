@@ -4,20 +4,25 @@
   "icon": "Sigma",
   "family": "logic:family-tactic",
   "inputs": [
-    { "name": "in", "type": "logic:machine-value" },
-    { "name": "rules", "label": "@piece.rw.inputs.1.label", "type": "logic:machine-value" }
+    {
+      "name": "rules",
+      "label": "@piece.rw.inputs.1.label"
+    }
   ],
   "settings": {
     "at": {
-      "control": "select",
       "label": "@piece.rw.settings.at.label",
       "options": [
-        { "value": "goal", "label": "@piece.rw.settings.at.options.0.label" },
-        { "value": "hyps", "label": "@piece.rw.settings.at.options.1.label" }
-      ],
-      "default": "goal"
+        {
+          "value": "goal",
+          "label": "@piece.rw.settings.at.options.0.label"
+        },
+        {
+          "value": "hyps",
+          "label": "@piece.rw.settings.at.options.1.label"
+        }
+      ]
     }
   },
-  "compute": "logic:rw(in, rules)",
-  "outputType": "logic:machine-value"
+  "op": "logic:rw"
 }

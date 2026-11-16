@@ -3,10 +3,24 @@
   "desc": "@piece.andE.desc",
   "icon": "GitFork",
   "family": "logic:family-rule",
-  "inputs": [{ "name": "ab", "label": "@piece.andE.inputs.0.label", "type": "logic:judgment" }],
-  "outputs": [
-    { "name": "left", "label": "@piece.andE.outputs.0.label", "type": "logic:judgment" },
-    { "name": "right", "label": "@piece.andE.outputs.1.label", "type": "logic:judgment" }
+  "inputs": [
+    {
+      "name": "ab",
+      "label": "@piece.andE.inputs.0.label"
+    }
   ],
-  "compute": { "left": "logic:andE(ab)", "right": "logic:andE(ab)" }
+  "outputs": [
+    {
+      "name": "left",
+      "label": "@piece.andE.outputs.0.label"
+    },
+    {
+      "name": "right",
+      "label": "@piece.andE.outputs.1.label"
+    }
+  ],
+  "op": {
+    "left": "logic:andE",
+    "right": "logic:andE"
+  }
 }

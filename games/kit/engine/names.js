@@ -65,7 +65,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
       return textKey(v) ? withTextKey(translated, textKeys ? name(textKey(v)) : textKey(v)) : translated
     }
-    if (s?.reference) return s.reference === 'item' ? piece(v) : name(v)
+    if (s?.reference) return s.reference === 'piece' ? piece(v) : name(v)
     if (s?.type === 'level' || s?.type === 'task') return name(v)
     if (s?.type === 'ref' || s?.type === 'name') return ref(s.kind, v)
     if (s?.type === 'board' || s?.view === 'board') return board(v)
@@ -81,9 +81,9 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
       let field = s?.type === 'map' ? s.of : s?.fields?.[key]
       let target = s?.key ? ref(s.key.kind, key) : key
       const parent = path.at(-1)
-      if (key === 'id' && path.length === 2 && ['tasks', 'entries', 'groups'].includes(path[0])) return [key, name(child)]
+      if (key === 'id' && path.length === 2 && ['tasks', 'entries', 'groups', 'stages'].includes(path[0])) return [key, name(child)]
       if (['rules', 'using', 'simp'].includes(key) && Array.isArray(child)) return [key, child.map(rule)]
-      if (['gives', 'opens', 'withholds'].includes(key) && Array.isArray(child) && (path.length === 0 || path.at(-2) === 'tasks' || path.at(-1) === 'reference')) return [key, child.map(piece)]
+      if (['gives', 'opens', 'withholds', 'awards'].includes(key) && Array.isArray(child) && (path.length === 0 || path.at(-2) === 'tasks' || path.at(-1) === 'reference')) return [key, child.map(piece)]
       if (key === 'tray') return [key, Array.isArray(child) ? child.map(name) : name(child)]
       if (key === 'from' && v.fromGame) return [key, child]
       if (context === 'configuration' && parent === 'borrow') target = piece(key)

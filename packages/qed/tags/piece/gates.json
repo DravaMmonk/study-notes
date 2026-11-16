@@ -1,5 +1,11 @@
 {
   "title": "@tray.trays.gates.name",
   "desc": "@tray.trays.gates.desc",
-  "values": ["gNot", "gAnd", "gOr", "gImp", "gIff"]
+  "values": [
+    "gNot",
+    "gAnd",
+    "gOr",
+    "gImp",
+    "gIff"
+  ]
 }

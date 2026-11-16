@@ -2,6 +2,7 @@
 import { packed, sink, source, withBoardRuntime } from './boards.js'
 import { canonicalJson } from './json-value.js'
 import { defaultOf } from './parts/define.js'
+import { operationPiece } from './parts/operation.js'
 import { resolveSettings } from './pieces.js'
 import { sourceOf, splitSource } from './wire-source.js'
 import { trayMembers } from './trays.js'
@@ -73,7 +74,7 @@ export const workshopInTray = (piece, tray, types) => piece.tray === tray
 export function workshopIdentity(definitions, type) {
   const definition = definitions?.parts?.[type]
   if (!definition) return canonicalJson([type, null])
-  const { compute, keeps, nulls, inputs, outputs, outputType, regions, checks } = definition
+  const { op, keeps, nulls, inputs, outputs, outputType, regions, checks } = operationPiece(definition)
   // Resolve catalog references before comparing the settings used by the circuit.
   const settings = resolveSettings(definition).map((setting) => {
     const { key, control, optional, integer, min, max, options, from } = setting
@@ -81,7 +82,7 @@ export function workshopIdentity(definitions, type) {
       options: options?.map(({ value }) => value), from }
   })
   return canonicalJson([type, {
-    compute, keeps, nulls, outputType, settings,
+    op, keeps, nulls, outputType, settings,
     inputs: inputs?.map(({ name, type, optional }) => [name, type, optional]),
     outputs: outputs?.map(({ name }) => name),
     regions: regions?.map(({ name, opens, closes, gives, when }) => [name, opens, closes, gives, when]),

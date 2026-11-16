@@ -1,0 +1,10 @@
+{
+  "title": "@tray.trays.machine.items.flow.title",
+  "values": [
+    "repeat-s-results-desc",
+    "append-s-results-desc",
+    "defer",
+    "search",
+    "each"
+  ]
+}

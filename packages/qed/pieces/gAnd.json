@@ -3,7 +3,5 @@
   "desc": "@piece.gAnd.desc",
   "icon": "ToggleLeft",
   "family": "logic:family-gate",
-  "inputs": [{ "name": "a", "type": "circuit:boolean" }, { "name": "b", "type": "circuit:boolean" }],
-  "compute": "circuit:and(a, b)",
-  "outputType": "circuit:boolean"
+  "op": "circuit:and"
 }

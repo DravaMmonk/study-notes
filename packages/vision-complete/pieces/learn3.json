@@ -3,8 +3,17 @@
   "desc": "@piece.learn3.desc",
   "icon": "Activity",
   "family": "image:family-learned",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "settings": { "w": { "label": "@piece.learn3.settings.w.label", "fixed": true } },
-  "compute": "image:learn3(in, $w)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "w": {
+      "label": "@piece.learn3.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:learn3"
 }

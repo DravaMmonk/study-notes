@@ -11,46 +11,124 @@
     },
     {
       "t": "@level.10-7.intro.2.t",
-      "fig": { "test": 1, "caption": "@level.10-7.intro.2.fig.caption" }
+      "fig": {
+        "test": 1,
+        "caption": "@level.10-7.intro.2.fig.caption"
+      }
     }
   ],
-  "unlocks": ["image:unlock-long-shift"],
-  "gives": ["vision-complete/shift.n"],
+  "gives": [
+    "vision-complete/shift-n"
+  ],
   "tasks": [
     {
       "id": "10-7",
       "kind": "image:graph",
       "brief": "@level.10-7.tasks.10-7.brief",
       "hint": "@level.10-7.tasks.10-7.hint",
-      "inputs": ["f", "k", "g"],
+      "inputs": [
+        "f",
+        "k",
+        "g"
+      ],
       "inputLabels": {
         "f": "@level.10-7.tasks.10-7.inputLabels.f",
         "k": "@level.10-7.tasks.10-7.inputLabels.k",
         "g": "@level.10-7.tasks.10-7.inputLabels.g"
       },
-      "check": { "tolerance": 0.005 },
+      "check": {
+        "tolerance": 0.005
+      },
       "scene": "image:scene-ranking",
       "tests": [
         {
           "label": "@level.10-7.tasks.10-7.tests.0.label",
-          "flags": [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+          "flags": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
           "g": 8
         },
         {
           "label": "@level.10-7.tasks.10-7.tests.1.label",
-          "flags": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+          "flags": [
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
           "g": 6
         },
         {
           "label": "@level.10-7.tasks.10-7.tests.2.label",
-          "flags": [0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+          "flags": [
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
           "g": 7
         }
       ],
       "hidden": [
         {
           "label": "@level.10-7.tasks.10-7.hidden.0.label",
-          "flags": [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+          "flags": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1
+          ],
           "g": 6
         }
       ],
@@ -80,7 +158,15 @@
         "q = arith[op=div](s, g)",
         "out <- q"
       ],
-      "publishes": [{ "piece": "apMeter", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "apMeter",
+          "variant": "base"
+        }
+      ]
     }
+  ],
+  "awards": [
+    "shift-n"
   ]
 }

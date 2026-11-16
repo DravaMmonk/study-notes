@@ -3,10 +3,18 @@
   "desc": "@piece.allE.desc",
   "icon": "GitFork",
   "family": "logic:family-rule",
-  "inputs": [{ "name": "all", "label": "@piece.allE.inputs.0.label", "type": "logic:judgment" }],
+  "inputs": [
+    {
+      "name": "all",
+      "label": "@piece.allE.inputs.0.label"
+    }
+  ],
   "settings": {
-    "t": { "control": "select", "label": "@piece.allE.settings.t.label", "from": "logic:instances()" }
+    "t": {
+      "control": "select",
+      "label": "@piece.allE.settings.t.label",
+      "from": "logic:instances()"
+    }
   },
-  "compute": "logic:allE(all)",
-  "outputType": "logic:judgment"
+  "op": "logic:allE"
 }

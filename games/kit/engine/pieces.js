@@ -42,15 +42,6 @@ export function publications(levels, pieces) {
   })
 }
 
-/** Description revisions follow course progress, rather than depending on levels from a piece definition. */
-export function pieceRevisions(levels) {
-  const found = new Map()
-  for (const level of levels) for (const { piece, at, desc } of level.pieceRevisions ?? []) {
-    found.set(piece, [...(found.get(piece) ?? []), { [at ? 'at' : 'by']: level.id, desc }])
-  }
-  return Object.fromEntries(found)
-}
-
 /** Register named pieces from code and from a game's content. The content supplies the definition of a shared name. */
 export function registerPieces(code, content) {
   return { ...code, ...content }

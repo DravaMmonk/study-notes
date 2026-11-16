@@ -91,7 +91,21 @@ export function* prepareImageWorks(config) {
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const definitions = imageDefinitions(partDefs)
   const { types } = definitions
-  const kit = { ...imageKit(types), ...definitions }
+  let course
+  const staged = new WeakMap()
+  const partsFor = (task, parts) => {
+    if (!course) return parts
+    if (!staged.has(task)) staged.set(task, { parts: new Map(), has: holds(course, { id: task.id, task: task.task }, new Set()) })
+    const { parts: cache, has } = staged.get(task)
+    return type => {
+      const original = parts(type)
+      const definition = has.definition(type)
+      if (!original?.specialize || !definition?.op || definition.inside) return original
+      if (!cache.has(type)) cache.set(type, original.specialize(definition))
+      return cache.get(type)
+    }
+  }
+  const kit = { ...imageKit(types, partsFor), ...definitions }
   const pieces = builtPieces(partDefs)
   const published = new Map()
   const implementations = publications(levels, pieces)
@@ -155,7 +169,7 @@ export function* prepareImageWorks(config) {
 
   // Every task's answer counts: a part only the first task of a level uses is used.
   const answers = (l) => placedById[l.id].tasks.filter((task, k) => l.task === undefined || l.task === task.task).map((t) => t.solution).filter((s) => s?.nodes)
-  const course = yield {
+  course = yield {
     levels: placed, plan, parts: types,
     publications: publicationEvents(levels, implementations, config.taskPositions),
     boards: answers,

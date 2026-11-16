@@ -4,10 +4,18 @@
   "icon": "Activity",
   "family": "image:family-learned",
   "inputs": [
-    { "name": "mu", "label": "μ", "type": "image:image" },
-    { "name": "sigma", "label": "σ", "type": "image:image" },
-    { "name": "eps", "label": "ε", "type": "image:image" }
+    {
+      "name": "mu",
+      "label": "μ"
+    },
+    {
+      "name": "sigma",
+      "label": "σ"
+    },
+    {
+      "name": "eps",
+      "label": "ε"
+    }
   ],
-  "compute": "image:dg_reparam(mu, sigma, eps)",
-  "outputType": "image:image"
+  "op": "image:dg_reparam"
 }

@@ -1,10 +1,9 @@
 import { S } from '../../../engine/schema.js'
 // Keep the image operations, scoring and course unlocks. Studio owns the parts' data and expressions.
-import { parse } from '../../../engine/parts/expr.js'
+import { operationsOf } from '../../../engine/parts/operation.js'
 import { applyRules, defineParts, shows } from '../../../engine/parts/define.js'
 import { NODE_TYPES } from './nodes.js'
 
-const named = (names, values) => Object.fromEntries(names.map((name, index) => [name, values[index]]))
 const native = Object.entries(NODE_TYPES).filter(([, spec]) => !spec.fixed)
 const nativeForResource = new Map(native.flatMap(([type, spec]) => {
   const outputs = typeof spec.outputs === 'function' ? spec.outputs() : [null]
@@ -19,7 +18,6 @@ const parameterSchema = ({ kind, options, buttons, min, max, step, default: valu
   if (kind === 'kernel') return S.opt(S.list(S.num(), { ...presentation, default: value }))
   return S.opt(S.num({ ...bounds, ...presentation }))
 }
-const parameterType = ({ kind, options }) => options ? 'circuit:string' : kind === 'kernel' ? 'circuit:list' : 'circuit:number'
 
 /** One resource for each result of an existing image operation. */
 export const IMAGE_OPS = Object.fromEntries(native.flatMap(([type, spec]) => {
@@ -29,12 +27,12 @@ export const IMAGE_OPS = Object.fromEntries(native.flatMap(([type, spec]) => {
     `${type}${output ? `_${output}` : ''}`,
     {
       about: spec.label,
-      args: [...spec.inputs.map((name) => ({ name, type: 'image:image' })), ...settings.map((setting) => ({ name: `setting_${setting.key}`, type: parameterType(setting) }))],
+      args: spec.inputs.map((name) => ({ name, type: 'image:image', ...(spec.optional?.includes(name) && { optional: true }) })),
       returns: 'image:image',
       params: S.obj(Object.fromEntries(settings.map((setting) => [setting.key, parameterSchema(setting)]))),
       run(args, namedParams, ctx) {
         const input = Object.fromEntries(spec.inputs.flatMap((name, index) => args[index] == null ? [] : [[name, args[index]]]))
-        const params = { ...named(settings.map(({ key }) => key), args.slice(spec.inputs.length)), ...namedParams }
+        const params = { ...namedParams }
         for (const { key, options } of settings) {
           params[key] = options?.find(([value]) => String(value) === params[key])?.[0] ?? params[key]
         }
@@ -57,7 +55,6 @@ const settingOf = (setting, old = {}) => {
     ...(converted && { options: converted }),
     ...(control === 'buttons' && { buttons: layout ?? 'row' }),
     default: converted?.find(([id]) => String(id) === String(value))?.[0] ?? value,
-    ...(old.unlock && { unlock: old.unlock }),
     ...(old.pi && { pi: true }),
     ...(old.learnable && { learnable: true }),
   }
@@ -66,8 +63,7 @@ const settingOf = (setting, old = {}) => {
 export function imageDefinitions(file) {
   const defined = defineParts(file, IMAGE_OPS)
   const resources = new Map(Object.entries(defined.defs).map(([type, def]) => {
-    const expressions = typeof def.compute === 'string' ? [def.compute] : Object.values(def.compute ?? {})
-    return [type, expressions.map((expression) => parse(expression).call)]
+    return [type, operationsOf(def)]
   }))
   const authoredTypes = new Set([...resources.values()].flat().map((resource) => nativeForResource.get(resource)?.type))
   const types = Object.fromEntries(Object.entries(NODE_TYPES).filter(([type, spec]) => spec.fixed || !authoredTypes.has(type)))
@@ -83,10 +79,6 @@ export function imageDefinitions(file) {
       { ...setting, default: part.defaults[setting.key] },
       original?.params?.find(({ key }) => key === setting.key),
     ))
-    for (const param of params) {
-      if (param.unlock) param.unlock = flag(param.unlock)
-      if (param.options) param.options = param.options.map(([value, label, unlock]) => [value, label, flag(unlock)])
-    }
     types[type] = {
       ...original,
       resource: nativeType,
@@ -103,6 +95,7 @@ export function imageDefinitions(file) {
       params,
       definition: def,
       evaluate: part.eval,
+      specialize: part.specialize,
       eval: (ins, params, variant, key) => part.eval(ins, { params }, { variant }, key ?? def.outputNames?.[0]),
     }
   }

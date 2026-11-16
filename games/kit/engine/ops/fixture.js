@@ -66,8 +66,8 @@ const PARTS = {
 
   parts: {
     formulaImplies: { editor: 'strip', mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
-    mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'logic:family-rule', outputType: 'logic:judgment', inputs: [{ name: 'imp', type: 'logic:judgment', label: T('A → B') }, { name: 'a', type: 'logic:judgment', label: T('A') }], compute: 'logic:mp(imp, a)' },
-    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: { 'A': { control: 'tree', label: T('假设', 'Assume') } }, regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'logic:impI(body)' },
+    mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'logic:family-rule', outputType: 'logic:judgment', inputs: [{ name: 'imp', type: 'logic:judgment', label: T('A → B') }, { name: 'a', type: 'logic:judgment', label: T('A') }], op: 'logic:mp' },
+    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: { 'A': { control: 'tree', label: T('假设', 'Assume') } }, regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], op: 'logic:impI' },
   },
 }
 const LEVELS = {

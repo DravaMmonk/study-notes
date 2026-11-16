@@ -28,7 +28,7 @@ const fixture = () => {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
   }
   put('packages/library/package.json', { vocabulary: 1 })
-  put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' })
+  put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' })
   return { root, put }
 }
 
@@ -61,7 +61,7 @@ test('a pieces-only package opens without a course, checks and writes its own lo
 test('single-level play uses task trays, ignores prerequisites and opens settings without progress', async () => {
   const { root, id } = proofsRoot()
   roots.push(root)
-  const dir = resolve(root, 'packages', id, 'tags/item')
+  const dir = resolve(root, 'packages', id, 'tags/piece')
   mkdirSync(dir, { recursive: true })
   writeFileSync(resolve(dir, 'tools.json'), JSON.stringify({ values: ['impI'] }))
   const content = readPackage(id, root)

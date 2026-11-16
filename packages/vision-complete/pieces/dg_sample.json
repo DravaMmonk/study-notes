@@ -4,9 +4,14 @@
   "icon": "Activity",
   "family": "image:family-learned",
   "inputs": [
-    { "name": "mu", "label": "μ", "type": "image:image" },
-    { "name": "sigma", "label": "σ", "type": "image:image" }
+    {
+      "name": "mu",
+      "label": "μ"
+    },
+    {
+      "name": "sigma",
+      "label": "σ"
+    }
   ],
-  "compute": "image:dg_sample(mu, sigma)",
-  "outputType": "image:image"
+  "op": "image:dg_sample"
 }

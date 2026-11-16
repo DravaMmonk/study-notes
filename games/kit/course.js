@@ -53,12 +53,9 @@
 //                                          anything, and no audit (the checks skip it)
 // })
 //
-// What a level holds is one rule at every grain (games/DESIGN.md 2.8). An item is a part ('shift'), one of its
-// settings ('shift.border') or one value of a setting ('shift.border=wrap'): itemOf, readItem. A game has several
-// trays that set the display order; an item is held by default as far as the course has got — a part once a
-// level before brought it in or the player built it, a setting or a value from the start unless the course opens it
-// somewhere (`opens`, by a level on the way; `needs`, by a flag the player earns) — and a level or a task then
-// changes that for itself alone: `gives` adds items, `withholds` takes items away, at any grain.
+// A task holds stable pieces at named stages. Opens apply immediately and awards apply after passing a task.
+// Giving a later stage specializes the same piece for that task. Withholding a stage caps its linear progression.
+// Settings and option visibility come from the selected stage's resolved operation signature.
 //
 // met(course, level) is every part a level has met; reach(course, level) puts them in display order;
 // usable(course, level, flags) the parts it holds for a player; holds(course, level, flags) whether it holds an item
@@ -68,6 +65,7 @@
 // a milestone the map draws full size; audit(course) lists every broken rule.
 import { OPEN_PART_LIMIT } from './engine/stages.js'
 import { rebuilt } from './engine/match.js'
+import { pieceStages, stageDefinition } from './engine/piece-stages.js'
 import { trayMembers } from './engine/trays.js'
 
 /** What each rule of the audit means, for reports (./engine/checks.js). */
@@ -227,11 +225,25 @@ export function dependencyCycle(requires) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false, available = null, availableItems = null }) {
-  // Settings brought by adds open along the route, while piece consumers keep receiving only pieces.
+export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false, available = null, availableItems = null, pieces = {}, awards = () => [] }) {
+  const stages = pieceStages(pieces)
+  const pieceOf = (id) => stages.get(id)?.piece ?? id
+  const isBase = (id) => pieceOf(id) === id
+  const startStages = primitives
+  primitives = [...new Set(primitives.map(pieceOf))]
   const brought = adds, opened = opens
-  adds = (level) => brought(level).filter(isPartItem)
-  opens = (level) => [...opened(level), ...brought(level).filter((item) => !isPartItem(item))]
+  const additions = new Map()
+  adds = (level) => {
+    const key = JSON.stringify([level.id, level.task])
+    if (additions.has(key)) return additions.get(key)
+    const earlier = new Set(levels.filter(entry => up(level.id).has(entry.id))
+      .flatMap(entry => [...brought(entry), ...opened(entry), ...awards(entry), ...builds(entry)]).map(pieceOf))
+    const stages = [...brought(level).filter(id => !isBase(id)), ...opened(level).filter(isBase)]
+    const result = [...new Set([...brought(level).filter(isBase), ...stages.map(pieceOf).filter(piece => !earlier.has(piece))])]
+    additions.set(key, result)
+    return result
+  }
+  opens = (level) => [...opened(level), ...brought(level).filter(id => !isBase(id))]
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -256,9 +268,8 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
     for (const name of names) if (!Object.hasOwn(trays, name)) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
     return names
   }
-  // The settings and values some level opens: held from that level on, not from the start.
-  const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, complete, trays, tray, available, availableItems, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  // Stage progress is evaluated when a task asks for its pieces.
+  return { stages, pieceOf, startStages, awards, levels, eras, plan, complete, trays, tray, available, availableItems, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -271,7 +282,7 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
 export function met(course, level) {
   if (course.available) return course.available(level)
   const own = [...course.adds(level), ...builtBefore(course, level)]
-  const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].filter(isPartItem)
+  const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].map(course.pieceOf)
   const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => !course.local(p, l)))]
   const gone = new Set([...own, ...earlier].flatMap((p) => course.replaces(p)))
   const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p))
@@ -281,7 +292,7 @@ export function met(course, level) {
 /** The pieces in the level's selected groups, without duplicates and in the requested order. */
 function trayPieces(course, level) {
   const trays = course.tray(level)
-  return trays === null ? null : [...new Set(trays.flatMap((name) => trayMembers(course.trays[name])))]
+  return trays === null ? null : [...new Set(trays.flatMap((name) => trayMembers(course.trays[name]).map(course.pieceOf)))]
 }
 
 /** All parts a level has met, ordered with members of its selected trays first. */
@@ -299,17 +310,6 @@ export function fixedTray(course, level) {
     ?? [...new Set([...course.primitives, ...course.levels.flatMap((entry) => course.builds(entry))])]
 }
 
-/** An item's address: a part, one of its settings (`key`), or one value of that setting. */
-export const itemOf = (part, key, value) => (key === undefined ? part : value === undefined ? `${part}.${key}` : `${part}.${key}=${value}`)
-/** An item read: { part, key?, value? } (a part's name has no dot; a value is everything after the first '='). */
-export function readItem(item) {
-  const dot = item.indexOf('.')
-  if (dot < 0) return { part: item }
-  const rest = item.slice(dot + 1)
-  const eq = rest.indexOf('=')
-  return eq < 0 ? { part: item.slice(0, dot), key: rest } : { part: item.slice(0, dot), key: rest.slice(0, eq), value: rest.slice(eq + 1) }
-}
-const isPartItem = (item) => !item.includes('.')
 // The parts the tasks before a task have built in its level; and those its level builds that they have not: the task
 // building a part does not hold it, even when an earlier level built it before (an upgrade works on the part's own
 // board), unless the level brings the part in by name (a part of the engine's own, met and unlocked in one level).
@@ -336,8 +336,8 @@ function earned(course, level, flags, p) {
  */
 export function usable(course, level, flags, parts = reach(course, level)) {
   if (course.available) return parts
-  const given = course.gives(level).filter(isPartItem)
-  const withheld = new Set([...course.withholds(level), ...building(course, level)])
+  const given = course.gives(level).map(course.pieceOf)
+  const withheld = new Set([...course.withholds(level).filter(id => course.pieceOf(id) === id), ...building(course, level)])
   return [...new Set([...parts.filter((p) => given.includes(p) || earned(course, level, flags, p)), ...given])].filter((p) => !withheld.has(p))
 }
 
@@ -348,32 +348,47 @@ export function usable(course, level, flags, parts = reach(course, level)) {
  * any other from the start. A value is held only with its setting.
  */
 export function holds(course, level, flags) {
-  const given = new Set(course.gives(level))
+  const parts = new Set(usable(course, level, flags))
   const withheld = new Set(course.withholds(level))
-  let parts = null
-  let here = null
-  // The settings and values opened by this level and the levels it comes after.
-  const opened = () => (here ??= new Set([...course.opens(level), ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.opens(l).filter((item) => !course.local(item, l)))]))
-  const one = (item) => {
-    if (withheld.has(item)) return false
-    if (given.has(item) || course.plan?.externalItems?.get(level.id)?.has(item)) return true
-    if (course.local(item, level)) return true
-    const need = course.needs(item)
-    if (need) return flags.has(need)
-    return !course.gated.has(item) || opened().has(item)
+  const prior = course.levels.filter(entry => course.before(entry.id, level.id))
+  const progress = [...flags, ...course.startStages, ...course.opens(level), ...course.gives(level),
+    ...prior.flatMap(entry => [...course.opens(entry), ...course.awards(entry)].filter(id => !course.local(id, entry))),
+    ...course.awards(level), ...(course.plan?.externalItems?.get(level.id) ?? [])]
+  const selected = (part) => {
+    const ids = course.availableItems ? course.availableItems(level) : progress
+    const base = course.stages.get(part)
+    let current = base
+    for (const id of ids) {
+      const stage = course.stages.get(id)
+      if (stage?.piece === part && !withheld.has(id) && (!current || stage.index > current.index)) current = stage
+    }
+    // Withholding an intermediate stage caps the linear progression before that stage.
+    for (const id of withheld) {
+      const cap = course.stages.get(id)
+      if (cap?.piece === part && current?.index >= cap.index) current = [...course.stages.values()].find(entry => entry.piece === part && entry.index === cap.index - 1)
+    }
+    return current
+  }
+  const definition = (part, fallback) => {
+    const resolved = stageDefinition(selected(part))
+    if (!resolved) return fallback
+    const settings = Object.values({ ...fallback?.setting, ...Object.fromEntries(resolved.settings.map(setting => [setting.key, { ...fallback?.setting?.[setting.key], ...setting }])) })
+    return { ...fallback, ...resolved, settings, setting: Object.fromEntries(settings.map(setting => [setting.key, setting])) }
   }
   const has = (part, key, value) => {
-    if (course.available) {
-      if (!course.available(level).includes(part)) return false
-      if (key === undefined) return true
-      const items = course.availableItems(level)
-      return items.includes(part) || items.includes(itemOf(part, key)) || items.includes(itemOf(part, key, value))
+    if (key === undefined) {
+      const stage = course.stages.get(part)
+      return stage && stage.piece !== part ? parts.has(stage.piece) && selected(stage.piece)?.index >= stage.index : parts.has(part)
     }
-    if (key === undefined) return (parts ??= new Set(usable(course, level, flags))).has(part)
-    return one(itemOf(part, key)) && (value === undefined || one(itemOf(part, key, value)))
+    const setting = definition(part)?.setting[key]
+    if (!setting || setting.fixed) return false
+    return value === undefined || !setting.options || setting.options.some(option => String(option.value) === String(value))
   }
+  has.definition = definition
+  has.stage = (part) => selected(part)?.id ?? part
   has.inside = (part, form, options) => course.references?.resolve(part, form, course.available ? null : level, options) ?? null
-  has.forms = (part) => course.references?.forms(part, course.available ? null : level) ?? []
+  has.forms = (part) => definition(part)?.setting.form?.options?.map(option => option.value)
+    ?? course.references?.forms(part, course.available ? null : level) ?? []
   return has
 }
 
@@ -510,8 +525,15 @@ export function againstOpen(found, open = {}) {
 function trayRules(course, say) {
   if (course.complete === false) return
   const met = new Set(course.levels.flatMap((level) => [...course.adds(level), ...course.builds(level)]))
-  for (const [name, entries] of Object.entries(course.trays)) for (const p of trayMembers(entries)) {
+  const stages = [...course.startStages, ...course.levels.flatMap(level => [...course.opens(level), ...course.awards(level)])]
+    .map(id => course.stages.get(id)).filter(Boolean)
+  for (const [name, entries] of Object.entries(course.trays)) for (const item of trayMembers(entries)) {
+    const p = course.pieceOf(item)
     if (!met.has(p)) say('tray-unmet', '', p, `tray ${name} lists it, and no level brings it in or builds it`)
+    const stage = course.stages.get(item)
+    if (stage?.index > 0 && !stages.some(entry => entry.piece === p && entry.index >= stage.index)) {
+      say('tray-unmet', '', item, `tray ${name} lists this stage, and no level opens or awards it`)
+    }
   }
 }
 

@@ -30,11 +30,11 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
   const resources = { [kind.id]: { ...screen, cards, course: (game) => game.circuit } }
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
-    const { name, desc, icon, revisions } = cards[type]
-    return { key: `part:${type}`, piece: type, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
+    const { name, desc, icon } = cards[type]
+    return { key: `part:${type}`, piece: type, name, desc, icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
   // The built pieces, in the order the course builds them.
-  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, ...defined({ revisions: circuit.pieces[type].revisions }), icon: CircuitBoard }))
+  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, icon: CircuitBoard }))
   const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
@@ -92,7 +92,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
 }
 
 export function definedGame(content, circuit, { ops, ...own }) {
-  const cards = { ...own.cards, ...Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, ...defined({ revisions: d.revisions }), icon: iconOf(d.icon) }])) }
+  const cards = { ...own.cards, ...Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }])) }
   const screen = { canvas: { height: 96 }, ...own.screen }
   return Object.assign(circuitGame(content, circuit, { ...own, screen, cards }), { defined: { of: (type) => circuit.defs[type] ?? null, defaults: circuit.defaultsOf, ops } })
 }

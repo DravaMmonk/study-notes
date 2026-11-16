@@ -23,11 +23,10 @@ const DIRS = {
   up: [0, -1, '↑'],
 }
 
-const borderParam = { key: 'border', label: { zh: '边界', en: 'Border' }, kind: 'select', options: [['zero', { zh: '补 0', en: 'Pad with 0' }], ['edge', { zh: '复制边缘', en: 'Replicate edge' }]], default: 'zero', unlock: 'edge-filter' }
+const borderParam = { key: 'border', label: { zh: '边界', en: 'Border' }, kind: 'select', options: [['zero', { zh: '补 0', en: 'Pad with 0' }], ['edge', { zh: '复制边缘', en: 'Replicate edge' }]], default: 'zero' }
 const borderOf = (params) => params.border ?? 'zero'
 // Shift alone may also wrap round: what leaves one edge comes back in at the other.
-// Shift learns to replicate the edge first (1-11); the filters learn it once the player has built a blur with it (1-12).
-const shiftBorder = { ...borderParam, unlock: 'edge-pad', options: [...borderParam.options, ['wrap', { zh: '循环', en: 'Wrap round' }, 'wrap']] }
+const shiftBorder = { ...borderParam, options: [...borderParam.options, ['wrap', { zh: '循环', en: 'Wrap round' }]] }
 
 const ARITH = {
   add: ['+', (x, y) => x + y],
@@ -49,7 +48,7 @@ const NATIVE_TYPES = {
     inputs: ['in'],
     params: [
       { key: 'dir', label: { zh: '方向', en: 'Direction' }, kind: 'select', buttons: 'pad', options: Object.entries(DIRS).map(([d, [, , arrow]]) => [d, arrow]), default: 'right' },
-      { key: 'n', label: { zh: '格数', en: 'Steps' }, kind: 'number', min: 1, max: 16, step: 1, default: 1, unlock: 'long-shift' },
+      { key: 'n', label: { zh: '格数', en: 'Steps' }, kind: 'number', min: 1, max: 16, step: 1, default: 1 },
       shiftBorder,
     ],
     eval: ({ in: a }, p) => shift(a, DIRS[p.dir ?? 'right'][0] * (p.n ?? 1), DIRS[p.dir ?? 'right'][1] * (p.n ?? 1), borderOf(p)),
@@ -254,7 +253,6 @@ export const NODE_TYPES = Object.fromEntries(Object.entries(NATIVE_TYPES).map(([
   inputTypes: Object.fromEntries(spec.inputs.map((name) => [name, 'image:image'])),
   outputType: 'image:image',
   unlock: unlockName(spec.unlock),
-  ...(spec.params && { params: spec.params.map((param) => ({ ...param, unlock: unlockName(param.unlock), ...(param.options && { options: param.options.map(([value, label, flag]) => flag ? [value, label, unlockName(flag)] : [value, label]) }) })) }),
 }]))
 
 export function disparityMap(left, right, window = 3, maxD = 4) {

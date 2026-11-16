@@ -1,0 +1,13 @@
+{
+  "title": "@tray.trays.machine.items.unification.title",
+  "values": [
+    "uDecompose-r-pattern-desc",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck-r-pattern-desc",
+    "uPattern",
+    "unifier-r-pattern-desc"
+  ]
+}

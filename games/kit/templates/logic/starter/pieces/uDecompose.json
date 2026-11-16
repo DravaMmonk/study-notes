@@ -3,7 +3,5 @@
   "desc": "@piece.uDecompose.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "compute": "logic:uDecompose(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:uDecompose"
 }

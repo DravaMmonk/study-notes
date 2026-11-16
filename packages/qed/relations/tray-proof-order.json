@@ -1,7 +1,7 @@
 {
   "kind": "order",
   "sequence": [
-    "mp",
+    "mp-bot-desc",
     "impI",
     "chain",
     "merge",
@@ -9,7 +9,7 @@
     "axK",
     "axS",
     "andI",
-    "andE",
+    "andE-iffUse-desc",
     "orI",
     "orE",
     "botE",
@@ -22,12 +22,12 @@
     "refl",
     "raa",
     "lem",
-    "dneg",
-    "arrow",
-    "dist",
-    "dm",
-    "iff",
+    "dneg-sp-rw-desc",
+    "arrow-sp-rw-desc",
+    "dist-sp-rw-desc",
+    "dm-q-dm-desc",
+    "iff-intro",
     "natInd"
   ],
-  "of": "item"
+  "of": "piece"
 }

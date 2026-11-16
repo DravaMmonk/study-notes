@@ -54,7 +54,7 @@ test('a workshop snapshot is reusable wherever all its exact base settings are a
 test('workshop compatibility follows resolved settings and executable checks across catalogs', () => {
   const declaration = {
     inputs: [{ name: 'in' }],
-    compute: 'multiply(in, $factor)',
+    op: 'multiply',
     checks: [{ holds: 'positive($factor)', say: { en: 'Use a positive factor.' } }],
   }
   const setting = { control: 'number', default: 2, min: 1, max: 8 }
@@ -225,4 +225,11 @@ test('a tray keeps one draft until it is cleared', () => {
   assert.deepEqual(kept.drafts[tray].graph, base())
   assert.deepEqual(draftWorkshop(kept, tray, null).drafts, {})
   assert.deepEqual(loadWorkshop({ getItem: () => JSON.stringify({ pieces: {}, published: {}, featured: {} }) }).drafts, {})
+})
+
+test('workshop identity follows the operation while stage progress keeps the piece identity stable', () => {
+  const piece = { op: 'toy:scale', settings: { gain: { control: 'number', default: 2 } } }
+  const signature = workshopIdentity({ parts: { scale: piece } }, 'scale')
+  assert.notEqual(workshopIdentity({ parts: { scale: { ...piece, op: 'toy:divide' } } }, 'scale'), signature)
+  assert.equal(workshopIdentity({ parts: { scale: { ...piece, stages: [{ id: 'adjustable', settings: { gain: {} } }] } } }, 'scale'), signature)
 })

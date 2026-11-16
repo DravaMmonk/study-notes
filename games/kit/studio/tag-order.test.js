@@ -24,7 +24,7 @@ test('moving in a list, by a drop or a key', () => {
 
 const tag = (values, extra = {}) => ({ kind: 'level', values, ...extra })
 const content = (relations = {}, more = {}) => {
-  const tags = { 'demo/one': tag(['demo/a', 'demo/b']), 'demo/two': tag(['demo/c']), 'base/far': tag(['base/x', 'base/y']), 'demo/items': { kind: 'item', values: [] }, ...more }
+  const tags = { 'demo/one': tag(['demo/a', 'demo/b']), 'demo/two': tag(['demo/c']), 'base/far': tag(['base/x', 'base/y']), 'demo/items': { kind: 'piece', values: [] }, ...more }
   return {
     tags,
     registries: { tag: tags, relation: relations, level: Object.fromEntries(['demo/a', 'demo/b', 'demo/c', 'base/x', 'base/y'].map((id) => [id, {}])) },

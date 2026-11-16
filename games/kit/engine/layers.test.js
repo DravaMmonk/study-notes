@@ -70,7 +70,7 @@ test('game overrides are limited to layouts and level relations', () => {
     assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : 'base/a', { $merge: true })])], schemas), /games cannot override/)
   }
   assert.doesNotThrow(() => composeLayers([base(), game([obj('layout', 'base/map', { $merge: true, rows: [['base/b', 'base/a']] }), obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
-  const a = base(); a.objects.push(obj('piece', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'item', edges: [{ from: 'p', to: 'p' }] }))
+  const a = base(); a.objects.push(obj('piece', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'piece', edges: [{ from: 'p', to: 'p' }] }))
   assert.throws(() => composeLayers([a, game([obj('relation', 'base/items', { replace: true, edges: [] })])], schemas), /games cannot override/)
   assert.throws(() => composeLayers([base(), game([obj('layout', 'base/missing', {})])], schemas), /unknown layout/)
 })

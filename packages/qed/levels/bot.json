@@ -91,11 +91,7 @@
       ]
     }
   ],
-  "pieceRevisions": [
-    {
-      "piece": "mp",
-      "at": true,
-      "desc": "@piece.mp.revisions.0.desc"
-    }
+  "opens": [
+    "mp-bot-desc"
   ]
 }

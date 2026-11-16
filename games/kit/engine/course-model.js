@@ -1,9 +1,10 @@
 // One curriculum model for all task and board mechanisms. Runtime readers supply observations about works;
 // progression, item granularity, trays, local pieces and replacements are interpreted here.
-import { defineCourse, itemOf, readItem } from '../course.js'
+import { defineCourse } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
 import { referenceResolver } from './objects.js'
 import { standaloneItems, standalonePieces } from './package-play.js'
+import { pieceStages } from './piece-stages.js'
 import { trayIn } from './trays.js'
 
 const unique = (items) => [...new Set(items)]
@@ -23,12 +24,7 @@ export function contentCourse(content, {
   const level = (at) => source.get(at.id) ?? {}
   const awards = (at) => publications.filter((entry) => entry.level === at.id
     && (at.task === undefined || entry.taskIndex <= at.task)).map((entry) => entry.type)
-  const flagOf = (item) => {
-    const { part, key, value } = readItem(item)
-    if (key === undefined) return parts[part]?.unlock ?? (publications.some((entry) => entry.type === part) ? part : null)
-    const param = parts[part]?.params?.find((p) => p.key === key)
-    return (value === undefined ? param?.unlock : param?.options?.find((o) => String(o[0]) === value)?.[2]) ?? null
-  }
+  const flagOf = (part) => parts[part]?.unlock ?? (publications.some(entry => entry.type === part) ? part : null)
   const defaultAdds = (at) => unique([...(level(at).adds ?? []), ...tasks(at)
     .slice(0, at.task === undefined ? undefined : at.task + 1).flatMap((task) => task.adds ?? [])])
   const adds = (at) => additions?.(at) ?? defaultAdds(at)
@@ -39,9 +35,10 @@ export function contentCourse(content, {
   ]
   const build = (at) => unique([...(builds?.(at) ?? []), ...awards(at), ...Object.keys(parts).filter((part) => parts[part].unlock && unlocked(at).includes(parts[part].unlock))])
   const resolve = referenceResolver(content.registries ?? { tag: content.tags ?? {}, piece: parts })
-  const taggedConcepts = new Map(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'item' && tag.concept)
+  const stageIndex = pieceStages(content.partDefs?.parts)
+  const taggedConcepts = new Map(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'piece' && tag.concept)
     .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
-    .flatMap(([name]) => resolve(`#${name}`, 'item').map((item) => [item, name])))
+    .flatMap(([name]) => resolve(`#${name}`, 'piece').map((item) => [stageIndex.get(item)?.piece ?? item, name])))
   const localAt = (part, at) => local.includes(part) || (level(at).local ?? []).includes(part)
     || tasks(at).some((task, index) => (at.task === undefined || index === at.task) && (task.local ?? []).includes(part))
   const isLocal = (part, at) => at ? localAt(part, at) : local.includes(part)
@@ -49,6 +46,8 @@ export function contentCourse(content, {
       && !content.levels.some((level) => defaultAdds(level).includes(part) && !localAt(part, level))
 
   const course = defineCourse({
+    pieces: content.partDefs?.parts ?? {},
+    awards: (at) => [...(at.task === undefined || at.task >= tasks(at).length ? level(at).awards ?? [] : []), ...tasks(at).flatMap((task, index) => at.task === undefined || index < at.task ? task.awards ?? [] : [])],
     available: content.standalone ? (at) => standalonePieces(content, at) : null,
     availableItems: content.standalone ? (at) => standaloneItems(content, at) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
@@ -78,14 +77,6 @@ export function contentCourse(content, {
 export function publicationEvents(levels, implementations, positions = null) {
   const tasks = new Map(levels.flatMap((level) => (level.tasks ?? []).map((task, taskIndex) => [task.id, { level: level.id, taskIndex: positions?.get(task.id) ?? taskIndex }])))
   return implementations.flatMap((entry) => tasks.has(entry.task) ? [{ ...entry, ...tasks.get(entry.task) }] : [])
-}
-
-/** A newly proved form becomes available after its publishing task, and throughout successor levels. */
-export function revisionItems(revisions, references, at) {
-  return Object.entries(revisions).flatMap(([type, list]) => list.filter((revision) => revision.by === at.id)
-    .flatMap((revision) => revision.forms ?? [])
-    .filter((form) => at.task === undefined || references.resolve(type, form, null, { kind: 'lemma', reference: true })?.task.task < at.task)
-    .map((form) => itemOf(type, 'form', form)))
 }
 
 /** Work readers pause after collecting facts, so every reader receives the very same completed curriculum. */

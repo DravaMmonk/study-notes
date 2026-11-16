@@ -1,3 +1,4 @@
+import { stageDefinition } from '../../engine/piece-stages.js'
 import { loadDisplays, benchDisplays } from '../../engine/displays.js'
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's play resources, its
@@ -22,16 +23,6 @@ const partOfFlag = (types) => {
   const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
   return map
 }
-// What a setting (not a part of its own) does, for the parts box.
-const OPTION_DESCRIPTIONS = {
-  'edge-filter': { zh: '平移和 3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'The “Border” setting of Shift and of filters such as the 3×3 average, the Gaussian and Sobel gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
-}
-const OPTION_NAMES = {
-  'edge-filter': { zh: '补边：复制边缘', en: 'Padding: replicate edge' },
-  shift: { zh: '平移', en: 'Shift' },
-  invert: { zh: '反相', en: 'Invert' },
-}
-
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, power, eras, primitives, concept, replaces, views,
  * levels, glossary }.
@@ -44,7 +35,7 @@ export default function imageGame(content) {
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
     if (type && types[type]) return { key: flag, piece: type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
-    return { key: flag, label: OPTION_NAMES[flag.split(':unlock-').at(-1)] ?? flag, name: OPTION_NAMES[flag.split(':unlock-').at(-1)] ?? flag, desc: OPTION_DESCRIPTIONS[flag.split(':unlock-').at(-1)] }
+    return { key: flag, label: flag, name: flag }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
   // replicate edge, before the filters') is part of what the level unlocks, not an item of its own.
@@ -77,19 +68,21 @@ export default function imageGame(content) {
       'image:board': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       'image:probe': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
     }),
-    unlocked: (level) => shownUnlocks(level).map(unlockOf),
+    unlocked: (level) => [...shownUnlocks(level).map(unlockOf), ...course.awards({ id: level.id }).map(id => {
+      const stage = course.stages.get(id)
+      return { piece: stage.piece, label: stage.definition.name, icon: iconOf(stage.piece, types) }
+    })],
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,
     parts: {
       all: [...primitives, ...allFlags.map(unlockOf)],
       settings: (part, progress) => {
-        const flags = new Set(game.flagsOf(progress))
-        const earned = (flag) => !flag || progress.all || flags.has(flag)
-        return (types[part.piece]?.params ?? []).filter((param) => earned(param.unlock)).map((param) => ({
-          key: param.key,
-          label: param.label ?? param.key,
-          values: (param.options ?? []).filter(([, , flag]) => earned(flag))
-            .map(([value, label]) => ({ value, label })),
+        const staged = game.textFor(part, progress)
+        const stage = course.stages.get(staged.stage ?? part.piece)
+        const definition = stage && stageDefinition(stage)
+        return (definition?.settings ?? []).filter(setting => !setting.fixed).map(setting => ({
+          key: setting.key, label: setting.label ?? setting.key,
+          values: (setting.options ?? []).map(option => ({ value: option.value, label: option.label ?? option.value })),
         }))
       },
       preview: (part, { progress }) => {

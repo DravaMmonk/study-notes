@@ -69,9 +69,9 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     const endpointName = endpoint && referenceName(namespace, endpoint)
     const taggedKind = endpoint?.startsWith('#') && tags.find(([id, , ns = packageId]) => fullName(ns, id) === endpointName.slice(1))?.[1].kind
     const objectKind = levels.some(([id]) => id === endpointName) ? 'level'
-      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'item'
+      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'piece'
     const relationKind = value.of ?? (taggedKind || objectKind)
-    const item = kind === 'tags' ? value.kind === 'item' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'item')
+    const item = kind === 'tags' ? value.kind === 'piece' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'piece')
     const ref = (ns, v) => item && typeof v === 'string' && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : referenceName(ns, v)
     return [fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
   }))
@@ -91,11 +91,11 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const resolve = referenceResolver(registries, objectProblems)
   for (const [name, tag] of Object.entries(tagMap)) {
     resolve(`#${name}`, tag.kind, `tags/${name}`)
-    if (tag.concept && tag.kind !== 'item') objectProblems.push({ at: `tags/${name}`, says: 'concept tags must contain items' })
+    if (tag.concept && tag.kind !== 'piece') objectProblems.push({ at: `tags/${name}`, says: 'concept tags must contain items' })
   }
   const concepts = new Map()
-  for (const [name, tag] of Object.entries(tagMap)) if (tag.concept && tag.kind === 'item') {
-    for (const item of resolve(`#${name}`, 'item')) {
+  for (const [name, tag] of Object.entries(tagMap)) if (tag.concept && tag.kind === 'piece') {
+    for (const item of resolve(`#${name}`, 'piece')) {
       if (concepts.has(item) && concepts.get(item) !== name) objectProblems.push({ at: `tags/${name}`, says: `${item} belongs to multiple concepts: ${concepts.get(item)}, ${name}` })
       concepts.set(item, name)
     }
@@ -124,11 +124,11 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const trays = {}
   const nested = new Set(Object.values(tagMap).flatMap((tag) => tag.values.filter((v) => v.startsWith('#')).map((v) => v.slice(1))))
   const namedTrays = new Set(levels.flatMap(([, value]) => [value, ...(value.tasks ?? [])].flatMap((v) => v.tray ? [v.tray].flat().map((v) => v.replace(/^#/, '')) : [])))
-  for (const [name, tag] of Object.entries(tagMap)) if (tag.kind === 'item' && (!nested.has(name) || namedTrays.has(name))) {
-    const ids = relationOrder(resolve(`#${name}`, 'item'), relationEdges.order, 'item')
+  for (const [name, tag] of Object.entries(tagMap)) if (tag.kind === 'piece' && (!nested.has(name) || namedTrays.has(name))) {
+    const ids = relationOrder(resolve(`#${name}`, 'piece'), relationEdges.order, 'piece')
     const menus = tag.values.filter((v) => v.startsWith('#')).map((v) => {
       const child = tagMap[v.slice(1)]
-      return { id: v.slice(1), title: child?.title, items: relationOrder(resolve(v, 'item'), relationEdges.order, 'item') }
+      return { id: v.slice(1), title: child?.title, items: relationOrder(resolve(v, 'piece'), relationEdges.order, 'piece') }
     })
     const used = new Set()
     trays[name] = { name: tag.title, desc: tag.desc, ...(tag.workshop !== undefined && { workshop: tag.workshop }), items: ids.flatMap((id) => {

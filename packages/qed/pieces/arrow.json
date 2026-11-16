@@ -2,7 +2,24 @@
   "name": "@piece.arrow.name",
   "desc": "@piece.arrow.desc",
   "family": "logic:family-lemma",
-  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" } },
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "B": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "elim",
+          "label": "A → B ⟹ ¬A ∨ B"
+        }
+      ],
+      "default": "elim"
+    }
+  },
   "inside": [
     {
       "id": "elim",
@@ -23,7 +40,14 @@
           "}",
           "goal <- e"
         ],
-        "tests": [{ "goal": "¬A ∨ B", "premises": { "p": "A → B" } }]
+        "tests": [
+          {
+            "goal": "¬A ∨ B",
+            "premises": {
+              "p": "A → B"
+            }
+          }
+        ]
       }
     },
     {
@@ -45,10 +69,45 @@
           "}",
           "goal <- f"
         ],
-        "tests": [{ "goal": "A → B", "premises": { "p": "¬A ∨ B" } }]
+        "tests": [
+          {
+            "goal": "A → B",
+            "premises": {
+              "p": "¬A ∨ B"
+            }
+          }
+        ]
       }
     }
   ],
-  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
-  "outputType": "logic:judgment"
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "arrow-intro",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "elim",
+              "label": "A → B ⟹ ¬A ∨ B"
+            },
+            {
+              "value": "intro",
+              "label": "¬A ∨ B ⟹ A → B"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "arrow-sp-rw-desc",
+      "desc": "@piece.arrow.revisions.0.desc"
+    }
+  ]
 }

@@ -106,6 +106,9 @@
           "piece": "dm",
           "variant": "andNot"
         }
+      ],
+      "awards": [
+        "dm-andNot"
       ]
     },
     {
@@ -155,6 +158,9 @@
           "piece": "dm",
           "variant": "orNot"
         }
+      ],
+      "awards": [
+        "dm-orNot"
       ]
     },
     {
@@ -206,6 +212,9 @@
           "piece": "dm",
           "variant": "notAnd"
         }
+      ],
+      "awards": [
+        "dm-notAnd"
       ]
     }
   ]

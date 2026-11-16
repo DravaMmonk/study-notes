@@ -4,25 +4,52 @@
   "icon": "Plus",
   "family": "image:family-pixel",
   "inputs": [
-    { "name": "a", "label": "a", "type": "image:image" },
-    { "name": "b", "label": "b", "type": "image:image" }
+    {
+      "name": "a",
+      "label": "a"
+    },
+    {
+      "name": "b",
+      "label": "b"
+    }
   ],
   "settings": {
     "op": {
       "label": "@piece.arith.settings.op.label",
       "options": [
-        { "value": "add", "label": "+" },
-        { "value": "sub", "label": "−" },
-        { "value": "mul", "label": "×" },
-        { "value": "div", "label": "÷" }
+        {
+          "value": "add",
+          "label": "+"
+        },
+        {
+          "value": "sub",
+          "label": "−"
+        },
+        {
+          "value": "mul",
+          "label": "×"
+        },
+        {
+          "value": "div",
+          "label": "÷"
+        }
       ]
     },
     "constantSide": {
       "label": "@piece.arith.settings.constantSide.label",
       "options": [
-        { "value": "none", "label": "@piece.arith.settings.constantSide.options.0.label" },
-        { "value": "a", "label": "@piece.arith.settings.constantSide.options.1.label" },
-        { "value": "b", "label": "@piece.arith.settings.constantSide.options.2.label" }
+        {
+          "value": "none",
+          "label": "@piece.arith.settings.constantSide.options.0.label"
+        },
+        {
+          "value": "a",
+          "label": "@piece.arith.settings.constantSide.options.1.label"
+        },
+        {
+          "value": "b",
+          "label": "@piece.arith.settings.constantSide.options.2.label"
+        }
       ]
     },
     "constant": {
@@ -31,6 +58,5 @@
     }
   },
   "nulls": "pass",
-  "compute": "image:arith(a, b, $op, $constantSide, $constant)",
-  "outputType": "image:image"
+  "op": "image:arith"
 }

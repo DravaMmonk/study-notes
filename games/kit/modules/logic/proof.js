@@ -537,7 +537,7 @@ export function lemmaPieces(lemmas = {}) {
         ...(l.forms ? [{ key: 'form', control: 'select', label: T('形状', 'Shape'), options: l.forms.map((f) => ({ value: f.key, label: { zh: f.label, en: f.label } })) }] : []),
         ...open.map((m) => ({ key: m, control: 'tree', label: l.params?.[m] ?? { zh: m, en: m } })),
       ],
-      compute: l.card ? `${l.card}(${inputs.map((p) => p.name).join(', ')})` : 'logic:lemma()',
+      op: l.card ?? 'logic:lemma',
     }]
   }))
 }

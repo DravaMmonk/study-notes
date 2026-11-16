@@ -3,17 +3,26 @@
   "desc": "@piece.exE.desc",
   "icon": "Box",
   "family": "logic:family-box",
-  "inputs": [{ "name": "ex", "label": "@piece.exE.inputs.0.label", "type": "logic:judgment" }],
-  "settings": { "x": { "control": "select", "label": "@piece.exE.settings.x.label", "from": "logic:names()" } },
+  "inputs": [
+    {
+      "name": "ex",
+      "label": "@piece.exE.inputs.0.label"
+    }
+  ],
+  "settings": {
+    "x": {
+      "control": "select",
+      "label": "@piece.exE.settings.x.label",
+      "from": "logic:names()"
+    }
+  },
   "regions": [
     {
       "name": "body",
       "label": "@piece.exE.regions.0.label",
       "opens": true,
-      "closes": true,
-      "type": "logic:judgment"
+      "closes": true
     }
   ],
-  "compute": "logic:exE(ex, body)",
-  "outputType": "logic:judgment"
+  "op": "logic:exE"
 }

@@ -151,7 +151,7 @@ test('the HTTP tools list, preview and write a package that no game selects', as
   mkdirSync(pkg, { recursive: true })
   writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ vocabulary: 1 })}\n`)
   mkdirSync(join(pkg, 'pieces'), { recursive: true })
-  writeFileSync(join(pkg, 'pieces/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' }))
+  writeFileSync(join(pkg, 'pieces/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' }))
   const packages = (await post('packages', {})).body
   assert.ok(packages.some((entry) => entry.id === 'library'))
   const preview = (await post('preview', { package: 'library' })).body

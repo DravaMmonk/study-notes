@@ -24,7 +24,9 @@ import { BUILTINS, BUILTIN_ITEMS } from './builtins.js'
 import { FACES, PARTS_FILE, SETTING, piecePath } from './schema.js'
 import { registeredOperations, registeredValueTypes } from '../capabilities.js'
 import { typeProblems } from './types.js'
+import { pieceStages } from '../piece-stages.js'
 import { settingParameters } from './settings.js'
+import { operationPiece, operationTrees } from './operation.js'
 
 const ICONS = new Set(ICON_NAMES)
 const OPTIONED = new Set(['select', 'buttons'])
@@ -66,19 +68,6 @@ export function coerce(s, raw) {
 function indexPart(def, type) {
   const settings = settingsOf(def)
   return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: outletsOf(def).length ? outletsOf(def).map((o) => o.name) : null }
-}
-
-/** The trees a part computes with: one per output (null for an output whose text does not parse). */
-function treesOf(def) {
-  const read = (text) => {
-    try {
-      return parse(text)
-    } catch {
-      return null
-    }
-  }
-  if (typeof def.compute === 'string') return { '': read(def.compute) }
-  return Object.fromEntries(Object.entries(def.compute ?? {}).map(([k, text]) => [k, read(text)]))
 }
 
 /** The options a setting offers on a node: its own, or those its `from` works out of the card's inputs. */
@@ -166,7 +155,7 @@ function symmetricIn(tree, settings, ops) {
  * resources, { name: { run(args, named, ctx) } }.
  */
 export function defineParts(file, ops, code = {}) {
-  const parts = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { ...def, settings: settingsOf(def, ops) }]))
+  const parts = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { ...operationPiece(def, { ...BUILTINS, ...registeredOperations, ...ops }), settings: settingsOf(def, { ...BUILTINS, ...registeredOperations, ...ops }) }]))
   return compileParts(parts, ops, code)
 }
 
@@ -189,10 +178,10 @@ export function definitionPorts(def, ops) {
 
 /** Compile circuit definitions already carrying resolved settings, including parts generated in code. */
 export function compileParts(parts, ops, code = {}) {
-  ops = { ...registeredOperations, ...ops }
+  ops = { ...BUILTINS, ...registeredOperations, ...ops }
   const defs = Object.fromEntries(Object.entries(parts).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, indexPart(def, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
-    const trees = treesOf(def)
+    const trees = operationTrees(def, ops)
     const ports = {
       ...definitionPorts(def, ops),
       inputTypes: Object.fromEntries(holesOf(def).map((port) => [port.name, port.type])),
@@ -237,6 +226,7 @@ export function compileParts(parts, ops, code = {}) {
         return v
       },
     }
+    part.specialize = (definition) => compileParts({ [type]: definition }, ops).PARTS[type]
     return [type, part]
   }))
   const PARTS = registerPieces(code, defined)
@@ -280,7 +270,11 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
   // A domain with its circuit primitives in code keeps none here.
   if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.module} module defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
+  try { pieceStages(file?.parts) } catch (error) { say('', error.message) }
   if (out.length) return out
+  for (const [id, entry] of pieceStages(file?.parts)) if (entry.index > 0) {
+    out.push(...partProblems({ parts: { [entry.piece]: entry.definition } }, vocabulary, { tasks }).map(problem => ({ ...problem, at: `${problem.at} (stage ${id})` })))
+  }
   if (vocabulary.capabilities || vocabulary.kinds.valueType) out.push(...typeProblems(file, vocabulary))
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
   const fits = (schema, v) => validate(schema, v, { vocabulary: vocab }).length === 0
@@ -304,8 +298,9 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       if (w && (w.params ? !fits(w.params, s.params) : s.params !== undefined)) say(`${at}.params`, w.params ? `the parameters do not fit the widget ${s.widget}` : `the widget ${s.widget} takes no parameters`)
     }
   }
-  for (const [type, raw] of Object.entries(file.parts)) {
+  for (const [type, declaration] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
+    const raw = operationPiece(declaration, vocabulary.kinds.op)
     const parameters = settingParameters(raw, vocabulary.kinds.op)
     const resolved = resolveSettings(raw, vocabulary.kinds.op)
     for (const setting of resolved) {
@@ -321,7 +316,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
         if (schema.type === 'int' && !setting.integer) say(where, 'an integer parameter needs an integer setting')
         if (schema.type === 'oneOf') {
           for (const option of setting.options ?? []) if (!fits(schema, option.value)) say(`${where}.options`, `${option.value} is not an option of the operation parameter`)
-          for (const value of raw.settings[setting.key].remove ?? []) if (!schema.values.some((option) => String(option) === value)) say(`${where}.remove`, `${value} is not an option of the operation parameter`)
+          for (const value of [...(raw.settings?.[setting.key]?.remove ?? []), ...(raw.settings?.[setting.key]?.add ?? [])]) if (!schema.values.some((option) => String(option) === value)) say(`${where}.remove`, `${value} is not an option of the operation parameter`)
         }
       }
     }
@@ -360,22 +355,17 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       }
     }
     for (const [k, c] of (raw.checks ?? []).entries()) check(c.holds, `${at}.checks[${k}].holds`, [])
-    // What it computes: an expression for its one output, or one for each of its outputs; a built piece runs its inside.
+    // A primitive selects declared operations, while a built piece runs its published work.
     const outputs = def.outputNames
-    if (!built && Boolean(raw.compute) === Boolean(raw.keeps)) say(at, 'a primitive computes (compute) or keeps an input (keeps), one of the two')
+    if (raw.op && raw.keeps) say(at, 'a primitive selects an operation or keeps an input, one of the two')
+    if (raw.op && !Object.keys(operationTrees(raw, ops)).length) say(`${at}.op`, 'an operation map needs at least one output')
+    if (!built && !raw.op && !raw.keeps) say(at, 'a circuit primitive selects an operation or keeps an input')
+    for (const name of typeof raw.op === 'string' ? [raw.op] : Object.values(raw.op ?? {})) {
+      if (!ops[name]) say(`${at}.op`, `unknown operation ${name}`)
+    }
     if (raw.keeps) {
       if (!holesOf(raw).some((p) => p.name === raw.keeps.input)) say(`${at}.keeps.input`, `${raw.keeps.input} is no input of the part`)
       if (!def.setting[raw.keeps.register]) say(`${at}.keeps.register`, `${raw.keeps.register} is no setting of the part`)
-    }
-    if (!built && raw.compute) {
-      const exprs = typeof raw.compute === 'string' ? [['', raw.compute]] : Object.entries(raw.compute)
-      if (!outputs && typeof raw.compute !== 'string') say(`${at}.compute`, 'a part with one output computes one expression')
-      if (outputs && typeof raw.compute === 'string') say(`${at}.compute`, `a part with outputs computes one expression each: { ${outputs.join(', ')} }`)
-      if (outputs && typeof raw.compute !== 'string') {
-        for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
-        for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
-      }
-      for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, [...holesOf(def).map((p) => p.name), ...regionNames])
     }
     // The views: what each block names is there.
     for (const face of FACES) {

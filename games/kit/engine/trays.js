@@ -1,22 +1,24 @@
 // Trays describe presentation: ordered pieces and optional menus for related pieces.
 import { S } from './schema.js'
+import { pieceStages } from './piece-stages.js'
 import { editorOf } from './pieces.js'
 
 export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
 /** The named circuit trays that may be opened in the workshop, in course order. */
 export function workshopTrayNames(trays = {}, pieces = {}) {
+  const stages = pieceStages(pieces)
   return Object.entries(trays)
-    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => Object.hasOwn(pieces, type) && editorOf(pieces[type]) === 'circuit'))
+    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => stages.has(type) && editorOf(pieces[stages.get(type).piece]) === 'circuit'))
     .map(([name]) => name)
 }
 
 /** Project available pieces onto the selected trays, leaving availability to the course. */
-export function trayDisplay(trays, names, shown, folded) {
+export function trayDisplay(trays, names, shown, folded, pieceOf = id => id) {
   const first = new Set(shown.map(({ type }) => type))
   const remaining = new Map([...shown, ...folded].map((item) => [item.type, item]))
   const menus = names.flatMap((name) => (trays[name]?.items ?? [])
-    .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, key: JSON.stringify([name, entry.id]) })))
+    .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, items: entry.items.map(pieceOf), key: JSON.stringify([name, entry.id]) })))
   const items = [], more = []
   const add = (item, visible) => (visible ? items : more).push(item)
   const done = new Set()
@@ -39,7 +41,7 @@ export function trayDisplay(trays, names, shown, folded) {
 }
 
 /** A tray selects an item tag as a container, preserving its nested menu presentation. */
-const CONTAINER = S.name('tag', { members: 'item' })
+const CONTAINER = S.name('tag', { members: 'piece' })
 export const TRAY = S.opt(S.either(CONTAINER, S.list(CONTAINER, { min: 1 })))
 
 /** The names of the parts a game's levels build, for its trays (domain.js names; the vocabulary's go by reference). */
