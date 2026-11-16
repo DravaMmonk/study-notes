@@ -37,10 +37,22 @@ export function publishWorkshop(library, piece, { id, lineage = null, rank = 0, 
 }
 
 export function featureWorkshop(library, tray, id, enabled) {
+  if (library.pieces[id]?.deleted) return library
   const featured = new Set(library.featured[tray])
   if (enabled) featured.add(id)
   else featured.delete(id)
   return { ...library, featured: { ...library.featured, [tray]: [...featured] } }
+}
+
+/** Remove a hand-built piece from the catalogue while retaining its immutable version for existing boards. */
+export function removeWorkshopPart(library, id) {
+  if (!Object.hasOwn(library.pieces, id)) return library
+  const piece = library.pieces[id]
+  if (piece.lineage || piece.deleted) return library
+  const featured = Object.fromEntries(Object.entries(library.featured)
+    .map(([tray, ids]) => [tray, ids.filter((featuredId) => featuredId !== id)])
+    .filter(([, ids]) => ids.length))
+  return { ...library, pieces: { ...library.pieces, [id]: { ...piece, deleted: true } }, featured }
 }
 
 /** Keep a tray's unfinished board: { graph, names }, or nothing once it is cleared. */
@@ -50,7 +62,7 @@ export function draftWorkshop(library, tray, draft) {
 }
 
 export const workshopEntries = (library) => Object.values(library.pieces)
-  .filter(({ id, lineage }) => !lineage || library.published[lineage] === id)
+  .filter(({ id, lineage, deleted }) => !deleted && (!lineage || library.published[lineage] === id))
 
 export const trayTypes = (trays, name) => new Set(trayMembers(trays[name] ?? []))
 export const trayKey = (game, name) => JSON.stringify([game, name])

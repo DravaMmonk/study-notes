@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { packed, runBoard, sink, source } from './boards.js'
 import {
   addWorkshopPort, captureWorkshop, draftWorkshop, dropWorkshopPort, featureWorkshop, loadWorkshop, nameWorkshopPort,
-  publishWorkshop, workshopAvailable, workshopEntries, workshopPorts, trayKey, workshopIdentity, workshopInTray, workshopParts,
+  publishWorkshop, removeWorkshopPart, workshopAvailable, workshopEntries, workshopPorts, trayKey, workshopIdentity, workshopInTray, workshopParts,
 } from './workshop.js'
 
 const inNode = (id) => ({ id, type: 'in', params: { name: id } })
@@ -84,6 +84,29 @@ test('publishing an upgrade hides the earlier automatic version and leaves saved
   const parts = workshopParts(installed, resolve)
   assert.equal(runBoard(from(earlier.id), { parts, bind: { in: 5 } }).outputs.out, 10)
   assert.equal(runBoard(from(upgrade.id), { parts, bind: { in: 5 } }).outputs.out, 15)
+})
+
+test('deleting a manual part removes its tray pins and preserves saved boards and nested versions', () => {
+  const piece = take(base())
+  const added = publishWorkshop(empty(), piece, { id: piece.id })
+  const nested = take(from(piece.id), { book: added, scope: 'user_nested' })
+  const owned = publishWorkshop(added, nested, { id: nested.id })
+  const anotherTray = trayKey('local', 'second')
+  const pinned = featureWorkshop(featureWorkshop(owned, piece.tray, piece.id, true), anotherTray, piece.id, true)
+  const draft = { graph: from(piece.id), names: {} }
+  const deleted = removeWorkshopPart(draftWorkshop(pinned, piece.tray, draft), piece.id)
+  const saved = loadWorkshop({ getItem: () => JSON.stringify(deleted) })
+
+  assert.deepEqual(workshopEntries(saved).map(({ id }) => id), [nested.id])
+  assert.deepEqual(saved.featured, {})
+  assert.equal(featureWorkshop(saved, piece.tray, piece.id, true), saved)
+  assert.deepEqual(saved.drafts[piece.tray], draft)
+  const parts = workshopParts(saved, resolve)
+  assert.equal(runBoard(saved.drafts[piece.tray].graph, { parts, bind: { in: 5 } }).outputs.out, 10)
+  assert.equal(runBoard(from(nested.id), { parts, bind: { in: 5 } }).outputs.out, 10)
+
+  const reward = publishWorkshop(empty(), piece, { id: piece.id, lineage: 'reward' })
+  assert.equal(removeWorkshopPart(reward, piece.id), reward)
 })
 
 test('an already packed course part is captured as a snapshot with its primitive dependencies', () => {

@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { CircuitBoard, Pin, Plus, X } from 'lucide-react'
+import { CircuitBoard, Pin, Plus, Trash2, X } from 'lucide-react'
 import CircuitLevel from './CircuitLevel.jsx'
 import Glyph from '../circuit/Glyph.jsx'
 import { boardFits } from '../circuit/model.js'
 import { L, tr } from './i18n.js'
 import {
-  addWorkshopPort, draftWorkshop, dropWorkshopPort, featureWorkshop, nameWorkshopPort, trayKey, trayTypes,
+  addWorkshopPort, draftWorkshop, dropWorkshopPort, featureWorkshop, nameWorkshopPort, removeWorkshopPart, trayKey, trayTypes,
   workshopEntries, workshopInTray, workshopPorts,
 } from '../engine/workshop.js'
 import './workshop.css'
@@ -28,8 +28,12 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
   const allowed = new Set([...types.filter((type) => base.has(type)), ...offered.map(({ id }) => id)])
   const isPart = (node) => parts.role(node) === 'part'
   const ends = new Set(board.nodes.filter((node) => !isPart(node)).map(({ type }) => type))
-  const fits = (graph) => boardFits(graph, parts, (type) => ends.has(type) || allowed.has(type))
-    && graph.nodes.every((node) => (isPart(node) ? allowed : ends).has(node.type))
+  const keptPart = (type) => {
+    const piece = library.pieces[type]
+    return allowed.has(type) || Boolean(piece?.deleted && belongs(piece) && available(piece))
+  }
+  const fits = (graph) => boardFits(graph, parts, (type) => ends.has(type) || keptPart(type))
+    && graph.nodes.every((node) => isPart(node) ? keptPart(node.type) : ends.has(node.type))
   // A fresh draft's ports take the names the board's terminals show, where those tell them apart.
   const fresh = (graph) => {
     const shown = (node) => String(L(parts.label(node)))
@@ -66,6 +70,13 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
     : cards(type))
   const own = (item) => Boolean(library.pieces[item.type])
   const made = workshopEntries(library).filter((piece) => belongs(piece) && !piece.lineage)
+
+  const remove = (piece) => {
+    const saved = update((current) => removeWorkshopPart(current, piece.id))
+    setNotice(saved
+      ? { text: tr(`已删除「${piece.name}」。`, `Deleted “${piece.name}”.`) }
+      : { fail: true, text: tr('未能删除，浏览器存储不可用。', 'Could not delete: browser storage is unavailable.') })
+  }
 
   const pack = () => {
     if (!ports.outputs.every((port) => port.wired)) return setNotice({ fail: true, text: tr('每个输出都需要接上线。', 'Wire every output.') })
@@ -131,6 +142,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
                   <span title={piece.description || undefined}>{piece.name}</span>
                   <small>{piece.inputs.length} → {piece.outputs.length}</small>
                   <button type="button" className={`ws-tool ${on ? 'is-on' : ''}`} aria-pressed={on} aria-label={tr(`把 ${piece.name} 固定在托盘主区`, `Pin ${piece.name} to the tray`)} title={tr('固定在托盘主区', 'Pin to the tray')} onClick={() => update((current) => featureWorkshop(current, slot, piece.id, !on))}><Pin size={13} /></button>
+                  <button type="button" className="ws-tool ws-remove" aria-label={tr(`删除元件 ${piece.name}`, `Delete part ${piece.name}`)} title={tr('删除元件', 'Delete part')} onClick={() => remove(piece)}><Trash2 size={13} /></button>
                 </li>
               )
             })}
