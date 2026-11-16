@@ -3,7 +3,5 @@
   "desc": "@piece.multiply.desc",
   "icon": "X",
   "family": "circuit:family-value",
-  "inputs": [{ "name": "a", "type": "circuit:number" }, { "name": "b", "type": "circuit:number" }],
-  "outputType": "circuit:number",
-  "compute": "circuit:times(a, b)"
+  "op": "circuit:times"
 }

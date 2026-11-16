@@ -11,6 +11,9 @@ import { evaluate as run } from '../circuit.js'
 // A small domain written here: plain numbers, two resources and one family.
 const OPS = {
   add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => a + b },
+  upper: { args: [{ name: 'a' }], run: ([a]) => a + 1 },
+  lower: { args: [{ name: 'a' }], run: ([a]) => a - 1 },
+  initial: { args: [], params: S.obj({ start: S.opt(S.num()) }), run: (_args, { start }) => start ?? null },
   scale: { about: 'a × k', args: [{ name: 'a' }], params: S.obj({ k: S.num(), how: S.opt(S.oneOf(['up', 'down'])) }), run: ([a], { k, how = 'up' }) => (how === 'up' ? a * k : a / k) },
 }
 const vocabulary = {
@@ -21,16 +24,16 @@ const vocabulary = {
 const file = {
 
   parts: {
-    sum: { name: 'Sum', desc: 'a + b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' },
+    sum: { name: 'Sum', desc: 'a + b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], op: 'add' },
     scaled: {
       name: 'Scaled', desc: 'a scaled', icon: 'Scaling', family: 'value', inputs: [{ name: 'a' }],
       settings: { 'k': { control: 'slider', min: 1, max: 4, default: 2 }, 'how': { control: 'buttons', label: 'how', options: [{ value: 'up' }, { value: 'down' }], default: 'up' }, 'lock': { control: 'toggle', when: "circuit:eq($how, 'up')" } },
-      compute: "match $how { up: scale(a, k=$k, how='up'), down: scale(a, k=$k, how=$how) }",
+      op: 'scale',
       rules: [{ on: 'how', when: "circuit:eq($how, 'down')", set: { k: "circuit:plus($k, 1)" } }],
       checks: [{ holds: "circuit:le($k, 3)", say: { en: 'k is too large' } }],
       views: { tile: [{ show: 'summary', text: '{how} ×{k}' }], card: [{ show: 'row', blocks: [{ show: 'setting', key: 'k' }, { show: 'readout', label: 'k²', expr: "circuit:times($k, $k)" }] }] },
     },
-    split: { name: 'Split', desc: 'two', icon: 'Split', family: 'value', inputs: [{ name: 'a' }], outputs: [{ name: 'hi' }, { name: 'lo' }], compute: { hi: 'add(a, 1)', lo: 'add(a, -1)' } },
+    split: { name: 'Split', desc: 'two', icon: 'Split', family: 'value', inputs: [{ name: 'a' }], outputs: [{ name: 'hi' }, { name: 'lo' }], op: { hi: 'upper', lo: 'lower' } },
   },
 }
 
@@ -69,7 +72,7 @@ test('pieces.json becomes engine parts: settings resolved from shared definition
 })
 
 test('an optional input left unwired reads 「—」 and does not make the part give 「—」; wired to 「—」 it does', () => {
-  const some = { parts: { first: { name: 'First', desc: 'a, else b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b', optional: true }], compute: 'add(a, b)' } } }
+  const some = { parts: { first: { name: 'First', desc: 'a, else b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b', optional: true }], op: 'add' } } }
   const { PARTS } = defineParts(some, { add: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => (b === undefined ? a : a + b) } })
   assert.deepEqual(PARTS.first.optional, ['b'])
   const registry = { ...PARTS, in: { inputs: [], eval: () => 5 }, none: { inputs: [], eval: () => null } }
@@ -92,21 +95,22 @@ test('interaction: rules follow a change, checks say what fails, settings-only e
 test('a pieces.json that holds together has no problems; one that does not says where', () => {
   assert.deepEqual(partProblems(file, vocabulary), [])
   const bad = structuredClone(file)
-  bad.parts.sum.compute = 'add(a, c)'
+  bad.parts.sum.op = 'missing'
   bad.parts.sum.icon = 'Nope'
   bad.parts.scaled.settings.k.default = 9
-  bad.parts.scaled.compute = 'match $how { up: a }'
-  bad.parts.split.compute = { hi: 'add(a, 1)' }
+
+  bad.parts.split.op = { hi: 'upper', lo: 'missing' }
   bad.parts.scaled.views.tile[0].text = '{nope}'
   bad.parts.scaled.rules[0].set = { z: '1' }
+  const unknown = partProblems(bad, vocabulary)
+  assert.deepEqual(unknown.map(p => p.at), ['pieces/sum.json.op', 'pieces/split.json.op.lo'])
+  bad.parts.sum.op = 'add'
+  bad.parts.split.op.lo = 'lower'
   assert.deepEqual(partProblems(bad, vocabulary).map((p) => `${p.at}: ${p.says}`), [
     'pieces/sum.json.icon: Nope is no icon of the kernel’s table',
-    'pieces/sum.json.compute: c is no input of the part (its inputs: a, b)',
     'pieces/scaled.json.settings.k.default: 9 is not a number in its range',
     'pieces/scaled.json.rules[0].set.z: z is no setting of the part',
-    'pieces/scaled.json.compute: match $how has no case for down',
     'pieces/scaled.json.views.tile[0].text: {nope} is no setting of the part',
-    'pieces/split.json.compute: nothing computes the output lo',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
 })
@@ -134,7 +138,7 @@ test('the piece readers expose the optional faces without renaming stored fields
   assert.equal(keepsOf(keeping), keeping.keeps)
   assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece, made: built } }, vocabulary), [])
   // A piece computes or has an inside, never both; a built piece can declare its typed interface.
-  assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, compute: 'a' } } }, vocabulary), [])
+  assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, op: 'add' } } }, vocabulary), [])
   assert.deepEqual(partProblems({ ...file, parts: { made: { ...built, inputs: [] } } }, vocabulary), [])
   assert.deepEqual(Object.keys(defineParts({ ...file, parts: { ...file.parts, made: built } }, OPS).defs), Object.keys(file.parts))
   // A domain with its primitives in code keeps its built pieces alone in pieces/<name>.json.
@@ -155,11 +159,11 @@ test('a piece of another editor has its own faces: a block on a strip marks an i
   assert.deepEqual(Object.keys(withParts(marking, { parts: { noun: block } }).kinds.part), ['noun'])
   assert.deepEqual(partProblems({ parts: { noun: { ...block, mark: 'adverb' } } }, marking).map((p) => p.at), ['pieces/noun.json.mark'])
   // The circuit's faces are not a block's, and a block is no circuit primitive to define.
-  assert.ok(partProblems({ parts: { noun: { ...block, compute: 'a' } } }, marking).length > 0)
+  assert.ok(partProblems({ parts: { noun: { ...block, op: 'add' } } }, marking).length > 0)
   assert.deepEqual(Object.keys(defineParts({ parts: { ...file.parts, noun: block } }, OPS).defs), Object.keys(file.parts))
   // A new piece of each editor where the vocabulary gives what it is made of.
   assert.deepEqual([BLANKS.circuit(marking), BLANKS.strip(marking).mark], [null, 'noun'])
-  assert.deepEqual([BLANKS.circuit(vocabulary).compute, BLANKS.strip(vocabulary)], ['a', null])
+  assert.deepEqual([BLANKS.circuit(vocabulary).op, BLANKS.strip(vocabulary)], ['add', null])
   assert.deepEqual([makesPieces(marking), makesPieces(vocabulary), makesPieces({ kinds: {} })], [true, true, false])
 })
 
@@ -177,7 +181,7 @@ test('a description names only the options that are open', () => {
 test('a part with regions is a frame: its resource sees the card and the region, and can run a region as a function', () => {
   const FRAME_OPS = {
     // The box: inside its region, the value it was handed; outside, what came back from the region, plus one.
-    box: { about: 'box', args: [{ name: 'x' }, { name: 'back' }], run: ([x, back], _named, ctx) => (ctx.key ? x : back + 1) },
+    box: { about: 'box', args: [{ name: 'x' }, { name: 'body' }], run: ([x, back], _named, ctx) => (ctx.key ? x : back + 1) },
     // A loop: the region run on the value three times.
     thrice: { about: 'loop', args: [{ name: 'x' }], run: ([x], _named, ctx) => { const round = ctx.region('body'); return round(round(round(x))) } },
     twice: { about: '2x', args: [{ name: 'x' }], run: ([x]) => x * 2 },
@@ -186,10 +190,10 @@ test('a part with regions is a frame: its resource sees the card and the region,
   const frames = {
 
     parts: {
-      box: { name: 'Box', desc: 'b', icon: 'Box', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true, closes: true }], compute: 'box(x, body)' },
-      thrice: { name: 'Thrice', desc: 't', icon: 'Repeat', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true }, { name: 'more', opens: true, when: "circuit:eq($more, 'yes')" }], settings: { 'more': { control: 'select', options: [{ value: 'no' }, { value: 'yes' }] } }, compute: 'thrice(x)' },
-      twice: { name: 'Twice', desc: 'd', icon: 'Plus', family: 'value', inputs: [{ name: 'x' }], compute: 'twice(x)' },
-      named: { name: 'Named', desc: 'n', icon: 'Plus', family: 'value', inputs: [], compute: 'named()' },
+      box: { name: 'Box', desc: 'b', icon: 'Box', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true, closes: true }], op: 'box' },
+      thrice: { name: 'Thrice', desc: 't', icon: 'Repeat', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true }, { name: 'more', opens: true, when: "circuit:eq($more, 'yes')" }], settings: { 'more': { control: 'select', options: [{ value: 'no' }, { value: 'yes' }] } }, op: 'thrice' },
+      twice: { name: 'Twice', desc: 'd', icon: 'Plus', family: 'value', inputs: [{ name: 'x' }], op: 'twice' },
+      named: { name: 'Named', desc: 'n', icon: 'Plus', family: 'value', inputs: [], op: 'named' },
     },
   }
   const { PARTS } = defineParts(frames, FRAME_OPS)
@@ -213,7 +217,7 @@ test('a part keeps an input in the register a setting names, or computes, never 
   const settings = { register: { control: 'select', options: [{ value: 'A' }] } }
   const keep = { name: { en: '存' }, desc: { en: 'Store it in the register.' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: { 'reg': settings['register'] }, keeps: { input: 'in', register: 'reg' } }
   assert.deepEqual(partProblems({ parts: { keep } }, vocabulary), [])
-  assert.ok(partProblems({ parts: { keep: { ...keep, compute: 'in' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
+  assert.ok(partProblems({ parts: { keep: { ...keep, op: 'add' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
   assert.ok(partProblems({ parts: { keep: { ...keep, keeps: { input: 'x', register: 'r' } } } }, vocabulary).length === 2)
   const { PARTS } = defineParts({ parts: { keep } }, OPS)
   assert.equal(PARTS.keep.sink && PARTS.keep.store, true)
@@ -222,40 +226,36 @@ test('a part keeps an input in the register a setting names, or computes, never 
 
 test('an optional number left unset reads 「—」, and a new card starts from its default', () => {
   const start = { control: 'number', default: 0, optional: true }
-  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { en: 'r' }, desc: { en: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: { 'start': start }, compute: '$start' } } }, OPS)
+  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { en: 'r' }, desc: { en: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: { 'start': start }, op: 'initial' } } }, OPS)
   assert.deepEqual(defaultsOf('r'), { start: 0 })
   assert.equal(PARTS.r.eval({}, { params: {} }, {}), null)
   assert.equal(PARTS.r.eval({}, { params: { start: '3' } }, {}), 3)
 })
 
-test('inline settings inherit named and positional parameters across nested multi-output expressions', () => {
+test('inline settings inherit operation parameters for every output', () => {
   const parameters = S.obj({ gain: S.num({ min: 1, max: 4, default: 2 }), mode: S.oneOf(['up', 'down'], { default: 'up' }) })
-  const ops = { scale: { args: [{ name: 'a' }, { name: 'setting_gain' }, { name: 'setting_mode' }], params: parameters, run: ([a, gain, mode]) => mode === 'up' ? a * gain : a / gain } }
-  const piece = { ...file.parts.sum, outputs: [{ name: 'hi' }, { name: 'lo' }],
-    settings: { k: {}, how: { remove: ['down'] } },
-    compute: { hi: "scale(a, $k, $how)", lo: "scale(scale(a, $k, $how), $k, $how)" } }
+  const ops = { scale: { args: [{ name: 'a' }], params: parameters, run: ([a], { gain, mode }) => mode === 'up' ? a * gain : a / gain } }
+  const piece = { ...file.parts.sum, settings: { mode: { remove: ['down'] } }, op: { hi: 'scale', lo: 'scale' } }
   const { defs, defaultsOf, PARTS } = defineParts({ parts: { scale: piece } }, ops)
-  assert.deepEqual(defaultsOf('scale'), { k: 2, how: 'up' })
-  assert.deepEqual(defs.scale.setting.how.options, [{ value: 'up' }])
-  assert.equal(PARTS.scale.eval({ a: 3, b: 0 }, { params: {} }, {}, 'lo'), 12)
-  const named = { ...piece, outputs: undefined, compute: 'scale(a, gain=$k, mode=$how)' }
-  assert.equal(defineParts({ parts: { named } }, ops).defaultsOf('named').k, 2)
+  assert.deepEqual(defaultsOf('scale'), { gain: 2, mode: 'up' })
+  assert.deepEqual(defs.scale.setting.mode.options, [{ value: 'up' }])
+  assert.equal(PARTS.scale.eval({ a: 3 }, { params: {} }, {}, 'lo'), 6)
 })
 
 test('settings reject incomplete standalone definitions, wider ranges, invalid defaults and added options', () => {
   const op = { args: [{ name: 'a' }], params: S.obj({ gain: S.num({ min: 1, max: 4, default: 2 }), mode: S.oneOf(['up', 'down'], { default: 'up' }) }) }
   const vocabulary = { kinds: { op: { scale: op }, family: { value: {} } } }
-  const make = (settings) => ({ parts: { scaled: { ...file.parts.sum, settings, compute: 'scale(a, gain=$k, mode=$how)' } } })
-  assert.deepEqual(partProblems(make({ k: {}, how: {} }), vocabulary), [])
-  assert.deepEqual(partProblems(make({ k: { min: 2, max: 3, default: 3 }, how: { remove: ['down'] } }), vocabulary), [])
+  const make = (settings) => ({ parts: { scaled: { ...file.parts.sum, settings, op: 'scale' } } })
+  assert.deepEqual(partProblems(make({ gain: {}, mode: {} }), vocabulary), [])
+  assert.deepEqual(partProblems(make({ gain: { min: 2, max: 3, default: 3 }, mode: { remove: ['down'] } }), vocabulary), [])
   const says = (settings) => partProblems(make(settings), vocabulary).map((p) => p.says).join('\n')
-  assert.match(says({ k: {}, how: {}, tree: {} }), /control/)
-  assert.match(says({ k: { min: 0 }, how: {} }), /cannot widen/)
-  assert.match(says({ k: { max: 5 }, how: {} }), /cannot widen/)
-  assert.match(says({ k: { default: 5 }, how: {} }), /default does not fit/)
-  assert.match(says({ k: {}, how: { options: [{ value: 'other' }] } }), /not an option/)
-  assert.match(says({ k: {}, how: { remove: ['other'] } }), /not an option/)
-  assert.match(says({ k: {}, how: { remove: ['up'] } }), /none of its options/)
-  assert.deepEqual(partProblems(make({ k: {}, how: {}, tree: { control: 'tree' } }), vocabulary), [])
+  assert.match(says({ gain: {}, mode: {}, tree: {} }), /control/)
+  assert.match(says({ gain: { min: 0 }, mode: {} }), /cannot widen/)
+  assert.match(says({ gain: { max: 5 }, mode: {} }), /cannot widen/)
+  assert.match(says({ gain: { default: 5 }, mode: {} }), /default does not fit/)
+  assert.match(says({ gain: {}, mode: { options: [{ value: 'other' }] } }), /not an option/)
+  assert.match(says({ gain: {}, mode: { remove: ['other'] } }), /not an option/)
+  assert.match(says({ gain: {}, mode: { remove: ['up'] } }), /none of its options/)
+  assert.deepEqual(partProblems(make({ gain: {}, mode: {}, tree: { control: 'tree' } }), vocabulary), [])
   assert.ok(partProblems({ parts: { scaled: { ...file.parts.sum, settings: [{ key: 'k', setting: 'shared' }] } } }, vocabulary).length)
 })

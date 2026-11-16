@@ -1,0 +1,12 @@
+{
+  "title": "@tray.trays.machine.items.reasoning.title",
+  "values": [
+    "rule",
+    "assumption-s-results-desc",
+    "erule-s-results-desc",
+    "frule",
+    "introRules",
+    "elimRules",
+    "auto"
+  ]
+}

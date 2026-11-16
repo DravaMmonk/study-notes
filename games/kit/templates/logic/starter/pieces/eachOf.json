@@ -3,10 +3,12 @@
   "desc": "@piece.eachOf.desc",
   "icon": "Box",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "regions": [
-    { "name": "body", "label": "@piece.eachOf.regions.0.label", "opens": true, "type": "logic:machine-value" }
+    {
+      "name": "body",
+      "label": "@piece.eachOf.regions.0.label",
+      "opens": true
+    }
   ],
-  "compute": "logic:eachOf(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:eachOf"
 }

@@ -4,12 +4,23 @@
   "icon": "Search",
   "family": "image:family-search",
   "inputs": [
-    { "name": "c0", "label": "d=0", "type": "image:image" },
-    { "name": "c1", "label": "d=1", "type": "image:image" },
-    { "name": "c2", "label": "d=2", "type": "image:image" },
-    { "name": "c3", "label": "d=3", "type": "image:image" }
+    {
+      "name": "c0",
+      "label": "d=0"
+    },
+    {
+      "name": "c1",
+      "label": "d=1"
+    },
+    {
+      "name": "c2",
+      "label": "d=2"
+    },
+    {
+      "name": "c3",
+      "label": "d=3"
+    }
   ],
   "nulls": "pass",
-  "compute": "image:argmin4(c0, c1, c2, c3)",
-  "outputType": "image:image"
+  "op": "image:argmin4"
 }

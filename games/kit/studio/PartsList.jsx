@@ -10,6 +10,7 @@ import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { builtPart, pieceCreationOptions } from '../engine/parts/schema.js'
 import { findTask } from '../engine/tasks.js'
+import { pieceStages } from '../engine/piece-stages.js'
 import { pieceReference } from '../engine/pieces.js'
 
 /** A name for a new piece not taken yet. */
@@ -26,6 +27,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const filtering = Boolean(query.trim())
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
+  const stages = pieceStages(file.parts)
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
   const choices = pieceCreationOptions(vocabulary, tasks).map((option) => ({
     ...option, label: L(option.label),
@@ -53,7 +55,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const matches = sidebarSearch(query)
   const shown = parts.filter(([id, def]) => matches(id, L(def.name))).map(([id]) => id)
   const groups = sort === 'tray'
-    ? pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+    ? pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [], pieceOf: type => stages.get(type)?.piece ?? type })
       .filter(({ types }) => !filtering || types.length)
     : [{ tray: null, types: sortSidebarIds(shown, sort, (id) => L(file.parts[id].name)) }]
 

@@ -3,8 +3,17 @@
   "desc": "@piece.lrnConv.desc",
   "icon": "Activity",
   "family": "image:family-learned",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "settings": { "w": { "label": "@piece.lrnConv.settings.w.label", "fixed": true } },
-  "compute": "image:lrnConv(in, $w)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "w": {
+      "label": "@piece.lrnConv.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:lrnConv"
 }

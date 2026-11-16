@@ -66,25 +66,13 @@
       ]
     }
   ],
-  "pieceRevisions": [
-    {
-      "piece": "uDecompose",
-      "at": true,
-      "desc": "@piece.uDecompose.revisions.0.desc"
-    },
-    {
-      "piece": "uCheck",
-      "at": true,
-      "desc": "@piece.uCheck.revisions.0.desc"
-    },
-    {
-      "piece": "unifier",
-      "at": true,
-      "desc": "@piece.unifier.revisions.0.desc"
-    }
-  ],
   "local": [
     "uPattern",
     "unifier"
+  ],
+  "opens": [
+    "uDecompose-r-pattern-desc",
+    "uCheck-r-pattern-desc",
+    "unifier-r-pattern-desc"
   ]
 }

@@ -3,7 +3,11 @@
   "desc": "@piece.globalMax.desc",
   "icon": "Network",
   "family": "image:family-global",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "compute": "image:globalMax(in)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:globalMax"
 }

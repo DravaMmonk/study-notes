@@ -3,7 +3,5 @@
   "desc": "@piece.gNot.desc",
   "icon": "ToggleLeft",
   "family": "logic:family-gate",
-  "inputs": [{ "name": "a", "type": "circuit:boolean" }],
-  "compute": "circuit:not(a)",
-  "outputType": "circuit:boolean"
+  "op": "circuit:not"
 }

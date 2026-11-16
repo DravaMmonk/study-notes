@@ -2,7 +2,27 @@
   "name": "@piece.dist.name",
   "desc": "@piece.dist.desc",
   "family": "logic:family-lemma",
-  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" }, "C": { "control": "tree" } },
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "B": {
+      "control": "tree"
+    },
+    "C": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "orAndR",
+          "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+        }
+      ],
+      "default": "orAndR"
+    }
+  },
   "inside": [
     {
       "id": "orAndR",
@@ -26,7 +46,14 @@
           "}",
           "goal <- e"
         ],
-        "tests": [{ "goal": "(A ∨ B) ∧ (A ∨ C)", "premises": { "p": "A ∨ (B ∧ C)" } }]
+        "tests": [
+          {
+            "goal": "(A ∨ B) ∧ (A ∨ C)",
+            "premises": {
+              "p": "A ∨ (B ∧ C)"
+            }
+          }
+        ]
       }
     },
     {
@@ -55,7 +82,14 @@
           "}",
           "goal <- o1"
         ],
-        "tests": [{ "goal": "A ∨ (B ∧ C)", "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" } }]
+        "tests": [
+          {
+            "goal": "A ∨ (B ∧ C)",
+            "premises": {
+              "p": "(A ∨ B) ∧ (A ∨ C)"
+            }
+          }
+        ]
       }
     },
     {
@@ -80,7 +114,14 @@
           "}",
           "goal <- e"
         ],
-        "tests": [{ "goal": "(A ∨ C) ∧ (B ∨ C)", "premises": { "p": "(A ∧ B) ∨ C" } }]
+        "tests": [
+          {
+            "goal": "(A ∨ C) ∧ (B ∨ C)",
+            "premises": {
+              "p": "(A ∧ B) ∨ C"
+            }
+          }
+        ]
       }
     },
     {
@@ -109,10 +150,91 @@
           "}",
           "goal <- o1"
         ],
-        "tests": [{ "goal": "(A ∧ B) ∨ C", "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" } }]
+        "tests": [
+          {
+            "goal": "(A ∧ B) ∨ C",
+            "premises": {
+              "p": "(A ∨ C) ∧ (B ∨ C)"
+            }
+          }
+        ]
       }
     }
   ],
-  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
-  "outputType": "logic:judgment"
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "dist-andOrR",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-orAndL",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            },
+            {
+              "value": "orAndL",
+              "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-andOrL",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            },
+            {
+              "value": "orAndL",
+              "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)"
+            },
+            {
+              "value": "andOrL",
+              "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-sp-rw-desc",
+      "desc": "@piece.dist.revisions.0.desc"
+    }
+  ]
 }

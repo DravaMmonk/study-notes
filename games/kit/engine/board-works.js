@@ -35,7 +35,7 @@ import { fitsCircuit, previousCircuitTask } from './board-view.js'
 import { keptBoards } from './kept-boards.js'
 import { workView } from '../circuit/workshop-view.js'
 import { readWorks, publicationEvents } from './course-model.js'
-import { eraLevels, holds as holding, offer, readItem } from '../course.js'
+import { eraLevels, holds as holding, offer } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
 import { T as t } from '../shell/i18n.js'
 import { inheritedBoard } from '../shell/progress.js'
@@ -119,18 +119,12 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
       const problem = itemProblem(item)
       if (problem) say(where, `${field} names ${item}: ${problem}`)
     }
-    for (const item of task.opens ?? []) if (!readItem(item).key) say(where, `it opens ${item}, a part: a part is brought in by adds`)
     for (const item of task.withholds ?? []) if (out.solution.nodes.some((n) => n.type === item)) say(where, `its answer uses ${item}, which it withholds`)
     return out
   }
   // Why an item (../course.js: a part, one of its settings, one value of a setting) is none of this game's, or ''.
   const itemProblem = (item) => {
-    const { part, key, value } = readItem(item)
-    const settings = parts[part]?.settings
-    if (!parts[part] && !pieces[part]) return `${part} is no part`
-    if (key === undefined || !settings) return ''
-    if (!settings[key]) return `${part} has no setting ${key} of several values`
-    return value === undefined || settings[key].map(String).includes(value) ? '' : `${value} is no value of ${part}’s ${key}`
+    return content.partDefs?.parts?.[item] || parts[item] || pieces[item] || [...Object.values(content.partDefs?.parts ?? {})].some(piece => piece.stages?.some(stage => stage.id === item)) ? '' : `${item} is no piece or stage`
   }
   const isBoard = (task) => !kinds[task.kind]
 

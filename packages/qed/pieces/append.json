@@ -3,58 +3,74 @@
   "desc": "@piece.append.desc",
   "icon": "Box",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "settings": {
     "ways": {
-      "control": "select",
       "label": "@piece.append.settings.ways.label",
       "options": [
-        { "value": "2", "label": "@piece.append.settings.ways.options.0.label" },
-        { "value": "3", "label": "@piece.append.settings.ways.options.1.label" },
-        { "value": "4", "label": "@piece.append.settings.ways.options.2.label" },
-        { "value": "5", "label": "@piece.append.settings.ways.options.3.label" },
-        { "value": "6", "label": "@piece.append.settings.ways.options.4.label" }
-      ],
-      "default": "2"
+        {
+          "value": "2",
+          "label": "@piece.append.settings.ways.options.0.label"
+        },
+        {
+          "value": "3",
+          "label": "@piece.append.settings.ways.options.1.label"
+        },
+        {
+          "value": "4",
+          "label": "@piece.append.settings.ways.options.2.label"
+        },
+        {
+          "value": "5",
+          "label": "@piece.append.settings.ways.options.3.label"
+        },
+        {
+          "value": "6",
+          "label": "@piece.append.settings.ways.options.4.label"
+        }
+      ]
     }
   },
   "regions": [
-    { "name": "first", "label": "@piece.append.regions.0.label", "opens": true, "type": "logic:machine-value" },
+    {
+      "name": "first",
+      "label": "@piece.append.regions.0.label",
+      "opens": true
+    },
     {
       "name": "second",
       "label": "@piece.append.regions.1.label",
-      "opens": true,
-      "type": "logic:machine-value"
+      "opens": true
     },
     {
       "name": "third",
       "label": "@piece.append.regions.2.label",
       "opens": true,
-      "when": "circuit:ge($ways, 3)",
-      "type": "logic:machine-value"
+      "when": "circuit:ge($ways, 3)"
     },
     {
       "name": "fourth",
       "label": "@piece.append.regions.3.label",
       "opens": true,
-      "when": "circuit:ge($ways, 4)",
-      "type": "logic:machine-value"
+      "when": "circuit:ge($ways, 4)"
     },
     {
       "name": "fifth",
       "label": "@piece.append.regions.4.label",
       "opens": true,
-      "when": "circuit:ge($ways, 5)",
-      "type": "logic:machine-value"
+      "when": "circuit:ge($ways, 5)"
     },
     {
       "name": "sixth",
       "label": "@piece.append.regions.5.label",
       "opens": true,
-      "when": "circuit:ge($ways, 6)",
-      "type": "logic:machine-value"
+      "when": "circuit:ge($ways, 6)"
     }
   ],
-  "compute": "logic:append(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:append",
+  "stages": [
+    {
+      "id": "append-s-results-desc",
+      "desc": "@piece.append.revisions.0.desc"
+    }
+  ]
 }

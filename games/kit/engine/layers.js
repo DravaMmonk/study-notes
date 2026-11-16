@@ -116,7 +116,7 @@ export function composeLayers(layers, schemas) {
       let qualified = qualify(value, schema)
       const endpoint = [...(value.edges ?? []).flatMap((e) => [e.from, e.to]), ...(value.sequence ?? [])][0]
       const endpointTag = typeof endpoint === 'string' && endpoint.startsWith('#') ? registries.tag[fullName(layer.id, endpoint.slice(1))] ?? layer.objects.find((o) => o.kind === 'tag' && o.name === endpoint.slice(1))?.value : null
-      const item = kind === 'tag' && value.kind === 'item' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'item' || endpointTag?.kind === 'item' || schemas.kinds?.part?.[endpoint]))
+      const item = kind === 'tag' && value.kind === 'piece' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'piece' || endpointTag?.kind === 'piece' || schemas.kinds?.part?.[endpoint]))
       const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
       if (['tag', 'relation', 'layout'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)

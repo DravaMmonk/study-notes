@@ -22,7 +22,7 @@ const arithmetic = Object.fromEntries([
 ].map(([name, operation]) => [name, {
   icon: 'Plus', name: text(name), desc: text(name), family: 'circuit:family-value',
   inputs: ['a', 'b'].map(name => ({ name, type: 'circuit:number' })),
-  outputType: 'circuit:number', compute: `circuit:${operation}(a, b)`,
+  outputType: 'circuit:number', op: `circuit:${operation}`,
 }]))
 const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { uses, vocabulary: 1 }, objects, overrides, catalogs: {} })
 

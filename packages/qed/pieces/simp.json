@@ -7,8 +7,14 @@
       "control": "select",
       "label": "@piece.simp.settings.at.label",
       "options": [
-        { "value": "goal", "label": "@piece.simp.settings.at.options.0.label" },
-        { "value": "hyps", "label": "@piece.simp.settings.at.options.1.label" }
+        {
+          "value": "goal",
+          "label": "@piece.simp.settings.at.options.0.label"
+        },
+        {
+          "value": "hyps",
+          "label": "@piece.simp.settings.at.options.1.label"
+        }
       ],
       "default": "goal"
     }
@@ -27,14 +33,39 @@
           "out <- c0"
         ],
         "want": "logic:want-becomes",
-        "inputs": [{ "name": "in", "label": "in" }, { "name": "rules", "label": "rules" }],
-        "tests": [{ "goal": "¬(Rain ∨ ¬Wind)" }]
+        "inputs": [
+          {
+            "name": "in",
+            "label": "in"
+          },
+          {
+            "name": "rules",
+            "label": "rules"
+          }
+        ],
+        "tests": [
+          {
+            "goal": "¬(Rain ∨ ¬Wind)"
+          }
+        ]
       }
     }
   ],
   "inputs": [
-    { "name": "in", "type": "logic:machine-value" },
-    { "name": "rules", "type": "logic:machine-value" }
+    {
+      "name": "in",
+      "type": "logic:machine-value"
+    },
+    {
+      "name": "rules",
+      "type": "logic:machine-value"
+    }
   ],
-  "outputType": "logic:machine-value"
+  "outputType": "logic:machine-value",
+  "stages": [
+    {
+      "id": "simp-au-hyps-desc",
+      "desc": "@piece.simp.revisions.0.desc"
+    }
+  ]
 }

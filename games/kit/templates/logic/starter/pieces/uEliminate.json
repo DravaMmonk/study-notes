@@ -3,7 +3,5 @@
   "desc": "@piece.uEliminate.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "compute": "logic:uEliminate(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:uEliminate"
 }

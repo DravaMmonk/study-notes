@@ -3,8 +3,17 @@
   "desc": "@piece.dg_decode.desc",
   "icon": "Activity",
   "family": "image:family-learned",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "settings": { "w": { "label": "@piece.dg_decode.settings.w.label", "fixed": true } },
-  "compute": "image:dg_decode(in, $w)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "w": {
+      "label": "@piece.dg_decode.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:dg_decode"
 }

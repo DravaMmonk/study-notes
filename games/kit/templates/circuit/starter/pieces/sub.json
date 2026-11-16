@@ -3,7 +3,5 @@
   "desc": "@piece.sub.desc",
   "icon": "Minus",
   "family": "circuit:family-value",
-  "inputs": [{ "name": "a", "type": "circuit:number" }, { "name": "b", "type": "circuit:number" }],
-  "compute": "circuit:sub(a, b)",
-  "outputType": "circuit:number"
+  "op": "circuit:sub"
 }

@@ -97,7 +97,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
         <span className="object-kind">{tagKindWord(tag.kind)}</span>
         <span className="object-count" title={tr('展开后的成员数', 'Members once expanded')}>{count}</span>
         <SourceMark content={content} kind="tag" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
-        {tag.kind === 'item' && <label className="object-flag">
+        {tag.kind === 'piece' && <label className="object-flag">
           <input type="checkbox" className="field-check" checked={tag.concept ?? false} disabled={locked}
             onChange={(e) => onEdit({ op: 'tag.put', tag: name, data: withConcept(namespace, tag, e.target.checked) })} />
           {tr('概念', 'Concept')}

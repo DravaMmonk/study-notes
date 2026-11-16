@@ -3,7 +3,5 @@
   "desc": "@piece.uPattern.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "compute": "logic:uPattern(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:uPattern"
 }

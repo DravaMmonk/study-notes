@@ -29,7 +29,7 @@ import Workshop from './Workshop.jsx'
 import { useCircuitWorkshop } from './useCircuitWorkshop.js'
 import { circuitWorkStamp, lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
-import { optionsOf } from '../engine/parts/define.js'
+import { defaultOf, optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
 import { PHONE, useMedia } from './useMedia.js'
 import Readouts from './Readouts.jsx'
@@ -119,7 +119,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const { game, level: entry, solved, progress } = screen
   const level = entry.source
   const base = course.forTask(level)
-  const defined = base.defined ?? gameDefined
+  const rawDefined = base.defined ?? gameDefined
   const { board: kind, BUILT, pieces } = base
   const onPhone = useMedia(PHONE)
   const timed = Boolean(kind.ticks) && !once?.(level)
@@ -127,6 +127,10 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined: gameDefined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
     hold, capture, publish, library, update, available, notice: workshopNotice } = workshopState
+  const defined = useMemo(() => rawDefined && ({ ...rawDefined, of: type => has.definition?.(type, rawDefined.of(type)) ?? rawDefined.of(type), defaults: type => {
+    const definition = has.definition?.(type, rawDefined.of(type))
+    return definition ? Object.fromEntries(definition.settings.map(setting => [setting.key, defaultOf(setting)])) : rawDefined.defaults(type)
+  } }), [rawDefined, has])
   const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
   const opening = () => circuit.opening(level, progress)
   const state = useLevelBoard(screen, {
@@ -428,7 +432,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           brief={brief}
           taskNav={<TaskNavigation level={entry} />}
           below={onPhone && practice.panel}
-          describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+          describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id, n.type)?.desc)}
           results={showResults ? strip : undefined}
           pad={surface?.pad ? <Dock pad={surface.pad} /> : undefined}
           tabs={!table || !showResults}

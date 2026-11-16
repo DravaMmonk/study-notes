@@ -15,7 +15,7 @@ const CONTENT = {
       'p/first': { kind: 'level', values: ['p/a', '#p/second'] },
       'p/second': { kind: 'level', values: ['p/b', '#p/third'] },
       'p/third': { kind: 'level', values: ['p/c'] },
-      'p/gates': { kind: 'item', values: ['p/and'] },
+      'p/gates': { kind: 'piece', values: ['p/and'] },
       'o/more': { kind: 'level', values: ['o/d', '#p/first'] },
     },
     layout: {
@@ -36,7 +36,7 @@ test('a member is written short for the layer’s own, full for another namespac
 test('members show their object’s title, a piece its name', () => {
   assert.deepEqual(memberTitle(CONTENT, 'level', 'p/a'), { en: 'A' })
   assert.equal(memberTitle(CONTENT, 'level', 'p/c'), null)
-  assert.deepEqual(memberTitle(CONTENT, 'item', 'p/and.width=2'), { en: 'And' })
+  assert.deepEqual(memberTitle(CONTENT, 'piece', 'p/and'), { en: 'And' })
   assert.deepEqual(memberTitle(CONTENT, 'entry', 'p/e'), { en: 'E' })
 })
 
@@ -57,11 +57,11 @@ test('a text keeps its other languages and its message key, the layer’s own ke
 })
 
 test('a tag is written back whole in the layer’s own short names, concept set or taken out', () => {
-  const tag = { kind: 'item', title: { en: 'Gates', $key: 'p/tag.gates.title' }, concept: true, values: ['p/and', 'not', '#o/x'] }
-  assert.deepEqual(ownTagData('p', tag), { kind: 'item', title: { en: 'Gates', $key: 'tag.gates.title' }, concept: true, values: ['and', 'not', '#o/x'] })
+  const tag = { kind: 'piece', title: { en: 'Gates', $key: 'p/tag.gates.title' }, concept: true, values: ['p/and', 'not', '#o/x'] }
+  assert.deepEqual(ownTagData('p', tag), { kind: 'piece', title: { en: 'Gates', $key: 'tag.gates.title' }, concept: true, values: ['and', 'not', '#o/x'] })
   assert.equal('concept' in withConcept('p', tag, false), false)
-  assert.equal(withConcept('p', { kind: 'item', values: [] }, true).concept, true)
-  assert.equal(memberKnown(CONTENT, 'item', 'p/and.width=2'), true)
+  assert.equal(withConcept('p', { kind: 'piece', values: [] }, true).concept, true)
+  assert.equal(memberKnown(CONTENT, 'piece', 'p/and'), true)
   assert.equal(memberKnown(CONTENT, 'level', 'p/zz'), false)
   assert.equal(memberKnown(CONTENT, 'level', '#p/third'), true)
 })

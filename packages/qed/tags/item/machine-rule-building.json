@@ -1,4 +1,0 @@
-{
-  "title": "@tray.trays.machine.items.rule-building.title",
-  "values": ["anyR", "swapConcl", "mkRule", "keepBound", "elimGen"]
-}

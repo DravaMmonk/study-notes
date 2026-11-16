@@ -2,7 +2,27 @@
   "name": "@piece.dm.name",
   "desc": "@piece.dm.desc",
   "family": "logic:family-lemma",
-  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" }, "P": { "control": "tree" } },
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "B": {
+      "control": "tree"
+    },
+    "P": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "notOr",
+          "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+        }
+      ],
+      "default": "notOr"
+    }
+  },
   "inside": [
     {
       "id": "notOr",
@@ -26,7 +46,14 @@
           "c = andI(na, nb)",
           "goal <- c"
         ],
-        "tests": [{ "goal": "¬A ∧ ¬B", "premises": { "p": "¬(A ∨ B)" } }]
+        "tests": [
+          {
+            "goal": "¬A ∧ ¬B",
+            "premises": {
+              "p": "¬(A ∨ B)"
+            }
+          }
+        ]
       }
     },
     {
@@ -51,7 +78,14 @@
           "e = andE(p)",
           "goal <- f"
         ],
-        "tests": [{ "goal": "¬(A ∨ B)", "premises": { "p": "¬A ∧ ¬B" } }]
+        "tests": [
+          {
+            "goal": "¬(A ∨ B)",
+            "premises": {
+              "p": "¬A ∧ ¬B"
+            }
+          }
+        ]
       }
     },
     {
@@ -76,7 +110,14 @@
           "}",
           "goal <- f"
         ],
-        "tests": [{ "goal": "¬(A ∧ B)", "premises": { "p": "¬A ∨ ¬B" } }]
+        "tests": [
+          {
+            "goal": "¬(A ∧ B)",
+            "premises": {
+              "p": "¬A ∨ ¬B"
+            }
+          }
+        ]
       }
     },
     {
@@ -103,7 +144,14 @@
           "}",
           "goal <- e"
         ],
-        "tests": [{ "goal": "¬A ∨ ¬B", "premises": { "p": "¬(A ∧ B)" } }]
+        "tests": [
+          {
+            "goal": "¬A ∨ ¬B",
+            "premises": {
+              "p": "¬(A ∧ B)"
+            }
+          }
+        ]
       }
     },
     {
@@ -125,7 +173,14 @@
           "}",
           "goal <- g"
         ],
-        "tests": [{ "goal": "∀x. ¬P(x)", "premises": { "p": "¬∃x. P(x)" } }]
+        "tests": [
+          {
+            "goal": "∀x. ¬P(x)",
+            "premises": {
+              "p": "¬∃x. P(x)"
+            }
+          }
+        ]
       }
     },
     {
@@ -147,7 +202,14 @@
           "}",
           "goal <- f"
         ],
-        "tests": [{ "goal": "¬∃x. P(x)", "premises": { "p": "∀x. ¬P(x)" } }]
+        "tests": [
+          {
+            "goal": "¬∃x. P(x)",
+            "premises": {
+              "p": "∀x. ¬P(x)"
+            }
+          }
+        ]
       }
     },
     {
@@ -169,7 +231,14 @@
           "}",
           "goal <- f"
         ],
-        "tests": [{ "goal": "¬∀x. P(x)", "premises": { "p": "∃x. ¬P(x)" } }]
+        "tests": [
+          {
+            "goal": "¬∀x. P(x)",
+            "premises": {
+              "p": "∃x. ¬P(x)"
+            }
+          }
+        ]
       }
     },
     {
@@ -198,10 +267,231 @@
           "r2 = raa(k)",
           "goal <- r2"
         ],
-        "tests": [{ "goal": "∃x. ¬P(x)", "premises": { "p": "¬∀x. P(x)" } }]
+        "tests": [
+          {
+            "goal": "∃x. ¬P(x)",
+            "premises": {
+              "p": "¬∀x. P(x)"
+            }
+          }
+        ]
       }
     }
   ],
-  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
-  "outputType": "logic:judgment"
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "dm-andNot",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-orNot",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-notAnd",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            },
+            {
+              "value": "notAnd",
+              "label": "¬(A ∧ B) → ¬A ∨ ¬B"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-notEx",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            },
+            {
+              "value": "notAnd",
+              "label": "¬(A ∧ B) → ¬A ∨ ¬B"
+            },
+            {
+              "value": "notEx",
+              "label": "¬∃x. P → ∀x. ¬P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-allNot",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            },
+            {
+              "value": "notAnd",
+              "label": "¬(A ∧ B) → ¬A ∨ ¬B"
+            },
+            {
+              "value": "notEx",
+              "label": "¬∃x. P → ∀x. ¬P"
+            },
+            {
+              "value": "allNot",
+              "label": "∀x. ¬P → ¬∃x. P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-exNot",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            },
+            {
+              "value": "notAnd",
+              "label": "¬(A ∧ B) → ¬A ∨ ¬B"
+            },
+            {
+              "value": "notEx",
+              "label": "¬∃x. P → ∀x. ¬P"
+            },
+            {
+              "value": "allNot",
+              "label": "∀x. ¬P → ¬∃x. P"
+            },
+            {
+              "value": "exNot",
+              "label": "∃x. ¬P → ¬∀x. P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-notAll",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "notOr",
+              "label": "¬(A ∨ B) → ¬A ∧ ¬B"
+            },
+            {
+              "value": "andNot",
+              "label": "¬A ∧ ¬B → ¬(A ∨ B)"
+            },
+            {
+              "value": "orNot",
+              "label": "¬A ∨ ¬B → ¬(A ∧ B)"
+            },
+            {
+              "value": "notAnd",
+              "label": "¬(A ∧ B) → ¬A ∨ ¬B"
+            },
+            {
+              "value": "notEx",
+              "label": "¬∃x. P → ∀x. ¬P"
+            },
+            {
+              "value": "allNot",
+              "label": "∀x. ¬P → ¬∃x. P"
+            },
+            {
+              "value": "exNot",
+              "label": "∃x. ¬P → ¬∀x. P"
+            },
+            {
+              "value": "notAll",
+              "label": "¬∀x. P → ∃x. ¬P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dm-q-dm-desc",
+      "desc": "@piece.dm.revisions.0.desc"
+    }
+  ]
 }

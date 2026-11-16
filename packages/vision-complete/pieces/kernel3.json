@@ -3,17 +3,40 @@
   "desc": "@piece.kernel3.desc",
   "icon": "Grid3x3",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
   "settings": {
-    "w": { "label": "@piece.kernel3.settings.w.label" },
+    "w": {
+      "label": "@piece.kernel3.settings.w.label"
+    },
     "border": {
       "label": "@piece.kernel3.settings.border.label",
       "options": [
-        { "value": "zero", "label": "@piece.kernel3.settings.border.options.0.label" },
-        { "value": "edge", "label": "@piece.kernel3.settings.border.options.1.label" }
-      ]
+        {
+          "value": "zero",
+          "label": "@piece.kernel3.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@piece.kernel3.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
     }
   },
-  "compute": "image:kernel3(in, $w, $border)",
-  "outputType": "image:image"
+  "op": "image:kernel3",
+  "stages": [
+    {
+      "id": "kernel3-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
 }

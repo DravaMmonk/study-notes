@@ -1,0 +1,8 @@
+{
+  "title": "@tray.trays.machine.items.equality.title",
+  "values": [
+    "rw-au-hyps-desc",
+    "simp-au-hyps-desc",
+    "logic:hyp"
+  ]
+}

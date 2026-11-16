@@ -44,7 +44,7 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, o
   const links = useMemo(() => edges.map((edge) => ({ ...edge, source: 'course' })), [edges])
   const requires = useMemo(() => new Map(ends.map((id) => [id, edges.filter(({ to }) => to === id).map(({ from }) => from)])), [ends, edges])
   const board = useMemo(() => wiringBoard(ends, [], requires, links), [ends, requires, links])
-  const registry = kind === 'item' ? 'piece' : kind
+  const registry = kind
   const titleOf = (id) => {
     if (id.startsWith('#')) return L(content.registries?.tag?.[id.slice(1)]?.title)
     const value = content.registries?.[registry]?.[id]

@@ -3,7 +3,11 @@
   "desc": "@piece.fqApply.desc",
   "icon": "Box",
   "family": "image:family-other",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }, { "name": "gain", "type": "image:image" }],
-  "compute": "image:fqApply(in, gain)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:fqApply"
 }

@@ -4,9 +4,14 @@
   "icon": "GitFork",
   "family": "logic:family-rule",
   "inputs": [
-    { "name": "imp", "label": "@piece.mp.inputs.0.label", "type": "logic:judgment" },
-    { "name": "a", "label": "@piece.mp.inputs.1.label", "type": "logic:judgment" }
+    {
+      "name": "imp",
+      "label": "@piece.mp.inputs.0.label"
+    },
+    {
+      "name": "a",
+      "label": "@piece.mp.inputs.1.label"
+    }
   ],
-  "compute": "logic:mp(imp, a)",
-  "outputType": "logic:judgment"
+  "op": "logic:mp"
 }

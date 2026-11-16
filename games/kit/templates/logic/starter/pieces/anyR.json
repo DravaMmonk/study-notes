@@ -3,7 +3,5 @@
   "desc": "@piece.anyR.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [],
-  "compute": "logic:anyR()",
-  "outputType": "logic:machine-value"
+  "op": "logic:anyR"
 }

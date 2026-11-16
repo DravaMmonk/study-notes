@@ -3,7 +3,11 @@
   "desc": "@piece.dg_encoder.desc",
   "icon": "Box",
   "family": "image:family-other",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "compute": "image:dg_encoder(in)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:dg_encoder"
 }

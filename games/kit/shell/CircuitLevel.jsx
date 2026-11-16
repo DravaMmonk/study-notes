@@ -252,7 +252,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
 
   const all = [...items, ...folded]
   const source = level.source ?? level
-  const display = trayDisplay(game.course?.trays ?? {}, trayNames ?? game.course?.tray(source) ?? [], items, folded)
+  const display = trayDisplay(game.course?.trays ?? {}, trayNames ?? game.course?.tray(source) ?? [], items, folded, game.course?.pieceOf)
   const trayItems = [...trayActions, ...display.items]
   const terminalBody = (node, graph, close) => terminalDetail
     ? terminalDetail(node, { graph, change, close })

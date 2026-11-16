@@ -3,7 +3,11 @@
   "desc": "@piece.relu.desc",
   "icon": "Calculator",
   "family": "image:family-pixel",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "compute": "image:relu(in)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:relu"
 }

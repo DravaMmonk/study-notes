@@ -6,8 +6,9 @@ import { boardNode, drive, hearing, runTicks } from './ticks.js'
 import { defineParts } from './parts/define.js'
 
 // The registers as parts defined as data: reg reads one (0 until kept), bit too (1), set keeps one.
+const increment = { args: [{ name: 'a' }], run: ([a]) => a + 1 }
 const name = { control: 'select', options: ['n', 'last', 'k'].map((value) => ({ value })) }
-const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { reg: name, start: { control: 'number', default: start } }, compute: "circuit:held($reg, $start)" })
+const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { reg: name, start: { control: 'number', default: start } }, op: 'circuit:held' })
 const REGISTERS = defineParts({ parts: { reg: reading(0), bit: reading(1), set: { name: 's', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: { reg: name }, keeps: { input: 'in', register: 'reg' } } } }, {}).PARTS
 const PARTS = {
   input: source(),
@@ -105,11 +106,11 @@ test('parts defined as data read and keep registers, and two packed counters cou
   const { defineParts } = await import('./parts/define.js')
   const reg = { control: 'select', options: [{ value: 'A' }] }
   const file = { parts: {
-    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { reg, start: { control: 'number', default: 0, optional: true } }, compute: "circuit:held($reg, $start)" },
+    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { reg, start: { control: 'number', default: 0, optional: true } }, op: 'circuit:held' },
     keep: { name: 'keep', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: { reg }, keeps: { input: 'in', register: 'reg' } },
-    inc: { name: 'inc', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }], compute: "circuit:plus(a, 1)" },
+    inc: { name: 'inc', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }], op: 'increment' },
   } }
-  const { PARTS } = defineParts(file, {})
+  const { PARTS } = defineParts(file, { increment })
   // A counter: what A holds, plus one, kept in A; it starts from 0.
   const counter = { nodes: [{ id: 'r', type: 'read', params: { reg: 'A', start: '0' } }, { id: 'i', type: 'inc', params: {} }, { id: 'k', type: 'keep', params: { reg: 'A' } }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'r', to: 'i', port: 'a' }, { from: 'i', to: 'k', port: 'in' }, { from: 'r', to: 'out', port: 'in' }] }
   const parts = { ...PARTS, out: sink() }
@@ -117,17 +118,17 @@ test('parts defined as data read and keep registers, and two packed counters cou
   assert.deepEqual([0, 1, 2].map((t) => one.hear(t).outputs.out), [0, 1, 2])
   // A register kept 「—」 holds it; unkept, its start; with none, 「—」.
   const { BUILTINS } = await import('./parts/builtins.js')
-  assert.equal(BUILTINS['circuit:held'].run(['A', 5], {}, { held: () => null }), null)
-  assert.equal(BUILTINS['circuit:held'].run(['A', 5], {}, { held: () => undefined }), 5)
+  assert.equal(BUILTINS['circuit:held'].run([], { reg: 'A', start: 5 }, { held: () => null }), null)
+  assert.equal(BUILTINS['circuit:held'].run([], { reg: 'A', start: 5 }, { held: () => undefined }), 5)
   assert.equal(PARTS.read.eval({}, { params: { reg: 'B', start: '' } }, {}), null)
   // Two counters packed on one board, each keeping its own A: one steps by 1, the other by 2.
-  const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'by' }], compute: "circuit:plus(a, by)" }
-  const by = { name: 'by', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { 'n': { control: 'number', default: 0 } }, compute: '$n' }
+  const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'b' }], op: 'circuit:plus' }
+  const by = { name: 'by', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: { 'value': { control: 'number', default: 0 } }, op: 'circuit:constant' }
   const more = defineParts({ ...file, parts: { ...file.parts, step, by } }, {}).PARTS
-  const inner = { nodes: [{ id: 'r', type: 'read', params: { reg: 'A', start: '0' } }, { id: 's', type: 'step', params: {} }, { id: 'k', type: 'keep', params: { reg: 'A' } }, { id: 'n', type: 'in', params: { name: 'n' } }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'r', to: 's', port: 'a' }, { from: 'n', to: 's', port: 'by' }, { from: 's', to: 'k', port: 'in' }, { from: 'r', to: 'out', port: 'in' }] }
+  const inner = { nodes: [{ id: 'r', type: 'read', params: { reg: 'A', start: '0' } }, { id: 's', type: 'step', params: {} }, { id: 'k', type: 'keep', params: { reg: 'A' } }, { id: 'n', type: 'in', params: { name: 'n' } }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'r', to: 's', port: 'a' }, { from: 'n', to: 's', port: 'b' }, { from: 's', to: 'k', port: 'in' }, { from: 'r', to: 'out', port: 'in' }] }
   const all = { ...more, in: source(), out: sink() }
   const count = packed({ circuit: inner, inputs: ['n'], outputs: ['out'], parts: all, holds: true })
-  const two = { nodes: [{ id: 'one', type: 'by', params: { n: 1 } }, { id: 'two', type: 'by', params: { n: 2 } }, { id: 'p', type: 'count', params: {} }, { id: 'q', type: 'count', params: {} }, { id: 'x', type: 'out', params: { name: 'x' } }, { id: 'y', type: 'out', params: { name: 'y' } }], wires: [{ from: 'one', to: 'p', port: 'n' }, { from: 'two', to: 'q', port: 'n' }, { from: 'p', to: 'x', port: 'in' }, { from: 'q', to: 'y', port: 'in' }] }
+  const two = { nodes: [{ id: 'one', type: 'by', params: { value: 1 } }, { id: 'two', type: 'by', params: { value: 2 } }, { id: 'p', type: 'count', params: {} }, { id: 'q', type: 'count', params: {} }, { id: 'x', type: 'out', params: { name: 'x' } }, { id: 'y', type: 'out', params: { name: 'y' } }], wires: [{ from: 'one', to: 'p', port: 'n' }, { from: 'two', to: 'q', port: 'n' }, { from: 'p', to: 'x', port: 'in' }, { from: 'q', to: 'y', port: 'in' }] }
   const board = boardNode({ id: 'b2', circuit: two, parts: { ...all, count } })
   assert.deepEqual([0, 1, 2, 3].map((t) => board.hear(t).outputs), [{ x: 0, y: 0 }, { x: 1, y: 2 }, { x: 2, y: 4 }, { x: 3, y: 6 }])
 })

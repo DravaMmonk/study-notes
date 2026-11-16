@@ -3,15 +3,12 @@
   "desc": "@piece.keepBound.desc",
   "icon": "Box",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "regions": [
     {
       "name": "body",
       "label": "@piece.keepBound.regions.0.label",
-      "opens": true,
-      "type": "logic:machine-value"
+      "opens": true
     }
   ],
-  "compute": "logic:keepBound(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:keepBound"
 }

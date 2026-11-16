@@ -2,7 +2,7 @@
 // under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, itemOf, mapRows, offer, reach, readItem, usable } from '../course.js'
+import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds, mapRows, offer, reach, usable } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
@@ -182,15 +182,6 @@ test('a tray part nothing brings in is reported', () => {
   assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')).map((f) => `${f.rule} ${f.part}`), ['tray-unmet c'])
 })
 
-test('an item is a part, one of its settings, or one value of a setting', () => {
-  assert.equal(itemOf('shift'), 'shift')
-  assert.equal(itemOf('shift', 'border'), 'shift.border')
-  assert.equal(itemOf('shift', 'border', 'wrap'), 'shift.border=wrap')
-  assert.deepEqual(readItem('shift'), { part: 'shift' })
-  assert.deepEqual(readItem('shift.border'), { part: 'shift', key: 'border' })
-  assert.deepEqual(readItem('gain.by=0.5'), { part: 'gain', key: 'by', value: '0.5' })
-})
-
 test('a task gives and withholds parts for itself alone, over what the course has it hold by default', () => {
   const spec = { 1: { adds: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, 3: { withholds: ['a'], gives: ['Q', 'c'] }, 4: { builds: 'Q' }, 5: {} }
   const course = sketch([serial('1', '2', '3', '4', '5')], spec, { gives: (l) => spec[l.id]?.gives ?? [], withholds: (l) => spec[l.id]?.withholds ?? [] })
@@ -203,22 +194,22 @@ test('a task gives and withholds parts for itself alone, over what the course ha
   assert.deepEqual(['a', 'b', 'P', 'Q', 'c'].map((p) => has(p)), [false, true, false, true, true])
 })
 
-test('a setting and a value are held from the start, unless a level opens them or a flag earns them; a task gives and withholds them too', () => {
-  const spec = { 1: { adds: ['a'] }, 2: { opens: ['a.mode=fast'] }, 3: { withholds: ['a.mode=slow', 'a.gain'], gives: ['a.edge=wrap'] }, 4: { builds: 'W' }, 5: {} }
-  const course = sketch([serial('1', '2', '3', '4', '5')], spec, {
-    opens: (l) => spec[l.id]?.opens ?? [],
-    gives: (l) => spec[l.id]?.gives ?? [],
-    withholds: (l) => spec[l.id]?.withholds ?? [],
-    needs: (item) => ({ 'a.edge=wrap': 'W', W: 'W' })[item] ?? null,
-  })
-  const at = (id, flags = []) => holds(course, { id }, new Set(flags))
-  // Nothing names a.mode=slow or a.gain: there from the start. a.mode=fast comes in at level 2.
-  assert.deepEqual([at('1')('a', 'mode', 'slow'), at('1')('a', 'gain'), at('1')('a', 'mode', 'fast'), at('2')('a', 'mode', 'fast'), at('5')('a', 'mode', 'fast')], [true, true, false, true, true])
-  // A value that needs a flag is the player's once earned.
-  assert.deepEqual([at('5')('a', 'edge', 'wrap'), at('5', ['W'])('a', 'edge', 'wrap')], [false, true])
-  // Level 3 alone: without a value and a whole setting (and so every value of it), with a value not earned yet.
-  assert.deepEqual([at('3')('a', 'mode', 'slow'), at('3')('a', 'gain'), at('3')('a', 'gain', '2'), at('3')('a', 'edge', 'wrap'), at('3')('a', 'mode', 'fast')], [false, false, false, true, true])
-  assert.deepEqual([at('4')('a', 'mode', 'slow'), at('4')('a', 'gain', '2'), at('4')('a', 'edge', 'wrap')], [true, true, false])
+test('stages upgrade one piece, carry along prerequisites and can be given or capped locally', () => {
+  const pieces = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] }, gain: { control: 'number', fixed: true, default: 1 } }, stages: [
+    { id: 'a-fast', settings: { mode: { options: [{ value: 'slow' }, { value: 'fast' }] } } },
+    { id: 'a-gain', settings: { gain: { fixed: false } } },
+  ] } }
+  const spec = { 1: { adds: ['a'] }, 2: { opens: ['a-fast'] }, 3: { gives: ['a-gain'], withholds: ['a-fast'] }, 4: {} }
+  const course = sketch([serial('1', '2', '3', '4')], spec, { pieces,
+    opens: l => spec[l.id].opens ?? [], gives: l => spec[l.id].gives ?? [], withholds: l => spec[l.id].withholds ?? [] })
+  const at = id => holds(course, { id }, new Set())
+  assert.equal(at('1')('a', 'mode', 'fast'), false)
+  assert.equal(at('2')('a', 'mode', 'fast'), true)
+  assert.equal(at('3')('a', 'mode', 'fast'), false)
+  assert.equal(at('3')('a', 'gain'), false)
+  assert.equal(at('4')('a', 'gain'), false)
+  assert.equal(at('4')('a', 'mode', 'fast'), true)
+  assert.deepEqual(usable(course, { id: '3' }, new Set()), ['a'])
 })
 
 test('a task holds its level’s part once a task before it has built it; the task building it does not, though an earlier level built it', () => {
@@ -264,12 +255,12 @@ test('the map lays a chapter out a layer at a time, three to a row, around the r
 })
 
 
-test('settings and values introduced by adds are gated and do not become tray pieces', () => {
-  const spec = { 1: { adds: ['a'] }, 2: { adds: ['a.mode=fast'] }, 3: {} }
-  const course = sketch([serial('1', '2', '3')], spec)
+test('a stage introduced by adds upgrades its stable piece identity', () => {
+  const spec = { 1: { adds: ['a'] }, 2: { adds: ['a-fast'] }, 3: {} }
+  const pieces = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] } }, stages: [{ id: 'a-fast', settings: { mode: { options: [{ value: 'slow' }, { value: 'fast' }] } } }] } }
+  const course = sketch([serial('1', '2', '3')], spec, { pieces })
   assert.deepEqual(course.adds({ id: '2' }), [])
-  assert.deepEqual(course.opens({ id: '2' }), ['a.mode=fast'])
+  assert.deepEqual(course.opens({ id: '2' }), ['a-fast'])
   assert.equal(holds(course, { id: '1' }, new Set())('a', 'mode', 'fast'), false)
-  assert.equal(holds(course, { id: '2' }, new Set())('a', 'mode', 'fast'), true)
   assert.equal(holds(course, { id: '3' }, new Set())('a', 'mode', 'fast'), true)
 })

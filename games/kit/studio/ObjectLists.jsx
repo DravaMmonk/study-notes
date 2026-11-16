@@ -12,7 +12,7 @@ import { newLayout } from './layout-edit.js'
 import { orderedTags, tagMoveOps, tagsOfKind } from './tag-order.js'
 import { useDragOrder } from './useDragOrder.js'
 
-export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'] }
+export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], piece: ['件', 'Pieces'], entry: ['词条', 'Entries'] }
 export const tagKindWord = (kind) => (TAG_KIND_WORDS[kind] ? tr(...TAG_KIND_WORDS[kind]) : kind)
 export const RELATION_KINDS = [['requires', '先修', 'Requires'], ['order', '顺序', 'Order'], ['replaces', '取代', 'Replaces']]
 

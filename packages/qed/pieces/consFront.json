@@ -4,9 +4,14 @@
   "icon": "Sigma",
   "family": "logic:family-tactic",
   "inputs": [
-    { "name": "first", "label": "@piece.consFront.inputs.0.label", "type": "logic:machine-value" },
-    { "name": "rest", "label": "@piece.consFront.inputs.1.label", "type": "logic:machine-value" }
+    {
+      "name": "first",
+      "label": "@piece.consFront.inputs.0.label"
+    },
+    {
+      "name": "rest",
+      "label": "@piece.consFront.inputs.1.label"
+    }
   ],
-  "compute": "logic:consFront(first, rest)",
-  "outputType": "logic:machine-value"
+  "op": "logic:consFront"
 }

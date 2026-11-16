@@ -83,6 +83,9 @@
           "piece": "dneg",
           "variant": "intro"
         }
+      ],
+      "awards": [
+        "dneg-intro"
       ]
     }
   ]

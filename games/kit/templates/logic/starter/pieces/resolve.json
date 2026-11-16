@@ -3,18 +3,20 @@
   "desc": "@piece.resolve.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "settings": {
     "unit": {
-      "control": "select",
       "label": "@piece.resolve.settings.unit.label",
       "options": [
-        { "value": "any", "label": "@piece.resolve.settings.unit.options.0.label" },
-        { "value": "unit", "label": "@piece.resolve.settings.unit.options.1.label" }
-      ],
-      "default": "any"
+        {
+          "value": "any",
+          "label": "@piece.resolve.settings.unit.options.0.label"
+        },
+        {
+          "value": "unit",
+          "label": "@piece.resolve.settings.unit.options.1.label"
+        }
+      ]
     }
   },
-  "compute": "logic:resolve(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:resolve"
 }

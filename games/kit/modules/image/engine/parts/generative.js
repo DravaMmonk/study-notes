@@ -73,8 +73,8 @@ export const GENERATIVE = {
     inputs: ['in'],
     params: [
       { key: 'k', label: { zh: '几个数', en: 'How many numbers' }, kind: 'select', options: [[1, { zh: '1 个', en: '1' }], [2, { zh: '2 个', en: '2' }], [3, { zh: '3 个', en: '3' }]], default: 1 },
-      // Hidden from the card (its flag is never earned) but still trained: 48 weights.
-      { key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: ENCODER_START },
+      // Content fixes these 48 weights on the card while training can still update them.
+      { key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, default: ENCODER_START },
     ],
     eval: ({ in: a }, p) => encode(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
     cost: 16,
@@ -84,7 +84,7 @@ export const GENERATIVE = {
     label: { zh: '解码器', en: 'Decoder' },
     description: { zh: '由那几个数画回一张图（权重靠训练）', en: 'Draws an image back from those numbers (weights come from training)' },
     inputs: ['in'],
-    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: DECODER_START }],
+    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, default: DECODER_START }],
     eval: ({ in: z }, p) => decode(z, p.w ?? DECODER_START),
     cost: 16,
     unlock: 'dg-autoencoder',

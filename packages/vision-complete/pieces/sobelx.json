@@ -3,16 +3,37 @@
   "desc": "@piece.sobelx.desc",
   "icon": "Grid3x3",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
   "settings": {
     "border": {
       "label": "@piece.sobelx.settings.border.label",
       "options": [
-        { "value": "zero", "label": "@piece.sobelx.settings.border.options.0.label" },
-        { "value": "edge", "label": "@piece.sobelx.settings.border.options.1.label" }
-      ]
+        {
+          "value": "zero",
+          "label": "@piece.sobelx.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@piece.sobelx.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
     }
   },
-  "compute": "image:sobelx(in, $border)",
-  "outputType": "image:image"
+  "op": "image:sobelx",
+  "stages": [
+    {
+      "id": "sobelx-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
 }

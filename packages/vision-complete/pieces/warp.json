@@ -4,10 +4,10 @@
   "icon": "Box",
   "family": "image:family-other",
   "inputs": [
-    { "name": "in", "label": "", "type": "image:image" },
-    { "name": "H", "type": "image:image" },
-    { "name": "onto", "type": "image:image" }
+    {
+      "name": "in",
+      "label": ""
+    }
   ],
-  "compute": "image:warp(in, H, onto)",
-  "outputType": "image:image"
+  "op": "image:warp"
 }

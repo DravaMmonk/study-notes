@@ -48,32 +48,42 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
     }
     return board.startBoard(task)
   }
-  const view = (task) => ({
-    board,
-    BUILT: built(task),
-    pieces: built(task),
-    builtBy: builtBy(task),
-    partOf: (type) => {
-      if (Object.hasOwn(board.FIXED_PARTS, type)) return board.FIXED_PARTS[type]
-      const available = parts(task)
-      return Object.hasOwn(available, type) ? available[type] : undefined
-    },
-    syncOwn,
-    ...(runtime && { runtime }),
-    offerIn: (task, flags) => {
-      const { shown, folded, types } = offerIn(task, flags)
-      const available = parts(task)
-      const supported = (type) => Object.hasOwn(available, type)
-      return { shown: shown.filter(supported), folded: folded.filter(supported), types: types.filter(supported) }
-    },
-    holdsIn,
-    opening: (task, progress, project) => (opening ?? open)(task, progress, (t) => {
-      const scope = forTask(t)
-      return project ? project(scope) : scope
-    }),
-    stageChain: () => [],
-    ...(defined ? { defined: defined(task) } : {}),
-  })
+  const view = (task) => {
+    const has = holdsIn?.(task, new Set())
+    const specialized = new Map()
+    const partOf = type => {
+      const part = parts(task)[type]
+      const definition = has?.definition?.(type)
+      if (!part?.specialize || !definition?.op || definition.inside) return part
+      if (!specialized.has(type)) specialized.set(type, part.specialize(definition))
+      return specialized.get(type)
+    }
+    return {
+      board,
+      BUILT: built(task),
+      pieces: built(task),
+      builtBy: builtBy(task),
+      partOf: (type) => {
+        if (Object.hasOwn(board.FIXED_PARTS, type)) return board.FIXED_PARTS[type]
+        return partOf(type)
+      },
+      syncOwn,
+      ...(runtime && { runtime }),
+      offerIn: (task, flags) => {
+        const { shown, folded, types } = offerIn(task, flags)
+        const available = parts(task)
+        const supported = (type) => Object.hasOwn(available, type)
+        return { shown: shown.filter(supported), folded: folded.filter(supported), types: types.filter(supported) }
+      },
+      holdsIn,
+      opening: (task, progress, project) => (opening ?? open)(task, progress, (t) => {
+        const scope = forTask(t)
+        return project ? project(scope) : scope
+      }),
+      stageChain: () => [],
+      ...(defined ? { defined: defined(task) } : {}),
+    }
+  }
   // One view a task, so a screen's memos hold.
   const forTask = (task) => {
     if (!views.has(task)) views.set(task, view(task))

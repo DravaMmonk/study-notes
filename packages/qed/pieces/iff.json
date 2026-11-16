@@ -2,7 +2,24 @@
   "name": "@piece.iff.name",
   "desc": "@piece.iff.desc",
   "family": "logic:family-lemma",
-  "settings": { "A": { "control": "tree" }, "B": { "control": "tree" } },
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "B": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "elim",
+          "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)"
+        }
+      ],
+      "default": "elim"
+    }
+  },
   "inside": [
     {
       "id": "elim",
@@ -17,7 +34,14 @@
           "c = andI(a1, a2)",
           "goal <- c"
         ],
-        "tests": [{ "goal": "(¬A ∨ B) ∧ (¬B ∨ A)", "premises": { "p": "A ↔ B" } }]
+        "tests": [
+          {
+            "goal": "(¬A ∨ B) ∧ (¬B ∨ A)",
+            "premises": {
+              "p": "A ↔ B"
+            }
+          }
+        ]
       }
     },
     {
@@ -33,10 +57,41 @@
           "c = andI(a1, a2)",
           "goal <- c"
         ],
-        "tests": [{ "goal": "A ↔ B", "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" } }]
+        "tests": [
+          {
+            "goal": "A ↔ B",
+            "premises": {
+              "p": "(¬A ∨ B) ∧ (¬B ∨ A)"
+            }
+          }
+        ]
       }
     }
   ],
-  "inputs": [{ "name": "p0", "type": "logic:judgment" }],
-  "outputType": "logic:judgment"
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "iff-intro",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "elim",
+              "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)"
+            },
+            {
+              "value": "intro",
+              "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B"
+            }
+          ]
+        }
+      }
+    }
+  ]
 }

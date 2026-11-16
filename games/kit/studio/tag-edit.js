@@ -1,10 +1,11 @@
 // Pure edits of a tag for the tag editor (games/PACKAGES.md 3.2): an unordered set of one kind of object, members by
 // full name, nested tags as `#<full name>`. Registries hold full names; a layer writes its own by their short names.
+import { pieceStages } from '../engine/piece-stages.js'
 import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
 import { freeObjectName, localName, ownNames } from './objects-edit.js'
 
-export const TAG_KINDS = ['level', 'item', 'entry']
+export const TAG_KINDS = ['level', 'piece', 'entry']
 
 /** How `namespace` writes a full name (or `#` tag reference): short when it is its own, full otherwise. */
 export const writtenName = (namespace, full) => localName(namespace, full) ?? full
@@ -12,7 +13,7 @@ export const writtenName = (namespace, full) => localName(namespace, full) ?? fu
 /** The registry an object of a tag's kind is in, and its id there (an item's piece for `piece.key=value`). */
 const objectOf = (content, kind, id) => {
   const registries = content?.registries ?? {}
-  if (kind === 'item') return registries.piece?.[id.split('.')[0]]
+  if (kind === 'piece') return pieceStages(registries.piece).get(id)?.definition
   return registries[kind]?.[id]
 }
 
@@ -23,7 +24,7 @@ export const memberKnown = (content, kind, member) => member.startsWith('#') ? B
 export function memberTitle(content, kind, member) {
   if (member.startsWith('#')) return content?.registries?.tag?.[member.slice(1)]?.title ?? null
   const object = objectOf(content, kind, member)
-  return (kind === 'item' ? object?.name : object?.title) ?? null
+  return (kind === 'piece' ? object?.name : object?.title) ?? null
 }
 
 /** Would `member` (a `#` reference) inside the tag `full` close a ring of tags? Asked of the kernel's resolver. */

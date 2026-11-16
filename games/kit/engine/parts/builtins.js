@@ -16,6 +16,8 @@ const num = (v) => {
 }
 
 const RESOURCES = {
+  constant: { about: t('设置中的常量', 'The configured constant'), args: [], returns: 'circuit:number', params: { type: 'obj', fields: { value: { type: 'num', default: 0 } } }, run: (_args, { value }) => value },
+  zero: { about: t('零', 'Zero'), args: [], returns: 'circuit:number', run: () => 0 },
   eq: { about: t('两者相等'), args: args('a', 'b'), run: ([a, b]) => String(a) === String(b) },
   ne: { about: t('两者不等'), args: args('a', 'b'), run: ([a, b]) => String(a) !== String(b) },
   lt: { about: t('a < b'), args: nums('a', 'b'), run: ([a, b]) => num(a) < num(b) },
@@ -32,7 +34,7 @@ const RESOURCES = {
   over: { about: t('两数之商；除以 0 报错'), args: nums('a', 'b'), returns: 'circuit:number', run: ([a, b]) => (num(b) === 0 ? (() => { throw new PartError(t('除以 0')) })() : num(a) / num(b)) },
   round: { about: t('按 digits 位小数四舍五入'), args: nums('a'), returns: 'circuit:number', params: { type: 'obj', fields: { digits: { type: 'int', min: 0, max: 8, optional: true } } }, run: ([a], { digits = 0 }) => Number(num(a).toFixed(digits)) },
   // A register, as a tick run keeps it (../ticks.js): its name scoped by the packed part the card is in.
-  held: { about: t('寄存器 register 此刻存的值；还没存过时给 start'), args: args('register', 'start'), run: ([register, start], _named, ctx) => {
+  held: { about: t('寄存器 register 此刻存的值；还没存过时给 start'), args: [], params: { type: 'obj', fields: { reg: { type: 'str', control: 'tree', default: 'A' }, start: { type: 'any', control: 'number', optional: true, default: null } } }, run: (_args, { reg: register, start }, ctx) => {
     // A register kept 「—」 holds 「—」: only one never kept gives its start.
     const held = ctx?.held?.(`${ctx.scope ?? ''}${register}`)
     return held === undefined ? start : held

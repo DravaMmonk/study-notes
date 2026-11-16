@@ -4,19 +4,37 @@
   "icon": "Calculator",
   "family": "image:family-pixel",
   "inputs": [
-    { "name": "s1", "label": "S1", "type": "image:image" },
-    { "name": "s2", "label": "S2", "type": "image:image" },
-    { "name": "s3", "label": "S3", "type": "image:image" }
+    {
+      "name": "s1",
+      "label": "S1"
+    },
+    {
+      "name": "s2",
+      "label": "S2"
+    },
+    {
+      "name": "s3",
+      "label": "S3"
+    }
   ],
   "outputs": [
-    { "name": "p1", "label": "P1", "type": "image:image" },
-    { "name": "p2", "label": "P2", "type": "image:image" },
-    { "name": "p3", "label": "P3", "type": "image:image" }
+    {
+      "name": "p1",
+      "label": "P1"
+    },
+    {
+      "name": "p2",
+      "label": "P2"
+    },
+    {
+      "name": "p3",
+      "label": "P3"
+    }
   ],
   "nulls": "pass",
-  "compute": {
-    "p1": "image:softmax_p1(s1, s2, s3)",
-    "p2": "image:softmax_p2(s1, s2, s3)",
-    "p3": "image:softmax_p3(s1, s2, s3)"
+  "op": {
+    "p1": "image:softmax_p1",
+    "p2": "image:softmax_p2",
+    "p3": "image:softmax_p3"
   }
 }

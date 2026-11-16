@@ -99,6 +99,9 @@
           "piece": "arrow",
           "variant": "intro"
         }
+      ],
+      "awards": [
+        "arrow-intro"
       ]
     }
   ]

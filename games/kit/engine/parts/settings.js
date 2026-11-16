@@ -1,27 +1,12 @@
 // Settings belong to a piece. Operation parameters supply their shared control and constraints.
-import { parse } from './expr.js'
 import { registeredOperations } from '../capabilities.js'
 
-/** Find parameter declarations bound directly to settings, including nested and multi-output calls. */
+/** Collect the parameter declarations of each selected operation. */
 export function settingParameters(piece, operations = registeredOperations) {
   const found = new Map()
-  const walk = (tree) => {
-    if ('match' in tree) {
-      for (const branch of [tree.match, ...Object.values(tree.cases), ...(tree.other ? [tree.other] : [])]) walk(branch)
-    }
-    if (!('call' in tree)) return
-    const op = operations[tree.call]
-    const fields = op?.params?.fields ?? {}
-    const args = tree.args.map((arg, index) => [op?.args?.[index]?.name?.replace(/^setting_/, ''), arg])
-    for (const [name, arg] of [...args, ...Object.entries(tree.named)]) {
-      if (arg.set && fields[name]) found.set(arg.set, [...(found.get(arg.set) ?? []), fields[name]])
-      walk(arg)
-    }
-  }
-  for (const text of typeof piece.compute === 'string' ? [piece.compute] : Object.values(piece.compute ?? {})) {
-    let tree
-    try { tree = parse(text) } catch { continue }
-    walk(tree)
+  const names = typeof piece.op === 'string' ? [piece.op] : Object.values(piece.op ?? {})
+  for (const name of names) for (const [key, schema] of Object.entries(operations[name]?.params?.fields ?? {})) {
+    found.set(key, [...(found.get(key) ?? []), schema])
   }
   return found
 }
@@ -38,12 +23,14 @@ export function parameterSetting(schema) {
 /** Resolve the inline declarations once at the boundary to runtime setting arrays. */
 export function resolveSettings(piece, operations = registeredOperations) {
   const parameters = settingParameters(piece, operations)
-  return Object.entries(piece.settings ?? {}).map(([key, patch]) => {
+  const keys = new Set([...parameters.keys(), ...Object.keys(piece.settings ?? {})])
+  return [...keys].map(key => {
+    const patch = piece.settings?.[key] ?? {}
     const schemas = parameters.get(key) ?? []
     const inherited = schemas.length ? parameterSetting(schemas[0]) : {}
-    const { remove = [], ...fields } = patch
+    const { remove = [], add = [], ...fields } = patch
     const setting = { ...inherited, ...fields, key }
-    if (setting.options) setting.options = setting.options.filter((option) => !remove.includes(String(option.value)))
+    if (setting.options) setting.options = setting.options.filter((option) => !remove.includes(String(option.value)) || add.includes(String(option.value)))
     return setting
   })
 }

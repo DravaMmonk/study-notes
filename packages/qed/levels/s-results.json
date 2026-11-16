@@ -60,26 +60,10 @@
       ]
     }
   ],
-  "pieceRevisions": [
-    {
-      "piece": "repeat",
-      "at": true,
-      "desc": "@piece.repeat.revisions.0.desc"
-    },
-    {
-      "piece": "assumption",
-      "at": true,
-      "desc": "@piece.assumption.revisions.0.desc"
-    },
-    {
-      "piece": "append",
-      "at": true,
-      "desc": "@piece.append.revisions.0.desc"
-    },
-    {
-      "piece": "erule",
-      "at": true,
-      "desc": "@piece.erule.revisions.0.desc"
-    }
+  "opens": [
+    "repeat-s-results-desc",
+    "assumption-s-results-desc",
+    "append-s-results-desc",
+    "erule-s-results-desc"
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "title": "@tray.trays.proof.items.equivalences.title",
+  "values": [
+    "dneg-sp-rw-desc",
+    "arrow-sp-rw-desc",
+    "dist-sp-rw-desc",
+    "dm-q-dm-desc",
+    "iff-intro"
+  ]
+}

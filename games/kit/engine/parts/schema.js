@@ -54,6 +54,7 @@ export const INLINE_SETTING = S.obj({
   control: S.opt(S.oneOf(Object.keys(CONTROL))),
   ...Object.fromEntries(Object.entries(SETTING_FIELDS).map(([key, schema]) => [key, S.opt(schema)])),
   remove: S.opt(S.list(WORD)),
+  add: S.opt(S.list(WORD)),
 })
 
 const leaf = {
@@ -82,7 +83,7 @@ const RULE = S.obj({ on: S.opt(LOCAL_NAME), when: S.opt(EXPR), set: S.map(EXPR, 
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
 const PORT = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
 const REGION = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(LOCAL_NAME)), when: S.opt(EXPR) })
-const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
+const HOLES = { inputs: S.opt(S.list(PORT)), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
   settings: S.opt(S.map(INLINE_SETTING, { keys: LOCAL_NAME.pattern })),
   rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改') })),
@@ -99,19 +100,25 @@ const NAMED = {
   name: S.text(),
   desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
 }
+const STAGES = { stages: S.opt(S.list(S.obj({
+  id: { ...NAME, pattern: '^(?:[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_-]*$' },
+  ...Object.fromEntries(Object.entries({ ...NAMED, ...SETTINGS, ...PAINT, inputs: HOLES.inputs, outputs: HOLES.outputs }).map(([key, value]) => [key, S.opt(value)])),
+}))) }
+
 /**
  * A primitive: it computes an expression over the domain's engine resources, or keeps an input (`keeps`): a sink that
  * stores what reaches `input` in the register its setting `register` names, read from the next tick on (held()).
  */
 export const PRIMITIVE = S.obj({
   ...NAMED,
+  ...STAGES,
   ...HOLES,
   outputType: S.opt(S.ref('valueType')),
   ...SETTINGS,
   regions: S.opt(S.list(REGION)),
   ...PAINT,
   keeps: S.opt(S.obj({ input: LOCAL_NAME, register: LOCAL_NAME }, { about: t('把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute') })),
-  compute: S.opt(S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') }))),
+  op: S.opt(S.either(S.ref('op'), S.map(S.ref('op')))),
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
 /**
@@ -129,6 +136,7 @@ export const INSIDE = S.list(S.obj({
 }), { min: 1 })
 export const BUILT = S.obj({
   ...NAMED,
+  ...STAGES,
   inputs: S.opt(S.list(PORT)),
   outputs: HOLES.outputs,
   outputType: S.opt(S.ref('valueType')),
@@ -143,6 +151,7 @@ export const BUILT = S.obj({
 export const STRIP = S.obj({
   editor: S.oneOf(['strip']),
   ...NAMED,
+  ...STAGES,
   icon: ICON,
   family: S.opt(S.ref('family')),
   mark: S.ref('mark', { about: t('这一块标出的是什么：领域给的一项') }),
@@ -154,7 +163,7 @@ export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape
 
 /** A new piece of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
 export const BLANKS = {
-  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', compute: 'a' } : null),
+  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', op: Object.keys(vocabulary.kinds.op)[0] } : null),
   strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { en: 'New block' }, desc: { en: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
 }
 /** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */

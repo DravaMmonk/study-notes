@@ -21,7 +21,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
     id: 'demo', packageId: 'library', schemas,
     game: { title: t('heading', 'Demo'), primitives: ['library/calc'], chapters: [{ id: 'chapter', levels: ['library/calc'] }] },
     levels: [['calc', { title: t('heading', 'Calculate'), tasks: [{ id: 'work', piece: 'calc', carry: 'other/start', solution: ['n = calc()', 'out <- n'] }] }]],
-    partDefs: { parts: { calc: { inputs: [{ name: 'a' }], settings: { 'value': { control: 'number', default: 1 } }, compute: 'a' } } },
+    partDefs: { parts: { calc: { inputs: [{ name: 'a' }], settings: { 'value': { control: 'number', default: 1 } }, op: 'circuit:constant' } } },
     glossary: { groups: [], entries: [{ id: 'calc', at: 'calc', title: 'Calculate', body: [], see: ['other/entry'] }] },
     tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }], ['entries-calc', { kind: 'entry', title: 'Numbers', values: ['calc'] }]],
   }

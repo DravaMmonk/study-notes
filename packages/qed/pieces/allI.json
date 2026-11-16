@@ -3,13 +3,19 @@
   "desc": "@piece.allI.desc",
   "icon": "Box",
   "family": "logic:family-box",
-  "inputs": [],
   "settings": {
-    "x": { "control": "select", "label": "@piece.allI.settings.x.label", "from": "logic:names()" }
+    "x": {
+      "control": "select",
+      "label": "@piece.allI.settings.x.label",
+      "from": "logic:names()"
+    }
   },
   "regions": [
-    { "name": "body", "label": "@piece.allI.regions.0.label", "closes": true, "type": "logic:judgment" }
+    {
+      "name": "body",
+      "label": "@piece.allI.regions.0.label",
+      "closes": true
+    }
   ],
-  "compute": "logic:allI(body)",
-  "outputType": "logic:judgment"
+  "op": "logic:allI"
 }

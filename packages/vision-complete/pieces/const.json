@@ -3,8 +3,10 @@
   "desc": "@piece.const.desc",
   "icon": "Hash",
   "family": "image:family-pixel",
-  "inputs": [],
-  "settings": { "c": { "label": "=" } },
-  "compute": "image:const($c)",
-  "outputType": "image:image"
+  "settings": {
+    "c": {
+      "label": "="
+    }
+  },
+  "op": "image:const"
 }

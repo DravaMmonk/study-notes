@@ -1,5 +1,6 @@
 // A single-level runtime shell. It is never authored, persisted or checked as a course.
-import { layout, readItem } from '../course.js'
+import { layout } from '../course.js'
+import { pieceStages } from './piece-stages.js'
 import { relationOrder } from './objects.js'
 
 /** Open one qualified level from assembled package content, retaining declarations as read-only support. */
@@ -34,12 +35,12 @@ export function standalonePlan(content) {
 export function standaloneItems(content, at) {
   const level = content.levels.find(({ id }) => id === at.id)
   const named = level?.tasks?.[at.task]?.tray ?? level?.tray
-  if (!named) return Object.keys(content.registries.piece)
+  if (!named) return [...pieceStages(content.registries.piece).keys()]
   return [...new Set([named].flat().flatMap(name => (content.trays[name]?.items ?? [])
     .flatMap(item => typeof item === 'string' ? [item] : item.items)))]
 }
 
-export const standalonePieces = (content, at) => [...new Set(standaloneItems(content, at).map(item => readItem(item).part))]
+export const standalonePieces = (content, at) => [...new Set(standaloneItems(content, at).map(item => pieceStages(content.registries.piece).get(item)?.piece ?? item))]
 
 /** Authoring order uses relations directly; it does not construct a route or unlock graph. */
 export function packageLevelOrder(content) {

@@ -29,7 +29,7 @@ test('edges are added once, removed by key, required toggled, and dropped with a
 
 test('the endpoint kind follows the relation kind', () => {
   assert.equal(endpointKind({ kind: 'requires' }), 'level')
-  assert.equal(endpointKind({ kind: 'replaces' }), 'item')
+  assert.equal(endpointKind({ kind: 'replaces' }), 'piece')
   assert.equal(endpointKind({ kind: 'order', of: 'entry' }), 'entry')
   assert.equal(endpointKind({ kind: 'order' }), 'level')
 })

@@ -65,21 +65,9 @@
       ]
     }
   ],
-  "pieceRevisions": [
-    {
-      "piece": "dneg",
-      "at": true,
-      "desc": "@piece.dneg.revisions.0.desc"
-    },
-    {
-      "piece": "arrow",
-      "at": true,
-      "desc": "@piece.arrow.revisions.0.desc"
-    },
-    {
-      "piece": "dist",
-      "at": true,
-      "desc": "@piece.dist.revisions.0.desc"
-    }
+  "opens": [
+    "dneg-sp-rw-desc",
+    "arrow-sp-rw-desc",
+    "dist-sp-rw-desc"
   ]
 }
