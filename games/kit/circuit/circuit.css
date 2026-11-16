@@ -632,6 +632,7 @@
 
 /* A tray menu reveals related pieces without placing a card. */
 .tray-menu-toggle[aria-expanded='true'] { background: var(--hover); }
+.tray-menu-icon { flex: none; color: var(--muted); }
 .palette .tray-menu-toggle { width: 100%; justify-content: flex-start; text-align: left; }
 .kit-pop.tray-menu-pop { width: max-content; max-width: calc(100vw - var(--sp-7)); }
 .kit-pop.tray-menu-pop::before { display: none; }

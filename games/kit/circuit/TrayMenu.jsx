@@ -1,5 +1,6 @@
 import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { ListTree } from 'lucide-react'
 import { L } from '../shell/i18n.js'
 import Popover from '../shell/Popover.jsx'
 import { useOverlay } from '../shell/useOverlay.js'
@@ -19,6 +20,7 @@ export default function TrayMenu({ entry, className, compact, phoneHost, renderP
     <div className="tray-menu">
       <button ref={toggle} type="button" className={`${className} tray-menu-toggle`} aria-expanded={Boolean(anchor)} aria-controls={anchor ? id : undefined}
         onClick={(event) => setAnchor(anchor ? null : event.currentTarget)}>
+        <ListTree size={14} className="tray-menu-icon" aria-hidden="true" />
         <span>{L(entry.label)}</span>
       </button>
       {anchor && (phone
