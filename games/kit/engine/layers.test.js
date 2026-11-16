@@ -224,3 +224,11 @@ test('source files reject retired glossary and tag formats and tag overrides can
   put('packages/base/glossary.json', { groups: [], entries: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /glossary.json has been replaced/)
 })
+
+
+test('tag order overrides append, remove and replace edges without changing member order', () => {
+  const before = { kind: 'order', of: 'tag', sequence: ['#base/a', '#base/b'] }
+  const patched = applyOverride('relation', before, { remove: [{ from: '#base/a', to: '#base/b' }], sequence: ['#base/b', '#extra/c'] })
+  assert.deepEqual(patched, { kind: 'order', of: 'tag', edges: [{ from: '#base/b', to: '#extra/c' }] })
+  assert.deepEqual(applyOverride('relation', patched, { replace: true, sequence: ['#extra/c', '#base/a'] }), { kind: 'order', of: 'tag', edges: [{ from: '#extra/c', to: '#base/a' }] })
+})

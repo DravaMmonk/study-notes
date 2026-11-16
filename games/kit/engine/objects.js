@@ -9,7 +9,7 @@ export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_.=-]*$' })
 export const TAG = S.obj({ kind: S.oneOf(['level', 'item', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), concept: S.opt(S.bool()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'item', 'entry'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'item', 'entry', 'tag'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const LAYOUT = S.obj({ of: S.str({ pattern: '^#(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$' }), rows: S.list(S.list(S.either(S.level(), S.oneOf([null])), { min: 1, max: 3 })) })
 export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, layouts: LAYOUT }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
@@ -44,6 +44,11 @@ export function referenceResolver(registries, problems = []) {
     const values = Array.isArray(value) ? value : [value]
     const out = values.flatMap((id) => {
       if (typeof id !== 'string') return []
+      if (kind === 'tag') {
+        if (!id.startsWith('#')) { report(at, `expected a tag reference, got ${id}`); return [] }
+        if (!registries.tag[id.slice(1)]) { report(at, `unknown tag ${id.slice(1)}`); return [] }
+        return [id]
+      }
       if (!id.startsWith('#')) {
         if (!has(kind, id)) report(at, `unknown ${kind} ${id}`)
         return [id]
@@ -109,6 +114,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'piece' : relation.of ?? inferredKind ?? 'any'
     const ends = (id, external = false) => (external && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
+    if (relation.of === 'tag' && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations can order tags' })
     if (relation.sequence && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations have a sequence' })
     if (['requires', 'order'].includes(relation.kind) && raw.some((e) => e.from === e.to)) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: a relation cannot link an endpoint to itself` })
     const candidates = raw.map((edge) => ({ edge, from: ends(edge.from, Boolean(edge.game)), to: ends(edge.to) }))
@@ -120,14 +126,14 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
       if (cycle) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: ${cycle.join(' → ')}` })
     }
     const boundary = (id, ids, side) => {
-      if (!id.startsWith('#')) return ids
+      if (kind === 'tag' || !id.startsWith('#')) return ids
       const ends = ids.filter((v) => !direct.some((e) => !e.game && (side === 'from' ? e.from === v && ids.includes(e.to) : e.to === v && ids.includes(e.from))))
       const required = ends.filter((v) => !optional.has(v))
       return side === 'from' && kind === 'level' && required.length ? required : ends
     }
     for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) result[relation.kind]?.push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'item', 'entry', 'any']) {
+  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'item', 'entry', 'tag', 'any']) {
     const edges = result[kind].filter((e) => !e.game && (kind !== 'order' || e.of === of))
     const graph = new Map([...new Set(edges.flatMap((e) => [e.from, e.to]))].map((id) => [id, edges.filter((e) => e.to === id).map((e) => e.from)]))
     const cycle = dependencyCycle(graph)
@@ -146,6 +152,30 @@ export function relationOrder(ids, edges, kind = 'level') {
     if (!ready.length) return [...out, ...pending].sort()
     const id = ready[0]
     pending.delete(id); out.push(id)
+  }
+  return out
+}
+
+/** Order tag full names by explicit tag orders, then member prerequisites, then code point. */
+export function orderedTags(content, kind) {
+  const tags = content.registries?.tag ?? {}
+  const names = Object.keys(tags).filter((name) => tags[name].kind === kind).sort()
+  const expand = referenceResolver(content.registries)
+  const owners = new Map()
+  for (const name of names) for (const member of expand(`#${name}`, kind)) {
+    owners.set(member, [...(owners.get(member) ?? []), name])
+  }
+  const requires = (content.relationEdges?.requires ?? []).filter((edge) => !edge.game).flatMap(({ from, to }) =>
+    (owners.get(from) ?? []).flatMap((a) => (owners.get(to) ?? []).filter((b) => a !== b).map((b) => ({ from: a, to: b }))))
+  const inferred = relationOrder(names, requires, kind)
+  const hard = (content.relationEdges?.order ?? []).filter((edge) => edge.of === 'tag')
+    .map(({ from, to }) => ({ from: from.slice(1), to: to.slice(1) }))
+  // Explicit author order wins when inferred prerequisites disagree with it.
+  const pending = new Set(inferred), out = []
+  while (pending.size) {
+    const next = inferred.find((name) => pending.has(name) && !hard.some((edge) => edge.to === name && pending.has(edge.from)))
+      ?? inferred.find((name) => pending.has(name))
+    pending.delete(next); out.push(next)
   }
   return out
 }

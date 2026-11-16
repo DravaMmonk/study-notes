@@ -4,7 +4,7 @@ import { assemble } from './content.js'
 import { S } from './schema.js'
 import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
-import { referenceResolver, expandReferences, relationOrder } from './objects.js'
+import { referenceResolver, expandReferences, expandRelations, relationOrder, orderedTags } from './objects.js'
 
 const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part'))), ...COURSE_OPTIONS }),
@@ -181,4 +181,38 @@ test('concept declarations reject non-item tags and ambiguous membership', () =>
   const problems = assemble(input).objectProblems.map((p) => p.says)
   assert.ok(problems.some((p) => p.includes('concept tags must contain items')))
   assert.ok(problems.some((p) => p.includes('belongs to multiple concepts')))
+})
+
+
+test('tag order never expands into member order or conflicts with chapter order', () => {
+  const input = source()
+  input.relations.push(['level-tags-order', { kind: 'order', of: 'tag', sequence: ['#extras', '#core'] }])
+  const content = assemble(input)
+  assert.deepEqual(checkContent({ vocabulary }, content), [])
+  assert.deepEqual(content.relationEdges.order.filter((e) => e.of === 'tag'), [{ from: '#toy/extras', to: '#toy/core', of: 'tag' }])
+  assert.deepEqual(content.eras[0].levels.map((l) => l.id), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
+  assert.deepEqual(orderedTags(content, 'level'), ['toy/extras', 'toy/core'])
+  assert.deepEqual(relationOrder(['#toy/core', '#toy/extras'], content.relationEdges.order, 'tag'), ['#toy/extras', '#toy/core'])
+})
+
+test('tag orders validate tag endpoints and detect cycles across relations independently of scheduled members', () => {
+  const problems = []
+  const expand = referenceResolver({ tag: { a: { kind: 'level', values: [] }, b: { kind: 'level', values: [] } } }, problems)
+  expandRelations({ a: { kind: 'order', of: 'tag', sequence: ['#a', '#b'] }, b: { kind: 'order', of: 'tag', edges: [{ from: '#b', to: '#a' }] } }, expand, new Set(), problems)
+  assert.ok(problems.some((p) => /circular order/.test(p.says)))
+  expandRelations({ wrong: { kind: 'order', of: 'tag', sequence: ['#missing', 'a'] } }, expand, new Set(), problems)
+  assert.ok(problems.some((p) => /unknown tag missing/.test(p.says)))
+  assert.ok(problems.some((p) => /expected a tag reference/.test(p.says)))
+})
+
+test('tag sorting uses explicit tag order before member prerequisites, then full names, including nested tags', () => {
+  const registries = { tag: {
+    'p/a': { kind: 'level', values: ['p/last'] }, 'p/b': { kind: 'level', values: ['#p/c'] },
+    'p/c': { kind: 'level', values: ['p/first'] }, 'p/d': { kind: 'level', values: [] },
+    'p/items': { kind: 'item', values: [] },
+  }, level: { 'p/first': {}, 'p/last': {} } }
+  const content = { registries, relationEdges: { requires: [{ from: 'p/first', to: 'p/last' }], order: [] } }
+  assert.deepEqual(orderedTags(content, 'level'), ['p/b', 'p/c', 'p/a', 'p/d'])
+  content.relationEdges.order.push({ of: 'tag', from: '#p/a', to: '#p/b' })
+  assert.deepEqual(orderedTags(content, 'level'), ['p/c', 'p/a', 'p/b', 'p/d'])
 })
