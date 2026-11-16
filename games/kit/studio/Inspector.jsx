@@ -4,7 +4,7 @@ import { glossaryFile } from './form.js'
 // (Fields.jsx, the same controls the forms used), what it means, the findings on it and its undo. Above it the way to
 // it, each step a link to the field around it; an item of a list can be moved, copied and taken out here; an optional
 // field not written yet is added from here. A task of a level whose tasks have ids (../engine/tasks.js) is moved,
-// copied, taken out, moved into another level and renamed by the task operations, so what players kept of it follows
+// copied, taken out and moved into another level by the task operations, so what players kept of it follows
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
@@ -63,8 +63,8 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   }
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {
-    // A task's id changes by task.rename, so what players kept of it follows.
-    if (tasked && path.length === 3 && path[0] === 'tasks' && path[2] === 'id' && change.set !== undefined) return onEdit({ op: 'task.rename', task: getAt(shown.value, path), to: change.set })
+    // An id never changes (games/PACKAGES.md 3.1).
+    if (path.at(-1) === 'id' && change.set !== undefined) return undefined
     // The task list edited as a whole goes task by task, so each task's board stays with it.
     if (tasked && path.length === 1 && path[0] === 'tasks' && Array.isArray(change.set)) return onOps(taskListOps(at.level, getAt(shown.value, path) ?? [], change.set, content.levels))
     const op = opFor(file, path, change, type)

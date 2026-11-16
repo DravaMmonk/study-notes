@@ -516,7 +516,7 @@ export function opFor(file, path, edit, type = null) {
     if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
-  // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
+  // pieces.json: a field of it (a whole part is added and removed by the part operations).
   if (file.parts) {
     if (edit.unset && keys.length === 2) {
       if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }
@@ -574,18 +574,16 @@ export function taskListOps(level, before, after, levels) {
 
 // Two operations edit the same thing when they are the same operation on the same file and path; the later then
 // stands for both.
-const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation ?? op.layout ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.rename' ? op.level : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
+const target = (op) => JSON.stringify([op.op, op.level ?? op.tag ?? op.relation ?? op.layout ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'text.set' || op.op === 'text.override' ? op.lang : null])
 
 /**
  * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
- * keeps the side the last one changed and this one does not; a task renamed again is renamed once).
+ * keeps the side the last one changed and this one does not).
  */
 export function pushOp(ops, op) {
   const last = ops.at(-1)
-  // A task's id typed a letter at a time is one rename, from the id it had.
-  if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'tag.put', 'tag.remove', 'relation.put', 'relation.remove', 'layout.put', 'layout.remove'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 
