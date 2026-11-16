@@ -10,6 +10,8 @@ import ArrangementBoard from './ArrangementBoard.jsx'
 import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 import { confirmDelete } from './delete.js'
 import { freeObjectName, localName, objectsOf, ownNames, shownName, tagCandidates } from './objects-edit.js'
+import SourceMark from './SourceMark.jsx'
+import { overridesIt, relationOverrideOps } from './override-edit.js'
 import { declaredEdges, endpointKind, endpointsOf, withEdge, withRequired, withoutEdge, withoutEndpoint, writeEdges } from './relation-edit.js'
 
 const KINDS = [['requires', '先修', 'Requires'], ['order', '顺序', 'Order'], ['replaces', '取代', 'Replaces']]
@@ -55,7 +57,9 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
   const [highlight, setHighlight] = useState(null)
   const [active, setActive] = useState(null)
   const [notice, setNotice] = useState('')
-  const locked = pending || !own
+  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'relation', full))
+  const editable = own || overriding
+  const locked = pending || !editable
   const ends = endpointsOf(edges, placed)
   const links = useMemo(() => edges.map((edge) => ({ ...edge, source: 'course' })), [edges])
   const requires = useMemo(() => new Map(ends.map((id) => [id, edges.filter(({ to }) => to === id).map(({ from }) => from)])), [ends, edges])
@@ -70,7 +74,7 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
   const label = (id) => <><code>{shownName(namespace, id)}</code><span>{titleOf(id)}</span></>
   const wire = edges.find((edge) => linkKey(edge) === highlight)
   const reset = () => { setArmed(null); setHighlight(null); setNotice('') }
-  const write = (next) => onOps(writeEdges(namespace, name, relation, next))
+  const write = (next) => onOps(own ? writeEdges(namespace, name, relation, next) : relationOverrideOps(content, namespace, full, next))
   const connect = (from, to) => {
     if (locked) return
     const problem = relation.kind === 'replaces' ? (from === to ? 'self' : null) : wiringRefusal(requires, from, to)
@@ -108,7 +112,8 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
       {bar}
       <div className="arrange-group">
         <code className="editor-id">{shownName(namespace, full)}</code>
-        {own && candidates.length > 0 && <Picker options={candidates} icon={Plus} label={tr('放上板', 'Place on the board')} placeholder={tr('放上板', 'Place on the board')}
+        <SourceMark content={content} kind="relation" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
+        {editable && candidates.length > 0 && <Picker options={candidates} icon={Plus} label={tr('放上板', 'Place on the board')} placeholder={tr('放上板', 'Place on the board')}
           onPick={(id) => setPlaced([...placed, id])} />}
         {own && <button type="button" className="kit-btn editor-tool" disabled={pending} onClick={remove} title={tr('删掉这份关系', 'Remove the relation')}><Trash2 size={14} /></button>}
       </div>
@@ -119,8 +124,8 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, b
             <input type="checkbox" checked={wire.required ?? false} disabled={locked} onChange={(e) => write(withRequired(edges, highlight, e.target.checked))} />
             {tr('须通过这个前置', 'Require a pass on this prerequisite')}
           </label>}
-          {own && <button type="button" className="kit-btn is-label" disabled={locked} onClick={removeWire}><Trash2 size={13} aria-hidden="true" />{tr('断开连线', 'Disconnect')}</button>}
-        </> : active && own ? <>
+          {editable && <button type="button" className="kit-btn is-label" disabled={locked} onClick={removeWire}><Trash2 size={13} aria-hidden="true" />{tr('断开连线', 'Disconnect')}</button>}
+        </> : active && editable ? <>
           <strong>{describe(active)}</strong>
           <button type="button" className="kit-btn is-label" disabled={locked} onClick={removeEnd}><Trash2 size={13} aria-hidden="true" />{tr('从板上拿掉', 'Take off the board')}</button>
         </> : null}

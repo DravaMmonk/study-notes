@@ -9,6 +9,8 @@ import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import { confirmDelete } from './delete.js'
 import { localName, namespaceOf, objectsOf, shownName } from './objects-edit.js'
+import SourceMark from './SourceMark.jsx'
+import { layoutOverrideOps, overridesIt } from './override-edit.js'
 import { ROW_SLOTS, addPlace, addRow, clearLevel, layoutMembers, layoutRefusal, layoutRowsOp, newLayout, placeLevel, placeOf, removePlace } from './layout-edit.js'
 
 export default function LayoutEditor({ content, namespace, selected, pending, onSelect, onEdit, onOps }) {
@@ -40,8 +42,22 @@ export default function LayoutEditor({ content, namespace, selected, pending, on
         {levelTags.length > 0 && <Picker options={levelTags} icon={Plus} label={tr('新的布局', 'New layout')} onPick={create} />}
         {current?.[2] && <button type="button" className="kit-btn editor-tool" disabled={pending} title={tr('删除布局', 'Delete the layout')} aria-label={tr('删除布局', 'Delete the layout')} onClick={remove}><Trash2 size={14} aria-hidden="true" /></button>}
       </header>
-      {current && <OneLayout key={current[0]} full={current[0]} layout={current[1]} own={current[2]} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onOps={onOps} />}
+      {current && <LayoutPane key={current[0]} full={current[0]} layout={current[1]} own={current[2]} content={content} namespace={namespace} pending={pending} onEdit={onEdit} onOps={onOps} />}
     </article>
+  )
+}
+
+/** A layout of this package edited in place, or another package's overridden here once asked to. */
+function LayoutPane({ full, layout, own, content, namespace, pending, onEdit, onOps }) {
+  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'layout', full))
+  return (
+    <>
+      <div className="arrange-actions">
+        <SourceMark content={content} kind="layout" full={full} own={own} overriding={overriding} pending={pending} onOverride={() => setOverriding(true)} />
+      </div>
+      <OneLayout full={full} layout={layout} own={own || overriding} content={content} namespace={namespace} pending={pending} onEdit={onEdit}
+        onRows={own ? undefined : (rows) => onOps(layoutOverrideOps(content, namespace, full, rows))} />
+    </>
   )
 }
 
