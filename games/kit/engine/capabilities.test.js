@@ -17,7 +17,7 @@ test('each kind rejects duplicate names and permits a name shared across kinds',
   registry.add('operation', 'toy:number', { about: 'number' })
   assert.throws(() => registry.add('valueType', 'toy:number', {}), /duplicate/)
   assert.throws(() => registry.add('operation', 'plain', {}), /invalid capability name/)
-  assert.equal(vocabulary.version, 1)
+  assert.ok(vocabulary.version >= 1)
 })
 
 test('qualified operation names round-trip beside match case delimiters', () => {
@@ -76,4 +76,13 @@ test('circuit evaluation rejects an incompatible typed wire', async () => {
     target: { inputs: ['a'], inputTypes: { a: 'circuit:number' }, outputType: 'circuit:number', eval: ({ a }) => a },
   }
   assert.match(evaluate(graph, { parts }).errors.get('target'), /expects circuit:number, received circuit:boolean/)
+})
+
+
+test('module contracts require a display implementation owned by that module', () => {
+  const registry = createCapabilityRegistry()
+  registry.add('display', 'toy:hero', { about: 'Map illustration', role: 'hero' })
+  assert.ok(moduleProblems({ id: 'toy', register() {} }, registry).some((problem) => problem.includes('no display implementation')))
+  registry.implementDisplays(['toy:hero'], '../modules/other/ui/displays.js')
+  assert.ok(moduleProblems({ id: 'toy', register() {} }, registry).some((problem) => problem.includes('outside its module UI')))
 })

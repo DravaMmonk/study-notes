@@ -5,6 +5,12 @@ export default {
   id: 'logic',
   register(registry) {
     registry.vocabulary('logic', vocabulary)
+    registry.add('display', 'logic:hero', { about: { en: 'Logic course map illustration' }, role: 'hero' })
+    registry.add('display', 'logic:proof-screen', { about: { en: 'Proof cards, readouts and panels' }, role: 'circuit' })
+    registry.add('display', 'logic:gates-screen', { about: { en: 'Truth circuit cards, readouts and panels' }, role: 'circuit' })
+    registry.add('display', 'logic:machine-screen', { about: { en: 'Proof assistant cards, readouts and panels' }, role: 'circuit' })
+    registry.add('display', 'logic:passed', { about: { en: 'Declared rules in the pass dialog' }, role: 'passed' })
+    registry.implementDisplays(['logic:hero', 'logic:proof-screen', 'logic:gates-screen', 'logic:machine-screen', 'logic:passed'], '../modules/logic/ui/displays.js')
     registry.implementOperations(OPS)
     registry.add('contentKind', 'logic:wordset', { about: { en: 'A named formula-reading dictionary' }, schema: { type: 'map', of: { type: 'text' } } })
     registry.add('contentKind', 'logic:quote', { about: { en: 'A quoted name' }, schema: { type: 'str' } })

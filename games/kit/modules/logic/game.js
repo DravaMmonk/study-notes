@@ -1,14 +1,12 @@
+import { loadDisplays } from '../../engine/displays.js'
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
 import { symbolStamp } from './stripPieces.js'
-import { declaredLines } from './iso.js'
 import { CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
-import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
-import Hero from './ui/Hero.jsx'
 import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
 import { script } from './scriptValues.js'
@@ -17,14 +15,13 @@ import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
-import { gatesScreen } from './ui/gates.js'
-import { proofScreen } from './ui/proof.js'
-import { machineScreen } from './ui/machine.js'
 import { OPS } from './ops.js'
 import { plays } from './plays.js'
 import { declaration, definition } from './rowValues.js'
 import { audit } from './auditWork.js'
 import { truth } from './truthValues.js'
+
+const ui = await loadDisplays(['logic:hero', 'logic:proof-screen', 'logic:gates-screen', 'logic:machine-screen', 'logic:passed'])
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => level.tasks.find((t) => t.kind === 'logic:iso') ?? null
@@ -101,14 +98,14 @@ export default function logicGame(content) {
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,
-    Hero,
+    Hero: ui['logic:hero'],
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track, rows: chapter.rows })),
     levels,
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: playKinds(plays, {
       declaration, definition, audit, truth, translation, query, script, worldCheck,
-      proof: { ...proofScreen, cards }, machine: { ...machineScreen, cards }, gates: { ...gatesScreen, cards },
+      proof: { ...ui['logic:proof-screen'], cards }, machine: { ...ui['logic:machine-screen'], cards }, gates: { ...ui['logic:gates-screen'], cards },
     }, {
       'logic:proof': { icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       'logic:machine': { icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
@@ -129,7 +126,7 @@ export default function logicGame(content) {
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
-      return declared ? declaredLines(declared) : null
+      return declared ? ui['logic:passed'](declared) : null
     },
     core: (level) => isCore(logic.course, level),
     extraPieces: introduced.filter(({ piece }) => logic.strips[piece]),

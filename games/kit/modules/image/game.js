@@ -1,8 +1,7 @@
+import { loadDisplays, benchDisplays } from '../../engine/displays.js'
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's play resources, its
 // parts box and its intro figures.
-import '../../../../trace-viewer/src/index.css'
-import './image.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
@@ -10,22 +9,13 @@ import { imageCourse } from './course.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { plays } from './plays.js'
 import { partsFor } from '../../circuit/board-parts.js'
-import { imageCircuit } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
-import { rangeOf } from './ui/display.js'
-import { imageHero, imageIntroduction } from './ui/intro.js'
-import WeightGrid from '../../shell/parts/WeightGrid.jsx'
-import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
-let displayItems
-const parameters = ({ bench, model }) => ({
-  bench,
-  model,
-  displays: displayItems ??= import('./ui/benches/displays.js').then((module) => module.displays),
-})
-const blackBox = ({ probe }) => ({ ...probe, rangeFor: rangeOf })
+const ui = await loadDisplays(['image:hero', 'image:introduction', 'image:circuit', 'image:widget-imageKernel', 'image:catalog', 'image:probe'])
+const { familyOf, iconOf } = ui['image:catalog']
+const parameters = ({ bench, model }) => ({ bench, model, displays: benchDisplays(bench.layout) })
 
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
@@ -76,13 +66,13 @@ export default function imageGame(content) {
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,
-    Hero: imageHero,
+    Hero: ui['image:hero'],
     power: content.power,
     chapters: CHAPTERS,
     levels,
     intro: (level) => image.intros[level.id],
-    IntroFigure: (props) => imageIntroduction({ ...props, types }),
-    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, cards), parameters, probe: blackBox }, {
+    IntroFigure: (props) => ui['image:introduction']({ ...props, types }),
+    kinds: playKinds(plays, { imageCircuit: ui['image:circuit'](image, cards), parameters, probe: ui['image:probe'] }, {
       'image:graph': { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
       'image:board': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       'image:probe': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
@@ -117,6 +107,6 @@ export default function imageGame(content) {
   })
   game.circuit = boards
   game.image = image
-  game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: { 'image:widget-imageKernel': WeightGrid } }
+  game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: { 'image:widget-imageKernel': ui['image:widget-imageKernel'] } }
   return game
 }

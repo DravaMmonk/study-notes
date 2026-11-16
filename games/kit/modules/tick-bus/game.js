@@ -1,3 +1,4 @@
+import { loadDisplays } from '../../engine/displays.js'
 // A tick-bus game on the circuit base's game (../../shell/circuit-game.js), its levels played tick by tick on the
 // domain's screen (ui/screen.js).
 //
@@ -13,11 +14,10 @@
 //                 and boards as text (npm test)
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Activity } from 'lucide-react'
-import './ui/tick-bus.css'
 import { definedGame } from '../../shell/circuit-game.js'
-import { screen } from './ui/screen.js'
-import { CARDS } from './ui/catalog.js'
 import { tickBusCourse } from './course.js'
 
+const ui = await loadDisplays(['tick-bus:screen', 'tick-bus:catalog'])
+
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => definedGame(content, tickBusCourse(content), { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen, cards: CARDS })
+export default (content) => definedGame(content, tickBusCourse(content), { ops: {}, kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen: ui['tick-bus:screen'], cards: ui['tick-bus:catalog'] })

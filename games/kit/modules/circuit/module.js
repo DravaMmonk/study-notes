@@ -8,12 +8,15 @@ export default {
   id: 'circuit',
   register(registry) {
     registry.vocabulary('circuit', vocabulary)
+    registry.add('display', 'circuit:screen', { about: { en: 'Circuit cards and result presentation' }, role: 'circuit' })
+    registry.implementDisplays(['circuit:screen'], '../modules/circuit/ui/displays.js')
     Object.assign(registry.kinds.op, BUILTIN_ITEMS)
     for (const [name, item] of Object.entries(BUILTIN_ITEMS)) registry.add('operation', name, { kind: 'op', ...item })
     registry.implementOperations({ ...OPS, ...BUILTINS })
     const displays = qualifyItems('circuit', 'display', displayItems({}))
     Object.assign(registry.kinds.display ??= Object.create(null), displays)
     for (const [name, item] of Object.entries(displays)) registry.add('display', name, { kind: 'display', ...item })
+    registry.implementDisplays(Object.keys(displays), '../modules/circuit/ui/bench.jsx')
     registry.add('valueType', 'circuit:number', { about: { en: 'number' } })
     registry.add('valueType', 'circuit:boolean', { about: { en: 'boolean' } })
     registry.add('valueType', 'circuit:string', { about: { en: 'string' } })

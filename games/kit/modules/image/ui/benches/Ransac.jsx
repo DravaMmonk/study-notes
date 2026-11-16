@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Check, X } from 'lucide-react'
 import { L, keyOf, tr } from '../../../../shell/i18n.js'
-import { Knob } from '../../../../shell/bench/items.jsx'
+import Knob from '../../../../shell/bench/Knob.jsx'
 import { distanceToLine, pointAlongLine } from '../../engine/match.js'
 import { linePath } from './matchDraw.js'
 import './match.css'

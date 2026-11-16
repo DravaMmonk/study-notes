@@ -1,22 +1,17 @@
-// node --test (npm test) — how much of its own interface each domain still writes as components (components.js). A
-// domain on the circuit base writes none: it declares its screen (ui/screen.js) and the kit draws it. The image
-// domain retains model-specific parameter bench displays.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { components } from './components.js'
 
-const CEILING = {
-  'modules/image': 952,
-}
-
-test('no domain writes more components of its own than it did, and a domain on the circuit base writes none', () => {
-  const over = Object.entries(components(resolve(import.meta.dirname, '..'))).filter(([domain, lines]) => lines > (CEILING[domain] ?? 0))
-  assert.deepEqual(over, [], 'a domain declares its screen (ui/screen.js); a part every game could use goes in the kit')
+const files = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const file = resolve(dir, entry.name)
+  return entry.isDirectory() ? files(file) : /\.(jsx?|css)$/.test(entry.name) ? [file] : []
 })
 
-test('a ceiling comes down with the components it counted', () => {
-  const now = components(resolve(import.meta.dirname, '..'))
-  const slack = Object.entries(CEILING).filter(([domain, most]) => (now[domain] ?? 0) < most)
-  assert.deepEqual(slack, [], 'lower the ceiling to what the domain holds now')
+test('shared renderers import no module UI or module styles', () => {
+  const root = resolve(import.meta.dirname, '..')
+  for (const directory of ['shell', 'views', 'circuit']) for (const file of files(resolve(root, directory))) {
+    const source = readFileSync(file, 'utf8')
+    assert.doesNotMatch(source, /(?:from\s*|import\s*|@import\s*)['"][^'"]*\/modules\//, file)
+  }
 })

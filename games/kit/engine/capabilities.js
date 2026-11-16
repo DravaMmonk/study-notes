@@ -36,8 +36,9 @@ export function createCapabilityRegistry() {
   const schemas = Object.create(null)
   const languages = Object.create(null)
   const operations = Object.create(null)
+  const displayLoaders = Object.create(null)
   return {
-    tables, kinds, schemas, languages, operations,
+    tables, kinds, schemas, languages, operations, displayLoaders,
     add(kind, name, value) {
       if (!tables[kind]) throw new Error(`unknown capability kind ${kind}`)
       if (!/^[a-z][a-z0-9-]*:[A-Za-z_][A-Za-z0-9_.-]*$/.test(name)) throw new Error(`invalid capability name ${name}`)
@@ -45,6 +46,14 @@ export function createCapabilityRegistry() {
       tables[kind][name] = value
       if (kind === 'valueType') {
         (kinds.valueType ??= Object.create(null))[name] = value
+      }
+    },
+    implementDisplays(names, load) {
+      for (const name of names) {
+        if (!tables.display[name]) throw new Error(`undeclared display ${name}`)
+        if (displayLoaders[name]) throw new Error(`duplicate display implementation ${name}`)
+        if (typeof load !== 'string' || !load.startsWith('../modules/')) throw new Error(`display ${name} needs a module UI entry`)
+        displayLoaders[name] = load
       }
     },
     implementOperations(items) {
