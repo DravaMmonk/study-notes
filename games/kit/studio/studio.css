@@ -820,7 +820,8 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 [data-order-drop="after"] { box-shadow: inset 0 -2px 0 var(--accent); }
 [data-dragging] { opacity: .45; }
 .sidebar-section-head[draggable="true"] .sidebar-section-name { cursor: grab; }
-.member-move { flex: none; display: inline-flex; align-items: center; }
+.member-move { flex: none; display: inline-flex; align-items: center; margin-left: auto; }
+.tag-member > .member-move + .editor-tool:last-child { margin-left: 0; }
 .member-grip { width: 14px; display: grid; place-items: center; color: var(--faint); cursor: grab; }
 .member-move .editor-tool { width: 20px; height: 20px; }
 @media (hover: hover) {
@@ -848,3 +849,4 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .package-facts dt { color: var(--muted); font: 600 11.5px/1.6 var(--mono); }
 .package-facts dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .chapter-head { cursor: pointer; }
+.package-refusal { margin: 4px 0 8px; color: var(--fail); }

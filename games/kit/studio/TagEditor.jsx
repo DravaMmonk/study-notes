@@ -78,9 +78,10 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
     if (ops?.length) onOps(ops)
   }
   const { item } = useDragOrder({ ids: ordered, onMove: moveMember, disabled: !movable })
-  const mover = (member) => movable && ordered.length > 1 && (
+  const movesAt = movable && ordered.length > 1
+  const grip = movesAt && <span className="member-grip" aria-hidden="true"><GripVertical size={12} /></span>
+  const mover = (member) => movesAt && (
     <span className="member-move">
-      <span className="member-grip" aria-hidden="true"><GripVertical size={12} /></span>
       <button type="button" className="kit-btn editor-tool" disabled={ordered[0] === member} aria-label={tr('上移', 'Move up')} title={tr('上移', 'Move up') + ' (Alt+↑)'}
         onClick={(e) => { e.stopPropagation(); moveMember(member, { before: ordered[ordered.indexOf(member) - 1] }) }}><ArrowUp size={12} aria-hidden="true" /></button>
       <button type="button" className="kit-btn editor-tool" disabled={ordered.at(-1) === member} aria-label={tr('下移', 'Move down')} title={tr('下移', 'Move down') + ' (Alt+↓)'}
@@ -119,7 +120,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
         {ordered.map((member) => [member, tag.values.indexOf(member)]).map(([member, k]) => member.startsWith('#')
           ? <li key={member} {...item(member)}>
             <div className={`tag-member is-tag ${known(member) ? '' : 'is-unknown'}`}>
-              {mover(member)}
+              {grip}
               <button type="button" className="kit-btn editor-tool" aria-expanded={open.has(member)} aria-label={tr('展开', 'Expand')} onClick={() => toggle(member)}>
                 {open.has(member) ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
               </button>
@@ -127,6 +128,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
                 <Layers size={13} aria-hidden="true" /><code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
                 <small className="object-count">{tagMembers(content, member.slice(1)).length}</small>
               </button>
+              {mover(member)}
               {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
             </div>
             {open.has(member) && <ul className="tag-members">
@@ -136,8 +138,9 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
             </ul>}
           </li>
           : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])} {...item(member)}>
-            {mover(member)}
+            {grip}
             <code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
+            {mover(member)}
             {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
           </li>)}
       </ul>

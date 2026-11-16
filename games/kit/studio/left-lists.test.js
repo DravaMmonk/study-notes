@@ -46,16 +46,17 @@ const content = {
     layout: { 'demo/map': { of: '#demo/first', rows: [['demo/a', null]] } },
   },
 }
-const object = (full, kind = 'tag') => ({ kind, full, namespace: 'demo', value: objectValue(content, kind, full) })
+const object = (full, kind = 'tag') => ({ kind, full, namespace: 'demo', value: objectValue(content, kind, full), ...(kind === 'tag' && { tagKind: 'level' }) })
 
-test('an object’s file is the registry’s value without its id, written back by short names', () => {
+test('an object’s file is the registry’s value without its id (a tag without its kind, which its folder says), written back by short names', () => {
   assert.equal(objectValue(content, 'tag', 'demo/first').id, undefined)
+  assert.equal(objectValue(content, 'tag', 'demo/first').kind, undefined)
   assert.equal(objectValue(content, 'tag', 'demo/none'), null)
-  assert.equal(objectFileName('tag', 'demo/first', { kind: 'level' }), 'demo/tags/level/first.json')
-  assert.equal(objectFileName('layout', 'demo/map', {}), 'demo/layouts/map.json')
-  assert.equal(objectFileName('layout', 'demo/map', {}, 'demo'), 'layouts/map.json')
+  assert.equal(objectFileName('tag', 'demo/first', 'level'), 'demo/tags/level/first.json')
+  assert.equal(objectFileName('layout', 'demo/map'), 'demo/layouts/map.json')
+  assert.equal(objectFileName('layout', 'demo/map', null, 'demo'), 'layouts/map.json')
   assert.deepEqual(ownObjectData('demo', objectValue(content, 'tag', 'demo/first')),
-    { kind: 'level', title: { en: 'First', $key: 'tags.first' }, values: ['a', 'other/b', '#inner'] })
+    { title: { en: 'First', $key: 'tags.first' }, values: ['a', 'other/b', '#inner'] })
 })
 
 test('an edit of the layer’s own object is its object operation; another layer’s makes none', () => {

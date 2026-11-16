@@ -54,6 +54,7 @@ import RelationBoard from './RelationBoard.jsx'
 import LayoutEditor from './LayoutEditor.jsx'
 import { OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, currentOf, isObjectList, listOfKind, openParams, overrideKey, readOpen } from './left-lists.js'
 import { namespaceOf, objectsOf } from './objects-edit.js'
+import { objectFileName, objectValue, ownObjectData } from './object-file.js'
 import { groupOf, levelTags, treeMoves } from './groups.js'
 import { memberOrderOps, tagMoveOps } from './tag-order.js'
 import Inspector from './Inspector.jsx'
@@ -472,8 +473,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   // A group dragged among the groups: the layer's level-tags-order; a level moved in its group: the group's order.
   const moveGroup = (group, to) => {
-    const members = Object.fromEntries(Object.entries(levelTags(content)).map(([id, tag]) => [id, tag.levels.map((l) => l.id)]))
-    const ops = tagMoveOps(content, namespace, 'level', group, to, members)
+    const ops = tagMoveOps(content, namespace, 'level', group, to)
     if (ops?.length) addOps(ops)
   }
   const reorderGroup = (group, sequence) => {
@@ -631,6 +631,14 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const objectFile = groupTag ? { object: { kind: 'tag', full: groupTag, namespace, own: namespaceOf(groupTag) === namespace } }
     : objectKind && openObject ? { object: { kind: objectKind, full: openObject, namespace, own: namespaceOf(openObject) === namespace } }
     : openCapability ? { capability: openCapability } : openEvent ? { override: { event: openEvent, layer: namespace } } : { game: true }
+  // The file the fold bar's compare shows: the object open in the middle (as its layer writes it), else a level.
+  const compared = objectFile.object
+  const compareFile = compared && {
+    name: objectFileName(compared.kind, compared.full, content.registries?.tag?.[compared.full]?.kind, namespace),
+    now: ownObjectData(namespace, objectValue(content, compared.kind, compared.full)),
+    before: base && (objectValue(base, compared.kind, compared.full) ?? undefined) && ownObjectData(namespace, objectValue(base, compared.kind, compared.full)),
+    git: compared.own,
+  }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
       <StudioBar space={space} ops={ops} busy={busy} fresh={fresh} onPalette={() => openOverlay('palette')}>
@@ -720,7 +728,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           <aside className="studio-audit">
             <Drawer open={layout.auditOpen} tab={drawerTab} onTab={openDrawer} onToggle={() => togglePanel('audit')} sum={auditSum(items, last)} fresh={fresh} ops={ops}
               audit={<Audit items={items} fresh={fresh} last={last} at={at} busy={busy} open={layout.auditOpen && drawerTab === 'audit'} onOpen={() => openDrawer('audit')} onJump={jumpTo} />}
-              panel={drawerTab === 'compare' ? <Compare target={target} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />
+              panel={drawerTab === 'compare' ? <Compare target={target} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} file={compareFile} onFilePath={pickObjectField} />
                 : drawerTab === 'changes' ? <Review ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
                   onRemove={(k) => { if (confirmDelete(ops[k].op)) pending.remove(k) }} onBack={back} onRedo={again}
                   onDiscard={discard} onOpen={pending.open} onApply={apply} onUndo={undo} onSelect={(lvl) => select({ level: lvl })} />

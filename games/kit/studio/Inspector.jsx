@@ -43,7 +43,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     ? { ...content, partDefs: setAt(partDefs, pathToFace.slice(0, 3), { ...part.views, [face]: pendingFace }) }
     : content
   const shown = field?.path && fileForm(preview, vocabulary, at, order)
-  const file = at?.object ? { object: { ...at.object, value: shown?.value } } : at?.level ? { level: at.level } : at?.parts ? { parts: true } : at?.glossary ? { glossary: content.glossary } : { game: true }
+  const file = at?.object ? { object: { ...at.object, value: shown?.value, tagKind: content.registries?.tag?.[at.object.full]?.kind } } : at?.level ? { level: at.level } : at?.parts ? { parts: true } : at?.glossary ? { glossary: content.glossary } : { game: true }
   // Another layer's object is read here only: it is overridden from the middle.
   const readOnly = Boolean(at?.object && !at.object.own)
   const asJson = json || readOnly
@@ -266,7 +266,7 @@ function Head({ path, trail, file, root, onPick, json, onToggleJson, about, pinn
   // A piece is a file of its own (pieces/<name>.json): its crumbs start at the piece.
   const piece = file.parts && root?.length === 2 && root.every((key, i) => key === path[i] && key === trail[i]) ? root : null
   const base = piece ?? []
-  const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.value, file.object.namespace)
+  const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.tagKind, file.object.namespace)
     : file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json`
     : piece ? `pieces/${piece[1].slice(piece[1].indexOf('/') + 1)}.json` : file.parts ? 'pieces/'
     : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)

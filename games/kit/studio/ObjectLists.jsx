@@ -9,7 +9,7 @@ import { freeObjectName, namespaceOf, objectsOf, ownNames, shownName, tagMembers
 import { sidebarSearch } from './sidebar-list.js'
 import { TAG_KINDS, newTag } from './tag-edit.js'
 import { newLayout } from './layout-edit.js'
-import { orderedTags, tagMoveOps, tagsOfKind } from './tag-order.js'
+import { orderedTags, tagMoveOps } from './tag-order.js'
 import { useDragOrder } from './useDragOrder.js'
 
 export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], item: ['项', 'Items'], entry: ['词条', 'Entries'] }
@@ -41,11 +41,8 @@ function Groups({ groups, row }) {
 
 const byNamespace = (entries) => [...new Set(entries.map(([full]) => namespaceOf(full)))].map((ns) => [ns, entries.filter(([full]) => namespaceOf(full) === ns)])
 
-/** The members of each tag of `kind` (for the prerequisites that order level tags). */
-const membersOf = (content, kind) => Object.fromEntries(tagsOfKind(content, kind).map((tag) => [tag, kind === 'level' ? tagMembers(content, tag) : []]))
-
 /** Every tag in the order the list shows them: by kind, each kind in its order. */
-export const tagListOrder = (content) => TAG_KINDS.flatMap((k) => orderedTags(content, k, membersOf(content, k)))
+export const tagListOrder = (content) => TAG_KINDS.flatMap((k) => (content ? orderedTags(content, k) : []))
 
 /**
  * The tags, by kind, each kind in its order (tag-order.js: dragged, or moved with Alt+↑/↓, it is the layer's
@@ -58,7 +55,7 @@ export function TagList({ content, namespace, current, pending, onOpen, onEdit, 
   const registry = content?.registries?.tag ?? {}
   const matches = sidebarSearch(query)
   const kinds = TAG_KINDS.filter((k) => all.some(([, tag]) => tag.kind === k))
-  const byKind = kinds.filter((k) => !kind || k === kind).map((k) => [k, orderedTags(content, k, membersOf(content, k)).filter((full) => matches(full, L(registry[full].title))).map((full) => [full, registry[full]])])
+  const byKind = kinds.filter((k) => !kind || k === kind).map((k) => [k, orderedTags(content, k).filter((full) => matches(full, L(registry[full].title))).map((full) => [full, registry[full]])])
   const shown = byKind.flatMap(([, entries]) => entries)
   const ids = shown.map(([full]) => full)
   const { item } = useDragOrder({
@@ -67,7 +64,7 @@ export function TagList({ content, namespace, current, pending, onOpen, onEdit, 
     onMove: (tag, to) => {
       const k = registry[tag]?.kind
       if (registry[to.before ?? to.after]?.kind !== k) return
-      const ops = tagMoveOps(content, namespace, k, tag, to, membersOf(content, k))
+      const ops = tagMoveOps(content, namespace, k, tag, to)
       if (ops?.length) onOps(ops)
     },
   })

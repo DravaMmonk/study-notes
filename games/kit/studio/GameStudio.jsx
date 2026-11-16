@@ -7,7 +7,7 @@
 // middle. Only
 // the game's side of the operation set runs here (useChangeset.js): the course, the game's texts and its overrides.
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, Hammer, Layers, ListTree, Package, Plus, Settings2, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Hammer, Layers, ListTree, Minus, Package, Plus, Settings2, Trash2 } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { withParts } from '../engine/parts/define.js'
 import { parsePath } from '../engine/ops/edit.js'
@@ -19,6 +19,7 @@ import { usePref } from './prefs.js'
 import { confirmDelete } from './delete.js'
 import { textField } from './copy.js'
 import { blankChapter, moveChapter } from './course-edit.js'
+import { missingDependencies, packageAddOps, packageRemoveOps } from './game-packages.js'
 import { useChangeset } from './useChangeset.js'
 import StudioBar from './StudioBar.jsx'
 import PanelResizer from './PanelResizer.jsx'
@@ -113,6 +114,13 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
   // The packages this game plays (game.json `packages`, the layers it loads on) and the one picked in the list.
   const used = content?.layerUses?.[layer] ?? []
   const packageShown = packages.some((p) => p.id === packageAt) ? packageAt : used[0] ?? packages[0]?.id ?? null
+  // Package operations are tried on the pending changeset first: the kernel's refusal is said where they were asked.
+  const tryOps = async (next) => {
+    const r = await call('preview', { game, scope: SCOPE, changeset: { ops: [...ops, ...next] }, check: false }).catch((error) => ({ failed: 0, problems: [error.message] }))
+    if (r.failed !== null && r.failed !== undefined) return r.problems?.join('; ') || tr('操作失败')
+    addOps(next)
+    return null
+  }
   const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
   const select = (next) => {
@@ -222,7 +230,7 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             <div className="studio-scroll">
-              {packagesShown && <PackageCard id={packageShown} packages={packages} used={used} content={content} onBuild={onBuild} />}
+              {packagesShown && <PackageCard key={packageShown} id={packageShown} packages={packages} used={used} content={content} pending={busyEditing} onBuild={onBuild} onOps={tryOps} />}
               {overridesShown && <OverrideDetail event={openEvent} layer={layer} pending={busyEditing} onOps={addOps} onOpen={() => setSide('chapters')} />}
               {!overridesShown && !packagesShown && (at?.game || e === null
                 ? <article className="editor"><header className="editor-head"><h1>{L(content.title)}</h1></header></article>
@@ -280,10 +288,16 @@ function PackageList({ packages, used, current, onOpen }) {
   )
 }
 
-/** A package picked in the list: whether the game plays it, what it loads on, what it holds; open it to build. */
-function PackageCard({ id, packages, used, content, onBuild }) {
+/**
+ * A package picked in the list: whether the game plays it (added, with the dependencies it lacks, or taken out:
+ * `onOps(ops)` resolves to the kernel's refusal or null), what it loads on, what it holds; open it to build.
+ */
+function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
+  const [refusal, setRefusal] = useState(null)
   if (!id) return <article className="arrange" />
   const uses = packages.find((p) => p.id === id)?.uses ?? []
+  const missing = missingDependencies(packages, used, id)
+  const run = async (ops) => setRefusal(await onOps(ops))
   const count = (kind) => Object.keys(content?.registries?.[kind] ?? {}).filter((name) => name.startsWith(`${id}/`)).length
   return (
     <article className="editor">
@@ -291,8 +305,14 @@ function PackageCard({ id, packages, used, content, onBuild }) {
         <code className="editor-id is-static">{id}</code>
         <span className="object-kind">{used.includes(id) ? tr('在用', 'In use') : tr('未用', 'Not used')}</span>
         <span className="kit-spacer" />
+        {used.includes(id)
+          ? <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => run(packageRemoveOps(id))}><Minus size={13} aria-hidden="true" />{tr('不再选用', 'Remove from the game')}</button>
+          : <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => run(packageAddOps(packages, used, id))}>
+            <Plus size={13} aria-hidden="true" />{missing.length ? tr(`连同 ${missing.join('、')} 一起选用`, `Add with ${missing.join(', ')}`) : tr('选用', 'Add to the game')}
+          </button>}
         {onBuild && <button type="button" className="kit-btn is-label" onClick={() => onBuild(id)}><Hammer size={13} aria-hidden="true" />{tr('构建', 'Build')}</button>}
       </header>
+      {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <dl className="package-facts">
         {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
         {used.includes(id) && [['level', '关卡', 'Levels'], ['piece', '件', 'Pieces'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['layout', '布局', 'Layouts']].map(([kind, zh, en]) => (

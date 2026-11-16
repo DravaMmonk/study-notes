@@ -20,8 +20,7 @@ export const groupOf = (content, level) => Object.entries(levelTags(content)).fi
 export function groupTree(content, order = []) {
   const grouped = new Set()
   const tags = levelTags(content)
-  const members = Object.fromEntries(Object.entries(tags).map(([id, tag]) => [id, tag.levels.map((l) => l.id)]))
-  const sections = orderedTags(content, 'level', members).filter((id) => tags[id]).map((id) => [id, tags[id]]).map(([id, group]) => {
+  const sections = orderedTags(content, 'level').filter((id) => tags[id]).map((id) => [id, tags[id]]).map(([id, group]) => {
     for (const { id: level } of group.levels) grouped.add(level)
     return { key: id, group: id, levels: group.levels, slots: [{ group: id, at: 0 }, ...group.levels.map(({ id: level }) => ({ group: id, after: level }))] }
   })

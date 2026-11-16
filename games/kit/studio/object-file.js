@@ -12,15 +12,20 @@ import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
 export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', layout: 'layouts' }
-/** The schema of an object kind's files. */
-export const objectSchema = (kind) => OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null
+// A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
+const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
-/** An object as the registry holds it, for its file: without the id the registry adds. */
+/** The schema of an object kind's files. */
+export const objectSchema = (kind) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags) : OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+
+/** An object as the registry holds it, for its file: without the id the registry adds (and a tag without its kind). */
 export function objectValue(content, kind, full) {
   const value = content?.registries?.[kind]?.[full]
   if (!value) return null
   const { id: _, ...rest } = value
-  return rest
+  if (kind !== 'tag') return rest
+  const { kind: __, ...file } = rest
+  return file
 }
 
 /** A value as `namespace` writes it: its own full names (and message keys) short, everything else as it is. */
@@ -36,16 +41,16 @@ export function ownObjectData(namespace, value) {
 }
 
 /** The file an object is written in: in `namespace`'s own package by its path there, another's prefixed with it. */
-export function objectFileName(kind, full, value, namespace = null) {
+export function objectFileName(kind, full, tagKind = null, namespace = null) {
   const name = full.slice(full.indexOf('/') + 1)
-  const folder = kind === 'tag' ? `tags/${value?.kind ?? 'level'}` : OBJECT_KINDS[kind]
+  const folder = kind === 'tag' ? `tags/${tagKind ?? 'level'}` : OBJECT_KINDS[kind]
   const owner = namespaceOf(full) ?? ''
   return owner === namespace ? `${folder}/${name}.json` : `${owner}/${folder}/${name}.json`
 }
 
 /**
- * The operation an edit of an object's field makes: `object` { kind, full, namespace, value } (`value` as the registry
- * holds it). edit: { set, lang? } | { unset: true } at `path`; `type` 'text' for one language of a text. Null when the
+ * The operation an edit of an object's field makes: `object` { kind, full, namespace, value, tagKind? } (`value` as its
+ * file has it, objectValue; a tag's kind, from its folder, written back with it whole). edit: { set, lang? } | { unset: true } at `path`; `type` 'text' for one language of a text. Null when the
  * object is not the layer's own, or for an edit no operation makes (the whole object taken out: the list removes it).
  */
 export function objectOp(object, path, edit, type = null) {
@@ -54,7 +59,7 @@ export function objectOp(object, path, edit, type = null) {
   if (!name || !OBJECT_KINDS[kind]) return null
   const keys = parsePath(path)
   const set = (data) => ({ op: `${kind}.set`, [kind]: name, path: keys, value: data })
-  const put = (data) => ({ op: `${kind}.put`, [kind]: name, data: ownObjectData(namespace, data) })
+  const put = (data) => ({ op: `${kind}.put`, [kind]: name, data: ownObjectData(namespace, kind === 'tag' ? { kind: object.tagKind, ...data } : data) })
   if (type === 'text' && !edit.unset) {
     if (!keys.length) return null
     return set(edit.lang ? textWith(namespace, getAt(value, keys), edit.lang, edit.set) : edit.set)
