@@ -43,6 +43,7 @@ import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
+import ObjectsTab from './ObjectsTab.jsx'
 import { groupMoves, groupOf, levelTags } from './groups.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
@@ -52,7 +53,7 @@ import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
 const SAVED_VIEW = window.history.state?.studio
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrange'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
@@ -84,6 +85,8 @@ const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLo
 export default function PackageStudio({ game, games, onGame, space }) {
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
   const pending = useChangeset(game, SCOPE)
+  const namespace = games.find((g) => g.id === game)?.package ?? game
+  const [objectAt, setObjectAt] = useState(null)
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
@@ -407,7 +410,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
   }
   // Levels dropped in the tree: into a group at a place, or out of every group.
   const move = (levels, to) => {
-    addOps(groupMoves(levels, to, content))
+    addOps(groupMoves(levels, to, content, namespace))
     setMoving(null)
   }
   // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
@@ -596,6 +599,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
+                {tab === 'arrange' && <ObjectsTab content={content} namespace={namespace} at={objectAt} pending={saving || shown.ops !== ops} onAt={setObjectAt} onEdit={edit} onOps={addOps} />}
                 {tab === 'fields' && <Editor side={SCOPE} content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">

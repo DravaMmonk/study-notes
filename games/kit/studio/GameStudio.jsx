@@ -22,6 +22,7 @@ import StudioBar from './StudioBar.jsx'
 import PanelResizer from './PanelResizer.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
+import ChapterBoard from './ChapterBoard.jsx'
 import Review from './Review.jsx'
 import Audit from './Audit.jsx'
 import Inspector from './Inspector.jsx'
@@ -189,6 +190,7 @@ export default function GameStudio({ game, games, onGame, onMade, space }) {
                 ? <Editor side={SCOPE} content={course} base={base && { ...base, chapters: base.sourceChapters ?? [] }} vocab={vocab} at={null} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} />
                 : <>
                   <Editor side={SCOPE} content={course} vocab={vocab} at={{ era: e }} picked={[]} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={order} onEdit={edit} onOps={addOps} onSelect={() => {}} onPick={pickField} onCopy={(k) => { setCopyScope(k); setTab('copy') }} />
+                  <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} />
                 </>)}
               {tab === 'copy' && (
                 <article className="editor is-wide">
