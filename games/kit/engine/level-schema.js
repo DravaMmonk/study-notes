@@ -14,7 +14,7 @@ import { T as t } from '../shell/i18n.js'
 /** A card's name: a port's, a register's, a built piece's. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** An item a task gives, withholds or opens (../course.js itemOf): a part, one of its settings, one value of a setting. */
-const HELD = S.str({ reference: 'item', pattern: '^(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
+const HELD = ITEM_REFERENCE
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
@@ -47,7 +47,7 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串') }),
     naive: S.opt(S.list(S.str(), { view: 'board', about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败') })),
     starter: S.opt(S.list(S.str(), { view: 'board', about: t('这个任务一打开就摆在板上的蓝图：一样要修的作品。它不能直接过关') })),
-    withholds: S.opt(S.list(S.str({ reference: 'item' }), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
+    withholds: S.opt(S.list(S.str({ reference: 'piece' }), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
     gives: S.opt(S.list(HELD, { section: 'course', about: t('只在这个任务里多给的：一个元件，元件的一项设置（shift.border），或设置的一个取值（shift.border=wrap）；别的任务不因此得到它。withhold 也可以按同样的写法收起一项设置或一个取值') })),
     opens: S.opt(S.list(HELD, { section: 'course', about: t('这个任务带来的设置或取值（shift.border、shift.border=wrap）：从这里起一直可用。没有哪一关带来的设置和取值，从一开始就可用') })),
     results: RESULTS,

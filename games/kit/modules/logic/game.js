@@ -40,7 +40,6 @@ export default function logicGame(content) {
   // The parts the game defines (pieces.json's and its lemmas'), as the circuit screen draws them.
   const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
-  const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…): a piece of
   // pieces.json.
   const machines = Object.fromEntries(logic.machines.map((type) => [type, pieces[type]]))
@@ -68,7 +67,7 @@ export default function logicGame(content) {
   const introduced = [...introductions(logic.course)].map(([type, at]) => {
     const text = logic.defs[type] ?? logic.strips[type] ?? pieces[type]
     const rules = kernelRules(type)
-    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
   })
   const primitives = introduced.filter(({ piece }) => !logic.strips[piece])
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
@@ -134,8 +133,8 @@ export default function logicGame(content) {
       all: [
         ...primitives,
         ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, piece: type, name: g.name, desc: g.desc, icon: CircuitBoard })),
-        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, piece: type, name: l.name, desc: l.desc, revisions: revisions[type], icon: cards[type].icon, rules: lemmaRows(type) })),
-        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, piece: type, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, piece: type, name: l.name, desc: l.desc, icon: cards[type].icon, rules: lemmaRows(type) })),
+        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, piece: type, name: m.name, desc: m.desc, icon: CircuitBoard })),
       ],
       // A built piece shows the board it runs: the one the player passed its task with, else the reference.
       preview: (part, { progress }) => {

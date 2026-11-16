@@ -4,9 +4,14 @@
   "icon": "Sigma",
   "family": "logic:family-tactic",
   "inputs": [
-    { "name": "rule", "label": "@piece.swapConcl.inputs.0.label", "type": "logic:machine-value" },
-    { "name": "to", "label": "@piece.swapConcl.inputs.1.label", "type": "logic:machine-value" }
+    {
+      "name": "rule",
+      "label": "@piece.swapConcl.inputs.0.label"
+    },
+    {
+      "name": "to",
+      "label": "@piece.swapConcl.inputs.1.label"
+    }
   ],
-  "compute": "logic:swapConcl(rule, to)",
-  "outputType": "logic:machine-value"
+  "op": "logic:swapConcl"
 }

@@ -21,12 +21,15 @@ const fields = {
   rules: { use: parameter(S.list(S.str()), []) },
 }
 
+const regions = { append: ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'], each: ['body'], eachOf: ['body'], keepBound: ['body'], search: ['body'] }
+
 /** Operation signatures describe the wire values and the card parameters read by each implementation. */
 export function signatures(items, valueType) {
   return Object.fromEntries(Object.entries(items).map(([name, item]) => [name, {
     ...item,
     args: item.args.map((arg) => ({ ...arg, type: valueType })),
     returns: valueType,
+    ...(regions[name] && { regions: regions[name].map(name => ({ name, type: valueType })) }),
     params: S.obj(fields[name] ?? {}),
   }]))
 }

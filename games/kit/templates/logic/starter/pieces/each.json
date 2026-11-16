@@ -3,10 +3,12 @@
   "desc": "@piece.each.desc",
   "icon": "Rows3",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "regions": [
-    { "name": "body", "label": "@piece.each.regions.0.label", "opens": true, "type": "logic:machine-value" }
+    {
+      "name": "body",
+      "label": "@piece.each.regions.0.label",
+      "opens": true
+    }
   ],
-  "compute": "logic:each(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:each"
 }

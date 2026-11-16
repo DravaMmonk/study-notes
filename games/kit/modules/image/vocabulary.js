@@ -31,10 +31,7 @@ const PARTS = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) =>
 const FLAGS = new Map()
 for (const spec of Object.values(NODE_TYPES)) {
   if (spec.unlock) FLAGS.set(spec.unlock, spec.label)
-  for (const param of spec.params ?? []) {
-    if (param.unlock) FLAGS.set(param.unlock, t(`${spec.label.zh ?? spec.label} 的「${param.label.zh ?? param.label}」`, `${spec.label.en ?? spec.label}’s ${param.label.en ?? param.label}`))
-    for (const option of param.options ?? []) if (option[2]) FLAGS.set(option[2], t(`${spec.label.zh ?? spec.label} 的「${option[1].zh ?? option[1]}」`, `${spec.label.en ?? spec.label}’s ${option[1].en ?? option[1]}`))
-  }
+
 }
 const UNLOCKS = Object.fromEntries([...FLAGS].map(([flag, about]) => [flag, { about }]))
 // The ways a picture can be shown by the shared view system.

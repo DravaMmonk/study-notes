@@ -1,5 +1,6 @@
 // The authored, knowledge and reference edges used to open a course. Only authored links live in the course file.
-import { dependencyCycle, eraLevels, itemOf, layout } from '../course.js'
+import { dependencyCycle, eraLevels, layout } from '../course.js'
+import { pieceStages, requiredStage } from './piece-stages.js'
 import { standalonePlan } from './package-play.js'
 import { parse } from '../circuit/text.js'
 
@@ -20,12 +21,12 @@ function ancestors(id, edges) {
   return seen
 }
 
-function referenceItems(task) {
+function referenceItems(task, pieces, stages) {
   if (!Array.isArray(task?.solution) || !task.solution.every((line) => typeof line === 'string')) return []
   try {
     return parse(task.solution.join('\n')).statements.flatMap(({ id, type, settings }) => type && !list(task.preset).includes(id) ? [
       type,
-      ...Object.entries(settings).flatMap(([key, value]) => [itemOf(type, key), itemOf(type, key, String(value))]),
+      requiredStage(pieces, type, settings, stages),
     ] : [])
   } catch (error) {
     // The domain's blueprint check reports a syntax error with a line number.
@@ -40,17 +41,16 @@ function providersOf(content) {
     if (!providers.has(item)) providers.set(item, [])
     providers.get(item).push({ level, task, optional })
   }
-  const variants = content.partDefs?.parts ?? {}
   for (const level of content.levels ?? []) {
     for (const item of list(level.opens)) offer(item, level.id, -1, false)
     for (const [index, task] of list(level.tasks).entries()) {
       if (!task) continue
+      for (const item of list(task.awards)) offer(item, level.id, index, Boolean(task.optional))
       // A task starts with its own options, and publishes the piece after it passes.
       for (const item of list(task.opens)) offer(item, level.id, index - 1, Boolean(task.optional))
-      for (const { piece, variant } of list(task.publishes).filter((entry) => entry?.piece)) {
+      for (const { piece } of list(task.publishes).filter((entry) => entry?.piece)) {
         offer(piece, level.id, index, Boolean(task.optional))
-        const form = variants[piece]?.inside?.find(({ id }) => id === variant)?.form
-        if (form) offer(itemOf(piece, 'form', form), level.id, index, Boolean(task.optional))
+
       }
     }
   }
@@ -76,12 +76,14 @@ export function courseDependencies(content) {
   }
   const assumed = layout(eras, { links })
   const providers = providersOf(content)
+  const pieces = content.partDefs?.parts ?? {}
+  const stages = pieceStages(pieces)
   for (const level of levels) {
     if (!placed.has(level.id)) continue
     const required = ancestors(level.id, assumed.required)
     const tasks = Array.isArray(level.tasks) ? level.tasks : [level]
     for (const [index, task] of tasks.entries()) {
-      const items = new Set(referenceItems(task))
+      const items = new Set(referenceItems(task, pieces, stages))
       const gives = new Set([...list(task?.gives ?? level.gives), ...list(task?.opens)])
       for (const item of items) {
         if (gives.has(item)) continue

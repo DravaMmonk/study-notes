@@ -32,7 +32,7 @@ const wrapped = new WeakMap()
  * Running boards over a course's part table (`types`: NODE_TYPES and the parts its levels pack, own.js): partOf(type),
  * evaluate(graph, inputs, variant?), placedNodes, score, runLevel(level, graph, { traced? }), lossOn, trainStep, hasLearnable.
  */
-export function runnerOf(types) {
+export function runnerOf(types, partsFor = (_task, parts) => parts) {
   // The parts as the shared engine (../../../engine/circuit.js) reads them. A part here is written as
   // eval(ins, params, variant); an `input` gives the test's picture of its name and an `output` is what reaches it.
   // A part made by the shared engine itself (a packed circuit) is used as it is.
@@ -54,7 +54,7 @@ export function runnerOf(types) {
               const filled = prepare(Object.fromEntries(planes.map((plane, i) => [i, plane ?? image(1, 1)])), null, {})
               return compose(filled[0], filled[1], filled[2])
             } })
-          : { spec, inputTypes: spec.inputTypes, outputType: spec.outputType, outputTypes: spec.outputTypes, inputs: spec.inputs, optional: spec.optional, ...(typeof spec.outputs === 'function' ? { outputs: spec.outputs } : {}), eval: (ins, node, ctx, key) => spec.evaluate ? spec.evaluate(ins, node, ctx, key) : spec.eval(ins, node.params ?? {}, ctx.variant ?? null, key) })
+          : { spec, specialize: spec.specialize && (definition => ({ ...spec.specialize(definition), spec })), inputTypes: spec.inputTypes, outputType: spec.outputType, outputTypes: spec.outputTypes, inputs: spec.inputs, optional: spec.optional, ...(typeof spec.outputs === 'function' ? { outputs: spec.outputs } : {}), eval: (ins, node, ctx, key) => spec.evaluate ? spec.evaluate(ins, node, ctx, key) : spec.eval(ins, node.params ?? {}, ctx.variant ?? null, key) })
     }
     return wrapped.get(spec)
   }
@@ -89,9 +89,10 @@ export function runnerOf(types) {
   // How a test runs and is judged, for the shared engine's level runs (../../../engine/test-run.js).
   const IMAGE_TESTS = {
     runTest: (_level, graph, test, { traced, workshopParts }) => {
-      if (!traced) return evaluate(graph, test.inputs, null, null, workshopParts)
+      const parts = partsFor(_level, workshopParts ?? partOf)
+      if (!traced) return evaluate(graph, test.inputs, null, null, parts)
       const trace = []
-      return { ...evaluate(graph, test.inputs, null, trace, workshopParts), trace }
+      return { ...evaluate(graph, test.inputs, null, trace, parts), trace }
     },
     check: (level, test, outputs) => Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) })),
     score: (_level, graph, results, options) => {

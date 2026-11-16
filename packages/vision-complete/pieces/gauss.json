@@ -3,17 +3,40 @@
   "desc": "@piece.gauss.desc",
   "icon": "Grid3x3",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
   "settings": {
-    "sigma": { "label": "σ" },
+    "sigma": {
+      "label": "σ"
+    },
     "border": {
       "label": "@piece.gauss.settings.border.label",
       "options": [
-        { "value": "zero", "label": "@piece.gauss.settings.border.options.0.label" },
-        { "value": "edge", "label": "@piece.gauss.settings.border.options.1.label" }
-      ]
+        {
+          "value": "zero",
+          "label": "@piece.gauss.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@piece.gauss.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
     }
   },
-  "compute": "image:gauss(in, $sigma, $border)",
-  "outputType": "image:image"
+  "op": "image:gauss",
+  "stages": [
+    {
+      "id": "gauss-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
 }

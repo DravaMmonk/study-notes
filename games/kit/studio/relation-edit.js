@@ -36,7 +36,7 @@ export const withRequired = (edges, key, required) => edges.map((edge) => {
 export const withoutEndpoint = (edges, endpoint) => edges.filter(({ from, to }) => from !== endpoint && to !== endpoint)
 
 /** What a relation's endpoints are: levels for requires, pieces for replaces, the relation's `of` (or levels) for order. */
-export const endpointKind = (relation) => relation?.kind === 'replaces' ? 'item' : relation?.kind === 'requires' ? 'level' : relation?.of ?? 'level'
+export const endpointKind = (relation) => relation?.kind === 'replaces' ? 'piece' : relation?.kind === 'requires' ? 'level' : relation?.of ?? 'level'
 
 /** The ops writing `edges` back into the relation `name` (a short name) of `namespace`: the layer's own endpoints
  * by their short names, edges replacing a sequence. */

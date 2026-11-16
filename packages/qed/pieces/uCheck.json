@@ -3,7 +3,11 @@
   "desc": "@piece.uCheck.desc",
   "icon": "Sigma",
   "family": "logic:family-tactic",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "compute": "logic:uCheck(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:uCheck",
+  "stages": [
+    {
+      "id": "uCheck-r-pattern-desc",
+      "desc": "@piece.uCheck.revisions.0.desc"
+    }
+  ]
 }

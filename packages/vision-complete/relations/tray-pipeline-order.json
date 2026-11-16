@@ -1,7 +1,7 @@
 {
   "kind": "order",
   "sequence": [
-    "shift",
+    "shift-n",
     "mul",
     "const",
     "add",
@@ -10,13 +10,13 @@
     "threshold",
     "arith",
     "merge",
-    "blur3h",
-    "box3",
-    "gauss",
+    "blur3h-border",
+    "box3-border",
+    "gauss-border",
     "diffx",
-    "sobelx",
-    "sobely",
-    "kernel3",
+    "sobelx-border",
+    "sobely-border",
+    "kernel3-border",
     "cos",
     "fqWave",
     "fqMean",
@@ -28,7 +28,7 @@
     "shade",
     "sense",
     "globalMax",
-    "gradmag",
+    "gradmag-border",
     "lrnConst",
     "learn3",
     "lrnDense",
@@ -44,5 +44,5 @@
     "attention",
     "embed"
   ],
-  "of": "item"
+  "of": "piece"
 }

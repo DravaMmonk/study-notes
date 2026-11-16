@@ -3,16 +3,37 @@
   "desc": "@piece.blur3h.desc",
   "icon": "Grid3x3",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
   "settings": {
     "border": {
       "label": "@piece.blur3h.settings.border.label",
       "options": [
-        { "value": "zero", "label": "@piece.blur3h.settings.border.options.0.label" },
-        { "value": "edge", "label": "@piece.blur3h.settings.border.options.1.label" }
-      ]
+        {
+          "value": "zero",
+          "label": "@piece.blur3h.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@piece.blur3h.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
     }
   },
-  "compute": "image:blur3h(in, $border)",
-  "outputType": "image:image"
+  "op": "image:blur3h",
+  "stages": [
+    {
+      "id": "blur3h-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
 }

@@ -21,10 +21,26 @@
           "out <- r"
         ],
         "want": "logic:want-unify",
-        "inputs": [{ "name": "in", "label": "in" }]
+        "inputs": [
+          {
+            "name": "in",
+            "label": "in"
+          }
+        ]
       }
     }
   ],
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
-  "outputType": "logic:machine-value"
+  "inputs": [
+    {
+      "name": "in",
+      "type": "logic:machine-value"
+    }
+  ],
+  "outputType": "logic:machine-value",
+  "stages": [
+    {
+      "id": "unifier-r-pattern-desc",
+      "desc": "@piece.unifier.revisions.0.desc"
+    }
+  ]
 }

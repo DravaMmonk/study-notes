@@ -1,4 +1,0 @@
-{
-  "title": "@tray.trays.machine.items.reasoning.title",
-  "values": ["rule", "assumption", "erule", "frule", "introRules", "elimRules", "auto"]
-}

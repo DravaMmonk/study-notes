@@ -6,7 +6,7 @@ import { blueprintOf } from './board.js'
 import { runnerOf } from './graph.js'
 import { specsOf } from './nodes.js'
 
-export function imageKit(types) {
+export function imageKit(types, partsFor) {
   const specs = specsOf(types)
-  return { ...specs, ...runnerOf(types), ...blueprintOf(specs) }
+  return { ...specs, ...runnerOf(types, partsFor), ...blueprintOf(specs) }
 }

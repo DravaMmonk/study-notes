@@ -55,6 +55,9 @@
           "piece": "dm",
           "variant": "notEx"
         }
+      ],
+      "awards": [
+        "dm-notEx"
       ]
     },
     {
@@ -99,6 +102,9 @@
           "piece": "dm",
           "variant": "allNot"
         }
+      ],
+      "awards": [
+        "dm-allNot"
       ]
     },
     {
@@ -143,6 +149,9 @@
           "piece": "dm",
           "variant": "exNot"
         }
+      ],
+      "awards": [
+        "dm-exNot"
       ]
     },
     {
@@ -197,13 +206,11 @@
           "piece": "dm",
           "variant": "notAll"
         }
+      ],
+      "awards": [
+        "dm-notAll",
+        "dm-q-dm-desc"
       ]
-    }
-  ],
-  "pieceRevisions": [
-    {
-      "piece": "dm",
-      "desc": "@piece.dm.revisions.0.desc"
     }
   ]
 }

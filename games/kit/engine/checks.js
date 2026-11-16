@@ -32,8 +32,8 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
   const expand = referenceResolver(content.registries, wrong)
   for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
     const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
-    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'item', `${at}.${field}`)
-    for (const tray of [entry.tray ?? []].flat()) expand(`#${tray.replace(/^#/, '')}`, 'item', `${at}.tray`)
+    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'piece', `${at}.${field}`)
+    for (const tray of [entry.tray ?? []].flat()) expand(`#${tray.replace(/^#/, '')}`, 'piece', `${at}.tray`)
   }
   const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
   if (wrong.length) return lines
@@ -107,7 +107,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
     part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(firstText(p.name))])),
     wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(firstText(e.title))])),
   }
-  const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
+  const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc }))
   // A game plays the levels its course places; the rest of its package, and the encyclopedia entries that open at them,
   // are not in it (an entry stands in its place, empty, so the problems still count entries as the file does).
   const placed = new Set(spec.levels.map((l) => l.id))

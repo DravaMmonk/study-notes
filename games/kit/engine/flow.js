@@ -3,17 +3,16 @@
 // or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its
 // upgrade chains (the task whose work runs inside it). Each event says where in the level's content it is written, so
 // a tick can open that field.
-import { readItem } from '../course.js'
 import { builtPieces, publications } from './pieces.js'
 import { findTask } from './tasks.js'
 
 /** The path in a level's content (`value`, without its id) of the first list item naming `type` (a part, or one of
  *  its settings or values), or null. */
-function named(value, type) {
+function named(value, type, pieceOf) {
   let found = null
   const walk = (v, path) => {
     if (found) return
-    if (Array.isArray(v)) v.forEach((x, k) => (typeof x === 'string' && readItem(x).part === type && !found ? (found = [...path, k]) : walk(x, [...path, k])))
+    if (Array.isArray(v)) v.forEach((x, k) => (typeof x === 'string' && pieceOf(x) === type && !found ? (found = [...path, k]) : walk(x, [...path, k])))
     else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, [...path, k])
   }
   walk(value, [])
@@ -40,7 +39,7 @@ export function pieceFlow(course, content, type) {
     const tasks = Array.isArray(value.tasks) ? value.tasks : []
     const at = (task) => (task === undefined ? value : tasks[task])
     const where = (task) => {
-      const inside = named(at(task), type)
+      const inside = named(at(task), type, course.pieceOf)
       return inside && (task === undefined ? inside : ['tasks', task, ...inside])
     }
     if (course.adds(l).includes(type)) push({ kind: 'adds', level: l.id, path: where() })
@@ -49,8 +48,8 @@ export function pieceFlow(course, content, type) {
     for (const task of [undefined, ...tasks.map((_, k) => k)]) {
       const grain = task === undefined ? { id: l.id } : { id: l.id, task }
       const scope = task === undefined ? {} : { task }
-      if (course.gives(grain).some((item) => readItem(item).part === type)) push({ kind: 'gives', level: l.id, ...scope, path: where(task) })
-      if (course.withholds(grain).some((item) => readItem(item).part === type)) push({ kind: 'withholds', level: l.id, ...scope, path: where(task) })
+      if (course.gives(grain).some((item) => course.pieceOf(item) === type)) push({ kind: 'gives', level: l.id, ...scope, path: where(task) })
+      if (course.withholds(grain).some((item) => course.pieceOf(item) === type)) push({ kind: 'withholds', level: l.id, ...scope, path: where(task) })
     }
   }
   const built = builtPieces(content.partDefs)

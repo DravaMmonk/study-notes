@@ -3,27 +3,85 @@
   "desc": "@piece.shift.desc",
   "icon": "Move",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
   "settings": {
     "dir": {
       "label": "@piece.shift.settings.dir.label",
       "options": [
-        { "value": "right", "label": "→" },
-        { "value": "left", "label": "←" },
-        { "value": "down", "label": "↓" },
-        { "value": "up", "label": "↑" }
+        {
+          "value": "right",
+          "label": "→"
+        },
+        {
+          "value": "left",
+          "label": "←"
+        },
+        {
+          "value": "down",
+          "label": "↓"
+        },
+        {
+          "value": "up",
+          "label": "↑"
+        }
       ]
     },
-    "n": { "label": "@piece.shift.settings.n.label" },
+    "n": {
+      "label": "@piece.shift.settings.n.label",
+      "fixed": true
+    },
     "border": {
       "label": "@piece.shift.settings.border.label",
       "options": [
-        { "value": "zero", "label": "@piece.shift.settings.border.options.0.label" },
-        { "value": "edge", "label": "@piece.shift.settings.border.options.1.label" },
-        { "value": "wrap", "label": "@piece.shift.settings.border.options.2.label" }
+        {
+          "value": "zero",
+          "label": "@piece.shift.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@piece.shift.settings.border.options.1.label"
+        },
+        {
+          "value": "wrap",
+          "label": "@piece.shift.settings.border.options.2.label"
+        }
+      ],
+      "fixed": true,
+      "remove": [
+        "wrap"
       ]
     }
   },
-  "compute": "image:shift(in, $dir, $n, $border)",
-  "outputType": "image:image"
+  "op": "image:shift",
+  "stages": [
+    {
+      "id": "shift-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    },
+    {
+      "id": "shift-border-wrap",
+      "settings": {
+        "border": {
+          "remove": []
+        }
+      }
+    },
+    {
+      "id": "shift-n",
+      "settings": {
+        "n": {
+          "fixed": false
+        }
+      }
+    }
+  ]
 }

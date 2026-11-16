@@ -22,12 +22,8 @@ const PUBLISHES = S.opt(S.list(S.obj({ piece: S.ref('part'), variant: S.str({ pa
   section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named piece variant.'),
 }))
 
-const PIECE_REVISIONS = S.opt(S.list(S.obj({
-  piece: S.ref('part'), at: S.opt(S.bool()), desc: S.text(),
-})))
-
-export const ITEM_REFERENCE = S.str({ reference: 'item' })
-export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
+export const ITEM_REFERENCE = S.str({ reference: 'piece' })
+export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens', 'awards'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
 
 const OWN = {
   id: TASK_ID_FIELD,
@@ -48,7 +44,7 @@ export const taskLevel = (once, task, { parts = false } = {}) => {
   const keys = { ...OWN, ...TASK_ITEMS, ...(parts ? { publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : {}) }
   return S.obj({
     ...TASK_ITEMS,
-    ...(parts ? { featuredParts: FEATURED_PARTS, pieceRevisions: PIECE_REVISIONS } : {}),
+    ...(parts ? { featuredParts: FEATURED_PARTS } : {}),
     ...once,
     requires: S.opt(S.list(S.level(), { section: 'course', about: t('这关固有的知识前置', 'Knowledge prerequisites for this level') })),
     tasks: S.list(task.type === 'by' ? owned(task, keys) : S.obj({ ...keys, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关') }),

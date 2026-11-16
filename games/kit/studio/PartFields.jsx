@@ -21,7 +21,7 @@ function partAt(file, path) {
   if (path[0] !== 'parts' || !file?.parts?.[path[1]]) return null
   const raw = file.parts[path[1]]
   const settings = Object.fromEntries(resolveSettings(raw).map((s) => [s.key, s]))
-  return { inputs: path[2] === 'compute' ? (raw.inputs ?? []).map((p) => p.name) : [], settings }
+  return { inputs: [], settings }
 }
 
 export function ExprField({ field, onSet, ctx, label }) {

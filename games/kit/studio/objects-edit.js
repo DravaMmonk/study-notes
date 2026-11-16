@@ -34,7 +34,7 @@ export function tagMembers(content, full) {
 
 /** The candidates a tag of `kind` may take: every object of that kind and every tag of the same kind but itself. */
 export function tagCandidates(content, kind, self) {
-  const registry = kind === 'item' ? 'piece' : kind
+  const registry = kind
   const objects = Object.keys(content?.registries?.[registry] ?? {})
   const tags = Object.entries(content?.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === kind && name !== self).map(([name]) => `#${name}`)
   return [...objects, ...tags]
@@ -53,7 +53,7 @@ export const ownNames = (content, kind, namespace) => objectsOf(content, kind, n
 /** Where `full` (an object of `kind`) is named: { tags, relations, layouts }, each a list of full names. */
 export function objectPlaces(content, kind, full) {
   const registries = content?.registries ?? {}
-  const tagKind = kind === 'piece' ? 'item' : kind
+  const tagKind = kind
   const tags = Object.entries(registries.tag ?? {}).filter(([, tag]) => tag.kind === tagKind && tag.values.includes(full)).map(([name]) => name)
   const named = new Set([full, ...tags.map((name) => `#${name}`)])
   const relations = Object.entries(registries.relation ?? {}).filter(([, relation]) => edgesOf(relation).some(({ from, to }) => named.has(from) || named.has(to))).map(([name]) => name)

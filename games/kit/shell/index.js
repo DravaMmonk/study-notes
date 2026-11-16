@@ -1,4 +1,6 @@
 import { earnedUnlocks, passedLevelIn, taskOpen } from './progress.js'
+import { holds } from '../course.js'
+import { stageDefinition } from '../engine/piece-stages.js'
 import { editorOf } from '../engine/pieces.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
@@ -53,11 +55,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
  *   notes         a notes edition (games/DESIGN.md 12): every level open, each chapter listed in order on the map
  *
- * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at | by, …fields }]`:
- * from the level `at` on, or once the level `by` is passed (an upgrade the player earns there), those fields replace
- * the text's own. In a level, a revision counts when the level is `at` or comes after it, or comes after `by`
- * (textAt); in the components box, once `at` is open or `by` is solved (textFor). An upgrade may bring new abilities
- * as well as words: `forms` (engine/forms.js) adds to the forms a part's card offers, each revision's to the last's.
+ * Piece descriptions and available forms follow the same named stages as the circuit cards.
  */
 export function defineGame(def) {
   const plan = def.course?.plan
@@ -86,6 +84,19 @@ export function defineGame(def) {
   }
   const ancestors = ancestorsOf(requiresOf)
   const gates = ancestorsOf(required)
+  const awardedStages = new WeakMap()
+  const stageFlags = progress => {
+    if (!def.course) return []
+    if (!awardedStages.has(progress)) {
+      const passed = new Set(progress.passed)
+      const stages = levels.flatMap(level => [
+        ...(progress.solved.includes(level.id) ? def.course.awards(level) : []),
+        ...(level.tasks ?? []).flatMap((task, index) => passed.has(task.key) ? def.course.awards({ id: level.id, task: index + 1 }) : []),
+      ])
+      awardedStages.set(progress, [...new Set(stages)])
+    }
+    return awardedStages.get(progress)
+  }
   const game = {
     levelLabel: (level) => level.id,
     intro: () => null,
@@ -109,21 +120,56 @@ export function defineGame(def) {
     // it to whoever solved it already), and the flags the save holds.
     /** Is level `id` the level `at`, or one that comes after it? */
     after: (id, at) => id === at || (byId[id] ? ancestors(byId[id]).has(at) : false),
-    flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id] ? earnedUnlocks(byId[id], progress) : [])])],
+    flagsOf: (progress) => [...new Set([...progress.flags, ...stageFlags(progress), ...progress.solved.flatMap((id) => byId[id] ? earnedUnlocks(byId[id], progress) : [])])],
   }
-  // A text as it reads in level `id`, and as it reads for a player's progress (every revision whose level is open).
-  const revise = (text, applies) => {
-    if (!text?.revisions) return text
-    const later = text.revisions.filter(applies).sort((a, b) => index.get(a.at ?? a.by) - index.get(b.at ?? b.by))
-    const { revisions: _, ...base } = text
-    return later.reduce((t, { forms, ...fields }) => {
-      delete fields.at
-      delete fields.by
-      return { ...t, ...fields, ...(forms ? { forms: [...new Set([...(t.forms ?? []), ...forms])] } : {}) }
-    }, base)
+  const stageTexts = new WeakMap()
+  const stagedText = (text, entry) => {
+    if (!entry) return text
+    if (stageTexts.get(text)?.has(entry.id)) return stageTexts.get(text).get(entry.id)
+    const definition = stageDefinition(entry)
+    const result = { ...text, stage: entry.id, name: definition.name ?? text.name, desc: definition.desc ?? text.desc,
+      forms: definition.setting.form?.options?.map(option => option.value) ?? text.forms }
+    if (!stageTexts.has(text)) stageTexts.set(text, new Map())
+    stageTexts.get(text).set(entry.id, result)
+    return result
   }
-  game.textAt = (text, id) => revise(text, (r) => (r.at ? game.after(id, r.at) : Boolean(byId[id]) && ancestors(byId[id]).has(r.by)))
-  game.textFor = (text, progress) => revise(text, (r) => (r.at ? Boolean(byId[r.at]) && isOpen(byId[r.at], new Set(progress.solved), progress.all) : progress.all || progress.solved.includes(r.by)))
+  game.textAt = (text, id, piece = text?.piece) => {
+    if (!def.course || !piece) return text
+    const has = holds(def.course, { id, task: 0 }, new Set())
+    return stagedText(text, def.course.stages.get(has.stage(piece)))
+  }
+  const progressStages = new WeakMap()
+  game.textFor = (text, progress) => {
+    const course = def.course, piece = text?.piece
+    if (!course || !piece) return text
+    if (!progressStages.has(progress)) {
+      const selected = new Map()
+      const consider = entry => {
+        if (entry && entry.index > (selected.get(entry.piece)?.index ?? -1)) selected.set(entry.piece, entry)
+      }
+      for (const id of course.startStages) consider(course.stages.get(id))
+      if (progress.all) for (const entry of course.stages.values()) consider(entry)
+      else {
+        const solved = new Set(progress.solved)
+        const passed = new Set(progress.passed)
+        for (const level of levels) {
+          if (!isOpen(level, solved)) continue
+          for (let task = 0; task < (level.tasks?.length ?? 1); task++) {
+            const at = { id: level.id, task }
+            if (taskOpen(game, progress, level.id, task)) for (const id of course.opens(at)) {
+              if (!course.local(id, at)) consider(course.stages.get(id))
+            }
+            if (passed.has(level.tasks?.[task]?.key)) for (const id of course.awards({ id: level.id, task: task + 1 })) {
+              if (!course.local(id, at)) consider(course.stages.get(id))
+            }
+          }
+          if (solved.has(level.id)) for (const id of course.awards(level)) consider(course.stages.get(id))
+        }
+      }
+      progressStages.set(progress, selected)
+    }
+    return stagedText(text, progressStages.get(progress).get(piece) ?? course.stages.get(piece))
+  }
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
   game.isCircuitPiece = (type) => Boolean(type && editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')

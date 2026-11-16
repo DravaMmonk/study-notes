@@ -3,8 +3,19 @@
   "desc": "@piece.ransac.desc",
   "icon": "Box",
   "family": "image:family-other",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "settings": { "k": { "label": "@piece.ransac.settings.k.label" }, "d": { "label": "δ" } },
-  "compute": "image:ransac(in, $k, $d)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "k": {
+      "label": "@piece.ransac.settings.k.label"
+    },
+    "d": {
+      "label": "δ"
+    }
+  },
+  "op": "image:ransac"
 }

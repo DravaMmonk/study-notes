@@ -4,11 +4,16 @@
   "icon": "Activity",
   "family": "image:family-learned",
   "inputs": [
-    { "name": "r", "type": "image:image" },
-    { "name": "g", "type": "image:image" },
-    { "name": "b", "label": "b", "type": "image:image" }
+    {
+      "name": "b",
+      "label": "b"
+    }
   ],
-  "settings": { "w": { "label": "@piece.lrnRgb.settings.w.label", "fixed": true } },
-  "compute": "image:lrnRgb(r, g, b, $w)",
-  "outputType": "image:image"
+  "settings": {
+    "w": {
+      "label": "@piece.lrnRgb.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:lrnRgb"
 }

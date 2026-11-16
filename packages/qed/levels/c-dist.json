@@ -113,6 +113,9 @@
           "piece": "dist",
           "variant": "andOrR"
         }
+      ],
+      "awards": [
+        "dist-andOrR"
       ]
     },
     {
@@ -163,6 +166,9 @@
           "piece": "dist",
           "variant": "orAndL"
         }
+      ],
+      "awards": [
+        "dist-orAndL"
       ]
     },
     {
@@ -217,6 +223,9 @@
           "piece": "dist",
           "variant": "andOrL"
         }
+      ],
+      "awards": [
+        "dist-andOrL"
       ]
     }
   ]

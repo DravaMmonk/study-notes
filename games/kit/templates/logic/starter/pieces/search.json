@@ -3,28 +3,55 @@
   "desc": "@piece.search.desc",
   "icon": "Search",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "settings": {
     "depth": {
-      "control": "select",
       "label": "@piece.search.settings.depth.label",
       "options": [
-        { "value": "any", "label": "@piece.search.settings.depth.options.0.label" },
-        { "value": "2", "label": "@piece.search.settings.depth.options.1.label" },
-        { "value": "3", "label": "@piece.search.settings.depth.options.2.label" },
-        { "value": "4", "label": "@piece.search.settings.depth.options.3.label" },
-        { "value": "5", "label": "@piece.search.settings.depth.options.4.label" },
-        { "value": "6", "label": "@piece.search.settings.depth.options.5.label" },
-        { "value": "8", "label": "@piece.search.settings.depth.options.6.label" },
-        { "value": "10", "label": "@piece.search.settings.depth.options.7.label" },
-        { "value": "12", "label": "@piece.search.settings.depth.options.8.label" }
-      ],
-      "default": "any"
+        {
+          "value": "any",
+          "label": "@piece.search.settings.depth.options.0.label"
+        },
+        {
+          "value": "2",
+          "label": "@piece.search.settings.depth.options.1.label"
+        },
+        {
+          "value": "3",
+          "label": "@piece.search.settings.depth.options.2.label"
+        },
+        {
+          "value": "4",
+          "label": "@piece.search.settings.depth.options.3.label"
+        },
+        {
+          "value": "5",
+          "label": "@piece.search.settings.depth.options.4.label"
+        },
+        {
+          "value": "6",
+          "label": "@piece.search.settings.depth.options.5.label"
+        },
+        {
+          "value": "8",
+          "label": "@piece.search.settings.depth.options.6.label"
+        },
+        {
+          "value": "10",
+          "label": "@piece.search.settings.depth.options.7.label"
+        },
+        {
+          "value": "12",
+          "label": "@piece.search.settings.depth.options.8.label"
+        }
+      ]
     }
   },
   "regions": [
-    { "name": "body", "label": "@piece.search.regions.0.label", "opens": true, "type": "logic:machine-value" }
+    {
+      "name": "body",
+      "label": "@piece.search.regions.0.label",
+      "opens": true
+    }
   ],
-  "compute": "logic:search(in)",
-  "outputType": "logic:machine-value"
+  "op": "logic:search"
 }

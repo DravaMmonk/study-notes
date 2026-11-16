@@ -546,7 +546,7 @@ export const RULE_PIECE = {
   inputs: [{ name: 'before', type: 'logic:machine-value', label: T('前面'), optional: true }],
   settings: [{ key: 'use', control: 'list', label: T('给出的规则', 'Its rules'), from: 'logic:ruleChoices()' }],
   bare: true,
-  compute: 'logic:rules(before)',
+  op: 'logic:rules',
 }
 /**
  * The rule parts a level holds, as the course registers them beside pieces.json's: one for each part its rule books'

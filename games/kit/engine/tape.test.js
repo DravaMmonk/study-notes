@@ -7,9 +7,9 @@ import { defineParts } from './parts/define.js'
 import { packed, runBoard, sink, source } from './boards.js'
 
 const OPS = {
-  mul: { run: ([a, b]) => a * b },
-  add: { run: ([a, b]) => a + b },
-  param: { leaf: true, run: ([v]) => v },
+  mul: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => a * b },
+  add: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => a + b },
+  param: { args: [], params: { fields: { value: { type: 'num' } } }, leaf: true, run: (_args, { value }) => value },
 }
 const RULES = {
   grad: (op, g, { args: [a, b] }) => (op === 'mul' ? [g * b, g * a] : op === 'add' ? [g, g] : null),
@@ -18,9 +18,9 @@ const RULES = {
 const FILE = {
 
   parts: {
-    mul: { name: 'mul', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'mul(a, b)' },
-    add: { name: 'add', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' },
-    weight: { name: 'weight', inputs: [], settings: { 'value': { control: 'number', default: 0 } }, compute: 'param($value)' },
+    mul: { name: 'mul', inputs: [{ name: 'a' }, { name: 'b' }], op: 'mul' },
+    add: { name: 'add', inputs: [{ name: 'a' }, { name: 'b' }], op: 'add' },
+    weight: { name: 'weight', inputs: [], settings: { 'value': { control: 'number', default: 0 } }, op: 'param' },
   },
 }
 const { PARTS } = defineParts(FILE, OPS)

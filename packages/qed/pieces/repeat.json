@@ -3,16 +3,19 @@
   "desc": "@piece.repeat.desc",
   "icon": "Repeat",
   "family": "logic:family-loop",
-  "inputs": [{ "name": "in", "type": "logic:machine-value" }],
   "regions": [
     {
       "name": "body",
       "label": "@piece.repeat.regions.0.label",
       "opens": true,
-      "closes": true,
-      "type": "logic:machine-value"
+      "closes": true
     }
   ],
-  "compute": "logic:repeat(in, body)",
-  "outputType": "logic:machine-value"
+  "op": "logic:repeat",
+  "stages": [
+    {
+      "id": "repeat-s-results-desc",
+      "desc": "@piece.repeat.revisions.0.desc"
+    }
+  ]
 }

@@ -1,19 +1,19 @@
 {
   "kind": "order",
   "sequence": [
-    "shift",
+    "shift-n",
     "const",
     "invert",
     "threshold",
     "arith",
     "merge",
-    "blur3h",
-    "box3",
-    "gauss",
+    "blur3h-border",
+    "box3-border",
+    "gauss-border",
     "diffx",
-    "sobelx",
-    "sobely",
-    "kernel3",
+    "sobelx-border",
+    "sobely-border",
+    "kernel3-border",
     "cos",
     "fqWave",
     "fqMean",
@@ -25,7 +25,7 @@
     "shade",
     "sense",
     "globalMax",
-    "gradmag",
+    "gradmag-border",
     "exp",
     "softmax",
     "relu",
@@ -44,5 +44,5 @@
     "cross",
     "epiline"
   ],
-  "of": "item"
+  "of": "piece"
 }

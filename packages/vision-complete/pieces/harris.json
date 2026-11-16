@@ -3,8 +3,16 @@
   "desc": "@piece.harris.desc",
   "icon": "Grid3x3",
   "family": "image:family-neighbour",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "settings": { "k": { "label": "k" } },
-  "compute": "image:harris(in, $k)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "k": {
+      "label": "k"
+    }
+  },
+  "op": "image:harris"
 }

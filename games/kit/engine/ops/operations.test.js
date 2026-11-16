@@ -413,7 +413,7 @@ const PVOCAB = defineVocabulary({
   game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), chapters: S.list(ERA), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part') })) }),
 })
-const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
+const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], op: 'add' }
 function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
   const game = { vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], chapters: [{ id: 'one', levels: ['a1'] }] }
@@ -435,7 +435,7 @@ test('the first part of a game makes its pieces.json', () => {
 test('the part operations edit pieces.json, refuse to remove a part still used', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())
-  const added = prun(ws, 'piece.add', { piece: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
+  const added = prun(ws, 'piece.add', { piece: 'twice', data: { ...sum, inputs: [{ name: 'a' }], op: 'add' }, after: 'sum' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum', 'twice'])
   const said = prun(ws, 'text.set', { in: 'pieces', path: 'parts.twice.name', lang: 'en', value: '两倍' })
   assert.deepEqual(ws.partDefs.parts.twice.name, { ...sum.name, en: '两倍' })
@@ -541,7 +541,7 @@ test('package operations write concept tags and local items on levels and tasks'
   const { root } = toy()
   const ws = openPackage('toy', root, { vocabulary: VOCAB })
   const result = await runChangeset(ws, { why: 'Declare package-owned progression.', ops: [
-    { op: 'tag.put', tag: 'numbers', data: { kind: 'item', concept: true, values: ['a', 'b'] } },
+    { op: 'tag.put', tag: 'numbers', data: { kind: 'piece', concept: true, values: ['a', 'b'] } },
     { op: 'level.set', level: 'a1', path: 'adds', value: ['a'] },
     { op: 'level.set', level: 'a1', path: 'local', value: ['#numbers'] },
     { op: 'level.set', level: 'a1', path: 'tasks[0].adds', value: ['b'] },

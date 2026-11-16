@@ -9,7 +9,7 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
     levels: [
       { id: 'a', adds: ['p'], tasks: [{ id: 'a' }] },
       { id: 'b', tasks: [{ id: 'b', publishes: [{ piece: 'm', variant: 'base' }] }, { id: 'b_2', withholds: ['p'] }] },
-      { id: 'c', tasks: [{ id: 'c', gives: ['p.k=1'] }] },
+      { id: 'c', tasks: [{ id: 'c', gives: ['p-fast'] }] },
       { id: 'd', tasks: [{ id: 'd', publishes: [{ piece: 'm', variant: 'two' }] }] },
     ],
     partDefs: { parts: { m: { inside: [{ id: 'base', reference: {} }, { id: 'two', form: 'two', reference: {} }] } } },
@@ -17,6 +17,7 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
   const byId = new Map(content.levels.map((l) => [l.id, l]))
   const own = (l) => (l.task === undefined ? [] : byId.get(l.id).tasks[l.task])
   const course = defineCourse({
+    pieces: { p: { stages: [{ id: 'p-fast' }] } },
     levels: content.levels.map((l) => ({ id: l.id, unlocks: [] })),
     primitives: ['p'],
     adds: (l) => byId.get(l.id).adds ?? [],

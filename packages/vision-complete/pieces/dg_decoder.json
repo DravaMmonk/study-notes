@@ -3,7 +3,11 @@
   "desc": "@piece.dg_decoder.desc",
   "icon": "Activity",
   "family": "image:family-learned",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "compute": "image:dg_decoder(in)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:dg_decoder"
 }

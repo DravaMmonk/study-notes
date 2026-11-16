@@ -3,7 +3,11 @@
   "desc": "@piece.embed.desc",
   "icon": "Box",
   "family": "image:family-other",
-  "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
-  "compute": "image:embed(in)",
-  "outputType": "image:image"
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:embed"
 }

@@ -3,21 +3,28 @@
   "desc": "@piece.natInd.desc",
   "icon": "Box",
   "family": "logic:family-box",
-  "inputs": [],
   "settings": {
-    "P": { "control": "tree", "label": "@piece.natInd.settings.P.label" },
-    "x": { "control": "select", "label": "@piece.natInd.settings.x.label", "from": "logic:names()" }
+    "P": {
+      "label": "@piece.natInd.settings.P.label"
+    },
+    "x": {
+      "control": "select",
+      "label": "@piece.natInd.settings.x.label",
+      "from": "logic:names()"
+    }
   },
   "regions": [
-    { "name": "zero", "label": "@piece.natInd.regions.0.label", "closes": true, "type": "logic:judgment" },
+    {
+      "name": "zero",
+      "label": "@piece.natInd.regions.0.label",
+      "closes": true
+    },
     {
       "name": "step",
       "label": "@piece.natInd.regions.1.label",
       "opens": true,
-      "closes": true,
-      "type": "logic:judgment"
+      "closes": true
     }
   ],
-  "compute": "logic:natInd(zero, step)",
-  "outputType": "logic:judgment"
+  "op": "logic:natInd"
 }

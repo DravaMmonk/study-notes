@@ -1,10 +1,10 @@
 import { piecePath } from './schema.js'
-import { parse } from './expr.js'
+import { operationPiece, operationTrees } from './operation.js'
 import { holesOf, outletsOf, resolveSettings, insideOf, editorOf, regionsOf } from '../pieces.js'
 
 import { acceptsType, typeAlternatives as alternatives } from '../value-types.js'
 
-const scalar = (type) => ({ num: 'circuit:number', int: 'circuit:number', str: 'circuit:string', bool: 'circuit:boolean' })[type] ?? type
+const scalar = (type) => ({ num: 'circuit:number', int: 'circuit:number', str: 'circuit:string', bool: 'circuit:boolean', any: 'circuit:any' })[type] ?? type
 
 /** Check declared ports and every compute branch against operation signatures. */
 export function typeProblems(file, vocabulary) {
@@ -13,9 +13,11 @@ export function typeProblems(file, vocabulary) {
   const ops = vocabulary.kinds.op ?? {}
   const compatible = (expected, actual) => acceptsType(expected, actual, types)
   const say = (at, says) => out.push({ at: piecePath(at), says })
-  for (const [name, part] of Object.entries(file.parts ?? {})) {
+  for (const [name, declaration] of Object.entries(file.parts ?? {})) {
+    const part = operationPiece(declaration, ops)
     if (editorOf(part) !== 'circuit') continue
     const base = `.parts.${name}`
+    if (declaration.outputType && declaration.outputType !== part.outputType) say(`${base}.outputType`, 'output type must come from the selected operation')
     const ports = [...holesOf(part), ...regionsOf(part)]
     const outputs = outletsOf(part)
     for (const port of [...ports, ...outputs]) if (!types[port.type]) say(base, `port ${port.name} needs a registered value type, found ${port.type}`)
@@ -47,10 +49,8 @@ export function typeProblems(file, vocabulary) {
       if (!fits.length) say(at, `${tree.call} input types ${args.join(', ')} do not match its signature`)
       return [...new Set((fits.length ? fits : signatures).flatMap((signature) => alternatives(signature.returns ?? 'circuit:any')))]
     }
-    for (const [key, expr] of typeof part.compute === 'string' ? [['', part.compute]] : Object.entries(part.compute ?? {})) {
-      let tree
-      try { tree = parse(expr) } catch { continue }
-      const at = `${base}.compute${key ? `.${key}` : ''}`
+    for (const [key, tree] of Object.entries(operationTrees(part, ops))) {
+      const at = `${base}.op${key ? `.${key}` : ''}`
       const actual = infer(tree, at)
       const expected = key ? outputs.find((p) => p.name === key)?.type : part.outputType
       if (expected && !compatible(expected, actual)) say(at, `output type ${actual} does not match ${expected}`)

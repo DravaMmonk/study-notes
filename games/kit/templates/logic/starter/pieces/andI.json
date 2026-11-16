@@ -4,9 +4,14 @@
   "icon": "GitFork",
   "family": "logic:family-rule",
   "inputs": [
-    { "name": "a", "label": "@piece.andI.inputs.0.label", "type": "logic:judgment" },
-    { "name": "b", "label": "@piece.andI.inputs.1.label", "type": "logic:judgment" }
+    {
+      "name": "a",
+      "label": "@piece.andI.inputs.0.label"
+    },
+    {
+      "name": "b",
+      "label": "@piece.andI.inputs.1.label"
+    }
   ],
-  "compute": "logic:andI(a, b)",
-  "outputType": "logic:judgment"
+  "op": "logic:andI"
 }
