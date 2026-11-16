@@ -138,8 +138,6 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     overrideFiles: new Map(extraOverridePaths().map((file) => [file, load(file)])),
     reservations: { course: keyed(courseCatalog), package: keyed(packageCatalog) },
     original,
-    // A file that takes over another's content (a level renamed) is laid out like the text it came from.
-    basis: new Map(),
     hub: read(resolve(root, HUB)),
   }
   // Several games may share a package: keep the translations of texts this game does not read.
@@ -149,8 +147,8 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
     content: () => deepFreeze(contentOf(ws)),
     /** What the files hold now, by name; a removed level file is null. */
-    snapshot: () => ({ game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), basis: new Map(ws.basis), reservations: ws.reservations }),
-    restore: (s) => Object.assign(ws, { game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), basis: new Map(s.basis), reservations: s.reservations }),
+    snapshot: () => ({ game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), reservations: ws.reservations }),
+    restore: (s) => Object.assign(ws, { game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), reservations: s.reservations }),
     normalize: (vocabulary, previous) => normalize(ws, vocabulary, previous),
     /** Every file whose text changes: [{ file, before, after }] (before null: a new file; after null: removed). */
     changes: () => changes(ws),
@@ -263,7 +261,7 @@ function changes(ws) {
   ].filter(([file]) => !ws.packaged || !['game.json', 'course.json', 'blueprint.json'].includes(file)))
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
-    const after = writeJson(value, before ?? ws.basis.get(file) ?? null)
+    const after = writeJson(value, before)
     if (after !== before) out.push({ file: ws.pathFor(file), before, after })
   }
   for (const [file, before] of ws.original) if (!now.has(file) && before !== null) out.push({ file: ws.pathFor(file), before, after: null })

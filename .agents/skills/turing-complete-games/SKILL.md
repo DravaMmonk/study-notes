@@ -57,9 +57,10 @@ changes and general lessons where they help future work; use the user's scope an
   `lang` (`games/DESIGN.md` §6.10). The `translate` pipeline step reports missing text for the selected language.
 - A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
   text, parts brought and built) on the level, each puzzle (brief, hints, ports, tests, answers) a task; a level of one
-  task is a plain level. Every task has an id unique in the game (a level's one task usually has the level's id); what
-  players keep goes by it, so tasks are inserted, reordered, moved into another level or renamed with `task.add`,
-  `task.move`, `task.remove`, `task.rename` (two levels made one: move the tasks, remove the emptied level in the same
+  task is a plain level. Every task has an id unique in the game (a level's one task usually has the level's id).
+  Ids cannot change after creation. What players keep goes by it, so tasks are inserted, reordered or moved into
+  another level with `task.add`,
+  `task.move`, `task.remove` (two levels made one: move the tasks, remove the emptied level in the same
   changeset). A new domain writes its level schema with `taskLevel(once, task)` and reads levels task by task
   (`taskLevels`); the prototype domains keep `kind` plus optional `tasks` without ids until they are redone.
 - Unit tests (`npm test`) never know a level: they test the kernel and domains on content written in the test or on

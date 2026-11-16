@@ -1,7 +1,8 @@
 import { referenceKey, resolveReferences, sourceValue } from '../engine/catalogs.js'
 import { isText, textKey } from '../engine/i18n.js'
 import { sameJson } from '../engine/json-value.js'
-import { getAt, setAt, showPath } from '../engine/ops/edit.js'
+import { getAt, showPath } from '../engine/ops/edit.js'
+import { setAt } from '../engine/ops/identity.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { find, validate } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
@@ -76,15 +77,6 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
       }
     }
     return edits
-  }
-  if (file.level && path[0] === 'tasks' && path.length > 1) {
-    const idPath = [...path.slice(0, 2), 'id']
-    const oldId = getAt(before, idPath)
-    const newId = getAt(after, idPath)
-    if (oldId !== newId) {
-      const rename = { op: 'task.rename', task: oldId, to: newId }
-      return path.length === 2 ? [rename, op(path, getAt(after, path))] : [rename]
-    }
   }
   if (file.level && path.length === 1 && path[0] === 'tasks') return taskListOps(file.level, before.tasks ?? [], after.tasks, content.levels)
   if (path.length) return [op(path, getAt(after, path))]

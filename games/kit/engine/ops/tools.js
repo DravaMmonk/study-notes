@@ -349,7 +349,7 @@ const tools = {
     },
   },
   replace: {
-    about: 'Replace across a game as operations, nothing written: the changeset ({ why, ops }: text.set for each text, level.blueprint for each board) that replaces the query’s matches with `with` ($1… for a regex’s groups), each change before and after, and the ids found and left alone (level.rename changes an id). Run it with modify (dryRun first). pick: only these hits (file|path|side or line).',
+    about: 'Replace across a game as operations, nothing written: the changeset ({ why, ops }: text.set for each text, level.blueprint for each board) that replaces the query’s matches with `with` ($1… for a regex’s groups), each change before and after, and the ids found and left alone (ids cannot change; create a new object, then delete the old one). Run it with modify (dryRun first). pick: only these hits (file|path|side or line).',
     params: { game: 'string', query: 'object', with: 'string', pick: 'array?', changeset: 'object?', scope: 'string?' },
     async run({ game, query, with: replacement, pick = null, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)

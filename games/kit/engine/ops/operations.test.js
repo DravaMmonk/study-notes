@@ -70,6 +70,92 @@ function roundTrip(ws, op, args) {
 }
 const level = (ws, id) => ws.levels.get(id)
 
+test('the operation registry exposes no identity-changing operations', () => {
+  assert.deepEqual(Object.keys(OPERATIONS).filter((name) => name.endsWith('.rename')), [])
+})
+
+test('field edits, patches and replacements reject id changes before mutation', () => {
+  const { ws } = toy()
+  const base = level(ws, 'a1')
+  const changed = { ...base, tasks: [{ id: 'new' }] }
+  const before = ws.snapshot()
+  for (const [op, args] of [
+    ['level.set', { level: 'a1', path: 'id', value: 'new' }],
+    ['level.set', { level: 'a1', path: 'tasks[0].id', value: 'new' }],
+    ['level.unset', { level: 'a1', path: 'tasks[0].id' }],
+    ['level.set', { level: 'a1', path: 'tasks[0]', value: { id: 'new' } }],
+    ['level.set', { level: 'a1', path: 'tasks', value: changed.tasks }],
+    ['level.patch', { level: 'a1', fields: { tasks: changed.tasks } }],
+    ['level.patch', { level: 'a1', fields: { id: 'new' } }],
+    ['level.replace', { level: 'a1', data: changed }],
+    ['game.set', { path: 'chapters[0].id', value: 'new' }],
+    ['game.unset', { path: 'chapters[0].id' }],
+    ['game.set', { path: 'chapters[0]', value: { ...ws.game.chapters[0], id: 'new' } }],
+    ['game.set', { path: 'chapters', value: [{ ...ws.game.chapters[0], id: 'new' }, ws.game.chapters[1]] }],
+    ['entry.set', { entry: 'e', path: 'id', value: 'new' }],
+    ['entry.patch', { entry: 'e', fields: { id: 'new' } }],
+    ['entry.put', { entry: 'e', data: { ...ws.entries.get('e'), id: 'new' } }],
+  ]) {
+    assert.throws(() => run(ws, op, args), /id cannot change; create a new object, then delete the old one/, op)
+    assert.deepEqual(ws.snapshot(), before, `${op} leaves the workspace intact`)
+  }
+  for (const kind of ['tag', 'relation', 'layout']) {
+    const plural = { tag: 'tags', relation: 'relations', layout: 'layouts' }[kind]
+    ws[plural].set('object', {})
+    assert.throws(() => run(ws, `${kind}.set`, { [kind]: 'object', path: 'id', value: 'new' }), /id cannot change/)
+  }
+})
+
+test('stable ids allow list reordering, insertion, deletion and undo', () => {
+  const { ws } = toy()
+  const chapters = ws.game.chapters
+  roundTrip(ws, 'game.set', { path: 'chapters', value: [...chapters].reverse() })
+  roundTrip(ws, 'game.set', { path: 'chapters', value: [...ws.game.chapters, { id: 'new', levels: [] }] })
+  roundTrip(ws, 'game.unset', { path: 'chapters[0]' })
+  roundTrip(ws, 'level.set', { level: 'a1', path: 'tasks[0].id', value: 'a1' })
+})
+
+test('piece variants, setting definitions, blueprints and overrides preserve ids', () => {
+  const { root } = toy()
+  const ws = openPackage('toy', root, { vocabulary: VOCAB })
+  run(ws, 'piece.add', { piece: 'made', data: { inside: [{ id: 'base', reference: {} }] } })
+  run(ws, 'setting.add', { setting: 'scale', data: { control: 'slider', min: 0, max: 4 } })
+  for (const args of [
+    { path: 'parts.made.id', value: 'new' },
+    { path: 'parts.made.inside[0].id', value: 'new' },
+    { path: 'parts.made.inside', value: [{ id: 'new', reference: {} }] },
+    { path: 'settings.scale.id', value: 'new' },
+  ]) assert.throws(() => run(ws, 'pieces.set', args), /id cannot change/)
+  run(ws, 'blueprint.put', { data: { eras: [{ id: 'chapter' }] } })
+  assert.throws(() => run(ws, 'blueprint.set', { path: 'eras[0].id', value: 'new' }), /id cannot change/)
+  assert.throws(() => run(ws, 'blueprint.put', { data: { eras: [{ id: 'new' }] } }), /id cannot change/)
+  assert.throws(() => run(ws, 'pieces.set', { path: [], value: { parts: {} } }), /path is empty/)
+  assert.throws(() => run(ws, 'pieces.set', { path: 'settings', value: { new: ws.partDefs.settings.scale } }), /id cannot change/)
+  for (const merge of [false, true]) {
+    for (const id of ['a1', 'toy/a1']) {
+      const data = { ...level(ws, 'a1'), tasks: [{ id }] }
+      roundTrip(ws, 'override.put', { layer: ws.layer, kind: 'level', name: 'toy/a1', data, merge })
+    }
+    assert.throws(() => run(ws, 'override.put', { layer: ws.layer, kind: 'level', name: 'toy/a1', data: { tasks: [{ id: 'new' }] }, merge }), /id cannot change/)
+  }
+})
+
+test('a refused id edit restores all earlier operations in its changeset', async () => {
+  const { root } = toy()
+  const ws = openPackage('toy', root, { vocabulary: VOCAB })
+  const before = ws.content()
+  for (const op of [
+    { op: 'level.set', level: 'a1', path: 'tasks[0].id', value: 'new' },
+    { op: 'entry.put', entry: 'e', data: { ...ws.entries.get('e'), id: 'new' } },
+  ]) {
+    const result = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'a1', path: 'tests', value: [2] }, op] }, { check: false, domain: DOMAIN })
+    assert.equal(result.ok, false)
+    assert.equal(result.failed, 1, result.problems.join('\n'))
+    assert.match(result.problems.join('\n'), /id cannot change/)
+    assert.deepEqual(ws.content(), before)
+  }
+})
+
 test('level.set, level.unset, level.patch and level.replace edit one level', () => {
   const { ws } = toy()
   const title = level(ws, 'a1').title
@@ -104,24 +190,6 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
   assert.deepEqual(level(ws, 'a1').solution, ['m = mp(p, q)', 'goal <- m'])
   assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', path: 'solution', text: 'm = mp(p' }), /line 1/)
   assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', path: 'brief', text: 'goal <- p' }), /not a board/)
-})
-
-test('level.rename renames the file and every reference', () => {
-  const { ws } = toy()
-  const titleKey = textKey(level(ws, 'a2').title)
-  const briefKey = textKey(level(ws, 'b1').brief)
-  roundTrip(ws, 'level.rename', { level: 'a2', to: 'two' })
-  assert.ok(ws.levels.has('two') && !ws.levels.has('a2'))
-  assert.equal(textKey(level(ws, 'two').title), titleKey)
-  assert.equal(textKey(level(ws, 'b1').brief), briefKey)
-  assert.deepEqual(ws.game.chapters[0].levels, ['toy/a1', 'toy/two', 'toy/a3'])
-  assert.deepEqual(ws.game.carry, { x: 'two' })
-  assert.equal(level(ws, 'b1').from, 'two')
-  assert.equal(level(ws, 'b1').brief.en, 'after <level-ref to="two"></level-ref>')
-  assert.equal(level(ws, 'b1').brief.zh, '接着 <level-ref to="two"></level-ref>')
-  assert.equal(ws.entries.get('e').at, 'two')
-  assert.equal(ws.entries.get('e').body[0], 'see <level-ref to="two"></level-ref>')
-  assert.throws(() => run(ws, 'level.rename', { level: 'two', to: 'b1' }), /already/)
 })
 
 test('level.add and level.remove update placement while preserving content references', () => {
@@ -312,7 +380,7 @@ test('a package changeset is checked atomically, logged and undone independently
   assert.match((await undo(ws, options)).problems[0], /nothing to undo/)
 })
 
-test('tasks by id: task.add, task.move in a level and across levels, task.rename, task.remove, each undone', async () => {
+test('tasks by id: task.add, task.move in a level and across levels, task.remove, each undone', async () => {
   const T = defineVocabulary({ domain: 'tasked', version: 1, kinds: {}, game: VOCAB.game, level: taskLevel({ title: S.text() }, { brief: S.text() }) })
   const tx = (s) => ({ en: s })
   const levels = new Map([['p', { title: tx('p'), tasks: [{ id: 'p', brief: tx('p1') }, { id: 'p2', brief: tx('p2') }] }], ['q', { title: tx('q'), tasks: [{ id: 'q', brief: tx('q1') }] }], ['r', { title: tx('r'), tasks: [{ id: 'r1', brief: tx('r1') }] }]])
@@ -332,12 +400,10 @@ test('tasks by id: task.add, task.move in a level and across levels, task.rename
   assert.deepEqual(ids('p'), ['p2', 'p_2', 'p'])
   const across = go('task.move', { task: 'p', to: { level: 'q', after: 'q' } })
   assert.deepEqual([ids('p'), ids('q')], [['p2', 'p_2'], ['q', 'p']])
-  const renamed = go('task.rename', { task: 'p_2', to: 'two' })
-  assert.deepEqual(ids('p'), ['p2', 'two'])
   assert.throws(() => go('task.remove', { task: 'r1' }), /only task: remove the level/)
-  const removed = go('task.remove', { task: 'two' })
+  const removed = go('task.remove', { task: 'p_2' })
   assert.deepEqual(ids('p'), ['p2'])
-  for (const done of [removed, renamed, across, inLevel, added]) for (const { op, ...args } of done.inverse) go(op, args)
+  for (const done of [removed, across, inLevel, added]) for (const { op, ...args } of done.inverse) go(op, args)
   assert.equal(JSON.stringify([...ws.levels]), before)
 })
 
@@ -368,30 +434,7 @@ test('the first part of a game makes its pieces.json', () => {
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })
 
-test('piece.rename renames a part only the content names; renaming tasks retains their publications', () => {
-  const { ws } = toy()
-  ws.levels.set('a1', { ...level(ws, 'a1'), solution: ['m = own-a1()', 'out <- m'] })
-  const renamed = run(ws, 'piece.rename', { piece: 'own-a1', to: 'made' })
-  assert.deepEqual(level(ws, 'a1').solution, ['m = made()', 'out <- m'])
-  assert.throws(() => run(ws, 'piece.rename', { piece: 'none', to: 'x' }), /no part none/)
-  const inside = [{ id: 'base', reference: { solution: ['out <- in'] } }]
-  run(ws, 'piece.add', { piece: 'made', data: { name: 'M', desc: 'm', inside } })
-  const publishes = [{ piece: 'made', variant: 'base' }]
-  run(ws, 'level.set', { level: 'a1', path: ['tasks', 0, 'publishes'], value: publishes })
-  run(ws, 'task.rename', { task: 'a1', to: 'a1x' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
-  run(ws, 'level.rename', { level: 'a1', to: 'a0' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
-  run(ws, 'task.rename', { task: 'a1x', to: 'a0' })
-  run(ws, 'level.rename', { level: 'a0', to: 'a1' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
-  assert.deepEqual(level(ws, 'a1').tasks[0].publishes, publishes)
-  ws.partDefs = { parts: {} }
-  undone(ws, renamed.inverse)
-  assert.deepEqual(level(ws, 'a1').solution, ['m = own-a1()', 'out <- m'])
-})
-
-test('the part operations edit pieces.json, refuse to remove a part still used, and rename it everywhere', () => {
+test('the part operations edit pieces.json, refuse to remove a part still used', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())
   const added = prun(ws, 'piece.add', { piece: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
@@ -406,21 +449,12 @@ test('the part operations edit pieces.json, refuse to remove a part still used, 
   assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.en, levels\/a1.json solution\[0\]/)
   assert.throws(() => prun(ws, 'pieces.set', { path: 'parts.sum', value: {} }), /piece.add/)
   assert.throws(() => prun(ws, 'piece.add', { piece: 'twice', data: sum, after: 'none' }), /no part none/)
-  const renamed = prun(ws, 'piece.rename', { piece: 'sum', to: 'plus' })
-  assert.deepEqual(ws.game.primitives, ['ptoy/plus'])
-  assert.deepEqual(ws.levels.get('a1').adds, ['plus'])
-  assert.deepEqual(ws.levels.get('a1').solution, ['s = plus(a, b)', 'out <- s'])
-  assert.match(ws.levels.get('a1').brief.en, /<part-ref to="plus">/)
-  for (const { op, ...args } of renamed.inverse) prun(ws, op, args)
-  assert.equal(JSON.stringify(ws.content()), before)
-  // A map's key naming the part is a reference too: renamed in its place, and holding a removal back.
+  // A map's key naming a part also prevents removal.
   prun(ws, 'level.set', { level: 'a1', path: 'uses', value: { sum: 'twice', other: 'once' } })
-  prun(ws, 'piece.rename', { piece: 'sum', to: 'plus' })
-  assert.deepEqual(Object.keys(ws.levels.get('a1').uses), ['plus', 'other'])
-  assert.throws(() => prun(ws, 'piece.remove', { piece: 'plus' }), /levels\/a1.json uses.plus/)
+  assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /levels\/a1.json uses.sum/)
 })
 
-test('settings have their own lifecycle, and renaming preserves piece-local keys', () => {
+test('settings have their own lifecycle and references prevent removal', () => {
   const ws = partsToy()
   const before = ws.content()
   const data = { control: 'slider', min: 0, max: 4 }
@@ -432,10 +466,7 @@ test('settings have their own lifecycle, and renaming preserves piece-local keys
   for (const { op, ...args } of remove.inverse) prun(ws, op, args)
   const attach = prun(ws, 'pieces.set', { path: ['parts', 'sum', 'settings'], value: [{ key: 'k', setting: 'scale' }] })
   assert.throws(() => prun(ws, 'setting.remove', { setting: 'scale' }), /still used by sum\.k/)
-  const rename = prun(ws, 'setting.rename', { setting: 'scale', to: 'amount' })
-  assert.deepEqual(ws.partDefs.settings, { amount: data })
-  assert.deepEqual(ws.partDefs.parts.sum.settings, [{ key: 'k', setting: 'amount' }])
-  for (const done of [rename, attach, add]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
+  for (const done of [attach, add]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
   assert.deepEqual(ws.content(), before)
 })
 
@@ -487,19 +518,6 @@ test('package tags, relations and layouts persist and reopen with full names', a
 })
 
 
-test('level renames update typed object references and preserve same-named items and titles', () => {
-  const { ws } = toy()
-  run(ws, 'tag.put', { tag: 'levels', data: { kind: 'level', title: 'a1', values: ['a1', 'a2'] } })
-  run(ws, 'tag.put', { tag: 'items', data: { kind: 'item', values: ['a1'] } })
-  run(ws, 'relation.put', { relation: 'path', data: { kind: 'requires', edges: [{ from: 'a1', to: 'a2' }] } })
-  run(ws, 'relation.put', { relation: 'items', data: { kind: 'order', of: 'item', sequence: ['a1', 'a2'] } })
-  roundTrip(ws, 'level.rename', { level: 'a1', to: 'first' })
-  assert.deepEqual(ws.tags.get('levels'), { kind: 'level', title: 'a1', values: ['first', 'a2'] })
-  assert.deepEqual(ws.tags.get('items').values, ['a1'])
-  assert.deepEqual(ws.relations.get('path').edges, [{ from: 'first', to: 'a2' }])
-  assert.deepEqual(ws.relations.get('items').sequence, ['a1', 'a2'])
-})
-
 test('removing a level clears its tag, relation and layout placements and supports undo', () => {
   const { ws } = toy()
   run(ws, 'tag.put', { tag: 'levels', data: { kind: 'level', values: ['c1'] } })
@@ -518,7 +536,7 @@ test('entry identity and membership cannot be hidden by the encyclopedia project
   for (const op of [{ op: 'entry.set', entry: 'e', path: 'id', value: 'other' }, { op: 'entry.patch', entry: 'e', fields: { group: 'g' } }]) {
     const result = await runChangeset(ws, { ops: [op] }, { check: false, domain: DOMAIN })
     assert.equal(result.ok, false)
-    assert.match(result.problems.join('\n'), /identity belongs/)
+    assert.match(result.problems.join('\n'), /identity belongs|id cannot change/)
     assert.equal(ws.entries.get('e').id, undefined)
     assert.equal(ws.entries.get('e').group, undefined)
   }
