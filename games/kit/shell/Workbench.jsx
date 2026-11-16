@@ -7,7 +7,7 @@ import { usePointerSession } from '../views/usePointerSession.js'
 /**
  * A level on a desktop, the same in every game and every kind of level.
  *
- *   left       the task and the level's own choices (brief)
+ *   left       task navigation and the task board (brief)
  *   middle     what the level is played on (stage): a board that fills it (a circuit), or one that scrolls (`scroll`: a
  *              table, a sentence, rows to fill in); over a board, the parts as one row of icons (parts)
  *   strip      a header with the tests and how they stand (tests, status), when the level has them; then the results
@@ -21,14 +21,14 @@ import { usePointerSession } from '../views/usePointerSession.js'
  * Embedded in a note (embed.js), the level is a block in the page's flow: the task on top, the stage under it (a board
  * at a set height), then the strip as tall as what it holds.
  */
-export default function Workbench({ rootRef: given, className = '', brief, parts, stage, scroll = false, tests, status, results, resultsTitle, resultsAside, dock }) {
+export default function Workbench({ rootRef: given, className = '', brief, taskNav, parts, stage, scroll = false, tests, status, results, resultsTitle, resultsAside, dock }) {
   const own = useRef(null)
   const rootRef = given ?? own
   const embed = useEmbed()
   const pane = results !== undefined
   return (
     <div ref={rootRef} className={`level ${embed ? 'is-embed' : ''} ${className}`}>
-      <aside className="brief">{brief}</aside>
+      <aside className="brief">{taskNav}{brief}</aside>
       <div className={`stage-pane ${scroll ? 'is-scroll' : 'is-board'}`}>
         {parts && <div className="wb-toolbar" aria-label={tr('元件', 'Parts')}>{parts}</div>}
         <div className="wb-stage">{stage}</div>

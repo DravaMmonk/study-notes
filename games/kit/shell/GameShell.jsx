@@ -73,13 +73,12 @@ export default function GameShell({ game, store, author = null }) {
     const level = game.byId[id]
     return level && (author || game.isOpen(level, new Set(progress.solved), progress.all)) ? id : null
   })
-  // The workshop page: { tray, back } with the tray it opens on (null: the latest board's) and the task it was opened
-  // from, which leaving it returns to (null: the map).
+  // A tray name, an empty string for the default tray, or null when the workshop is closed.
   const [bench, setBench] = useState(() => {
     const asked = new URLSearchParams(window.location.search)
-    return !levelId && !author && asked.has('workshop') ? { tray: asked.get('workshop') || null, back: null } : null
+    return !levelId && !author ? asked.get('workshop') : null
   })
-  const benchOpen = Boolean(bench)
+  const benchOpen = bench !== null
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
   const firstTask = (id) => openTask(game, progress, id)
   const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
@@ -158,15 +157,13 @@ export default function GameShell({ game, store, author = null }) {
     if (id || !levelId) window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  const openBench = (tray = null, back = null) => {
-    if (levelId) open(null)
-    setBench({ tray, back })
+  const openBench = (tray = '') => {
+    setBench(tray)
     const url = new URL(window.location.href)
-    url.searchParams.set('workshop', tray ?? '')
+    url.searchParams.set('workshop', tray)
     window.history.replaceState({}, '', url)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
-  const closeBench = () => open(bench.back?.id ?? null, bench.back?.task)
 
   const level = levelId ? game.byId[levelId] : null
   const chapter = level ? game.chapters.find((c) => c.id === level.chapter) : null
@@ -307,22 +304,15 @@ export default function GameShell({ game, store, author = null }) {
         .reverse().filter(({ at, kind }) => kind?.editor === 'circuit' && taskOpen(game, progress, candidate.id, at))
     })
   }, [game, level, author, progress, solved])
-  // The workshop borrows the board of a circuit task the player has open: the one it was opened from, else the latest
-  // that plays with the tray asked for.
+  // The workshop uses the latest unlocked circuit task that plays with the requested tray.
   const circuitTrays = useMemo(() => new Set(workshopTrayNames(game.course?.trays, game.partDefs?.parts)), [game])
-  const traysForWorkshop = (source) => game.course?.tray(source)?.filter((name) => circuitTrays.has(name)) ?? ['']
-  const levelWorkshopTray = kind?.editor === 'circuit' ? traysForWorkshop(played.source)[0] : undefined
   const workshopBoards = workshopSources.flatMap((source) => {
-    const trays = traysForWorkshop(source.task.source)
+    const trays = game.course?.tray(source.task.source)?.filter((name) => circuitTrays.has(name)) ?? ['']
     return trays.length ? [{ ...source, trays }] : []
   })
-  const requestedTray = circuitTrays.has(bench?.tray) ? bench.tray : null
-  const onTray = ({ trays }) => requestedTray === null || trays.includes(requestedTray)
-  const workshop = workshopBoards.find((source) => bench?.back && source.candidate.id === bench.back.id && source.at === bench.back.task && onTray(source))
-    ?? workshopBoards.find((source) => requestedTray !== null && onTray(source))
-    ?? workshopBoards[0]
-  const benchTask = bench && workshop ? playedTask(taskContext(game, progress, workshop.candidate, workshop.at)) : null
-  const benchTray = benchTask && (requestedTray !== null && onTray(workshop) ? requestedTray : workshop.trays[0])
+  const workshop = (bench && workshopBoards.find(({ trays }) => trays.includes(bench))) || workshopBoards[0]
+  const benchTask = benchOpen && workshop ? playedTask(taskContext(game, progress, workshop.candidate, workshop.at)) : null
+  const benchTray = benchTask && (workshop.trays.includes(bench) ? bench : workshop.trays[0])
   const benchTrays = [...circuitTrays].filter((name) => workshopBoards.some(({ trays }) => trays.includes(name)))
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
@@ -337,7 +327,7 @@ export default function GameShell({ game, store, author = null }) {
               <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡')}><PanelLeft size={16} /><span>{tr('关卡')}</span></button>
             </>
           ) : benchTask ? (
-            <button className="kit-btn is-label bar-button" onClick={closeBench} aria-label={tr('离开元件工坊', 'Leave the workshop')}><ArrowLeft size={16} /><span>{bench.back ? game.levelLabel(game.byId[bench.back.id]) : tr('地图')}</span></button>
+            <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('离开元件工坊', 'Leave the workshop')}><ArrowLeft size={16} /><span>{tr('地图')}</span></button>
           ) : (
             <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
           )}
@@ -395,7 +385,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { ...task.screen, key: `${level.id}#${runAt}#${game.stamp ?? ''}`, level: played, solve, fail, ...run, theme, phone, workshop: !author && game.workshop, onWorkshop: levelWorkshopTray === undefined ? undefined : () => openBench(levelWorkshopTray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { ...task.screen, key: `${level.id}#${runAt}#${game.stamp ?? ''}`, level: played, solve, fail, ...run, theme, phone, workshop: !author && game.workshop })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
@@ -404,8 +394,7 @@ export default function GameShell({ game, store, author = null }) {
           <div className="level-shell">
             {createElement(workshop.kind.Screen, {
               ...benchTask.screen, key: `${benchTask.key}#${benchTray}`, phone, theme, workshop: game.workshop,
-              workshopOnly: true, workshopTray: benchTray, workshopTrays: benchTrays, workshopCarry: Boolean(bench.back),
-              onWorkshopTray: (tray) => openBench(tray, bench.back),
+              workshopOnly: true, workshopTray: benchTray, workshopTrays: benchTrays, onWorkshopTray: openBench,
             })}
           </div>
         )}

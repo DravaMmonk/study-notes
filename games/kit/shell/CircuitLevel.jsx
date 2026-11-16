@@ -6,7 +6,7 @@ import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { trayDisplay } from '../engine/trays.js'
 import { useSetting } from './useSetting.js'
-import { isValidElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import CanvasEditor from '../circuit/CanvasEditor.jsx'
 import Notice from '../circuit/Notice.jsx'
@@ -24,7 +24,7 @@ import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, insideOf } from '../circuit/Inside.jsx'
 import { WORDS } from './words.js'
 import { L, tr, T } from './i18n.js'
-import { Brief, PhonePage, Text } from './Layout.jsx'
+import { PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
 import Sheet from './Sheet.jsx'
 import TestTabs from './TestTabs.jsx'
@@ -184,8 +184,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *                   sinkBody, sinkClass, nodeClass, phoneRegionLabel (node, index), phoneRegionResult (node, region, ctx)
  *   tileSettings    show configuration summaries on phone tiles (the details always show the settings)
  *   canvas          more for the desktop editor: height, emptyNote, corner, minFit
- *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it;
- *                   an element stands in its place (a board that is no level: the workshop); null: none
+ *   brief           the task board's content (Layout.jsx Brief), or the workshop shelf
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
  *   above           on a phone, over the board
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
@@ -201,7 +200,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayActions = [], trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, terminalDetail, terminalTitle, details = false, addSheet, packed, words, meta, pad, tabs = true, tileSettings = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts, trayNames, trayControl, trayActions = [], trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief, taskNav, results, resultsTitle, resultsAside, above, below, follow, describe, sheet, terminalDetail, terminalTitle, details = false, addSheet, packed, words, meta, pad, tabs = true, tileSettings = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -273,7 +272,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
   const protectedIds = lockedCards(circuit)
   const onClear = circuit.nodes.some((n) => canRemoveCard(parts, n, protectedIds)) || board.clearable?.(circuit) ? board.clear : null
 
-  const briefEl = isValidElement(brief) ? brief : brief && <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
   const dock = pad !== undefined ? pad : <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
@@ -291,7 +289,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       }))
     }
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card: phoneCard, needsSetting, inside, all, trayItems, terminalBody, terminalTitle, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card: phoneCard, needsSetting, inside, all, trayItems, terminalBody, terminalTitle, trayFolded: display.folded, trayControl, types, make, describeOf, sheet: detailOf, addSheet, size, above, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={brief} taskNav={taskNav} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -299,7 +297,8 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
     <Workbench
       rootRef={root}
       className={`cl-level ${className}`}
-      brief={briefEl}
+      brief={brief}
+      taskNav={taskNav}
       parts={(trayControl || trayItems.length > 0 || all.length > 0 || edit) && <>{(trayControl || trayItems.length > 0 || all.length > 0) && <Palette compact start={trayControl} items={trayItems} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
@@ -357,7 +356,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, needsSetting, inside, all, trayItems, trayFolded, trayControl, terminalBody, terminalTitle, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, needsSetting, inside, all, trayItems, trayFolded, trayControl, terminalBody, terminalTitle, types, make, describeOf, sheet: sheetBody, addSheet, size, above, below, follow, results, onClear, root, history, className, brief, taskNav, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -419,7 +418,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, needs
   }
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} taskNav={taskNav} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       {above}
       <SlotBoard
         boardRef={boardRef}

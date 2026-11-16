@@ -23,7 +23,7 @@ import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
 import { PlaneExtent } from '../views/plots/Plane.jsx'
 import { extentOf } from '../views/plots/plane.js'
-import { L, T, tr } from './i18n.js'
+import { L, T } from './i18n.js'
 import { WORDS } from './words.js'
 import Workshop from './Workshop.jsx'
 import { useCircuitWorkshop } from './useCircuitWorkshop.js'
@@ -33,6 +33,7 @@ import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
 import { PHONE, useMedia } from './useMedia.js'
 import Readouts from './Readouts.jsx'
+import { Brief, TaskNavigation } from './Layout.jsx'
 import CircuitCheckTable from './plays/CircuitCheckTable.jsx'
 import StepLog from './StepLog.jsx'
 import { useTraining } from './TrainingControls.jsx'
@@ -114,11 +115,10 @@ function Value({ value, error, show, of, views }) {
 
 const noWorld = () => null
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, showResults = true, outputTarget = false, tileSettings = true, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, showResults = true, outputTarget = false, tileSettings = true, taskBoard, className = '' }) {
   const { game, level: entry, solved, progress } = screen
   const level = entry.source
   const base = course.forTask(level)
-  const profile = screen.workshop
   const defined = base.defined ?? gameDefined
   const { board: kind, BUILT, pieces } = base
   const onPhone = useMedia(PHONE)
@@ -367,10 +367,17 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // The workshop page plays this screen's board kind on a draft of its own (GameShell).
   if (screen.workshopOnly) return (
     <SettingsContext.Provider value={views}>
-      <Workshop screen={screen} tray={screen.workshopTray} carry={screen.workshopCarry} board={drawn} parts={parts} packed={packed} cards={itemOf}
+      <Workshop screen={screen} tray={screen.workshopTray} board={drawn} parts={parts} packed={packed} cards={itemOf}
         defined={definedFaces} defaults={defaults} types={offers.types} library={library} tileSettings={tileSettings} phoneRegionLabel={faces.phoneRegionLabel}
         available={available} capture={capture} update={update} />
     </SettingsContext.Provider>
+  )
+  const brief = (
+    <Brief game={game} level={entry} sections={taskBoard} text={surface?.text} tip={surface?.tip} hint={surface?.hint ?? level.hint}
+      statement={(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}
+      readouts={readouts && <Readouts items={readouts(level, drawn, checked)} />}>
+      {!onPhone && practice.panel}
+    </Brief>
   )
   return (
     <SettingsContext.Provider value={views}>
@@ -418,7 +425,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             ...(outputTarget && { cardClass: withTargetClass(faces.cardClass), sinkClass: withTargetClass(faces.sinkClass) }),
           }}
           canvas={canvas}
-          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && screen.onWorkshop && <button type="button" className="kit-btn is-label cs-workshop" onClick={screen.onWorkshop}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
+          brief={brief}
+          taskNav={<TaskNavigation level={entry} />}
           below={onPhone && practice.panel}
           describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={showResults ? strip : undefined}
@@ -439,6 +447,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             },
           }}
         />
+        {workshopNotice}
         {surface?.notice}
         </PlaneExtent.Provider>
       </ViewScope.Provider>
@@ -462,6 +471,6 @@ export function circuitScreen(config, { play, course, ...declared }) {
   const revealOnPass = config.checks === 'afterPass'
   return function Screen(screen) {
     return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared}
-      judged={judged} revealOnPass={revealOnPass} showResults={config.results !== 'hidden'} outputTarget={config.output === 'target'} tileSettings={config.tileSettings !== 'hidden'} className={config.layout} />
+      judged={judged} revealOnPass={revealOnPass} showResults={config.results !== 'hidden'} outputTarget={config.output === 'target'} tileSettings={config.tileSettings !== 'hidden'} taskBoard={config.taskBoard} className={config.layout} />
   }
 }

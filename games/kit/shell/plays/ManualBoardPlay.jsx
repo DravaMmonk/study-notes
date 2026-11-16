@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { CheckIcon, Dock, SkipIcon } from '../BoardControls.jsx'
 import TestTabs from '../TestTabs.jsx'
 import InteractiveDrawing from '../InteractiveDrawing.jsx'
-import { Brief, PhonePage } from '../Layout.jsx'
+import { Brief, PhonePage, TaskNavigation } from '../Layout.jsx'
 import { Markup } from '../Markup.jsx'
 import Workbench from '../Workbench.jsx'
 import { L } from '../i18n.js'
@@ -105,7 +105,8 @@ export default function ManualBoardPlay({ screen, play, resource: { useBoard, br
   }
   const { drawing, capacity, note, cards, dock, tests, states, ti, onTest, comparison } = useBoard({ ...screen, play, toast, revealBoard })
   const panel = <div className={layout.panelClass}>{cards.map((card, i) => <PlayCard key={i} {...card} />)}</div>
-  const brief = <Brief game={game} level={level} text={text} hint={hint}>{!phone && panel}</Brief>
+  const brief = <Brief game={game} level={level} text={text} hint={hint} sections={play.taskBoard}>{!phone && panel}</Brief>
+  const taskNav = <TaskNavigation level={level} />
   const board = (
     <section ref={boardRef} className={layout.cardClass} aria-label={L(layout.boardLabel)}>
       {tests && <TestTabs tests={tests} states={states} index={ti} onSelect={onTest} phone={phone} inline />}
@@ -116,12 +117,12 @@ export default function ManualBoardPlay({ screen, play, resource: { useBoard, br
   )
   const bar = <Dock {...dock} meta={<Markup text={dock.meta} />} go={withIcon(dock.go)} secondary={withIcon(dock.secondary)} />
   return phone ? (
-    <PhonePage scrollRef={scrollRef} brief={brief} className={layout.phoneClass} dock={bar}>
+    <PhonePage scrollRef={scrollRef} brief={brief} taskNav={taskNav} className={layout.phoneClass} dock={bar}>
       {board}{panel}{toastEl}
     </PhonePage>
   ) : (
     <>
-      <Workbench className={layout.desktopClass} brief={brief} stage={board} scroll dock={bar} />
+      <Workbench className={layout.desktopClass} brief={brief} taskNav={taskNav} stage={board} scroll dock={bar} />
       {toastEl}
     </>
   )

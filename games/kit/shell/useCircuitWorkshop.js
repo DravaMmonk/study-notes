@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { partsFor, packedView } from '../circuit/board-parts.js'
 import { runtimeOf, workshopView } from '../circuit/workshop-view.js'
 import { trayMembers } from '../engine/trays.js'
 import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopEntries, workshopIdentity } from '../engine/workshop.js'
 import { L, tr } from './i18n.js'
 import { useWorkshop } from './useWorkshop.js'
+import { useToast } from './useBoardInteraction.jsx'
 
 /** Project the independent player library onto the current task and its board rules. */
 export function useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready }) {
@@ -12,7 +13,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const level = entry.source
   const definition = base.defined ?? defined
   const { library, update } = useWorkshop()
-  const [notice, setWorkshopNotice] = useState('')
+  const [showNotice, notice] = useToast()
   const offers = useMemo(() => base.offerIn(level, flags), [base, level, flags])
   const has = useMemo(() => base.holdsIn(level, flags), [base, level, flags])
   const identity = (type) => workshopIdentity(profile?.domain, game.partDefs, type)
@@ -65,7 +66,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
       const rank = piece.inside.findIndex(({ id }) => id === variant)
       const replaced = (profile.replaces[type] ?? []).map(lineage)
       if (!reward || !put(reward, lineage(type), rank, replaced)) {
-        setWorkshopNotice(tr('这次通关未能写入工坊。', 'This pass could not be published to the workshop.'))
+        showNotice(tr('这次通关未能写入工坊。', 'This pass could not be published to the workshop.'))
       }
     }
   }

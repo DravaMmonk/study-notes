@@ -1,12 +1,15 @@
 import { hidden } from './judge.js'
 import { S, validate } from './schema.js'
 
+export const TASK_BOARD_SECTIONS = ['title', 'brief', 'tip', 'hints', 'statement', 'readouts', 'extras']
+const taskBoard = S.opt(S.list(S.oneOf(TASK_BOARD_SECTIONS)))
 const fields = {
   checks: S.oneOf(['shown', 'hidden']),
   resources: S.str(),
   stage: S.str(),
   layout: S.str(),
   gives: S.opt(S.oneOf(['reference'])),
+  taskBoard,
 }
 const label = S.obj({ zh: S.str(), en: S.str() })
 const circuit = (judge, options = {}) => S.obj({
@@ -18,6 +21,7 @@ const circuit = (judge, options = {}) => S.obj({
   results: S.opt(S.oneOf(['hidden'])),
   output: S.opt(S.oneOf(['target'])),
   tileSettings: S.opt(S.oneOf(['hidden'])),
+  taskBoard,
   ...options,
 })
 
@@ -27,6 +31,7 @@ export const PLAY = S.by('editor', {
     judge: S.oneOf(['hand']),
     resources: S.str(),
     label,
+    taskBoard,
     layout: S.obj({
       boardLabel: label,
       cardClass: S.str(),
@@ -46,7 +51,7 @@ export const PLAY = S.by('editor', {
   }),
   workshop: S.obj({
     editor: S.oneOf(['workshop']), judge: S.oneOf(['parameters', 'gridProbe']),
-    resources: S.str(), layout: S.str(), pinOnPhone: S.bool(),
+    resources: S.str(), layout: S.str(), pinOnPhone: S.bool(), taskBoard,
   }),
   tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once', 'check']) }),
   values: S.obj({ ...fields, editor: S.oneOf(['values']), judge: S.oneOf(['table']) }),

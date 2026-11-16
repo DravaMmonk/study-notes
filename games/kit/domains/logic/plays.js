@@ -1,6 +1,6 @@
 import { definePlays, playFor } from '../../engine/plays.js'
 
-export const plays = definePlays({
+const corePlays = {
   gates: { editor: 'circuit', judge: 'cases', resources: 'gates', target: 'shown', tileSettings: 'hidden' },
   proof: { editor: 'circuit', judge: 'once', resources: 'proof', results: 'hidden', output: 'target', tileSettings: 'hidden' },
   machine: { editor: 'circuit', judge: 'steps', resources: 'machine', tileSettings: 'hidden' },
@@ -12,7 +12,10 @@ export const plays = definePlays({
   define: { editor: 'tree', judge: 'once', checks: 'hidden', resources: 'definition', stage: 'lg-define', layout: 'lg-define-level', gives: 'reference' },
   iso: { editor: 'tree', judge: 'once', checks: 'hidden', resources: 'declaration', stage: 'fo-stage', layout: 'fo-level lg-level' },
   audit: { editor: 'checks', judge: 'boards', checks: 'shown', resources: 'audit', stage: 'fo-stage', layout: 'fo-level lg-level' },
-})
+}
+
+const taskBoard = ['brief', 'hints']
+export const plays = definePlays(Object.fromEntries(Object.entries(corePlays).map(([id, play]) => [id, { ...play, taskBoard }])))
 
 /** Apply the task's reveal policy to the circuit template, for the screen and text play alike. */
 export function gatesPlayFor(task) {

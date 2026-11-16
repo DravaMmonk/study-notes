@@ -50,7 +50,6 @@
 
 .bench-title { flex: none; }
 /* The way in from a circuit level's brief. */
-.cs-workshop { align-self: flex-start; justify-self: start; margin-left: calc(var(--sp-4) * -1); }
 
 @media (max-width: 760px) {
   .ws-level .ws-shelf { margin-top: var(--sp-6); }
