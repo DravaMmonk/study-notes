@@ -1,3 +1,4 @@
+import { runtimeIds } from './runtime.js'
 // Server-side validation of the graph across the games installed in a project.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -63,4 +64,4 @@ export function dependencyProblemsInProject(content, root = PROJECT_DIR) {
   return [...siblingProblems, ...projectDependencyProblems([content, ...collection], packages)]
 }
 
-const contentVocabularyFor = (content) => contentVocabulary(content.domain)
+const contentVocabularyFor = (content) => contentVocabulary(runtimeIds(content))

@@ -3,6 +3,7 @@ import { tidyImageBoard } from './board.js'
 
 // Select the images and reference wiring the course names for a piece on the shared sample circuit.
 export function imagePreview(image, box, entry) {
+  if (!box) return null
   const { kit, levelById } = image
   const type = entry.key === 'edge-filter' ? 'box3' : entry.piece
   const spec = kit.types[type]

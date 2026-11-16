@@ -9,7 +9,7 @@ import { eraLevels, introductions, isCore } from '../../course.js'
 import { plays } from './plays.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { robotCircuits } from './ui/circuitCourse.js'
-import { PRIMITIVES, modelsOf } from './model/parts.js'
+import { modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T } from './lang.js'
 import { tableWorks } from './work.js'
@@ -59,11 +59,11 @@ export default function tableGame(content) {
   const cardOf = (k) => modelsOf(k)?.[0] ?? k
   const cards = [...introductions(course, cardOf)]
   const nameOf = (k) => {
-    const c = PRIMITIVES[k]
-    const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(PRIMITIVES[o].name) === String(c.name))
+    const c = table.model.def(k)
+    const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(table.model.def(o).name) === String(c.name))
     return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
   }
-  const descOf = (k) => (modelsOf(k) ? T('用所选模式把几个输入合并成一个值。', 'Combines the inputs into one value using the selected mode.') : PRIMITIVES[k].desc)
+  const descOf = (k) => (modelsOf(k) ? T('用所选模式把几个输入合并成一个值。', 'Combines the inputs into one value using the selected mode.') : table.model.def(k).desc)
   const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, piece: k, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
 
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,

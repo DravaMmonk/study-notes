@@ -5,7 +5,7 @@ import { S } from './schema.js'
 import { additionProblems, defineVocabulary, describe } from './vocabulary.js'
 import { versionProblems, vocabularyDirs } from './versions.js'
 
-const v1 = defineVocabulary({ domain: 'toy', version: 1, kinds: { world: { line: { about: 'a line' } } }, game: S.obj({ title: S.text() }), level: S.obj({ mode: S.oneOf(['run', 'read']), n: S.int() }) })
+const v1 = defineVocabulary({ module: 'toy', version: 1, kinds: { world: { line: { about: 'a line' } } }, game: S.obj({ title: S.text() }), level: S.obj({ mode: S.oneOf(['run', 'read']), n: S.int() }) })
 const next = (changes) => describe({ ...v1, version: 2, ...changes })
 
 test('a version may add items, values and optional fields, and nothing else', () => {
@@ -41,4 +41,10 @@ test('adding an alternative preserves the existing schema', () => {
   const before = S.obj({ value: S.int() })
   assert.deepEqual(additionProblems(before, S.either(before, S.obj({ label: S.str() }))), [])
   assert.notDeepEqual(additionProblems(before, S.either(S.obj({ value: S.str() }), S.obj({ label: S.str() }))), [])
+})
+
+test('removal paths retain qualified capability names', () => {
+  const before = { capabilities: { operation: { 'math:add': { returns: 'circuit:number' } } } }
+  const after = { capabilities: { operation: {} }, removes: [{ at: 'capabilities.operation.math:add', why: 'Replaced by a typed numeric operation.' }] }
+  assert.deepEqual(additionProblems(before, after), [])
 })

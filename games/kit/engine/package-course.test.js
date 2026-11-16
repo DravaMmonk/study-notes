@@ -26,7 +26,7 @@ const fixture = () => {
     mkdirSync(dirname(path), { recursive: true })
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
   }
-  put('packages/library/package.json', { domain: 'logic', vocabulary: 1 })
+  put('packages/library/package.json', { vocabulary: 1 })
   put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' })
   return { root, put }
 }
@@ -88,7 +88,7 @@ test('tag chapters retain titles, nesting, layouts, cross-chapter relations and 
 
 test('package dependencies are readable while only the selected layer can be edited', async () => {
   const { root, put } = fixture()
-  put('packages/extra/package.json', { domain: 'logic', vocabulary: 1, uses: ['library'] })
+  put('packages/extra/package.json', { vocabulary: 1, uses: ['library'] })
   const ws = openPackage('extra', root)
   assert.ok(ws.content().registries.piece['library/apply'])
   const wrongLayer = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'library', kind: 'piece', name: 'library/apply', merge: true, data: { desc: 'Wrong layer' } }] })
@@ -123,7 +123,7 @@ test('default check targets include every game followed by unplayed packages; na
   const { root, id } = proofsRoot()
   roots.push(root)
   mkdirSync(resolve(root, 'packages/library'), { recursive: true })
-  writeFileSync(resolve(root, 'packages/library/package.json'), JSON.stringify({ domain: 'logic', vocabulary: 1 }))
+  writeFileSync(resolve(root, 'packages/library/package.json'), JSON.stringify({ vocabulary: 1 }))
   assert.deepEqual(contentTargets([], root), [{ id, kind: 'game' }, { id: 'library', kind: 'package' }])
   assert.deepEqual(contentTargets([id], root), [{ id, kind: 'game' }])
   assert.deepEqual(contentTargets([id], root, { package: true }), [{ id, kind: 'package' }])
@@ -145,8 +145,6 @@ test('game course writes maintain the derived hub count without writing package 
 
 test('generated courses still reject invalid authored package fields', async () => {
   const { root, put } = fixture()
-  put('packages/library/package.json', { domain: 'logic', vocabulary: 1, unknownField: true })
-  const content = readPackage('library', root)
-  const failures = (await checkGame(content, { domain: await runtimeOf(content), root })).filter((line) => line.fail)
-  assert.ok(failures.some((line) => line.text.includes('unknownField')), failures.map((line) => line.text).join('\n'))
+  put('packages/library/package.json', { vocabulary: 1, unknownField: true })
+  assert.throws(() => readPackage('library', root), /unknownField/)
 })

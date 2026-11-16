@@ -1,0 +1,9 @@
+{
+  "name": "@piece.subtract.name",
+  "desc": "@piece.subtract.desc",
+  "icon": "Minus",
+  "family": "circuit:family-value",
+  "inputs": [{ "name": "a", "type": "circuit:number" }, { "name": "b", "type": "circuit:number" }],
+  "outputType": "circuit:number",
+  "compute": "circuit:minus(a, b)"
+}

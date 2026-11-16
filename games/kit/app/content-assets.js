@@ -9,9 +9,9 @@ export const CONTENT_FILE = 'content.json'
 /** The content as the page plays it: its chapters as played, without what only authoring reads. */
 export function contentAssets(content) {
   const source = assemblySource(content)
-  const { levels, glossary, partDefs, blueprint, game, tags, relations, layouts } = source
+  const { levels, glossary, partDefs, blueprint, game, tags, relations, layouts, contentObjects } = source
   const objects = [...tags, ...relations, ...layouts]
-  const packageObjects = objects.map(([, value]) => value)
+  const packageObjects = [...objects.map(([, value]) => value), ...Object.values(contentObjects).flatMap(Object.values)]
   const { 'game.json': meta, 'course.json': course, ...configuration } = configurationFiles(game)
   const assets = new Map()
   const manifests = {}

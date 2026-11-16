@@ -22,6 +22,7 @@
 // has a pieces/<name>.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
+import { contentKindSchemas } from './content-kinds.js'
 import { S, validate } from './schema.js'
 import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { courseDependencies } from './course-dependencies.js'
@@ -54,8 +55,8 @@ export const GLOSSARY = S.obj({
 export const OPEN = S.map(S.list(S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*/)?[^@]*@(?:@?[a-z][a-z0-9-]*/)?[^@]+$' })))
 
 
-export function defineVocabulary({ domain, version, kinds, game, level, languages = {}, removes }) {
-  return { domain, version, kinds, game, level, languages, ...(removes ? { removes } : {}) }
+export function defineVocabulary({ module, version, kinds, game, level, languages = {}, removes }) {
+  return { module, version, kinds, game, level, languages, ...(removes ? { removes } : {}) }
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
@@ -96,7 +97,7 @@ export function additionProblems(before, after) {
   const removes = after?.removes ?? []
   const found = changes(before, after)
   const covers = (r, problem) => {
-    const path = problem.split(/[ :]/)[0].replace(/^vocabulary\./, '').replace(/\.fields(?=[.[]|$)/g, '')
+    const path = problem.split(': ')[0].split(' ')[0].replace(/^vocabulary\./, '').replace(/\.fields(?=[.[]|$)/g, '')
     return path === r.at || path.startsWith(`${r.at}.`) || path.startsWith(`${r.at}[`)
   }
   return [
@@ -137,11 +138,11 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
-  const { packagePreview, id: ID, levels, glossary, domain: _domain, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { packagePreview, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, layouts = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
   out.push(...objectProblems)
+  const courseKeys = new Map(), packageKeys = new Map()
   if (hasCatalogSource(content)) {
-    const courseKeys = new Map(), packageKeys = new Map()
     for (const [file, value] of Object.entries(configurationFiles(game))) {
       if (packagePreview && ['game.json', 'course.json'].includes(file)) continue
       out.push(...catalogTextProblems(value, vocabulary.game, file, vocabulary, file === 'game.json' || file === 'course.json' ? courseKeys : packageKeys))
@@ -155,11 +156,15 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), layout: new Set(Object.keys(layouts)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), layout: new Set(Object.keys(layouts)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
+    add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
+    if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
+  }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
   for (const [kind, objects] of Object.entries({ tags, relations, layouts })) for (const [name, object] of Object.entries(objects)) add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
-  if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
+  if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the kernel vocabulary has versions 1 to ${vocabulary.version}` })
   // Generated courses have no authored game configuration. Validate the fields actually supplied by packages.
   const packageFields = packagePreview?.fields ?? []
   const gameSchema = packagePreview ? S.obj(Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([key]) => contentFileFor([key]) === 'package.json').map(([key, schema]) => [key, { ...schema, optional: true }]))) : vocabulary.game
@@ -182,7 +187,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     const problems = partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) })
     out.push(...(problems.length ? problems : implementationProblems(parts)))
   }
-  else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces', says: `the ${domainVocabulary.domain} domain's pieces are data: the game needs pieces` })
+  else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces', says: `the ${domainVocabulary.module} module's pieces are data: the game needs pieces` })
   for (const [name, map] of Object.entries(layouts)) {
     const own = new Set(expand(map.of, 'level'))
     const drawn = new Map()

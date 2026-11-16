@@ -1,0 +1,9 @@
+{
+  "name": "@piece.divide.name",
+  "desc": "@piece.divide.desc",
+  "icon": "Divide",
+  "family": "circuit:family-value",
+  "inputs": [{ "name": "a", "type": "circuit:number" }, { "name": "b", "type": "circuit:number" }],
+  "outputType": "circuit:number",
+  "compute": "circuit:over(a, b)"
+}

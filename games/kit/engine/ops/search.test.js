@@ -12,7 +12,7 @@ import { runChangeset } from './changeset.js'
 import { proofsRoot } from './fixture.js'
 
 const VOCAB = defineVocabulary({
-  domain: 'toy',
+  module: 'toy',
   version: 1,
   kinds: {},
   game: S.obj({ title: S.text(), eras: S.list(S.any()) }),
@@ -20,7 +20,7 @@ const VOCAB = defineVocabulary({
 })
 // Content is written in one language, under `en` whatever the words are (../i18n.js).
 const CONTENT = {
-  id: 'toy', domain: 'toy', vocabulary: 1, title: { en: 'The flag game' }, eras: [],
+  id: 'toy', vocabulary: 1, title: { en: 'The flag game' }, eras: [],
   levels: [
     { id: 'flag', title: { en: 'A flag' }, hint: [{ en: 'See <level-ref to="flag"></level-ref>: flags and a flagpole' }], solution: ['f = flag()', 'out <- f'], name: 'flag' },
     { id: 'other', title: { en: 'Other' }, solution: ['x = const[value=1]()'] },

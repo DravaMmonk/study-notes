@@ -1,3 +1,4 @@
+import { runtimeIds } from '../engine/runtime.js'
 // The agent pipeline's steps (games/DIRECTION.md 4, games/DESIGN.md 7.2), the same for every topic: what each step
 // reads and writes, who does it, the commands its agent gets, and the gate that decides it is done. Every gate's
 // failure names one rule; a step's product is content written through the operation set.
@@ -89,15 +90,16 @@ export const STEPS = [
       const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.en ?? r.about))
       const domain = await runtimeOf(content)
       const spec = domain.spec(content)
-      const contract = [...modules.flatMap((module) => moduleProblems(module, capabilities)), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))
-      const test = resolve(GAMES_DIR, 'kit/modules', content.domain, `${content.domain}.test.js`)
+      const contract = [...modules.flatMap((module) => moduleProblems(module, capabilities)), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', runtimeIds(content).join(', '), p))
       const tests = []
-      if (existsSync(test)) {
+      for (const module of runtimeIds(content)) {
+        const test = resolve(GAMES_DIR, 'kit/modules', module, `${module}.test.js`)
+        if (!existsSync(test)) continue
         try {
           const { NODE_TEST_CONTEXT: _, ...env } = process.env
           execFileSync(process.execPath, ['--test', test], { stdio: 'pipe', env })
         } catch (e) {
-          tests.push(finding('domain-test', content.domain, String(e.stdout ?? e.message).split('\n').filter((l) => l.startsWith('not ok')).join('; ') || 'its unit tests fail'))
+          tests.push(finding('module-test', module, String(e.stdout ?? e.message).split('\n').filter((l) => l.startsWith('not ok')).join('; ') || 'its unit tests fail'))
         }
       }
       return { failures: [...open, ...contract, ...tests, ...(await checks(id))], reports: [] }

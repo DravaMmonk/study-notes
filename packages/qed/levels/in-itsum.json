@@ -14,8 +14,8 @@
       "id": "in-itsum_1",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-itsum.tasks.in-itsum_1.step",
       "fn": "sum",
@@ -72,8 +72,8 @@
       "id": "in-itsum_2",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-itsum.tasks.in-itsum_2.step",
       "fn": "itsum",
@@ -138,8 +138,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-itsum.tasks.in-itsum_3.step",
       "types": [

@@ -25,7 +25,6 @@ const PORT = { inputs: [], eval: (_, node, ctx) => (ctx.bind ? ctx.bind[ctx.port
 const TAP = { inputs: [], eval: (_, node, ctx) => read(ctx, node.params.sensor) };
 const OUT = sink();
 // The engine's part for each primitive, made once: a primitive is the same in every course.
-const engineParts = new Map();
 
 /* ---------- signal types ---------- */
 
@@ -49,6 +48,7 @@ function misfit(sink, src) {
  *   srcType / sinkType / typeError       the signal types that say which wires fit
  */
 export function modelOf(parts) {
+  const engineParts = new Map();
   /** The engine's part for a node type. */
   function partOf(type) {
     if (isCard(type)) return CARD;

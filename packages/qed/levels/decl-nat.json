@@ -15,8 +15,8 @@
       "id": "decl-nat",
       "kind": "logic:iso",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "declare": "@level.decl-nat.tasks.decl-nat.declare",
       "target": "Nat",

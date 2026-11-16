@@ -1,3 +1,4 @@
+import { contentKindSchemas } from './content-kinds.js'
 import { resolveSettings } from './pieces.js'
 // Typed collections, directed relations and selected map layouts share one reference resolver.
 import { S, validate } from './schema.js'
@@ -60,7 +61,7 @@ export function referenceResolver(registries, problems = []) {
   return expand
 }
 
-export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? ({ part: 'item', unlock: 'item', entry: 'entry' }[schema.kind]) : null)
+export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? ({ part: 'item', unlock: 'item', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
 
 /** Expand tags structurally, using schema types rather than a list of field names. */
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
@@ -82,7 +83,7 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
       : [expandReferences(child, schema?.of, expand, vocabulary, `${at}[${i}]`)])
     return tagged ? relationOrder(list, expand.order ?? [], kind) : list
   }
-  if (typeof value === 'string' && schema?.reference && !value.startsWith('#')) expand(value, schema.reference, at)
+  if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind]) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
   if (typeof value === 'string' && value.startsWith('#') && referenceKind(schema)) {
     const ids = expand(value, referenceKind(schema), at)
     if (ids.length !== 1) throw new Error(`${at}: a scalar reference needs exactly one member, got ${ids.length}`)

@@ -58,7 +58,7 @@ export function runtimeSpec(content, runtimes) {
     syncOwn: (built) => specs.forEach((spec) => spec.syncOwn?.(built)),
     builtIn: specs.flatMap((spec) => spec.builtIn ?? []),
     texts: Object.fromEntries(specs.map((spec, index) => [scopes[index].id, spec.texts ?? {}])),
-    quotes: content.quotes ?? [],
+    quotes: Object.values(content.registries?.quote ?? {}).map(quote => quote.text),
   }
 }
 

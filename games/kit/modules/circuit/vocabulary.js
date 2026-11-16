@@ -33,7 +33,7 @@ const LEVEL = levelSchema({
 })
 
 export const vocabulary = qualifyVocabulary('circuit', defineVocabulary({
-  domain: 'circuit',
+  module: 'circuit',
   version: 1,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,

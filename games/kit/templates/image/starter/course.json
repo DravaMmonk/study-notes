@@ -16,5 +16,7 @@
         "starter/0-3"
       ]
     }
-  ]
+  ],
+  "power": "default",
+  "box": "default"
 }

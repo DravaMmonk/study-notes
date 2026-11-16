@@ -8,8 +8,8 @@
     {
       "id": "q-trans",
       "words": [
-        "everyday",
-        "stars"
+        "qed/everyday",
+        "qed/stars"
       ],
       "kind": "logic:proof",
       "consts": [

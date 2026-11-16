@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 // node --test (npm test) — the circuit domain: its engine resources compute, the starter's parts (pieces.json) hold
 // together over them, boards read from and write back to blueprint text, and its starter game (starter/, what npm run
 // new-game copies) passes its own checks.
@@ -13,7 +14,7 @@ import { runLevel } from './run.js'
 import domain from './runtime.js'
 
 const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], outputs: [{ name: 'sum', label: 'Sum' }], tests: [{ inputs: { a: 2, b: 3 }, expect: { sum: 5 } }] }
-const content = readStarter(import.meta.dirname)
+const content = readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))
 const { PARTS } = defineParts(content.partDefs, OPS)
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board

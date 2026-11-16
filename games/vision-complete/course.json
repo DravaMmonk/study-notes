@@ -365,5 +365,7 @@
   ],
   "skippable": [
     "vision-complete/4-21"
-  ]
+  ],
+  "power": "vision-complete/default",
+  "box": "vision-complete/default"
 }

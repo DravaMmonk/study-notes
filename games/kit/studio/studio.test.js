@@ -24,7 +24,7 @@ import { taskIdsOf } from '../engine/tasks.js'
 import { pieceGroups } from './pieces.js'
 
 const VOCAB = defineVocabulary({
-  domain: 'toy',
+  module: 'toy',
   version: 1,
   kinds: { part: { add: { about: { en: '加' } }, sub: { about: 'subtracts' } }, gen: { rows: { about: 'rows', params: S.obj({ n: S.int({ min: 1 }), wide: S.opt(S.bool()) }) }, none: { about: 'nothing' } } },
   game: S.obj({ title: S.text(), eras: S.list(S.any()) }),
@@ -47,7 +47,7 @@ const VOCAB = defineVocabulary({
 const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
 
 // Every domain's starter game, as content.js assembles it: the studio's forms on content no real game owns.
-const DOMAINS = resolve(import.meta.dirname, '../modules')
+const DOMAINS = resolve(import.meta.dirname, '../templates')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readStarter(resolve(DOMAINS, d))
 const LEVEL = { kind: 'board', title: { en: '甲' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
@@ -371,7 +371,7 @@ test('a mark on the game page is the field it shows: the task’s, else the leve
   const { taskLevel } = await import('../engine/tasks.js')
   const { addFor, markOf, markPath } = await import('./marks.js')
   const T = { brief: S.text(), hint: S.opt(S.list(S.text())), tests: S.list(S.obj({ n: S.int() }), { min: 1, section: 'tests' }) }
-  const vocabulary = defineVocabulary({ domain: 't', version: 1, kinds: {}, game: S.obj({ title: S.text() }), level: taskLevel({ title: S.text(), hint: S.opt(S.list(S.text())) }, T) })
+  const vocabulary = defineVocabulary({ module: 't', version: 1, kinds: {}, game: S.obj({ title: S.text() }), level: taskLevel({ title: S.text(), hint: S.opt(S.list(S.text())) }, T) })
   const t = (s) => ({ en: s })
   const level = { title: t('L'), hint: [t('shared')], tasks: [{ id: 'L', brief: t('a'), tests: [{ n: 1 }] }, { id: 'L2', step: t('two'), brief: t('b'), hint: [t('own')], tests: [{ n: 2 }] }] }
   assert.deepEqual(markPath(level, vocabulary, { at: 'brief', scope: 'task', task: 1 }), ['tasks', 1, 'brief'])

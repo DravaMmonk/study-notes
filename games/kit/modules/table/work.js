@@ -126,7 +126,7 @@ export function* prepareTableWorks(content) {
   const blueprints = [];
   // The parts the levels build (registerBuilt), and the board model over them.
   const built = {};
-  const model = modelOf(partsOf(built));
+  const model = modelOf(partsOf(built, hydrated.partDefs));
   /** A run that reports a broken board instead of throwing (the checks). */
   const run = (V, t, board, o) => { try { return model.runCircuit(V, t, board, o); } catch (e) { return { error: String(e) }; } };
 

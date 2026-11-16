@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 // The image board as content and saves hold it: blueprint text both ways (a course's references too), how a board
 // read from text is laid out, and a packed part running the player's own circuit, on a course written here; and a
 // course read, of that course and of every image game, writing nothing into its content.
@@ -192,7 +193,7 @@ test('a packed image trace and its test verdict share the evaluated output', () 
 
 // The domain's starter read frozen: a write into its content anywhere in the read throws.
 test('a course read writes nothing into its content', () => {
-  const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)))
+  const spec = domain.spec(deepFreeze(readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))))
   spec.syncOwn({})
   for (const level of spec.levels) assert.ok(level.tasks.length && level.tasks.every((t) => t.key && t.palette), level.id)
 })

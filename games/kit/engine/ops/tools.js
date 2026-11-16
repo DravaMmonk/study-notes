@@ -1,3 +1,4 @@
+import { runtimeIds } from '../runtime.js'
 /* global process */
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
@@ -126,7 +127,7 @@ const tools = {
     async run() {
       return packageIds(ROOT).map((id) => {
         const config = JSON.parse(readFileSync(resolve(ROOT, 'packages', id, 'package.json'), 'utf8'))
-        return { id, uses: config.uses ?? [], domain: config.domain }
+        return { id, uses: config.uses ?? [] }
       })
     },
   },
@@ -296,7 +297,7 @@ const tools = {
     async run({ game, level, path = 'tasks[0].solution', changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
       const domain = await runtimeOf(content)
-      if (!domain.play) return { covered: false, why: `the ${content.domain} domain gives no play hook` }
+      if (!domain.play) return { covered: false, why: 'the selected runtime gives no play hook' }
       const board = boardAt(content, level, path, domain.vocabulary)
       if (!board) return { covered: false, why: `${level} has no board at ${path}` }
       const { lines, task } = board
@@ -413,7 +414,7 @@ const tools = {
     async run({ game }) {
       const content = readTarget(game)
       return {
-        domain: content.domain,
+        modules: runtimeIds(content),
         vocabulary: describe((await runtimeOf(content)).vocabulary),
         operations: Object.fromEntries(Object.entries(OPERATIONS).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }

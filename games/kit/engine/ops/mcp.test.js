@@ -51,7 +51,7 @@ test('the server speaks MCP over stdio', async () => {
 
 test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps', async () => {
   const vocabulary = (await call('vocabulary', { game: GAME })).data
-  assert.equal(vocabulary.domain, 'logic')
+  assert.deepEqual(vocabulary.modules, ['logic'])
   assert.ok(vocabulary.vocabulary.kinds.part && vocabulary.operations['task.move'].params.fields.to)
 
   const audit = (await call('audit', { game: GAME })).data

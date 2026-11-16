@@ -25,8 +25,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-zero.tasks.in-zero_1.step",
       "types": [
@@ -70,8 +70,8 @@
         "zero"
       ],
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "cases": [],
       "tests": [
@@ -123,8 +123,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-zero.tasks.in-zero_3.step",
       "types": [

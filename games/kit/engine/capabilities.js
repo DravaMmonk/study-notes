@@ -91,5 +91,5 @@ export const registeredValueTypes = Object.create(null)
 export function selectModuleVocabulary(vocabulary, course) {
   const schemas = vocabulary.courses[course]
   if (!schemas) throw new Error(`unknown module schema ${course}`)
-  return { ...vocabulary, ...schemas, domain: course }
+  return { ...vocabulary, ...schemas, module: course }
 }

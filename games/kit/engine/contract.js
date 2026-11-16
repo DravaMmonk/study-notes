@@ -1,3 +1,4 @@
+import { contentKindSchemas } from './content-kinds.js'
 import { trayMembers } from './trays.js'
 import { sameJson } from './json-value.js'
 import { playId } from './plays.js'
@@ -73,7 +74,7 @@ const TYPES = Object.keys(S).filter((k) => k !== 'opt')
 export function vocabularyProblems(name, v) {
   const out = []
   const say = (text) => out.push(`${name}: vocabulary: ${text}`)
-  if (v.domain !== name) say(`it is ${v.domain}'s, in the folder ${name}`)
+  if (v.module !== name) say(`it is ${v.module}'s, in the folder ${name}`)
   if (!Number.isInteger(v.version) || v.version < 1) say(`version ${v.version} is no whole number from 1`)
   if (!v.kinds || !Object.keys(v.kinds).length) say('it has no kinds')
   const schemas = [['game', v.game], ['level', v.level]]
@@ -174,7 +175,7 @@ export function specProblems(domain, content, spec) {
   const say = (text) => out.push(`spec: ${text}`)
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
   // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's and the level groups' by the kernel, the rest by names(content).
-  const given = new Set(['entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(domain.names?.(content) ?? {})])
+  const given = new Set([...Object.keys(contentKindSchemas), 'entry', 'group', 'tag', 'relation', 'layout', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
   for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor runtime.js names(content) gives`)
   if (!sameJson(spec.title, content.title)) say('its title is not the content’s')

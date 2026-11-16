@@ -1,3 +1,4 @@
+import { contentKindSchemas } from '../content-kinds.js'
 // The operation set (games/DIRECTION.md decision 4): every change to a data game's content is one of these. The CLI
 // (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
 //
@@ -425,21 +426,22 @@ export function opScope({ op, path, in: where, layer }) {
 }
 
 // The same operations edit entries, tags, relations and layouts. Reads use ws.content().registries[kind][fullName].
-for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts']]) {
+for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['layout', 'layouts'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
+  const objects = (ws) => contentKindSchemas[kind] ? ws.contentObjects[kind] : ws[plural]
   const selector = { [kind]: S.str({ pattern: OBJECT_NAME }) }
   const target = (ws, name) => {
     if (name.includes('/') || name.startsWith('@')) fail('declare objects in this package using its local name')
     return name
   }
-  const get = (ws, name) => ws[plural].get(target(ws, name)) ?? fail(`no ${kind} ${name}`)
+  const get = (ws, name) => objects(ws).get(target(ws, name)) ?? fail(`no ${kind} ${name}`)
   Object.assign(OPERATIONS, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : OBJECT_SCHEMAS[plural] }),
+      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : contentKindSchemas[kind] ?? OBJECT_SCHEMAS[plural] }),
       apply(ws, args) {
-        const name = target(ws, args[kind]), old = ws[plural].get(name)
+        const name = target(ws, args[kind]), old = objects(ws).get(name)
         assertStableIds(old ?? {}, args.data)
-        ws[plural].set(name, args.data)
+        objects(ws).set(name, args.data)
         return { says: `${kind} ${name}: written`, inverse: [old ? { op: `${kind}.put`, [kind]: name, data: old } : { op: `${kind}.remove`, [kind]: name }] }
       },
     },
@@ -448,7 +450,7 @@ for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation'
       params: S.obj({ ...selector, path: PATH, value: S.any() }),
       apply(ws, args) {
         const name = args[kind], old = get(ws, name)
-        ws[plural].set(name, setAt(old, args.path, args.value))
+        objects(ws).set(name, setAt(old, args.path, args.value))
         return { says: `${kind} ${name}: patched`, inverse: [{ op: `${kind}.put`, [kind]: name, data: old }] }
       },
     },
@@ -457,7 +459,7 @@ for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation'
       params: S.obj(selector),
       apply(ws, args) {
         const name = args[kind], old = get(ws, name)
-        ws[plural].delete(name)
+        objects(ws).delete(name)
         return { says: `${kind} ${name}: removed`, inverse: [{ op: `${kind}.put`, [kind]: name, data: old }] }
       },
     },

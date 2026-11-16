@@ -1,0 +1,10 @@
+{
+  "piece.add.desc": "The sum of two numbers.",
+  "piece.add.name": "Addition",
+  "piece.divide.desc": "The quotient of two numbers. Division by zero reports an error.",
+  "piece.divide.name": "Division",
+  "piece.multiply.desc": "The product of two numbers.",
+  "piece.multiply.name": "Multiplication",
+  "piece.subtract.desc": "The difference of two numbers.",
+  "piece.subtract.name": "Subtraction"
+}

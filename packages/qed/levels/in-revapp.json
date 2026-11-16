@@ -14,8 +14,8 @@
       "id": "in-revapp_1",
       "kind": "logic:define",
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-revapp.tasks.in-revapp_1.step",
       "fn": "rev",
@@ -75,8 +75,8 @@
       ],
       "backtrack": true,
       "words": [
-        "everyday",
-        "terms"
+        "qed/everyday",
+        "qed/terms"
       ],
       "step": "@level.in-revapp.tasks.in-revapp_2.step",
       "types": [
