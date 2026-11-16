@@ -403,7 +403,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach）：用 anat
 
 Phone play locks the document and scrolls only its internal panels. Visual-viewport offsets are used only while
 an editable field is focused, and are bounded by the space removed from the layout viewport. Elastic scrolling
-must not translate the game root or hide the run bar; map pages retain normal document scrolling. The workshop packaging sheet stays inside the visible play surface with the keyboard open. Only the sheet body scrolls when its form does not fit.
+must not translate the game root or hide the run bar; map pages retain normal document scrolling. Detail sheets share the keyboard-adjusted viewport. On phones, users tap a field to open the keyboard, and only the sheet body scrolls when its form does not fit.
 Phone result drawers start folded, including circuit levels. The player can expand them manually; Run/Step/Check
 opens them to show the resulting feedback.
 

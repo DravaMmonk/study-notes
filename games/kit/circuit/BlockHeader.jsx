@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { createPortal } from 'react-dom'
 import Sheet from '../shell/Sheet.jsx'
 import { PHONE, useMedia } from '../shell/useMedia.js'
 import { EyeOff, GripVertical, LayoutGrid, Waypoints, X } from 'lucide-react'
@@ -21,11 +20,11 @@ export default function BlockHeader({ block, editable = true, onEdit, onDragStar
     <span className="block-views" role="group">{VIEWS.map(([view,Icon,label])=><button key={view} type="button" title={L(label)} aria-label={L(label)} aria-pressed={block.view===view} onClick={()=>onEdit({view})}><Icon size={13} /></button>)}</span>
     {editable&&<button className="block-delete" type="button" title={L(WORDS.deleteBlock)} aria-label={L(WORDS.deleteBlock)} onClick={()=>onEdit(null)}><X size={13} /></button>}
   </div>
-    {phone && draft!==null && createPortal(<Sheet title={L(WORDS.blockNote)} onClose={()=>setDraft(null)}>
+    {phone && draft!==null && <Sheet title={L(WORDS.blockNote)} onClose={()=>setDraft(null)}>
       <form className="block-rename" onSubmit={e=>{e.preventDefault();commit()}}>
-        <input autoFocus aria-label={L(WORDS.blockNote)} value={draft} onChange={e=>setDraft(e.target.value)} />
+        <input aria-label={L(WORDS.blockNote)} value={draft} onChange={e=>setDraft(e.target.value)} />
         <button type="submit">{tr('保存')}</button>
       </form>
-    </Sheet>,document.body)}
+    </Sheet>}
   </>
 }

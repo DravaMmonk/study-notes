@@ -376,7 +376,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .wiki-button .wiki-dot { position: absolute; top: 6px; right: 5px; box-shadow: 0 0 0 2px var(--paper); }
 @media (max-width: 760px) {
   .ph-scrim.wiki-scrim { padding: 0; align-items: flex-end; }
-  .wiki { width: 100%; height: 92dvh; border-radius: var(--r-lg) var(--r-lg) 0 0; animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); }
+  .wiki { width: 100%; height: 92%; border-radius: var(--r-lg) var(--r-lg) 0 0; animation: none; }
   .wiki-head { padding-left: var(--sp-6); }
   .wiki-body { display: block; overflow-y: auto; }
   .wiki-nav { padding: var(--sp-5) var(--sp-5) calc(var(--sp-7) + env(safe-area-inset-bottom)); overflow: visible; border: 0; background: none; }

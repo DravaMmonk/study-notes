@@ -16,11 +16,21 @@
 
 @media (max-width: 760px) {
   .ph-scrim { align-items: flex-end; padding: 0; }
-  .ph-sheet { width: 100%; max-height: 88dvh; border-radius: var(--r-lg) var(--r-lg) 0 0; animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); }
+  .ph-scrim:is(.is-phone-sheet, .is-play-sheet) { overflow: clip; }
+  .ph-scrim.is-phone-sheet { inset-block: var(--sheet-top, 0px) auto; height: var(--sheet-height, 100dvh); }
+  .game.is-playing > .ph-scrim.is-play-sheet { position: absolute; }
+  .game.is-playing:has(> .is-play-sheet) { overflow: clip; }
+  html:has(body > .is-phone-sheet) { overflow: hidden; overscroll-behavior: none; }
+  html.is-game-playing:has(.is-play-sheet) body { position: fixed; inset: 0; overflow: clip; }
+  .ph-sheet { width: 100%; max-height: 100%; border-radius: var(--r-lg) var(--r-lg) 0 0; animation: none; }
   .ph-handle { display: grid; place-items: center; padding: var(--sp-4) 0 var(--sp-2); touch-action: none; cursor: grab; }
   .ph-handle i { width: 40px; height: 5px; border-radius: var(--r-full); background: var(--rule); }
-  .ph-sheet-foot { padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom)); }
-  .ph-sheet:not(:has(.ph-sheet-foot)) .ph-sheet-body { padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom)); }
+  .ph-sheet-head, .ph-handle, .ph-sheet-foot { flex: none; }
+  .ph-scrim [data-sheet-scroll] { min-height: 0; overscroll-behavior: contain; scrollbar-width: none; }
+  .ph-scrim [data-sheet-scroll]::-webkit-scrollbar { display: none; }
+  .ph-scrim :is(input:not([type]), input:is([type='text'], [type='search'], [type='email'], [type='url'], [type='tel'], [type='password'], [type='number']), textarea, [contenteditable]) {
+    font-size: max(var(--fs-touch-input), 1em);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

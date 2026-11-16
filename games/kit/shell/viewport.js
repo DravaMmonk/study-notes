@@ -6,3 +6,8 @@ export function playFrame(viewport, layoutHeight, editing) {
   const top = editing ? Math.max(0, Math.min(viewport.offsetTop, layoutHeight - height)) : 0
   return { height, top }
 }
+
+/** Controls which can bring up the native keyboard. */
+export const isTextField = (element) => Boolean(element?.matches(
+  'input:is(:not([type]), [type="text"], [type="search"], [type="email"], [type="url"], [type="tel"], [type="password"], [type="number"]):not([readonly]), textarea:not([readonly]), [contenteditable]:not([contenteditable="false"])',
+))

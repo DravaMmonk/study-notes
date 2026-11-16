@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useMemo, useState } from 'react'
 import { ArrowDownFromLine, ArrowUpFromLine, Check, CircuitBoard, Layers, Pin, Plus, Trash2, X } from 'lucide-react'
 import CircuitLevel from './CircuitLevel.jsx'
 import RunDock from './RunDock.jsx'
@@ -107,7 +106,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
   ].flatMap((label) => isPair(label) ? ['zh', 'en'].map((lang) => normal(sideOf(label, lang))) : [normal(label)]))
   const nameTaken = (name, book) => originalNames.has(normal(name)) ||
     workshopEntries(book).some((piece) => belongs(piece) && normal(piece.name) === normal(name))
-  const beginPack = (event) => {
+  const beginPack = () => {
     const { graph, names, order, missing } = flattenWorkshopTerminals(draft, parts, (text) => String(L(text)).trim())
     if (!Object.keys(names.outputs).length || missing.length) {
       setNotice({ fail: true, text: tr('请至少放置一个输出，并接上所有输出端口。', 'Add at least one output and wire every output port.') })
@@ -126,7 +125,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
       return
     }
     setNotice(null)
-    setConfirm({ graph, names, order, parent: event.currentTarget.closest('.game.is-playing') })
+    setConfirm({ graph, names, order })
   }
   const pack = (name, description) => {
     if (!name) return tr('请输入元件名称。', 'Enter a part name.')
@@ -194,7 +193,7 @@ export default function Workshop({ screen, tray = '', carry = false, board, part
           change={(terminal) => change(editWorkshopTerminal(graph, parts, node.id, terminal))}
           remove={() => { change(editWorkshopTerminal(graph, parts, node.id, null)); close() }} />}
       />
-      {confirm && createPortal(<PackagePrompt phone={phone} onClose={() => setConfirm(false)} onPack={pack} />, confirm.parent)}
+      {confirm && <PackagePrompt onClose={() => setConfirm(false)} onPack={pack} />}
     </>
   )
 }
@@ -256,38 +255,17 @@ function TerminalFields({ node, parts, graph, title, family, change, remove }) {
   )
 }
 
-function PackagePrompt({ phone, onClose, onPack }) {
+function PackagePrompt({ onClose, onPack }) {
   const [error, setError] = useState(null)
-  const form = useRef(null)
-  useEffect(() => {
-    if (!phone) return undefined
-    const body = form.current.closest('.ph-sheet-body')
-    const reveal = () => {
-      const field = document.activeElement
-      if (!body.contains(field) || !field.matches('input, textarea')) return
-      // Scroll the dialog body only. scrollIntoView can also pan the Safari viewport.
-      const bounds = body.getBoundingClientRect()
-      const box = field.getBoundingClientRect()
-      if (box.top < bounds.top || box.height > bounds.height) body.scrollTop += box.top - bounds.top
-      else if (box.bottom > bounds.bottom) body.scrollTop += box.bottom - bounds.bottom
-    }
-    const observer = new ResizeObserver(reveal)
-    observer.observe(body)
-    body.addEventListener('focusin', reveal)
-    return () => {
-      observer.disconnect()
-      body.removeEventListener('focusin', reveal)
-    }
-  }, [phone])
   const submit = (event) => {
     event.preventDefault()
     const fields = new FormData(event.currentTarget)
     setError(onPack(fields.get('partTitle').trim(), fields.get('description').trim()))
   }
   return (
-    <Sheet title={tr('封装为元件', 'Package as a part')} onClose={onClose} scrimClassName="ws-package-scrim">
-      <form ref={form} className="ws-fields" autoComplete="off" onSubmit={submit} onChange={() => setError(null)}>
-        <label>{tr('元件名称', 'Part name')}<input autoFocus={!phone} name="partTitle" autoComplete="off" required maxLength={80} /></label>
+    <Sheet title={tr('封装为元件', 'Package as a part')} onClose={onClose} initialFocus='[name="partTitle"]'>
+      <form className="ws-fields" autoComplete="off" onSubmit={submit} onChange={() => setError(null)}>
+        <label>{tr('元件名称', 'Part name')}<input name="partTitle" autoComplete="off" required maxLength={80} /></label>
         <label>{tr('描述', 'Description')}<textarea name="description" rows={3} maxLength={320} /></label>
         {error && <p role="alert" className="ws-notice is-fail">{error}</p>}
         <button type="submit" className="run-go">{tr('确认封装', 'Confirm packaging')}</button>

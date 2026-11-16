@@ -1,6 +1,6 @@
 import { playId } from '../engine/plays.js'
 import { workshopTrayNames } from '../engine/trays.js'
-import { createElement, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { createElement, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
 import { currentLang } from '../lang.js'
@@ -17,7 +17,8 @@ import { earnedUnlocks, firstTask as openTask, nextRequiredTask, taskOpen } from
 import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
-import { playFrame } from './viewport.js'
+import { isTextField, playFrame } from './viewport.js'
+import { SheetHost } from './Sheet.jsx'
 import { EditContext, same } from './edit.js'
 import { SettingsContext } from './useSetting.js'
 import { useLevelRuns } from './useLevelRuns.js'
@@ -63,7 +64,7 @@ const SITE = { games: '../index.html' }
  * which task is played.
  */
 export default function GameShell({ game, store, author = null }) {
-  const viewportRoot = useRef(null)
+  const [viewportRoot, setViewportRoot] = useState(null)
   const progress = useSyncExternalStore(store.subscribe, store.load)
   const update = store.update
   const [, refreshExternalPasses] = useState(0)
@@ -99,12 +100,12 @@ export default function GameShell({ game, store, author = null }) {
   // Safari's software keyboard resizes the visual viewport without resizing the layout viewport.
   useEffect(() => {
     const viewport = window.visualViewport
-    const root = viewportRoot.current
-    if (!phone || !(levelId || benchOpen) || !viewport) return undefined
+    const root = viewportRoot
+    if (!phone || !(levelId || benchOpen) || !viewport || !root) return undefined
     document.documentElement.classList.add('is-game-playing')
     window.scrollTo(0, 0)
     const update = () => {
-      const editing = document.activeElement?.matches('input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]')
+      const editing = isTextField(document.activeElement)
       const frame = playFrame(viewport, Math.max(window.innerHeight, document.documentElement.clientHeight), editing)
       root.style.setProperty('--play-height', frame ? `${frame.height}px` : '')
       root.style.setProperty('--play-top', frame ? `${frame.top}px` : '')
@@ -123,7 +124,7 @@ export default function GameShell({ game, store, author = null }) {
       root.style.removeProperty('--play-height')
       root.style.removeProperty('--play-top')
     }
-  }, [phone, levelId, benchOpen])
+  }, [phone, levelId, benchOpen, viewportRoot])
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
   const [won, setWon] = useState(null) // the level just passed
   const [failure, setFailure] = useState(null) // { info, fails } of the last run that missed
@@ -326,8 +327,8 @@ export default function GameShell({ game, store, author = null }) {
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
-    <SettingsContext.Provider value={game}>
-      <div ref={viewportRoot} className={`game ${level || benchTask ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
+    <SettingsContext.Provider value={game}><SheetHost.Provider value={level || benchTask ? viewportRoot : null}>
+      <div ref={setViewportRoot} className={`game ${level || benchTask ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
         {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
         <TopBar className="game-bar" game={game} theme={theme} onTheme={setTheme}>
           {level ? (
@@ -442,7 +443,7 @@ export default function GameShell({ game, store, author = null }) {
           <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始'), () => update((p) => ({ ...p, seenPower: true }))]]} intro />
         )}
       </div>
-    </SettingsContext.Provider>
+    </SheetHost.Provider></SettingsContext.Provider>
   )
 }
 
