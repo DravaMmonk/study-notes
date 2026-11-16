@@ -5,10 +5,10 @@
   "tasks": [
     {
       "id": "projection",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.projection.tasks.projection.brief",
       "bench": {
-        "model": "obscura",
+        "model": "image:benchModel-obscura",
         "setup": { "arrow": 40, "shaft": 3, "table": 640, "gap": 20 },
         "knobs": {
           "Z": { "min": 150, "max": 520, "step": 1, "start": 300, "drawn": true },
@@ -81,8 +81,11 @@
           }
         ],
         "layout": {
-          "main": ["obscura"],
-          "foot": [{ "panel": ["step", "verdict"] }, { "row": ["obscuraScreen", "goals"], "narrow": true }]
+          "main": ["image:display-obscura"],
+          "foot": [
+            { "panel": ["circuit:display-step", "circuit:display-verdict"] },
+            { "row": ["image:display-obscuraScreen", "circuit:display-goals"], "narrow": true }
+          ]
         }
       }
     }

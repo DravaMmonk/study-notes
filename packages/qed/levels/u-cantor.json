@@ -1,15 +1,28 @@
 {
   "title": "@level.u-cantor.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "after": "@level.u-cantor.after",
   "tasks": [
     {
       "id": "u-cantor",
-      "kind": "proof",
+      "kind": "logic:proof",
       "tests": [
-        { "premises": { "s": "∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)", "d": "∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))" }, "goal": "⊥" }
+        {
+          "premises": {
+            "s": "∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)",
+            "d": "∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))"
+          },
+          "goal": "⊥"
+        }
       ],
-      "cases": [{ "P": "In" }],
+      "cases": [
+        {
+          "P": "In"
+        }
+      ],
       "brief": "@level.u-cantor.tasks.u-cantor.brief",
       "hint": [
         "@level.u-cantor.tasks.u-cantor.hint.0",

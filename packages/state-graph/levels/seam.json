@@ -5,7 +5,7 @@
     {
       "t": "@level.seam.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "0,0",
@@ -1998,7 +1998,7 @@
     {
       "t": "@level.seam.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "0,0",
@@ -3993,7 +3993,7 @@
     "goal": "@level.seam.mission.goal",
     "how": "@level.seam.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.seam.debrief.title",
     "body": [
@@ -4005,51 +4005,216 @@
   "tasks": [
     {
       "id": "seam",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "all": [{ "uses": "up" }, { "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
+          "when": {
+            "table:condition-all": [
+              {
+                "table:condition-uses": "up"
+              },
+              {
+                "table:condition-not": {
+                  "table:condition-uses": "ul"
+                }
+              },
+              {
+                "table:condition-not": {
+                  "table:condition-uses": "ur"
+                }
+              }
+            ]
+          },
           "say": "@level.seam.tasks.seam.diagnose.0.say"
         }
       ],
-      "trace": "seam",
-      "boardOpt": { "minScale": 0.5, "maxScale": 1.05 },
+      "trace": "table:trace-seam",
+      "boardOpt": {
+        "minScale": 0.5,
+        "maxScale": 1.05
+      },
       "checkAll": true,
       "hints": [
         "@level.seam.tasks.seam.hints.0",
         "@level.seam.tasks.seam.hints.1"
       ],
-      "world": "pic",
-      "facts": ["energy", "top"],
+      "world": "table:world-pic",
+      "facts": [
+        "energy",
+        "top"
+      ],
       "tests": [
         {
           "img": [
-            [1, 1, 8, 8, 8, 8, 8, 1, 1],
-            [1, 1, 2, 1, 8, 1, 1, 1, 1],
-            [1, 2, 2, 1, 8, 1, 2, 1, 1],
-            [1, 1, 2, 1, 8, 1, 1, 1, 1],
-            [1, 1, 2, 1, 8, 1, 1, 2, 1],
-            [2, 1, 1, 1, 1, 1, 1, 2, 2]
+            [
+              1,
+              1,
+              8,
+              8,
+              8,
+              8,
+              8,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              2,
+              1,
+              8,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              2,
+              2,
+              1,
+              8,
+              1,
+              2,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              2,
+              1,
+              8,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              2,
+              1,
+              8,
+              1,
+              1,
+              2,
+              1
+            ],
+            [
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2
+            ]
           ],
           "R": 6,
           "C": 9
         },
         {
           "img": [
-            [2, 1, 2, 2, 1, 1, 1, 1, 2, 1],
-            [2, 2, 2, 1, 2, 8, 8, 8, 1, 1],
-            [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
-            [1, 1, 1, 1, 8, 1, 1, 1, 8, 1],
-            [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
-            [1, 1, 1, 1, 1, 8, 8, 8, 1, 1],
-            [1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+            [
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              1,
+              2,
+              1
+            ],
+            [
+              2,
+              2,
+              2,
+              1,
+              2,
+              8,
+              8,
+              8,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              8,
+              1,
+              2,
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              8,
+              1,
+              1,
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              8,
+              1,
+              2,
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              8,
+              8,
+              8,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
           ],
           "R": 7,
           "C": 10
         }
       ],
-      "expected": [2, 2],
-      "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"]
+      "expected": [
+        2,
+        2
+      ],
+      "solution": [
+        "c = min(view.ul, view.up, facts.top, facts.energy, view.ur)",
+        "cell <- c"
+      ]
     }
   ]
 }

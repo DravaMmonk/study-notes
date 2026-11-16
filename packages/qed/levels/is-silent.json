@@ -1,21 +1,54 @@
 {
   "title": "@level.is-silent.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "is-silent",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.is-silent.tasks.is-silent.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.is-silent.tasks.is-silent.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬KC", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"] },
-        { "goal": "KA", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"], "want": "fails" },
-        { "goal": "KB", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"], "want": "fails" }
+        {
+          "goal": "¬KC",
+          "hyps": [
+            "KA ↔ ¬KB",
+            "KC ↔ (KA ↔ KB)"
+          ]
+        },
+        {
+          "goal": "KA",
+          "hyps": [
+            "KA ↔ ¬KB",
+            "KC ↔ (KA ↔ KB)"
+          ],
+          "want": "logic:want-fails"
+        },
+        {
+          "goal": "KB",
+          "hyps": [
+            "KA ↔ ¬KB",
+            "KC ↔ (KA ↔ KB)"
+          ],
+          "want": "logic:want-fails"
+        }
       ],
       "brief": "@level.is-silent.tasks.is-silent.brief",
-      "hint": ["@level.is-silent.tasks.is-silent.hint.0"],
-      "solution": ["c0 = metis(in)", "out <- c0"]
+      "hint": [
+        "@level.is-silent.tasks.is-silent.hint.0"
+      ],
+      "solution": [
+        "c0 = metis(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

@@ -14,17 +14,17 @@
       "fig": { "test": 0, "caption": "@level.4-2.intro.2.fig.caption" }
     }
   ],
-  "unlocks": ["dense"],
+  "unlocks": ["image:unlock-dense"],
   "tasks": [
     {
       "id": "4-2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-2.tasks.4-2.brief",
       "hint": "@level.4-2.tasks.4-2.hint",
       "inputLabels": { "in": "@level.4-2.tasks.4-2.inputLabels.in" },
       "check": { "tolerance": 0.01 },
       "trainRates": [0.1, 0.3, 0.7, 1.5],
-      "scene": "samples",
+      "scene": "image:scene-samples",
       "setup": { "scale": 0.5, "offset": 0.2 },
       "tests": [
         { "label": "@level.4-2.tasks.4-2.tests.0.label", "x": 0.2 },

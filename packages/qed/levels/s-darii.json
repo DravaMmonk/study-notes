@@ -1,13 +1,37 @@
 {
   "title": "@level.s-darii.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "s-darii",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "∀x. B(x) → C(x)", "q": "∃x. A(x) ∧ B(x)" }, "goal": "∃x. A(x) ∧ C(x)" }],
-      "cases": [{ "A": "Pet", "B": "Cat", "C": "Fluffy" }, { "A": "Student", "B": "Baby", "C": "Mortal" }],
-      "hint": ["@level.s-darii.tasks.s-darii.hint.0"],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. B(x) → C(x)",
+            "q": "∃x. A(x) ∧ B(x)"
+          },
+          "goal": "∃x. A(x) ∧ C(x)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Pet",
+          "B": "Cat",
+          "C": "Fluffy"
+        },
+        {
+          "A": "Student",
+          "B": "Baby",
+          "C": "Mortal"
+        }
+      ],
+      "hint": [
+        "@level.s-darii.tasks.s-darii.hint.0"
+      ],
       "solution": [
         "f = exE[x=a](q, body: i) {",
         "  body {",

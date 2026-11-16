@@ -36,7 +36,6 @@ async function open() {
   const game = define(content)
   game.partDefs = content.partDefs
   game.workshop = {
-    domain: content.domain,
     replaces: content.replaces ?? {},
     publications: Object.fromEntries(content.levels.flatMap((level) => level.tasks.map((task) => [task.id, task.publishes ?? []]))),
   }

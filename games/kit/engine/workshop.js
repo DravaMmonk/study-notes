@@ -69,20 +69,20 @@ export const trayKey = (game, name) => JSON.stringify([game, name])
 export const workshopInTray = (piece, tray, types) => piece.tray === tray
   || ((!piece.tray || JSON.parse(piece.tray)[0] !== JSON.parse(tray)[0]) && piece.requirements.every(({ type }) => types.has(type)))
 
-/** Include the domain's operations and the piece's executable declaration in its identity. */
-export function workshopIdentity(domain, definitions, type) {
+/** Identify a qualified capability and its executable declaration. */
+export function workshopIdentity(definitions, type) {
   const definition = definitions?.parts?.[type]
-  if (!definition) return canonicalJson([domain, type, null])
-  const { compute, keeps, nulls, inputs, outputs, regions, checks } = definition
+  if (!definition) return canonicalJson([type, null])
+  const { compute, keeps, nulls, inputs, outputs, outputType, regions, checks } = definition
   // Resolve catalog references before comparing the settings used by the circuit.
   const settings = resolveSettings(definitions, definition).map((setting) => {
     const { key, control, optional, integer, min, max, options, from } = setting
     return { key, control, default: defaultOf(setting), optional, integer, min, max,
       options: options?.map(({ value }) => value), from }
   })
-  return canonicalJson([domain, type, {
-    compute, keeps, nulls, settings,
-    inputs: inputs?.map(({ name, optional }) => [name, optional]),
+  return canonicalJson([type, {
+    compute, keeps, nulls, outputType, settings,
+    inputs: inputs?.map(({ name, type, optional }) => [name, type, optional]),
     outputs: outputs?.map(({ name }) => name),
     regions: regions?.map(({ name, opens, closes, gives, when }) => [name, opens, closes, gives, when]),
     checks: checks?.map(({ holds }) => holds),
@@ -175,11 +175,11 @@ export function captureWorkshop(graph, options) {
   const face = { order: options.order, input: (_base, ref) => inputs[ref], output: (id) => outputs[id] }
   const captured = gather(graph, options.parts, options.open, face, new Set())
   if (!captured) return null
-  return JSON.parse(JSON.stringify({ ...captured, id: options.scope, domain: options.domain, name: options.name, description: options.description, tray: options.tray, rewardType: options.rewardType }))
+  return JSON.parse(JSON.stringify({ ...captured, id: options.scope, name: options.name, description: options.description, tray: options.tray, rewardType: options.rewardType }))
 }
 
-export function workshopCompatible(piece, { domain, identity, resolve }) {
-  return piece?.domain === domain && Array.isArray(piece?.requirements) && Array.isArray(piece.terminals)
+export function workshopCompatible(piece, { identity, resolve }) {
+  return Array.isArray(piece?.requirements) && Array.isArray(piece.terminals)
     && piece.requirements.every(({ type, identity: signature }) =>
     Boolean(resolve(type)) && identity(type) === signature)
     && piece.terminals.every((type) => (type === WORKSHOP_OUTPUT || Boolean(resolve(type))))

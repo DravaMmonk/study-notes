@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "9-3",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.9-3.tasks.9-3.brief",
       "hint": "@level.9-3.tasks.9-3.hint",
       "inputs": ["img", "m"],
@@ -22,29 +22,29 @@
         "img": "@level.9-3.tasks.9-3.inputLabels.img",
         "m": "@level.9-3.tasks.9-3.inputLabels.m"
       },
-      "scene": "kmeans",
+      "scene": "image:scene-kmeans",
       "setup": { "expect": "segment" },
       "tests": [
         {
           "label": "@level.9-3.tasks.9-3.tests.0.label",
-          "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
+          "img": { "image:picture-twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
           "m": 0.28
         },
         {
           "label": "@level.9-3.tasks.9-3.tests.1.label",
-          "img": { "twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
+          "img": { "image:picture-twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
           "m": 0.55
         },
         {
           "label": "@level.9-3.tasks.9-3.tests.2.label",
-          "img": { "twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
+          "img": { "image:picture-twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
           "m": 0.45
         }
       ],
       "hidden": [
         {
           "label": "@level.9-3.tasks.9-3.hidden.0.label",
-          "img": { "twoTone": { "seed": 54, "dark": 0.15, "bright": 0.5, "disc": [10, 9, 20] } },
+          "img": { "image:picture-twoTone": { "seed": 54, "dark": 0.15, "bright": 0.5, "disc": [10, 9, 20] } },
           "m": 0.2
         }
       ],

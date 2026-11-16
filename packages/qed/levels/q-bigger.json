@@ -1,13 +1,32 @@
 {
   "title": "@level.q-bigger.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "q-bigger",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "∀x. R(x, s(x))" }, "goal": "∀x. ∃y. R(x, y)" }],
-      "cases": [{ "R": "Less" }, { "R": "Older" }],
-      "hint": ["@level.q-bigger.tasks.q-bigger.hint.0"],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. R(x, s(x))"
+          },
+          "goal": "∀x. ∃y. R(x, y)"
+        }
+      ],
+      "cases": [
+        {
+          "R": "Less"
+        },
+        {
+          "R": "Older"
+        }
+      ],
+      "hint": [
+        "@level.q-bigger.tasks.q-bigger.hint.0"
+      ],
       "solution": [
         "g = allI[x=a](body: i) {",
         "  body {",

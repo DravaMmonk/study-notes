@@ -4,16 +4,36 @@
   "intro": [
     {
       "t": "@level.rocks.intro.0.t",
-      "fig": { "grid": { "R": 3, "C": 3, "cells": { "1,1": { "cls": "rock" } } } }
+      "fig": {
+        "table:figure-grid": {
+          "R": 3,
+          "C": 3,
+          "cells": {
+            "1,1": {
+              "cls": "rock"
+            }
+          }
+        }
+      }
     },
     {
       "t": "@level.rocks.intro.1.t",
       "fig": {
-        "circuit": {
+        "table:figure-circuit": {
           "taps": [
-            { "id": "u", "label": "@level.rocks.intro.1.fig.circuit.taps.u.label" },
-            { "id": "l", "label": "@level.rocks.intro.1.fig.circuit.taps.l.label" },
-            { "id": "s", "label": "@level.rocks.intro.1.fig.circuit.taps.s.label", "kind": "bool" }
+            {
+              "id": "u",
+              "label": "@level.rocks.intro.1.fig.circuit.taps.u.label"
+            },
+            {
+              "id": "l",
+              "label": "@level.rocks.intro.1.fig.circuit.taps.l.label"
+            },
+            {
+              "id": "s",
+              "label": "@level.rocks.intro.1.fig.circuit.taps.s.label",
+              "kind": "bool"
+            }
           ],
           "parts": [
             {
@@ -22,12 +42,30 @@
               "tag": "@level.rocks.intro.1.fig.circuit.parts.c.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.rocks.intro.1.fig.circuit.outs.o.label" }],
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.rocks.intro.1.fig.circuit.outs.o.label"
+            }
+          ],
           "wires": [
-            { "from": "u", "to": "c" },
-            { "from": "l", "to": "c" },
-            { "from": "s", "to": "c", "kind": "bool" },
-            { "from": "c", "to": "o" }
+            {
+              "from": "u",
+              "to": "c"
+            },
+            {
+              "from": "l",
+              "to": "c"
+            },
+            {
+              "from": "s",
+              "to": "c",
+              "kind": "bool"
+            },
+            {
+              "from": "c",
+              "to": "o"
+            }
           ]
         }
       }
@@ -35,10 +73,17 @@
     {
       "t": "@level.rocks.intro.2.t",
       "fig": {
-        "circuit": {
+        "table:figure-circuit": {
           "taps": [
-            { "id": "c", "label": "@level.rocks.intro.2.fig.circuit.taps.c.label", "kind": "bool" },
-            { "id": "v", "label": "@level.rocks.intro.2.fig.circuit.taps.v.label" }
+            {
+              "id": "c",
+              "label": "@level.rocks.intro.2.fig.circuit.taps.c.label",
+              "kind": "bool"
+            },
+            {
+              "id": "v",
+              "label": "@level.rocks.intro.2.fig.circuit.taps.v.label"
+            }
           ],
           "parts": [
             {
@@ -47,8 +92,27 @@
               "tag": "@level.rocks.intro.2.fig.circuit.parts.b.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.rocks.intro.2.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "c", "to": "b", "kind": "bool" }, { "from": "v", "to": "b" }, { "from": "b", "to": "o" }]
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.rocks.intro.2.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "c",
+              "to": "b",
+              "kind": "bool"
+            },
+            {
+              "from": "v",
+              "to": "b"
+            },
+            {
+              "from": "b",
+              "to": "o"
+            }
+          ]
         }
       }
     },
@@ -60,8 +124,10 @@
     "goal": "@level.rocks.mission.goal",
     "how": "@level.rocks.mission.how"
   },
-  "robot": "scout",
-  "adds": ["block"],
+  "robot": "table:robot-scout",
+  "adds": [
+    "table:block"
+  ],
   "debrief": {
     "title": "@level.rocks.debrief.title",
     "body": [
@@ -73,20 +139,70 @@
   "tasks": [
     {
       "id": "rocks",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "hints": [
         "@level.rocks.tasks.rocks.hints.0",
         "@level.rocks.tasks.rocks.hints.1"
       ],
-      "world": "grid",
-      "facts": ["start", "rock"],
-      "tests": [
-        { "R": 4, "C": 4, "rocks": [[1, 1]] },
-        { "R": 4, "C": 5, "rocks": [[1, 2], [2, 0]] },
-        { "R": 5, "C": 5, "rocks": [[1, 3], [2, 1], [3, 3]] }
+      "world": "table:world-grid",
+      "facts": [
+        "start",
+        "rock"
       ],
-      "expected": [8, 12, 10],
-      "solution": ["c = counter(view.up, view.left, facts.start)", "b = block(facts.rock, c)", "cell <- b"]
+      "tests": [
+        {
+          "R": 4,
+          "C": 4,
+          "rocks": [
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "R": 4,
+          "C": 5,
+          "rocks": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "R": 5,
+          "C": 5,
+          "rocks": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              3
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        8,
+        12,
+        10
+      ],
+      "solution": [
+        "c = counter(view.up, view.left, facts.start)",
+        "b = table:block(facts.rock, c)",
+        "cell <- b"
+      ]
     }
   ]
 }

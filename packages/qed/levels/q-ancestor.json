@@ -1,18 +1,36 @@
 {
   "title": "@level.q-ancestor.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "q-ancestor",
-      "kind": "proof",
-      "consts": ["i", "j", "k"],
+      "kind": "logic:proof",
+      "consts": [
+        "i",
+        "j",
+        "k"
+      ],
       "tests": [
         {
-          "premises": { "t": "∀x. ∀y. ∀z. R(x, y) ∧ R(y, z) → R(x, z)", "a": "R(i, j)", "b": "R(j, k)" },
+          "premises": {
+            "t": "∀x. ∀y. ∀z. R(x, y) ∧ R(y, z) → R(x, z)",
+            "a": "R(i, j)",
+            "b": "R(j, k)"
+          },
           "goal": "R(i, k)"
         }
       ],
-      "cases": [{ "R": "Anc" }, { "R": "Older" }],
+      "cases": [
+        {
+          "R": "Anc"
+        },
+        {
+          "R": "Older"
+        }
+      ],
       "hint": [
         "@level.q-ancestor.tasks.q-ancestor.hint.0"
       ],

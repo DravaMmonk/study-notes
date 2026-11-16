@@ -1,7 +1,16 @@
 {
   "title": "@level.gen-each.title",
-  "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule",
+    "eachOf"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gen-each.intro.0.t"
@@ -11,34 +20,107 @@
   "tasks": [
     {
       "id": "gen-each",
-      "kind": "machine",
-      "want": "elim",
+      "kind": "logic:machine",
+      "want": "logic:want-elim",
       "inputs": [
-        { "name": "it", "label": "@level.gen-each.tasks.gen-each.inputs.0.label" },
-        { "name": "ways", "label": "@level.gen-each.tasks.gen-each.inputs.1.label" }
+        {
+          "name": "it",
+          "label": "@level.gen-each.tasks.gen-each.inputs.0.label"
+        },
+        {
+          "name": "ways",
+          "label": "@level.gen-each.tasks.gen-each.inputs.1.label"
+        }
       ],
       "tests": [
-        { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
-        { "it": "?A ∨ ?B", "ways": ["⟦?A⟧ ⟹ ?A ∨ ?B", "⟦?B⟧ ⟹ ?A ∨ ?B"], "elim": ["?A ∨ ?B", "⟦?A⟧ ⟹ ?R", "⟦?B⟧ ⟹ ?R"] },
+        {
+          "it": "?A ∧ ?B",
+          "ways": [
+            "⟦?A; ?B⟧ ⟹ ?A ∧ ?B"
+          ],
+          "elim": [
+            "?A ∧ ?B",
+            "⟦?A; ?B⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "?A ∨ ?B",
+          "ways": [
+            "⟦?A⟧ ⟹ ?A ∨ ?B",
+            "⟦?B⟧ ⟹ ?A ∨ ?B"
+          ],
+          "elim": [
+            "?A ∨ ?B",
+            "⟦?A⟧ ⟹ ?R",
+            "⟦?B⟧ ⟹ ?R"
+          ]
+        },
         {
           "it": "?A ∧ (?B ∧ ?C)",
-          "ways": ["⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"],
-          "elim": ["?A ∧ (?B ∧ ?C)", "⟦?A; ?B; ?C⟧ ⟹ ?R"]
+          "ways": [
+            "⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"
+          ],
+          "elim": [
+            "?A ∧ (?B ∧ ?C)",
+            "⟦?A; ?B; ?C⟧ ⟹ ?R"
+          ]
         },
         {
           "it": "?A ∨ (?B ∨ ?C)",
-          "ways": ["⟦?A⟧ ⟹ ?A ∨ (?B ∨ ?C)", "⟦?B⟧ ⟹ ?A ∨ (?B ∨ ?C)", "⟦?C⟧ ⟹ ?A ∨ (?B ∨ ?C)"],
-          "elim": ["?A ∨ (?B ∨ ?C)", "⟦?A⟧ ⟹ ?R", "⟦?B⟧ ⟹ ?R", "⟦?C⟧ ⟹ ?R"]
+          "ways": [
+            "⟦?A⟧ ⟹ ?A ∨ (?B ∨ ?C)",
+            "⟦?B⟧ ⟹ ?A ∨ (?B ∨ ?C)",
+            "⟦?C⟧ ⟹ ?A ∨ (?B ∨ ?C)"
+          ],
+          "elim": [
+            "?A ∨ (?B ∨ ?C)",
+            "⟦?A⟧ ⟹ ?R",
+            "⟦?B⟧ ⟹ ?R",
+            "⟦?C⟧ ⟹ ?R"
+          ]
         },
-        { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
-        { "it": "Truth", "ways": ["Truth"], "elim": ["Truth", "?R"] },
-        { "it": "⊥", "ways": [], "elim": ["⊥"] }
+        {
+          "it": "?A ↔ ?B",
+          "ways": [
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"
+          ],
+          "elim": [
+            "?A ↔ ?B",
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "Truth",
+          "ways": [
+            "Truth"
+          ],
+          "elim": [
+            "Truth",
+            "?R"
+          ]
+        },
+        {
+          "it": "⊥",
+          "ways": [],
+          "elim": [
+            "⊥"
+          ]
+        }
       ],
       "hidden": [
         {
           "it": "Motion",
-          "ways": ["⟦AnnYes; BoYes⟧ ⟹ Motion", "⟦BoYes; CyYes⟧ ⟹ Motion", "⟦AnnYes; CyYes⟧ ⟹ Motion"],
-          "elim": ["Motion", "⟦AnnYes; BoYes⟧ ⟹ ?R", "⟦BoYes; CyYes⟧ ⟹ ?R", "⟦AnnYes; CyYes⟧ ⟹ ?R"]
+          "ways": [
+            "⟦AnnYes; BoYes⟧ ⟹ Motion",
+            "⟦BoYes; CyYes⟧ ⟹ Motion",
+            "⟦AnnYes; CyYes⟧ ⟹ Motion"
+          ],
+          "elim": [
+            "Motion",
+            "⟦AnnYes; BoYes⟧ ⟹ ?R",
+            "⟦BoYes; CyYes⟧ ⟹ ?R",
+            "⟦AnnYes; CyYes⟧ ⟹ ?R"
+          ]
         }
       ],
       "brief": "@level.gen-each.tasks.gen-each.brief",
@@ -56,7 +138,12 @@
         "m = mkRule(c, r)",
         "out <- m"
       ],
-      "publishes": [{ "piece": "elimGen", "variant": "v2" }]
+      "publishes": [
+        {
+          "piece": "elimGen",
+          "variant": "v2"
+        }
+      ]
     }
   ]
 }

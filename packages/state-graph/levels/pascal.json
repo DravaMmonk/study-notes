@@ -13,7 +13,7 @@
     "goal": "@level.pascal.mission.goal",
     "how": "@level.pascal.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.pascal.debrief.title",
     "body": [
@@ -24,10 +24,12 @@
   "tasks": [
     {
       "id": "pascal",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "uses": "left" },
+          "when": {
+            "table:condition-uses": "left"
+          },
           "say": "@level.pascal.tasks.pascal.diagnose.0.say"
         }
       ],
@@ -35,11 +37,33 @@
         "@level.pascal.tasks.pascal.hints.0",
         "@level.pascal.tasks.pascal.hints.1"
       ],
-      "world": "tri",
-      "facts": ["start"],
-      "tests": [{ "R": 5, "k": 2 }, { "R": 7, "k": 3 }, { "R": 6, "k": 1 }],
-      "expected": [6, 20, 5],
-      "solution": ["c = counter(view.up, view.ul, facts.start)", "cell <- c"]
+      "world": "table:world-tri",
+      "facts": [
+        "start"
+      ],
+      "tests": [
+        {
+          "R": 5,
+          "k": 2
+        },
+        {
+          "R": 7,
+          "k": 3
+        },
+        {
+          "R": 6,
+          "k": 1
+        }
+      ],
+      "expected": [
+        6,
+        20,
+        5
+      ],
+      "solution": [
+        "c = counter(view.up, view.ul, facts.start)",
+        "cell <- c"
+      ]
     }
   ]
 }

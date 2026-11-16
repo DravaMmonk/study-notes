@@ -91,8 +91,8 @@ export const FACES = ['card', 'tile', 'detail']
 const RULE = S.obj({ on: S.opt(LOCAL_NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子') }) })
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
-const PORT = S.obj({ name: LOCAL_NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
-const REGION = S.obj({ name: LOCAL_NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(LOCAL_NAME)), when: S.opt(EXPR) })
+const PORT = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
+const REGION = S.obj({ name: LOCAL_NAME, type: S.opt(S.ref('valueType')), label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(LOCAL_NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
   settings: S.opt(S.list(SETTING_BINDING, { view: 'setting-bindings' })),
@@ -117,6 +117,7 @@ const NAMED = {
 export const PRIMITIVE = S.obj({
   ...NAMED,
   ...HOLES,
+  outputType: S.opt(S.ref('valueType')),
   ...SETTINGS,
   regions: S.opt(S.list(REGION)),
   ...PAINT,
@@ -139,6 +140,9 @@ export const INSIDE = S.list(S.obj({
 }), { min: 1 })
 export const BUILT = S.obj({
   ...NAMED,
+  inputs: S.opt(S.list(PORT)),
+  outputs: HOLES.outputs,
+  outputType: S.opt(S.ref('valueType')),
   inside: INSIDE,
   card: S.opt(S.ref('op', { about: t('不跑内部的作品，照这个引擎资源跑（它能做的比证出的更多）；内部仍说它是什么、在哪里得到') })),
   ...SETTINGS,
@@ -161,7 +165,7 @@ export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape
 
 /** A new piece of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
 export const BLANKS = {
-  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a' }], compute: 'a' } : null),
+  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', compute: 'a' } : null),
   strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { en: 'New block' }, desc: { en: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
 }
 /** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */

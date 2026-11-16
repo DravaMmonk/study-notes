@@ -56,7 +56,7 @@ export function defineVocabulary({ domain, version, kinds, game, level, language
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
-export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
+export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary.description ?? vocabulary))
 
 /**
  * A version's printing as it is kept (versions/<n>.json): describe(vocabulary) with every subtree that recurs (the

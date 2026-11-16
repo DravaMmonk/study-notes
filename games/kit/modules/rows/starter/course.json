@@ -1,0 +1,11 @@
+{
+  "chapters": [
+    {
+      "id": 1,
+      "levels": [
+        "starter/1-1",
+        "starter/1-2"
+      ]
+    }
+  ]
+}

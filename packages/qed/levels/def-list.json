@@ -1,30 +1,61 @@
 {
   "title": "@level.def-list.title",
-  "intro": [{ "t": "@level.def-list.intro.0.t" }],
+  "intro": [
+    {
+      "t": "@level.def-list.intro.0.t"
+    }
+  ],
   "tray": "#formula",
   "tasks": [
     {
       "id": "def-list_1",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.def-list.tasks.def-list_1.step",
       "fn": "app",
       "on": 0,
       "rows": [
-        { "lhs": "app(nil, ys)", "choices": ["ys", "nil"] },
+        {
+          "lhs": "app(nil, ys)",
+          "choices": [
+            "ys",
+            "nil"
+          ]
+        },
         {
           "lhs": "app(cons(x, xs), ys)",
-          "choices": ["cons(x, app(xs, ys))", "app(xs, cons(x, ys))", "cons(x, app(cons(x, xs), ys))"]
+          "choices": [
+            "cons(x, app(xs, ys))",
+            "app(xs, cons(x, ys))",
+            "cons(x, app(cons(x, xs), ys))"
+          ]
         }
       ],
       "tests": [
-        { "term": "app(cons(i, nil), cons(j, nil))", "value": "cons(i, cons(j, nil))" },
-        { "term": "app(cons(i, cons(j, nil)), cons(k, nil))", "value": "cons(i, cons(j, cons(k, nil)))" }
+        {
+          "term": "app(cons(i, nil), cons(j, nil))",
+          "value": "cons(i, cons(j, nil))"
+        },
+        {
+          "term": "app(cons(i, cons(j, nil)), cons(k, nil))",
+          "value": "cons(i, cons(j, cons(k, nil)))"
+        }
       ],
-      "solution": ["ys", "cons(x, app(xs, ys))"],
-      "naive": ["ys", "app(xs, cons(x, ys))"],
+      "solution": [
+        "ys",
+        "cons(x, app(xs, ys))"
+      ],
+      "naive": [
+        "ys",
+        "app(xs, cons(x, ys))"
+      ],
       "brief": "@level.def-list.tasks.def-list_1.brief",
-      "hint": ["@level.def-list.tasks.def-list_1.hint.0"],
+      "hint": [
+        "@level.def-list.tasks.def-list_1.hint.0"
+      ],
       "intro": [
         {
           "t": "@level.def-list.tasks.def-list_1.intro.0.t"
@@ -33,23 +64,53 @@
     },
     {
       "id": "def-list_2",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.def-list.tasks.def-list_2.step",
       "fn": "len",
       "on": 0,
       "rows": [
-        { "lhs": "len(nil)", "choices": ["zero", "s(zero)"] },
-        { "lhs": "len(cons(x, xs))", "choices": ["s(len(xs))", "len(xs)", "s(len(cons(x, xs)))"] }
+        {
+          "lhs": "len(nil)",
+          "choices": [
+            "zero",
+            "s(zero)"
+          ]
+        },
+        {
+          "lhs": "len(cons(x, xs))",
+          "choices": [
+            "s(len(xs))",
+            "len(xs)",
+            "s(len(cons(x, xs)))"
+          ]
+        }
       ],
       "tests": [
-        { "term": "len(cons(i, cons(j, nil)))", "value": "s(s(zero))" },
-        { "term": "len(nil)", "value": "zero" }
+        {
+          "term": "len(cons(i, cons(j, nil)))",
+          "value": "s(s(zero))"
+        },
+        {
+          "term": "len(nil)",
+          "value": "zero"
+        }
       ],
-      "solution": ["zero", "s(len(xs))"],
-      "naive": ["zero", "len(xs)"],
+      "solution": [
+        "zero",
+        "s(len(xs))"
+      ],
+      "naive": [
+        "zero",
+        "len(xs)"
+      ],
       "brief": "@level.def-list.tasks.def-list_2.brief",
-      "hint": ["@level.def-list.tasks.def-list_2.hint.0"]
+      "hint": [
+        "@level.def-list.tasks.def-list_2.hint.0"
+      ]
     }
   ]
 }

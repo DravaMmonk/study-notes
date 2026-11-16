@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "6-12",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-12.tasks.6-12.brief",
       "hint": "@level.6-12.tasks.6-12.hint",
       "inputs": ["photo", "cover", "H"],
@@ -27,7 +27,7 @@
         "cover": "@level.6-12.tasks.6-12.inputLabels.cover",
         "H": "@level.6-12.tasks.6-12.inputLabels.H"
       },
-      "scene": "paste",
+      "scene": "image:scene-paste",
       "tests": [
         { "label": "@level.6-12.tasks.6-12.tests.0.label", "quad": [[9, 5], [21, 7], [23, 27], [7, 25]] },
         { "label": "@level.6-12.tasks.6-12.tests.1.label", "quad": [[11, 6], [20, 6], [25, 26], [5, 26]] },

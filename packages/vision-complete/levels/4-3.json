@@ -24,42 +24,58 @@
   ],
   "adds": ["learn3"],
   "tray": "#pipeline",
-  "unlocks": ["learn3"],
+  "unlocks": ["image:unlock-learn3"],
   "tasks": [
     {
       "id": "4-3",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-3.tasks.4-3.brief",
       "hint": "@level.4-3.tasks.4-3.hint",
       "check": { "tolerance": 0.02 },
-      "scene": "filter",
-      "setup": { "target": { "correlate": { "kernel": [0.1, -0.3, 0.2, 0.4, 0.15, -0.2, -0.1, 0.35, 0.05] } } },
+      "scene": "image:scene-filter",
+      "setup": {
+        "target": {
+          "image:target-correlate": { "kernel": [0.1, -0.3, 0.2, 0.4, 0.15, -0.2, -0.1, 0.35, 0.05] }
+        }
+      },
       "tests": [
         {
           "label": "@level.4-3.tasks.4-3.tests.0.label",
-          "in": { "offset": { "of": { "noise": { "seed": 1, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 1, "amp": 1 } }, "by": -0.5 }
+          }
         },
         {
           "label": "@level.4-3.tasks.4-3.tests.1.label",
-          "in": { "offset": { "of": { "noise": { "seed": 2, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 2, "amp": 1 } }, "by": -0.5 }
+          }
         },
         {
           "label": "@level.4-3.tasks.4-3.tests.2.label",
-          "in": { "offset": { "of": { "noise": { "seed": 3, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 3, "amp": 1 } }, "by": -0.5 }
+          }
         },
         {
           "label": "@level.4-3.tasks.4-3.tests.3.label",
-          "in": { "offset": { "of": { "noise": { "seed": 4, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 4, "amp": 1 } }, "by": -0.5 }
+          }
         }
       ],
       "hidden": [
         {
           "label": "@level.4-3.tasks.4-3.hidden.0.label",
-          "in": { "offset": { "of": { "noise": { "seed": 7, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 7, "amp": 1 } }, "by": -0.5 }
+          }
         },
         {
           "label": "@level.4-3.tasks.4-3.hidden.1.label",
-          "in": { "offset": { "of": { "noise": { "seed": 8, "amp": 1 } }, "by": -0.5 } }
+          "in": {
+            "image:picture-offset": { "of": { "image:picture-noise": { "seed": 8, "amp": 1 } }, "by": -0.5 }
+          }
         }
       ],
       "solution": ["k = learn3[w=[0.1, -0.3, 0.2, 0.4, 0.15, -0.2, -0.1, 0.35, 0.05]](in)", "out <- k"],

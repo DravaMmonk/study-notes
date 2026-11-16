@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 17,
+  "vocabulary": 1,
   "wordSets": {
     "everyday": {
       "Rain": "@course.wordSets.everyday.Rain",
@@ -134,7 +134,10 @@
       "j": "@course.wordSets.stars.j",
       "k": "@course.wordSets.stars.k"
     },
-    "properties": { "P": "@course.wordSets.properties.P", "Q": "@course.wordSets.properties.Q" },
+    "properties": {
+      "P": "@course.wordSets.properties.P",
+      "Q": "@course.wordSets.properties.Q"
+    },
     "codes": {
       "rain": "@course.wordSets.codes.rain",
       "wet": "@course.wordSets.codes.wet",
@@ -174,5 +177,17 @@
       "cs": "@course.wordSets.goedel.cs"
     }
   },
-  "quotes": ["任取", "等价", "相等", "假设", "我证不出", "交换", "归纳", "归结", "饱和器", "数理规则书", "定义"]
+  "quotes": [
+    "任取",
+    "等价",
+    "相等",
+    "假设",
+    "我证不出",
+    "交换",
+    "归纳",
+    "归结",
+    "饱和器",
+    "数理规则书",
+    "定义"
+  ]
 }

@@ -22,6 +22,8 @@ import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js
 import { ICON_NAMES } from './icons.js'
 import { BUILTINS, BUILTIN_ITEMS } from './builtins.js'
 import { FACES, PARTS_FILE } from './schema.js'
+import { registeredOperations, registeredValueTypes } from '../capabilities.js'
+import { typeProblems } from './types.js'
 
 const ICONS = new Set(ICON_NAMES)
 const OPTIONED = new Set(['select', 'buttons'])
@@ -90,7 +92,7 @@ export function optionsOf(s, def, { params = {}, ins = {}, ctx = {} } = {}, ops 
 }
 
 const runner = (ops, ctx) => (name, args, named) => {
-  const op = BUILTINS[name] ?? ops[name]
+  const op = BUILTINS[name] ?? ops[name] ?? registeredOperations[name]
   if (!op) throw new PartError({ zh: `没有引擎资源 ${name}`, en: `no engine resource ${name}` })
   return op.run(args, named, ctx)
 }
@@ -186,10 +188,16 @@ export function definitionPorts(def, ops) {
 
 /** Compile circuit definitions already carrying resolved settings, including parts generated in code. */
 export function compileParts(parts, ops, code = {}) {
+  ops = { ...registeredOperations, ...ops }
   const defs = Object.fromEntries(Object.entries(parts).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, indexPart(def, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
-    const ports = definitionPorts(def, ops)
+    const ports = {
+      ...definitionPorts(def, ops),
+      inputTypes: Object.fromEntries(holesOf(def).map((port) => [port.name, port.type])),
+      outputType: def.outputType,
+      outputTypes: Object.fromEntries(outletsOf(def).map((port) => [port.name, port.type])),
+    }
     // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
     const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
     // A part that keeps an input is a sink storing it in the register its setting names (../ticks.js).
@@ -261,9 +269,7 @@ export function withParts(vocabulary, file) {
   if (!file) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
   const setting = Object.assign(Object.create(null), Object.fromEntries(Object.entries(file.settings ?? {}).map(([id, def]) => [id, { about: def?.label ?? def?.about }])))
-  const namespaces = [...new Set(Object.keys(file.parts).filter((name) => name.includes('/')).map((name) => name.split('/')[0]))]
-  const unlock = { ...vocabulary.kinds.unlock, ...Object.fromEntries(namespaces.flatMap((namespace) => Object.entries(vocabulary.kinds.unlock ?? {}).map(([name, item]) => [`${namespace}/${name}`, item]))) }
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part), setting, ...(vocabulary.kinds.unlock && { unlock }) } }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, valueType: { ...registeredValueTypes, ...vocabulary.kinds.valueType }, part: registerPieces(vocabulary.kinds.part, part), setting } }
 }
 
 /** Every place a pieces.json does not hold together, as [{ at, says }] (at: pieces.json and the path in it). */
@@ -275,8 +281,8 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
   if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
+  if (vocabulary.capabilities || vocabulary.kinds.valueType) out.push(...typeProblems(file, vocabulary))
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
-  for (const name of Object.keys(vocabulary.kinds.op ?? {})) if (BUILTINS[name]) say('', `the domain’s resource ${name} takes the name of a kernel builtin`)
   const fits = (schema, v) => validate(schema, v, { vocabulary: vocab }).length === 0
   const settingProblems = (s, at) => {
     if ((OPTIONED.has(s.control) || LISTED.has(s.control)) && !s.options === !s.from) say(at, 'a setting with options gives them, or works them out (from), not both')
@@ -318,7 +324,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
         if (error instanceof ExprError) return say(where, `column ${error.at + 1}: ${error.message}`)
         throw error
       }
-      for (const says of problemsOf(tree, { ops, inputs, settings: def.setting, fits })) say(where, says)
+      for (const says of problemsOf(tree, { ops, inputs, inputTypes: Object.fromEntries(holesOf(def).map((port) => [port.name, port.type])), settings: def.setting, fits })) say(where, says)
       return undefined
     }
     for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `.settings.${raw.settings[k].setting}.when`, [])

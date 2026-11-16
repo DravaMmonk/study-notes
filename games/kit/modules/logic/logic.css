@@ -1,0 +1,68 @@
+/* The logic domain's screens (《证明完毕》): its parts' families on the kit's circuit screen, and the screens its plays
+   configure (first-order levels, definitions, the rule table). Colours come from the kit's tokens. */
+[data-family='given'] { --fam: var(--w0); }
+[data-family='hyp'] { --fam: var(--w4); }
+[data-family='logic:family-rule'] { --fam: var(--n2); }
+[data-family='logic:family-box'] { --fam: var(--w1); }
+[data-family='logic:family-lemma'], [data-family='logic:family-tactic'] { --fam: var(--n1); }
+[data-family='logic:family-loop'] { --fam: var(--w1); }
+[data-family='end'] { --fam: var(--accent); }
+
+/* ---- what a screen says wrong, and its verdict ---- */
+.lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
+.lg-error.is-missing { color: var(--faint); }
+.node-verdict { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
+.lg-scroll-x { overflow-x: auto; max-width: 100%; }
+
+/* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world
+   to build. */
+.fo-stage { max-width: 760px; margin: 0 auto; padding: var(--sp-6) var(--sp-6) var(--sp-7); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+/* A long sentence wraps, and a choice of long sentences narrows to the page: nothing makes the page wider. */
+.fo-stage select { max-width: 100%; text-overflow: ellipsis; }
+.fo-stage b, .fo-stage code { overflow-wrap: anywhere; }
+/* On a phone the page already has its margins. */
+.level-phone .fo-stage, .level-phone .lg-define { width: 100%; margin: 0; padding: 0; }
+.fo-item { display: grid; gap: var(--sp-4); padding: var(--sp-5) var(--sp-6); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.fo-item.is-pass { box-shadow: inset 0 0 0 1.5px var(--status); }
+.fo-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
+.fo-say { margin: 0; display: flex; align-items: baseline; gap: var(--sp-3); font-family: var(--serif); font-size: 17px; color: var(--heading); }
+.fo-item.is-pass .fo-say svg { color: var(--status); }
+.fo-item.is-fail .fo-say svg { color: var(--fail); }
+.fo-input { box-sizing: border-box; width: 100%; height: 40px; padding: 0 var(--sp-5); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 15px var(--mono); }
+.fo-input:focus { outline: none; border-color: var(--accent); background: var(--paper); }
+.fo-read { margin: 0; min-height: 1.4em; color: var(--muted); font-size: 13px; }
+.fo-read b { color: var(--ink); font-weight: 600; }
+
+.fo-vocab { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: var(--sp-3); padding: var(--sp-4) 0; background: var(--canvas); }
+.fo-vocab button { min-height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--sans); cursor: pointer; }
+.fo-vocab button:hover { background: var(--hover); }
+
+
+/* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
+
+/* A rule part's rules, in the order it gives them, each written out with × to take it off; a menu under them adds
+   one. A long list scrolls. */
+
+/* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
+   once the run has a step to show. */
+
+/* Formulas built from chips (formulaWork.js, on the shared strip): the sentence to say, and a colour per kind of piece. */
+.fo-prompt { font-size: 20px; }
+.fo-level { --fam-pred: #3f7fb5; --fam-name: #2f918f; --fam-var: #7a6fb0; --fam-quant: #b4579a; --fam-conn: #b98516; }
+:root[data-theme='night'] .fo-level, :root[data-theme='blueprint'] .fo-level { --fam-pred: #8db3d6; --fam-name: #7fc2c2; --fam-var: #b3a9dc; --fam-quant: #c5a0cc; --fam-conn: #e0ac4f; }
+.fo-level [data-family='pred'] { --fam: var(--fam-pred); }
+.fo-level [data-family='name'] { --fam: var(--fam-name); }
+.fo-level [data-family='var'] { --fam: var(--fam-var); }
+.fo-level [data-family='quant'] { --fam: var(--fam-quant); }
+.fo-level [data-family='conn'] { --fam: var(--fam-conn); }
+
+
+/* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
+.lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
+
+
+
+/* The rules a declaration gives, as they stand: each named at the left, written out beside it. */
+/* A sentence being built for one of them (strip/TreePick.jsx, ui/RuleTable.jsx). */
+/* The rule table's for-any switch takes the quantifiers' colour. */
+.lg-rule-table .rr-lead button[aria-pressed='true'] { background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }

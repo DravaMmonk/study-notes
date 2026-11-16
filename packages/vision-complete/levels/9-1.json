@@ -10,8 +10,8 @@
   "tasks": [
     {
       "id": "binary-foreground-mask",
-      "kind": "graph",
-      "scene": "cells",
+      "kind": "image:graph",
+      "scene": "image:scene-cells",
       "brief": "@level.9-1.tasks.binary-foreground-mask.brief",
       "outputLabels": { "out": "@level.9-1.tasks.binary-foreground-mask.outputLabels.out" },
       "tests": [

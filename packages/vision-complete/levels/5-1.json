@@ -13,16 +13,16 @@
       "t": "@level.5-1.intro.2.t"
     }
   ],
-  "unlocks": ["attention"],
+  "unlocks": ["image:unlock-attention"],
   "tasks": [
     {
       "id": "5-1-experiment",
       "step": "@level.5-1.tasks.5-1-experiment.step",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.5-1.tasks.5-1-experiment.brief",
       "hint": "@level.5-1.tasks.5-1-experiment.hint",
       "bench": {
-        "model": "attentionRoles",
+        "model": "image:benchModel-attentionRoles",
         "setup": { "role": "value" },
         "knobs": {
           "query": {
@@ -82,13 +82,18 @@
         "goal": [{ "of": "correct", "is": true }],
         "win": "@level.5-1.tasks.5-1-experiment.bench.win",
         "status": "@level.5-1.tasks.5-1-experiment.bench.status",
-        "layout": { "main": ["attentionRoles", { "panel": ["knobs", "verdict"] }] }
+        "layout": {
+          "main": [
+            "image:display-attentionRoles",
+            { "panel": ["circuit:display-knobs", "circuit:display-verdict"] }
+          ]
+        }
       },
       "after": "@level.5-1.tasks.5-1-experiment.after"
     },
     {
       "id": "5-1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.5-1.tasks.5-1.brief",
       "hint": "@level.5-1.tasks.5-1.hint",
       "after": "@level.5-1.tasks.5-1.after",
@@ -97,34 +102,52 @@
         "a": "@level.5-1.tasks.5-1.inputLabels.a",
         "b": "@level.5-1.tasks.5-1.inputLabels.b"
       },
-      "scene": "filter",
-      "setup": { "target": "ask" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-ask" },
       "tests": [
         {
           "label": "@level.5-1.tasks.5-1.tests.0.label",
-          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "X" } },
+            "b": { "image:picture-tile": { "name": "C" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1.tests.1.label",
-          "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "P" } },
+            "b": { "image:picture-tile": { "name": "K" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1.tests.2.label",
-          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "R" } },
+            "b": { "image:picture-tile": { "name": "S" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1.tests.3.label",
-          "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "S", "hi": 0.5 } },
+            "b": { "image:picture-tile": { "name": "X" } }
+          }
         }
       ],
       "hidden": [
         {
           "label": "@level.5-1.tasks.5-1.hidden.0.label",
-          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "K" } },
+            "b": { "image:picture-tile": { "name": "R" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1.hidden.1.label",
-          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "C" } },
+            "b": { "image:picture-tile": { "name": "P", "hi": 0.6 } }
+          }
         }
       ],
       "solution": [
@@ -163,7 +186,7 @@
     {
       "id": "5-1-training",
       "step": "@level.5-1.tasks.5-1-training.step",
-      "kind": "graph",
+      "kind": "image:graph",
       "carries": true,
       "brief": "@level.5-1.tasks.5-1-training.brief",
       "hint": "@level.5-1.tasks.5-1-training.hint",
@@ -174,30 +197,45 @@
       },
       "check": { "tolerance": 0.02 },
       "trainRate": 1.5,
-      "scene": "filter",
-      "setup": { "target": "projectedAsk" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-projectedAsk" },
       "tests": [
         {
           "label": "@level.5-1.tasks.5-1-training.tests.0.label",
-          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "R" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "X" } },
+            "b": { "image:picture-tile": { "name": "R" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1-training.tests.1.label",
-          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "K" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "R" } },
+            "b": { "image:picture-tile": { "name": "K" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1-training.tests.2.label",
-          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "X" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "K" } },
+            "b": { "image:picture-tile": { "name": "X" } }
+          }
         }
       ],
       "hidden": [
         {
           "label": "@level.5-1.tasks.5-1-training.hidden.0.label",
-          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "C" } },
+            "b": { "image:picture-tile": { "name": "P" } }
+          }
         },
         {
           "label": "@level.5-1.tasks.5-1-training.hidden.1.label",
-          "inputs": { "a": { "tile": { "name": "S" } }, "b": { "tile": { "name": "R" } } }
+          "inputs": {
+            "a": { "image:picture-tile": { "name": "S" } },
+            "b": { "image:picture-tile": { "name": "R" } }
+          }
         }
       ],
       "solution": [

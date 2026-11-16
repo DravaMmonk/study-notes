@@ -1,6 +1,9 @@
 {
   "title": "@level.lemCases.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.lemCases.intro.0.t"
@@ -9,9 +12,26 @@
   "tasks": [
     {
       "id": "lemCases",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → B", "q": "¬A → B" }, "goal": "B" }],
-      "cases": [{ "A": "Rain", "B": "Coffee" }, { "A": "Bus", "B": "OnTime" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "¬A → B"
+          },
+          "goal": "B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Coffee"
+        },
+        {
+          "A": "Bus",
+          "B": "OnTime"
+        }
+      ],
       "hint": [
         "@level.lemCases.tasks.lemCases.hint.0",
         "@level.lemCases.tasks.lemCases.hint.1"

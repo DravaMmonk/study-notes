@@ -14,12 +14,12 @@
       "fig": { "test": 1, "caption": "@level.10-7.intro.2.fig.caption" }
     }
   ],
-  "unlocks": ["long-shift"],
+  "unlocks": ["image:unlock-long-shift"],
   "gives": ["vision-complete/shift.n"],
   "tasks": [
     {
       "id": "10-7",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.10-7.tasks.10-7.brief",
       "hint": "@level.10-7.tasks.10-7.hint",
       "inputs": ["f", "k", "g"],
@@ -29,7 +29,7 @@
         "g": "@level.10-7.tasks.10-7.inputLabels.g"
       },
       "check": { "tolerance": 0.005 },
-      "scene": "ranking",
+      "scene": "image:scene-ranking",
       "tests": [
         {
           "label": "@level.10-7.tasks.10-7.tests.0.label",

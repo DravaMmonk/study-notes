@@ -9,23 +9,62 @@
   "tasks": [
     {
       "id": "def-max_1",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.def-max.tasks.def-max_1.step",
       "fn": "le",
       "on": 0,
       "rows": [
-        { "lhs": "le(zero, y)", "choices": ["tt", "ff"] },
-        { "lhs": "le(s(x), zero)", "choices": ["ff", "tt"] },
-        { "lhs": "le(s(x), s(y))", "choices": ["le(x, y)", "tt", "le(s(x), s(y))"] }
+        {
+          "lhs": "le(zero, y)",
+          "choices": [
+            "tt",
+            "ff"
+          ]
+        },
+        {
+          "lhs": "le(s(x), zero)",
+          "choices": [
+            "ff",
+            "tt"
+          ]
+        },
+        {
+          "lhs": "le(s(x), s(y))",
+          "choices": [
+            "le(x, y)",
+            "tt",
+            "le(s(x), s(y))"
+          ]
+        }
       ],
       "tests": [
-        { "term": "le(s(zero), s(s(zero)))", "value": "tt" },
-        { "term": "le(s(s(zero)), s(zero))", "value": "ff" },
-        { "term": "le(zero, zero)", "value": "tt" }
+        {
+          "term": "le(s(zero), s(s(zero)))",
+          "value": "tt"
+        },
+        {
+          "term": "le(s(s(zero)), s(zero))",
+          "value": "ff"
+        },
+        {
+          "term": "le(zero, zero)",
+          "value": "tt"
+        }
       ],
-      "solution": ["tt", "ff", "le(x, y)"],
-      "naive": ["tt", "ff", "tt"],
+      "solution": [
+        "tt",
+        "ff",
+        "le(x, y)"
+      ],
+      "naive": [
+        "tt",
+        "ff",
+        "tt"
+      ],
       "brief": "@level.def-max.tasks.def-max_1.brief",
       "hint": [
         "@level.def-max.tasks.def-max_1.hint.0"
@@ -38,22 +77,53 @@
     },
     {
       "id": "def-max_2",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.def-max.tasks.def-max_2.step",
       "fn": "max",
       "on": null,
-      "defs": ["le"],
+      "defs": [
+        "le"
+      ],
       "rows": [
-        { "lhs": "max(x, y)", "when": "le(x, y) = tt", "choices": ["y", "x"] },
-        { "lhs": "max(x, y)", "when": "le(x, y) = ff", "choices": ["x", "y"] }
+        {
+          "lhs": "max(x, y)",
+          "when": "le(x, y) = tt",
+          "choices": [
+            "y",
+            "x"
+          ]
+        },
+        {
+          "lhs": "max(x, y)",
+          "when": "le(x, y) = ff",
+          "choices": [
+            "x",
+            "y"
+          ]
+        }
       ],
       "tests": [
-        { "term": "max(s(zero), s(s(zero)))", "value": "s(s(zero))" },
-        { "term": "max(s(s(zero)), zero)", "value": "s(s(zero))" }
+        {
+          "term": "max(s(zero), s(s(zero)))",
+          "value": "s(s(zero))"
+        },
+        {
+          "term": "max(s(s(zero)), zero)",
+          "value": "s(s(zero))"
+        }
       ],
-      "solution": ["y", "x"],
-      "naive": ["x", "y"],
+      "solution": [
+        "y",
+        "x"
+      ],
+      "naive": [
+        "x",
+        "y"
+      ],
       "brief": "@level.def-max.tasks.def-max_2.brief",
       "hint": [
         "@level.def-max.tasks.def-max_2.hint.0"

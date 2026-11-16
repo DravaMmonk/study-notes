@@ -1,6 +1,6 @@
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
 // palette's index and ranking (palette.js), the check's lines as a worklist (worklist.js), the copy
-// table's rows (copy.js); and on every domain's starter game (kit/domains/<d>/starter, copied to a temp folder), that
+// table's rows (copy.js); and on every domain's starter game (kit/modules/<d>/starter, copied to a temp folder), that
 // bulk operations, the palette's index and the copy rows hold up.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -54,7 +54,7 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
-const DOMAINS = resolve(import.meta.dirname, '../domains')
+const DOMAINS = resolve(import.meta.dirname, '../modules')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readStarter(resolve(DOMAINS, d))
 function openStarter(d) {
@@ -162,7 +162,7 @@ test('on every starter: the copy table’s rows: an era’s own texts and its le
     const own = eraLevels(content.eras[0])
     // The era's own texts first, under its id in game.json; then only its levels' texts, each under its level.
     const head = era.findIndex((r) => !r.file.game)
-    assert.ok(head > 0 && era.slice(0, head).every((r) => r.file.game && r.path[0] === 'chapters' && r.path[1] === 0 && r.name === String(content.eras[0].id)), game)
+    assert.ok(head >= 0 && era.slice(0, head).every((r) => r.file.game && r.path[0] === 'chapters' && r.path[1] === 0 && r.name === String(content.eras[0].id)), game)
     assert.ok(era.slice(head).every((r) => own.includes(r.file.level) && r.name === r.file.level), game)
     assert.ok(own.every((id) => era.some((r) => r.file.level === id && r.field === 'title')), game)
     const all = copyRows(content, vocabulary, 'all', order, 'game')

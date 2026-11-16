@@ -1,6 +1,9 @@
 {
   "title": "@level.e-count.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.e-count.intro.0.t"
@@ -10,7 +13,7 @@
   "tasks": [
     {
       "id": "e-count",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "(KA ↔ (¬KA ∨ ¬KB ∨ ¬KC)) ∧ (KB ↔ ((KA ∨ KB) ∧ (KA ∨ KC) ∧ (KB ∨ KC))) ∧ (KC ↔ (¬KA ∨ KB ∨ KC))",
       "blind": true,
       "brief": "@level.e-count.tasks.e-count.brief",

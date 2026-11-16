@@ -1,7 +1,7 @@
 {
   "title": "@level.4-18.title",
   "tray": "#pipeline",
-  "unlocks": ["softmax"],
+  "unlocks": ["image:unlock-softmax"],
   "after": "@level.4-18.after",
   "intro": [
     {
@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "4-18",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-18.tasks.4-18.brief",
       "hint": "@level.4-18.tasks.4-18.hint",
       "inputs": ["a", "b"],
@@ -31,7 +31,7 @@
         "pb": "@level.4-18.tasks.4-18.outputLabels.pb"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "binaryScores",
+      "scene": "image:scene-binaryScores",
       "tests": [
         { "label": "@level.4-18.tasks.4-18.tests.0.label", "s": [1, 0] },
         { "label": "@level.4-18.tasks.4-18.tests.1.label", "s": [0, 0] },

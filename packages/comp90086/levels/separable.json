@@ -6,17 +6,23 @@
   "tasks": [
     {
       "id": "separable",
-      "kind": "graph",
-      "scene": "filter",
+      "kind": "image:graph",
+      "scene": "image:scene-filter",
       "brief": "@level.separable.tasks.separable.brief",
-      "setup": { "target": { "correlate": { "kernel": [0, 1, 0, 1, -4, 1, 0, 1, 0] } } },
+      "setup": { "target": { "image:target-correlate": { "kernel": [0, 1, 0, 1, -4, 1, 0, 1, 0] } } },
       "tests": [
-        { "label": "@level.separable.tasks.separable.tests.0.label", "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": "@level.separable.tasks.separable.tests.1.label", "in": "disk" },
-        { "label": "@level.separable.tasks.separable.tests.2.label", "in": "checker" }
+        {
+          "label": "@level.separable.tasks.separable.tests.0.label",
+          "in": { "image:picture-impulse": { "x": 7, "y": 7 } }
+        },
+        { "label": "@level.separable.tasks.separable.tests.1.label", "in": "image:picture-disk" },
+        { "label": "@level.separable.tasks.separable.tests.2.label", "in": "image:picture-checker" }
       ],
       "hidden": [
-        { "label": "@level.separable.tasks.separable.hidden.0.label", "in": { "glyph": { "letter": "T" } } }
+        {
+          "label": "@level.separable.tasks.separable.hidden.0.label",
+          "in": { "image:picture-glyph": { "letter": "T" } }
+        }
       ],
       "solution": [
         "h = line3[axis=x,a=1,b=-2,c=1](in)",

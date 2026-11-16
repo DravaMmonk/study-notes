@@ -58,7 +58,7 @@ function contextFor(layer, layers, schemas) {
     return qualified
   }
   const pieces = new Set(layer.objects.filter((o) => o.kind === 'piece').map((o) => o.name))
-  const pieceRules = new Set(layer.objects.filter((o) => o.kind === 'piece' && o.value.inside && ['lemma', 'rule'].includes(o.value.family)).map((o) => o.name))
+  const pieceRules = new Set(layer.objects.filter((o) => o.kind === 'piece' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
   const qualify = (value, schema, context = '') => expandNames(value, layer.id, { pieces, pieceRules, schema, vocabulary: schemas, context, resolve: name })
   return { name, pieces, qualify }
 }

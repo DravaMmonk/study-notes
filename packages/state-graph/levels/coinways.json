@@ -13,7 +13,7 @@
     "goal": "@level.coinways.mission.goal",
     "how": "@level.coinways.mission.how"
   },
-  "robot": "reach",
+  "robot": "table:robot-reach",
   "debrief": {
     "title": "@level.coinways.debrief.title",
     "body": [
@@ -23,20 +23,72 @@
   "tasks": [
     {
       "id": "coinways",
-      "mode": "circuit",
-      "naive": ["m = msum(view.up, view.upk)", "cell <- m"],
+      "mode": "table:circuit",
+      "naive": [
+        "m = table:msum(view.up, view.upk)",
+        "cell <- m"
+      ],
       "hints": [
         "@level.coinways.tasks.coinways.hints.0",
         "@level.coinways.tasks.coinways.hints.1"
       ],
-      "world": "knap",
+      "world": "table:world-knap",
       "tests": [
-        { "W": 5, "ways": true, "items": [{ "w": 1 }, { "w": 2 }, { "w": 5 }] },
-        { "W": 10, "ways": true, "items": [{ "w": 2 }, { "w": 3 }, { "w": 5 }] },
-        { "W": 8, "ways": true, "items": [{ "w": 1 }, { "w": 2 }, { "w": 3 }] }
+        {
+          "W": 5,
+          "ways": true,
+          "items": [
+            {
+              "w": 1
+            },
+            {
+              "w": 2
+            },
+            {
+              "w": 5
+            }
+          ]
+        },
+        {
+          "W": 10,
+          "ways": true,
+          "items": [
+            {
+              "w": 2
+            },
+            {
+              "w": 3
+            },
+            {
+              "w": 5
+            }
+          ]
+        },
+        {
+          "W": 8,
+          "ways": true,
+          "items": [
+            {
+              "w": 1
+            },
+            {
+              "w": 2
+            },
+            {
+              "w": 3
+            }
+          ]
+        }
       ],
-      "expected": [4, 4, 10],
-      "solution": ["m = msum(view.up, view.rowk)", "cell <- m"]
+      "expected": [
+        4,
+        4,
+        10
+      ],
+      "solution": [
+        "m = table:msum(view.up, view.rowk)",
+        "cell <- m"
+      ]
     }
   ]
 }

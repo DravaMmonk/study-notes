@@ -6,9 +6,9 @@
     {
       "t": "@level.1-9.intro.0.t",
       "fig": {
-        "part": "kernel3",
+        "part": "vision-complete/kernel3",
         "caption": "@level.1-9.intro.0.fig.caption",
-        "input": { "glyph": { "letter": "F" } }
+        "input": { "image:picture-glyph": { "letter": "F" } }
       }
     },
     {
@@ -22,22 +22,25 @@
   "tasks": [
     {
       "id": "1-9",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-9.tasks.1-9.brief",
       "hint": "@level.1-9.tasks.1-9.hint",
-      "scene": "filter",
-      "setup": { "target": { "convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
       "tests": [
-        { "label": "@level.1-9.tasks.1-9.tests.0.label", "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": "@level.1-9.tasks.1-9.tests.1.label", "in": "square" },
-        { "label": "@level.1-9.tasks.1-9.tests.2.label", "in": { "glyph": { "letter": "F" } } }
+        {
+          "label": "@level.1-9.tasks.1-9.tests.0.label",
+          "in": { "image:picture-impulse": { "x": 7, "y": 7 } }
+        },
+        { "label": "@level.1-9.tasks.1-9.tests.1.label", "in": "image:picture-square" },
+        { "label": "@level.1-9.tasks.1-9.tests.2.label", "in": { "image:picture-glyph": { "letter": "F" } } }
       ],
       "hidden": [
         {
           "label": "@level.1-9.tasks.1-9.hidden.0.label",
-          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
+          "in": { "image:picture-glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
         },
-        { "label": "@level.1-9.tasks.1-9.hidden.1.label", "in": { "noise": { "seed": 23 } } }
+        { "label": "@level.1-9.tasks.1-9.hidden.1.label", "in": { "image:picture-noise": { "seed": 23 } } }
       ],
       "solution": ["k = kernel3[w=[0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0]](in)", "out <- k"],
       "naive": ["k = kernel3[w=[0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]](in)", "out <- k"]

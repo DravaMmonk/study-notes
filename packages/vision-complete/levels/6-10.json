@@ -14,10 +14,10 @@
   "tasks": [
     {
       "id": "6-10",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-10.tasks.6-10.brief",
       "hint": "@level.6-10.tasks.6-10.hint",
-      "scene": "road",
+      "scene": "image:scene-road",
       "tests": [
         {
           "label": "@level.6-10.tasks.6-10.tests.0.label",

@@ -13,7 +13,7 @@
     "goal": "@level.parity.mission.goal",
     "how": "@level.parity.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.parity.debrief.title",
     "body": [
@@ -24,25 +24,47 @@
   "tasks": [
     {
       "id": "parity",
-      "mode": "circuit",
-      "naive": ["m = many(view.up, view.left, facts.start)", "cell <- m"],
+      "mode": "table:circuit",
+      "naive": [
+        "m = table:many(view.up, view.left, facts.start)",
+        "cell <- m"
+      ],
       "checkAll": true,
       "hints": [
         "@level.parity.tasks.parity.hints.0",
         "@level.parity.tasks.parity.hints.1"
       ],
-      "world": "gridYes",
-      "facts": ["start"],
-      "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 6 }, { "R": 6, "C": 6 }],
-      "expected": [true, false, false],
+      "world": "table:world-gridYes",
+      "facts": [
+        "start"
+      ],
+      "tests": [
+        {
+          "R": 4,
+          "C": 5
+        },
+        {
+          "R": 5,
+          "C": 6
+        },
+        {
+          "R": 6,
+          "C": 6
+        }
+      ],
+      "expected": [
+        true,
+        false,
+        false
+      ],
       "solution": [
-        "a = many(view.up)",
-        "b = many(view.left)",
-        "na = not(a)",
-        "nb = not(b)",
-        "p = pass(a, nb)",
-        "q = pass(b, na)",
-        "m = many(p, q, facts.start)",
+        "a = table:many(view.up)",
+        "b = table:many(view.left)",
+        "na = table:not(a)",
+        "nb = table:not(b)",
+        "p = table:pass(a, nb)",
+        "q = table:pass(b, na)",
+        "m = table:many(p, q, facts.start)",
         "cell <- m"
       ]
     }

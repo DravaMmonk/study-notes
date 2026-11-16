@@ -1,0 +1,27 @@
+{
+  "title": "@level.0-1.title",
+  "after": "@level.0-1.after",
+  "intro": [
+    {
+      "t": "@level.0-1.intro.0.t"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0-1",
+      "kind": "image:graph",
+      "brief": "@level.0-1.tasks.0-1.brief",
+      "hint": "@level.0-1.tasks.0-1.hint",
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-same" },
+      "tests": [
+        { "label": "@level.0-1.tasks.0-1.tests.0.label", "in": "image:picture-square" },
+        { "label": "@level.0-1.tasks.0-1.tests.1.label", "in": "image:picture-disk" }
+      ],
+      "hidden": [
+        { "label": "@level.0-1.tasks.0-1.hidden.0.label", "in": { "image:picture-noise": { "seed": 7 } } }
+      ],
+      "solution": ["out <- in"]
+    }
+  ]
+}

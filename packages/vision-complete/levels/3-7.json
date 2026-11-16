@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "3-7",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.3-7.tasks.3-7.brief",
       "hint": "@level.3-7.tasks.3-7.hint",
       "inputs": ["photo", "light"],
@@ -25,7 +25,7 @@
         "photo": "@level.3-7.tasks.3-7.inputLabels.photo",
         "light": "@level.3-7.tasks.3-7.inputLabels.light"
       },
-      "scene": "shadowColour",
+      "scene": "image:scene-shadowColour",
       "tests": [
         { "label": "@level.3-7.tasks.3-7.tests.0.label", "layout": "desk", "light": "diagonal" },
         {

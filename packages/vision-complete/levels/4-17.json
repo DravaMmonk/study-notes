@@ -17,31 +17,37 @@
   "tasks": [
     {
       "id": "4-17",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-17.tasks.4-17.brief",
       "hint": "@level.4-17.tasks.4-17.hint",
       "check": { "tolerance": 0.04 },
-      "constraint": { "depth": { "min": 12 } },
+      "constraint": { "image:constraint-depth": { "min": 12 } },
       "trainRate": 1,
-      "scene": "filter",
-      "setup": { "target": { "meanBlend": { "amount": 0.5 } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-meanBlend": { "amount": 0.5 } } },
       "tests": [
-        { "label": "@level.4-17.tasks.4-17.tests.0.label", "in": { "glyph": { "letter": "X" } } },
-        { "label": "@level.4-17.tasks.4-17.tests.1.label", "in": "disk" },
+        { "label": "@level.4-17.tasks.4-17.tests.0.label", "in": { "image:picture-glyph": { "letter": "X" } } },
+        { "label": "@level.4-17.tasks.4-17.tests.1.label", "in": "image:picture-disk" },
         {
           "label": "@level.4-17.tasks.4-17.tests.2.label",
-          "in": { "noisy": { "of": { "square": { "x0": 3, "y0": 5, "s": 7 } }, "seed": 3, "amp": 0.2 } }
+          "in": {
+            "image:picture-noisy": {
+              "of": { "image:picture-square": { "x0": 3, "y0": 5, "s": 7 } },
+              "seed": 3,
+              "amp": 0.2
+            }
+          }
         },
-        { "label": "@level.4-17.tasks.4-17.tests.3.label", "in": { "checker": { "cell": 3 } } }
+        { "label": "@level.4-17.tasks.4-17.tests.3.label", "in": { "image:picture-checker": { "cell": 3 } } }
       ],
       "hidden": [
         {
           "label": "@level.4-17.tasks.4-17.hidden.0.label",
-          "in": { "glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 4, "oy": 3 } }
+          "in": { "image:picture-glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 4, "oy": 3 } }
         },
         {
           "label": "@level.4-17.tasks.4-17.hidden.1.label",
-          "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } }
+          "in": { "image:picture-stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } }
         }
       ],
       "solution": [

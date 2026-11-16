@@ -16,15 +16,15 @@
       "t": "@level.6-9.intro.3.t"
     }
   ],
-  "unlocks": ["hough"],
+  "unlocks": ["image:unlock-hough"],
   "tasks": [
     {
       "id": "6-9",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.6-9.tasks.6-9.brief",
       "hint": "@level.6-9.tasks.6-9.hint",
       "bench": {
-        "model": "hough",
+        "model": "image:benchModel-hough",
         "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
         "knobs": {
           "bin": {
@@ -69,22 +69,24 @@
           }
         ],
         "layout": {
-          "head": [{ "cases": { "passed": "@level.6-9.tasks.6-9.bench.layout.head.0.cases.passed" } }],
-          "main": ["houghPlanes"],
+          "head": [
+            { "circuit:display-cases": { "passed": "@level.6-9.tasks.6-9.bench.layout.head.0.cases.passed" } }
+          ],
+          "main": ["image:display-houghPlanes"],
           "foot": [
             {
               "row": [
                 {
                   "panel": [
                     {
-                      "text": {
+                      "circuit:display-text": {
                         "text": "@level.6-9.tasks.6-9.bench.layout.foot.0.row.0.panel.0.text.text",
                         "look": "label"
                       }
                     },
-                    "knobs",
+                    "circuit:display-knobs",
                     {
-                      "stats": {
+                      "circuit:display-stats": {
                         "of": [
                           { "of": "dTheta", "label": "Δθ" },
                           { "of": "dRho", "label": "Δρ" },
@@ -102,19 +104,19 @@
                 {
                   "panel": [
                     {
-                      "text": {
+                      "circuit:display-text": {
                         "text": "@level.6-9.tasks.6-9.bench.layout.foot.0.row.1.panel.0.text.text",
                         "look": "label"
                       }
                     },
-                    "goals"
+                    "circuit:display-goals"
                   ]
                 },
                 {
                   "panel": [
-                    { "text": { "of": "peaksTitle", "look": "label" } },
-                    { "table": { "of": "peaks" } },
-                    { "text": { "of": "tolerance", "look": "note" } }
+                    { "circuit:display-text": { "of": "peaksTitle", "look": "label" } },
+                    { "circuit:display-table": { "of": "peaks" } },
+                    { "circuit:display-text": { "of": "tolerance", "look": "note" } }
                   ]
                 }
               ]

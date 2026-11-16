@@ -1,6 +1,9 @@
 {
   "title": "@level.c-dist.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.c-dist.intro.0.t"
@@ -9,11 +12,31 @@
   "tasks": [
     {
       "id": "c-dist_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dist.tasks.c-dist_1.step",
-      "tests": [{ "premises": { "p": "A ∨ (B ∧ C)" }, "goal": "(A ∨ B) ∧ (A ∨ C)" }],
-      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": ["@level.c-dist.tasks.c-dist_1.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "A ∨ (B ∧ C)"
+          },
+          "goal": "(A ∨ B) ∧ (A ∨ C)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind",
+          "C": "Wet"
+        },
+        {
+          "A": "Sat",
+          "B": "Rest",
+          "C": "Happy"
+        }
+      ],
+      "hint": [
+        "@level.c-dist.tasks.c-dist_1.hint.0"
+      ],
       "solution": [
         "e = orE(p, left: c1, right: c2) {",
         "  left {",
@@ -30,14 +53,37 @@
         "}",
         "goal <- e"
       ],
-      "publishes": [{ "piece": "dist", "variant": "orAndR" }]
+      "publishes": [
+        {
+          "piece": "dist",
+          "variant": "orAndR"
+        }
+      ]
     },
     {
       "id": "c-dist_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dist.tasks.c-dist_2.step",
-      "tests": [{ "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" }, "goal": "A ∨ (B ∧ C)" }],
-      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "(A ∨ B) ∧ (A ∨ C)"
+          },
+          "goal": "A ∨ (B ∧ C)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind",
+          "C": "Wet"
+        },
+        {
+          "A": "Sat",
+          "B": "Rest",
+          "C": "Happy"
+        }
+      ],
       "hint": [
         "@level.c-dist.tasks.c-dist_2.hint.0",
         "@level.c-dist.tasks.c-dist_2.hint.1"
@@ -62,15 +108,40 @@
         "}",
         "goal <- o1"
       ],
-      "publishes": [{ "piece": "dist", "variant": "andOrR" }]
+      "publishes": [
+        {
+          "piece": "dist",
+          "variant": "andOrR"
+        }
+      ]
     },
     {
       "id": "c-dist_3",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dist.tasks.c-dist_3.step",
-      "tests": [{ "premises": { "p": "(A ∧ B) ∨ C" }, "goal": "(A ∨ C) ∧ (B ∨ C)" }],
-      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": ["@level.c-dist.tasks.c-dist_3.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "(A ∧ B) ∨ C"
+          },
+          "goal": "(A ∨ C) ∧ (B ∨ C)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind",
+          "C": "Wet"
+        },
+        {
+          "A": "Sat",
+          "B": "Rest",
+          "C": "Happy"
+        }
+      ],
+      "hint": [
+        "@level.c-dist.tasks.c-dist_3.hint.0"
+      ],
       "solution": [
         "e = orE(p, left: c1, right: c2) {",
         "  left {",
@@ -87,15 +158,40 @@
         "}",
         "goal <- e"
       ],
-      "publishes": [{ "piece": "dist", "variant": "orAndL" }]
+      "publishes": [
+        {
+          "piece": "dist",
+          "variant": "orAndL"
+        }
+      ]
     },
     {
       "id": "c-dist_4",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dist.tasks.c-dist_4.step",
-      "tests": [{ "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ C" }],
-      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": ["@level.c-dist.tasks.c-dist_4.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "(A ∨ C) ∧ (B ∨ C)"
+          },
+          "goal": "(A ∧ B) ∨ C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind",
+          "C": "Wet"
+        },
+        {
+          "A": "Sat",
+          "B": "Rest",
+          "C": "Happy"
+        }
+      ],
+      "hint": [
+        "@level.c-dist.tasks.c-dist_4.hint.0"
+      ],
       "solution": [
         "s = andE(p)",
         "o1 = orE(s.left, left: o2, right: i3) {",
@@ -116,7 +212,12 @@
         "}",
         "goal <- o1"
       ],
-      "publishes": [{ "piece": "dist", "variant": "andOrL" }]
+      "publishes": [
+        {
+          "piece": "dist",
+          "variant": "andOrL"
+        }
+      ]
     }
   ]
 }

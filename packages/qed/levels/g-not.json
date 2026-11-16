@@ -1,7 +1,13 @@
 {
-  "adds": ["gNot", "formulaNot"],
+  "adds": [
+    "gNot",
+    "formulaNot"
+  ],
   "title": "@level.g-not.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.g-not.intro.0.t"
@@ -19,11 +25,17 @@
   "tasks": [
     {
       "id": "g-not",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "¬¬Rain",
       "brief": "@level.g-not.tasks.g-not.brief",
-      "hint": ["@level.g-not.tasks.g-not.hint.0"],
-      "solution": ["n1 = gNot(Rain)", "n2 = gNot(n1)", "out <- n2"]
+      "hint": [
+        "@level.g-not.tasks.g-not.hint.0"
+      ],
+      "solution": [
+        "n1 = gNot(Rain)",
+        "n2 = gNot(n1)",
+        "out <- n2"
+      ]
     }
   ]
 }

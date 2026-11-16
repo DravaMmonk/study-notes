@@ -1,22 +1,47 @@
 {
   "title": "@level.in-circle.title",
-  "tray": ["#machine", "#formula"],
-  "intro": [{ "t": "@level.in-circle.intro.0.t" }],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.in-circle.intro.0.t"
+    }
+  ],
   "after": "@level.in-circle.after",
   "tasks": [
     {
       "id": "in-circle",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-circle.tasks.in-circle.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-circle.tasks.in-circle.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "defs": ["plus"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "defs": [
+        "plus"
+      ],
       "tests": [
-        { "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(y, x))" },
-        { "goal": "∀x. ∀y. plus(s(x), y) = plus(y, s(x))" },
-        { "goal": "∀x. plus(x, s(zero)) = s(x)" }
+        {
+          "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(y, x))"
+        },
+        {
+          "goal": "∀x. ∀y. plus(s(x), y) = plus(y, s(x))"
+        },
+        {
+          "goal": "∀x. plus(x, s(zero)) = s(x)"
+        }
       ],
       "brief": "@level.in-circle.tasks.in-circle.brief",
       "hint": [

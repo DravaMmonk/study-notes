@@ -1,7 +1,6 @@
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { fromSnapshot } from './vocabulary.js'
 import { assemble, combineConfiguration } from './content.js'
 import { GLOSSARY } from './vocabulary.js'
 import { PARTS_FILE } from './parts/schema.js'
@@ -10,18 +9,12 @@ import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
 import { catalogReader } from './catalogs.js'
 import { packageCourse } from './package-course.js'
+import { vocabularyFor } from './kernel.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
 export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
 
-/** Read the published schema alongside a domain. Author tools can supply a vocabulary for an uninstalled test domain. */
-export function vocabularyAt(dir) {
-  const versions = resolve(dir, 'versions')
-  if (!existsSync(versions)) return undefined
-  const latest = Math.max(...readdirSync(versions).filter((name) => /^\d+\.json$/.test(name)).map((name) => Number(name.slice(0, -5))))
-  return Number.isFinite(latest) ? fromSnapshot(json(resolve(versions, `${latest}.json`))) : undefined
-}
-export const contentVocabulary = (domain) => vocabularyAt(resolve(PROJECT_DIR, 'games/kit/domains', domain))
+export const contentVocabulary = (domain) => vocabularyFor(domain)
 
 const json = (file) => {
   try {
@@ -231,8 +224,11 @@ export function readPackage(id, root = PROJECT_DIR, { vocabulary } = {}) {
 export function readStarter(domainDir) {
   const dir = resolve(domainDir, 'starter')
   const files = { 'game.json': json(resolve(dir, 'game.json')), ...configuration(configPaths(dir, dir)) }
-  return readFiles('starter', files, { vocabulary: vocabularyAt(domainDir), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
+  return readFiles('starter', files, { vocabulary: contentVocabulary(json(resolve(dir, 'package.json')).domain), courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
-/** The domain module (../domains/<domain>/domain.js) of a content. */
-export const domainOf = async (content) => (await import(`../domains/${content.domain}/domain.js`)).default
+/** The domain module (../modules/<domain>/domain.js) of a content. */
+export const domainOf = async (content) => {
+  const course = (await import(`../modules/${content.domain}/domain.js`)).default
+  return { ...course, vocabulary: vocabularyFor(content.domain) }
+}

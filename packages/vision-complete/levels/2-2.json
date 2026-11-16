@@ -12,7 +12,7 @@
     {
       "t": "@level.2-2.intro.2.t",
       "fig": {
-        "part": "fqWave",
+        "part": "vision-complete/fqWave",
         "params": { "k": 2, "form": "sin" },
         "caption": "@level.2-2.intro.2.fig.caption",
         "inputs": []
@@ -22,15 +22,15 @@
       "t": "@level.2-2.intro.3.t"
     }
   ],
-  "unlocks": ["mean"],
+  "unlocks": ["image:unlock-mean"],
   "tasks": [
     {
       "id": "2-2",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.2-2.tasks.2-2.brief",
       "hint": "@level.2-2.tasks.2-2.hint",
       "bench": {
-        "model": "sum",
+        "model": "image:benchModel-sum",
         "setup": { "N": 32, "ks": [1, 2, 3, 4, 5, 6, 7, 8] },
         "knobs": {
           "k1": {
@@ -109,7 +109,7 @@
         "layout": {
           "main": [
             {
-              "plot": {
+              "circuit:display-plot": {
                 "lines": [
                   {
                     "of": "target",
@@ -129,7 +129,7 @@
               }
             },
             {
-              "strips": {
+              "circuit:display-strips": {
                 "rows": [
                   {
                     "of": "targetRow",
@@ -139,9 +139,12 @@
                 ]
               }
             },
-            { "text": { "of": "formula" } }
+            { "circuit:display-text": { "of": "formula" } }
           ],
-          "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+          "side": [
+            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
+            "circuit:display-stages"
+          ]
         }
       }
     }

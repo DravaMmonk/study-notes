@@ -5,13 +5,15 @@
     {
       "t": "@level.wordcost.intro.0.t"
     },
-    { "t": "@level.wordcost.intro.1.t" }
+    {
+      "t": "@level.wordcost.intro.1.t"
+    }
   ],
   "mission": {
     "goal": "@level.wordcost.mission.goal",
     "how": "@level.wordcost.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.wordcost.debrief.title",
     "body": [
@@ -21,25 +23,57 @@
   "tasks": [
     {
       "id": "wordcost",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "{s}",
-      "after": "dictionary",
+      "after": "table:panel-dictionary",
       "hints": [
         "@level.wordcost.tasks.wordcost.hints.0"
       ],
-      "world": "pieces",
-      "facts": ["ground"],
-      "tests": [
-        { "s": "pineapplepen", "dict": { "pine": 2, "apple": 1, "pineapple": 4, "pen": 1 } },
-        { "s": "catsanddog", "dict": { "cat": 1, "cats": 3, "and": 1, "sand": 2, "dog": 1 } },
-        { "s": "icecreamcone", "dict": { "ice": 1, "cream": 1, "icecream": 3, "cone": 1, "creamcone": 1 } }
+      "world": "table:world-pieces",
+      "facts": [
+        "ground"
       ],
-      "expected": [4, 4, 2],
+      "tests": [
+        {
+          "s": "pineapplepen",
+          "dict": {
+            "pine": 2,
+            "apple": 1,
+            "pineapple": 4,
+            "pen": 1
+          }
+        },
+        {
+          "s": "catsanddog",
+          "dict": {
+            "cat": 1,
+            "cats": 3,
+            "and": 1,
+            "sand": 2,
+            "dog": 1
+          }
+        },
+        {
+          "s": "icecreamcone",
+          "dict": {
+            "ice": 1,
+            "cream": 1,
+            "icecream": 3,
+            "cone": 1,
+            "creamcone": 1
+          }
+        }
+      ],
+      "expected": [
+        4,
+        4,
+        2
+      ],
       "solution": [
-        "a = add(view.seg, view.cost)",
-        "z = const[value=0]()",
-        "g = pass(facts.ground, z)",
-        "m = mmin(a, g)",
+        "a = table:add(view.seg, view.cost)",
+        "z = table:const[value=0]()",
+        "g = table:pass(facts.ground, z)",
+        "m = table:mmin(a, g)",
         "cell <- m"
       ]
     }

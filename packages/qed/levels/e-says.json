@@ -1,6 +1,9 @@
 {
   "title": "@level.e-says.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.e-says.intro.0.t"
@@ -9,7 +12,7 @@
   "tasks": [
     {
       "id": "e-says",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "KA ↔ KB",
       "blind": true,
       "brief": "@level.e-says.tasks.e-says.brief",
@@ -17,8 +20,14 @@
         "@level.e-says.tasks.e-says.hint.0",
         "@level.e-says.tasks.e-says.hint.1"
       ],
-      "solution": ["e = gIff(KA, KB)", "out <- e"],
-      "naive": ["i = gImp(KA, KB)", "out <- i"]
+      "solution": [
+        "e = gIff(KA, KB)",
+        "out <- e"
+      ],
+      "naive": [
+        "i = gImp(KA, KB)",
+        "out <- i"
+      ]
     }
   ]
 }

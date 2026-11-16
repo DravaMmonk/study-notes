@@ -1,20 +1,40 @@
 {
   "title": "@level.q-sym.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "q-sym",
-      "words": ["everyday", "stars"],
-      "kind": "proof",
-      "consts": ["i", "j"],
-      "tests": [{ "premises": { "p": "i = j" }, "goal": "j = i" }],
+      "words": [
+        "everyday",
+        "stars"
+      ],
+      "kind": "logic:proof",
+      "consts": [
+        "i",
+        "j"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "i = j"
+          },
+          "goal": "j = i"
+        }
+      ],
       "cases": [],
       "brief": "@level.q-sym.tasks.q-sym.brief",
       "hint": [
         "@level.q-sym.tasks.q-sym.hint.0",
         "@level.q-sym.tasks.q-sym.hint.1"
       ],
-      "solution": ["r = refl[t=i]()", "w = rewrite[at=[0]](p, r)", "goal <- w"]
+      "solution": [
+        "r = refl[t=i]()",
+        "w = rewrite[at=[0]](p, r)",
+        "goal <- w"
+      ]
     }
   ]
 }

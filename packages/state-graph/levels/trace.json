@@ -5,7 +5,7 @@
     {
       "t": "@level.trace.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -41,11 +41,41 @@
             }
           ],
           "edges": [
-            { "a": "H", "b": "A", "cls": "idle", "bend": 0, "off": 0 },
-            { "a": "H", "b": "B", "cls": "idle", "bend": 0, "off": 0 },
-            { "a": "A", "b": "B", "cls": "idle", "bend": 0, "off": 0 },
-            { "a": "A", "b": "T", "cls": "idle", "bend": 0, "off": 0 },
-            { "a": "B", "b": "T", "cls": "idle", "bend": 0, "off": 0 }
+            {
+              "a": "H",
+              "b": "A",
+              "cls": "idle",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "H",
+              "b": "B",
+              "cls": "idle",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "A",
+              "b": "B",
+              "cls": "idle",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "A",
+              "b": "T",
+              "cls": "idle",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "B",
+              "b": "T",
+              "cls": "idle",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -53,7 +83,7 @@
     {
       "t": "@level.trace.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -92,11 +122,41 @@
             }
           ],
           "edges": [
-            { "a": "H", "b": "A", "cls": "good", "bend": 0, "off": 0 },
-            { "a": "H", "b": "B", "cls": "dim", "bend": 0, "off": 0 },
-            { "a": "A", "b": "B", "cls": "dim", "bend": 0, "off": 0 },
-            { "a": "A", "b": "T", "cls": "good", "bend": 0, "off": 0 },
-            { "a": "B", "b": "T", "cls": "dim", "bend": 0, "off": 0 }
+            {
+              "a": "H",
+              "b": "A",
+              "cls": "good",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "H",
+              "b": "B",
+              "cls": "dim",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "A",
+              "b": "B",
+              "cls": "dim",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "A",
+              "b": "T",
+              "cls": "good",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "B",
+              "b": "T",
+              "cls": "dim",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -120,14 +180,55 @@
   "tasks": [
     {
       "id": "trace",
-      "mode": "trace",
+      "mode": "table:trace",
       "cells": [
-        { "id": "H", "x": 0, "y": 0, "label": "@level.trace.tasks.trace.cells.H.label" },
-        { "id": "A", "x": -85, "y": 120, "label": "@level.trace.tasks.trace.cells.A.label" },
-        { "id": "B", "x": 85, "y": 120, "label": "@level.trace.tasks.trace.cells.B.label" },
-        { "id": "T", "x": 0, "y": 240, "label": "@level.trace.tasks.trace.cells.T.label" }
+        {
+          "id": "H",
+          "x": 0,
+          "y": 0,
+          "label": "@level.trace.tasks.trace.cells.H.label"
+        },
+        {
+          "id": "A",
+          "x": -85,
+          "y": 120,
+          "label": "@level.trace.tasks.trace.cells.A.label"
+        },
+        {
+          "id": "B",
+          "x": 85,
+          "y": 120,
+          "label": "@level.trace.tasks.trace.cells.B.label"
+        },
+        {
+          "id": "T",
+          "x": 0,
+          "y": 240,
+          "label": "@level.trace.tasks.trace.cells.T.label"
+        }
       ],
-      "edges": [["H", "A"], ["H", "B"], ["A", "B"], ["A", "T"], ["B", "T"]],
+      "edges": [
+        [
+          "H",
+          "A"
+        ],
+        [
+          "H",
+          "B"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "T"
+        ],
+        [
+          "B",
+          "T"
+        ]
+      ],
       "start": "H",
       "end": "T"
     }

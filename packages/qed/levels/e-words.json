@@ -1,6 +1,9 @@
 {
   "title": "@level.e-words.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.e-words.intro.0.t"
@@ -12,7 +15,7 @@
   "tasks": [
     {
       "id": "e-words",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "¬(KA ∧ KB)",
       "blind": true,
       "brief": "@level.e-words.tasks.e-words.brief",
@@ -20,8 +23,17 @@
         "@level.e-words.tasks.e-words.hint.0",
         "@level.e-words.tasks.e-words.hint.1"
       ],
-      "solution": ["a = gAnd(KA, KB)", "n = gNot(a)", "out <- n"],
-      "naive": ["na = gNot(KA)", "nb = gNot(KB)", "a = gAnd(na, nb)", "out <- a"]
+      "solution": [
+        "a = gAnd(KA, KB)",
+        "n = gNot(a)",
+        "out <- n"
+      ],
+      "naive": [
+        "na = gNot(KA)",
+        "nb = gNot(KB)",
+        "a = gAnd(na, nb)",
+        "out <- a"
+      ]
     }
   ]
 }

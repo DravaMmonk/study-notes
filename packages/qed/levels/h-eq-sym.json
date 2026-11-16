@@ -1,6 +1,9 @@
 {
   "title": "@level.h-eq-sym.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.h-eq-sym.intro.0.t"
@@ -10,11 +13,25 @@
   "tasks": [
     {
       "id": "h-eq-sym",
-      "kind": "proof",
-      "consts": ["i", "j"],
+      "kind": "logic:proof",
+      "consts": [
+        "i",
+        "j"
+      ],
       "propertyWords": true,
-      "words": ["everyday", "stars", "properties"],
-      "tests": [{ "premises": { "e": "∀P. P(i) → P(j)" }, "goal": "∀Q. Q(j) → Q(i)" }],
+      "words": [
+        "everyday",
+        "stars",
+        "properties"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "e": "∀P. P(i) → P(j)"
+          },
+          "goal": "∀Q. Q(j) → Q(i)"
+        }
+      ],
       "cases": [],
       "brief": "@level.h-eq-sym.tasks.h-eq-sym.brief",
       "hint": [

@@ -1,18 +1,46 @@
 {
   "title": "@level.sort-insLen.title",
-  "tray": ["#machine", "#formula"],
-  "intro": [{ "t": "@level.sort-insLen.intro.0.t" }],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.sort-insLen.intro.0.t"
+    }
+  ],
   "tasks": [
     {
       "id": "sort-insLen",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sort-insLen.tasks.sort-insLen.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sort-insLen.tasks.sort-insLen.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["list", "bool"],
-      "defs": ["le", "if", "ins", "sort", "len"],
-      "tests": [{ "goal": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "list",
+        "bool"
+      ],
+      "defs": [
+        "le",
+        "if",
+        "ins",
+        "sort",
+        "len"
+      ],
+      "tests": [
+        {
+          "goal": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))"
+        }
+      ],
       "brief": "@level.sort-insLen.tasks.sort-insLen.brief",
       "hint": [
         "@level.sort-insLen.tasks.sort-insLen.hint.0",
@@ -34,7 +62,7 @@
         "c12r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
         "c13r0 = refl()",
         "c0 = rule(in, c0r0)",
-        "c12r11 = hyp(c12r0)",
+        "c12r11 = logic:hyp(c12r0)",
         "c1 = simp(c0, c1r0)",
         "c2 = rule(c1, c2r0)",
         "c3 = rule(c2, c3r0)",
@@ -51,7 +79,12 @@
         "c14 = assumption(c13)",
         "out <- c14"
       ],
-      "publishes": [{ "piece": "insLen", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "insLen",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,9 @@
 {
   "title": "@level.sort-ins.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sort-ins.intro.0.t"
@@ -10,18 +13,48 @@
   "tasks": [
     {
       "id": "sort-ins_1",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-ins.tasks.sort-ins_1.step",
       "fn": "if",
       "on": 0,
-      "rows": [{ "lhs": "if(tt, v, w)", "choices": ["v", "w"] }, { "lhs": "if(ff, v, w)", "choices": ["w", "v"] }],
-      "tests": [
-        { "term": "if(tt, zero, s(zero))", "value": "zero" },
-        { "term": "if(ff, zero, s(zero))", "value": "s(zero)" }
+      "rows": [
+        {
+          "lhs": "if(tt, v, w)",
+          "choices": [
+            "v",
+            "w"
+          ]
+        },
+        {
+          "lhs": "if(ff, v, w)",
+          "choices": [
+            "w",
+            "v"
+          ]
+        }
       ],
-      "solution": ["v", "w"],
-      "naive": ["v", "v"],
+      "tests": [
+        {
+          "term": "if(tt, zero, s(zero))",
+          "value": "zero"
+        },
+        {
+          "term": "if(ff, zero, s(zero))",
+          "value": "s(zero)"
+        }
+      ],
+      "solution": [
+        "v",
+        "w"
+      ],
+      "naive": [
+        "v",
+        "v"
+      ],
       "brief": "@level.sort-ins.tasks.sort-ins_1.brief",
       "hint": [
         "@level.sort-ins.tasks.sort-ins_1.hint.0"
@@ -34,14 +67,26 @@
     },
     {
       "id": "sort-ins_2",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-ins.tasks.sort-ins_2.step",
       "fn": "ins",
       "on": 1,
-      "defs": ["le", "if"],
+      "defs": [
+        "le",
+        "if"
+      ],
       "rows": [
-        { "lhs": "ins(x, nil)", "choices": ["cons(x, nil)", "nil"] },
+        {
+          "lhs": "ins(x, nil)",
+          "choices": [
+            "cons(x, nil)",
+            "nil"
+          ]
+        },
         {
           "lhs": "ins(x, cons(y, ys))",
           "choices": [
@@ -56,13 +101,27 @@
           "term": "ins(s(zero), cons(zero, cons(s(s(zero)), nil)))",
           "value": "cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
         },
-        { "term": "ins(zero, cons(s(zero), nil))", "value": "cons(zero, cons(s(zero), nil))" },
-        { "term": "ins(s(s(zero)), cons(zero, nil))", "value": "cons(zero, cons(s(s(zero)), nil))" }
+        {
+          "term": "ins(zero, cons(s(zero), nil))",
+          "value": "cons(zero, cons(s(zero), nil))"
+        },
+        {
+          "term": "ins(s(s(zero)), cons(zero, nil))",
+          "value": "cons(zero, cons(s(s(zero)), nil))"
+        }
       ],
-      "solution": ["cons(x, nil)", "if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))"],
-      "naive": ["cons(x, nil)", "cons(x, cons(y, ys))"],
+      "solution": [
+        "cons(x, nil)",
+        "if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))"
+      ],
+      "naive": [
+        "cons(x, nil)",
+        "cons(x, cons(y, ys))"
+      ],
       "brief": "@level.sort-ins.tasks.sort-ins_2.brief",
-      "hint": ["@level.sort-ins.tasks.sort-ins_2.hint.0"],
+      "hint": [
+        "@level.sort-ins.tasks.sort-ins_2.hint.0"
+      ],
       "intro": [
         {
           "t": "@level.sort-ins.tasks.sort-ins_2.intro.0.t"
@@ -71,15 +130,34 @@
     },
     {
       "id": "sort-ins_3",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-ins.tasks.sort-ins_3.step",
       "fn": "sort",
       "on": 0,
-      "defs": ["le", "if", "ins"],
+      "defs": [
+        "le",
+        "if",
+        "ins"
+      ],
       "rows": [
-        { "lhs": "sort(nil)", "choices": ["nil"] },
-        { "lhs": "sort(cons(x, xs))", "choices": ["ins(x, sort(xs))", "cons(x, sort(xs))", "ins(x, xs)"] }
+        {
+          "lhs": "sort(nil)",
+          "choices": [
+            "nil"
+          ]
+        },
+        {
+          "lhs": "sort(cons(x, xs))",
+          "choices": [
+            "ins(x, sort(xs))",
+            "cons(x, sort(xs))",
+            "ins(x, xs)"
+          ]
+        }
       ],
       "tests": [
         {
@@ -91,25 +169,55 @@
           "value": "cons(zero, cons(s(zero), cons(s(zero), nil)))"
         }
       ],
-      "solution": ["nil", "ins(x, sort(xs))"],
-      "naive": ["nil", "ins(x, xs)"],
+      "solution": [
+        "nil",
+        "ins(x, sort(xs))"
+      ],
+      "naive": [
+        "nil",
+        "ins(x, xs)"
+      ],
       "brief": "@level.sort-ins.tasks.sort-ins_3.brief",
-      "hint": ["@level.sort-ins.tasks.sort-ins_3.hint.0"]
+      "hint": [
+        "@level.sort-ins.tasks.sort-ins_3.hint.0"
+      ]
     },
     {
       "id": "sort-ins_4",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sort-ins.tasks.sort-ins_4.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sort-ins.tasks.sort-ins_4.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-ins.tasks.sort-ins_4.step",
-      "types": ["list"],
-      "defs": ["le", "if", "ins", "sort", "len"],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "le",
+        "if",
+        "ins",
+        "sort",
+        "len"
+      ],
       "tests": [
-        { "goal": "ins(s(zero), cons(zero, cons(s(s(zero)), nil))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))" },
-        { "goal": "ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))" },
-        { "goal": "ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))" }
+        {
+          "goal": "ins(s(zero), cons(zero, cons(s(s(zero)), nil))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
+        },
+        {
+          "goal": "ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))"
+        },
+        {
+          "goal": "ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))"
+        }
       ],
       "brief": "@level.sort-ins.tasks.sort-ins_4.brief",
       "hint": [

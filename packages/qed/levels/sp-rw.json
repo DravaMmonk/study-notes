@@ -1,7 +1,12 @@
 {
   "title": "@level.sp-rw.title",
-  "adds": ["rw"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "rw"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-rw.intro.0.t"
@@ -14,25 +19,67 @@
   "tasks": [
     {
       "id": "sp-rw",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-rw.tasks.sp-rw.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-rw.tasks.sp-rw.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Wind ∧ ¬¬Rain", "becomes": [["Wind ∧ Rain"]] },
-        { "goal": "¬¬Wet → Slip", "becomes": [["Wet → Slip"]] },
-        { "goal": "(Rain ∨ ¬¬Wind) ∧ Wet", "becomes": [["(Rain ∨ Wind) ∧ Wet"]] }
+        {
+          "goal": "Wind ∧ ¬¬Rain",
+          "becomes": [
+            [
+              "Wind ∧ Rain"
+            ]
+          ]
+        },
+        {
+          "goal": "¬¬Wet → Slip",
+          "becomes": [
+            [
+              "Wet → Slip"
+            ]
+          ]
+        },
+        {
+          "goal": "(Rain ∨ ¬¬Wind) ∧ Wet",
+          "becomes": [
+            [
+              "(Rain ∨ Wind) ∧ Wet"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-rw.tasks.sp-rw.brief",
       "hint": [
         "@level.sp-rw.tasks.sp-rw.hint.0"
       ],
-      "solution": ["c0r0 = dneg[use=[\"dneg.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
+      "solution": [
+        "c0r0 = dneg[use=[\"dneg.elim\"]]()",
+        "c0 = rw(in, c0r0)",
+        "out <- c0"
+      ]
     }
   ],
   "pieceRevisions": [
-    { "piece": "dneg", "at": true, "desc": "@piece.dneg.revisions.0.desc" },
-    { "piece": "arrow", "at": true, "desc": "@piece.arrow.revisions.0.desc" },
-    { "piece": "dist", "at": true, "desc": "@piece.dist.revisions.0.desc" }
+    {
+      "piece": "dneg",
+      "at": true,
+      "desc": "@piece.dneg.revisions.0.desc"
+    },
+    {
+      "piece": "arrow",
+      "at": true,
+      "desc": "@piece.arrow.revisions.0.desc"
+    },
+    {
+      "piece": "dist",
+      "at": true,
+      "desc": "@piece.dist.revisions.0.desc"
+    }
   ]
 }

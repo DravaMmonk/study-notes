@@ -1,14 +1,40 @@
 {
   "title": "@level.x-merge.title",
-  "tray": ["#proof", "#formula"],
-  "without": ["impI", "chain", "swap", "merge"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "without": [
+    "impI",
+    "chain",
+    "swap",
+    "merge"
+  ],
   "tasks": [
     {
       "id": "x-merge",
-      "kind": "proof",
-      "sentences": ["A → A"],
-      "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
+      "kind": "logic:proof",
+      "sentences": [
+        "A → A"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "A → (A → B)"
+          },
+          "goal": "A → B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Hungry",
+          "B": "Eat"
+        }
+      ],
       "briefNote": "@level.x-merge.tasks.x-merge.briefNote",
       "hint": [
         "@level.x-merge.tasks.x-merge.hint.0",

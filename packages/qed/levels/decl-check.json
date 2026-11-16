@@ -3,18 +3,73 @@
   "tray": "#formula",
   "declare": "@level.decl-check.declare",
   "target": "Rain ∧ Wind",
-  "sentences": ["Rain", "Wind"],
-  "tests": [
-    { "given": ["Rain", "Wind"], "make": true },
-    { "given": ["Rain"], "make": false },
-    { "given": ["Wind"], "make": false },
-    { "given": [], "make": false },
-    { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
-    { "given": ["Rain ∧ Wind"], "goal": "Wind", "make": true },
-    { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false },
-    { "given": ["Rain ∧ Wind", "Rain → (Wind → Wet)"], "goal": "Wet", "make": true }
+  "sentences": [
+    "Rain",
+    "Wind"
   ],
-  "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
+  "tests": [
+    {
+      "given": [
+        "Rain",
+        "Wind"
+      ],
+      "make": true
+    },
+    {
+      "given": [
+        "Rain"
+      ],
+      "make": false
+    },
+    {
+      "given": [
+        "Wind"
+      ],
+      "make": false
+    },
+    {
+      "given": [],
+      "make": false
+    },
+    {
+      "given": [
+        "Rain ∧ Wind"
+      ],
+      "goal": "Rain",
+      "make": true
+    },
+    {
+      "given": [
+        "Rain ∧ Wind"
+      ],
+      "goal": "Wind",
+      "make": true
+    },
+    {
+      "given": [
+        "Rain ∧ Wind"
+      ],
+      "goal": "Wet",
+      "make": false
+    },
+    {
+      "given": [
+        "Rain ∧ Wind",
+        "Rain → (Wind → Wet)"
+      ],
+      "goal": "Wet",
+      "make": true
+    }
+  ],
+  "solution": [
+    {
+      "binds": [],
+      "needs": [
+        "Rain",
+        "Wind"
+      ]
+    }
+  ],
   "intro": [
     {
       "t": "@level.decl-check.intro.0.t"
@@ -30,15 +85,42 @@
   "tasks": [
     {
       "id": "decl-check_1",
-      "kind": "iso",
+      "kind": "logic:iso",
       "step": "@level.decl-check.tasks.decl-check_1.step",
-      "play": "audit",
-      "want": "agree",
+      "play": "logic:audit",
+      "want": "logic:want-agree",
       "carry": "decl-and",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }] }],
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "Rain",
+                "Wind"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": 1,
-      "answer": [{ "given": ["Rain", "Wind"], "make": true }],
-      "naive": [{ "given": ["Rain"], "make": true }],
+      "answer": [
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true
+        }
+      ],
+      "naive": [
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": true
+        }
+      ],
       "intro": [
         {
           "t": "@level.decl-check.tasks.decl-check_1.intro.0.t"
@@ -51,13 +133,39 @@
     },
     {
       "id": "decl-check_2",
-      "kind": "iso",
+      "kind": "logic:iso",
       "step": "@level.decl-check.tasks.decl-check_2.step",
-      "play": "audit",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain"] }] }],
+      "play": "logic:audit",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "Rain"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": 1,
-      "answer": [{ "given": ["Rain"], "make": false }],
-      "naive": [{ "given": ["Rain", "Wind"], "make": true }],
+      "answer": [
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": false
+        }
+      ],
+      "naive": [
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true
+        }
+      ],
       "intro": [
         {
           "t": "@level.decl-check.tasks.decl-check_2.intro.0.t"
@@ -70,19 +178,83 @@
     },
     {
       "id": "decl-check_3",
-      "kind": "iso",
+      "kind": "logic:iso",
       "step": "@level.decl-check.tasks.decl-check_3.step",
-      "play": "audit",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }, { "binds": [], "needs": ["Rain ∧ Wind"] }] }],
+      "play": "logic:audit",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "Rain",
+                "Wind"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "Rain ∧ Wind"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": [
-        { "given": ["Rain", "Wind"], "make": true, "fixed": ["given", "goal", "make"] },
-        { "given": ["Rain ∧ Wind"], "keep": ["Rain ∧ Wind"], "fixed": [] }
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true,
+          "fixed": [
+            "given",
+            "goal",
+            "make"
+          ]
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "keep": [
+            "Rain ∧ Wind"
+          ],
+          "fixed": []
+        }
       ],
       "answer": [
-        { "given": ["Rain", "Wind"], "make": true },
-        { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true }
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "goal": "Rain",
+          "make": true
+        }
       ],
-      "naive": [{ "given": ["Rain", "Wind"], "make": true }, { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false }],
+      "naive": [
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "goal": "Wet",
+          "make": false
+        }
+      ],
       "intro": [
         {
           "t": "@level.decl-check.tasks.decl-check_3.intro.0.t"

@@ -2,7 +2,7 @@
 // its shape and hints, cells typed and read back, a level's sections, the check's findings on their fields, each edit as
 // its operation and a pending changeset's coalescing, the package's group tree and its drop slots (groups.js), the game workspace's course edits (course-edit.js), a changed file read
 // field by field (diff.js), the game page's marks as the fields they show (marks.js); and on every domain's starter game
-// (kit/domains/<d>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
+// (kit/modules/<d>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
 // more about, every value a schema hint names gets its control, and every cell control gives back the value it shows.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -47,7 +47,7 @@ const VOCAB = defineVocabulary({
 const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
 
 // Every domain's starter game, as content.js assembles it: the studio's forms on content no real game owns.
-const DOMAINS = resolve(import.meta.dirname, '../domains')
+const DOMAINS = resolve(import.meta.dirname, '../modules')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readStarter(resolve(DOMAINS, d))
 const LEVEL = { kind: 'board', title: { en: '甲' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }

@@ -1,6 +1,16 @@
 {
-  "adds": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uDecompose",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.r-unifier.title",
   "intro": [
     {
@@ -11,17 +21,40 @@
   "tasks": [
     {
       "id": "r-unifier",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-unifier.tasks.r-unifier.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-unifier.tasks.r-unifier.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["(?A → ?B) ∧ (?B → ?C) ≐ (Rain → Wet) ∧ (?D → Slip)"] },
-        { "eqs": ["?A ∧ (?B ∨ ?A) ≐ Rain ∧ (Wind ∨ Wet)"] },
-        { "eqs": ["?A → ?B ≐ ?B → ¬?A"] },
-        { "eqs": ["¬¬?A ≐ ¬?B"] }
+        {
+          "eqs": [
+            "(?A → ?B) ∧ (?B → ?C) ≐ (Rain → Wet) ∧ (?D → Slip)"
+          ]
+        },
+        {
+          "eqs": [
+            "?A ∧ (?B ∨ ?A) ≐ Rain ∧ (Wind ∨ Wet)"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → ?B ≐ ?B → ¬?A"
+          ]
+        },
+        {
+          "eqs": [
+            "¬¬?A ≐ ¬?B"
+          ]
+        }
       ],
       "brief": "@level.r-unifier.tasks.r-unifier.brief",
-      "hint": ["@level.r-unifier.tasks.r-unifier.hint.0"],
+      "hint": [
+        "@level.r-unifier.tasks.r-unifier.hint.0"
+      ],
       "solution": [
         "r = repeat(in, body: c5) {",
         "  body {",
@@ -35,7 +68,12 @@
         "}",
         "out <- r"
       ],
-      "publishes": [{ "piece": "unifier", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "unifier",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

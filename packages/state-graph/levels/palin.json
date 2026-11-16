@@ -8,22 +8,123 @@
     {
       "t": "@level.palin.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "t0", "x": 0, "y": -42, "w": 46, "h": 30, "value": "A", "cls": "axis" },
-            { "id": "t1", "x": 54, "y": -42, "w": 46, "h": 30, "value": "B", "cls": "axis" },
-            { "id": "t2", "x": 108, "y": -42, "w": 46, "h": 30, "value": "C", "cls": "axis" },
-            { "id": "t3", "x": 162, "y": -42, "w": 46, "h": 30, "value": "A", "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 46, "h": 46, "value": 1, "cls": "lit" },
-            { "id": "0,1", "x": 54, "y": 0, "w": 46, "h": 46 },
-            { "id": "0,2", "x": 108, "y": 0, "w": 46, "h": 46 },
-            { "id": "0,3", "x": 162, "y": 0, "w": 46, "h": 46, "cls": "sel" },
-            { "id": "1,1", "x": 54, "y": 54, "w": 46, "h": 46, "value": 1, "cls": "lit" },
-            { "id": "1,2", "x": 108, "y": 54, "w": 46, "h": 46 },
-            { "id": "1,3", "x": 162, "y": 54, "w": 46, "h": 46 },
-            { "id": "2,2", "x": 108, "y": 108, "w": 46, "h": 46, "value": 1, "cls": "lit" },
-            { "id": "2,3", "x": 162, "y": 108, "w": 46, "h": 46 },
-            { "id": "3,3", "x": 162, "y": 162, "w": 46, "h": 46, "value": 1, "cls": "lit" }
+            {
+              "id": "t0",
+              "x": 0,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "A",
+              "cls": "axis"
+            },
+            {
+              "id": "t1",
+              "x": 54,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "B",
+              "cls": "axis"
+            },
+            {
+              "id": "t2",
+              "x": 108,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "C",
+              "cls": "axis"
+            },
+            {
+              "id": "t3",
+              "x": 162,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "A",
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 46,
+              "h": 46,
+              "value": 1,
+              "cls": "lit"
+            },
+            {
+              "id": "0,1",
+              "x": 54,
+              "y": 0,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "0,2",
+              "x": 108,
+              "y": 0,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "0,3",
+              "x": 162,
+              "y": 0,
+              "w": 46,
+              "h": 46,
+              "cls": "sel"
+            },
+            {
+              "id": "1,1",
+              "x": 54,
+              "y": 54,
+              "w": 46,
+              "h": 46,
+              "value": 1,
+              "cls": "lit"
+            },
+            {
+              "id": "1,2",
+              "x": 108,
+              "y": 54,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "1,3",
+              "x": 162,
+              "y": 54,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "2,2",
+              "x": 108,
+              "y": 108,
+              "w": 46,
+              "h": 46,
+              "value": 1,
+              "cls": "lit"
+            },
+            {
+              "id": "2,3",
+              "x": 162,
+              "y": 108,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "3,3",
+              "x": 162,
+              "y": 162,
+              "w": 46,
+              "h": 46,
+              "value": 1,
+              "cls": "lit"
+            }
           ],
           "edges": []
         }
@@ -43,7 +144,7 @@
     "goal": "@level.palin.mission.goal",
     "how": "@level.palin.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.palin.debrief.title",
     "body": [
@@ -55,22 +156,41 @@
   "tasks": [
     {
       "id": "palin",
-      "mode": "circuit",
-      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "mode": "table:circuit",
+      "boardOpt": {
+        "minScale": 0.6,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.palin.tasks.palin.hints.0",
         "@level.palin.tasks.palin.hints.1",
         "@level.palin.tasks.palin.hints.2"
       ],
-      "world": "interval",
-      "facts": ["same"],
-      "tests": [{ "s": "ABCA" }, { "s": "CHARACTER" }, { "s": "BBABCBCAB" }],
-      "expected": [3, 5, 7],
+      "world": "table:world-interval",
+      "facts": [
+        "same"
+      ],
+      "tests": [
+        {
+          "s": "ABCA"
+        },
+        {
+          "s": "CHARACTER"
+        },
+        {
+          "s": "BBABCBCAB"
+        }
+      ],
+      "expected": [
+        3,
+        5,
+        7
+      ],
       "solution": [
-        "k = const[value=2]()",
-        "a = add(view.dl, k)",
-        "g = pass(facts.same, a)",
-        "m = mmax(view.left, view.down, g)",
+        "k = table:const[value=2]()",
+        "a = table:add(view.dl, k)",
+        "g = table:pass(facts.same, a)",
+        "m = table:mmax(view.left, view.down, g)",
         "cell <- m"
       ],
       "scan": "len",

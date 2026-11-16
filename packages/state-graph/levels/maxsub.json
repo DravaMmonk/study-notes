@@ -10,7 +10,7 @@
     "goal": "@level.maxsub.mission.goal",
     "how": "@level.maxsub.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.maxsub.debrief.title",
     "body": [
@@ -21,11 +21,16 @@
   "tasks": [
     {
       "id": "maxsub",
-      "mode": "circuit",
-      "naive": ["m = msum(view.seg)", "cell <- m"],
+      "mode": "table:circuit",
+      "naive": [
+        "m = table:msum(view.seg)",
+        "cell <- m"
+      ],
       "diagnose": [
         {
-          "when": { "uses": "seg" },
+          "when": {
+            "table:condition-uses": "seg"
+          },
           "say": "@level.maxsub.tasks.maxsub.diagnose.0.say"
         }
       ],
@@ -33,15 +38,58 @@
         "@level.maxsub.tasks.maxsub.hints.0",
         "@level.maxsub.tasks.maxsub.hints.1"
       ],
-      "world": "gains",
-      "facts": ["money"],
-      "tests": [
-        { "a": [-2, 1, -3, 4, -1, 2, 1, -5, 4] },
-        { "a": [3, -4, 5, -1, 2, -6, 3] },
-        { "a": [-1, 2, 3, -7, 4, 1, -2, 5] }
+      "world": "table:world-gains",
+      "facts": [
+        "money"
       ],
-      "expected": [6, 6, 8],
-      "solution": ["a = add(view.prev, facts.money)", "m = mmax(facts.money, a)", "cell <- m"]
+      "tests": [
+        {
+          "a": [
+            -2,
+            1,
+            -3,
+            4,
+            -1,
+            2,
+            1,
+            -5,
+            4
+          ]
+        },
+        {
+          "a": [
+            3,
+            -4,
+            5,
+            -1,
+            2,
+            -6,
+            3
+          ]
+        },
+        {
+          "a": [
+            -1,
+            2,
+            3,
+            -7,
+            4,
+            1,
+            -2,
+            5
+          ]
+        }
+      ],
+      "expected": [
+        6,
+        6,
+        8
+      ],
+      "solution": [
+        "a = table:add(view.prev, facts.money)",
+        "m = table:mmax(facts.money, a)",
+        "cell <- m"
+      ]
     }
   ]
 }

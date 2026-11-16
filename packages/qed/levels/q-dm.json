@@ -1,6 +1,9 @@
 {
   "title": "@level.q-dm.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.q-dm.intro.0.t"
@@ -12,10 +15,24 @@
   "tasks": [
     {
       "id": "q-dm_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-dm.tasks.q-dm_1.step",
-      "tests": [{ "premises": { "p": "¬∃x. P(x)" }, "goal": "∀x. ¬P(x)" }],
-      "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬∃x. P(x)"
+          },
+          "goal": "∀x. ¬P(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Drinks"
+        },
+        {
+          "P": "Sings"
+        }
+      ],
       "hint": [
         "@level.q-dm.tasks.q-dm_1.hint.0",
         "@level.q-dm.tasks.q-dm_1.hint.1"
@@ -33,14 +50,33 @@
         "}",
         "goal <- g"
       ],
-      "publishes": [{ "piece": "dm", "variant": "notEx" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "notEx"
+        }
+      ]
     },
     {
       "id": "q-dm_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-dm.tasks.q-dm_2.step",
-      "tests": [{ "premises": { "p": "∀x. ¬P(x)" }, "goal": "¬∃x. P(x)" }],
-      "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. ¬P(x)"
+          },
+          "goal": "¬∃x. P(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Drinks"
+        },
+        {
+          "P": "Sings"
+        }
+      ],
       "hint": [
         "@level.q-dm.tasks.q-dm_2.hint.0",
         "@level.q-dm.tasks.q-dm_2.hint.1"
@@ -58,14 +94,33 @@
         "}",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "dm", "variant": "allNot" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "allNot"
+        }
+      ]
     },
     {
       "id": "q-dm_3",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-dm.tasks.q-dm_3.step",
-      "tests": [{ "premises": { "p": "∃x. ¬P(x)" }, "goal": "¬∀x. P(x)" }],
-      "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∃x. ¬P(x)"
+          },
+          "goal": "¬∀x. P(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Drinks"
+        },
+        {
+          "P": "Sings"
+        }
+      ],
       "hint": [
         "@level.q-dm.tasks.q-dm_3.hint.0",
         "@level.q-dm.tasks.q-dm_3.hint.1"
@@ -83,15 +138,36 @@
         "}",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "dm", "variant": "exNot" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "exNot"
+        }
+      ]
     },
     {
       "id": "q-dm_4",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-dm.tasks.q-dm_4.step",
-      "sentences": ["¬∃x. ¬P(x)"],
-      "tests": [{ "premises": { "p": "¬∀x. P(x)" }, "goal": "∃x. ¬P(x)" }],
-      "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
+      "sentences": [
+        "¬∃x. ¬P(x)"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬∀x. P(x)"
+          },
+          "goal": "∃x. ¬P(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Drinks"
+        },
+        {
+          "P": "Sings"
+        }
+      ],
       "hint": [
         "@level.q-dm.tasks.q-dm_4.hint.0",
         "@level.q-dm.tasks.q-dm_4.hint.1"
@@ -116,8 +192,18 @@
         "r2 = raa(k)",
         "goal <- r2"
       ],
-      "publishes": [{ "piece": "dm", "variant": "notAll" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "notAll"
+        }
+      ]
     }
   ],
-  "pieceRevisions": [{ "piece": "dm", "desc": "@piece.dm.revisions.0.desc" }]
+  "pieceRevisions": [
+    {
+      "piece": "dm",
+      "desc": "@piece.dm.revisions.0.desc"
+    }
+  ]
 }

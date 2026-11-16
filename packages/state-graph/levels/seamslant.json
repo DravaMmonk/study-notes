@@ -10,8 +10,10 @@
     "goal": "@level.seamslant.mission.goal",
     "how": "@level.seamslant.mission.how"
   },
-  "robot": "scout",
-  "adds": ["block"],
+  "robot": "table:robot-scout",
+  "adds": [
+    "table:block"
+  ],
   "debrief": {
     "title": "@level.seamslant.debrief.title",
     "body": [
@@ -21,10 +23,23 @@
   "tasks": [
     {
       "id": "seamslant",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "any": [{ "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
+          "when": {
+            "table:condition-any": [
+              {
+                "table:condition-not": {
+                  "table:condition-uses": "ul"
+                }
+              },
+              {
+                "table:condition-not": {
+                  "table:condition-uses": "ur"
+                }
+              }
+            ]
+          },
           "say": "@level.seamslant.tasks.seamslant.diagnose.0.say"
         }
       ],
@@ -33,15 +48,112 @@
         "@level.seamslant.tasks.seamslant.hints.0",
         "@level.seamslant.tasks.seamslant.hints.1"
       ],
-      "world": "pic",
-      "facts": ["energy", "top"],
-      "tests": [
-        { "energy": [[3, 1, 4], [1, 5, 9], [2, 6, 5], [3, 5, 8]], "R": 4, "C": 3 },
-        { "energy": [[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]], "R": 4, "C": 4 },
-        { "energy": [[2, 8, 3, 7, 1], [6, 4, 9, 2, 5], [1, 7, 3, 8, 6], [5, 2, 6, 1, 9]], "R": 4, "C": 5 }
+      "world": "table:world-pic",
+      "facts": [
+        "energy",
+        "top"
       ],
-      "expected": [7, 12, 7],
-      "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"]
+      "tests": [
+        {
+          "energy": [
+            [
+              3,
+              1,
+              4
+            ],
+            [
+              1,
+              5,
+              9
+            ],
+            [
+              2,
+              6,
+              5
+            ],
+            [
+              3,
+              5,
+              8
+            ]
+          ],
+          "R": 4,
+          "C": 3
+        },
+        {
+          "energy": [
+            [
+              9,
+              1,
+              9,
+              9
+            ],
+            [
+              9,
+              9,
+              1,
+              9
+            ],
+            [
+              1,
+              9,
+              9,
+              9
+            ],
+            [
+              9,
+              1,
+              9,
+              2
+            ]
+          ],
+          "R": 4,
+          "C": 4
+        },
+        {
+          "energy": [
+            [
+              2,
+              8,
+              3,
+              7,
+              1
+            ],
+            [
+              6,
+              4,
+              9,
+              2,
+              5
+            ],
+            [
+              1,
+              7,
+              3,
+              8,
+              6
+            ],
+            [
+              5,
+              2,
+              6,
+              1,
+              9
+            ]
+          ],
+          "R": 4,
+          "C": 5
+        }
+      ],
+      "expected": [
+        7,
+        12,
+        7
+      ],
+      "solution": [
+        "c = min(view.ul, view.up, facts.top, facts.energy, view.ur)",
+        "cell <- c"
+      ]
     }
   ]
 }

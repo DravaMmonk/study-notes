@@ -1,6 +1,9 @@
 {
   "title": "@level.c-wall.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.c-wall.intro.0.t"
@@ -12,22 +15,43 @@
   "tasks": [
     {
       "id": "c-wall",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.c-wall.tasks.c-wall.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.c-wall.tasks.c-wall.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬¬(Rain ∨ ¬Rain)" },
-        { "goal": "(Rain → Wet) → (¬Wet → ¬Rain)" },
-        { "goal": "¬¬Rain → Rain", "want": "fails" },
-        { "goal": "Rain ∨ ¬Rain", "want": "fails" },
-        { "goal": "((Rain → Wet) → Rain) → Rain", "want": "fails" }
+        {
+          "goal": "¬¬(Rain ∨ ¬Rain)"
+        },
+        {
+          "goal": "(Rain → Wet) → (¬Wet → ¬Rain)"
+        },
+        {
+          "goal": "¬¬Rain → Rain",
+          "want": "logic:want-fails"
+        },
+        {
+          "goal": "Rain ∨ ¬Rain",
+          "want": "logic:want-fails"
+        },
+        {
+          "goal": "((Rain → Wet) → Rain) → Rain",
+          "want": "logic:want-fails"
+        }
       ],
       "brief": "@level.c-wall.tasks.c-wall.brief",
       "hint": [
         "@level.c-wall.tasks.c-wall.hint.0"
       ],
-      "solution": ["c0 = auto(in)", "out <- c0"]
+      "solution": [
+        "c0 = auto(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

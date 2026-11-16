@@ -5,13 +5,26 @@
     {
       "t": "@level.slant.intro.0.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 3,
           "C": 4,
-          "moves": [[0, 1], [1, 1]],
+          "moves": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
           "cells": {
-            "0,0": { "corner": "@level.slant.intro.0.fig.grid.cells.0-0.corner" },
-            "2,3": { "corner": "@level.slant.intro.0.fig.grid.cells.2-3.corner" }
+            "0,0": {
+              "corner": "@level.slant.intro.0.fig.grid.cells.0-0.corner"
+            },
+            "2,3": {
+              "corner": "@level.slant.intro.0.fig.grid.cells.2-3.corner"
+            }
           }
         }
       }
@@ -19,7 +32,7 @@
     {
       "t": "@level.slant.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "ul",
@@ -48,11 +61,31 @@
               "label": "@level.slant.intro.1.fig.scene.cells.l.label",
               "cls": "lit"
             },
-            { "id": "c", "x": 66, "y": 66, "w": 56, "h": 56, "value": "?", "cls": "sel" }
+            {
+              "id": "c",
+              "x": 66,
+              "y": 66,
+              "w": 56,
+              "h": 56,
+              "value": "?",
+              "cls": "sel"
+            }
           ],
           "edges": [
-            { "a": "ul", "b": "c", "cls": "hot", "bend": 0, "off": 0 },
-            { "a": "l", "b": "c", "cls": "hot", "bend": 0, "off": 0 }
+            {
+              "a": "ul",
+              "b": "c",
+              "cls": "hot",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "l",
+              "b": "c",
+              "cls": "hot",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -65,7 +98,7 @@
     "goal": "@level.slant.mission.goal",
     "how": "@level.slant.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.slant.debrief.title",
     "body": [
@@ -77,10 +110,12 @@
   "tasks": [
     {
       "id": "slant",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "uses": "up" },
+          "when": {
+            "table:condition-uses": "up"
+          },
           "say": "@level.slant.tasks.slant.diagnose.0.say"
         }
       ],
@@ -88,11 +123,28 @@
         "@level.slant.tasks.slant.hints.0",
         "@level.slant.tasks.slant.hints.1"
       ],
-      "world": "grid",
-      "facts": ["start"],
-      "tests": [{ "R": 3, "C": 5 }, { "R": 4, "C": 6 }],
-      "expected": [6, 10],
-      "solution": ["c = counter(view.left, view.ul, facts.start)", "cell <- c"]
+      "world": "table:world-grid",
+      "facts": [
+        "start"
+      ],
+      "tests": [
+        {
+          "R": 3,
+          "C": 5
+        },
+        {
+          "R": 4,
+          "C": 6
+        }
+      ],
+      "expected": [
+        6,
+        10
+      ],
+      "solution": [
+        "c = counter(view.left, view.ul, facts.start)",
+        "cell <- c"
+      ]
     }
   ]
 }

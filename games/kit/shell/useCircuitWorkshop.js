@@ -16,7 +16,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const [showNotice, notice] = useToast()
   const offers = useMemo(() => base.offerIn(level, flags), [base, level, flags])
   const has = useMemo(() => base.holdsIn(level, flags), [base, level, flags])
-  const identity = (type) => workshopIdentity(profile?.domain, game.partDefs, type)
+  const identity = (type) => workshopIdentity(game.partDefs, type)
   const runtime = runtimeOf(level, base)
   const taskConstraints = (type, params) => {
     const controls = settings?.({ type, params }, { task: level }) ?? []
@@ -24,7 +24,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   }
   const offeredTypes = new Set(offers.types)
   const available = (piece) => Boolean(profile && workshopAvailable(piece, {
-    domain: profile.domain, identity, types: offeredTypes, has, allows: taskConstraints, resolve: runtime,
+    identity, types: offeredTypes, has, allows: taskConstraints, resolve: runtime,
   }))
   const workshop = workshopView(base, library, available, runtime)
   const { known, view: circuit, resolve } = workshop
@@ -48,7 +48,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     scope: `user_${crypto.randomUUID().replaceAll('-', '')}`,
     open: (node) => openForCapture(node, { level, circuit: graph, parts }),
     needsSnapshot: (type) => Boolean(game.partDefs?.parts?.[type]?.inside),
-    ...details, domain: profile.domain, parts: details.parts ?? parts, resolve: runtime, identity,
+    ...details, parts: details.parts ?? parts, resolve: runtime, identity,
     defaults: (type) => definition?.of(type) ? definition.defaults(type) : defaults?.(type),
     book: library,
   })

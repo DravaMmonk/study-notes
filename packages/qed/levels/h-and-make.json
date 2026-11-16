@@ -1,6 +1,9 @@
 {
   "title": "@level.h-and-make.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.h-and-make.intro.0.t"
@@ -13,10 +16,27 @@
   "tasks": [
     {
       "id": "h-and-make_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.h-and-make.tasks.h-and-make_1.step",
-      "tests": [{ "premises": { "p": "A", "q": "B" }, "goal": "∀R. (A → (B → R)) → R" }],
-      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Sat", "B": "Sun" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A",
+            "q": "B"
+          },
+          "goal": "∀R. (A → (B → R)) → R"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind"
+        },
+        {
+          "A": "Sat",
+          "B": "Sun"
+        }
+      ],
       "hint": [
         "@level.h-and-make.tasks.h-and-make_1.hint.0",
         "@level.h-and-make.tasks.h-and-make_1.hint.1"
@@ -37,10 +57,26 @@
     },
     {
       "id": "h-and-make_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.h-and-make.tasks.h-and-make_2.step",
-      "tests": [{ "premises": { "p": "∀R. (A → (B → R)) → R" }, "goal": "A" }],
-      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Sat", "B": "Sun" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀R. (A → (B → R)) → R"
+          },
+          "goal": "A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind"
+        },
+        {
+          "A": "Sat",
+          "B": "Sun"
+        }
+      ],
       "intro": [
         {
           "t": "@level.h-and-make.tasks.h-and-make_2.intro.0.t"
@@ -50,7 +86,12 @@
         "@level.h-and-make.tasks.h-and-make_2.hint.0",
         "@level.h-and-make.tasks.h-and-make_2.hint.1"
       ],
-      "solution": ["k = axK[A=A, B=B]()", "e = allE[t=A](p)", "m = mp(e, k)", "goal <- m"]
+      "solution": [
+        "k = axK[A=A, B=B]()",
+        "e = allE[t=A](p)",
+        "m = mp(e, k)",
+        "goal <- m"
+      ]
     }
   ]
 }

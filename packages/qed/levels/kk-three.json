@@ -4,22 +4,51 @@
   "tasks": [
     {
       "id": "kk-three_1",
-      "kind": "gates",
-      "tray": ["#gates", "#formula"],
+      "kind": "logic:gates",
+      "tray": [
+        "#gates",
+        "#formula"
+      ],
       "step": "@level.kk-three.tasks.kk-three_1.step",
       "blind": true,
       "target": "KA ↔ ¬KA ∨ KB",
       "brief": "@level.kk-three.tasks.kk-three_1.brief",
-      "hint": ["@level.kk-three.tasks.kk-three_1.hint.0"],
-      "solution": ["na = gNot(KA)", "o = gOr(na, KB)", "e = gIff(KA, o)", "out <- e"]
+      "hint": [
+        "@level.kk-three.tasks.kk-three_1.hint.0"
+      ],
+      "solution": [
+        "na = gNot(KA)",
+        "o = gOr(na, KB)",
+        "e = gIff(KA, o)",
+        "out <- e"
+      ]
     },
     {
       "id": "kk-three_2",
-      "kind": "proof",
-      "tray": ["#proof", "#formula"],
+      "kind": "logic:proof",
+      "tray": [
+        "#proof",
+        "#formula"
+      ],
       "step": "@level.kk-three.tasks.kk-three_2.step",
-      "tests": [{ "premises": { "p": "A ↔ ¬A ∨ B" }, "goal": "A ∧ B" }],
-      "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A ↔ ¬A ∨ B"
+          },
+          "goal": "A ∧ B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "KA",
+          "B": "KB"
+        },
+        {
+          "A": "KC",
+          "B": "KD"
+        }
+      ],
       "hint": [
         "@level.kk-three.tasks.kk-three_2.hint.0",
         "@level.kk-three.tasks.kk-three_2.hint.1"

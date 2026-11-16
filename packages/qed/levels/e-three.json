@@ -1,12 +1,19 @@
 {
   "title": "@level.e-three.title",
-  "tray": ["#gates", "#formula"],
-  "intro": [{ "t": "@level.e-three.intro.0.t" }],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.e-three.intro.0.t"
+    }
+  ],
   "after": "@level.e-three.after",
   "tasks": [
     {
       "id": "e-three",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)",
       "blind": true,
       "brief": "@level.e-three.tasks.e-three.brief",

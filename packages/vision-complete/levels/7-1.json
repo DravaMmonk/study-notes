@@ -21,11 +21,11 @@
   ],
   "adds": ["argmin4"],
   "tray": "#geometry",
-  "unlocks": ["disparity"],
+  "unlocks": ["image:unlock-disparity"],
   "tasks": [
     {
       "id": "7-1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.7-1.tasks.7-1.brief",
       "hint": "@level.7-1.tasks.7-1.hint",
       "inputs": ["left", "right"],
@@ -33,9 +33,9 @@
         "left": "@level.7-1.tasks.7-1.inputLabels.left",
         "right": "@level.7-1.tasks.7-1.inputLabels.right"
       },
-      "views": { "out": "terrain" },
+      "views": { "out": "image:view-terrain" },
       "check": { "tolerance": 0.1, "mismatches": 34 },
-      "scene": "stereo",
+      "scene": "image:scene-stereo",
       "tests": [
         {
           "label": "@level.7-1.tasks.7-1.tests.0.label",

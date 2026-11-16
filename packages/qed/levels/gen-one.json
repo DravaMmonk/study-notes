@@ -1,7 +1,15 @@
 {
   "title": "@level.gen-one.title",
-  "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gen-one.intro.0.t"
@@ -13,29 +21,78 @@
   "tasks": [
     {
       "id": "gen-one",
-      "kind": "machine",
-      "want": "elim",
+      "kind": "logic:machine",
+      "want": "logic:want-elim",
       "inputs": [
-        { "name": "it", "label": "@level.gen-one.tasks.gen-one.inputs.0.label" },
-        { "name": "ways", "label": "@level.gen-one.tasks.gen-one.inputs.1.label" }
+        {
+          "name": "it",
+          "label": "@level.gen-one.tasks.gen-one.inputs.0.label"
+        },
+        {
+          "name": "ways",
+          "label": "@level.gen-one.tasks.gen-one.inputs.1.label"
+        }
       ],
       "single": true,
       "tests": [
-        { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
+        {
+          "it": "?A ∧ ?B",
+          "ways": [
+            "⟦?A; ?B⟧ ⟹ ?A ∧ ?B"
+          ],
+          "elim": [
+            "?A ∧ ?B",
+            "⟦?A; ?B⟧ ⟹ ?R"
+          ]
+        },
         {
           "it": "?A ∧ (?B ∧ ?C)",
-          "ways": ["⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"],
-          "elim": ["?A ∧ (?B ∧ ?C)", "⟦?A; ?B; ?C⟧ ⟹ ?R"]
+          "ways": [
+            "⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"
+          ],
+          "elim": [
+            "?A ∧ (?B ∧ ?C)",
+            "⟦?A; ?B; ?C⟧ ⟹ ?R"
+          ]
         },
-        { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
-        { "it": "Truth", "ways": ["Truth"], "elim": ["Truth", "?R"] }
+        {
+          "it": "?A ↔ ?B",
+          "ways": [
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"
+          ],
+          "elim": [
+            "?A ↔ ?B",
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "Truth",
+          "ways": [
+            "Truth"
+          ],
+          "elim": [
+            "Truth",
+            "?R"
+          ]
+        }
       ],
       "brief": "@level.gen-one.tasks.gen-one.brief",
       "hint": [
         "@level.gen-one.tasks.gen-one.hint.0"
       ],
-      "solution": ["r = anyR()", "s = swapConcl(ways, r)", "c = consFront(it, s)", "m = mkRule(c, r)", "out <- m"],
-      "publishes": [{ "piece": "elimGen", "variant": "v1" }]
+      "solution": [
+        "r = anyR()",
+        "s = swapConcl(ways, r)",
+        "c = consFront(it, s)",
+        "m = mkRule(c, r)",
+        "out <- m"
+      ],
+      "publishes": [
+        {
+          "piece": "elimGen",
+          "variant": "v1"
+        }
+      ]
     }
   ]
 }

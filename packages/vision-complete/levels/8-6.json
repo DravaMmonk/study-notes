@@ -22,11 +22,11 @@
   "tasks": [
     {
       "id": "8-6",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.8-6.tasks.8-6.brief",
       "hint": "@level.8-6.tasks.8-6.hint",
       "bench": {
-        "model": "gan",
+        "model": "image:benchModel-gan",
         "setup": {
           "n": 64,
           "mode": 2,
@@ -99,21 +99,21 @@
           }
         ],
         "layout": {
-          "main": ["ganChart", "verdict"],
+          "main": ["image:display-ganChart", "circuit:display-verdict"],
           "split": "narrow",
           "side": [
             {
               "panel": [
                 {
-                  "text": {
+                  "circuit:display-text": {
                     "text": "@level.8-6.tasks.8-6.bench.layout.side.0.panel.0.text.text",
                     "look": "label"
                   }
                 },
-                { "goals": { "phoneCols": 2 } }
+                { "circuit:display-goals": { "phoneCols": 2 } }
               ]
             },
-            { "panel": ["knobs", "actions"] }
+            { "panel": ["circuit:display-knobs", "circuit:display-actions"] }
           ]
         }
       }

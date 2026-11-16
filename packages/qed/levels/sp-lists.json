@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-lists.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-lists.intro.0.t"
@@ -9,20 +12,41 @@
   "tasks": [
     {
       "id": "sp-lists",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sp-lists.tasks.sp-lists.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-lists.tasks.sp-lists.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["list"],
-      "defs": ["app", "len"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "app",
+        "len"
+      ],
       "tests": [
-        { "goal": "len(app(cons(i, nil), cons(j, nil))) = s(s(zero))" },
-        { "goal": "app(cons(i, nil), app(cons(j, nil), cons(k, nil))) = cons(i, cons(j, cons(k, nil)))" },
-        { "goal": "len(app(cons(i, cons(j, nil)), nil)) = s(s(zero))" }
+        {
+          "goal": "len(app(cons(i, nil), cons(j, nil))) = s(s(zero))"
+        },
+        {
+          "goal": "app(cons(i, nil), app(cons(j, nil), cons(k, nil))) = cons(i, cons(j, cons(k, nil)))"
+        },
+        {
+          "goal": "len(app(cons(i, cons(j, nil)), nil)) = s(s(zero))"
+        }
       ],
       "brief": "@level.sp-lists.tasks.sp-lists.brief",
-      "hint": ["@level.sp-lists.tasks.sp-lists.hint.0"],
+      "hint": [
+        "@level.sp-lists.tasks.sp-lists.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\"]]()",
         "c1r0 = refl()",

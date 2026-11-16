@@ -1,6 +1,9 @@
 {
   "title": "@level.in-appnil.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.in-appnil.intro.0.t"
@@ -9,14 +12,31 @@
   "tasks": [
     {
       "id": "in-appnil",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-appnil.tasks.in-appnil.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-appnil.tasks.in-appnil.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["list"],
-      "defs": ["app", "len"],
-      "tests": [{ "goal": "∀xs. app(xs, nil) = xs" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "app",
+        "len"
+      ],
+      "tests": [
+        {
+          "goal": "∀xs. app(xs, nil) = xs"
+        }
+      ],
       "brief": "@level.in-appnil.tasks.in-appnil.brief",
       "hint": [
         "@level.in-appnil.tasks.in-appnil.hint.0"
@@ -28,14 +48,19 @@
         "  body {",
         "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "    c3r0 = refl()",
-        "    c2r2 = hyp(c2r0)",
+        "    c2r2 = logic:hyp(c2r0)",
         "    c2 = simp(c1.body, c2r2)",
         "    c3 = rule(c2, c3r0)",
         "  }",
         "}",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "appNil", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "appNil",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

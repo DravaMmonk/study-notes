@@ -1,14 +1,41 @@
 {
   "title": "@level.x-chain.title",
-  "tray": ["#proof", "#formula"],
-  "without": ["impI", "chain", "swap", "merge"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "without": [
+    "impI",
+    "chain",
+    "swap",
+    "merge"
+  ],
   "after": "@level.x-chain.after",
   "tasks": [
     {
       "id": "x-chain",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
-      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "B → C"
+          },
+          "goal": "A → C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet",
+          "C": "Slip"
+        },
+        {
+          "A": "Alarm",
+          "B": "Up",
+          "C": "OnTime"
+        }
+      ],
       "briefNote": "@level.x-chain.tasks.x-chain.briefNote",
       "hint": [
         "@level.x-chain.tasks.x-chain.hint.0",

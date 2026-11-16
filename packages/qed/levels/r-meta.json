@@ -1,6 +1,9 @@
 {
   "title": "@level.r-meta.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-meta.intro.0.t"
@@ -9,13 +12,37 @@
   "tasks": [
     {
       "id": "r-meta",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-meta.tasks.r-meta.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-meta.tasks.r-meta.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"] },
-        { "goal": "Slip", "hyps": ["Wind", "Wet → Slip", "Wet"] },
-        { "goal": "Wind ∧ Wet", "hyps": ["Rain → Wind ∧ Wet", "Rain"] }
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain → Wet",
+            "Rain"
+          ]
+        },
+        {
+          "goal": "Slip",
+          "hyps": [
+            "Wind",
+            "Wet → Slip",
+            "Wet"
+          ]
+        },
+        {
+          "goal": "Wind ∧ Wet",
+          "hyps": [
+            "Rain → Wind ∧ Wet",
+            "Rain"
+          ]
+        }
       ],
       "brief": "@level.r-meta.tasks.r-meta.brief",
       "hint": [

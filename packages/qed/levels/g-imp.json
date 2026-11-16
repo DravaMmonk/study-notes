@@ -1,6 +1,9 @@
 {
   "title": "@level.g-imp.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.g-imp.intro.0.t"
@@ -9,15 +12,24 @@
   "tasks": [
     {
       "id": "g-imp",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "Rain → Wet",
       "brief": "@level.g-imp.tasks.g-imp.brief",
       "hint": [
         "@level.g-imp.tasks.g-imp.hint.0",
         "@level.g-imp.tasks.g-imp.hint.1"
       ],
-      "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"],
-      "publishes": [{ "piece": "gImp", "variant": "base" }]
+      "solution": [
+        "n = gNot(Rain)",
+        "o = gOr(n, Wet)",
+        "out <- o"
+      ],
+      "publishes": [
+        {
+          "piece": "gImp",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

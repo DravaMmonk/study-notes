@@ -1,6 +1,9 @@
 {
   "title": "@level.assume.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "showcase": "@level.assume.showcase",
   "intro": [
     {
@@ -16,32 +19,83 @@
   "tasks": [
     {
       "id": "assume_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.assume.tasks.assume_1.step",
-      "tests": [{ "premises": { "p": "A" }, "goal": "B → A" }],
-      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
-      "adds": ["impI"],
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "B → A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind"
+        },
+        {
+          "A": "Coffee",
+          "B": "Late"
+        }
+      ],
+      "adds": [
+        "impI"
+      ],
       "briefNote": "@level.assume.tasks.assume_1.briefNote",
       "hint": [
         "@level.assume.tasks.assume_1.hint.0",
         "@level.assume.tasks.assume_1.hint.1"
       ],
-      "solution": ["f = impI[A=B](body: p)", "goal <- f"],
-      "naive": ["f = impI[A=B]()", "goal <- p"]
+      "solution": [
+        "f = impI[A=B](body: p)",
+        "goal <- f"
+      ],
+      "naive": [
+        "f = impI[A=B]()",
+        "goal <- p"
+      ]
     },
     {
       "id": "assume_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.assume.tasks.assume_2.step",
-      "tests": [{ "premises": { "p": "A" }, "goal": "B → (C → A)" }],
-      "cases": [{ "A": "Rain", "B": "Sat", "C": "Wind" }, { "A": "Coffee", "B": "Late", "C": "Tea" }],
-      "hint": ["@level.assume.tasks.assume_2.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "B → (C → A)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Sat",
+          "C": "Wind"
+        },
+        {
+          "A": "Coffee",
+          "B": "Late",
+          "C": "Tea"
+        }
+      ],
+      "hint": [
+        "@level.assume.tasks.assume_2.hint.0"
+      ],
       "intro": [
         {
           "t": "@level.assume.tasks.assume_2.intro.0.t"
         }
       ],
-      "solution": ["f = impI[A=B](body: g) {", "  body {", "    g = impI[A=C](body: p)", "  }", "}", "goal <- f"]
+      "solution": [
+        "f = impI[A=B](body: g) {",
+        "  body {",
+        "    g = impI[A=C](body: p)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
     }
   ]
 }

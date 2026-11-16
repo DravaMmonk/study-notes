@@ -1,6 +1,9 @@
 {
   "title": "@level.in-distinct.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.in-distinct.intro.0.t"
@@ -9,13 +12,33 @@
   "tasks": [
     {
       "id": "in-distinct",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-distinct.tasks.in-distinct.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-distinct.tasks.in-distinct.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "tests": [{ "goal": "¬(zero = s(zero))" }, { "goal": "¬(s(s(zero)) = zero)" }, { "goal": "¬(zero = s(a))" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "tests": [
+        {
+          "goal": "¬(zero = s(zero))"
+        },
+        {
+          "goal": "¬(s(s(zero)) = zero)"
+        },
+        {
+          "goal": "¬(zero = s(a))"
+        }
+      ],
       "brief": "@level.in-distinct.tasks.in-distinct.brief",
       "hint": [
         "@level.in-distinct.tasks.in-distinct.hint.0",

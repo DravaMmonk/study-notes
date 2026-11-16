@@ -19,7 +19,7 @@
     "goal": "@level.loop.mission.goal",
     "how": "@level.loop.mission.how"
   },
-  "robot": "loop",
+  "robot": "table:robot-loop",
   "debrief": {
     "title": "@level.loop.debrief.title",
     "body": [
@@ -31,28 +31,100 @@
   "tasks": [
     {
       "id": "loop",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "hints": [
         "@level.loop.tasks.loop.hints.0",
         "@level.loop.tasks.loop.hints.1"
       ],
-      "world": "grid",
-      "facts": ["start", "cost"],
+      "world": "table:world-grid",
+      "facts": [
+        "start",
+        "cost"
+      ],
       "tests": [
         {
           "R": 5,
           "C": 5,
-          "costs": [[1, 1, 1, 1, 1], [9, 9, 9, 9, 1], [1, 1, 1, 1, 1], [1, 9, 9, 9, 9], [1, 1, 1, 1, 1]]
+          "costs": [
+            [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              9,
+              9,
+              9,
+              9,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              9,
+              9,
+              9,
+              9
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
         },
-        { "R": 5, "C": 3, "costs": [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]] }
+        {
+          "R": 5,
+          "C": 3,
+          "costs": [
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              9,
+              9,
+              1
+            ],
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              9,
+              9
+            ],
+            [
+              1,
+              1,
+              1
+            ]
+          ]
+        }
       ],
-      "expected": [17, 11],
+      "expected": [
+        17,
+        11
+      ],
       "solution": [
-        "a = mmin(view.up, view.down, view.left)",
-        "z = const[value=0]()",
-        "g = pass(facts.start, z)",
-        "b = mmin(a, view.right, g)",
-        "p = add(b, facts.cost)",
+        "a = table:mmin(view.up, view.down, view.left)",
+        "z = table:const[value=0]()",
+        "g = table:pass(facts.start, z)",
+        "b = table:mmin(a, view.right, g)",
+        "p = table:add(b, facts.cost)",
         "cell <- p"
       ],
       "rounds": true

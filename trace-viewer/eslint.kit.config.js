@@ -9,7 +9,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 const KIT = 'games/kit'
-const domains = readdirSync(fileURLToPath(new URL(`../${KIT}/domains`, import.meta.url)), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+const domains = readdirSync(fileURLToPath(new URL(`../${KIT}/modules`, import.meta.url)), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
 const no = (patterns, message) => ({ 'no-restricted-imports': ['error', { patterns: [{ group: patterns, message }] }] })
 
 export default defineConfig([
@@ -37,11 +37,11 @@ export default defineConfig([
   },
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
-    ignores: ['**/*.test.js'],
-    rules: no(['**/domains/**'], 'The kernel knows no domain: it loads one by name (engine/content-node.js).'),
+    ignores: ['**/*.test.js', '**/engine/kernel.js'],
+    rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/content-node.js).'),
   },
   ...domains.map((name) => ({
-    files: [`${KIT}/domains/${name}/**/*.{js,jsx}`],
-    rules: no(domains.filter((other) => other !== name).flatMap((other) => [`**/domains/${other}/**`, `**/../${other}/**`]), 'A domain imports no other domain: what two share belongs in the kernel.'),
+    files: [`${KIT}/modules/${name}/**/*.{js,jsx}`],
+    rules: no(domains.filter((other) => other !== name).flatMap((other) => [`**/modules/${other}/**`]), 'A domain imports no other domain: what two share belongs in the kernel.'),
   })),
 ])

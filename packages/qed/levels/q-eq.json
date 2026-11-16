@@ -1,6 +1,9 @@
 {
   "title": "@level.q-eq.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.q-eq.intro.0.t"
@@ -12,15 +15,44 @@
   "tasks": [
     {
       "id": "q-eq",
-      "words": ["everyday", "stars"],
-      "kind": "proof",
-      "consts": ["a", "b"],
-      "tests": [{ "premises": { "p": "a = b", "q": "P(a)", "t": "∀x. P(x) → Q(x)" }, "goal": "Q(b)" }],
-      "cases": [{ "P": "Bright", "Q": "Seen" }, { "P": "Seen", "Q": "Bright" }],
+      "words": [
+        "everyday",
+        "stars"
+      ],
+      "kind": "logic:proof",
+      "consts": [
+        "a",
+        "b"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "a = b",
+            "q": "P(a)",
+            "t": "∀x. P(x) → Q(x)"
+          },
+          "goal": "Q(b)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Bright",
+          "Q": "Seen"
+        },
+        {
+          "P": "Seen",
+          "Q": "Bright"
+        }
+      ],
       "hint": [
         "@level.q-eq.tasks.q-eq.hint.0"
       ],
-      "solution": ["r = rewrite[at=[0]](p, q)", "e = allE[t=b](t)", "m = mp(e, r)", "goal <- m"]
+      "solution": [
+        "r = rewrite[at=[0]](p, q)",
+        "e = allE[t=b](t)",
+        "m = mp(e, r)",
+        "goal <- m"
+      ]
     }
   ]
 }

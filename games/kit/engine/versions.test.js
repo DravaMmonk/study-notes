@@ -1,7 +1,6 @@
 // node --test games/kit/engine — a vocabulary's versions: each kept as printed, each only adding to the one before.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolve } from 'node:path'
 import { S } from './schema.js'
 import { additionProblems, defineVocabulary, describe } from './vocabulary.js'
 import { versionProblems, vocabularyDirs } from './versions.js'
@@ -33,7 +32,7 @@ test('a version removes or changes only what it declares, and declares only what
 
 test('every vocabulary is the version it says, kept, and every version only adds to the one before', async () => {
   for (const dir of vocabularyDirs()) {
-    const { vocabulary } = await import(resolve(dir, 'vocabulary.js'))
+    const { vocabulary } = await import('./kernel.js')
     assert.deepEqual(versionProblems(dir, vocabulary), [], dir)
   }
 })

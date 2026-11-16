@@ -1,6 +1,9 @@
 {
   "title": "@level.r-allI.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-allI.intro.0.t"
@@ -9,12 +12,21 @@
   "tasks": [
     {
       "id": "r-allI",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-allI.tasks.r-allI.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-allI.tasks.r-allI.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)" },
-        { "goal": "∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)" }
+        {
+          "goal": "∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)"
+        },
+        {
+          "goal": "∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)"
+        }
       ],
       "brief": "@level.r-allI.tasks.r-allI.brief",
       "hint": [

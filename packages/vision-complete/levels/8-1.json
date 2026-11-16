@@ -18,40 +18,97 @@
   ],
   "adds": ["dg_encode", "dg_decode"],
   "tray": "#generative",
-  "unlocks": ["dg-decoder"],
+  "unlocks": ["image:unlock-dg-decoder"],
   "tasks": [
     {
       "id": "8-1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.8-1.tasks.8-1.brief",
       "hint": "@level.8-1.tasks.8-1.hint",
       "check": { "tolerance": 0.2, "mismatches": 3 },
-      "constraint": { "bottleneck": { "max": 2 } },
+      "constraint": { "image:constraint-bottleneck": { "max": 2 } },
       "trainRate": 30,
-      "scene": "filter",
-      "setup": { "target": "same" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-same" },
       "tests": [
-        { "label": "@level.8-1.tasks.8-1.tests.0.label", "in": { "blob": { "x": 3.5, "y": 3.5 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.1.label", "in": { "blob": { "x": 3.8, "y": 6.33 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.2.label", "in": { "blob": { "x": 3.5, "y": 9.17 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.3.label", "in": { "blob": { "x": 3.8, "y": 12 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.4.label", "in": { "blob": { "x": 6.33, "y": 3.7 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.5.label", "in": { "blob": { "x": 6.63, "y": 6.53 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.6.label", "in": { "blob": { "x": 6.33, "y": 9.37 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.7.label", "in": { "blob": { "x": 6.63, "y": 12.2 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.8.label", "in": { "blob": { "x": 9.17, "y": 3.5 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.9.label", "in": { "blob": { "x": 9.47, "y": 6.33 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.10.label", "in": { "blob": { "x": 9.17, "y": 9.17 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.11.label", "in": { "blob": { "x": 9.47, "y": 12 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.12.label", "in": { "blob": { "x": 12, "y": 3.7 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.13.label", "in": { "blob": { "x": 12.3, "y": 6.53 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.14.label", "in": { "blob": { "x": 12, "y": 9.37 } } },
-        { "label": "@level.8-1.tasks.8-1.tests.15.label", "in": { "blob": { "x": 12.3, "y": 12.2 } } }
+        {
+          "label": "@level.8-1.tasks.8-1.tests.0.label",
+          "in": { "image:picture-blob": { "x": 3.5, "y": 3.5 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.1.label",
+          "in": { "image:picture-blob": { "x": 3.8, "y": 6.33 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.2.label",
+          "in": { "image:picture-blob": { "x": 3.5, "y": 9.17 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.3.label",
+          "in": { "image:picture-blob": { "x": 3.8, "y": 12 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.4.label",
+          "in": { "image:picture-blob": { "x": 6.33, "y": 3.7 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.5.label",
+          "in": { "image:picture-blob": { "x": 6.63, "y": 6.53 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.6.label",
+          "in": { "image:picture-blob": { "x": 6.33, "y": 9.37 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.7.label",
+          "in": { "image:picture-blob": { "x": 6.63, "y": 12.2 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.8.label",
+          "in": { "image:picture-blob": { "x": 9.17, "y": 3.5 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.9.label",
+          "in": { "image:picture-blob": { "x": 9.47, "y": 6.33 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.10.label",
+          "in": { "image:picture-blob": { "x": 9.17, "y": 9.17 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.11.label",
+          "in": { "image:picture-blob": { "x": 9.47, "y": 12 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.12.label",
+          "in": { "image:picture-blob": { "x": 12, "y": 3.7 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.13.label",
+          "in": { "image:picture-blob": { "x": 12.3, "y": 6.53 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.14.label",
+          "in": { "image:picture-blob": { "x": 12, "y": 9.37 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.tests.15.label",
+          "in": { "image:picture-blob": { "x": 12.3, "y": 12.2 } }
+        }
       ],
       "hidden": [
-        { "label": "@level.8-1.tasks.8-1.hidden.0.label", "in": { "blob": { "x": 4.17, "y": 10.45 } } },
-        { "label": "@level.8-1.tasks.8-1.hidden.1.label", "in": { "blob": { "x": 7.97, "y": 11.46 } } },
-        { "label": "@level.8-1.tasks.8-1.hidden.2.label", "in": { "blob": { "x": 7.92, "y": 5.1 } } }
+        {
+          "label": "@level.8-1.tasks.8-1.hidden.0.label",
+          "in": { "image:picture-blob": { "x": 4.17, "y": 10.45 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.hidden.1.label",
+          "in": { "image:picture-blob": { "x": 7.97, "y": 11.46 } }
+        },
+        {
+          "label": "@level.8-1.tasks.8-1.hidden.2.label",
+          "in": { "image:picture-blob": { "x": 7.92, "y": 5.1 } }
+        }
       ],
       "solution": [
         "e = dg_encode[k=2, w=[0.147, -0.326, -0.312, 0.003, -0.008, 0.077, 0.312, 0.226, -0.314, -0.812, -0.779, -0.045, -0.077, 0.498, 0.899, 0.39, -0.377, -0.847, -0.985, -0.191, -0.146, 0.321, 0.652, 0.562, 0.197, 0.189, 0.232, 0.08, -0.148, 0.011, -0.446, 0.004, -0.108, -0.117, 0.066, -0.024, 0.024, 0.064, 0.205, 0.055, -0.22, 0.298, 0.058, 0.172, -0.239, 0.264, -0.054, 0.097]](in)",

@@ -13,36 +13,165 @@
   "tasks": [
     {
       "id": "decl-two",
-      "kind": "iso",
+      "kind": "logic:iso",
       "declare": "@level.decl-two.tasks.decl-two.declare",
       "target": "Motion",
-      "sentences": ["AnnYes", "BoYes", "CyYes"],
-      "tests": [
-        { "given": ["AnnYes", "BoYes"], "make": true },
-        { "given": ["BoYes", "CyYes"], "make": true },
-        { "given": ["AnnYes", "CyYes"], "make": true },
-        { "given": ["AnnYes", "BoYes", "CyYes"], "make": true },
-        { "given": ["AnnYes"], "make": false },
-        { "given": ["CyYes"], "make": false },
-        { "given": ["Motion"], "goal": "AnnYes", "make": false },
-        { "given": ["Motion", "AnnYes → Happy", "BoYes → Happy"], "goal": "Happy", "make": true },
-        { "given": ["Motion", "AnnYes → Happy"], "goal": "Happy", "make": false },
-        { "given": ["Motion", "BoYes → Happy"], "goal": "Happy", "make": false }
+      "sentences": [
+        "AnnYes",
+        "BoYes",
+        "CyYes"
       ],
-      "play": "audit",
-      "want": "expose",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["AnnYes", "BoYes"] }, { "binds": [], "needs": ["BoYes", "CyYes"] }] }],
+      "tests": [
+        {
+          "given": [
+            "AnnYes",
+            "BoYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "BoYes",
+            "CyYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "AnnYes",
+            "CyYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "AnnYes",
+            "BoYes",
+            "CyYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "AnnYes"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "CyYes"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Motion"
+          ],
+          "goal": "AnnYes",
+          "make": false
+        },
+        {
+          "given": [
+            "Motion",
+            "AnnYes → Happy",
+            "BoYes → Happy"
+          ],
+          "goal": "Happy",
+          "make": true
+        },
+        {
+          "given": [
+            "Motion",
+            "AnnYes → Happy"
+          ],
+          "goal": "Happy",
+          "make": false
+        },
+        {
+          "given": [
+            "Motion",
+            "BoYes → Happy"
+          ],
+          "goal": "Happy",
+          "make": false
+        }
+      ],
+      "play": "logic:audit",
+      "want": "logic:want-expose",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "AnnYes",
+                "BoYes"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "BoYes",
+                "CyYes"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": [
-        { "make": true, "fixed": ["goal", "make"] },
-        { "given": ["Motion"], "keep": ["Motion"], "make": false, "fixed": ["make"] }
+        {
+          "make": true,
+          "fixed": [
+            "goal",
+            "make"
+          ]
+        },
+        {
+          "given": [
+            "Motion"
+          ],
+          "keep": [
+            "Motion"
+          ],
+          "make": false,
+          "fixed": [
+            "make"
+          ]
+        }
       ],
       "answer": [
-        { "given": ["AnnYes", "CyYes"], "make": true },
-        { "given": ["Motion", "BoYes → Happy"], "goal": "Happy", "make": false }
+        {
+          "given": [
+            "AnnYes",
+            "CyYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Motion",
+            "BoYes → Happy"
+          ],
+          "goal": "Happy",
+          "make": false
+        }
       ],
       "naive": [
-        { "given": ["AnnYes", "BoYes"], "make": true },
-        { "given": ["Motion", "AnnYes → Happy"], "goal": "Happy", "make": false }
+        {
+          "given": [
+            "AnnYes",
+            "BoYes"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Motion",
+            "AnnYes → Happy"
+          ],
+          "goal": "Happy",
+          "make": false
+        }
       ],
       "brief": "@level.decl-two.tasks.decl-two.brief",
       "hint": [
@@ -50,9 +179,27 @@
         "@level.decl-two.tasks.decl-two.hint.1"
       ],
       "solution": [
-        { "binds": [], "needs": ["AnnYes", "BoYes"] },
-        { "binds": [], "needs": ["BoYes", "CyYes"] },
-        { "binds": [], "needs": ["AnnYes", "CyYes"] }
+        {
+          "binds": [],
+          "needs": [
+            "AnnYes",
+            "BoYes"
+          ]
+        },
+        {
+          "binds": [],
+          "needs": [
+            "BoYes",
+            "CyYes"
+          ]
+        },
+        {
+          "binds": [],
+          "needs": [
+            "AnnYes",
+            "CyYes"
+          ]
+        }
       ]
     }
   ]

@@ -27,11 +27,11 @@
   "tasks": [
     {
       "id": "4-9",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-9.tasks.4-9.brief",
       "hint": "@level.4-9.tasks.4-9.hint",
       "check": { "tolerance": 0.02 },
-      "scene": "blocks",
+      "scene": "image:scene-blocks",
       "tests": [
         { "label": "@level.4-9.tasks.4-9.tests.0.label", "rects": [[4, 5, 7, 7]], "seed": 1 },
         {

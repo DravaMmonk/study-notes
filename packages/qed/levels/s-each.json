@@ -1,7 +1,12 @@
 {
   "title": "@level.s-each.title",
-  "adds": ["each"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "each"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-each.intro.0.t"
@@ -10,13 +15,27 @@
   "tasks": [
     {
       "id": "s-each",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-each.tasks.s-each.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-each.tasks.s-each.inputs.0.label"
+        }
+      ],
       "budget": 4,
-      "tests": [{ "goal": "(Rain → Rain) ∧ (Wind → Wind)" }, { "goal": "(Wet ∧ Rain → Wet ∧ Rain) ∧ (Slip → Slip)" }],
+      "tests": [
+        {
+          "goal": "(Rain → Rain) ∧ (Wind → Wind)"
+        },
+        {
+          "goal": "(Wet ∧ Rain → Wet ∧ Rain) ∧ (Slip → Slip)"
+        }
+      ],
       "brief": "@level.s-each.tasks.s-each.brief",
-      "hint": ["@level.s-each.tasks.s-each.hint.0"],
+      "hint": [
+        "@level.s-each.tasks.s-each.hint.0"
+      ],
       "solution": [
         "c0r0 = andI()",
         "c0 = rule(in, c0r0)",

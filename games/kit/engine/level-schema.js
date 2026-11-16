@@ -14,7 +14,7 @@ import { T as t } from '../shell/i18n.js'
 /** A card's name: a port's, a register's, a built piece's. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** An item a task gives, withholds or opens (../course.js itemOf): a part, one of its settings, one value of a setting. */
-const HELD = S.str({ reference: 'item', pattern: '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
+const HELD = S.str({ reference: 'item', pattern: '^(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 

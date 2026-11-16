@@ -1,6 +1,14 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
   "title": "@level.fo-nested.title",
   "intro": [
     {
@@ -10,7 +18,7 @@
   "tasks": [
     {
       "id": "fo-nested_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-nested.tasks.fo-nested_1.step",
       "brief": "@level.fo-nested.tasks.fo-nested_1.brief",
       "say": "@level.fo-nested.tasks.fo-nested_1.say",
@@ -18,11 +26,14 @@
       "hint": [
         "@level.fo-nested.tasks.fo-nested_1.hint.0"
       ],
-      "decoys": ["∀x. Human(x) → ∃y. Parent(y, x)", "∃y. ∀x. Likes(x, y)"]
+      "decoys": [
+        "∀x. Human(x) → ∃y. Parent(y, x)",
+        "∃y. ∀x. Likes(x, y)"
+      ]
     },
     {
       "id": "fo-nested_2",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-nested.tasks.fo-nested_2.step",
       "brief": "@level.fo-nested.tasks.fo-nested_2.brief",
       "say": "@level.fo-nested.tasks.fo-nested_2.say",
@@ -30,17 +41,28 @@
       "hint": [
         "@level.fo-nested.tasks.fo-nested_2.hint.0"
       ],
-      "decoys": ["∀x. ∃y. Likes(x, y)", "∃y. ∀x. Likes(x, y)"]
+      "decoys": [
+        "∀x. ∃y. Likes(x, y)",
+        "∃y. ∀x. Likes(x, y)"
+      ]
     },
     {
       "id": "fo-nested_3",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.fo-nested.tasks.fo-nested_3.step",
       "say": "@level.fo-nested.tasks.fo-nested_3.say",
       "meant": "∀x. ∃y. Likes(x, y)",
       "brief": "@level.fo-nested.tasks.fo-nested_3.brief",
       "wrong": "∃y. ∀x. Likes(x, y)",
-      "answer": { "size": 2, "preds": { "Likes": ["0,0", "1,1"] } },
+      "answer": {
+        "size": 2,
+        "preds": {
+          "Likes": [
+            "0,0",
+            "1,1"
+          ]
+        }
+      },
       "hint": [
         "@level.fo-nested.tasks.fo-nested_3.hint.0",
         "@level.fo-nested.tasks.fo-nested_3.hint.1"

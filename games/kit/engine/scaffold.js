@@ -1,15 +1,5 @@
 /* global process */
-// The scaffold (games/DESIGN.md 6.3): a new domain from a mechanism's template, and a new data game on a domain.
-//
-//   npm run new-domain -- <name> --mechanism <mechanism> [--game <id>]   kit/domains/<name>/ from kit/scaffold/<mechanism>/,
-//                                                                         and its starter game as games/<id> (default <name>)
-//   npm run new-game -- <id> --domain <domain> [--title <title>]         games/<id>/ (its course) and packages/<id>/ from the domain's starter/
-//
-// A template is a working domain whose files say `__name__` where the domain's name goes (in their text and their
-// names) and whose starter game says `__title__` for its title; the result passes the domain contract (contract.js),
-// `npm run check`, `npm test` and builds. gameOnPackage makes a game on an existing package (the studio's game
-// workspace): its own course, no package of its own. A new game is registered in the hub's list (games.js) as hidden and in
-// development, so it builds and plays at its address before it is shown. Both run on `root`, the project directory.
+// Create a game from an installed module starter, or arrange an existing package.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -17,14 +7,14 @@ import { PROJECT_DIR, gameDirectory, readCatalogs, readContent } from './content
 import { catalogReader } from './catalogs.js'
 import { firstText } from './i18n.js'
 import { expandNames } from './names.js'
-import { vocabularyAt } from './content-node.js'
+import { contentVocabulary } from './content-node.js'
 import { courseLevelCount } from './content.js'
 import { writeJson } from './ops/json.js'
 
-const TEMPLATES = (root) => resolve(root, 'games/kit/scaffold')
+const TEMPLATES = (root) => resolve(root, 'games/kit/modules')
 
 /** The mechanisms the scaffold has a template for (games/DESIGN.md 6.5 says what each suits). */
-export const mechanisms = (root = PROJECT_DIR) => readdirSync(TEMPLATES(root)).filter((m) => statSync(resolve(TEMPLATES(root), m)).isDirectory())
+export const mechanisms = (root = PROJECT_DIR) => readdirSync(TEMPLATES(root)).filter((m) => ['circuit', 'rows', 'tick-bus'].includes(m))
 
 const fail = (text) => {
   throw new Error(text)
@@ -80,9 +70,9 @@ function gameRefused(root, id) {
 
 /** games/<id>/ from the starter game of `domain`, registered on the hub. Returns the folder. */
 export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
-  const starter = resolve(root, 'games/kit/domains', domain ?? '', 'starter')
-  if (!domain || !existsSync(resolve(root, 'games/kit/domains', domain, 'domain.js'))) fail(`no domain ${domain} in kit/domains`)
-  if (!existsSync(starter)) fail(`the domain ${domain} has no starter game (kit/domains/${domain}/starter/) to copy`)
+  const starter = resolve(root, 'games/kit/modules', domain ?? '', 'starter')
+  if (!domain || !existsSync(resolve(root, 'games/kit/modules', domain, 'domain.js'))) fail(`no domain ${domain} in kit/modules`)
+  if (!existsSync(starter)) fail(`the domain ${domain} has no starter game (kit/modules/${domain}/starter/) to copy`)
   const refused = gameRefused(root, id)
   if (refused) fail(refused)
   const dir = gameDirectory(id, root)
@@ -99,7 +89,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
       const packageConfig = JSON.parse(readFileSync(resolve(starter, 'package.json'), 'utf8'))
       const piecesFile = resolve(starter, 'pieces.json')
       const pieces = new Set(existsSync(piecesFile) ? Object.keys(JSON.parse(readFileSync(piecesFile, 'utf8')).parts) : [])
-      const vocabulary = vocabularyAt(resolve(root, 'games/kit/domains', packageConfig.domain))
+      const vocabulary = contentVocabulary(packageConfig.domain)
       writeFileSync(resolve(dir, name), writeJson(expandNames(source, id, { pieces, vocabulary, schema: vocabulary?.game, context: 'configuration', textKeys: false }), null))
     }
     else if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
@@ -111,7 +101,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ packages: [id], ...game }, null, 2)}\n`)
   const { title: gameTitle, lede } = catalogReader(readCatalogs(resolve(dir, 'i18n')))(game)
   const files = readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json'))
-  register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readContent(id, root, { vocabulary: vocabularyAt(resolve(root, 'games/kit/domains', domain)) }), files.length) })
+  register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readContent(id, root, { vocabulary: contentVocabulary(domain) }), files.length) })
   return dir
 }
 
@@ -155,32 +145,15 @@ export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
   return dir
 }
 
-/** kit/domains/<name>/ from the template of `mechanism`, and its starter game as games/<game>. Returns both folders. */
-export function newDomain({ root = PROJECT_DIR, name, mechanism, game = name }) {
-  if (!/^[a-z][a-z0-9]*$/.test(name ?? '')) fail(`a domain name is lowercase letters and digits, a word: ${name}`)
-  const known = mechanisms(root)
-  if (!known.includes(mechanism)) fail(`no template for the mechanism ${mechanism}; the scaffold has ${known.join(', ')} (games/DESIGN.md 6.5 says what the others lack)`)
-  const dir = resolve(root, 'games/kit/domains', name)
-  if (existsSync(dir)) fail(`kit/domains/${name} is there already`)
-  // Nothing is written unless both the domain and its game can be.
-  const refused = gameRefused(root, game)
-  if (refused) fail(refused)
-  fill(resolve(TEMPLATES(root), mechanism), dir, { __name__: name })
-  return { domain: dir, game: newGame({ root, id: game, domain: name }) }
-}
-
-/** `node scaffold.js domain <name> --mechanism <m> [--game <id>]` or `node scaffold.js game <id> --domain <d> [--title <t>]`. */
+/** `node scaffold.js game <id> --domain <module> [--title <title>]`. */
 function cli([what, name, ...rest]) {
   const opt = (key) => {
     const k = rest.indexOf(`--${key}`)
     return k >= 0 ? rest[k + 1] : undefined
   }
-  if (what === 'domain') {
-    const made = newDomain({ name, mechanism: opt('mechanism'), game: opt('game') ?? name })
-    console.log(`made ${made.domain}\nmade ${made.game}\nnext: npm run check -- ${opt('game') ?? name}, npm test, GAME=${opt('game') ?? name} npm run build:game`)
-  } else if (what === 'game') {
+  if (what === 'game') {
     console.log(`made ${newGame({ id: name, domain: opt('domain'), title: opt('title') ?? name })}\nnext: npm run check -- ${name}`)
-  } else fail('usage: scaffold.js domain <name> --mechanism <mechanism> | scaffold.js game <id> --domain <domain>')
+  } else fail('usage: scaffold.js game <id> --domain <domain>')
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

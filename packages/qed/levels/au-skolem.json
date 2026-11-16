@@ -1,7 +1,12 @@
 {
   "title": "@level.au-skolem.title",
-  "adds": ["skolem"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "skolem"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-skolem.intro.0.t"
@@ -11,18 +16,51 @@
   "tasks": [
     {
       "id": "au-skolem",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.au-skolem.tasks.au-skolem.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-skolem.tasks.au-skolem.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
         {
           "goal": "⊥",
-          "hyps": ["∀x. Bird(x) → Flies(x)", "¬∀x. Bird(x) → Flies(x)"],
-          "becomes": [["⋀a. ∀x. ¬Bird(x) ∨ Flies(x); Bird(a) ∧ ¬Flies(a) ⊢ ⊥"]]
+          "hyps": [
+            "∀x. Bird(x) → Flies(x)",
+            "¬∀x. Bird(x) → Flies(x)"
+          ],
+          "becomes": [
+            [
+              "⋀a. ∀x. ¬Bird(x) ∨ Flies(x); Bird(a) ∧ ¬Flies(a) ⊢ ⊥"
+            ]
+          ]
         },
-        { "goal": "⊥", "hyps": ["∀x. ∃y. Parent(y, x)"], "becomes": [["∀x. Parent(sk1(x), x) ⊢ ⊥"]] },
-        { "goal": "⊥", "hyps": ["Human(h)", "¬∀x. ∃y. Likes(y, x)"], "becomes": [["⋀a. Human(h); ∀y. ¬Likes(y, a) ⊢ ⊥"]] }
+        {
+          "goal": "⊥",
+          "hyps": [
+            "∀x. ∃y. Parent(y, x)"
+          ],
+          "becomes": [
+            [
+              "∀x. Parent(sk1(x), x) ⊢ ⊥"
+            ]
+          ]
+        },
+        {
+          "goal": "⊥",
+          "hyps": [
+            "Human(h)",
+            "¬∀x. ∃y. Likes(y, x)"
+          ],
+          "becomes": [
+            [
+              "⋀a. Human(h); ∀y. ¬Likes(y, a) ⊢ ⊥"
+            ]
+          ]
+        }
       ],
       "brief": "@level.au-skolem.tasks.au-skolem.brief",
       "hint": [
@@ -39,7 +77,10 @@
         "c1 = skolem(c0)",
         "out <- c1"
       ],
-      "naive": ["c0 = skolem(in)", "out <- c0"]
+      "naive": [
+        "c0 = skolem(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

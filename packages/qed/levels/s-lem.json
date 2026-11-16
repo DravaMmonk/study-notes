@@ -1,6 +1,9 @@
 {
   "title": "@level.s-lem.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-lem.intro.0.t"
@@ -9,11 +12,23 @@
   "tasks": [
     {
       "id": "s-lem",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-lem.tasks.s-lem.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-lem.tasks.s-lem.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "tests": [{ "goal": "¬¬Rain → Rain" }, { "goal": "(¬Rain → Rain) → Rain" }],
+      "tests": [
+        {
+          "goal": "¬¬Rain → Rain"
+        },
+        {
+          "goal": "(¬Rain → Rain) → Rain"
+        }
+      ],
       "brief": "@level.s-lem.tasks.s-lem.brief",
       "hint": [
         "@level.s-lem.tasks.s-lem.hint.0",
@@ -27,7 +42,10 @@
         "c2 = auto(c1)",
         "out <- c2"
       ],
-      "naive": ["c0 = auto(in)", "out <- c0"]
+      "naive": [
+        "c0 = auto(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

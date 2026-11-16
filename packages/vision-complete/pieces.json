@@ -95,14 +95,14 @@
     "lrnConst_p": {
       "label": "@setting.lrnConst_p.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [1]
     },
     "learn3_w": {
       "label": "@setting.learn3_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0,
@@ -119,7 +119,7 @@
     "lrnConv_w": {
       "label": "@setting.lrnConv_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0.0076,
@@ -155,7 +155,7 @@
     "dg_encode_w": {
       "label": "@setting.dg_encode_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0.203,
@@ -211,7 +211,7 @@
     "dg_decode_w": {
       "label": "@setting.dg_decode_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0.155,
@@ -224,8 +224,20 @@
         0
       ]
     },
-    "dg_mu_w": {"label": "μ", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [0, 0]},
-    "dg_sigma_w": {"label": "σ", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [1, 1]},
+    "dg_mu_w": {
+      "label": "μ",
+      "control": "custom",
+      "widget": "image:widget-imageKernel",
+      "fixed": true,
+      "default": [0, 0]
+    },
+    "dg_sigma_w": {
+      "label": "σ",
+      "control": "custom",
+      "widget": "image:widget-imageKernel",
+      "fixed": true,
+      "default": [1, 1]
+    },
     "shift_n": {
       "label": "@setting.shift_n.label",
       "control": "number",
@@ -258,7 +270,7 @@
     "kernel3_w": {
       "label": "@setting.kernel3_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "default": [0, 0, 0, 0, 1, 0, 0, 0, 0]
     },
     "fqWave_k": {
@@ -350,11 +362,17 @@
       ],
       "default": "R"
     },
-    "lrnDense_p": {"label": "w, b", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [1, 0]},
+    "lrnDense_p": {
+      "label": "w, b",
+      "control": "custom",
+      "widget": "image:widget-imageKernel",
+      "fixed": true,
+      "default": [1, 0]
+    },
     "lrnRgb_w": {
       "label": "@setting.lrnRgb_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0,
@@ -389,7 +407,7 @@
     "lrnRes_w": {
       "label": "@setting.lrnRes_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "fixed": true,
       "default": [
         0.0076,
@@ -474,7 +492,7 @@
     "tconv_w": {
       "label": "@setting.tconv_w.label",
       "control": "custom",
-      "widget": "imageKernel",
+      "widget": "image:widget-imageKernel",
       "default": [1, 1, 0, 1, 1, 0, 0, 0, 0]
     }
   },
@@ -483,887 +501,1028 @@
       "name": "@piece.const.name",
       "desc": "@piece.const.desc",
       "icon": "Hash",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [],
       "settings": [{"key": "c", "setting": "const_c"}],
-      "compute": "image_const($c)"
+      "compute": "image:const($c)",
+      "outputType": "image:image"
     },
     "add": {
       "name": "@piece.add.name",
       "desc": "@piece.add.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
-      "compute": "image_add(a, b)"
+      "compute": "image:add(a, b)",
+      "outputType": "image:image"
     },
     "sub": {
       "name": "@piece.sub.name",
       "desc": "@piece.sub.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
-      "compute": "image_sub(a, b)"
+      "compute": "image:sub(a, b)",
+      "outputType": "image:image"
     },
     "mul": {
       "name": "@piece.mul.name",
       "desc": "@piece.mul.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
-      "compute": "image_mul(a, b)"
+      "compute": "image:mul(a, b)",
+      "outputType": "image:image"
     },
     "arith": {
       "name": "@piece.arith.name",
       "desc": "@piece.arith.desc",
       "icon": "Plus",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "op", "setting": "arith_op"}, {"key": "constantSide", "setting": "arith_constantSide"}, {"key": "constant", "setting": "arith_constant"}],
       "nulls": "pass",
-      "compute": "image_arith(a, b, $op, $constantSide, $constant)"
+      "compute": "image:arith(a, b, $op, $constantSide, $constant)",
+      "outputType": "image:image"
     },
     "merge": {
       "name": "@piece.merge.name",
       "desc": "@piece.merge.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         },
         {
-          "name": "c"
+          "name": "c",
+          "type": "image:image"
         }
       ],
       "nulls": "pass",
-      "compute": "image_merge(a, b, c)"
+      "compute": "image:merge(a, b, c)",
+      "outputType": "image:image"
     },
     "sqrt": {
       "name": "@piece.sqrt.name",
       "desc": "@piece.sqrt.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_sqrt(in)"
+      "compute": "image:sqrt(in)",
+      "outputType": "image:image"
     },
     "exp": {
       "name": "exp",
       "desc": "exp",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_exp(in)"
+      "compute": "image:exp(in)",
+      "outputType": "image:image"
     },
     "globalMax": {
       "name": "@piece.globalMax.name",
       "desc": "@piece.globalMax.desc",
       "icon": "Network",
-      "family": "global",
+      "family": "image:family-global",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_globalMax(in)"
+      "compute": "image:globalMax(in)",
+      "outputType": "image:image"
     },
     "fqApply": {
       "name": "@piece.fqApply.name",
       "desc": "@piece.fqApply.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         },
         {
-          "name": "gain"
+          "name": "gain",
+          "type": "image:image"
         }
       ],
-      "compute": "image_fqApply(in, gain)"
+      "compute": "image:fqApply(in, gain)",
+      "outputType": "image:image"
     },
     "lrnConst": {
       "name": "@piece.lrnConst.name",
       "desc": "@piece.lrnConst.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [],
       "settings": [{"key": "p", "setting": "lrnConst_p"}],
-      "compute": "image_lrnConst($p)"
+      "compute": "image:lrnConst($p)",
+      "outputType": "image:image"
     },
     "learn3": {
       "name": "@piece.learn3.name",
       "desc": "@piece.learn3.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "learn3_w"}],
-      "compute": "image_learn3(in, $w)"
+      "compute": "image:learn3(in, $w)",
+      "outputType": "image:image"
     },
     "lrnConv": {
       "name": "@piece.lrnConv.name",
       "desc": "@piece.lrnConv.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "lrnConv_w"}],
-      "compute": "image_lrnConv(in, $w)"
+      "compute": "image:lrnConv(in, $w)",
+      "outputType": "image:image"
     },
     "warp": {
       "name": "@piece.warp.name",
       "desc": "@piece.warp.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         },
         {
-          "name": "H"
+          "name": "H",
+          "type": "image:image"
         },
         {
-          "name": "onto"
+          "name": "onto",
+          "type": "image:image"
         }
       ],
-      "compute": "image_warp(in, H, onto)"
+      "compute": "image:warp(in, H, onto)",
+      "outputType": "image:image"
     },
     "zeroUp": {
       "name": "@piece.zeroUp.name",
       "desc": "@piece.zeroUp.desc",
       "icon": "Minimize2",
-      "family": "size",
+      "family": "image:family-size",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_zeroUp(in)"
+      "compute": "image:zeroUp(in)",
+      "outputType": "image:image"
     },
     "argmin4": {
       "name": "@piece.argmin4.name",
       "desc": "@piece.argmin4.desc",
       "icon": "Search",
-      "family": "search",
+      "family": "image:family-search",
       "inputs": [
         {
           "name": "c0",
-          "label": "d=0"
+          "label": "d=0",
+          "type": "image:image"
         },
         {
           "name": "c1",
-          "label": "d=1"
+          "label": "d=1",
+          "type": "image:image"
         },
         {
           "name": "c2",
-          "label": "d=2"
+          "label": "d=2",
+          "type": "image:image"
         },
         {
           "name": "c3",
-          "label": "d=3"
+          "label": "d=3",
+          "type": "image:image"
         }
       ],
       "nulls": "pass",
-      "compute": "image_argmin4(c0, c1, c2, c3)"
+      "compute": "image:argmin4(c0, c1, c2, c3)",
+      "outputType": "image:image"
     },
     "dg_encode": {
       "name": "@piece.dg_encode.name",
       "desc": "@piece.dg_encode.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "k", "setting": "dg_encode_k"}, {"key": "w", "setting": "dg_encode_w"}],
-      "compute": "image_dg_encode(in, $k, $w)"
+      "compute": "image:dg_encode(in, $k, $w)",
+      "outputType": "image:image"
     },
     "dg_decode": {
       "name": "@piece.dg_decode.name",
       "desc": "@piece.dg_decode.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "dg_decode_w"}],
-      "compute": "image_dg_decode(in, $w)"
+      "compute": "image:dg_decode(in, $w)",
+      "outputType": "image:image"
     },
     "dg_mu": {
       "name": "μ",
       "desc": "@piece.dg_mu.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [],
       "settings": [{"key": "w", "setting": "dg_mu_w"}],
-      "compute": "image_dg_mu($w)"
+      "compute": "image:dg_mu($w)",
+      "outputType": "image:image"
     },
     "dg_sigma": {
       "name": "σ",
       "desc": "@piece.dg_sigma.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [],
       "settings": [{"key": "w", "setting": "dg_sigma_w"}],
-      "compute": "image_dg_sigma($w)"
+      "compute": "image:dg_sigma($w)",
+      "outputType": "image:image"
     },
     "dg_sample": {
       "name": "@piece.dg_sample.name",
       "desc": "@piece.dg_sample.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "mu",
-          "label": "μ"
+          "label": "μ",
+          "type": "image:image"
         },
         {
           "name": "sigma",
-          "label": "σ"
+          "label": "σ",
+          "type": "image:image"
         }
       ],
-      "compute": "image_dg_sample(mu, sigma)"
+      "compute": "image:dg_sample(mu, sigma)",
+      "outputType": "image:image"
     },
     "shift": {
       "name": "@piece.shift.name",
       "desc": "@piece.shift.desc",
       "icon": "Move",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "dir", "setting": "dir"}, {"key": "n", "setting": "shift_n"}, {"key": "border", "setting": "shift_border"}],
-      "compute": "image_shift(in, $dir, $n, $border)"
+      "compute": "image:shift(in, $dir, $n, $border)",
+      "outputType": "image:image"
     },
     "invert": {
       "name": "@piece.invert.name",
       "desc": "@piece.invert.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_invert(in)"
+      "compute": "image:invert(in)",
+      "outputType": "image:image"
     },
     "threshold": {
       "name": "@piece.threshold.name",
       "desc": "@piece.threshold.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "t", "setting": "threshold_t"}],
-      "compute": "image_threshold(in, $t)"
+      "compute": "image:threshold(in, $t)",
+      "outputType": "image:image"
     },
     "blur3h": {
       "name": "@piece.blur3h.name",
       "desc": "@piece.blur3h.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "border", "setting": "border"}],
-      "compute": "image_blur3h(in, $border)"
+      "compute": "image:blur3h(in, $border)",
+      "outputType": "image:image"
     },
     "box3": {
       "name": "@piece.box3.name",
       "desc": "@piece.box3.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "border", "setting": "border"}],
-      "compute": "image_box3(in, $border)"
+      "compute": "image:box3(in, $border)",
+      "outputType": "image:image"
     },
     "gauss": {
       "name": "@piece.gauss.name",
       "desc": "@piece.gauss.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "sigma", "setting": "gauss_sigma"}, {"key": "border", "setting": "border"}],
-      "compute": "image_gauss(in, $sigma, $border)"
+      "compute": "image:gauss(in, $sigma, $border)",
+      "outputType": "image:image"
     },
     "diffx": {
       "name": "@piece.diffx.name",
       "desc": "@piece.diffx.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_diffx(in)"
+      "compute": "image:diffx(in)",
+      "outputType": "image:image"
     },
     "sobelx": {
       "name": "Sobel x",
       "desc": "@piece.sobelx.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "border", "setting": "border"}],
-      "compute": "image_sobelx(in, $border)"
+      "compute": "image:sobelx(in, $border)",
+      "outputType": "image:image"
     },
     "sobely": {
       "name": "Sobel y",
       "desc": "@piece.sobely.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "border", "setting": "border"}],
-      "compute": "image_sobely(in, $border)"
+      "compute": "image:sobely(in, $border)",
+      "outputType": "image:image"
     },
     "kernel3": {
       "name": "@piece.kernel3.name",
       "desc": "@piece.kernel3.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "kernel3_w"}, {"key": "border", "setting": "border"}],
-      "compute": "image_kernel3(in, $w, $border)"
+      "compute": "image:kernel3(in, $w, $border)",
+      "outputType": "image:image"
     },
     "cos": {
       "name": "cos",
       "desc": "cos",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_cos(in)"
+      "compute": "image:cos(in)",
+      "outputType": "image:image"
     },
     "fqWave": {
       "name": "@piece.fqWave.name",
       "desc": "@piece.fqWave.desc",
       "icon": "Waves",
-      "family": "frequency",
+      "family": "image:family-frequency",
       "inputs": [],
       "settings": [{"key": "k", "setting": "fqWave_k"}, {"key": "form", "setting": "fqWave_form"}],
-      "compute": "image_fqWave($k, $form)"
+      "compute": "image:fqWave($k, $form)",
+      "outputType": "image:image"
     },
     "fqMean": {
       "name": "@piece.fqMean.name",
       "desc": "@piece.fqMean.desc",
       "icon": "Network",
-      "family": "global",
+      "family": "image:family-global",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_fqMean(in)"
+      "compute": "image:fqMean(in)",
+      "outputType": "image:image"
     },
     "fqSpectrum": {
       "name": "@piece.fqSpectrum.name",
       "desc": "@piece.fqSpectrum.desc",
       "icon": "Waves",
-      "family": "frequency",
+      "family": "image:family-frequency",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_fqSpectrum(in)"
+      "compute": "image:fqSpectrum(in)",
+      "outputType": "image:image"
     },
     "fqLowpass": {
       "name": "@piece.fqLowpass.name",
       "desc": "@piece.fqLowpass.desc",
       "icon": "Waves",
-      "family": "frequency",
+      "family": "image:family-frequency",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "shape", "setting": "fqLowpass_shape"}, {"key": "R", "setting": "fqLowpass_R"}],
-      "compute": "image_fqLowpass(in, $shape, $R)"
+      "compute": "image:fqLowpass(in, $shape, $R)",
+      "outputType": "image:image"
     },
     "downsample": {
       "name": "@piece.downsample.name",
       "desc": "@piece.downsample.desc",
       "icon": "Minimize2",
-      "family": "size",
+      "family": "image:family-size",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_downsample(in)"
+      "compute": "image:downsample(in)",
+      "outputType": "image:image"
     },
     "shade": {
       "name": "@piece.shade.name",
       "desc": "@piece.shade.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
-          "name": "nx"
+          "name": "nx",
+          "type": "image:image"
         },
         {
-          "name": "ny"
+          "name": "ny",
+          "type": "image:image"
         },
         {
-          "name": "nz"
+          "name": "nz",
+          "type": "image:image"
         },
         {
-          "name": "albedo"
+          "name": "albedo",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "lx", "setting": "shade_lx"}, {"key": "ly", "setting": "shade_ly"}, {"key": "lz", "setting": "shade_lz"}],
-      "compute": "image_shade(nx, ny, nz, albedo, $lx, $ly, $lz)"
+      "compute": "image:shade(nx, ny, nz, albedo, $lx, $ly, $lz)",
+      "outputType": "image:image"
     },
     "sense": {
       "name": "@piece.sense.name",
       "desc": "@piece.sense.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "channel", "setting": "sense_channel"}],
-      "compute": "image_sense(in, $channel)"
+      "compute": "image:sense(in, $channel)",
+      "outputType": "image:image"
     },
     "gradmag": {
       "name": "@piece.gradmag.name",
       "desc": "√(Gx² + Gy²)",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "border", "setting": "border"}],
-      "compute": "image_gradmag(in, $border)"
+      "compute": "image:gradmag(in, $border)",
+      "outputType": "image:image"
     },
     "lrnDense": {
       "name": "@piece.lrnDense.name",
       "desc": "@piece.lrnDense.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "p", "setting": "lrnDense_p"}],
-      "compute": "image_lrnDense(in, $p)"
+      "compute": "image:lrnDense(in, $p)",
+      "outputType": "image:image"
     },
     "softmax": {
       "name": "Softmax",
       "desc": "@piece.softmax.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "s1",
-          "label": "S1"
+          "label": "S1",
+          "type": "image:image"
         },
         {
           "name": "s2",
-          "label": "S2"
+          "label": "S2",
+          "type": "image:image"
         },
         {
           "name": "s3",
-          "label": "S3"
+          "label": "S3",
+          "type": "image:image"
         }
       ],
       "outputs": [
         {
           "name": "p1",
-          "label": "P1"
+          "label": "P1",
+          "type": "image:image"
         },
         {
           "name": "p2",
-          "label": "P2"
+          "label": "P2",
+          "type": "image:image"
         },
         {
           "name": "p3",
-          "label": "P3"
+          "label": "P3",
+          "type": "image:image"
         }
       ],
       "nulls": "pass",
       "compute": {
-        "p1": "image_softmax_p1(s1, s2, s3)",
-        "p2": "image_softmax_p2(s1, s2, s3)",
-        "p3": "image_softmax_p3(s1, s2, s3)"
+        "p1": "image:softmax_p1(s1, s2, s3)",
+        "p2": "image:softmax_p2(s1, s2, s3)",
+        "p3": "image:softmax_p3(s1, s2, s3)"
       }
     },
     "lrnSigmoid": {
       "name": "Sigmoid",
       "desc": "@piece.lrnSigmoid.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_lrnSigmoid(in)"
+      "compute": "image:lrnSigmoid(in)",
+      "outputType": "image:image"
     },
     "relu": {
       "name": "ReLU",
       "desc": "@piece.relu.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_relu(in)"
+      "compute": "image:relu(in)",
+      "outputType": "image:image"
     },
     "max": {
       "name": "@piece.max.name",
       "desc": "@piece.max.desc",
       "icon": "Calculator",
-      "family": "pixel",
+      "family": "image:family-pixel",
       "inputs": [
         {
           "name": "a",
-          "label": "a"
+          "label": "a",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
-      "compute": "image_max(a, b)"
+      "compute": "image:max(a, b)",
+      "outputType": "image:image"
     },
     "lrnRgb": {
       "name": "@piece.lrnRgb.name",
       "desc": "@piece.lrnRgb.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
-          "name": "r"
+          "name": "r",
+          "type": "image:image"
         },
         {
-          "name": "g"
+          "name": "g",
+          "type": "image:image"
         },
         {
           "name": "b",
-          "label": "b"
+          "label": "b",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "lrnRgb_w"}],
-      "compute": "image_lrnRgb(r, g, b, $w)"
+      "compute": "image:lrnRgb(r, g, b, $w)",
+      "outputType": "image:image"
     },
     "maxpool": {
       "name": "@piece.maxpool.name",
       "desc": "@piece.maxpool.desc",
       "icon": "Minimize2",
-      "family": "size",
+      "family": "image:family-size",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_maxpool(in)"
+      "compute": "image:maxpool(in)",
+      "outputType": "image:image"
     },
     "lrnRes": {
       "name": "@piece.lrnRes.name",
       "desc": "@piece.lrnRes.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "lrnRes_w"}],
-      "compute": "image_lrnRes(in, $w)"
+      "compute": "image:lrnRes(in, $w)",
+      "outputType": "image:image"
     },
     "attention": {
       "name": "@piece.attention.name",
       "desc": "@piece.attention.desc",
       "icon": "Network",
-      "family": "global",
+      "family": "image:family-global",
       "inputs": [
         {
-          "name": "Q"
+          "name": "Q",
+          "type": "image:image"
         },
         {
-          "name": "K"
+          "name": "K",
+          "type": "image:image"
         },
         {
-          "name": "V"
+          "name": "V",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "s", "setting": "attention_s"}, {"key": "P", "setting": "attention_P"}],
       "nulls": "pass",
-      "compute": "image_attention(Q, K, V, $s, $P)"
+      "compute": "image:attention(Q, K, V, $s, $P)",
+      "outputType": "image:image"
     },
     "embed": {
       "name": "@piece.embed.name",
       "desc": "@piece.embed.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_embed(in)"
+      "compute": "image:embed(in)",
+      "outputType": "image:image"
     },
     "harris": {
       "name": "@piece.harris.name",
       "desc": "@piece.harris.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
+      "family": "image:family-neighbour",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "k", "setting": "harris_k"}],
-      "compute": "image_harris(in, $k)"
+      "compute": "image:harris(in, $k)",
+      "outputType": "image:image"
     },
     "hough": {
       "name": "@piece.hough.name",
       "desc": "@piece.hough.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_hough(in)"
+      "compute": "image:hough(in)",
+      "outputType": "image:image"
     },
     "ransac": {
       "name": "@piece.ransac.name",
       "desc": "@piece.ransac.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "k", "setting": "ransac_k"}, {"key": "d", "setting": "ransac_d"}],
-      "compute": "image_ransac(in, $k, $d)"
+      "compute": "image:ransac(in, $k, $d)",
+      "outputType": "image:image"
     },
     "homography": {
       "name": "@piece.homography.name",
       "desc": "@piece.homography.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
-          "name": "pairs"
+          "name": "pairs",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "k", "setting": "homography_k"}],
-      "compute": "image_homography(pairs, $k)"
+      "compute": "image:homography(pairs, $k)",
+      "outputType": "image:image"
     },
     "disparity": {
       "name": "@piece.disparity.name",
       "desc": "@piece.disparity.desc",
       "icon": "Search",
-      "family": "search",
+      "family": "image:family-search",
       "inputs": [
         {
           "name": "left",
-          "label": "@piece.disparity.inputs.0.label"
+          "label": "@piece.disparity.inputs.0.label",
+          "type": "image:image"
         },
         {
           "name": "right",
-          "label": "@piece.disparity.inputs.1.label"
+          "label": "@piece.disparity.inputs.1.label",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "window", "setting": "disparity_window"}],
-      "compute": "image_disparity(left, right, $window)"
+      "compute": "image:disparity(left, right, $window)",
+      "outputType": "image:image"
     },
     "dg_encoder": {
       "name": "@piece.dg_encoder.name",
       "desc": "@piece.dg_encoder.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_dg_encoder(in)"
+      "compute": "image:dg_encoder(in)",
+      "outputType": "image:image"
     },
     "dg_decoder": {
       "name": "@piece.dg_decoder.name",
       "desc": "@piece.dg_decoder.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
-      "compute": "image_dg_decoder(in)"
+      "compute": "image:dg_decoder(in)",
+      "outputType": "image:image"
     },
     "dg_reparam": {
       "name": "@piece.dg_reparam.name",
       "desc": "@piece.dg_reparam.desc",
       "icon": "Activity",
-      "family": "learned",
+      "family": "image:family-learned",
       "inputs": [
         {
           "name": "mu",
-          "label": "μ"
+          "label": "μ",
+          "type": "image:image"
         },
         {
           "name": "sigma",
-          "label": "σ"
+          "label": "σ",
+          "type": "image:image"
         },
         {
           "name": "eps",
-          "label": "ε"
+          "label": "ε",
+          "type": "image:image"
         }
       ],
-      "compute": "image_dg_reparam(mu, sigma, eps)"
+      "compute": "image:dg_reparam(mu, sigma, eps)",
+      "outputType": "image:image"
     },
     "tconv": {
       "name": "@piece.tconv.name",
       "desc": "@piece.tconv.desc",
       "icon": "Box",
-      "family": "other",
+      "family": "image:family-other",
       "inputs": [
         {
           "name": "in",
-          "label": ""
+          "label": "",
+          "type": "image:image"
         }
       ],
       "settings": [{"key": "w", "setting": "tconv_w"}],
-      "compute": "image_tconv(in, $w)"
+      "compute": "image:tconv(in, $w)",
+      "outputType": "image:image"
     },
     "peaks": {
       "name": "@piece.peaks.name",
@@ -1372,7 +1531,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "l = shift[dir=left](in)",
               "r = shift[dir=right](in)",
@@ -1392,7 +1551,9 @@
             "outputs": ["out"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "in", "type": "image:image" }],
+      "outputType": "image:image"
     },
     "matcher": {
       "name": "@piece.matcher.name",
@@ -1401,7 +1562,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "k8 = const[c=0.8]()",
               "two = const[c=2]()",
@@ -1434,7 +1595,13 @@
             "outputs": ["idx"]
           }
         }
-      ]
+      ],
+      "inputs": [
+        { "name": "d1", "type": "image:image" },
+        { "name": "d2", "type": "image:image" },
+        { "name": "d3", "type": "image:image" }
+      ],
+      "outputType": "image:image"
     },
     "cross": {
       "name": "@piece.cross.name",
@@ -1443,7 +1610,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "a1 = shift[dir=left, border=wrap](a)",
               "b1 = shift[dir=left, border=wrap](b)",
@@ -1457,7 +1624,9 @@
             "inputs": ["a", "b"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "a", "type": "image:image" }, { "name": "b", "type": "image:image" }],
+      "outputType": "image:image"
     },
     "epiline": {
       "name": "@piece.epiline.name",
@@ -1466,7 +1635,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "a = arith[op=mul](c1, px)",
               "b = arith[op=mul](c2, py)",
@@ -1476,7 +1645,15 @@
             "inputs": ["c1", "c2", "c3", "px", "py"]
           }
         }
-      ]
+      ],
+      "inputs": [
+        { "name": "c1", "type": "image:image" },
+        { "name": "c2", "type": "image:image" },
+        { "name": "c3", "type": "image:image" },
+        { "name": "px", "type": "image:image" },
+        { "name": "py", "type": "image:image" }
+      ],
+      "outputType": "image:image"
     },
     "addNoise": {
       "name": "@piece.addNoise.name",
@@ -1485,7 +1662,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "one = const()",
               "s1 = sqrt(ab)",
@@ -1499,7 +1676,13 @@
             "inputs": ["x0", "eps", "ab"]
           }
         }
-      ]
+      ],
+      "inputs": [
+        { "name": "x0", "type": "image:image" },
+        { "name": "eps", "type": "image:image" },
+        { "name": "ab", "type": "image:image" }
+      ],
+      "outputType": "image:image"
     },
     "restore": {
       "name": "@piece.restore.name",
@@ -1508,7 +1691,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "one = const()",
               "s1 = sqrt(ab)",
@@ -1522,7 +1705,13 @@
             "inputs": ["xt", "eps", "ab"]
           }
         }
-      ]
+      ],
+      "inputs": [
+        { "name": "xt", "type": "image:image" },
+        { "name": "eps", "type": "image:image" },
+        { "name": "ab", "type": "image:image" }
+      ],
+      "outputType": "image:image"
     },
     "kmeansStep": {
       "name": "@piece.kmeansStep.name",
@@ -1531,7 +1720,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "k = const[c=0.5]()",
               "d = arith[op=sub](img, m)",
@@ -1552,7 +1741,9 @@
             "inputs": ["img", "m"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "img", "type": "image:image" }, { "name": "m", "type": "image:image" }],
+      "outputType": "image:image"
     },
     "unpool": {
       "name": "@piece.unpool.name",
@@ -1561,7 +1752,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "u = tconv(small)",
               "d = arith[op=sub](big, u)",
@@ -1572,7 +1763,9 @@
             "inputs": ["small", "big"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "small", "type": "image:image" }, { "name": "big", "type": "image:image" }],
+      "outputType": "image:image"
     },
     "iou": {
       "name": "@piece.iou.name",
@@ -1581,7 +1774,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "i = arith[op=mul](a, b)",
               "ma = fqMean(a)",
@@ -1595,7 +1788,9 @@
             "inputs": ["a", "b"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "a", "type": "image:image" }, { "name": "b", "type": "image:image" }],
+      "outputType": "image:image"
     },
     "apMeter": {
       "name": "@piece.apMeter.name",
@@ -1604,7 +1799,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "kN = const[c=16]()",
               "h1 = shift[dir=right](f)",
@@ -1625,7 +1820,16 @@
             "inputs": ["f", "k", "g"]
           }
         }
-      ]
+      ],
+      "inputs": [
+        { "name": "f", "type": "image:image" },
+        { "name": "k", "type": "image:image" },
+        {
+          "name": "g",
+          "type": "image:image"
+        }
+      ],
+      "outputType": "image:image"
     },
     "occlusion": {
       "name": "@piece.occlusion.name",
@@ -1634,7 +1838,7 @@
         {
           "id": "base",
           "reference": {
-            "kind": "graph",
+            "kind": "image:graph",
             "solution": [
               "g = const[c=0.5]()",
               "n = const[c=9]()",
@@ -1647,7 +1851,9 @@
             "inputs": ["in", "w"]
           }
         }
-      ]
+      ],
+      "inputs": [{ "name": "in", "type": "image:image" }, { "name": "w", "type": "image:image" }],
+      "outputType": "image:image"
     }
   }
 }

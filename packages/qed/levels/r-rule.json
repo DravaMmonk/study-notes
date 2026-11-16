@@ -1,7 +1,12 @@
 {
   "title": "@level.r-rule.title",
-  "adds": ["rule"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "rule"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "showcase": "@level.r-rule.showcase",
   "intro": [
     {
@@ -14,19 +19,49 @@
   "tasks": [
     {
       "id": "r-rule",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.r-rule.tasks.r-rule.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-rule.tasks.r-rule.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Rain → (Wind → Rain)", "becomes": [["Rain ⊢ Wind → Rain"]] },
-        { "goal": "Wet → Slip", "becomes": [["Wet ⊢ Slip"]] },
-        { "goal": "Rain ∧ Wet → Slip", "becomes": [["Rain ∧ Wet ⊢ Slip"]] }
+        {
+          "goal": "Rain → (Wind → Rain)",
+          "becomes": [
+            [
+              "Rain ⊢ Wind → Rain"
+            ]
+          ]
+        },
+        {
+          "goal": "Wet → Slip",
+          "becomes": [
+            [
+              "Wet ⊢ Slip"
+            ]
+          ]
+        },
+        {
+          "goal": "Rain ∧ Wet → Slip",
+          "becomes": [
+            [
+              "Rain ∧ Wet ⊢ Slip"
+            ]
+          ]
+        }
       ],
       "brief": "@level.r-rule.tasks.r-rule.brief",
       "hint": [
         "@level.r-rule.tasks.r-rule.hint.0"
       ],
-      "solution": ["c0r0 = impI()", "c0 = rule(in, c0r0)", "out <- c0"]
+      "solution": [
+        "c0r0 = impI()",
+        "c0 = rule(in, c0r0)",
+        "out <- c0"
+      ]
     }
   ]
 }

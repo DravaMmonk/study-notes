@@ -19,11 +19,11 @@
   "tasks": [
     {
       "id": "0-8",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.0-8.tasks.0-8.brief",
       "hint": "@level.0-8.tasks.0-8.hint",
       "bench": {
-        "model": "obscura",
+        "model": "image:benchModel-obscura",
         "setup": { "arrow": 100, "shaft": 4, "table": 640, "gap": 20 },
         "knobs": {
           "Z": { "min": 150, "max": 520, "step": 1, "start": 360, "drawn": true },
@@ -60,8 +60,11 @@
           }
         ],
         "layout": {
-          "main": ["obscura"],
-          "foot": [{ "panel": ["knobs"] }, { "row": ["obscuraScreen", "goals"], "narrow": true }]
+          "main": ["image:display-obscura"],
+          "foot": [
+            { "panel": ["circuit:display-knobs"] },
+            { "row": ["image:display-obscuraScreen", "circuit:display-goals"], "narrow": true }
+          ]
         }
       }
     }

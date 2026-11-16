@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "id": "line",
+      "title": "@glossary.groups.line.title"
+    }
+  ],
+  "entries": [
+    {
+      "id": "tick",
+      "group": "line",
+      "title": "@glossary.entries.tick.title",
+      "at": "1-1",
+      "body": [
+        "@glossary.entries.tick.body.0"
+      ]
+    }
+  ]
+}

@@ -20,8 +20,9 @@ const q = JSON.stringify
 function gameModule(id) {
   const { game: { domain } } = readGameConfig(id)
   return [
-    `import define from ${q(domainEntry(resolve(KIT, 'domains'), domain))}`,
-    `import { vocabulary } from ${q(resolve(KIT, 'domains', domain, 'vocabulary.js'))}`,
+    `import define from ${q(domainEntry(resolve(KIT, 'modules'), domain))}`,
+    `import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`,
+    `const vocabulary = vocabularyFor(${q(domain)})`,
     'export default { define, vocabulary }',
   ].join('\n')
 }

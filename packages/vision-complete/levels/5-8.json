@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "5-8",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.5-8.tasks.5-8.brief",
       "hint": "@level.5-8.tasks.5-8.hint",
       "inputs": ["q", "a", "b", "c"],
@@ -33,35 +33,43 @@
         "pb": "@level.5-8.tasks.5-8.outputLabels.pb",
         "pc": "@level.5-8.tasks.5-8.outputLabels.pc"
       },
-      "scene": "nearest",
+      "scene": "image:scene-nearest",
       "tests": [
         {
           "label": "@level.5-8.tasks.5-8.tests.0.label",
-          "q": { "glyph": { "letter": "T" } },
+          "q": { "image:picture-glyph": { "letter": "T" } },
           "candidates": [
-            { "glyph": { "letter": "L", "lo": 0.3, "hi": 1 } },
-            { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.7, "ox": 4 } },
-            { "glyph": { "letter": "F" } }
+            { "image:picture-glyph": { "letter": "L", "lo": 0.3, "hi": 1 } },
+            { "image:picture-glyph": { "letter": "T", "lo": 0.2, "hi": 0.7, "ox": 4 } },
+            { "image:picture-glyph": { "letter": "F" } }
           ],
           "which": 1
         },
         {
           "label": "@level.5-8.tasks.5-8.tests.1.label",
-          "q": { "noisy": { "of": { "glyph": { "letter": "X" } }, "seed": 3, "amp": 0.1 } },
+          "q": {
+            "image:picture-noisy": { "of": { "image:picture-glyph": { "letter": "X" } }, "seed": 3, "amp": 0.1 }
+          },
           "candidates": [
-            { "glyph": { "letter": "X", "hi": 0.6, "oy": 4 } },
-            { "glyph": { "letter": "O", "lo": 0.2, "hi": 1 } },
-            { "glyph": { "letter": "T" } }
+            { "image:picture-glyph": { "letter": "X", "hi": 0.6, "oy": 4 } },
+            { "image:picture-glyph": { "letter": "O", "lo": 0.2, "hi": 1 } },
+            { "image:picture-glyph": { "letter": "T" } }
           ],
           "which": 0
         },
         {
           "label": "@level.5-8.tasks.5-8.tests.2.label",
-          "q": { "glyph": { "letter": "O", "ox": 2 } },
+          "q": { "image:picture-glyph": { "letter": "O", "ox": 2 } },
           "candidates": [
-            { "glyph": { "letter": "F", "lo": 0.3, "hi": 1 } },
-            { "glyph": { "letter": "L" } },
-            { "noisy": { "of": { "glyph": { "letter": "O", "lo": 0.3, "hi": 0.6 } }, "seed": 5, "amp": 0.08 } }
+            { "image:picture-glyph": { "letter": "F", "lo": 0.3, "hi": 1 } },
+            { "image:picture-glyph": { "letter": "L" } },
+            {
+              "image:picture-noisy": {
+                "of": { "image:picture-glyph": { "letter": "O", "lo": 0.3, "hi": 0.6 } },
+                "seed": 5,
+                "amp": 0.08
+              }
+            }
           ],
           "which": 2
         }
@@ -69,11 +77,11 @@
       "hidden": [
         {
           "label": "@level.5-8.tasks.5-8.hidden.0.label",
-          "q": { "glyph": { "letter": "F", "lo": 0.2 } },
+          "q": { "image:picture-glyph": { "letter": "F", "lo": 0.2 } },
           "candidates": [
-            { "glyph": { "letter": "T", "lo": 0.3, "hi": 1 } },
-            { "glyph": { "letter": "F", "hi": 0.7, "ox": 4, "oy": 4 } },
-            { "glyph": { "letter": "X" } }
+            { "image:picture-glyph": { "letter": "T", "lo": 0.3, "hi": 1 } },
+            { "image:picture-glyph": { "letter": "F", "hi": 0.7, "ox": 4, "oy": 4 } },
+            { "image:picture-glyph": { "letter": "X" } }
           ],
           "which": 1
         }

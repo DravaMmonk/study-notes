@@ -17,11 +17,11 @@
   "tasks": [
     {
       "id": "1-13",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-13.tasks.1-13.brief",
       "hint": "@level.1-13.tasks.1-13.hint",
       "check": { "tolerance": 0.1, "mismatches": 8 },
-      "scene": "scan",
+      "scene": "image:scene-scan",
       "setup": { "expect": "clean" },
       "tests": [
         {

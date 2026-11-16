@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "3-1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.3-1.tasks.3-1.brief",
       "hint": "@level.3-1.tasks.3-1.hint",
       "inputs": ["nx", "ny", "nz", "albedo"],
@@ -30,26 +30,26 @@
         "nz": "@level.3-1.tasks.3-1.inputDescriptions.nz",
         "albedo": "@level.3-1.tasks.3-1.inputDescriptions.albedo"
       },
-      "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
-      "scene": "surface",
+      "views": { "in": "image:view-pixels", "out": "image:view-pixels", "mid": "image:view-pixels" },
+      "scene": "image:scene-surface",
       "setup": { "lamp": [0, 0, 1] },
       "tests": [
         {
           "label": "@level.3-1.tasks.3-1.tests.0.label",
           "height": [{ "dome": [8, 8, 6, 3] }],
-          "paint": { "blank": { "v": 1 } }
+          "paint": { "image:picture-blank": { "v": 1 } }
         },
         {
           "label": "@level.3-1.tasks.3-1.tests.1.label",
           "height": [{ "tilt": [0.5, 0] }],
-          "paint": { "blank": { "v": 1 } }
+          "paint": { "image:picture-blank": { "v": 1 } }
         }
       ],
       "hidden": [
         {
           "label": "@level.3-1.tasks.3-1.hidden.0.label",
           "height": [{ "ridge": [8, 5, 2.5] }],
-          "paint": { "blank": { "v": 1 } }
+          "paint": { "image:picture-blank": { "v": 1 } }
         }
       ],
       "solution": [

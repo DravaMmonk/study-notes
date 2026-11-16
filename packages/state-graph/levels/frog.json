@@ -13,7 +13,7 @@
     "goal": "@level.frog.mission.goal",
     "how": "@level.frog.mission.how"
   },
-  "robot": "reach",
+  "robot": "table:robot-reach",
   "debrief": {
     "title": "@level.frog.debrief.title",
     "body": [
@@ -23,10 +23,14 @@
   "tasks": [
     {
       "id": "frog",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "uses": "back" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "back"
+            }
+          },
           "say": "@level.frog.tasks.frog.diagnose.0.say"
         }
       ],
@@ -34,16 +38,59 @@
         "@level.frog.tasks.frog.hints.0",
         "@level.frog.tasks.frog.hints.1"
       ],
-      "world": "river",
-      "facts": ["bank"],
-      "tests": [{ "k": [0, 1, 2, 1, 3, 2, 4] }, { "k": [0, 1, 1, 2, 2, 3, 1, 4] }, { "k": [0, 1, 2, 3, 1, 4, 2, 3, 5] }],
-      "expected": [2, 3, 2],
+      "world": "table:world-river",
+      "facts": [
+        "bank"
+      ],
+      "tests": [
+        {
+          "k": [
+            0,
+            1,
+            2,
+            1,
+            3,
+            2,
+            4
+          ]
+        },
+        {
+          "k": [
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        {
+          "k": [
+            0,
+            1,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            5
+          ]
+        }
+      ],
+      "expected": [
+        2,
+        3,
+        2
+      ],
       "solution": [
-        "k = const[value=1]()",
-        "z = const[value=0]()",
-        "a = add(view.back, k)",
-        "g = pass(facts.bank, z)",
-        "m = msum(a, g)",
+        "k = table:const[value=1]()",
+        "z = table:const[value=0]()",
+        "a = table:add(view.back, k)",
+        "g = table:pass(facts.bank, z)",
+        "m = table:msum(a, g)",
         "cell <- m"
       ]
     }

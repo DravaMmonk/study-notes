@@ -1,17 +1,36 @@
 {
   "title": "@level.in-comm.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "in-comm",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-comm.tasks.in-comm.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-comm.tasks.in-comm.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "defs": ["plus"],
-      "tests": [{ "goal": "∀x. ∀y. plus(x, y) = plus(y, x)" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "defs": [
+        "plus"
+      ],
+      "tests": [
+        {
+          "goal": "∀x. ∀y. plus(x, y) = plus(y, x)"
+        }
+      ],
       "brief": "@level.in-comm.tasks.in-comm.brief",
       "hint": [
         "@level.in-comm.tasks.in-comm.hint.0",
@@ -25,7 +44,7 @@
         "    c2r0 = allI()",
         "    c3r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",
         "    c4r0 = refl()",
-        "    c3r4 = hyp(c3r0)",
+        "    c3r4 = logic:hyp(c3r0)",
         "    c2 = rule(c1.body, c2r0)",
         "    c3 = simp(c2, c3r4)",
         "    c4 = rule(c3, c4r0)",
@@ -41,7 +60,7 @@
         "    c2r0 = allI()",
         "    c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "    c4r0 = refl()",
-        "    c3r2 = hyp(c3r0)",
+        "    c3r2 = logic:hyp(c3r0)",
         "    c2 = rule(c1.body, c2r0)",
         "    c3 = simp(c2, c3r2)",
         "    c4 = rule(c3, c4r0)",
@@ -49,7 +68,12 @@
         "}",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "addComm", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "addComm",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

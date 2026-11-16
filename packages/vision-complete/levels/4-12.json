@@ -17,17 +17,17 @@
       }
     }
   ],
-  "unlocks": ["lrn-rgb"],
+  "unlocks": ["image:unlock-lrn-rgb"],
   "tasks": [
     {
       "id": "4-12",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-12.tasks.4-12.brief",
       "hint": "@level.4-12.tasks.4-12.hint",
       "inputs": ["photo"],
       "inputLabels": { "photo": "@level.4-12.tasks.4-12.inputLabels.photo" },
       "trainRate": 8,
-      "scene": "rgbContrast",
+      "scene": "image:scene-rgbContrast",
       "setup": { "mix": "redGreen" },
       "tests": [
         { "label": "@level.4-12.tasks.4-12.tests.0.label", "paint": "halves" },

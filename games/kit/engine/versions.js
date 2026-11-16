@@ -1,14 +1,15 @@
 /* global process */
-// npm run versions — every domain's vocabulary (and every scaffold template's) kept as the version it says it is
+// npm run versions — keep the assembled kernel vocabulary on one additive version line.
 // (vocabulary.js snapshotText, versions/<n>.json). A version printed once is never rewritten: a vocabulary that
 // differs from its kept printing must say a new version, which only adds to the one before (additionProblems).
 //
 //   versionProblems(dir, vocabulary) → [string]   what is wrong with the versions kept in dir/versions
 //   node versions.js                              writes the printing of each new version; says what is wrong
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { additionProblems, fromSnapshot, snapshotText } from './vocabulary.js'
+import { vocabulary } from './kernel.js'
 
 const KIT = resolve(import.meta.dirname, '..')
 const file = (dir, n) => resolve(dir, 'versions', `${n}.json`)
@@ -24,13 +25,12 @@ export function versionProblems(dir, vocabulary) {
   return out
 }
 
-/** Every folder with a vocabulary: the domains and the scaffold's templates. */
-export const vocabularyDirs = () => ['domains', 'scaffold'].flatMap((base) => readdirSync(resolve(KIT, base)).map((name) => resolve(KIT, base, name)).filter((dir) => existsSync(resolve(dir, 'vocabulary.js'))))
+/** The single kernel vocabulary snapshot directory. */
+export const vocabularyDirs = () => [resolve(KIT, 'engine')]
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   let problems = 0
   for (const dir of vocabularyDirs()) {
-    const { vocabulary } = await import(resolve(dir, 'vocabulary.js'))
     if (!existsSync(file(dir, vocabulary.version))) {
       mkdirSync(resolve(dir, 'versions'), { recursive: true })
       writeFileSync(file(dir, vocabulary.version), snapshotText(vocabulary))

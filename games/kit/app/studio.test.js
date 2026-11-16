@@ -98,7 +98,7 @@ test('blueprint preview, seed, and tests use the requested task', async () => {
   assert.ok(seed.data.nodes.some((node) => node.id === 'spare'))
   const draw = (await post('render', request)).body
   assert.equal(draw.text, second.solution.join('\n'))
-  const gate = { id: second.id, kind: 'gates', target: 'B', brief: second.brief, solution: ['out <- B'] }
+  const gate = { id: second.id, kind: 'logic:gates', target: 'B', brief: second.brief, solution: ['out <- B'] }
   const gateChange = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, gate] } }] }
   const run = (await post('run_tests', { ...request, changeset: gateChange })).body
   assert.equal(run.task, 1, JSON.stringify(run))
@@ -149,9 +149,9 @@ test('the slow reads go to the second lane: a quick preview is not held up by a 
 test('the HTTP tools list, preview and write a package that no game selects', async () => {
   const pkg = join(root, 'packages', 'library')
   mkdirSync(pkg, { recursive: true })
-  writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ domain: 'logic', vocabulary: 19 })}\n`)
+  writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ domain: 'logic', vocabulary: 1 })}\n`)
   writeFileSync(join(pkg, 'pieces.json'), JSON.stringify({ parts: {
-    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp' }, { name: 'a' }], compute: 'mp(imp, a)' },
+    apply: { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', compute: 'logic:mp(imp, a)' },
   } }))
   const packages = (await post('packages', {})).body
   assert.ok(packages.some((entry) => entry.id === 'library'))

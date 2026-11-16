@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-true.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-true.intro.0.t"
@@ -10,13 +13,22 @@
   "tasks": [
     {
       "id": "gd-true",
-      "kind": "proof",
-      "consts": ["g", "d"],
-      "words": ["goedel"],
+      "kind": "logic:proof",
+      "consts": [
+        "g",
+        "d"
+      ],
+      "words": [
+        "goedel"
+      ],
       "cases": [],
       "tests": [
         {
-          "premises": { "diag": "G ↔ ¬Prov(diag(d))", "calc": "diag(d) = g", "sound": "Prov(g) → G" },
+          "premises": {
+            "diag": "G ↔ ¬Prov(diag(d))",
+            "calc": "diag(d) = g",
+            "sound": "Prov(g) → G"
+          },
           "goal": "G ∧ ¬Prov(g)"
         }
       ],

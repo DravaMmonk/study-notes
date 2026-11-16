@@ -21,30 +21,32 @@
   ],
   "adds": ["arith", "merge"],
   "tray": "#pipeline",
-  "unlocks": ["blur3h"],
+  "unlocks": ["image:unlock-blur3h"],
   "tasks": [
     {
       "id": "1-1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-1.tasks.1-1.brief",
       "hint": "@level.1-1.tasks.1-1.hint",
-      "scene": "filter",
+      "scene": "image:scene-filter",
       "setup": {
-        "target": { "correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] } }
+        "target": {
+          "image:target-correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] }
+        }
       },
       "tests": [
-        { "label": "@level.1-1.tasks.1-1.tests.0.label", "in": "square" },
-        { "label": "@level.1-1.tasks.1-1.tests.1.label", "in": "disk" },
-        { "label": "@level.1-1.tasks.1-1.tests.2.label", "in": { "glyph": { "letter": "T" } } },
-        { "label": "@level.1-1.tasks.1-1.tests.3.label", "in": "checker" },
-        { "label": "@level.1-1.tasks.1-1.tests.4.label", "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": "@level.1-1.tasks.1-1.tests.0.label", "in": "image:picture-square" },
+        { "label": "@level.1-1.tasks.1-1.tests.1.label", "in": "image:picture-disk" },
+        { "label": "@level.1-1.tasks.1-1.tests.2.label", "in": { "image:picture-glyph": { "letter": "T" } } },
+        { "label": "@level.1-1.tasks.1-1.tests.3.label", "in": "image:picture-checker" },
+        { "label": "@level.1-1.tasks.1-1.tests.4.label", "in": { "image:picture-impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
         {
           "label": "@level.1-1.tasks.1-1.hidden.0.label",
-          "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
+          "in": { "image:picture-glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
         },
-        { "label": "@level.1-1.tasks.1-1.hidden.1.label", "in": { "noise": { "seed": 11 } } }
+        { "label": "@level.1-1.tasks.1-1.hidden.1.label", "in": { "image:picture-noise": { "seed": 11 } } }
       ],
       "solution": [
         "kN = const[c=0.33]()",

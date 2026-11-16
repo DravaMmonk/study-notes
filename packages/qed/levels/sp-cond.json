@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-cond.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-cond.intro.0.t"
@@ -10,16 +13,33 @@
   "tasks": [
     {
       "id": "sp-cond",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sp-cond.tasks.sp-cond.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-cond.tasks.sp-cond.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "defs": ["le", "max"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "defs": [
+        "le",
+        "max"
+      ],
       "tests": [
-        { "goal": "max(s(zero), s(s(zero))) = s(s(zero))" },
-        { "goal": "max(s(s(zero)), s(zero)) = s(s(zero))" },
-        { "goal": "max(zero, s(zero)) = s(zero)" }
+        {
+          "goal": "max(s(zero), s(s(zero))) = s(s(zero))"
+        },
+        {
+          "goal": "max(s(s(zero)), s(zero)) = s(s(zero))"
+        },
+        {
+          "goal": "max(zero, s(zero)) = s(zero)"
+        }
       ],
       "brief": "@level.sp-cond.tasks.sp-cond.brief",
       "hint": [

@@ -1,7 +1,17 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "adds": ["formulaExists"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
+  "adds": [
+    "formulaExists"
+  ],
   "title": "@level.fo-some.title",
   "intro": [
     {
@@ -14,7 +24,7 @@
   "tasks": [
     {
       "id": "fo-some_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-some.tasks.fo-some_1.step",
       "brief": "@level.fo-some.tasks.fo-some_1.brief",
       "say": "@level.fo-some.tasks.fo-some_1.say",
@@ -23,18 +33,25 @@
         "@level.fo-some.tasks.fo-some_1.hint.0",
         "@level.fo-some.tasks.fo-some_1.hint.1"
       ],
-      "decoys": ["∃x. Bird(x) → Flies(x)"]
+      "decoys": [
+        "∃x. Bird(x) → Flies(x)"
+      ]
     },
     {
       "id": "fo-some_2",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.fo-some.tasks.fo-some_2.step",
       "say": "@level.fo-some.tasks.fo-some_2.say",
       "meant": "∃x. Bird(x) ∧ Flies(x)",
       "brief": "@level.fo-some.tasks.fo-some_2.brief",
       "wrong": "∃x. Bird(x) → Flies(x)",
-      "answer": { "size": 1, "preds": {} },
-      "hint": ["@level.fo-some.tasks.fo-some_2.hint.0"],
+      "answer": {
+        "size": 1,
+        "preds": {}
+      },
+      "hint": [
+        "@level.fo-some.tasks.fo-some_2.hint.0"
+      ],
       "intro": [
         {
           "t": "@level.fo-some.tasks.fo-some_2.intro.0.t"

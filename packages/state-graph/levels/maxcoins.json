@@ -10,7 +10,7 @@
     "goal": "@level.maxcoins.mission.goal",
     "how": "@level.maxcoins.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.maxcoins.debrief.title",
     "body": [
@@ -20,10 +20,21 @@
   "tasks": [
     {
       "id": "maxcoins",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "all": [{ "has": "mmin" }, { "not": { "has": "mmax" } }] },
+          "when": {
+            "table:condition-all": [
+              {
+                "table:condition-has": "table:mmin"
+              },
+              {
+                "table:condition-not": {
+                  "table:condition-has": "table:mmax"
+                }
+              }
+            ]
+          },
           "say": "@level.maxcoins.tasks.maxcoins.diagnose.0.say"
         }
       ],
@@ -31,19 +42,98 @@
         "@level.maxcoins.tasks.maxcoins.hints.0",
         "@level.maxcoins.tasks.maxcoins.hints.1"
       ],
-      "world": "grid",
-      "facts": ["start", "coin"],
-      "tests": [
-        { "R": 3, "C": 3, "coins": [[1, 3, 1], [1, 5, 1], [4, 2, 1]] },
-        { "R": 3, "C": 4, "coins": [[2, 0, 0, 5], [0, 9, 0, 0], [3, 0, 1, 2]] },
-        { "R": 4, "C": 4, "coins": [[0, 1, 0, 4], [2, 0, 6, 0], [0, 7, 0, 1], [3, 0, 2, 0]] }
+      "world": "table:world-grid",
+      "facts": [
+        "start",
+        "coin"
       ],
-      "expected": [12, 14, 11],
+      "tests": [
+        {
+          "R": 3,
+          "C": 3,
+          "coins": [
+            [
+              1,
+              3,
+              1
+            ],
+            [
+              1,
+              5,
+              1
+            ],
+            [
+              4,
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "R": 3,
+          "C": 4,
+          "coins": [
+            [
+              2,
+              0,
+              0,
+              5
+            ],
+            [
+              0,
+              9,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "R": 4,
+          "C": 4,
+          "coins": [
+            [
+              0,
+              1,
+              0,
+              4
+            ],
+            [
+              2,
+              0,
+              6,
+              0
+            ],
+            [
+              0,
+              7,
+              0,
+              1
+            ],
+            [
+              3,
+              0,
+              2,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        12,
+        14,
+        11
+      ],
       "solution": [
-        "k = const[value=0]()",
-        "g = pass(facts.start, k)",
-        "m = mmax(view.up, view.left, g)",
-        "a = add(m, facts.coin)",
+        "k = table:const[value=0]()",
+        "g = table:pass(facts.start, k)",
+        "m = table:mmax(view.up, view.left, g)",
+        "a = table:add(m, facts.coin)",
         "cell <- a"
       ]
     }

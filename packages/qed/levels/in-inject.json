@@ -1,6 +1,9 @@
 {
   "title": "@level.in-inject.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.in-inject.intro.0.t"
@@ -10,34 +13,85 @@
   "tasks": [
     {
       "id": "in-inject_1",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.in-inject.tasks.in-inject_1.step",
       "fn": "pred",
       "on": 0,
       "rows": [
-        { "lhs": "pred(zero)", "choices": ["zero", "s(zero)"] },
-        { "lhs": "pred(s(x))", "choices": ["x", "s(x)", "pred(x)"] }
+        {
+          "lhs": "pred(zero)",
+          "choices": [
+            "zero",
+            "s(zero)"
+          ]
+        },
+        {
+          "lhs": "pred(s(x))",
+          "choices": [
+            "x",
+            "s(x)",
+            "pred(x)"
+          ]
+        }
       ],
       "tests": [
-        { "term": "pred(s(s(zero)))", "value": "s(zero)" },
-        { "term": "pred(s(zero))", "value": "zero" },
-        { "term": "pred(zero)", "value": "zero" }
+        {
+          "term": "pred(s(s(zero)))",
+          "value": "s(zero)"
+        },
+        {
+          "term": "pred(s(zero))",
+          "value": "zero"
+        },
+        {
+          "term": "pred(zero)",
+          "value": "zero"
+        }
       ],
-      "solution": ["zero", "x"],
-      "naive": ["zero", "pred(x)"],
+      "solution": [
+        "zero",
+        "x"
+      ],
+      "naive": [
+        "zero",
+        "pred(x)"
+      ],
       "brief": "@level.in-inject.tasks.in-inject_1.brief",
-      "hint": ["@level.in-inject.tasks.in-inject_1.hint.0"]
+      "hint": [
+        "@level.in-inject.tasks.in-inject_1.hint.0"
+      ]
     },
     {
       "id": "in-inject_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.in-inject.tasks.in-inject_2.step",
-      "consts": ["zero"],
-      "words": ["everyday", "terms"],
-      "rule": { "premises": ["s(?x) = s(?y)", "⟦?x = ?y⟧ ⟹ ?C"], "conclusion": "?C" },
+      "consts": [
+        "zero"
+      ],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "rule": {
+        "premises": [
+          "s(?x) = s(?y)",
+          "⟦?x = ?y⟧ ⟹ ?C"
+        ],
+        "conclusion": "?C"
+      },
       "cases": [],
-      "tests": [{ "premises": { "p": "∀x. pred(s(x)) = x" }, "goal": "∀x. ∀y. s(x) = s(y) → x = y" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. pred(s(x)) = x"
+          },
+          "goal": "∀x. ∀y. s(x) = s(y) → x = y"
+        }
+      ],
       "brief": "@level.in-inject.tasks.in-inject_2.brief",
       "hint": [
         "@level.in-inject.tasks.in-inject_2.hint.0",
@@ -62,7 +116,12 @@
         "}",
         "goal <- gx"
       ],
-      "publishes": [{ "piece": "inject", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "inject",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

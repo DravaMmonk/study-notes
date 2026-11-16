@@ -1,6 +1,12 @@
 {
-  "adds": ["introRules", "elimRules"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "introRules",
+    "elimRules"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.s-auto.title",
   "intro": [
     {
@@ -10,15 +16,28 @@
   "tasks": [
     {
       "id": "s-auto",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-auto.tasks.s-auto.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-auto.tasks.s-auto.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
-        { "goal": "(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))" },
-        { "goal": "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)" },
-        { "goal": "(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)" }
+        {
+          "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)"
+        },
+        {
+          "goal": "(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))"
+        },
+        {
+          "goal": "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)"
+        },
+        {
+          "goal": "(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)"
+        }
       ],
       "brief": "@level.s-auto.tasks.s-auto.brief",
       "hint": [
@@ -43,7 +62,12 @@
         "}",
         "out <- c0"
       ],
-      "publishes": [{ "piece": "auto", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "auto",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

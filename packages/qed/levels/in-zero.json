@@ -11,21 +11,42 @@
   "tasks": [
     {
       "id": "in-zero_1",
-      "kind": "machine",
-      "tray": ["#machine", "#formula"],
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-zero.tasks.in-zero_1.inputs.0.label" }],
+      "kind": "logic:machine",
+      "tray": [
+        "#machine",
+        "#formula"
+      ],
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-zero.tasks.in-zero_1.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.in-zero.tasks.in-zero_1.step",
-      "types": ["nat"],
-      "defs": ["plus"],
+      "types": [
+        "nat"
+      ],
+      "defs": [
+        "plus"
+      ],
       "tests": [
-        { "goal": "plus(s(s(zero)), zero) = s(s(zero))" },
-        { "goal": "plus(s(s(s(zero))), zero) = s(s(s(zero)))" }
+        {
+          "goal": "plus(s(s(zero)), zero) = s(s(zero))"
+        },
+        {
+          "goal": "plus(s(s(s(zero))), zero) = s(s(s(zero)))"
+        }
       ],
       "brief": "@level.in-zero.tasks.in-zero_1.brief",
-      "hint": ["@level.in-zero.tasks.in-zero_1.hint.0"],
+      "hint": [
+        "@level.in-zero.tasks.in-zero_1.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "c1r0 = refl()",
@@ -36,16 +57,29 @@
     },
     {
       "id": "in-zero_2",
-      "kind": "proof",
-      "tray": ["#proof", "#formula"],
+      "kind": "logic:proof",
+      "tray": [
+        "#proof",
+        "#formula"
+      ],
       "step": "@level.in-zero.tasks.in-zero_2.step",
-      "adds": ["natInd"],
-      "consts": ["zero"],
-      "words": ["everyday", "terms"],
+      "adds": [
+        "natInd"
+      ],
+      "consts": [
+        "zero"
+      ],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "cases": [],
       "tests": [
         {
-          "premises": { "d0": "∀y. plus(zero, y) = y", "d1": "∀x. ∀y. plus(s(x), y) = s(plus(x, y))" },
+          "premises": {
+            "d0": "∀y. plus(zero, y) = y",
+            "d1": "∀x. ∀y. plus(s(x), y) = s(plus(x, y))"
+          },
           "goal": "∀x. plus(x, zero) = x"
         }
       ],
@@ -75,16 +109,35 @@
     },
     {
       "id": "in-zero_3",
-      "kind": "machine",
-      "tray": ["#machine", "#formula"],
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-zero.tasks.in-zero_3.inputs.0.label" }],
+      "kind": "logic:machine",
+      "tray": [
+        "#machine",
+        "#formula"
+      ],
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-zero.tasks.in-zero_3.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.in-zero.tasks.in-zero_3.step",
-      "types": ["nat"],
-      "defs": ["plus"],
-      "tests": [{ "goal": "∀x. plus(x, zero) = x" }],
+      "types": [
+        "nat"
+      ],
+      "defs": [
+        "plus"
+      ],
+      "tests": [
+        {
+          "goal": "∀x. plus(x, zero) = x"
+        }
+      ],
       "intro": [
         {
           "t": "@level.in-zero.tasks.in-zero_3.intro.0.t"
@@ -102,7 +155,7 @@
         "  body {",
         "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "    c3r0 = refl()",
-        "    c2r2 = hyp(c2r0)",
+        "    c2r2 = logic:hyp(c2r0)",
         "    c2 = simp(c1.body, c2r2)",
         "    c3 = rule(c2, c3r0)",
         "  }",
@@ -116,7 +169,12 @@
         "c1 = rule(c0, c1r0)",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "addZero", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "addZero",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

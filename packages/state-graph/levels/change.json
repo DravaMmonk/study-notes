@@ -5,22 +5,84 @@
     {
       "t": "@level.change.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "r0", "x": 0, "y": 0, "w": 50, "h": 50, "corner": 0, "value": 0, "cls": "lit" },
-            { "id": "r1", "x": 60, "y": 0, "w": 50, "h": 50, "corner": 1 },
-            { "id": "r2", "x": 120, "y": 0, "w": 50, "h": 50, "corner": 2 },
-            { "id": "r3", "x": 180, "y": 0, "w": 50, "h": 50, "corner": 3 },
-            { "id": "r4", "x": 240, "y": 0, "w": 50, "h": 50, "corner": 4 },
-            { "id": "r5", "x": 300, "y": 0, "w": 50, "h": 50, "corner": 5 },
-            { "id": "r6", "x": 360, "y": 0, "w": 50, "h": 50, "corner": 6 },
-            { "id": "r7", "x": 420, "y": 0, "w": 50, "h": 50, "corner": 7, "value": "?", "cls": "sel" }
+            {
+              "id": "r0",
+              "x": 0,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 0,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "r1",
+              "x": 60,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 1
+            },
+            {
+              "id": "r2",
+              "x": 120,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 2
+            },
+            {
+              "id": "r3",
+              "x": 180,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 3
+            },
+            {
+              "id": "r4",
+              "x": 240,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 4
+            },
+            {
+              "id": "r5",
+              "x": 300,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 5
+            },
+            {
+              "id": "r6",
+              "x": 360,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 6
+            },
+            {
+              "id": "r7",
+              "x": 420,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 7,
+              "value": "?",
+              "cls": "sel"
+            }
           ],
           "edges": []
         }
       }
     },
-    { "t": "@level.change.intro.1.t" },
+    {
+      "t": "@level.change.intro.1.t"
+    },
     {
       "t": "@level.change.intro.2.t"
     }
@@ -29,7 +91,7 @@
     "goal": "@level.change.mission.goal",
     "how": "@level.change.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.change.debrief.title",
     "body": [
@@ -41,18 +103,48 @@
   "tasks": [
     {
       "id": "change",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "@level.change.tasks.change.testLabel",
-      "tests": [{ "n": 7, "coins": [1, 2, 5] }, { "n": 11, "coins": [1, 2, 5] }, { "n": 7, "coins": [3, 5] }],
-      "world": "coins",
-      "facts": ["ground"],
-      "expected": [2, 3, null],
+      "tests": [
+        {
+          "n": 7,
+          "coins": [
+            1,
+            2,
+            5
+          ]
+        },
+        {
+          "n": 11,
+          "coins": [
+            1,
+            2,
+            5
+          ]
+        },
+        {
+          "n": 7,
+          "coins": [
+            3,
+            5
+          ]
+        }
+      ],
+      "world": "table:world-coins",
+      "facts": [
+        "ground"
+      ],
+      "expected": [
+        2,
+        3,
+        null
+      ],
       "solution": [
-        "k = const[value=1]()",
-        "z = const[value=0]()",
-        "a = add(view.seg, k)",
-        "g = pass(facts.ground, z)",
-        "m = mmin(a, g)",
+        "k = table:const[value=1]()",
+        "z = table:const[value=0]()",
+        "a = table:add(view.seg, k)",
+        "g = table:pass(facts.ground, z)",
+        "m = table:mmin(a, g)",
         "cell <- m"
       ],
       "hints": [
@@ -70,13 +162,48 @@
     },
     {
       "id": "change_2",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "@level.change.tasks.change_2.testLabel",
-      "tests": [{ "n": 7, "coins": [1, 2, 5] }, { "n": 11, "coins": [1, 2, 5] }, { "n": 7, "coins": [3, 5] }],
-      "world": "coins",
-      "facts": ["ground"],
-      "expected": [26, 218, null],
-      "solution": ["k = const[value=1]()", "g = pass(facts.ground, k)", "m = msum(view.seg, g)", "cell <- m"],
+      "tests": [
+        {
+          "n": 7,
+          "coins": [
+            1,
+            2,
+            5
+          ]
+        },
+        {
+          "n": 11,
+          "coins": [
+            1,
+            2,
+            5
+          ]
+        },
+        {
+          "n": 7,
+          "coins": [
+            3,
+            5
+          ]
+        }
+      ],
+      "world": "table:world-coins",
+      "facts": [
+        "ground"
+      ],
+      "expected": [
+        26,
+        218,
+        null
+      ],
+      "solution": [
+        "k = table:const[value=1]()",
+        "g = table:pass(facts.ground, k)",
+        "m = table:msum(view.seg, g)",
+        "cell <- m"
+      ],
       "hints": [
         "@level.change.tasks.change_2.hints.0",
         "@level.change.tasks.change_2.hints.1"

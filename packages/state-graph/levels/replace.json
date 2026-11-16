@@ -13,7 +13,7 @@
     "goal": "@level.replace.mission.goal",
     "how": "@level.replace.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.replace.debrief.title",
     "body": [
@@ -23,10 +23,19 @@
   "tasks": [
     {
       "id": "replace",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
+          "when": {
+            "table:condition-any": [
+              {
+                "table:condition-uses": "up"
+              },
+              {
+                "table:condition-uses": "left"
+              }
+            ]
+          },
           "say": "@level.replace.tasks.replace.diagnose.0.say"
         }
       ],
@@ -34,17 +43,37 @@
         "@level.replace.tasks.replace.hints.0",
         "@level.replace.tasks.replace.hints.1"
       ],
-      "world": "align",
-      "facts": ["same", "start"],
-      "tests": [{ "left": "CAT", "top": "CUT" }, { "left": "GLOVE", "top": "GRAVE" }, { "left": "PAPER", "top": "TAPES" }],
-      "expected": [1, 2, 2],
+      "world": "table:world-align",
+      "facts": [
+        "same",
+        "start"
+      ],
+      "tests": [
+        {
+          "left": "CAT",
+          "top": "CUT"
+        },
+        {
+          "left": "GLOVE",
+          "top": "GRAVE"
+        },
+        {
+          "left": "PAPER",
+          "top": "TAPES"
+        }
+      ],
+      "expected": [
+        1,
+        2,
+        2
+      ],
       "solution": [
-        "k = const[value=1]()",
-        "g = pass(facts.same, view.ul)",
-        "z = const[value=0]()",
-        "a = add(view.ul, k)",
-        "h = pass(facts.start, z)",
-        "m = mmin(a, g, h)",
+        "k = table:const[value=1]()",
+        "g = table:pass(facts.same, view.ul)",
+        "z = table:const[value=0]()",
+        "a = table:add(view.ul, k)",
+        "h = table:pass(facts.start, z)",
+        "m = table:mmin(a, g, h)",
         "cell <- m"
       ],
       "border0": false

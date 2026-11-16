@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "11-7",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.11-7.tasks.11-7.brief",
       "hint": "@level.11-7.tasks.11-7.hint",
       "inputs": ["in", "w", "m"],
@@ -32,9 +32,9 @@
         "heat": "@level.11-7.tasks.11-7.outputLabels.heat",
         "cheat": "@level.11-7.tasks.11-7.outputLabels.cheat"
       },
-      "views": { "in": "pixels", "mid": "terrain" },
+      "views": { "in": "image:view-pixels", "mid": "image:view-terrain" },
       "check": { "tolerance": 0.02 },
-      "scene": "classifier",
+      "scene": "image:scene-classifier",
       "setup": { "check": "checkup" },
       "tests": [
         { "label": "@level.11-7.tasks.11-7.tests.0.label", "street": { "cx": 5 }, "weights": "car" },

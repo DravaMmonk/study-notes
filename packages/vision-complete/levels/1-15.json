@@ -18,12 +18,12 @@
   "tasks": [
     {
       "id": "1-15",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-15.tasks.1-15.brief",
       "hint": "@level.1-15.tasks.1-15.hint",
-      "views": { "in": "pixels", "out": "pixels", "mid": "terrain" },
+      "views": { "in": "image:view-pixels", "out": "image:view-pixels", "mid": "image:view-terrain" },
       "check": { "tolerance": 0.02, "mismatches": 8 },
-      "scene": "scan",
+      "scene": "image:scene-scan",
       "setup": { "expect": "paper" },
       "tests": [
         {

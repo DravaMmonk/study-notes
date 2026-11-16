@@ -1,6 +1,9 @@
 {
   "title": "@level.s-elim.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-elim.intro.0.t"
@@ -9,22 +12,90 @@
   "tasks": [
     {
       "id": "s-elim",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.s-elim.tasks.s-elim.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-elim.tasks.s-elim.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Wet", "hyps": ["Rain ∧ Wind"], "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wet"]] },
-        { "goal": "Wet", "hyps": ["Rain ∨ Wind"], "becomes": [["Rain ∨ Wind; Rain ⊢ Wet", "Rain ∨ Wind; Wind ⊢ Wet"]] },
         {
           "goal": "Wet",
-          "hyps": ["Rain → Wet", "Rain"],
-          "becomes": [["Rain → Wet; Rain ⊢ Rain", "Rain → Wet; Rain; Wet ⊢ Wet"]]
+          "hyps": [
+            "Rain ∧ Wind"
+          ],
+          "becomes": [
+            [
+              "Rain ∧ Wind; Rain; Wind ⊢ Wet"
+            ]
+          ]
         },
-        { "goal": "Wet", "hyps": ["⊥"], "becomes": [[]] },
-        { "goal": "Wet", "hyps": ["∃x. Human(x)"], "becomes": [["⋀a. ∃x. Human(x); Human(a) ⊢ Wet"]] },
-        { "goal": "Wet", "hyps": ["∀x. Human(x)"], "becomes": [["∀x. Human(x); Human(?t) ⊢ Wet"]] },
-        { "goal": "Wet", "hyps": ["Rain"], "becomes": [] }
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain ∨ Wind"
+          ],
+          "becomes": [
+            [
+              "Rain ∨ Wind; Rain ⊢ Wet",
+              "Rain ∨ Wind; Wind ⊢ Wet"
+            ]
+          ]
+        },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain → Wet",
+            "Rain"
+          ],
+          "becomes": [
+            [
+              "Rain → Wet; Rain ⊢ Rain",
+              "Rain → Wet; Rain; Wet ⊢ Wet"
+            ]
+          ]
+        },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "⊥"
+          ],
+          "becomes": [
+            []
+          ]
+        },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "∃x. Human(x)"
+          ],
+          "becomes": [
+            [
+              "⋀a. ∃x. Human(x); Human(a) ⊢ Wet"
+            ]
+          ]
+        },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "∀x. Human(x)"
+          ],
+          "becomes": [
+            [
+              "∀x. Human(x); Human(?t) ⊢ Wet"
+            ]
+          ]
+        },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain"
+          ],
+          "becomes": []
+        }
       ],
       "brief": "@level.s-elim.tasks.s-elim.brief",
       "hint": [
@@ -60,7 +131,12 @@
         "}",
         "out <- c0"
       ],
-      "publishes": [{ "piece": "elimRules", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "elimRules",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

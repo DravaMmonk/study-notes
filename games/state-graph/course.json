@@ -1,19 +1,19 @@
 {
   "primitives": [
-    "msum",
-    "mmin",
-    "mmax",
-    "many",
-    "const",
-    "pass",
-    "block",
-    "add",
-    "not",
-    "mul"
+    "table:msum",
+    "table:mmin",
+    "table:mmax",
+    "table:many",
+    "table:const",
+    "table:pass",
+    "table:block",
+    "table:add",
+    "table:not",
+    "table:mul"
   ],
   "concept": {
-    "const": "pass",
-    "many": "msum"
+    "table:const": "table:pass",
+    "table:many": "table:msum"
   },
   "borrow": {
     "state-graph/seam": "state-graph/seam"
@@ -34,7 +34,7 @@
     },
     {
       "id": "scout",
-      "machine": "scout",
+      "machine": "table:robot-scout",
       "chapter": {
         "title": "@course.eras.scout.chapter.title",
         "desc": "@course.eras.scout.chapter.desc"
@@ -60,7 +60,7 @@
     },
     {
       "id": "ranger",
-      "machine": "ranger",
+      "machine": "table:robot-ranger",
       "chapter": {
         "title": "@course.eras.ranger.chapter.title",
         "desc": "@course.eras.ranger.chapter.desc"
@@ -84,7 +84,7 @@
     },
     {
       "id": "reach",
-      "machine": "reach",
+      "machine": "table:robot-reach",
       "chapter": {
         "title": "@course.eras.reach.chapter.title",
         "desc": "@course.eras.reach.chapter.desc"
@@ -105,7 +105,7 @@
     },
     {
       "id": "broom",
-      "machine": "broom",
+      "machine": "table:robot-broom",
       "chapter": {
         "title": "@course.eras.broom.chapter.title",
         "desc": "@course.eras.broom.chapter.desc"
@@ -125,7 +125,7 @@
     },
     {
       "id": "stack",
-      "machine": "stack",
+      "machine": "table:robot-stack",
       "chapter": {
         "title": "@course.eras.stack.chapter.title",
         "desc": "@course.eras.stack.chapter.desc"
@@ -144,7 +144,7 @@
     },
     {
       "id": "settle",
-      "machine": "loop",
+      "machine": "table:robot-loop",
       "chapter": {
         "title": "@course.eras.settle.chapter.title",
         "desc": "@course.eras.settle.chapter.desc"

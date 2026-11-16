@@ -1,16 +1,42 @@
 {
   "title": "@level.mergeUse.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "mergeUse",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → B", "q": "B → (A → C)" }, "goal": "A → C" }],
-      "cases": [{ "A": "Alarm", "B": "Up", "C": "OnTime" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "B → (A → C)"
+          },
+          "goal": "A → C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Alarm",
+          "B": "Up",
+          "C": "OnTime"
+        },
+        {
+          "A": "Exam",
+          "B": "Study",
+          "C": "Pass"
+        }
+      ],
       "hint": [
         "@level.mergeUse.tasks.mergeUse.hint.0"
       ],
-      "solution": ["c = chain(p, q)", "g = merge(c)", "goal <- g"]
+      "solution": [
+        "c = chain(p, q)",
+        "g = merge(c)",
+        "goal <- g"
+      ]
     }
   ]
 }

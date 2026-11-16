@@ -1,7 +1,15 @@
 {
   "title": "@level.r-twice.title",
-  "adds": ["uEliminate", "uDecompose", "uDelete", "uConflict"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uEliminate",
+    "uDecompose",
+    "uDelete",
+    "uConflict"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-twice.intro.0.t"
@@ -10,14 +18,35 @@
   "tasks": [
     {
       "id": "r-twice",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-twice.tasks.r-twice.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-twice.tasks.r-twice.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["?A → ?A ≐ Rain → Rain"] },
-        { "eqs": ["?A ∧ ?A ≐ Rain ∧ Wind"] },
-        { "eqs": ["?A → (?B → ?A) ≐ Rain → (Wind → Rain)"] },
-        { "eqs": ["(?A → ?B) → (?A → ?B) ≐ (Rain → Wet) → (Rain → Slip)"] }
+        {
+          "eqs": [
+            "?A → ?A ≐ Rain → Rain"
+          ]
+        },
+        {
+          "eqs": [
+            "?A ∧ ?A ≐ Rain ∧ Wind"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → (?B → ?A) ≐ Rain → (Wind → Rain)"
+          ]
+        },
+        {
+          "eqs": [
+            "(?A → ?B) → (?A → ?B) ≐ (Rain → Wet) → (Rain → Slip)"
+          ]
+        }
       ],
       "brief": "@level.r-twice.tasks.r-twice.brief",
       "hint": [

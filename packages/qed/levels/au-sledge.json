@@ -1,40 +1,89 @@
 {
-  "adds": ["saturate", "clausify"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "saturate",
+    "clausify"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.au-sledge.title",
   "after": "@level.au-sledge.after",
   "tasks": [
     {
       "id": "au-sledge_1",
-      "kind": "machine",
-      "want": "decide",
-      "inputs": [{ "name": "in", "label": "@level.au-sledge.tasks.au-sledge_1.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-decide",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-sledge.tasks.au-sledge_1.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "step": "@level.au-sledge.tasks.au-sledge_1.step",
       "tests": [
-        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"] },
-        { "goal": "Rain", "hyps": ["Rain → Wet", "Wet"] },
-        { "goal": "Mortal(h)", "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"] },
-        { "goal": "OnTime", "hyps": ["Bus → OnTime", "Bike ∨ Bus"] }
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain → Wet",
+            "Rain"
+          ]
+        },
+        {
+          "goal": "Rain",
+          "hyps": [
+            "Rain → Wet",
+            "Wet"
+          ]
+        },
+        {
+          "goal": "Mortal(h)",
+          "hyps": [
+            "∀x. Human(x) → Mortal(x)",
+            "Human(h)"
+          ]
+        },
+        {
+          "goal": "OnTime",
+          "hyps": [
+            "Bus → OnTime",
+            "Bike ∨ Bus"
+          ]
+        }
       ],
       "brief": "@level.au-sledge.tasks.au-sledge_1.brief",
-      "hint": ["@level.au-sledge.tasks.au-sledge_1.hint.0"],
-      "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "out <- c1"],
-      "naive": ["c0 = clausify(in)", "c1 = resolve(c0)", "out <- c1"]
+      "hint": [
+        "@level.au-sledge.tasks.au-sledge_1.hint.0"
+      ],
+      "solution": [
+        "c0 = clausify(in)",
+        "c1 = saturate(c0)",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0 = clausify(in)",
+        "c1 = resolve(c0)",
+        "out <- c1"
+      ]
     },
     {
       "id": "au-sledge_2",
-      "kind": "truth",
+      "kind": "logic:truth",
       "step": "@level.au-sledge.tasks.au-sledge_2.step",
       "ask": "counter",
-      "formulas": ["(Bus → OnTime) ∧ (Bike ∨ Bus) → OnTime"],
+      "formulas": [
+        "(Bus → OnTime) ∧ (Bike ∨ Bus) → OnTime"
+      ],
       "intro": [
         {
           "t": "@level.au-sledge.tasks.au-sledge_2.intro.0.t"
         }
       ],
       "brief": "@level.au-sledge.tasks.au-sledge_2.brief",
-      "hint": ["@level.au-sledge.tasks.au-sledge_2.hint.0"]
+      "hint": [
+        "@level.au-sledge.tasks.au-sledge_2.hint.0"
+      ]
     }
   ]
 }

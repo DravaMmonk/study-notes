@@ -10,41 +10,184 @@
   "tasks": [
     {
       "id": "decl-true",
-      "kind": "iso",
+      "kind": "logic:iso",
       "declare": "@level.decl-true.tasks.decl-true.declare",
       "target": "Truth",
-      "sentences": ["Rain"],
-      "tests": [
-        { "given": [], "make": true },
-        { "given": ["Rain"], "make": true },
-        { "given": ["Truth"], "goal": "Moon", "make": false },
-        { "given": ["Truth"], "goal": "Rain", "make": false },
-        { "given": ["Truth", "Rain", "Rain → Wet"], "goal": "Wet", "make": true }
+      "sentences": [
+        "Rain"
       ],
-      "solution": [{ "binds": [], "needs": [] }],
-      "play": "audit",
-      "want": "agree",
-      "boards": [{ "rules": [{ "binds": [], "needs": [] }] }],
+      "tests": [
+        {
+          "given": [],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Moon",
+          "make": false
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Rain",
+          "make": false
+        },
+        {
+          "given": [
+            "Truth",
+            "Rain",
+            "Rain → Wet"
+          ],
+          "goal": "Wet",
+          "make": true
+        }
+      ],
+      "solution": [
+        {
+          "binds": [],
+          "needs": []
+        }
+      ],
+      "play": "logic:audit",
+      "want": "logic:want-agree",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": []
+            }
+          ]
+        }
+      ],
       "slots": [
-        { "given": [], "fixed": ["given", "goal"] },
-        { "given": ["Rain"], "fixed": ["given", "goal"] },
-        { "given": ["Truth"], "goal": "Moon", "fixed": ["given", "goal"] },
-        { "given": ["Truth"], "goal": "Rain", "fixed": ["given", "goal"] },
-        { "given": ["Truth", "Rain", "Rain → Wet"], "goal": "Wet", "fixed": ["given", "goal"] }
+        {
+          "given": [],
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Rain"
+          ],
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Moon",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Rain",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Truth",
+            "Rain",
+            "Rain → Wet"
+          ],
+          "goal": "Wet",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        }
       ],
       "answer": [
-        { "given": [], "make": true },
-        { "given": ["Rain"], "make": true },
-        { "given": ["Truth"], "goal": "Moon", "make": false },
-        { "given": ["Truth"], "goal": "Rain", "make": false },
-        { "given": ["Truth", "Rain", "Rain → Wet"], "goal": "Wet", "make": true }
+        {
+          "given": [],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Moon",
+          "make": false
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Rain",
+          "make": false
+        },
+        {
+          "given": [
+            "Truth",
+            "Rain",
+            "Rain → Wet"
+          ],
+          "goal": "Wet",
+          "make": true
+        }
       ],
       "naive": [
-        { "given": [], "make": true },
-        { "given": ["Rain"], "make": true },
-        { "given": ["Truth"], "goal": "Moon", "make": false },
-        { "given": ["Truth"], "goal": "Rain", "make": true },
-        { "given": ["Truth", "Rain", "Rain → Wet"], "goal": "Wet", "make": true }
+        {
+          "given": [],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Moon",
+          "make": false
+        },
+        {
+          "given": [
+            "Truth"
+          ],
+          "goal": "Rain",
+          "make": true
+        },
+        {
+          "given": [
+            "Truth",
+            "Rain",
+            "Rain → Wet"
+          ],
+          "goal": "Wet",
+          "make": true
+        }
       ],
       "brief": "@level.decl-true.tasks.decl-true.brief",
       "hint": [

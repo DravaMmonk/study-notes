@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "7-12",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.7-12.tasks.7-12.brief",
       "hint": "@level.7-12.tasks.7-12.hint",
       "inputs": ["left", "right", "region"],
@@ -27,7 +27,7 @@
       "outputs": ["stop"],
       "outputLabels": { "stop": "@level.7-12.tasks.7-12.outputLabels.stop" },
       "check": { "tolerance": 0.1, "mismatches": 18 },
-      "scene": "room",
+      "scene": "image:scene-room",
       "setup": { "expect": "stop" },
       "tests": [
         {

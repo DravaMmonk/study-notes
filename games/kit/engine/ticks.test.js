@@ -7,7 +7,7 @@ import { defineParts } from './parts/define.js'
 
 // The registers as parts defined as data: reg reads one (0 until kept), bit too (1), set keeps one.
 const name = { key: 'reg', setting: 'reg' }
-const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [name, { key: 'start', setting: `start${start}` }], compute: 'held($reg, $start)' })
+const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [name, { key: 'start', setting: `start${start}` }], compute: "circuit:held($reg, $start)" })
 const REGISTERS = defineParts({ settings: {
   reg: { control: 'select', options: ['n', 'last', 'k'].map((value) => ({ value })) },
   start0: { control: 'number', default: 0 },
@@ -113,9 +113,9 @@ test('parts defined as data read and keep registers, and two packed counters cou
     start: { control: 'number', default: null },
     by: { control: 'number', default: 1 },
   }, parts: {
-    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [reg, { key: 'start', setting: 'start' }], compute: 'held($reg, $start)' },
+    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [reg, { key: 'start', setting: 'start' }], compute: "circuit:held($reg, $start)" },
     keep: { name: 'keep', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: [reg], keeps: { input: 'in', register: 'reg' } },
-    inc: { name: 'inc', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }], compute: 'plus(a, 1)' },
+    inc: { name: 'inc', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }], compute: "circuit:plus(a, 1)" },
   } }
   const { PARTS } = defineParts(file, {})
   // A counter: what A holds, plus one, kept in A; it starts from 0.
@@ -125,11 +125,11 @@ test('parts defined as data read and keep registers, and two packed counters cou
   assert.deepEqual([0, 1, 2].map((t) => one.hear(t).outputs.out), [0, 1, 2])
   // A register kept 「—」 holds it; unkept, its start; with none, 「—」.
   const { BUILTINS } = await import('./parts/builtins.js')
-  assert.equal(BUILTINS.held.run(['A', 5], {}, { held: () => null }), null)
-  assert.equal(BUILTINS.held.run(['A', 5], {}, { held: () => undefined }), 5)
+  assert.equal(BUILTINS['circuit:held'].run(['A', 5], {}, { held: () => null }), null)
+  assert.equal(BUILTINS['circuit:held'].run(['A', 5], {}, { held: () => undefined }), 5)
   assert.equal(PARTS.read.eval({}, { params: { reg: 'B', start: '' } }, {}), null)
   // Two counters packed on one board, each keeping its own A: one steps by 1, the other by 2.
-  const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'by' }], compute: 'plus(a, by)' }
+  const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'by' }], compute: "circuit:plus(a, by)" }
   const by = { name: 'by', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [{ key: 'n', setting: 'by' }], compute: '$n' }
   const more = defineParts({ ...file, parts: { ...file.parts, step, by } }, {}).PARTS
   const inner = { nodes: [{ id: 'r', type: 'read', params: { reg: 'A', start: '0' } }, { id: 's', type: 'step', params: {} }, { id: 'k', type: 'keep', params: { reg: 'A' } }, { id: 'n', type: 'in', params: { name: 'n' } }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'r', to: 's', port: 'a' }, { from: 'n', to: 's', port: 'by' }, { from: 's', to: 'k', port: 'in' }, { from: 'r', to: 'out', port: 'in' }] }

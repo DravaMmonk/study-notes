@@ -5,7 +5,7 @@ import { shapeAt, validate } from './schema.js'
 
 export const OBJECT_KINDS = ['level', 'piece', 'setting', 'entry', 'tag', 'relation', 'layout']
 
-export const fullName = (namespace, name) => typeof name === 'string' && !name.includes('/') ? `${namespace}/${name}` : name
+export const fullName = (namespace, name) => typeof name === 'string' && !name.includes('/') && !name.includes(':') ? `${namespace}/${name}` : name
 
 /** Duplicate declarations are checked after qualification, within a single kind. */
 export function registryOf(kind, declarations) {
@@ -28,6 +28,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
   const name = (v) => typeof v === 'string' && v.startsWith('#') ? `#${rawName(v.slice(1))}` : rawName(v)
   const piece = (v) => {
     if (typeof v !== 'string') return v
+    if (v.includes(':')) return v
     if (v.includes('/')) return name(v)
     const base = v.split(/[.=]/)[0]
     return pieces.has(base) || !vocabulary?.kinds.part?.[base] ? name(v) : v
@@ -36,7 +37,7 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
     if (typeof value !== 'string') return value
     return value.replace(/<(level|part|wiki)-ref to="([^"<>]+)">/g, (_, kind, target) => {
       const colon = target.indexOf(':')
-      const resolved = kind === 'part' && colon >= 0
+      const resolved = kind === 'part' && /^(part|lemma):/.test(target)
         ? `${target.slice(0, colon + 1)}${piece(target.slice(colon + 1))}`
         : name(target)
       return `<${kind}-ref to="${resolved}">`
@@ -49,7 +50,6 @@ export function expandNames(value, namespace, { pieces = new Set(), pieceRules =
   }
   const ref = (kind, v) => {
     if (kind === 'part') return piece(v)
-    if (kind === 'unlock') return pieces.size ? name(v) : v
     return ['setting', 'entry', 'group', 'tag', 'relation', 'layout'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {

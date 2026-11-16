@@ -1,6 +1,9 @@
 {
   "title": "@level.drinker.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.drinker.intro.0.t"
@@ -10,9 +13,20 @@
   "tasks": [
     {
       "id": "drinker",
-      "kind": "proof",
-      "tests": [{ "goal": "∃x. D(x) → ∀y. D(y)" }],
-      "cases": [{ "D": "Drinks" }, { "D": "Sings" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "goal": "∃x. D(x) → ∀y. D(y)"
+        }
+      ],
+      "cases": [
+        {
+          "D": "Drinks"
+        },
+        {
+          "D": "Sings"
+        }
+      ],
       "hint": [
         "@level.drinker.tasks.drinker.hint.0",
         "@level.drinker.tasks.drinker.hint.1"
@@ -41,7 +55,11 @@
         "}",
         "goal <- e"
       ],
-      "naive": ["h = impI[A=\"D(a)\"](body: h.body)", "i = exI(h)", "goal <- i"]
+      "naive": [
+        "h = impI[A=\"D(a)\"](body: h.body)",
+        "i = exI(h)",
+        "goal <- i"
+      ]
     }
   ]
 }

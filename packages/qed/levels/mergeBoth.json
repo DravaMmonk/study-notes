@@ -1,17 +1,45 @@
 {
   "title": "@level.mergeBoth.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "mergeBoth",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → (A → B)", "q": "A → (B → C)" }, "goal": "A → C" }],
-      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Hungry", "B": "Eat", "C": "Full" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → (A → B)",
+            "q": "A → (B → C)"
+          },
+          "goal": "A → C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet",
+          "C": "Slip"
+        },
+        {
+          "A": "Hungry",
+          "B": "Eat",
+          "C": "Full"
+        }
+      ],
       "hint": [
         "@level.mergeBoth.tasks.mergeBoth.hint.0",
         "@level.mergeBoth.tasks.mergeBoth.hint.1"
       ],
-      "solution": ["g1 = merge(p)", "w = swap(q)", "c = chain(g1, w)", "g2 = merge(c)", "goal <- g2"]
+      "solution": [
+        "g1 = merge(p)",
+        "w = swap(q)",
+        "c = chain(g1, w)",
+        "g2 = merge(c)",
+        "goal <- g2"
+      ]
     }
   ]
 }

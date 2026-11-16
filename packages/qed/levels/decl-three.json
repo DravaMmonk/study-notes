@@ -9,35 +9,151 @@
   "tasks": [
     {
       "id": "decl-three_1",
-      "kind": "iso",
+      "kind": "logic:iso",
       "declare": "@level.decl-three.tasks.decl-three_1.declare",
       "target": "Rain ∧ (Wind ∧ Wet)",
-      "sentences": ["Rain", "Wind", "Wet"],
-      "tests": [
-        { "given": ["Rain", "Wind", "Wet"], "make": true },
-        { "given": ["Rain", "Wind"], "make": false },
-        { "given": ["Rain", "Wet"], "make": false },
-        { "given": ["Wind", "Wet"], "make": false },
-        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Wind", "make": true },
-        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Slip", "make": false },
-        { "given": ["Rain ∧ (Wind ∧ Wet)", "Wet → Slip"], "goal": "Slip", "make": true }
+      "sentences": [
+        "Rain",
+        "Wind",
+        "Wet"
       ],
-      "solution": [{ "binds": [], "needs": ["Rain", "Wind", "Wet"] }],
+      "tests": [
+        {
+          "given": [
+            "Rain",
+            "Wind",
+            "Wet"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain",
+            "Wet"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Wind",
+            "Wet"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "goal": "Wind",
+          "make": true
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "goal": "Slip",
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)",
+            "Wet → Slip"
+          ],
+          "goal": "Slip",
+          "make": true
+        }
+      ],
+      "solution": [
+        {
+          "binds": [],
+          "needs": [
+            "Rain",
+            "Wind",
+            "Wet"
+          ]
+        }
+      ],
       "naive": [
-        { "given": ["Rain", "Wind", "Wet"], "make": false },
-        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Rain", "make": true }
+        {
+          "given": [
+            "Rain",
+            "Wind",
+            "Wet"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "goal": "Rain",
+          "make": true
+        }
       ],
       "step": "@level.decl-three.tasks.decl-three_1.step",
-      "play": "audit",
-      "want": "expose",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }, { "binds": [], "needs": ["Wet"] }] }],
+      "play": "logic:audit",
+      "want": "logic:want-expose",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "Rain",
+                "Wind"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "Wet"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": [
-        { "make": false, "fixed": ["goal", "make"] },
-        { "given": ["Rain ∧ (Wind ∧ Wet)"], "keep": ["Rain ∧ (Wind ∧ Wet)"], "make": true, "fixed": ["make"] }
+        {
+          "make": false,
+          "fixed": [
+            "goal",
+            "make"
+          ]
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "keep": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "make": true,
+          "fixed": [
+            "make"
+          ]
+        }
       ],
       "answer": [
-        { "given": ["Wet"], "make": false },
-        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Wind", "make": true }
+        {
+          "given": [
+            "Wet"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ (Wind ∧ Wet)"
+          ],
+          "goal": "Wind",
+          "make": true
+        }
       ],
       "intro": [
         {
@@ -52,70 +168,227 @@
     },
     {
       "id": "decl-three_2",
-      "kind": "iso",
+      "kind": "logic:iso",
       "declare": "@level.decl-three.tasks.decl-three_2.declare",
       "target": "Sat ∨ (Sun ∨ Holiday)",
-      "sentences": ["Sat", "Sun", "Holiday"],
+      "sentences": [
+        "Sat",
+        "Sun",
+        "Holiday"
+      ],
       "tests": [
-        { "given": ["Holiday"], "make": true },
-        { "given": [], "make": false },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
         {
-          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "given": [
+            "Holiday"
+          ],
+          "make": true
+        },
+        {
+          "given": [],
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)"
+          ],
+          "goal": "Sat",
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest",
+            "Holiday → Rest"
+          ],
           "goal": "Rest",
           "make": true
         },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": false }
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest"
+          ],
+          "goal": "Rest",
+          "make": false
+        }
       ],
       "solution": [
-        { "binds": [], "needs": ["Sat"] },
-        { "binds": [], "needs": ["Sun"] },
-        { "binds": [], "needs": ["Holiday"] }
+        {
+          "binds": [],
+          "needs": [
+            "Sat"
+          ]
+        },
+        {
+          "binds": [],
+          "needs": [
+            "Sun"
+          ]
+        },
+        {
+          "binds": [],
+          "needs": [
+            "Holiday"
+          ]
+        }
       ],
       "step": "@level.decl-three.tasks.decl-three_2.step",
-      "play": "audit",
-      "want": "agree",
+      "play": "logic:audit",
+      "want": "logic:want-agree",
       "boards": [
         {
           "rules": [
-            { "binds": [], "needs": ["Sat"] },
-            { "binds": [], "needs": ["Sun"] },
-            { "binds": [], "needs": ["Holiday"] }
+            {
+              "binds": [],
+              "needs": [
+                "Sat"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "Sun"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "Holiday"
+              ]
+            }
           ]
         }
       ],
       "slots": [
-        { "given": ["Holiday"], "fixed": ["given", "goal"] },
-        { "given": [], "fixed": ["given", "goal"] },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "fixed": ["given", "goal"] },
         {
-          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
-          "goal": "Rest",
-          "fixed": ["given", "goal"]
+          "given": [
+            "Holiday"
+          ],
+          "fixed": [
+            "given",
+            "goal"
+          ]
         },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "fixed": ["given", "goal"] }
+        {
+          "given": [],
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)"
+          ],
+          "goal": "Sat",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest",
+            "Holiday → Rest"
+          ],
+          "goal": "Rest",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest"
+          ],
+          "goal": "Rest",
+          "fixed": [
+            "given",
+            "goal"
+          ]
+        }
       ],
       "answer": [
-        { "given": ["Holiday"], "make": true },
-        { "given": [], "make": false },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
         {
-          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "given": [
+            "Holiday"
+          ],
+          "make": true
+        },
+        {
+          "given": [],
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)"
+          ],
+          "goal": "Sat",
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest",
+            "Holiday → Rest"
+          ],
           "goal": "Rest",
           "make": true
         },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": false }
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest"
+          ],
+          "goal": "Rest",
+          "make": false
+        }
       ],
       "naive": [
-        { "given": ["Holiday"], "make": true },
-        { "given": [], "make": false },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
         {
-          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "given": [
+            "Holiday"
+          ],
+          "make": true
+        },
+        {
+          "given": [],
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)"
+          ],
+          "goal": "Sat",
+          "make": false
+        },
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest",
+            "Holiday → Rest"
+          ],
           "goal": "Rest",
           "make": true
         },
-        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": true }
+        {
+          "given": [
+            "Sat ∨ (Sun ∨ Holiday)",
+            "Sat → Rest",
+            "Sun → Rest"
+          ],
+          "goal": "Rest",
+          "make": true
+        }
       ],
       "intro": [
         {

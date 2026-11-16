@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "5-5",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.5-5.tasks.5-5.brief",
       "hint": "@level.5-5.tasks.5-5.hint",
       "inputs": ["in", "pos"],
@@ -31,7 +31,7 @@
         "in": "@level.5-5.tasks.5-5.inputLabels.in",
         "pos": "@level.5-5.tasks.5-5.inputLabels.pos"
       },
-      "scene": "order",
+      "scene": "image:scene-order",
       "tests": [
         { "label": "@level.5-5.tasks.5-5.tests.0.label", "bright": 1, "dark": 2 },
         { "label": "@level.5-5.tasks.5-5.tests.1.label", "bright": 2, "dark": 1 },

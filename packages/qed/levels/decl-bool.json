@@ -10,18 +10,54 @@
   "tasks": [
     {
       "id": "decl-bool",
-      "kind": "iso",
-      "words": ["everyday", "terms"],
+      "kind": "logic:iso",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "declare": "@level.decl-bool.tasks.decl-bool.declare",
       "target": "Bool",
-      "sentences": ["Bool"],
-      "datatype": { "type": "bool", "ctors": ["tt", "ff"], "args": {} },
-      "ways": [[], []],
-      "tests": [{ "given": [], "make": true }],
+      "sentences": [
+        "Bool"
+      ],
+      "datatype": {
+        "type": "bool",
+        "ctors": [
+          "tt",
+          "ff"
+        ],
+        "args": {}
+      },
+      "ways": [
+        [],
+        []
+      ],
+      "tests": [
+        {
+          "given": [],
+          "make": true
+        }
+      ],
       "brief": "@level.decl-bool.tasks.decl-bool.brief",
-      "hint": ["@level.decl-bool.tasks.decl-bool.hint.0"],
-      "solution": [{ "binds": [], "needs": [] }, { "binds": [], "needs": [] }],
-      "naive": [{ "binds": [], "needs": [] }]
+      "hint": [
+        "@level.decl-bool.tasks.decl-bool.hint.0"
+      ],
+      "solution": [
+        {
+          "binds": [],
+          "needs": []
+        },
+        {
+          "binds": [],
+          "needs": []
+        }
+      ],
+      "naive": [
+        {
+          "binds": [],
+          "needs": []
+        }
+      ]
     }
   ]
 }

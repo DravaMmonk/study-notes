@@ -4,6 +4,6 @@
   "values": [
     "rw",
     "simp",
-    "hyp"
+    "logic:hyp"
   ]
 }

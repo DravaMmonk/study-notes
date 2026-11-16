@@ -17,16 +17,16 @@
       "fig": { "test": 0, "caption": "@level.1-7.intro.3.fig.caption" }
     }
   ],
-  "unlocks": ["sobel"],
+  "unlocks": ["image:unlock-sobel"],
   "tasks": [
     {
       "id": "1-7",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-7.tasks.1-7.brief",
       "hint": "@level.1-7.tasks.1-7.hint",
-      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "views": { "in": "image:view-slope", "out": "image:view-terrain", "mid": "image:view-terrain" },
       "check": { "tolerance": 0.5, "mismatches": 4 },
-      "scene": "noisyStep",
+      "scene": "image:scene-noisyStep",
       "tests": [
         { "label": "@level.1-7.tasks.1-7.tests.0.label", "edge": 5, "seed": 1 },
         { "label": "@level.1-7.tasks.1-7.tests.1.label", "edge": 8, "seed": 2 },

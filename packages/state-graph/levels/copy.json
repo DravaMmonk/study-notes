@@ -8,14 +8,23 @@
     {
       "t": "@level.copy.intro.1.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 1,
           "C": 5,
           "arrows": false,
           "cells": {
-            "0,0": { "value": 7, "cls": "lit" },
-            "0,1": { "value": 7, "cls": "lit" },
-            "0,2": { "value": "?", "cls": "hot" }
+            "0,0": {
+              "value": 7,
+              "cls": "lit"
+            },
+            "0,1": {
+              "value": 7,
+              "cls": "lit"
+            },
+            "0,2": {
+              "value": "?",
+              "cls": "hot"
+            }
           },
           "robot": "0,2"
         }
@@ -23,7 +32,17 @@
     },
     {
       "t": "@level.copy.intro.2.t",
-      "fig": { "window": { "vals": { "left": 7, "self": "?" }, "on": ["left"] } }
+      "fig": {
+        "table:figure-window": {
+          "vals": {
+            "left": 7,
+            "self": "?"
+          },
+          "on": [
+            "left"
+          ]
+        }
+      }
     },
     {
       "t": "@level.copy.intro.3.t"
@@ -33,7 +52,7 @@
     "goal": "@level.copy.mission.goal",
     "how": "@level.copy.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.copy.debrief.title",
     "body": [
@@ -44,14 +63,16 @@
   "tasks": [
     {
       "id": "copy",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "guide": [
         {
-          "until": { "reads": "left" },
+          "until": {
+            "table:condition-reads": "left"
+          },
           "say": "@level.copy.tasks.copy.guide.0.say"
         },
         {
-          "until": "wired",
+          "until": "table:condition-wired",
           "say": "@level.copy.tasks.copy.guide.1.say"
         },
         {
@@ -60,17 +81,39 @@
       ],
       "diagnose": [
         {
-          "when": { "uses": "right" },
+          "when": {
+            "table:condition-uses": "right"
+          },
           "say": "@level.copy.tasks.copy.diagnose.0.say"
         }
       ],
       "hints": [
         "@level.copy.tasks.copy.hints.0"
       ],
-      "world": "grid",
-      "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
-      "expected": [7, 3],
-      "solution": ["cell <- view.left"]
+      "world": "table:world-grid",
+      "tests": [
+        {
+          "R": 1,
+          "C": 5,
+          "given": {
+            "0,0": 7
+          }
+        },
+        {
+          "R": 1,
+          "C": 7,
+          "given": {
+            "0,0": 3
+          }
+        }
+      ],
+      "expected": [
+        7,
+        3
+      ],
+      "solution": [
+        "cell <- view.left"
+      ]
     }
   ]
 }

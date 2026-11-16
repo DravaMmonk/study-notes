@@ -1,14 +1,38 @@
 {
   "title": "@level.dsyll.title",
-  "tray": ["#proof", "#formula"],
-  "intro": [{ "t": "@level.dsyll.intro.0.t" }],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.dsyll.intro.0.t"
+    }
+  ],
   "after": "@level.dsyll.after",
   "tasks": [
     {
       "id": "dsyll",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A ∨ B", "q": "¬A" }, "goal": "B" }],
-      "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A ∨ B",
+            "q": "¬A"
+          },
+          "goal": "B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Bus",
+          "B": "Bike"
+        },
+        {
+          "A": "Coffee",
+          "B": "Tea"
+        }
+      ],
       "hint": [
         "@level.dsyll.tasks.dsyll.hint.0"
       ],

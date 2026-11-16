@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "id": "robot",
+      "title": "@glossary.groups.robot.title"
+    }
+  ],
+  "entries": [
+    {
+      "id": "board",
+      "group": "robot",
+      "title": "@glossary.entries.board.title",
+      "at": "copy",
+      "body": [
+        "@glossary.entries.board.body.0"
+      ]
+    }
+  ]
+}

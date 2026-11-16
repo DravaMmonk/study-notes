@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-repeat.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-repeat.intro.0.t"
@@ -9,17 +12,45 @@
   "tasks": [
     {
       "id": "sp-repeat",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-repeat.tasks.sp-repeat.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-repeat.tasks.sp-repeat.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬¬Rain", "becomes": [["Rain"]] },
-        { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
-        { "goal": "¬¬(¬¬Rain ∨ ¬¬¬¬Wind)", "becomes": [["Rain ∨ Wind"]] }
+        {
+          "goal": "¬¬Rain",
+          "becomes": [
+            [
+              "Rain"
+            ]
+          ]
+        },
+        {
+          "goal": "¬¬Rain ∧ ¬¬Wind",
+          "becomes": [
+            [
+              "Rain ∧ Wind"
+            ]
+          ]
+        },
+        {
+          "goal": "¬¬(¬¬Rain ∨ ¬¬¬¬Wind)",
+          "becomes": [
+            [
+              "Rain ∨ Wind"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-repeat.tasks.sp-repeat.brief",
-      "hint": ["@level.sp-repeat.tasks.sp-repeat.hint.0"],
+      "hint": [
+        "@level.sp-repeat.tasks.sp-repeat.hint.0"
+      ],
       "solution": [
         "c0 = repeat(in, body: c1) {",
         "  body {",

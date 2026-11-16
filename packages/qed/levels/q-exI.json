@@ -1,6 +1,9 @@
 {
   "title": "@level.q-exI.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.q-exI.intro.0.t"
@@ -9,14 +12,36 @@
   "tasks": [
     {
       "id": "q-exI",
-      "kind": "proof",
-      "consts": ["i"],
-      "tests": [{ "premises": { "p": "P(i) ∧ Q(i)" }, "goal": "∃x. Q(x)" }],
-      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "kind": "logic:proof",
+      "consts": [
+        "i"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "P(i) ∧ Q(i)"
+          },
+          "goal": "∃x. Q(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Human",
+          "Q": "Mortal"
+        },
+        {
+          "P": "Student",
+          "Q": "School"
+        }
+      ],
       "hint": [
         "@level.q-exI.tasks.q-exI.hint.0"
       ],
-      "solution": ["s = andE(p)", "i = exI(s.right)", "goal <- i"]
+      "solution": [
+        "s = andE(p)",
+        "i = exI(s.right)",
+        "goal <- i"
+      ]
     }
   ]
 }

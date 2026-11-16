@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-diag.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-diag.intro.0.t"
@@ -13,11 +16,20 @@
   "tasks": [
     {
       "id": "gd-diag",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.gd-diag.tasks.gd-diag.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.gd-diag.tasks.gd-diag.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms", "codes"],
+      "words": [
+        "everyday",
+        "terms",
+        "codes"
+      ],
       "stated": [
         "diag(x) = sub(x, qt(x))",
         "sub(nprov(x), y) = nprov(subt(x, y))",
@@ -28,11 +40,17 @@
         "val(dg(x)) = diag(val(x))"
       ],
       "tests": [
-        { "goal": "diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))" },
-        { "goal": "val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))" }
+        {
+          "goal": "diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))"
+        },
+        {
+          "goal": "val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))"
+        }
       ],
       "brief": "@level.gd-diag.tasks.gd-diag.brief",
-      "hint": ["@level.gd-diag.tasks.gd-diag.hint.0"],
+      "hint": [
+        "@level.gd-diag.tasks.gd-diag.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\"]]()",
         "c1r0 = refl()",

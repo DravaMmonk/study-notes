@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-where.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-where.intro.0.t"
@@ -9,17 +12,45 @@
   "tasks": [
     {
       "id": "sp-where",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-where.tasks.sp-where.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-where.tasks.sp-where.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
-        { "goal": "¬¬(¬¬Rain → Wet)", "becomes": [["Rain → Wet"]] },
-        { "goal": "¬¬¬¬Wind", "becomes": [["Wind"]] }
+        {
+          "goal": "¬¬Rain ∧ ¬¬Wind",
+          "becomes": [
+            [
+              "Rain ∧ Wind"
+            ]
+          ]
+        },
+        {
+          "goal": "¬¬(¬¬Rain → Wet)",
+          "becomes": [
+            [
+              "Rain → Wet"
+            ]
+          ]
+        },
+        {
+          "goal": "¬¬¬¬Wind",
+          "becomes": [
+            [
+              "Wind"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-where.tasks.sp-where.brief",
-      "hint": ["@level.sp-where.tasks.sp-where.hint.0"],
+      "hint": [
+        "@level.sp-where.tasks.sp-where.hint.0"
+      ],
       "solution": [
         "c0r0 = dneg[use=[\"dneg.elim\"]]()",
         "c1r0 = dneg[use=[\"dneg.elim\"]]()",

@@ -1,7 +1,17 @@
 {
   "title": "@level.gen-ex.title",
-  "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf", "keepBound"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule",
+    "eachOf",
+    "keepBound"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gen-ex.intro.0.t"
@@ -14,24 +24,79 @@
   "tasks": [
     {
       "id": "gen-ex",
-      "kind": "machine",
-      "want": "elim",
+      "kind": "logic:machine",
+      "want": "logic:want-elim",
       "inputs": [
-        { "name": "it", "label": "@level.gen-ex.tasks.gen-ex.inputs.0.label" },
-        { "name": "ways", "label": "@level.gen-ex.tasks.gen-ex.inputs.1.label" }
+        {
+          "name": "it",
+          "label": "@level.gen-ex.tasks.gen-ex.inputs.0.label"
+        },
+        {
+          "name": "ways",
+          "label": "@level.gen-ex.tasks.gen-ex.inputs.1.label"
+        }
       ],
       "tests": [
-        { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
-        { "it": "?A ∨ ?B", "ways": ["⟦?A⟧ ⟹ ?A ∨ ?B", "⟦?B⟧ ⟹ ?A ∨ ?B"], "elim": ["?A ∨ ?B", "⟦?A⟧ ⟹ ?R", "⟦?B⟧ ⟹ ?R"] },
-        { "it": "⊥", "ways": [], "elim": ["⊥"] },
-        { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
-        { "it": "∃y. ?P(y)", "ways": ["⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)"], "elim": ["∃y. ?P(y)", "⋀x. ⟦?P(x)⟧ ⟹ ?R"] }
+        {
+          "it": "?A ∧ ?B",
+          "ways": [
+            "⟦?A; ?B⟧ ⟹ ?A ∧ ?B"
+          ],
+          "elim": [
+            "?A ∧ ?B",
+            "⟦?A; ?B⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "?A ∨ ?B",
+          "ways": [
+            "⟦?A⟧ ⟹ ?A ∨ ?B",
+            "⟦?B⟧ ⟹ ?A ∨ ?B"
+          ],
+          "elim": [
+            "?A ∨ ?B",
+            "⟦?A⟧ ⟹ ?R",
+            "⟦?B⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "⊥",
+          "ways": [],
+          "elim": [
+            "⊥"
+          ]
+        },
+        {
+          "it": "?A ↔ ?B",
+          "ways": [
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"
+          ],
+          "elim": [
+            "?A ↔ ?B",
+            "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"
+          ]
+        },
+        {
+          "it": "∃y. ?P(y)",
+          "ways": [
+            "⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)"
+          ],
+          "elim": [
+            "∃y. ?P(y)",
+            "⋀x. ⟦?P(x)⟧ ⟹ ?R"
+          ]
+        }
       ],
       "hidden": [
         {
           "it": "∃u. ∃v. ?P(u, v)",
-          "ways": ["⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)"],
-          "elim": ["∃u. ∃v. ?P(u, v)", "⋀x y. ⟦?P(x, y)⟧ ⟹ ?R"]
+          "ways": [
+            "⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)"
+          ],
+          "elim": [
+            "∃u. ∃v. ?P(u, v)",
+            "⋀x y. ⟦?P(x, y)⟧ ⟹ ?R"
+          ]
         }
       ],
       "brief": "@level.gen-ex.tasks.gen-ex.brief",
@@ -64,7 +129,12 @@
         "m = mkRule(c, r)",
         "out <- m"
       ],
-      "publishes": [{ "piece": "elimGen", "variant": "v3" }]
+      "publishes": [
+        {
+          "piece": "elimGen",
+          "variant": "v3"
+        }
+      ]
     }
   ]
 }

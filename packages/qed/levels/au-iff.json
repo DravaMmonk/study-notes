@@ -9,25 +9,76 @@
   "tasks": [
     {
       "id": "au-iff_1",
-      "kind": "proof",
-      "tray": ["#proof", "#formula"],
+      "kind": "logic:proof",
+      "tray": [
+        "#proof",
+        "#formula"
+      ],
       "step": "@level.au-iff.tasks.au-iff_1.step",
-      "tests": [{ "premises": { "p": "A ↔ B" }, "goal": "(¬A ∨ B) ∧ (¬B ∨ A)" }],
-      "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A ↔ B"
+          },
+          "goal": "(¬A ∨ B) ∧ (¬B ∨ A)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rest"
+        },
+        {
+          "A": "KA",
+          "B": "KB"
+        }
+      ],
       "hint": [
         "@level.au-iff.tasks.au-iff_1.hint.0"
       ],
-      "solution": ["e = andE(p)", "a1 = arrow(e.left)", "a2 = arrow(e.right)", "c = andI(a1, a2)", "goal <- c"],
-      "publishes": [{ "piece": "iff", "variant": "elim" }]
+      "solution": [
+        "e = andE(p)",
+        "a1 = arrow(e.left)",
+        "a2 = arrow(e.right)",
+        "c = andI(a1, a2)",
+        "goal <- c"
+      ],
+      "publishes": [
+        {
+          "piece": "iff",
+          "variant": "elim"
+        }
+      ]
     },
     {
       "id": "au-iff_2",
-      "kind": "proof",
-      "tray": ["#proof", "#formula"],
+      "kind": "logic:proof",
+      "tray": [
+        "#proof",
+        "#formula"
+      ],
       "step": "@level.au-iff.tasks.au-iff_2.step",
-      "tests": [{ "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" }, "goal": "A ↔ B" }],
-      "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
-      "hint": ["@level.au-iff.tasks.au-iff_2.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "(¬A ∨ B) ∧ (¬B ∨ A)"
+          },
+          "goal": "A ↔ B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rest"
+        },
+        {
+          "A": "KA",
+          "B": "KB"
+        }
+      ],
+      "hint": [
+        "@level.au-iff.tasks.au-iff_2.hint.0"
+      ],
       "solution": [
         "e = andE(p)",
         "a1 = arrow[form=intro](e.left)",
@@ -35,25 +86,56 @@
         "c = andI(a1, a2)",
         "goal <- c"
       ],
-      "publishes": [{ "piece": "iff", "variant": "intro" }]
+      "publishes": [
+        {
+          "piece": "iff",
+          "variant": "intro"
+        }
+      ]
     },
     {
       "id": "au-iff_3",
-      "kind": "machine",
-      "tray": ["#machine", "#formula"],
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.au-iff.tasks.au-iff_3.inputs.0.label" }],
+      "kind": "logic:machine",
+      "tray": [
+        "#machine",
+        "#formula"
+      ],
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-iff.tasks.au-iff_3.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "step": "@level.au-iff.tasks.au-iff_3.step",
       "tests": [
-        { "goal": "Sat ↔ Rest", "becomes": [["(¬Sat ∨ Rest) ∧ (¬Rest ∨ Sat)"]] },
-        { "goal": "(KA ↔ ¬KB) ∧ KC", "becomes": [["((¬KA ∨ ¬KB) ∧ (¬¬KB ∨ KA)) ∧ KC"]] }
+        {
+          "goal": "Sat ↔ Rest",
+          "becomes": [
+            [
+              "(¬Sat ∨ Rest) ∧ (¬Rest ∨ Sat)"
+            ]
+          ]
+        },
+        {
+          "goal": "(KA ↔ ¬KB) ∧ KC",
+          "becomes": [
+            [
+              "((¬KA ∨ ¬KB) ∧ (¬¬KB ∨ KA)) ∧ KC"
+            ]
+          ]
+        }
       ],
       "brief": "@level.au-iff.tasks.au-iff_3.brief",
       "hint": [
         "@level.au-iff.tasks.au-iff_3.hint.0"
       ],
-      "solution": ["c0r0 = iff[use=[\"iff.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
+      "solution": [
+        "c0r0 = iff[use=[\"iff.elim\"]]()",
+        "c0 = rw(in, c0r0)",
+        "out <- c0"
+      ]
     }
   ]
 }

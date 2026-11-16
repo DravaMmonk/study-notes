@@ -29,7 +29,7 @@ export async function loadPlay(game, lang = 'en') {
   }
   const content = typeof game === 'string' ? readContent(game) : game
   const shell = await gameOf(content)
-  const domain = (await loadModule(resolve(KIT, 'domains', content.domain, 'domain.js'))).default
+  const domain = (await loadModule(resolve(KIT, 'modules', content.domain, 'domain.js'))).default
   if (!domain.play) throw new Error(`the ${content.domain} domain has no play hook`)
   return { shell, hook: domain.play, course: domain.spec(content).course, content }
 }

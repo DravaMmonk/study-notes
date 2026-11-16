@@ -6,10 +6,10 @@
     {
       "t": "@level.1-4.intro.0.t",
       "fig": {
-        "part": "box3",
-        "view": "terrain",
+        "part": "vision-complete/box3",
+        "view": "image:view-terrain",
         "caption": "@level.1-4.intro.0.fig.caption",
-        "input": "impulse"
+        "input": "image:picture-impulse"
       }
     },
     {
@@ -20,35 +20,44 @@
     },
     {
       "t": "@level.1-4.intro.3.t",
-      "fig": { "test": 0, "view": "terrain", "caption": "@level.1-4.intro.3.fig.caption" }
+      "fig": { "test": 0, "view": "image:view-terrain", "caption": "@level.1-4.intro.3.fig.caption" }
     }
   ],
-  "unlocks": ["gauss"],
+  "unlocks": ["image:unlock-gauss"],
   "tasks": [
     {
       "id": "1-4",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-4.tasks.1-4.brief",
       "hint": "@level.1-4.tasks.1-4.hint",
-      "views": { "out": "terrain" },
+      "views": { "out": "image:view-terrain" },
       "check": { "tolerance": 0.025 },
-      "scene": "filter",
-      "setup": { "target": { "gauss": { "sigma": 1.4142135623730951, "radius": 4 } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-gauss": { "sigma": 1.4142135623730951, "radius": 4 } } },
       "tests": [
-        { "label": "@level.1-4.tasks.1-4.tests.0.label", "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": "@level.1-4.tasks.1-4.tests.1.label", "in": { "square": { "x0": 5, "y0": 5, "s": 6 } } },
-        { "label": "@level.1-4.tasks.1-4.tests.2.label", "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 3.5 } } }
+        {
+          "label": "@level.1-4.tasks.1-4.tests.0.label",
+          "in": { "image:picture-impulse": { "x": 7, "y": 7 } }
+        },
+        {
+          "label": "@level.1-4.tasks.1-4.tests.1.label",
+          "in": { "image:picture-square": { "x0": 5, "y0": 5, "s": 6 } }
+        },
+        {
+          "label": "@level.1-4.tasks.1-4.tests.2.label",
+          "in": { "image:picture-disk": { "cx": 7.5, "cy": 7.5, "r": 3.5 } }
+        }
       ],
       "hidden": [
         {
           "label": "@level.1-4.tasks.1-4.hidden.0.label",
-          "in": { "impulse": { "x": 4, "y": 10 } }
+          "in": { "image:picture-impulse": { "x": 4, "y": 10 } }
         },
         {
           "label": "@level.1-4.tasks.1-4.hidden.1.label",
-          "in": { "disk": { "cx": 9.5, "cy": 6.5, "r": 3 } }
+          "in": { "image:picture-disk": { "cx": 9.5, "cy": 6.5, "r": 3 } }
         },
-        { "label": "@level.1-4.tasks.1-4.hidden.2.label", "in": { "glyph": { "letter": "T" } } }
+        { "label": "@level.1-4.tasks.1-4.hidden.2.label", "in": { "image:picture-glyph": { "letter": "T" } } }
       ],
       "solution": ["a = box3(in)", "b = box3(a)", "c = box3(b)", "out <- c"],
       "naive": ["a = box3(in)", "b = box3(a)", "out <- b"]

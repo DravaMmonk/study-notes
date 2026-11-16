@@ -5,7 +5,7 @@
     {
       "t": "@level.rising.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -106,7 +106,7 @@
     "goal": "@level.rising.mission.goal",
     "how": "@level.rising.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.rising.debrief.title",
     "body": [
@@ -118,17 +118,61 @@
   "tasks": [
     {
       "id": "rising",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "checkAll": true,
       "hints": [
         "@level.rising.tasks.rising.hints.0",
         "@level.rising.tasks.rising.hints.1"
       ],
-      "world": "heights",
-      "facts": ["money"],
-      "tests": [{ "a": [3, 1, 4, 1, 5, 9, 2, 6] }, { "a": [5, 4, 3, 2, 1] }, { "a": [2, 6, 3, 4, 1, 7, 5] }],
-      "expected": [4, 1, 4],
-      "solution": ["m = mmax(view.seg)", "k = const[value=1]()", "a = add(m, k)", "cell <- a"],
+      "world": "table:world-heights",
+      "facts": [
+        "money"
+      ],
+      "tests": [
+        {
+          "a": [
+            3,
+            1,
+            4,
+            1,
+            5,
+            9,
+            2,
+            6
+          ]
+        },
+        {
+          "a": [
+            5,
+            4,
+            3,
+            2,
+            1
+          ]
+        },
+        {
+          "a": [
+            2,
+            6,
+            3,
+            4,
+            1,
+            7,
+            5
+          ]
+        }
+      ],
+      "expected": [
+        4,
+        1,
+        4
+      ],
+      "solution": [
+        "m = table:mmax(view.seg)",
+        "k = table:const[value=1]()",
+        "a = table:add(m, k)",
+        "cell <- a"
+      ],
       "filter": "lower"
     }
   ]

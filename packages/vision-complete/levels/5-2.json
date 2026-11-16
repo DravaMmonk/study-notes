@@ -17,11 +17,11 @@
   "tasks": [
     {
       "id": "5-2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.5-2.tasks.5-2.brief",
       "hint": "@level.5-2.tasks.5-2.hint",
-      "constraint": { "nodes": { "max": 3 } },
-      "scene": "mend",
+      "constraint": { "image:constraint-nodes": { "max": 3 } },
+      "scene": "image:scene-mend",
       "tests": [
         {
           "label": "@level.5-2.tasks.5-2.tests.0.label",

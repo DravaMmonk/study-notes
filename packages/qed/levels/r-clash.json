@@ -1,7 +1,13 @@
 {
   "title": "@level.r-clash.title",
-  "adds": ["uConflict", "uDecompose"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uConflict",
+    "uDecompose"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-clash.intro.0.t"
@@ -10,14 +16,35 @@
   "tasks": [
     {
       "id": "r-clash",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-clash.tasks.r-clash.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-clash.tasks.r-clash.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["?A ∧ ?B ≐ Rain ∨ Wind"] },
-        { "eqs": ["?A → ⊥ ≐ Rain → Wet"] },
-        { "eqs": ["?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)"] },
-        { "eqs": ["(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet"] }
+        {
+          "eqs": [
+            "?A ∧ ?B ≐ Rain ∨ Wind"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → ⊥ ≐ Rain → Wet"
+          ]
+        },
+        {
+          "eqs": [
+            "?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)"
+          ]
+        },
+        {
+          "eqs": [
+            "(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet"
+          ]
+        }
       ],
       "brief": "@level.r-clash.tasks.r-clash.brief",
       "hint": [

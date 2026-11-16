@@ -13,24 +13,30 @@
       "t": "@level.0-2.intro.2.t"
     }
   ],
-  "unlocks": ["shift"],
+  "unlocks": ["image:unlock-shift"],
   "tasks": [
     {
       "id": "0-2",
-      "kind": "probe",
+      "kind": "image:probe",
       "brief": "@level.0-2.tasks.0-2.brief",
-      "part": "mystery",
+      "part": "image:mystery",
       "question": "@level.0-2.tasks.0-2.question",
       "answers": ["→", "←", "↓", "↑"],
       "answer": "→",
       "wrong": "@level.0-2.tasks.0-2.wrong",
       "probes": [
-        { "label": "@level.0-2.tasks.0-2.probes.0.label", "picture": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": "@level.0-2.tasks.0-2.probes.1.label", "picture": { "bar": { "x": 4 } } },
-        { "label": "@level.0-2.tasks.0-2.probes.2.label", "picture": { "glyph": { "letter": "F" } } },
+        {
+          "label": "@level.0-2.tasks.0-2.probes.0.label",
+          "picture": { "image:picture-impulse": { "x": 7, "y": 7 } }
+        },
+        { "label": "@level.0-2.tasks.0-2.probes.1.label", "picture": { "image:picture-bar": { "x": 4 } } },
+        {
+          "label": "@level.0-2.tasks.0-2.probes.2.label",
+          "picture": { "image:picture-glyph": { "letter": "F" } }
+        },
         {
           "label": "@level.0-2.tasks.0-2.probes.3.label",
-          "picture": { "square": { "x0": 2, "y0": 2, "s": 6 } }
+          "picture": { "image:picture-square": { "x0": 2, "y0": 2, "s": 6 } }
         }
       ]
     }

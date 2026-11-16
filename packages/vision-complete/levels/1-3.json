@@ -17,29 +17,29 @@
       }
     }
   ],
-  "unlocks": ["box3"],
+  "unlocks": ["image:unlock-box3"],
   "tasks": [
     {
       "id": "1-3",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-3.tasks.1-3.brief",
       "hint": "@level.1-3.tasks.1-3.hint",
-      "constraint": { "cost": { "max": 6 } },
-      "scene": "filter",
-      "setup": { "target": { "box": { "size": 3 } } },
+      "constraint": { "image:constraint-cost": { "max": 6 } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-box": { "size": 3 } } },
       "tests": [
-        { "label": "@level.1-3.tasks.1-3.tests.0.label", "in": "square" },
-        { "label": "@level.1-3.tasks.1-3.tests.1.label", "in": "disk" },
-        { "label": "@level.1-3.tasks.1-3.tests.2.label", "in": { "glyph": { "letter": "T" } } },
-        { "label": "@level.1-3.tasks.1-3.tests.3.label", "in": "checker" },
-        { "label": "@level.1-3.tasks.1-3.tests.4.label", "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": "@level.1-3.tasks.1-3.tests.0.label", "in": "image:picture-square" },
+        { "label": "@level.1-3.tasks.1-3.tests.1.label", "in": "image:picture-disk" },
+        { "label": "@level.1-3.tasks.1-3.tests.2.label", "in": { "image:picture-glyph": { "letter": "T" } } },
+        { "label": "@level.1-3.tasks.1-3.tests.3.label", "in": "image:picture-checker" },
+        { "label": "@level.1-3.tasks.1-3.tests.4.label", "in": { "image:picture-impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
         {
           "label": "@level.1-3.tasks.1-3.hidden.0.label",
-          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
+          "in": { "image:picture-glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
         },
-        { "label": "@level.1-3.tasks.1-3.hidden.1.label", "in": { "noise": { "seed": 13 } } }
+        { "label": "@level.1-3.tasks.1-3.hidden.1.label", "in": { "image:picture-noise": { "seed": 13 } } }
       ],
       "solution": [
         "kN = const[c=0.33]()",

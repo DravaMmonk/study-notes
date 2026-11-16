@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "11-5",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.11-5.tasks.11-5.brief",
       "hint": "@level.11-5.tasks.11-5.hint",
       "inputs": ["in", "q", "m"],
@@ -24,7 +24,7 @@
         "m": "@level.11-5.tasks.11-5.inputLabels.m"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "classToken",
+      "scene": "image:scene-classToken",
       "tests": [
         {
           "label": "@level.11-5.tasks.11-5.tests.0.label",

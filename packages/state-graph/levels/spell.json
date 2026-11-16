@@ -16,7 +16,7 @@
     "goal": "@level.spell.mission.goal",
     "how": "@level.spell.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.spell.debrief.title",
     "body": [
@@ -28,21 +28,48 @@
   "tasks": [
     {
       "id": "spell",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "{left} → {top}",
-      "after": { "spell": { "candidates": ["ACROSS", "CROSS", "MACRO"] } },
+      "after": {
+        "table:panel-spell": {
+          "candidates": [
+            "ACROSS",
+            "CROSS",
+            "MACRO"
+          ]
+        }
+      },
       "hints": [
         "@level.spell.tasks.spell.hints.0"
       ],
-      "world": "align",
-      "facts": ["same", "start"],
-      "tests": [
-        { "left": "ACROS", "top": "ACROSS" },
-        { "left": "ACROS", "top": "CROSS" },
-        { "left": "ACROS", "top": "MACRO" }
+      "world": "table:world-align",
+      "facts": [
+        "same",
+        "start"
       ],
-      "expected": [1, 2, 2],
-      "solution": ["e = cost(view.ul, view.up, view.left, facts.same, facts.start)", "cell <- e"],
+      "tests": [
+        {
+          "left": "ACROS",
+          "top": "ACROSS"
+        },
+        {
+          "left": "ACROS",
+          "top": "CROSS"
+        },
+        {
+          "left": "ACROS",
+          "top": "MACRO"
+        }
+      ],
+      "expected": [
+        1,
+        2,
+        2
+      ],
+      "solution": [
+        "e = cost(view.ul, view.up, view.left, facts.same, facts.start)",
+        "cell <- e"
+      ],
       "border0": false
     }
   ]

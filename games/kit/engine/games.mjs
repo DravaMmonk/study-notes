@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { gameModule } from './game-module.js'
 
 const ROOT = resolve(import.meta.dirname, '../../../trace-viewer')
-const DOMAINS = resolve(import.meta.dirname, '../domains')
+const DOMAINS = resolve(import.meta.dirname, '../modules')
 
 const noop = () => {}
 const memory = new Map()

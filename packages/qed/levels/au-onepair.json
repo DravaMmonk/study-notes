@@ -9,11 +9,15 @@
   "tasks": [
     {
       "id": "au-onepair",
-      "kind": "truth",
+      "kind": "logic:truth",
       "ask": "sat",
-      "formulas": ["(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind)"],
+      "formulas": [
+        "(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind)"
+      ],
       "brief": "@level.au-onepair.tasks.au-onepair.brief",
-      "hint": ["@level.au-onepair.tasks.au-onepair.hint.0"]
+      "hint": [
+        "@level.au-onepair.tasks.au-onepair.hint.0"
+      ]
     }
   ]
 }

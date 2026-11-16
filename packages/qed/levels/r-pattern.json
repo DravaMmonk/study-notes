@@ -1,7 +1,13 @@
 {
   "title": "@level.r-pattern.title",
-  "adds": ["uPattern", "unifier"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uPattern",
+    "unifier"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-pattern.intro.0.t"
@@ -14,14 +20,35 @@
   "tasks": [
     {
       "id": "r-pattern",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-pattern.tasks.r-pattern.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-pattern.tasks.r-pattern.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["∀x. ?P(x) ≐ ∀x. Human(x) → Mortal(x)"] },
-        { "eqs": ["∃y. ?P(y) ∧ ?A ≐ ∃x. Likes(x, i) ∧ Rain"] },
-        { "eqs": ["∀x. ?A ≐ ∀x. Human(x)"] },
-        { "eqs": ["∀x. ?P(x) ∧ ?P(i) ≐ ∀x. Likes(x, x) ∧ Likes(i, j)"] }
+        {
+          "eqs": [
+            "∀x. ?P(x) ≐ ∀x. Human(x) → Mortal(x)"
+          ]
+        },
+        {
+          "eqs": [
+            "∃y. ?P(y) ∧ ?A ≐ ∃x. Likes(x, i) ∧ Rain"
+          ]
+        },
+        {
+          "eqs": [
+            "∀x. ?A ≐ ∀x. Human(x)"
+          ]
+        },
+        {
+          "eqs": [
+            "∀x. ?P(x) ∧ ?P(i) ≐ ∀x. Likes(x, x) ∧ Likes(i, j)"
+          ]
+        }
       ],
       "brief": "@level.r-pattern.tasks.r-pattern.brief",
       "hint": [
@@ -40,8 +67,20 @@
     }
   ],
   "pieceRevisions": [
-    { "piece": "uDecompose", "at": true, "desc": "@piece.uDecompose.revisions.0.desc" },
-    { "piece": "uCheck", "at": true, "desc": "@piece.uCheck.revisions.0.desc" },
-    { "piece": "unifier", "at": true, "desc": "@piece.unifier.revisions.0.desc" }
+    {
+      "piece": "uDecompose",
+      "at": true,
+      "desc": "@piece.uDecompose.revisions.0.desc"
+    },
+    {
+      "piece": "uCheck",
+      "at": true,
+      "desc": "@piece.uCheck.revisions.0.desc"
+    },
+    {
+      "piece": "unifier",
+      "at": true,
+      "desc": "@piece.unifier.revisions.0.desc"
+    }
   ]
 }

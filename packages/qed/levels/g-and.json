@@ -1,7 +1,13 @@
 {
-  "adds": ["gAnd", "formulaAnd"],
+  "adds": [
+    "gAnd",
+    "formulaAnd"
+  ],
   "title": "@level.g-and.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.g-and.intro.0.t"
@@ -10,13 +16,17 @@
   "tasks": [
     {
       "id": "g-and",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "Rain ∧ ¬Wind",
       "brief": "@level.g-and.tasks.g-and.brief",
       "hint": [
         "@level.g-and.tasks.g-and.hint.0"
       ],
-      "solution": ["n = gNot(Wind)", "a = gAnd(Rain, n)", "out <- a"]
+      "solution": [
+        "n = gNot(Wind)",
+        "a = gAnd(Rain, n)",
+        "out <- a"
+      ]
     }
   ]
 }

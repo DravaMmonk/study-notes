@@ -1,7 +1,12 @@
 {
   "title": "@level.q-allI.title",
-  "adds": ["allI"],
-  "tray": ["#proof", "#formula"],
+  "adds": [
+    "allI"
+  ],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "showcase": "@level.q-allI.showcase",
   "intro": [
     {
@@ -15,9 +20,22 @@
   "tasks": [
     {
       "id": "q-allI",
-      "kind": "proof",
-      "tests": [{ "goal": "∀x. P(x) → P(x)" }],
-      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "goal": "∀x. P(x) → P(x)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Human",
+          "Q": "Mortal"
+        },
+        {
+          "P": "Student",
+          "Q": "School"
+        }
+      ],
       "hint": [
         "@level.q-allI.tasks.q-allI.hint.0",
         "@level.q-allI.tasks.q-allI.hint.1"

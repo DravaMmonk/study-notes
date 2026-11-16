@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "6-13",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-13.tasks.6-13.brief",
       "hint": "@level.6-13.tasks.6-13.hint",
       "inputs": ["photo", "cover", "pairs"],
@@ -24,7 +24,7 @@
         "cover": "@level.6-13.tasks.6-13.inputLabels.cover",
         "pairs": "@level.6-13.tasks.6-13.inputLabels.pairs"
       },
-      "scene": "coverPairs",
+      "scene": "image:scene-coverPairs",
       "tests": [
         {
           "label": "@level.6-13.tasks.6-13.tests.0.label",

@@ -1,7 +1,14 @@
 {
   "title": "@level.r-occurs.title",
-  "adds": ["uCheck", "uDecompose", "uEliminate"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uCheck",
+    "uDecompose",
+    "uEliminate"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-occurs.intro.0.t"
@@ -11,10 +18,31 @@
   "tasks": [
     {
       "id": "r-occurs",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-occurs.tasks.r-occurs.inputs.0.label" }],
-      "tests": [{ "eqs": ["?A ≐ ?A → Wet"] }, { "eqs": ["?A → ?A ≐ ?B → (?B ∧ Rain)"] }, { "eqs": ["?A ∧ ?B ≐ ?B ∧ Rain"] }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-occurs.tasks.r-occurs.inputs.0.label"
+        }
+      ],
+      "tests": [
+        {
+          "eqs": [
+            "?A ≐ ?A → Wet"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → ?A ≐ ?B → (?B ∧ Rain)"
+          ]
+        },
+        {
+          "eqs": [
+            "?A ∧ ?B ≐ ?B ∧ Rain"
+          ]
+        }
+      ],
       "brief": "@level.r-occurs.tasks.r-occurs.brief",
       "hint": [
         "@level.r-occurs.tasks.r-occurs.hint.0"

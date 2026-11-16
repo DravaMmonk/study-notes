@@ -2,19 +2,20 @@
 // interaction — when a setting shows, what a rule sets, whether a check holds — over plain numbers, words and true or
 // false. A domain's own resources (its vocabulary's `op` kind) work on its values (images, frames…); no domain resource
 // may take one of these names.
+import { qualifyItems } from '../capabilities.js'
 import { PartError } from '../circuit.js'
 import { T as t } from '../../shell/i18n.js'
 
-const args = (...names) => names.map((name) => ({ name }))
+const args = (...names) => names.map((name) => ({ name, type: 'circuit:any' }))
 // Arguments that must be plain numbers: never a part's input or a domain resource's value (problemsOf checks it).
-const nums = (...names) => names.map((name) => ({ name, type: 'num' }))
+const nums = (...names) => names.map((name) => ({ name, type: 'circuit:number' }))
 const num = (v) => {
   const n = Number(v)
   if (!Number.isFinite(n)) throw new PartError(t(`${v} 不是数`, `${v} is not a number`))
   return n
 }
 
-export const BUILTINS = {
+const RESOURCES = {
   eq: { about: t('两者相等'), args: args('a', 'b'), run: ([a, b]) => String(a) === String(b) },
   ne: { about: t('两者不等'), args: args('a', 'b'), run: ([a, b]) => String(a) !== String(b) },
   lt: { about: t('a < b'), args: nums('a', 'b'), run: ([a, b]) => num(a) < num(b) },
@@ -25,19 +26,26 @@ export const BUILTINS = {
   or: { about: t('至少一个为真'), args: args('a', 'b'), run: ([a, b]) => Boolean(a) || Boolean(b) },
   not: { about: t('不为真'), args: args('a'), run: ([a]) => !a },
   if: { about: t('条件为真取第二个，否则取第三个（只算取到的那一个）'), args: args('condition', 'yes', 'no'), run: ([c, y, n]) => (c ? y : n) },
-  plus: { about: t('两数之和'), args: nums('a', 'b'), returns: 'num', run: ([a, b]) => num(a) + num(b) },
-  minus: { about: t('两数之差'), args: nums('a', 'b'), returns: 'num', run: ([a, b]) => num(a) - num(b) },
-  times: { about: t('两数之积'), args: nums('a', 'b'), returns: 'num', run: ([a, b]) => num(a) * num(b) },
-  over: { about: t('两数之商；除以 0 报错'), args: nums('a', 'b'), returns: 'num', run: ([a, b]) => (num(b) === 0 ? (() => { throw new PartError(t('除以 0')) })() : num(a) / num(b)) },
-  round: { about: t('按 digits 位小数四舍五入'), args: nums('a'), returns: 'num', params: { type: 'obj', fields: { digits: { type: 'int', min: 0, max: 8, optional: true } } }, run: ([a], { digits = 0 }) => Number(num(a).toFixed(digits)) },
+  plus: { about: t('两数之和'), args: nums('a', 'b'), returns: 'circuit:number', run: ([a, b]) => num(a) + num(b) },
+  minus: { about: t('两数之差'), args: nums('a', 'b'), returns: 'circuit:number', run: ([a, b]) => num(a) - num(b) },
+  times: { about: t('两数之积'), args: nums('a', 'b'), returns: 'circuit:number', run: ([a, b]) => num(a) * num(b) },
+  over: { about: t('两数之商；除以 0 报错'), args: nums('a', 'b'), returns: 'circuit:number', run: ([a, b]) => (num(b) === 0 ? (() => { throw new PartError(t('除以 0')) })() : num(a) / num(b)) },
+  round: { about: t('按 digits 位小数四舍五入'), args: nums('a'), returns: 'circuit:number', params: { type: 'obj', fields: { digits: { type: 'int', min: 0, max: 8, optional: true } } }, run: ([a], { digits = 0 }) => Number(num(a).toFixed(digits)) },
   // A register, as a tick run keeps it (../ticks.js): its name scoped by the packed part the card is in.
   held: { about: t('寄存器 register 此刻存的值；还没存过时给 start'), args: args('register', 'start'), run: ([register, start], _named, ctx) => {
     // A register kept 「—」 holds 「—」: only one never kept gives its start.
     const held = ctx?.held?.(`${ctx.scope ?? ''}${register}`)
     return held === undefined ? start : held
   } },
-  clamp: { about: t('限制在 lo 到 hi 之间'), args: nums('a', 'lo', 'hi'), returns: 'num', run: ([a, lo, hi]) => Math.min(num(hi), Math.max(num(lo), num(a))) },
+  clamp: { about: t('限制在 lo 到 hi 之间'), args: nums('a', 'lo', 'hi'), returns: 'circuit:number', run: ([a, lo, hi]) => Math.min(num(hi), Math.max(num(lo), num(a))) },
 }
+
+for (const [name, item] of Object.entries(RESOURCES)) {
+  item.returns ??= ['eq', 'ne', 'lt', 'le', 'gt', 'ge', 'and', 'or', 'not'].includes(name) ? 'circuit:boolean' : 'circuit:any'
+  item.params ??= { type: 'obj', fields: {} }
+}
+RESOURCES.round.params.fields.digits.default = 0
+export const BUILTINS = qualifyItems('circuit', 'op', RESOURCES)
 
 /** The builtins as vocabulary items (data): what the studio lists beside a domain's own resources. */
 export const BUILTIN_ITEMS = Object.fromEntries(Object.entries(BUILTINS).map(([k, { about, args: a, params, returns }]) => [k, { about, args: a, ...(params ? { params } : {}), ...(returns ? { returns } : {}) }]))

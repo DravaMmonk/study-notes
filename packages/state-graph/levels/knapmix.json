@@ -5,13 +5,15 @@
     {
       "t": "@level.knapmix.intro.0.t"
     },
-    { "t": "@level.knapmix.intro.1.t" }
+    {
+      "t": "@level.knapmix.intro.1.t"
+    }
   ],
   "mission": {
     "goal": "@level.knapmix.mission.goal",
     "how": "@level.knapmix.mission.how"
   },
-  "robot": "reach",
+  "robot": "table:robot-reach",
   "debrief": {
     "title": "@level.knapmix.debrief.title",
     "body": [
@@ -22,52 +24,112 @@
   "tasks": [
     {
       "id": "knapmix",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "uses": "many" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "many"
+            }
+          },
           "say": "@level.knapmix.tasks.knapmix.diagnose.0.say"
         }
       ],
-      "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
+      "boardOpt": {
+        "minScale": 0.68,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.knapmix.tasks.knapmix.hints.0",
         "@level.knapmix.tasks.knapmix.hints.1"
       ],
-      "world": "knap",
-      "facts": ["value", "many"],
+      "world": "table:world-knap",
+      "facts": [
+        "value",
+        "many"
+      ],
       "tests": [
         {
           "W": 11,
           "items": [
-            { "n": "@level.knapmix.tasks.knapmix.tests.0.items.0.n", "w": 5, "v": 12 },
-            { "n": "@level.knapmix.tasks.knapmix.tests.0.items.1.n", "w": 4, "v": 9, "many": true },
-            { "n": "@level.knapmix.tasks.knapmix.tests.0.items.2.n", "w": 3, "v": 7 },
-            { "n": "@level.knapmix.tasks.knapmix.tests.0.items.3.n", "w": 2, "v": 3, "many": true }
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.0.items.0.n",
+              "w": 5,
+              "v": 12
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.0.items.1.n",
+              "w": 4,
+              "v": 9,
+              "many": true
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.0.items.2.n",
+              "w": 3,
+              "v": 7
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.0.items.3.n",
+              "w": 2,
+              "v": 3,
+              "many": true
+            }
           ]
         },
         {
           "W": 8,
           "items": [
-            { "n": "@level.knapmix.tasks.knapmix.tests.1.items.0.n", "w": 3, "v": 10 },
-            { "n": "@level.knapmix.tasks.knapmix.tests.1.items.1.n", "w": 4, "v": 9, "many": true },
-            { "n": "@level.knapmix.tasks.knapmix.tests.1.items.2.n", "w": 1, "v": 3, "many": true }
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.1.items.0.n",
+              "w": 3,
+              "v": 10
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.1.items.1.n",
+              "w": 4,
+              "v": 9,
+              "many": true
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.1.items.2.n",
+              "w": 1,
+              "v": 3,
+              "many": true
+            }
           ]
         },
         {
           "W": 8,
           "items": [
-            { "n": "@level.knapmix.tasks.knapmix.tests.2.items.0.n", "w": 4, "v": 4, "many": true },
-            { "n": "@level.knapmix.tasks.knapmix.tests.2.items.1.n", "w": 2, "v": 4, "many": true },
-            { "n": "@level.knapmix.tasks.knapmix.tests.2.items.2.n", "w": 3, "v": 13 }
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.2.items.0.n",
+              "w": 4,
+              "v": 4,
+              "many": true
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.2.items.1.n",
+              "w": 2,
+              "v": 4,
+              "many": true
+            },
+            {
+              "n": "@level.knapmix.tasks.knapmix.tests.2.items.2.n",
+              "w": 3,
+              "v": 13
+            }
           ]
         }
       ],
-      "expected": [25, 25, 21],
+      "expected": [
+        25,
+        25,
+        21
+      ],
       "solution": [
-        "p = pass(facts.many, view.rowk)",
-        "b = block(facts.many, view.upk)",
-        "s = msum(p, b)",
+        "p = table:pass(facts.many, view.rowk)",
+        "b = table:block(facts.many, view.upk)",
+        "s = table:msum(p, b)",
         "c = choose(view.up, s, facts.value)",
         "cell <- c"
       ]

@@ -1,6 +1,9 @@
 {
   "title": "@level.h-or-make.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.h-or-make.intro.0.t"
@@ -10,10 +13,28 @@
   "tasks": [
     {
       "id": "h-or-make_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.h-or-make.tasks.h-or-make_1.step",
-      "tests": [{ "premises": { "p": "A" }, "goal": "∀R. (A → R) → ((B → R) → R)" }],
-      "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "∀R. (A → R) → ((B → R) → R)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Bus",
+          "B": "Bike",
+          "C": "OnTime"
+        },
+        {
+          "A": "Sat",
+          "B": "Sun",
+          "C": "Rest"
+        }
+      ],
       "hint": [
         "@level.h-or-make.tasks.h-or-make_1.hint.0"
       ],
@@ -36,14 +57,39 @@
     },
     {
       "id": "h-or-make_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.h-or-make.tasks.h-or-make_2.step",
-      "tests": [{ "premises": { "p": "∀R. (A → R) → ((B → R) → R)", "q": "A → C", "r": "B → C" }, "goal": "C" }],
-      "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀R. (A → R) → ((B → R) → R)",
+            "q": "A → C",
+            "r": "B → C"
+          },
+          "goal": "C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Bus",
+          "B": "Bike",
+          "C": "OnTime"
+        },
+        {
+          "A": "Sat",
+          "B": "Sun",
+          "C": "Rest"
+        }
+      ],
       "hint": [
         "@level.h-or-make.tasks.h-or-make_2.hint.0"
       ],
-      "solution": ["e = allE[t=C](p)", "m1 = mp(e, q)", "m2 = mp(m1, r)", "goal <- m2"]
+      "solution": [
+        "e = allE[t=C](p)",
+        "m1 = mp(e, q)",
+        "m2 = mp(m1, r)",
+        "goal <- m2"
+      ]
     }
   ]
 }

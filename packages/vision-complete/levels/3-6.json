@@ -20,7 +20,7 @@
   "tasks": [
     {
       "id": "3-6",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.3-6.tasks.3-6.brief",
       "hint": "@level.3-6.tasks.3-6.hint",
       "inputs": ["a", "b", "lamp"],
@@ -32,7 +32,7 @@
       "outputs": ["ro", "go", "bo"],
       "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
       "check": { "tolerance": 0.01 },
-      "scene": "metamer",
+      "scene": "image:scene-metamer",
       "tests": [
         {
           "label": "@level.3-6.tasks.3-6.tests.0.label",

@@ -1,7 +1,13 @@
 {
   "title": "@level.au-clauses.title",
-  "adds": ["toClauses", "skolem"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "toClauses",
+    "skolem"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-clauses.intro.0.t"
@@ -10,26 +16,64 @@
   "tasks": [
     {
       "id": "au-clauses",
-      "kind": "machine",
-      "want": "clauses",
-      "inputs": [{ "name": "in", "label": "@level.au-clauses.tasks.au-clauses.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-clauses",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-clauses.tasks.au-clauses.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "clauses": ["¬Rain ∨ Wet", "Rain", "¬Wet"] },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain → Wet",
+            "Rain"
+          ],
+          "clauses": [
+            "¬Rain ∨ Wet",
+            "Rain",
+            "¬Wet"
+          ]
+        },
         {
           "goal": "OnTime",
-          "hyps": ["Bus ∨ Bike", "Bus → OnTime", "Bike → OnTime"],
-          "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬Bike ∨ OnTime", "¬OnTime"]
+          "hyps": [
+            "Bus ∨ Bike",
+            "Bus → OnTime",
+            "Bike → OnTime"
+          ],
+          "clauses": [
+            "Bus ∨ Bike",
+            "¬Bus ∨ OnTime",
+            "¬Bike ∨ OnTime",
+            "¬OnTime"
+          ]
         },
         {
           "goal": "Mortal(h)",
-          "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"],
-          "clauses": ["¬Human(x) ∨ Mortal(x)", "Human(h)", "¬Mortal(h)"]
+          "hyps": [
+            "∀x. Human(x) → Mortal(x)",
+            "Human(h)"
+          ],
+          "clauses": [
+            "¬Human(x) ∨ Mortal(x)",
+            "Human(h)",
+            "¬Mortal(h)"
+          ]
         },
         {
           "goal": "∀x. Baby(x) → ¬Tamer(x)",
-          "hyps": ["∀x. Baby(x) → ¬Logical(x)"],
-          "clauses": ["¬Baby(x) ∨ ¬Logical(x)", "Baby(a)", "Tamer(a)"]
+          "hyps": [
+            "∀x. Baby(x) → ¬Logical(x)"
+          ],
+          "clauses": [
+            "¬Baby(x) ∨ ¬Logical(x)",
+            "Baby(a)",
+            "Tamer(a)"
+          ]
         }
       ],
       "brief": "@level.au-clauses.tasks.au-clauses.brief",
@@ -63,7 +107,12 @@
         "c2 = toClauses(c1)",
         "out <- c2"
       ],
-      "publishes": [{ "piece": "clausify", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "clausify",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

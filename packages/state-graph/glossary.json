@@ -1,10 +1,25 @@
 {
   "groups": [
-    { "id": "play", "title": "@glossary.groups.play.title" },
-    { "id": "basics", "title": "@glossary.groups.basics.title" },
-    { "id": "order", "title": "@glossary.groups.order.title" },
-    { "id": "classic", "title": "@glossary.groups.classic.title" },
-    { "id": "further", "title": "@glossary.groups.further.title" }
+    {
+      "id": "play",
+      "title": "@glossary.groups.play.title"
+    },
+    {
+      "id": "basics",
+      "title": "@glossary.groups.basics.title"
+    },
+    {
+      "id": "order",
+      "title": "@glossary.groups.order.title"
+    },
+    {
+      "id": "classic",
+      "title": "@glossary.groups.classic.title"
+    },
+    {
+      "id": "further",
+      "title": "@glossary.groups.further.title"
+    }
   ],
   "entries": [
     {
@@ -15,7 +30,10 @@
         "@glossary.entries.map.body.0",
         "@glossary.entries.map.body.1"
       ],
-      "see": ["brief", "part"]
+      "see": [
+        "brief",
+        "part"
+      ]
     },
     {
       "id": "brief",
@@ -27,7 +45,10 @@
         "@glossary.entries.brief.body.2",
         "@glossary.entries.brief.body.3"
       ],
-      "see": ["map", "testBoard"]
+      "see": [
+        "map",
+        "testBoard"
+      ]
     },
     {
       "id": "cells",
@@ -38,7 +59,10 @@
         "@glossary.entries.cells.body.1",
         "@glossary.entries.cells.body.2"
       ],
-      "see": ["dag", "brief"]
+      "see": [
+        "dag",
+        "brief"
+      ]
     },
     {
       "id": "robot",
@@ -50,7 +74,11 @@
         "@glossary.entries.robot.body.1",
         "@glossary.entries.robot.body.2"
       ],
-      "see": ["board", "testBoard", "models"]
+      "see": [
+        "board",
+        "testBoard",
+        "models"
+      ]
     },
     {
       "id": "board",
@@ -63,7 +91,11 @@
         "@glossary.entries.board.body.2",
         "@glossary.entries.board.body.3"
       ],
-      "see": ["component", "robot", "part"]
+      "see": [
+        "component",
+        "robot",
+        "part"
+      ]
     },
     {
       "id": "testBoard",
@@ -75,7 +107,11 @@
         "@glossary.entries.testBoard.body.1",
         "@glossary.entries.testBoard.body.2"
       ],
-      "see": ["robot", "board", "dial"]
+      "see": [
+        "robot",
+        "board",
+        "dial"
+      ]
     },
     {
       "id": "component",
@@ -87,7 +123,11 @@
         "@glossary.entries.component.body.1",
         "@glossary.entries.component.body.2"
       ],
-      "see": ["board", "part", "countOpt"]
+      "see": [
+        "board",
+        "part",
+        "countOpt"
+      ]
     },
     {
       "id": "part",
@@ -99,7 +139,11 @@
         "@glossary.entries.part.body.1",
         "@glossary.entries.part.body.2"
       ],
-      "see": ["component", "board", "stairs"]
+      "see": [
+        "component",
+        "board",
+        "stairs"
+      ]
     },
     {
       "id": "models",
@@ -110,7 +154,10 @@
         "@glossary.entries.models.body.0",
         "@glossary.entries.models.body.1"
       ],
-      "see": ["robot", "arms"]
+      "see": [
+        "robot",
+        "arms"
+      ]
     },
     {
       "id": "arms",
@@ -121,7 +168,10 @@
         "@glossary.entries.arms.body.0",
         "@glossary.entries.arms.body.1"
       ],
-      "see": ["models", "sweep"]
+      "see": [
+        "models",
+        "sweep"
+      ]
     },
     {
       "id": "dirs",
@@ -132,7 +182,9 @@
         "@glossary.entries.dirs.body.0",
         "@glossary.entries.dirs.body.1"
       ],
-      "see": ["rolling"]
+      "see": [
+        "rolling"
+      ]
     },
     {
       "id": "sweep",
@@ -143,7 +195,10 @@
         "@glossary.entries.sweep.body.0",
         "@glossary.entries.sweep.body.1"
       ],
-      "see": ["arms", "manyWays"]
+      "see": [
+        "arms",
+        "manyWays"
+      ]
     },
     {
       "id": "dial",
@@ -154,7 +209,10 @@
         "@glossary.entries.dial.body.0",
         "@glossary.entries.dial.body.1"
       ],
-      "see": ["topo", "testBoard"]
+      "see": [
+        "topo",
+        "testBoard"
+      ]
     },
     {
       "id": "memory",
@@ -166,7 +224,10 @@
         "@glossary.entries.memory.body.1",
         "@glossary.entries.memory.body.2"
       ],
-      "see": ["layers", "stateSize"]
+      "see": [
+        "layers",
+        "stateSize"
+      ]
     },
     {
       "id": "dag",
@@ -178,7 +239,11 @@
         "@glossary.entries.dag.body.1",
         "@glossary.entries.dag.body.2"
       ],
-      "see": ["dp", "topo", "state"]
+      "see": [
+        "dp",
+        "topo",
+        "state"
+      ]
     },
     {
       "id": "dp",
@@ -190,7 +255,11 @@
         "@glossary.entries.dp.body.1",
         "@glossary.entries.dp.body.2"
       ],
-      "see": ["recurrence", "dag", "overlap"]
+      "see": [
+        "recurrence",
+        "dag",
+        "overlap"
+      ]
     },
     {
       "id": "recurrence",
@@ -202,7 +271,11 @@
         "@glossary.entries.recurrence.body.1",
         "@glossary.entries.recurrence.body.2"
       ],
-      "see": ["base", "dp", "board"]
+      "see": [
+        "base",
+        "dp",
+        "board"
+      ]
     },
     {
       "id": "base",
@@ -214,7 +287,10 @@
         "@glossary.entries.base.body.1",
         "@glossary.entries.base.body.2"
       ],
-      "see": ["recurrence", "component"]
+      "see": [
+        "recurrence",
+        "component"
+      ]
     },
     {
       "id": "countOpt",
@@ -226,7 +302,10 @@
         "@glossary.entries.countOpt.body.1",
         "@glossary.entries.countOpt.body.2"
       ],
-      "see": ["backtrack", "recurrence"]
+      "see": [
+        "backtrack",
+        "recurrence"
+      ]
     },
     {
       "id": "backtrack",
@@ -237,7 +316,11 @@
         "@glossary.entries.backtrack.body.0",
         "@glossary.entries.backtrack.body.1"
       ],
-      "see": ["countOpt", "viterbi", "seam"]
+      "see": [
+        "countOpt",
+        "viterbi",
+        "seam"
+      ]
     },
     {
       "id": "overlap",
@@ -248,7 +331,11 @@
         "@glossary.entries.overlap.body.0",
         "@glossary.entries.overlap.body.1"
       ],
-      "see": ["speed", "memo", "dp"]
+      "see": [
+        "speed",
+        "memo",
+        "dp"
+      ]
     },
     {
       "id": "speed",
@@ -260,7 +347,10 @@
         "@glossary.entries.speed.body.1",
         "@glossary.entries.speed.body.2"
       ],
-      "see": ["overlap", "stateSize"]
+      "see": [
+        "overlap",
+        "stateSize"
+      ]
     },
     {
       "id": "state",
@@ -272,7 +362,11 @@
         "@glossary.entries.state.body.1",
         "@glossary.entries.state.body.2"
       ],
-      "see": ["layers", "counterexample", "dag"]
+      "see": [
+        "layers",
+        "counterexample",
+        "dag"
+      ]
     },
     {
       "id": "layers",
@@ -283,7 +377,11 @@
         "@glossary.entries.layers.body.0",
         "@glossary.entries.layers.body.1"
       ],
-      "see": ["state", "stateSize", "memory"]
+      "see": [
+        "state",
+        "stateSize",
+        "memory"
+      ]
     },
     {
       "id": "counterexample",
@@ -294,7 +392,10 @@
         "@glossary.entries.counterexample.body.0",
         "@glossary.entries.counterexample.body.1"
       ],
-      "see": ["state", "layers"]
+      "see": [
+        "state",
+        "layers"
+      ]
     },
     {
       "id": "stateSize",
@@ -306,7 +407,11 @@
         "@glossary.entries.stateSize.body.1",
         "@glossary.entries.stateSize.body.2"
       ],
-      "see": ["layers", "memory", "speed"]
+      "see": [
+        "layers",
+        "memory",
+        "speed"
+      ]
     },
     {
       "id": "recognise",
@@ -317,7 +422,11 @@
         "@glossary.entries.recognise.body.0",
         "@glossary.entries.recognise.body.1"
       ],
-      "see": ["dp", "state", "recurrence"]
+      "see": [
+        "dp",
+        "state",
+        "recurrence"
+      ]
     },
     {
       "id": "topo",
@@ -328,7 +437,11 @@
         "@glossary.entries.topo.body.0",
         "@glossary.entries.topo.body.1"
       ],
-      "see": ["dag", "dial", "topdown"]
+      "see": [
+        "dag",
+        "dial",
+        "topdown"
+      ]
     },
     {
       "id": "topdown",
@@ -339,7 +452,11 @@
         "@glossary.entries.topdown.body.0",
         "@glossary.entries.topdown.body.1"
       ],
-      "see": ["memo", "overlap", "topo"]
+      "see": [
+        "memo",
+        "overlap",
+        "topo"
+      ]
     },
     {
       "id": "memo",
@@ -350,7 +467,11 @@
         "@glossary.entries.memo.body.0",
         "@glossary.entries.memo.body.1"
       ],
-      "see": ["topdown", "overlap", "dag"]
+      "see": [
+        "topdown",
+        "overlap",
+        "dag"
+      ]
     },
     {
       "id": "fixedPoint",
@@ -362,7 +483,10 @@
         "@glossary.entries.fixedPoint.body.1",
         "@glossary.entries.fixedPoint.body.2"
       ],
-      "see": ["topo", "valueIter"]
+      "see": [
+        "topo",
+        "valueIter"
+      ]
     },
     {
       "id": "stairs",
@@ -373,7 +497,10 @@
         "@glossary.entries.stairs.body.0",
         "@glossary.entries.stairs.body.1"
       ],
-      "see": ["recurrence", "part"]
+      "see": [
+        "recurrence",
+        "part"
+      ]
     },
     {
       "id": "lcs",
@@ -384,7 +511,11 @@
         "@glossary.entries.lcs.body.0",
         "@glossary.entries.lcs.body.1"
       ],
-      "see": ["edit", "local", "stateSize"]
+      "see": [
+        "edit",
+        "local",
+        "stateSize"
+      ]
     },
     {
       "id": "edit",
@@ -396,7 +527,11 @@
         "@glossary.entries.edit.body.1",
         "@glossary.entries.edit.body.2"
       ],
-      "see": ["lcs", "countOpt", "local"]
+      "see": [
+        "lcs",
+        "countOpt",
+        "local"
+      ]
     },
     {
       "id": "greedy",
@@ -407,7 +542,10 @@
         "@glossary.entries.greedy.body.0",
         "@glossary.entries.greedy.body.1"
       ],
-      "see": ["knap01", "recognise"]
+      "see": [
+        "knap01",
+        "recognise"
+      ]
     },
     {
       "id": "knap01",
@@ -419,7 +557,11 @@
         "@glossary.entries.knap01.body.1",
         "@glossary.entries.knap01.body.2"
       ],
-      "see": ["greedy", "rolling", "arms"]
+      "see": [
+        "greedy",
+        "rolling",
+        "arms"
+      ]
     },
     {
       "id": "rolling",
@@ -431,7 +573,10 @@
         "@glossary.entries.rolling.body.1",
         "@glossary.entries.rolling.body.2"
       ],
-      "see": ["knap01", "dirs"]
+      "see": [
+        "knap01",
+        "dirs"
+      ]
     },
     {
       "id": "games",
@@ -442,7 +587,10 @@
         "@glossary.entries.games.body.0",
         "@glossary.entries.games.body.1"
       ],
-      "see": ["countOpt", "state"]
+      "see": [
+        "countOpt",
+        "state"
+      ]
     },
     {
       "id": "manyWays",
@@ -454,7 +602,12 @@
         "@glossary.entries.manyWays.body.1",
         "@glossary.entries.manyWays.body.2"
       ],
-      "see": ["sweep", "lis", "coin", "wordBreak"]
+      "see": [
+        "sweep",
+        "lis",
+        "coin",
+        "wordBreak"
+      ]
     },
     {
       "id": "lis",
@@ -465,7 +618,10 @@
         "@glossary.entries.lis.body.0",
         "@glossary.entries.lis.body.1"
       ],
-      "see": ["manyWays", "state"]
+      "see": [
+        "manyWays",
+        "state"
+      ]
     },
     {
       "id": "coin",
@@ -477,7 +633,11 @@
         "@glossary.entries.coin.body.1",
         "@glossary.entries.coin.body.2"
       ],
-      "see": ["manyWays", "countOpt", "knap01"]
+      "see": [
+        "manyWays",
+        "countOpt",
+        "knap01"
+      ]
     },
     {
       "id": "wordBreak",
@@ -488,7 +648,10 @@
         "@glossary.entries.wordBreak.body.0",
         "@glossary.entries.wordBreak.body.1"
       ],
-      "see": ["manyWays", "games"]
+      "see": [
+        "manyWays",
+        "games"
+      ]
     },
     {
       "id": "interval",
@@ -500,7 +663,10 @@
         "@glossary.entries.interval.body.1",
         "@glossary.entries.interval.body.2"
       ],
-      "see": ["topo", "parse"]
+      "see": [
+        "topo",
+        "parse"
+      ]
     },
     {
       "id": "valueIter",
@@ -512,7 +678,11 @@
         "@glossary.entries.valueIter.body.1",
         "@glossary.entries.valueIter.body.2"
       ],
-      "see": ["fixedPoint", "policy", "expectation"]
+      "see": [
+        "fixedPoint",
+        "policy",
+        "expectation"
+      ]
     },
     {
       "id": "policy",
@@ -523,7 +693,10 @@
         "@glossary.entries.policy.body.0",
         "@glossary.entries.policy.body.1"
       ],
-      "see": ["valueIter", "expectation"]
+      "see": [
+        "valueIter",
+        "expectation"
+      ]
     },
     {
       "id": "expectation",
@@ -534,7 +707,10 @@
         "@glossary.entries.expectation.body.0",
         "@glossary.entries.expectation.body.1"
       ],
-      "see": ["valueIter", "policy"]
+      "see": [
+        "valueIter",
+        "policy"
+      ]
     },
     {
       "id": "viterbi",
@@ -546,7 +722,10 @@
         "@glossary.entries.viterbi.body.1",
         "@glossary.entries.viterbi.body.2"
       ],
-      "see": ["forward", "backtrack"]
+      "see": [
+        "forward",
+        "backtrack"
+      ]
     },
     {
       "id": "forward",
@@ -557,7 +736,10 @@
         "@glossary.entries.forward.body.0",
         "@glossary.entries.forward.body.1"
       ],
-      "see": ["viterbi", "countOpt"]
+      "see": [
+        "viterbi",
+        "countOpt"
+      ]
     },
     {
       "id": "parse",
@@ -569,7 +751,9 @@
         "@glossary.entries.parse.body.1",
         "@glossary.entries.parse.body.2"
       ],
-      "see": ["interval"]
+      "see": [
+        "interval"
+      ]
     },
     {
       "id": "local",
@@ -581,7 +765,10 @@
         "@glossary.entries.local.body.1",
         "@glossary.entries.local.body.2"
       ],
-      "see": ["lcs", "edit"]
+      "see": [
+        "lcs",
+        "edit"
+      ]
     },
     {
       "id": "seam",
@@ -593,7 +780,10 @@
         "@glossary.entries.seam.body.1",
         "@glossary.entries.seam.body.2"
       ],
-      "see": ["countOpt", "backtrack"]
+      "see": [
+        "countOpt",
+        "backtrack"
+      ]
     }
   ]
 }

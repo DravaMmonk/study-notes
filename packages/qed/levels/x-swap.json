@@ -1,14 +1,42 @@
 {
   "title": "@level.x-swap.title",
-  "tray": ["#proof", "#formula"],
-  "without": ["impI", "chain", "swap", "merge"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "without": [
+    "impI",
+    "chain",
+    "swap",
+    "merge"
+  ],
   "tasks": [
     {
       "id": "x-swap",
-      "sentences": ["(A → B) → (A → C)"],
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "B → (A → C)" }],
-      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "sentences": [
+        "(A → B) → (A → C)"
+      ],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → (B → C)"
+          },
+          "goal": "B → (A → C)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rain",
+          "C": "Rest"
+        },
+        {
+          "A": "Exam",
+          "B": "Study",
+          "C": "Pass"
+        }
+      ],
       "briefNote": "@level.x-swap.tasks.x-swap.briefNote",
       "hint": [
         "@level.x-swap.tasks.x-swap.hint.0",

@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-laws.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-laws.intro.0.t"
@@ -9,32 +12,81 @@
   "tasks": [
     {
       "id": "sp-laws_1",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-laws.tasks.sp-laws_1.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-laws.tasks.sp-laws_1.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "step": "@level.sp-laws.tasks.sp-laws_1.step",
       "tests": [
-        { "goal": "(Rain → Wet) ∧ Wind", "becomes": [["(¬Rain ∨ Wet) ∧ Wind"]] },
-        { "goal": "¬(Alarm → Up)", "becomes": [["¬(¬Alarm ∨ Up)"]] },
-        { "goal": "Wind ∨ (Rain → Slip)", "becomes": [["Wind ∨ (¬Rain ∨ Slip)"]] }
+        {
+          "goal": "(Rain → Wet) ∧ Wind",
+          "becomes": [
+            [
+              "(¬Rain ∨ Wet) ∧ Wind"
+            ]
+          ]
+        },
+        {
+          "goal": "¬(Alarm → Up)",
+          "becomes": [
+            [
+              "¬(¬Alarm ∨ Up)"
+            ]
+          ]
+        },
+        {
+          "goal": "Wind ∨ (Rain → Slip)",
+          "becomes": [
+            [
+              "Wind ∨ (¬Rain ∨ Slip)"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-laws.tasks.sp-laws_1.brief",
       "hint": [
         "@level.sp-laws.tasks.sp-laws_1.hint.0"
       ],
-      "solution": ["c0r0 = arrow[use=[\"arrow.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
+      "solution": [
+        "c0r0 = arrow[use=[\"arrow.elim\"]]()",
+        "c0 = rw(in, c0r0)",
+        "out <- c0"
+      ]
     },
     {
       "id": "sp-laws_2",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-laws.tasks.sp-laws_2.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-laws.tasks.sp-laws_2.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "step": "@level.sp-laws.tasks.sp-laws_2.step",
       "tests": [
-        { "goal": "Rain ∨ (Wind ∧ Wet)", "becomes": [["(Rain ∨ Wind) ∧ (Rain ∨ Wet)"]] },
-        { "goal": "(Sat ∧ Rest) ∨ Happy", "becomes": [["(Sat ∨ Happy) ∧ (Rest ∨ Happy)"]] }
+        {
+          "goal": "Rain ∨ (Wind ∧ Wet)",
+          "becomes": [
+            [
+              "(Rain ∨ Wind) ∧ (Rain ∨ Wet)"
+            ]
+          ]
+        },
+        {
+          "goal": "(Sat ∧ Rest) ∨ Happy",
+          "becomes": [
+            [
+              "(Sat ∨ Happy) ∧ (Rest ∨ Happy)"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-laws.tasks.sp-laws_2.brief",
       "hint": [

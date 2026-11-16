@@ -1,6 +1,9 @@
 {
   "title": "@level.curry.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.curry.intro.0.t"
@@ -9,10 +12,28 @@
   "tasks": [
     {
       "id": "curry_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.curry.tasks.curry_1.step",
-      "tests": [{ "premises": { "p": "A ∧ B → C" }, "goal": "A → (B → C)" }],
-      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A ∧ B → C"
+          },
+          "goal": "A → (B → C)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind",
+          "C": "Wet"
+        },
+        {
+          "A": "Exam",
+          "B": "Study",
+          "C": "Pass"
+        }
+      ],
       "hint": [
         "@level.curry.tasks.curry_1.hint.0",
         "@level.curry.tasks.curry_1.hint.1"
@@ -33,10 +54,28 @@
     },
     {
       "id": "curry_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.curry.tasks.curry_2.step",
-      "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],
-      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A → (B → C)"
+          },
+          "goal": "A ∧ B → C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rain",
+          "C": "Rest"
+        },
+        {
+          "A": "Alarm",
+          "B": "Coffee",
+          "C": "Awake"
+        }
+      ],
       "hint": [
         "@level.curry.tasks.curry_2.hint.0"
       ],

@@ -1,10 +1,13 @@
 {
   "title": "@level.e-two.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "e-two",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)",
       "blind": true,
       "brief": "@level.e-two.tasks.e-two.brief",

@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-con.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-con.intro.0.t"
@@ -13,18 +16,30 @@
   "tasks": [
     {
       "id": "gd-con",
-      "kind": "proof",
-      "consts": ["g", "gn", "gp"],
-      "words": ["goedel"],
+      "kind": "logic:proof",
+      "consts": [
+        "g",
+        "gn",
+        "gp"
+      ],
+      "words": [
+        "goedel"
+      ],
       "cases": [],
       "tests": [
         {
-          "premises": { "d": "Prov(g) → Prov(gn)", "r": "Prov(g) → Prov(gp)", "con": "¬(Prov(gn) ∧ Prov(gp))" },
+          "premises": {
+            "d": "Prov(g) → Prov(gn)",
+            "r": "Prov(g) → Prov(gp)",
+            "con": "¬(Prov(gn) ∧ Prov(gp))"
+          },
           "goal": "¬Prov(g)"
         }
       ],
       "brief": "@level.gd-con.tasks.gd-con.brief",
-      "hint": ["@level.gd-con.tasks.gd-con.hint.0"],
+      "hint": [
+        "@level.gd-con.tasks.gd-con.hint.0"
+      ],
       "solution": [
         "f = impI[A=\"Prov(g)\"](body: m3) {",
         "  body {",

@@ -9,13 +9,13 @@
     },
     {
       "t": "@level.7-11.intro.1.t",
-      "fig": { "test": 0, "view": "terrain", "caption": "@level.7-11.intro.1.fig.caption" }
+      "fig": { "test": 0, "view": "image:view-terrain", "caption": "@level.7-11.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "7-11",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.7-11.tasks.7-11.brief",
       "hint": "@level.7-11.tasks.7-11.hint",
       "inputs": ["z", "region"],
@@ -25,8 +25,8 @@
       },
       "outputs": ["stop"],
       "outputLabels": { "stop": "@level.7-11.tasks.7-11.outputLabels.stop" },
-      "views": { "in": "terrain" },
-      "scene": "roomDepth",
+      "views": { "in": "image:view-terrain" },
+      "scene": "image:scene-roomDepth",
       "tests": [
         {
           "label": "@level.7-11.tasks.7-11.tests.0.label",

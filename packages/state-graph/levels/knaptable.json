@@ -5,31 +5,179 @@
     {
       "t": "@level.knaptable.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "ax0", "x": 0, "y": -38, "w": 44, "h": 26, "value": 0, "cls": "axis" },
-            { "id": "ax1", "x": 52, "y": -38, "w": 44, "h": 26, "value": 1, "cls": "axis" },
-            { "id": "ax2", "x": 104, "y": -38, "w": 44, "h": 26, "value": 2, "cls": "axis" },
-            { "id": "ax3", "x": 156, "y": -38, "w": 44, "h": 26, "value": 3, "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,1", "x": 52, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,2", "x": 104, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,3", "x": 156, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "1,0", "x": 0, "y": 52, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "1,1", "x": 52, "y": 52, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "1,2", "x": 104, "y": 52, "w": 44, "h": 44, "value": 3, "cls": "lit" },
-            { "id": "1,3", "x": 156, "y": 52, "w": 44, "h": 44, "value": 3, "cls": "lit" },
-            { "id": "2,0", "x": 0, "y": 104, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "2,1", "x": 52, "y": 104, "w": 44, "h": 44, "value": 2, "cls": "lit" },
-            { "id": "2,2", "x": 104, "y": 104, "w": 44, "h": 44, "value": 3, "cls": "lit" },
-            { "id": "2,3", "x": 156, "y": 104, "w": 44, "h": 44, "value": 5, "cls": "lit" }
+            {
+              "id": "ax0",
+              "x": 0,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 0,
+              "cls": "axis"
+            },
+            {
+              "id": "ax1",
+              "x": 52,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 1,
+              "cls": "axis"
+            },
+            {
+              "id": "ax2",
+              "x": 104,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 2,
+              "cls": "axis"
+            },
+            {
+              "id": "ax3",
+              "x": 156,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 3,
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,1",
+              "x": 52,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,2",
+              "x": 104,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,3",
+              "x": 156,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "1,0",
+              "x": 0,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "1,1",
+              "x": 52,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "1,2",
+              "x": 104,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3,
+              "cls": "lit"
+            },
+            {
+              "id": "1,3",
+              "x": 156,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3,
+              "cls": "lit"
+            },
+            {
+              "id": "2,0",
+              "x": 0,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "2,1",
+              "x": 52,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 2,
+              "cls": "lit"
+            },
+            {
+              "id": "2,2",
+              "x": 104,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 3,
+              "cls": "lit"
+            },
+            {
+              "id": "2,3",
+              "x": 156,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 5,
+              "cls": "lit"
+            }
           ],
           "edges": [],
           "texts": [
-            { "x": -32, "y": -33, "t": "@level.knaptable.intro.0.fig.scene.texts.0.t", "anchor": "end" },
-            { "x": -32, "y": 5, "t": "@level.knaptable.intro.0.fig.scene.texts.1.t", "anchor": "end" },
-            { "x": -32, "y": 57, "t": "@level.knaptable.intro.0.fig.scene.texts.2.t", "anchor": "end" },
-            { "x": -32, "y": 109, "t": "@level.knaptable.intro.0.fig.scene.texts.3.t", "anchor": "end" }
+            {
+              "x": -32,
+              "y": -33,
+              "t": "@level.knaptable.intro.0.fig.scene.texts.0.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 5,
+              "t": "@level.knaptable.intro.0.fig.scene.texts.1.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 57,
+              "t": "@level.knaptable.intro.0.fig.scene.texts.2.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 109,
+              "t": "@level.knaptable.intro.0.fig.scene.texts.3.t",
+              "anchor": "end"
+            }
           ]
         }
       }
@@ -37,31 +185,163 @@
     {
       "t": "@level.knaptable.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "ax0", "x": 0, "y": -38, "w": 44, "h": 26, "value": 0, "cls": "axis" },
-            { "id": "ax1", "x": 52, "y": -38, "w": 44, "h": 26, "value": 1, "cls": "axis" },
-            { "id": "ax2", "x": 104, "y": -38, "w": 44, "h": 26, "value": 2, "cls": "axis" },
-            { "id": "ax3", "x": 156, "y": -38, "w": 44, "h": 26, "value": 3, "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,1", "x": 52, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,2", "x": 104, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "0,3", "x": 156, "y": 0, "w": 44, "h": 44, "value": 0, "cls": "lit" },
-            { "id": "1,0", "x": 0, "y": 52, "w": 44, "h": 44 },
-            { "id": "1,1", "x": 52, "y": 52, "w": 44, "h": 44 },
-            { "id": "1,2", "x": 104, "y": 52, "w": 44, "h": 44 },
-            { "id": "1,3", "x": 156, "y": 52, "w": 44, "h": 44 },
-            { "id": "2,0", "x": 0, "y": 104, "w": 44, "h": 44 },
-            { "id": "2,1", "x": 52, "y": 104, "w": 44, "h": 44 },
-            { "id": "2,2", "x": 104, "y": 104, "w": 44, "h": 44 },
-            { "id": "2,3", "x": 156, "y": 104, "w": 44, "h": 44 }
+            {
+              "id": "ax0",
+              "x": 0,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 0,
+              "cls": "axis"
+            },
+            {
+              "id": "ax1",
+              "x": 52,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 1,
+              "cls": "axis"
+            },
+            {
+              "id": "ax2",
+              "x": 104,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 2,
+              "cls": "axis"
+            },
+            {
+              "id": "ax3",
+              "x": 156,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 3,
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,1",
+              "x": 52,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,2",
+              "x": 104,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,3",
+              "x": 156,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "1,0",
+              "x": 0,
+              "y": 52,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "1,1",
+              "x": 52,
+              "y": 52,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "1,2",
+              "x": 104,
+              "y": 52,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "1,3",
+              "x": 156,
+              "y": 52,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "2,0",
+              "x": 0,
+              "y": 104,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "2,1",
+              "x": 52,
+              "y": 104,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "2,2",
+              "x": 104,
+              "y": 104,
+              "w": 44,
+              "h": 44
+            },
+            {
+              "id": "2,3",
+              "x": 156,
+              "y": 104,
+              "w": 44,
+              "h": 44
+            }
           ],
           "edges": [],
           "texts": [
-            { "x": -32, "y": -33, "t": "@level.knaptable.intro.1.fig.scene.texts.0.t", "anchor": "end" },
-            { "x": -32, "y": 5, "t": "@level.knaptable.intro.1.fig.scene.texts.1.t", "anchor": "end" },
-            { "x": -32, "y": 57, "t": "@level.knaptable.intro.1.fig.scene.texts.2.t", "anchor": "end" },
-            { "x": -32, "y": 109, "t": "@level.knaptable.intro.1.fig.scene.texts.3.t", "anchor": "end" }
+            {
+              "x": -32,
+              "y": -33,
+              "t": "@level.knaptable.intro.1.fig.scene.texts.0.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 5,
+              "t": "@level.knaptable.intro.1.fig.scene.texts.1.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 57,
+              "t": "@level.knaptable.intro.1.fig.scene.texts.2.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 109,
+              "t": "@level.knaptable.intro.1.fig.scene.texts.3.t",
+              "anchor": "end"
+            }
           ]
         }
       }
@@ -69,31 +349,176 @@
     {
       "t": "@level.knaptable.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "ax0", "x": 0, "y": -38, "w": 44, "h": 26, "value": 0, "cls": "axis" },
-            { "id": "ax1", "x": 52, "y": -38, "w": 44, "h": 26, "value": 1, "cls": "axis" },
-            { "id": "ax2", "x": 104, "y": -38, "w": 44, "h": 26, "value": 2, "cls": "axis" },
-            { "id": "ax3", "x": 156, "y": -38, "w": 44, "h": 26, "value": 3, "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,1", "x": 52, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,2", "x": 104, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,3", "x": 156, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,0", "x": 0, "y": 52, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,1", "x": 52, "y": 52, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,2", "x": 104, "y": 52, "w": 44, "h": 44, "value": 3 },
-            { "id": "1,3", "x": 156, "y": 52, "w": 44, "h": 44, "value": 3, "cls": "lit" },
-            { "id": "2,0", "x": 0, "y": 104, "w": 44, "h": 44, "value": 0 },
-            { "id": "2,1", "x": 52, "y": 104, "w": 44, "h": 44, "value": 2 },
-            { "id": "2,2", "x": 104, "y": 104, "w": 44, "h": 44, "value": 3 },
-            { "id": "2,3", "x": 156, "y": 104, "w": 44, "h": 44, "cls": "sel" }
+            {
+              "id": "ax0",
+              "x": 0,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 0,
+              "cls": "axis"
+            },
+            {
+              "id": "ax1",
+              "x": 52,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 1,
+              "cls": "axis"
+            },
+            {
+              "id": "ax2",
+              "x": 104,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 2,
+              "cls": "axis"
+            },
+            {
+              "id": "ax3",
+              "x": 156,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 3,
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,1",
+              "x": 52,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,2",
+              "x": 104,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,3",
+              "x": 156,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,0",
+              "x": 0,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,1",
+              "x": 52,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,2",
+              "x": 104,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3
+            },
+            {
+              "id": "1,3",
+              "x": 156,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3,
+              "cls": "lit"
+            },
+            {
+              "id": "2,0",
+              "x": 0,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "2,1",
+              "x": 52,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 2
+            },
+            {
+              "id": "2,2",
+              "x": 104,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 3
+            },
+            {
+              "id": "2,3",
+              "x": 156,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "cls": "sel"
+            }
           ],
-          "edges": [{ "a": "1,3", "b": "2,3", "cls": "hot", "bend": 0, "off": 0 }],
+          "edges": [
+            {
+              "a": "1,3",
+              "b": "2,3",
+              "cls": "hot",
+              "bend": 0,
+              "off": 0
+            }
+          ],
           "texts": [
-            { "x": -32, "y": -33, "t": "@level.knaptable.intro.2.fig.scene.texts.0.t", "anchor": "end" },
-            { "x": -32, "y": 5, "t": "@level.knaptable.intro.2.fig.scene.texts.1.t", "anchor": "end" },
-            { "x": -32, "y": 57, "t": "@level.knaptable.intro.2.fig.scene.texts.2.t", "anchor": "end" },
-            { "x": -32, "y": 109, "t": "@level.knaptable.intro.2.fig.scene.texts.3.t", "anchor": "end" }
+            {
+              "x": -32,
+              "y": -33,
+              "t": "@level.knaptable.intro.2.fig.scene.texts.0.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 5,
+              "t": "@level.knaptable.intro.2.fig.scene.texts.1.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 57,
+              "t": "@level.knaptable.intro.2.fig.scene.texts.2.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 109,
+              "t": "@level.knaptable.intro.2.fig.scene.texts.3.t",
+              "anchor": "end"
+            }
           ]
         }
       }
@@ -101,31 +526,167 @@
     {
       "t": "@level.knaptable.intro.3.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "ax0", "x": 0, "y": -38, "w": 44, "h": 26, "value": 0, "cls": "axis" },
-            { "id": "ax1", "x": 52, "y": -38, "w": 44, "h": 26, "value": 1, "cls": "axis" },
-            { "id": "ax2", "x": 104, "y": -38, "w": 44, "h": 26, "value": 2, "cls": "axis" },
-            { "id": "ax3", "x": 156, "y": -38, "w": 44, "h": 26, "value": 3, "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,1", "x": 52, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,2", "x": 104, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "0,3", "x": 156, "y": 0, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,0", "x": 0, "y": 52, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,1", "x": 52, "y": 52, "w": 44, "h": 44, "value": 0 },
-            { "id": "1,2", "x": 104, "y": 52, "w": 44, "h": 44, "value": 3 },
-            { "id": "1,3", "x": 156, "y": 52, "w": 44, "h": 44, "value": 3 },
-            { "id": "2,0", "x": 0, "y": 104, "w": 44, "h": 44, "value": 0 },
-            { "id": "2,1", "x": 52, "y": 104, "w": 44, "h": 44, "value": 2 },
-            { "id": "2,2", "x": 104, "y": 104, "w": 44, "h": 44, "value": 3 },
-            { "id": "2,3", "x": 156, "y": 104, "w": 44, "h": 44, "cls": "sel" }
+            {
+              "id": "ax0",
+              "x": 0,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 0,
+              "cls": "axis"
+            },
+            {
+              "id": "ax1",
+              "x": 52,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 1,
+              "cls": "axis"
+            },
+            {
+              "id": "ax2",
+              "x": 104,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 2,
+              "cls": "axis"
+            },
+            {
+              "id": "ax3",
+              "x": 156,
+              "y": -38,
+              "w": 44,
+              "h": 26,
+              "value": 3,
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,1",
+              "x": 52,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,2",
+              "x": 104,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "0,3",
+              "x": 156,
+              "y": 0,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,0",
+              "x": 0,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,1",
+              "x": 52,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "1,2",
+              "x": 104,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3
+            },
+            {
+              "id": "1,3",
+              "x": 156,
+              "y": 52,
+              "w": 44,
+              "h": 44,
+              "value": 3
+            },
+            {
+              "id": "2,0",
+              "x": 0,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 0
+            },
+            {
+              "id": "2,1",
+              "x": 52,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 2
+            },
+            {
+              "id": "2,2",
+              "x": 104,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "value": 3
+            },
+            {
+              "id": "2,3",
+              "x": 156,
+              "y": 104,
+              "w": 44,
+              "h": 44,
+              "cls": "sel"
+            }
           ],
           "edges": [],
           "texts": [
-            { "x": -32, "y": -33, "t": "@level.knaptable.intro.3.fig.scene.texts.0.t", "anchor": "end" },
-            { "x": -32, "y": 5, "t": "@level.knaptable.intro.3.fig.scene.texts.1.t", "anchor": "end" },
-            { "x": -32, "y": 57, "t": "@level.knaptable.intro.3.fig.scene.texts.2.t", "anchor": "end" },
-            { "x": -32, "y": 109, "t": "@level.knaptable.intro.3.fig.scene.texts.3.t", "anchor": "end" }
+            {
+              "x": -32,
+              "y": -33,
+              "t": "@level.knaptable.intro.3.fig.scene.texts.0.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 5,
+              "t": "@level.knaptable.intro.3.fig.scene.texts.1.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 57,
+              "t": "@level.knaptable.intro.3.fig.scene.texts.2.t",
+              "anchor": "end"
+            },
+            {
+              "x": -32,
+              "y": 109,
+              "t": "@level.knaptable.intro.3.fig.scene.texts.3.t",
+              "anchor": "end"
+            }
           ]
         }
       }
@@ -138,7 +699,7 @@
     "goal": "@level.knaptable.mission.goal",
     "how": "@level.knaptable.mission.how"
   },
-  "robot": "reach",
+  "robot": "table:robot-reach",
   "debrief": {
     "title": "@level.knaptable.debrief.title",
     "body": [
@@ -151,24 +712,24 @@
   "tasks": [
     {
       "id": "knaptable",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "ports": [
         {
-          "named": {
+          "table:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.0.named.label",
             "short": "a",
             "sensor": "up"
           }
         },
         {
-          "named": {
+          "table:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.1.named.label",
             "short": "b",
             "sensor": "upk"
           }
         },
         {
-          "named": {
+          "table:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.2.named.label",
             "short": "+",
             "sensor": "value"
@@ -177,51 +738,119 @@
       ],
       "diagnose": [
         {
-          "when": { "uses": "rowk" },
+          "when": {
+            "table:condition-uses": "rowk"
+          },
           "say": "@level.knaptable.tasks.knaptable.diagnose.0.say"
         }
       ],
-      "trace": "knap",
-      "after": "knap",
-      "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
+      "trace": "table:trace-knap",
+      "after": "table:panel-knap",
+      "boardOpt": {
+        "minScale": 0.68,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.knaptable.tasks.knaptable.hints.0",
         "@level.knaptable.tasks.knaptable.hints.1"
       ],
-      "world": "knap",
-      "facts": ["value"],
+      "world": "table:world-knap",
+      "facts": [
+        "value"
+      ],
       "tests": [
         {
           "W": 5,
           "items": [
-            { "n": "@level.knaptable.tasks.knaptable.tests.0.items.0.n", "w": 4, "v": 5 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.0.items.1.n", "w": 2, "v": 3 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.0.items.2.n", "w": 3, "v": 4 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.0.items.3.n", "w": 1, "v": 1 }
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.0.items.0.n",
+              "w": 4,
+              "v": 5
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.0.items.1.n",
+              "w": 2,
+              "v": 3
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.0.items.2.n",
+              "w": 3,
+              "v": 4
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.0.items.3.n",
+              "w": 1,
+              "v": 1
+            }
           ]
         },
         {
           "W": 10,
           "items": [
-            { "n": "@level.knaptable.tasks.knaptable.tests.1.items.0.n", "w": 6, "v": 30 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.1.items.1.n", "w": 3, "v": 14 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.1.items.2.n", "w": 4, "v": 16 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.1.items.3.n", "w": 2, "v": 9 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.1.items.4.n", "w": 1, "v": 1 }
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.1.items.0.n",
+              "w": 6,
+              "v": 30
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.1.items.1.n",
+              "w": 3,
+              "v": 14
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.1.items.2.n",
+              "w": 4,
+              "v": 16
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.1.items.3.n",
+              "w": 2,
+              "v": 9
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.1.items.4.n",
+              "w": 1,
+              "v": 1
+            }
           ]
         },
         {
           "W": 7,
           "items": [
-            { "n": "@level.knaptable.tasks.knaptable.tests.2.items.0.n", "w": 3, "v": 4 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.2.items.1.n", "w": 4, "v": 5 },
-            { "n": "@level.knaptable.tasks.knaptable.tests.2.items.2.n", "w": 2, "v": 3 }
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.2.items.0.n",
+              "w": 3,
+              "v": 4
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.2.items.1.n",
+              "w": 4,
+              "v": 5
+            },
+            {
+              "n": "@level.knaptable.tasks.knaptable.tests.2.items.2.n",
+              "w": 2,
+              "v": 3
+            }
           ]
         }
       ],
-      "expected": [7, 46, 9],
-      "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"],
-      "publishes": [{ "piece": "choose", "variant": "base" }]
+      "expected": [
+        7,
+        46,
+        9
+      ],
+      "solution": [
+        "a = table:add(view.upk, facts.value)",
+        "m = table:mmax(view.up, a)",
+        "cell <- m"
+      ],
+      "publishes": [
+        {
+          "piece": "choose",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

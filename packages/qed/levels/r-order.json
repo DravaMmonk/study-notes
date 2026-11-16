@@ -1,6 +1,9 @@
 {
   "title": "@level.r-order.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-order.intro.0.t"
@@ -9,15 +12,32 @@
   "tasks": [
     {
       "id": "r-order",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-order.tasks.r-order.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-order.tasks.r-order.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "∃x. Likes(x, i) ∧ Human(x)", "hyps": ["∃x. Human(x) ∧ Likes(x, i)"] },
-        { "goal": "∃y. Flies(y) ∧ Bird(y)", "hyps": ["∃x. Bird(x) ∧ Flies(x)"] }
+        {
+          "goal": "∃x. Likes(x, i) ∧ Human(x)",
+          "hyps": [
+            "∃x. Human(x) ∧ Likes(x, i)"
+          ]
+        },
+        {
+          "goal": "∃y. Flies(y) ∧ Bird(y)",
+          "hyps": [
+            "∃x. Bird(x) ∧ Flies(x)"
+          ]
+        }
       ],
       "brief": "@level.r-order.tasks.r-order.brief",
-      "hint": ["@level.r-order.tasks.r-order.hint.0"],
+      "hint": [
+        "@level.r-order.tasks.r-order.hint.0"
+      ],
       "solution": [
         "c0r0 = exE()",
         "c1r0 = andE[use=[conjE]]()",

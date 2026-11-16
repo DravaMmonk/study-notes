@@ -1,7 +1,15 @@
 {
   "title": "@level.r-both.title",
-  "adds": ["uSwap", "uDecompose", "uConflict", "uEliminate"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uSwap",
+    "uDecompose",
+    "uConflict",
+    "uEliminate"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-both.intro.0.t"
@@ -10,17 +18,40 @@
   "tasks": [
     {
       "id": "r-both",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-both.tasks.r-both.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-both.tasks.r-both.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["?A ∧ Wind ≐ Rain ∧ ?B"] },
-        { "eqs": ["Rain → ?B ≐ ?A"] },
-        { "eqs": ["?A → ?A ≐ ?B → Rain"] },
-        { "eqs": ["Rain ∧ ?B ≐ ?A ∨ Wind"] }
+        {
+          "eqs": [
+            "?A ∧ Wind ≐ Rain ∧ ?B"
+          ]
+        },
+        {
+          "eqs": [
+            "Rain → ?B ≐ ?A"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → ?A ≐ ?B → Rain"
+          ]
+        },
+        {
+          "eqs": [
+            "Rain ∧ ?B ≐ ?A ∨ Wind"
+          ]
+        }
       ],
       "brief": "@level.r-both.tasks.r-both.brief",
-      "hint": ["@level.r-both.tasks.r-both.hint.0"],
+      "hint": [
+        "@level.r-both.tasks.r-both.hint.0"
+      ],
       "solution": [
         "r = repeat(in, body: c3) {",
         "  body {",

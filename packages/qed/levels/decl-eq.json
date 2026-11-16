@@ -1,5 +1,8 @@
 {
-  "adds": ["rewrite", "refl"],
+  "adds": [
+    "rewrite",
+    "refl"
+  ],
   "title": "@level.decl-eq.title",
   "intro": [
     {
@@ -11,26 +14,63 @@
   "tasks": [
     {
       "id": "decl-eq",
-      "kind": "iso",
-      "words": ["everyday", "terms", "stars"],
+      "kind": "logic:iso",
+      "words": [
+        "everyday",
+        "terms",
+        "stars"
+      ],
       "declare": "@level.decl-eq.tasks.decl-eq.declare",
       "target": "a = a",
       "binder": "a",
       "sentences": [],
-      "things": ["i", "j"],
+      "things": [
+        "i",
+        "j"
+      ],
       "thing": true,
       "tests": [
-        { "given": [], "goal": "i = i", "make": true },
-        { "given": [], "goal": "j = j", "make": true },
-        { "given": [], "goal": "i = j", "make": false }
+        {
+          "given": [],
+          "goal": "i = i",
+          "make": true
+        },
+        {
+          "given": [],
+          "goal": "j = j",
+          "make": true
+        },
+        {
+          "given": [],
+          "goal": "i = j",
+          "make": false
+        }
       ],
-      "take": { "premises": ["?a = ?b", "?P(?a)"], "conclusion": "?P(?b)" },
+      "take": {
+        "premises": [
+          "?a = ?b",
+          "?P(?a)"
+        ],
+        "conclusion": "?P(?b)"
+      },
       "brief": "@level.decl-eq.tasks.decl-eq.brief",
       "hint": [
         "@level.decl-eq.tasks.decl-eq.hint.0"
       ],
-      "solution": [{ "binds": ["a"], "needs": [] }],
-      "naive": [{ "binds": [], "needs": [] }]
+      "solution": [
+        {
+          "binds": [
+            "a"
+          ],
+          "needs": []
+        }
+      ],
+      "naive": [
+        {
+          "binds": [],
+          "needs": []
+        }
+      ]
     }
   ]
 }

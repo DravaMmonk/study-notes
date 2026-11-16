@@ -13,20 +13,64 @@
   "tasks": [
     {
       "id": "decl-nat",
-      "kind": "iso",
-      "words": ["everyday", "terms"],
+      "kind": "logic:iso",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "declare": "@level.decl-nat.tasks.decl-nat.declare",
       "target": "Nat",
-      "sentences": ["Nat"],
-      "datatype": { "type": "nat", "ctors": ["zero", "s"], "args": { "Nat": "nat" } },
-      "tests": [{ "given": [], "make": true }, { "given": ["Nat"], "make": true, "uses": ["Nat"] }],
+      "sentences": [
+        "Nat"
+      ],
+      "datatype": {
+        "type": "nat",
+        "ctors": [
+          "zero",
+          "s"
+        ],
+        "args": {
+          "Nat": "nat"
+        }
+      },
+      "tests": [
+        {
+          "given": [],
+          "make": true
+        },
+        {
+          "given": [
+            "Nat"
+          ],
+          "make": true,
+          "uses": [
+            "Nat"
+          ]
+        }
+      ],
       "brief": "@level.decl-nat.tasks.decl-nat.brief",
       "hint": [
         "@level.decl-nat.tasks.decl-nat.hint.0",
         "@level.decl-nat.tasks.decl-nat.hint.1"
       ],
-      "solution": [{ "binds": [], "needs": [] }, { "binds": [], "needs": ["Nat"] }],
-      "naive": [{ "binds": [], "needs": [] }]
+      "solution": [
+        {
+          "binds": [],
+          "needs": []
+        },
+        {
+          "binds": [],
+          "needs": [
+            "Nat"
+          ]
+        }
+      ],
+      "naive": [
+        {
+          "binds": [],
+          "needs": []
+        }
+      ]
     }
   ]
 }

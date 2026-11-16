@@ -1,6 +1,9 @@
 {
   "title": "@level.nested.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.nested.intro.0.t"
@@ -12,24 +15,75 @@
   "tasks": [
     {
       "id": "nested_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.nested.tasks.nested_1.step",
-      "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "B" }, "goal": "C" }],
-      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
-      "hint": ["@level.nested.tasks.nested_1.hint.0"],
-      "solution": ["m1 = mp(q, p)", "m2 = mp(m1, r)", "goal <- m2"]
+      "tests": [
+        {
+          "premises": {
+            "p": "A",
+            "q": "A → (B → C)",
+            "r": "B"
+          },
+          "goal": "C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rain",
+          "C": "Rest"
+        },
+        {
+          "A": "Exam",
+          "B": "Study",
+          "C": "Pass"
+        }
+      ],
+      "hint": [
+        "@level.nested.tasks.nested_1.hint.0"
+      ],
+      "solution": [
+        "m1 = mp(q, p)",
+        "m2 = mp(m1, r)",
+        "goal <- m2"
+      ]
     },
     {
       "id": "nested_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.nested.tasks.nested_2.step",
-      "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "(B → C) → D" }, "goal": "D" }],
-      "cases": [
-        { "A": "Sat", "B": "Rain", "C": "Rest", "D": "Happy" },
-        { "A": "Alarm", "B": "Coffee", "C": "Awake", "D": "OnTime" }
+      "tests": [
+        {
+          "premises": {
+            "p": "A",
+            "q": "A → (B → C)",
+            "r": "(B → C) → D"
+          },
+          "goal": "D"
+        }
       ],
-      "hint": ["@level.nested.tasks.nested_2.hint.0"],
-      "solution": ["m1 = mp(q, p)", "m2 = mp(r, m1)", "goal <- m2"]
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Rain",
+          "C": "Rest",
+          "D": "Happy"
+        },
+        {
+          "A": "Alarm",
+          "B": "Coffee",
+          "C": "Awake",
+          "D": "OnTime"
+        }
+      ],
+      "hint": [
+        "@level.nested.tasks.nested_2.hint.0"
+      ],
+      "solution": [
+        "m1 = mp(q, p)",
+        "m2 = mp(r, m1)",
+        "goal <- m2"
+      ]
     }
   ]
 }

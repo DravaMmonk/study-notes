@@ -3,7 +3,7 @@
 // played. A domain's own component is the third way to fit a game, after its content and a part of the kit
 // (games/DESIGN.md 6.3), and each is a piece no other game shares. This counts them.
 //
-//   components(kit) → { 'domains/image': lineCount, 'scaffold/rows': lineCount, … }   lines of .jsx a domain or a template holds,
+//   components(kit) → { 'modules/image': lineCount, 'modules/rows': lineCount, … }   lines of .jsx a domain or a template holds,
 //     its map's illustration (Hero.jsx, hero.jsx: a drawing,
 //     one a game) left out
 import { readFileSync, readdirSync, statSync } from 'node:fs'
@@ -19,7 +19,7 @@ const files = (dir) => readdirSync(dir).flatMap((name) => {
 const lines = (path) => readFileSync(path, 'utf8').split('\n').filter((line) => line.trim()).length
 
 export function components(kit) {
-  return Object.fromEntries(['domains', 'scaffold'].flatMap((group) => readdirSync(join(kit, group)).map((name) => {
+  return Object.fromEntries(['modules'].flatMap((group) => readdirSync(join(kit, group)).map((name) => {
     const dir = join(kit, group, name)
     return [`${group}/${name}`, statSync(dir).isDirectory() ? files(dir).reduce((n, path) => n + lines(path), 0) : 0]
   })))

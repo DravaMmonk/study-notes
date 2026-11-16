@@ -12,28 +12,101 @@
   "tasks": [
     {
       "id": "q-children",
-      "kind": "query",
-      "consts": ["h", "i", "j", "k", "l", "m", "n"],
+      "kind": "logic:query",
+      "consts": [
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n"
+      ],
       "worlds": [
         {
           "title": "@level.q-children.tasks.q-children.worlds.0.title",
-          "things": ["i", "j", "k", "l", "m"],
-          "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
+          "things": [
+            "i",
+            "j",
+            "k",
+            "l",
+            "m"
+          ],
+          "preds": {
+            "Parent": [
+              [
+                "i",
+                "j"
+              ],
+              [
+                "i",
+                "k"
+              ],
+              [
+                "j",
+                "l"
+              ],
+              [
+                "k",
+                "m"
+              ]
+            ],
+            "School": [
+              "l"
+            ]
+          }
         },
         {
           "title": "@level.q-children.tasks.q-children.worlds.1.title",
-          "things": ["i", "j", "k", "l", "m", "n"],
+          "things": [
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n"
+          ],
           "preds": {
-            "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
-            "School": ["k", "l", "m", "n"]
+            "Parent": [
+              [
+                "j",
+                "i"
+              ],
+              [
+                "i",
+                "k"
+              ],
+              [
+                "i",
+                "l"
+              ],
+              [
+                "k",
+                "m"
+              ],
+              [
+                "l",
+                "n"
+              ]
+            ],
+            "School": [
+              "k",
+              "l",
+              "m",
+              "n"
+            ]
           }
         }
       ],
       "say": "@level.q-children.tasks.q-children.say",
       "target": "Parent(i, x)",
-      "decoys": ["School(x)"],
+      "decoys": [
+        "School(x)"
+      ],
       "brief": "@level.q-children.tasks.q-children.brief",
-      "hint": ["@level.q-children.tasks.q-children.hint.0"]
+      "hint": [
+        "@level.q-children.tasks.q-children.hint.0"
+      ]
     }
   ]
 }

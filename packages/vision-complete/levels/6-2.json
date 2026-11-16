@@ -11,18 +11,18 @@
     },
     {
       "t": "@level.6-2.intro.2.t",
-      "fig": { "test": 0, "view": "terrain", "caption": "@level.6-2.intro.2.fig.caption" }
+      "fig": { "test": 0, "view": "image:view-terrain", "caption": "@level.6-2.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "6-2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-2.tasks.6-2.brief",
       "hint": "@level.6-2.tasks.6-2.hint",
       "inputs": ["in"],
       "outputs": ["out"],
-      "scene": "bumps",
+      "scene": "image:scene-bumps",
       "setup": { "above": 0.3 },
       "tests": [
         { "label": "@level.6-2.tasks.6-2.tests.0.label", "bumps": [[3, 4, 0.9], [11, 5, 0.6], [7, 12, 0.8]] },

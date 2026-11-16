@@ -1,7 +1,12 @@
 {
   "title": "@level.q-allE.title",
-  "adds": ["allE"],
-  "tray": ["#proof", "#formula"],
+  "adds": [
+    "allE"
+  ],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.q-allE.intro.0.t"
@@ -10,14 +15,37 @@
   "tasks": [
     {
       "id": "q-allE",
-      "kind": "proof",
-      "consts": ["i"],
-      "tests": [{ "premises": { "p": "∀x. P(x) → Q(x)", "q": "P(i)" }, "goal": "Q(i)" }],
-      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "kind": "logic:proof",
+      "consts": [
+        "i"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. P(x) → Q(x)",
+            "q": "P(i)"
+          },
+          "goal": "Q(i)"
+        }
+      ],
+      "cases": [
+        {
+          "P": "Human",
+          "Q": "Mortal"
+        },
+        {
+          "P": "Student",
+          "Q": "School"
+        }
+      ],
       "hint": [
         "@level.q-allE.tasks.q-allE.hint.0"
       ],
-      "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
+      "solution": [
+        "e = allE[t=i](p)",
+        "m = mp(e, q)",
+        "goal <- m"
+      ]
     }
   ]
 }

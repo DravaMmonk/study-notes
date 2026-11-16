@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "7-6",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.7-6.tasks.7-6.brief",
       "hint": "@level.7-6.tasks.7-6.hint",
       "inputs": ["p", "q", "r", "s"],
@@ -24,34 +24,34 @@
         "r": "@level.7-6.tasks.7-6.inputLabels.r",
         "s": "@level.7-6.tasks.7-6.inputLabels.s"
       },
-      "scene": "filter",
-      "setup": { "target": "meet" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-meet" },
       "tests": [
         {
           "label": "@level.7-6.tasks.7-6.tests.0.label",
           "inputs": {
-            "p": { "row": { "values": [0, 2, 1] } },
-            "q": { "row": { "values": [4, 2, 1] } },
-            "r": { "row": { "values": [1, 0, 1] } },
-            "s": { "row": { "values": [1, 5, 1] } }
+            "p": { "image:picture-row": { "values": [0, 2, 1] } },
+            "q": { "image:picture-row": { "values": [4, 2, 1] } },
+            "r": { "image:picture-row": { "values": [1, 0, 1] } },
+            "s": { "image:picture-row": { "values": [1, 5, 1] } }
           }
         },
         {
           "label": "@level.7-6.tasks.7-6.tests.1.label",
           "inputs": {
-            "p": { "row": { "values": [0, 0, 1] } },
-            "q": { "row": { "values": [4, 4, 1] } },
-            "r": { "row": { "values": [0, 4, 1] } },
-            "s": { "row": { "values": [4, 0, 1] } }
+            "p": { "image:picture-row": { "values": [0, 0, 1] } },
+            "q": { "image:picture-row": { "values": [4, 4, 1] } },
+            "r": { "image:picture-row": { "values": [0, 4, 1] } },
+            "s": { "image:picture-row": { "values": [4, 0, 1] } }
           }
         },
         {
           "label": "@level.7-6.tasks.7-6.tests.2.label",
           "inputs": {
-            "p": { "row": { "values": [0, 0, 1] } },
-            "q": { "row": { "values": [1, 2, 1] } },
-            "r": { "row": { "values": [3, 0, 1] } },
-            "s": { "row": { "values": [4, 1, 1] } }
+            "p": { "image:picture-row": { "values": [0, 0, 1] } },
+            "q": { "image:picture-row": { "values": [1, 2, 1] } },
+            "r": { "image:picture-row": { "values": [3, 0, 1] } },
+            "s": { "image:picture-row": { "values": [4, 1, 1] } }
           }
         }
       ],
@@ -59,10 +59,10 @@
         {
           "label": "@level.7-6.tasks.7-6.hidden.0.label",
           "inputs": {
-            "p": { "row": { "values": [1, 1, 1] } },
-            "q": { "row": { "values": [3, 2, 1] } },
-            "r": { "row": { "values": [0, 5, 1] } },
-            "s": { "row": { "values": [2, 1, 1] } }
+            "p": { "image:picture-row": { "values": [1, 1, 1] } },
+            "q": { "image:picture-row": { "values": [3, 2, 1] } },
+            "r": { "image:picture-row": { "values": [0, 5, 1] } },
+            "s": { "image:picture-row": { "values": [2, 1, 1] } }
           }
         }
       ],

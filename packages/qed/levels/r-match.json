@@ -1,7 +1,12 @@
 {
   "title": "@level.r-match.title",
-  "adds": ["uDecompose"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uDecompose"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-match.intro.0.t"
@@ -16,19 +21,40 @@
   "tasks": [
     {
       "id": "r-match",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-match.tasks.r-match.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-match.tasks.r-match.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
-        { "eqs": ["?A → ?B ≐ Rain → Wet ∧ Slip"] },
-        { "eqs": ["(?A → ?B) ∧ ?C ≐ (Rain → Wet) ∧ Wind"] }
+        {
+          "eqs": [
+            "?A ∧ ?B ≐ Rain ∧ Wind"
+          ]
+        },
+        {
+          "eqs": [
+            "?A → ?B ≐ Rain → Wet ∧ Slip"
+          ]
+        },
+        {
+          "eqs": [
+            "(?A → ?B) ∧ ?C ≐ (Rain → Wet) ∧ Wind"
+          ]
+        }
       ],
       "brief": "@level.r-match.tasks.r-match.brief",
       "hint": [
         "@level.r-match.tasks.r-match.hint.0"
       ],
-      "solution": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "out <- c1"]
+      "solution": [
+        "c0 = uDecompose(in)",
+        "c1 = uDecompose(c0)",
+        "out <- c1"
+      ]
     }
   ]
 }

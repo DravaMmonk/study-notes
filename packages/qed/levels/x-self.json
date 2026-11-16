@@ -1,13 +1,32 @@
 {
   "title": "@level.x-self.title",
-  "tray": ["#proof", "#formula"],
-  "without": ["impI", "chain", "swap", "merge"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "without": [
+    "impI",
+    "chain",
+    "swap",
+    "merge"
+  ],
   "tasks": [
     {
       "id": "x-self",
-      "kind": "proof",
-      "tests": [{ "goal": "A → A" }],
-      "cases": [{ "A": "Rain" }, { "A": "Sat" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "goal": "A → A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Sat"
+        }
+      ],
       "briefNote": "@level.x-self.tasks.x-self.briefNote",
       "hint": [
         "@level.x-self.tasks.x-self.hint.0",

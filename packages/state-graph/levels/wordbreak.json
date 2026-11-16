@@ -5,18 +5,98 @@
     {
       "t": "@level.wordbreak.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "c0", "x": 0, "y": 0, "w": 38, "h": 38, "value": "c", "cls": "tile" },
-            { "id": "c1", "x": 46, "y": 0, "w": 38, "h": 38, "value": "a", "cls": "tile" },
-            { "id": "c2", "x": 92, "y": 0, "w": 38, "h": 38, "value": "t", "cls": "tile" },
-            { "id": "c3", "x": 138, "y": 0, "w": 38, "h": 38, "value": "s", "cls": "tile" },
-            { "id": "c4", "x": 184, "y": 0, "w": 38, "h": 38, "value": "a", "cls": "tile" },
-            { "id": "c5", "x": 230, "y": 0, "w": 38, "h": 38, "value": "n", "cls": "tile" },
-            { "id": "c6", "x": 276, "y": 0, "w": 38, "h": 38, "value": "d", "cls": "tile" },
-            { "id": "c7", "x": 322, "y": 0, "w": 38, "h": 38, "value": "d", "cls": "tile" },
-            { "id": "c8", "x": 368, "y": 0, "w": 38, "h": 38, "value": "o", "cls": "tile" },
-            { "id": "c9", "x": 414, "y": 0, "w": 38, "h": 38, "value": "g", "cls": "tile" }
+            {
+              "id": "c0",
+              "x": 0,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "c",
+              "cls": "tile"
+            },
+            {
+              "id": "c1",
+              "x": 46,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "a",
+              "cls": "tile"
+            },
+            {
+              "id": "c2",
+              "x": 92,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "t",
+              "cls": "tile"
+            },
+            {
+              "id": "c3",
+              "x": 138,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "s",
+              "cls": "tile"
+            },
+            {
+              "id": "c4",
+              "x": 184,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "a",
+              "cls": "tile"
+            },
+            {
+              "id": "c5",
+              "x": 230,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "n",
+              "cls": "tile"
+            },
+            {
+              "id": "c6",
+              "x": 276,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "d",
+              "cls": "tile"
+            },
+            {
+              "id": "c7",
+              "x": 322,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "d",
+              "cls": "tile"
+            },
+            {
+              "id": "c8",
+              "x": 368,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "o",
+              "cls": "tile"
+            },
+            {
+              "id": "c9",
+              "x": 414,
+              "y": 0,
+              "w": 38,
+              "h": 38,
+              "value": "g",
+              "cls": "tile"
+            }
           ],
           "edges": []
         }
@@ -33,7 +113,7 @@
     "goal": "@level.wordbreak.mission.goal",
     "how": "@level.wordbreak.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.wordbreak.debrief.title",
     "body": [
@@ -44,35 +124,78 @@
   "tasks": [
     {
       "id": "wordbreak",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "uses": "cost" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "cost"
+            }
+          },
           "say": "@level.wordbreak.tasks.wordbreak.diagnose.0.say"
         }
       ],
       "testLabel": "{s}",
-      "after": "dictionary",
+      "after": "table:panel-dictionary",
       "hints": [
         "@level.wordbreak.tasks.wordbreak.hints.0",
         "@level.wordbreak.tasks.wordbreak.hints.1"
       ],
-      "world": "pieces",
-      "facts": ["ground"],
-      "tests": [
-        { "s": "catsanddog", "dict": ["cat", "cats", "and", "sand", "dog"] },
-        { "s": "penpineapple", "dict": ["pen", "pine", "apple", "pineapple"] },
-        { "s": "wordbreaking", "dict": ["word", "break", "breaking", "wordbreak", "king", "in", "g"] }
+      "world": "table:world-pieces",
+      "facts": [
+        "ground"
       ],
-      "expected": [3, 2, 2],
+      "tests": [
+        {
+          "s": "catsanddog",
+          "dict": [
+            "cat",
+            "cats",
+            "and",
+            "sand",
+            "dog"
+          ]
+        },
+        {
+          "s": "penpineapple",
+          "dict": [
+            "pen",
+            "pine",
+            "apple",
+            "pineapple"
+          ]
+        },
+        {
+          "s": "wordbreaking",
+          "dict": [
+            "word",
+            "break",
+            "breaking",
+            "wordbreak",
+            "king",
+            "in",
+            "g"
+          ]
+        }
+      ],
+      "expected": [
+        3,
+        2,
+        2
+      ],
       "solution": [
-        "a = add(view.seg, view.cost)",
-        "z = const[value=0]()",
-        "g = pass(facts.ground, z)",
-        "m = mmin(a, g)",
+        "a = table:add(view.seg, view.cost)",
+        "z = table:const[value=0]()",
+        "g = table:pass(facts.ground, z)",
+        "m = table:mmin(a, g)",
         "cell <- m"
       ],
-      "publishes": [{ "piece": "wordbreak", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "wordbreak",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

@@ -9,10 +9,10 @@
     {
       "t": "@level.1-5.intro.1.t",
       "fig": {
-        "part": "gauss",
+        "part": "vision-complete/gauss",
         "params": { "sigma": 1 },
         "caption": "@level.1-5.intro.1.fig.caption",
-        "input": "square"
+        "input": "image:picture-square"
       }
     },
     {
@@ -22,7 +22,7 @@
       "t": "@level.1-5.intro.3.t",
       "fig": {
         "test": 0,
-        "view": "terrain",
+        "view": "image:view-terrain",
         "caption": "@level.1-5.intro.3.fig.caption"
       }
     }
@@ -30,23 +30,23 @@
   "tasks": [
     {
       "id": "1-5",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-5.tasks.1-5.brief",
-      "views": { "in": "terrain", "out": "terrain", "mid": "terrain" },
-      "scene": "filter",
-      "setup": { "target": { "sharpen": { "sigma": 1, "amount": 1.5 } } },
+      "views": { "in": "image:view-terrain", "out": "image:view-terrain", "mid": "image:view-terrain" },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-sharpen": { "sigma": 1, "amount": 1.5 } } },
       "tests": [
-        { "label": "@level.1-5.tasks.1-5.tests.0.label", "in": "square" },
-        { "label": "@level.1-5.tasks.1-5.tests.1.label", "in": "disk" },
-        { "label": "@level.1-5.tasks.1-5.tests.2.label", "in": { "glyph": { "letter": "T" } } },
-        { "label": "@level.1-5.tasks.1-5.tests.3.label", "in": "checker" }
+        { "label": "@level.1-5.tasks.1-5.tests.0.label", "in": "image:picture-square" },
+        { "label": "@level.1-5.tasks.1-5.tests.1.label", "in": "image:picture-disk" },
+        { "label": "@level.1-5.tasks.1-5.tests.2.label", "in": { "image:picture-glyph": { "letter": "T" } } },
+        { "label": "@level.1-5.tasks.1-5.tests.3.label", "in": "image:picture-checker" }
       ],
       "hidden": [
         {
           "label": "@level.1-5.tasks.1-5.hidden.0.label",
-          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
+          "in": { "image:picture-glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
         },
-        { "label": "@level.1-5.tasks.1-5.hidden.1.label", "in": { "noise": { "seed": 21 } } }
+        { "label": "@level.1-5.tasks.1-5.hidden.1.label", "in": { "image:picture-noise": { "seed": 21 } } }
       ],
       "solution": [
         "kN = const[c=1.5]()",

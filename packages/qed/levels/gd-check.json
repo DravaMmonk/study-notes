@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-check.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-check.intro.0.t"
@@ -10,11 +13,20 @@
   "tasks": [
     {
       "id": "gd-check",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.gd-check.tasks.gd-check.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.gd-check.tasks.gd-check.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms", "codes"],
+      "words": [
+        "everyday",
+        "terms",
+        "codes"
+      ],
       "stated": [
         "concl(ax(x)) = x",
         "concl(use(x, y)) = then(concl(x), concl(y))",
@@ -28,13 +40,23 @@
         "isax(imp(wet, slip)) = tt"
       ],
       "tests": [
-        { "goal": "ok(use(ax(imp(rain, wet)), ax(rain))) = tt" },
-        { "goal": "concl(use(ax(imp(rain, wet)), ax(rain))) = wet" },
-        { "goal": "ok(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = tt" },
-        { "goal": "concl(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = slip" }
+        {
+          "goal": "ok(use(ax(imp(rain, wet)), ax(rain))) = tt"
+        },
+        {
+          "goal": "concl(use(ax(imp(rain, wet)), ax(rain))) = wet"
+        },
+        {
+          "goal": "ok(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = tt"
+        },
+        {
+          "goal": "concl(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = slip"
+        }
       ],
       "brief": "@level.gd-check.tasks.gd-check.brief",
-      "hint": ["@level.gd-check.tasks.gd-check.hint.0"],
+      "hint": [
+        "@level.gd-check.tasks.gd-check.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\"]]()",
         "c1r0 = refl()",

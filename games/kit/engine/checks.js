@@ -4,7 +4,7 @@
 // checks (reference answers pass, naive ones fail, …). npm run check (check.js) and every changeset (ops/changeset.js)
 // run it.
 //
-// A game is checked through its spec, which its domain makes under node (../domains/<domain>/domain.js: { vocabulary,
+// A game is checked through its spec, which its domain makes under node (../modules/<domain>/domain.js: { vocabulary,
 // spec(content), validate(spec) }): { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level,
 // part, text? }] }.
 // `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that

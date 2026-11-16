@@ -1,6 +1,9 @@
 {
   "title": "@level.sort-if.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sort-if.intro.0.t"
@@ -10,15 +13,31 @@
   "tasks": [
     {
       "id": "sort-if_1",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sort-if.tasks.sort-if_1.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sort-if.tasks.sort-if_1.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-if.tasks.sort-if_1.step",
-      "types": ["bool"],
-      "defs": ["if"],
-      "tests": [{ "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v" }],
+      "types": [
+        "bool"
+      ],
+      "defs": [
+        "if"
+      ],
+      "tests": [
+        {
+          "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v"
+        }
+      ],
       "brief": "@level.sort-if.tasks.sort-if_1.brief",
       "hint": [
         "@level.sort-if.tasks.sort-if_1.hint.0",
@@ -34,7 +53,7 @@
         "    c1 = rule(c0.body, c1r0)",
         "  }",
         "}",
-        "c3r2 = hyp(c3r0)",
+        "c3r2 = logic:hyp(c3r0)",
         "c2 = rule(c0, c2r0)",
         "c3 = simp(c2, c3r2)",
         "c4 = rule(c3, c4r0)",
@@ -55,21 +74,44 @@
         "c4 = rule(c3, c4r0)",
         "out <- c4"
       ],
-      "publishes": [{ "piece": "ifTrue", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "ifTrue",
+          "variant": "base"
+        }
+      ]
     },
     {
       "id": "sort-if_2",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sort-if.tasks.sort-if_2.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sort-if.tasks.sort-if_2.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.sort-if.tasks.sort-if_2.step",
-      "types": ["bool"],
-      "defs": ["if"],
-      "tests": [{ "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w" }],
+      "types": [
+        "bool"
+      ],
+      "defs": [
+        "if"
+      ],
+      "tests": [
+        {
+          "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w"
+        }
+      ],
       "brief": "@level.sort-if.tasks.sort-if_2.brief",
-      "hint": ["@level.sort-if.tasks.sort-if_2.hint.0"],
+      "hint": [
+        "@level.sort-if.tasks.sort-if_2.hint.0"
+      ],
       "solution": [
         "c2r0 = impI()",
         "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
@@ -80,13 +122,18 @@
         "    c1 = rule(c0.body, c1r0)",
         "  }",
         "}",
-        "c3r2 = hyp(c3r0)",
+        "c3r2 = logic:hyp(c3r0)",
         "c2 = rule(c0, c2r0)",
         "c3 = simp(c2, c3r2)",
         "c4 = rule(c3, c4r0)",
         "out <- c4"
       ],
-      "publishes": [{ "piece": "ifFalse", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "ifFalse",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

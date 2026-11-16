@@ -1,5 +1,8 @@
 {
-  "adds": ["andI", "andE"],
+  "adds": [
+    "andI",
+    "andE"
+  ],
   "title": "@level.decl-and.title",
   "intro": [
     {
@@ -20,27 +23,95 @@
   "tasks": [
     {
       "id": "decl-and",
-      "kind": "iso",
+      "kind": "logic:iso",
       "declare": "@level.decl-and.tasks.decl-and.declare",
       "target": "Rain ∧ Wind",
-      "sentences": ["Rain", "Wind"],
+      "sentences": [
+        "Rain",
+        "Wind"
+      ],
       "tests": [
-        { "given": ["Rain", "Wind"], "make": true },
-        { "given": ["Rain"], "make": false },
-        { "given": ["Wind"], "make": false },
-        { "given": [], "make": false },
-        { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
-        { "given": ["Rain ∧ Wind"], "goal": "Wind", "make": true },
-        { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false },
-        { "given": ["Rain ∧ Wind", "Rain → (Wind → Wet)"], "goal": "Wet", "make": true }
+        {
+          "given": [
+            "Rain",
+            "Wind"
+          ],
+          "make": true
+        },
+        {
+          "given": [
+            "Rain"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Wind"
+          ],
+          "make": false
+        },
+        {
+          "given": [],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "goal": "Rain",
+          "make": true
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "goal": "Wind",
+          "make": true
+        },
+        {
+          "given": [
+            "Rain ∧ Wind"
+          ],
+          "goal": "Wet",
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ∧ Wind",
+            "Rain → (Wind → Wet)"
+          ],
+          "goal": "Wet",
+          "make": true
+        }
       ],
       "brief": "@level.decl-and.tasks.decl-and.brief",
       "hint": [
         "@level.decl-and.tasks.decl-and.hint.0",
         "@level.decl-and.tasks.decl-and.hint.1"
       ],
-      "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
-      "naive": [{ "binds": [], "needs": ["Rain"] }, { "binds": [], "needs": ["Wind"] }]
+      "solution": [
+        {
+          "binds": [],
+          "needs": [
+            "Rain",
+            "Wind"
+          ]
+        }
+      ],
+      "naive": [
+        {
+          "binds": [],
+          "needs": [
+            "Rain"
+          ]
+        },
+        {
+          "binds": [],
+          "needs": [
+            "Wind"
+          ]
+        }
+      ]
     }
   ]
 }

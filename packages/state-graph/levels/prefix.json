@@ -8,7 +8,7 @@
     {
       "t": "@level.prefix.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -73,7 +73,7 @@
     "goal": "@level.prefix.mission.goal",
     "how": "@level.prefix.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.prefix.debrief.title",
     "body": [
@@ -85,13 +85,41 @@
   "tasks": [
     {
       "id": "prefix",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "@level.prefix.tasks.prefix.testLabel",
-      "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
-      "world": "prefix",
-      "facts": ["money"],
-      "expected": [14, 28],
-      "solution": ["m = msum(view.seg)", "cell <- m"],
+      "tests": [
+        {
+          "a": [
+            3,
+            1,
+            4,
+            1,
+            5
+          ]
+        },
+        {
+          "a": [
+            2,
+            7,
+            1,
+            8,
+            2,
+            8
+          ]
+        }
+      ],
+      "world": "table:world-prefix",
+      "facts": [
+        "money"
+      ],
+      "expected": [
+        14,
+        28
+      ],
+      "solution": [
+        "m = table:msum(view.seg)",
+        "cell <- m"
+      ],
       "hints": [
         "@level.prefix.tasks.prefix.hints.0",
         "@level.prefix.tasks.prefix.hints.1"
@@ -108,13 +136,41 @@
     },
     {
       "id": "prefix_2",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "@level.prefix.tasks.prefix_2.testLabel",
-      "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
-      "world": "prefix",
-      "facts": ["money"],
-      "expected": [14, 28],
-      "solution": ["a = add(view.prev, facts.money)", "cell <- a"],
+      "tests": [
+        {
+          "a": [
+            3,
+            1,
+            4,
+            1,
+            5
+          ]
+        },
+        {
+          "a": [
+            2,
+            7,
+            1,
+            8,
+            2,
+            8
+          ]
+        }
+      ],
+      "world": "table:world-prefix",
+      "facts": [
+        "money"
+      ],
+      "expected": [
+        14,
+        28
+      ],
+      "solution": [
+        "a = table:add(view.prev, facts.money)",
+        "cell <- a"
+      ],
       "hints": [
         "@level.prefix.tasks.prefix_2.hints.0",
         "@level.prefix.tasks.prefix_2.hints.1"
@@ -122,7 +178,12 @@
       "ask": "@level.prefix.tasks.prefix_2.ask",
       "noArm": true,
       "checkAll": true,
-      "publishes": [{ "piece": "sweep", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "sweep",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

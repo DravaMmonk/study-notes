@@ -1,6 +1,9 @@
 {
   "title": "@level.q-move.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.q-move.intro.0.t"
@@ -9,10 +12,26 @@
   "tasks": [
     {
       "id": "q-move_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-move.tasks.q-move_1.step",
-      "tests": [{ "premises": { "p": "∀x. P(x) → Q" }, "goal": "(∃x. P(x)) → Q" }],
-      "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. P(x) → Q"
+          },
+          "goal": "(∃x. P(x)) → Q"
+        }
+      ],
+      "cases": [
+        {
+          "P": "IsLate",
+          "Q": "Angry"
+        },
+        {
+          "P": "Cries",
+          "Q": "Woken"
+        }
+      ],
       "hint": [
         "@level.q-move.tasks.q-move_1.hint.0"
       ],
@@ -32,10 +51,26 @@
     },
     {
       "id": "q-move_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.q-move.tasks.q-move_2.step",
-      "tests": [{ "premises": { "p": "(∃x. P(x)) → Q" }, "goal": "∀x. P(x) → Q" }],
-      "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "(∃x. P(x)) → Q"
+          },
+          "goal": "∀x. P(x) → Q"
+        }
+      ],
+      "cases": [
+        {
+          "P": "IsLate",
+          "Q": "Angry"
+        },
+        {
+          "P": "Cries",
+          "Q": "Woken"
+        }
+      ],
       "hint": [
         "@level.q-move.tasks.q-move_2.hint.0"
       ],

@@ -13,7 +13,7 @@
     "goal": "@level.ring.mission.goal",
     "how": "@level.ring.mission.how"
   },
-  "robot": "stack",
+  "robot": "table:robot-stack",
   "debrief": {
     "title": "@level.ring.debrief.title",
     "body": [
@@ -24,23 +24,74 @@
   "tasks": [
     {
       "id": "ring",
-      "mode": "circuit",
-      "naive": ["n = mmax(view.pn, view.pr)", "a = add(view.pn, facts.money)", "no <- n", "yes <- a"],
+      "mode": "table:circuit",
+      "naive": [
+        "n = table:mmax(view.pn, view.pr)",
+        "a = table:add(view.pn, facts.money)",
+        "no <- n",
+        "yes <- a"
+      ],
       "hints": [
         "@level.ring.tasks.ring.hints.0",
         "@level.ring.tasks.ring.hints.1"
       ],
-      "world": "ring",
-      "facts": ["money", "first", "last", "sideA"],
-      "tests": [{ "a": [2, 3, 2] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }, { "a": [6, 2, 3, 7, 1, 5] }],
-      "expected": [3, 6, 18, 14],
+      "world": "table:world-ring",
+      "facts": [
+        "money",
+        "first",
+        "last",
+        "sideA"
+      ],
+      "tests": [
+        {
+          "a": [
+            2,
+            3,
+            2
+          ]
+        },
+        {
+          "a": [
+            5,
+            1,
+            1,
+            5
+          ]
+        },
+        {
+          "a": [
+            4,
+            10,
+            3,
+            1,
+            8,
+            6
+          ]
+        },
+        {
+          "a": [
+            6,
+            2,
+            3,
+            7,
+            1,
+            5
+          ]
+        }
+      ],
+      "expected": [
+        3,
+        6,
+        18,
+        14
+      ],
       "solution": [
-        "n = mmax(view.pn, view.pr)",
-        "a = add(view.pn, facts.money)",
-        "f = pass(facts.sideA, facts.first)",
-        "l = block(facts.sideA, facts.last)",
-        "x = many(f, l)",
-        "k = block(x, a)",
+        "n = table:mmax(view.pn, view.pr)",
+        "a = table:add(view.pn, facts.money)",
+        "f = table:pass(facts.sideA, facts.first)",
+        "l = table:block(facts.sideA, facts.last)",
+        "x = table:many(f, l)",
+        "k = table:block(x, a)",
         "no <- n",
         "yes <- k"
       ]

@@ -1,6 +1,9 @@
 {
   "title": "@level.s-try.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-try.intro.0.t"
@@ -10,10 +13,25 @@
   "tasks": [
     {
       "id": "s-try",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-try.tasks.s-try.inputs.0.label" }],
-      "tests": [{ "goal": "Rain ∧ Wind → Rain" }, { "goal": "Rain → Rain" }, { "goal": "Wet ∧ Slip → Wet" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-try.tasks.s-try.inputs.0.label"
+        }
+      ],
+      "tests": [
+        {
+          "goal": "Rain ∧ Wind → Rain"
+        },
+        {
+          "goal": "Rain → Rain"
+        },
+        {
+          "goal": "Wet ∧ Slip → Wet"
+        }
+      ],
       "brief": "@level.s-try.tasks.s-try.brief",
       "hint": [
         "@level.s-try.tasks.s-try.hint.0",

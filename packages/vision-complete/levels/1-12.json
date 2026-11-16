@@ -20,31 +20,34 @@
   "tasks": [
     {
       "id": "1-12",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-12.tasks.1-12.brief",
       "hint": "@level.1-12.tasks.1-12.hint",
-      "constraint": { "cost": { "max": 8 } },
-      "scene": "filter",
-      "setup": { "target": { "box": { "size": 5 } } },
+      "constraint": { "image:constraint-cost": { "max": 8 } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-box": { "size": 5 } } },
       "tests": [
         {
           "label": "@level.1-12.tasks.1-12.tests.0.label",
-          "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0, "hi": 0.9 } }
+          "in": { "image:picture-square": { "x0": 4, "y0": 4, "s": 8, "lo": 0, "hi": 0.9 } }
         },
-        { "label": "@level.1-12.tasks.1-12.tests.1.label", "in": { "impulse": { "x": 7, "y": 7 } } },
+        {
+          "label": "@level.1-12.tasks.1-12.tests.1.label",
+          "in": { "image:picture-impulse": { "x": 7, "y": 7 } }
+        },
         {
           "label": "@level.1-12.tasks.1-12.tests.2.label",
-          "in": { "glyph": { "letter": "T", "lo": 0, "hi": 0.9, "ox": 5, "oy": 5, "scale": 1 } }
+          "in": { "image:picture-glyph": { "letter": "T", "lo": 0, "hi": 0.9, "ox": 5, "oy": 5, "scale": 1 } }
         }
       ],
       "hidden": [
         {
           "label": "@level.1-12.tasks.1-12.hidden.0.label",
-          "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 3.5, "lo": 0, "hi": 0.9 } }
+          "in": { "image:picture-disk": { "cx": 7.5, "cy": 7.5, "r": 3.5, "lo": 0, "hi": 0.9 } }
         },
         {
           "label": "@level.1-12.tasks.1-12.hidden.1.label",
-          "in": { "margined": { "of": { "noise": { "seed": 24 } }, "width": 4 } }
+          "in": { "image:picture-margined": { "of": { "image:picture-noise": { "seed": 24 } }, "width": 4 } }
         }
       ],
       "solution": [

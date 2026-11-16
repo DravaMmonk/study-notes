@@ -45,7 +45,7 @@ export function assemble({ id, packageId = id, schemas, courseNamespace = `@${id
   const pieces = new Set(Object.keys(partDefs?.parts ?? {})
     .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
     .map((name) => name.includes('/') ? name.slice(name.indexOf('/') + 1) : name))
-  const pieceRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, piece]) => piece.inside && ['lemma', 'rule'].includes(piece.family)).map(([name]) => name))
+  const pieceRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, piece]) => piece.inside && ['logic:family-lemma', 'logic:family-rule'].includes(piece.family)).map(([name]) => name))
   const expand = (value, namespace, schema, context = '') => qualified ? value : expandNames(value, namespace, { pieces, pieceRules, schema, vocabulary: schemas, context })
   game = Object.fromEntries(Object.entries(configurationFiles(game)).flatMap(([file, value]) => {
     const namespace = file === 'game.json' || file === 'course.json' ? courseNamespace : packageId

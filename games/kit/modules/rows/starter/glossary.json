@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "id": "sum",
+      "title": "@glossary.groups.sum.title"
+    }
+  ],
+  "entries": [
+    {
+      "id": "equals",
+      "group": "sum",
+      "title": "@glossary.entries.equals.title",
+      "body": [
+        "@glossary.entries.equals.body.0"
+      ],
+      "at": "1-1"
+    }
+  ]
+}

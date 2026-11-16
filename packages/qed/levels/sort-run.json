@@ -1,6 +1,9 @@
 {
   "title": "@level.sort-run.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sort-run.intro.0.t"
@@ -10,21 +13,41 @@
   "tasks": [
     {
       "id": "sort-run",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sort-run.tasks.sort-run.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sort-run.tasks.sort-run.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["list"],
-      "defs": ["le", "if", "ins", "sort", "len"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "le",
+        "if",
+        "ins",
+        "sort",
+        "len"
+      ],
       "tests": [
         {
           "goal": "sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil)))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
         },
-        { "goal": "sort(cons(s(zero), cons(s(zero), cons(zero, nil)))) = cons(zero, cons(s(zero), cons(s(zero), nil)))" }
+        {
+          "goal": "sort(cons(s(zero), cons(s(zero), cons(zero, nil)))) = cons(zero, cons(s(zero), cons(s(zero), nil)))"
+        }
       ],
       "brief": "@level.sort-run.tasks.sort-run.brief",
-      "hint": ["@level.sort-run.tasks.sort-run.hint.0"],
+      "hint": [
+        "@level.sort-run.tasks.sort-run.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
         "c1r0 = refl()",

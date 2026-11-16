@@ -1,6 +1,9 @@
 {
   "title": "@level.s-mix.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-mix.intro.0.t"
@@ -9,13 +12,24 @@
   "tasks": [
     {
       "id": "s-mix",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-mix.tasks.s-mix.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-mix.tasks.s-mix.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Rain → (Wind → Rain ∧ Wind)" },
-        { "goal": "(Rain → Rain) ∧ (Wind → (Rain → Wind))" },
-        { "goal": "Rain → (Wind → Wind ∧ (Rain ∧ Wind))" }
+        {
+          "goal": "Rain → (Wind → Rain ∧ Wind)"
+        },
+        {
+          "goal": "(Rain → Rain) ∧ (Wind → (Rain → Wind))"
+        },
+        {
+          "goal": "Rain → (Wind → Wind ∧ (Rain ∧ Wind))"
+        }
       ],
       "brief": "@level.s-mix.tasks.s-mix.brief",
       "hint": [

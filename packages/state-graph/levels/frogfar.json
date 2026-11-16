@@ -10,7 +10,7 @@
     "goal": "@level.frogfar.mission.goal",
     "how": "@level.frogfar.mission.how"
   },
-  "robot": "reach",
+  "robot": "table:robot-reach",
   "debrief": {
     "title": "@level.frogfar.debrief.title",
     "body": [
@@ -20,14 +20,22 @@
   "tasks": [
     {
       "id": "frogfar",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "uses": "m1" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "m1"
+            }
+          },
           "say": "@level.frogfar.tasks.frogfar.diagnose.0.say"
         },
         {
-          "when": { "not": { "uses": "back" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "back"
+            }
+          },
           "say": "@level.frogfar.tasks.frogfar.diagnose.1.say"
         }
       ],
@@ -35,15 +43,57 @@
         "@level.frogfar.tasks.frogfar.hints.0",
         "@level.frogfar.tasks.frogfar.hints.1"
       ],
-      "world": "river",
-      "facts": ["bank"],
-      "tests": [
-        { "k": [0, null, 2, 3, 2, 4, 3] },
-        { "k": [0, null, 2, 2, 3, null, 4, 2] },
-        { "k": [0, null, 2, 3, 4, 2, 5, 3, 2] }
+      "world": "table:world-river",
+      "facts": [
+        "bank"
       ],
-      "expected": [9, 10, 20],
-      "solution": ["c = counter(view.m1, view.back, facts.bank)", "cell <- c"]
+      "tests": [
+        {
+          "k": [
+            0,
+            null,
+            2,
+            3,
+            2,
+            4,
+            3
+          ]
+        },
+        {
+          "k": [
+            0,
+            null,
+            2,
+            2,
+            3,
+            null,
+            4,
+            2
+          ]
+        },
+        {
+          "k": [
+            0,
+            null,
+            2,
+            3,
+            4,
+            2,
+            5,
+            3,
+            2
+          ]
+        }
+      ],
+      "expected": [
+        9,
+        10,
+        20
+      ],
+      "solution": [
+        "c = counter(view.m1, view.back, facts.bank)",
+        "cell <- c"
+      ]
     }
   ]
 }

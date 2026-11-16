@@ -13,7 +13,7 @@
     "goal": "@level.segment.mission.goal",
     "how": "@level.segment.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.segment.debrief.title",
     "body": [
@@ -24,33 +24,64 @@
   "tasks": [
     {
       "id": "segment",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "{s}",
-      "after": "dictionary",
+      "after": "table:panel-dictionary",
       "hints": [
         "@level.segment.tasks.segment.hints.0"
       ],
-      "world": "pieces",
-      "facts": ["ground"],
+      "world": "table:world-pieces",
+      "facts": [
+        "ground"
+      ],
       "tests": [
         {
           "s": "mycatzedsleeps",
-          "dict": { "my": 1, "cat": 1, "cats": 2, "sleep": 1, "sleeps": 1, "eps": 2 },
+          "dict": {
+            "my": 1,
+            "cat": 1,
+            "cats": 2,
+            "sleep": 1,
+            "sleeps": 1,
+            "eps": 2
+          },
           "letter": 5
         },
-        { "s": "thedogranhome", "dict": { "the": 1, "dog": 1, "ran": 1, "home": 1, "ho": 2, "me": 1 }, "letter": 4 },
+        {
+          "s": "thedogranhome",
+          "dict": {
+            "the": 1,
+            "dog": 1,
+            "ran": 1,
+            "home": 1,
+            "ho": 2,
+            "me": 1
+          },
+          "letter": 4
+        },
         {
           "s": "ilovebobsbikes",
-          "dict": { "i": 1, "love": 1, "bike": 1, "bikes": 1, "lo": 2, "ve": 2 },
+          "dict": {
+            "i": 1,
+            "love": 1,
+            "bike": 1,
+            "bikes": 1,
+            "lo": 2,
+            "ve": 2
+          },
           "letter": 3
         }
       ],
-      "expected": [18, 4, 15],
+      "expected": [
+        18,
+        4,
+        15
+      ],
       "solution": [
-        "a = add(view.seg, view.cost)",
-        "z = const[value=0]()",
-        "g = pass(facts.ground, z)",
-        "m = mmin(a, g)",
+        "a = table:add(view.seg, view.cost)",
+        "z = table:const[value=0]()",
+        "g = table:pass(facts.ground, z)",
+        "m = table:mmin(a, g)",
         "cell <- m"
       ]
     }

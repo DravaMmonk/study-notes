@@ -13,15 +13,15 @@
       "t": "@level.2-1.intro.2.t"
     }
   ],
-  "unlocks": ["wave"],
+  "unlocks": ["image:unlock-wave"],
   "tasks": [
     {
       "id": "2-1",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.2-1.tasks.2-1.brief",
       "hint": "@level.2-1.tasks.2-1.hint",
       "bench": {
-        "model": "wave",
+        "model": "image:benchModel-wave",
         "setup": { "N": 32 },
         "knobs": {
           "c": {
@@ -100,7 +100,7 @@
         "layout": {
           "main": [
             {
-              "plot": {
+              "circuit:display-plot": {
                 "lines": [
                   {
                     "of": "target",
@@ -120,7 +120,7 @@
               }
             },
             {
-              "strips": {
+              "circuit:display-strips": {
                 "rows": [
                   {
                     "of": "targetRow",
@@ -130,9 +130,12 @@
                 ]
               }
             },
-            { "text": { "of": "formula" } }
+            { "circuit:display-text": { "of": "formula" } }
           ],
-          "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+          "side": [
+            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
+            "circuit:display-stages"
+          ]
         }
       }
     }

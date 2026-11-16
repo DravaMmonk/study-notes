@@ -329,3 +329,39 @@ export function gameProblems(content, spec, game) {
   if (!sameJson(game.glossary, content.glossary)) say('its encyclopedia is not the content’s glossary')
   return out
 }
+
+/** A module's registered capabilities are qualified, printable and type-complete. */
+export function moduleProblems(module, registry) {
+  const out = []
+  const prefix = `${module.id}:`
+  if (typeof module.register !== 'function') return [`${module.id}: no register function`]
+  let count = 0
+  const types = registry.tables.valueType
+  const declaredType = (type) => (Array.isArray(type) ? type.every((t) => declaredType(t)) : Boolean(types[type]))
+  for (const [kind, table] of Object.entries(registry.tables)) for (const [name, item] of Object.entries(table)) {
+    if (!name.startsWith(prefix)) continue
+    count++
+    if (!isText(item.about)) out.push(`${name}: missing description`)
+    if (!sameJson(JSON.parse(JSON.stringify(item)), item)) out.push(`${name}: capability is not printable data`)
+    if (kind === 'valueType') for (const type of item.accepts ?? []) if (!declaredType(type)) out.push(`${name}: accepts unknown value type ${type}`)
+    if (kind === 'board') for (const type of item.valueTypes ?? []) if (!declaredType(type)) out.push(`${name}: board uses unknown value type ${type}`)
+    if (kind === 'primitive') {
+      for (const port of item.inputs ?? []) if (typeof port === 'object' && !declaredType(port.type)) out.push(`${name}: port ${port.name} has unknown value type ${port.type}`)
+      if (item.outputType && !declaredType(item.outputType)) out.push(`${name}: unknown output type ${item.outputType}`)
+    }
+    if (kind === 'operation' && !registry.operations[name]) out.push(`${name}: no runtime implementation`)
+    if (kind === 'operation' && item.signatures && !item.signatures.length) out.push(`${name}: no signatures`)
+    if (kind === 'operation') for (const signature of item.signatures ?? [item]) {
+      if (!Array.isArray(signature.args)) out.push(`${name}: no argument signature`)
+      if (!signature.params) out.push(`${name}: no parameter declaration`)
+      for (const arg of signature.args ?? []) if (!declaredType(arg.type)) out.push(`${name}: argument ${arg.name} has unknown value type ${arg.type}`)
+      if (!declaredType(signature.returns)) out.push(`${name}: unknown result type ${signature.returns}`)
+      if (signature.params && signature.params.type !== 'obj') out.push(`${name}: parameters must be an object schema`)
+      for (const [key, schema] of Object.entries(signature.params?.fields ?? {})) if (schema.default !== undefined) {
+        for (const problem of fits(schema, schema.default)) out.push(`${name}.${key}: invalid default: ${problem.says}`)
+      }
+    }
+  }
+  if (!count) out.push(`${module.id}: registers no capabilities`)
+  return out
+}

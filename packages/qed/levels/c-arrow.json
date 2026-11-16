@@ -1,6 +1,9 @@
 {
   "title": "@level.c-arrow.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.c-arrow.intro.0.t"
@@ -9,11 +12,29 @@
   "tasks": [
     {
       "id": "c-arrow_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-arrow.tasks.c-arrow_1.step",
-      "tests": [{ "premises": { "p": "A → B" }, "goal": "¬A ∨ B" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
-      "hint": ["@level.c-arrow.tasks.c-arrow_1.hint.0"],
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B"
+          },
+          "goal": "¬A ∨ B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Alarm",
+          "B": "Up"
+        }
+      ],
+      "hint": [
+        "@level.c-arrow.tasks.c-arrow_1.hint.0"
+      ],
       "solution": [
         "l = lem[A=A]()",
         "e = orE(l, left: i1, right: i2) {",
@@ -27,14 +48,35 @@
         "}",
         "goal <- e"
       ],
-      "publishes": [{ "piece": "arrow", "variant": "elim" }]
+      "publishes": [
+        {
+          "piece": "arrow",
+          "variant": "elim"
+        }
+      ]
     },
     {
       "id": "c-arrow_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-arrow.tasks.c-arrow_2.step",
-      "tests": [{ "premises": { "p": "¬A ∨ B" }, "goal": "A → B" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬A ∨ B"
+          },
+          "goal": "A → B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Alarm",
+          "B": "Up"
+        }
+      ],
       "hint": [
         "@level.c-arrow.tasks.c-arrow_2.hint.0",
         "@level.c-arrow.tasks.c-arrow_2.hint.1"
@@ -52,7 +94,12 @@
         "}",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "arrow", "variant": "intro" }]
+      "publishes": [
+        {
+          "piece": "arrow",
+          "variant": "intro"
+        }
+      ]
     }
   ]
 }

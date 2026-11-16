@@ -5,10 +5,19 @@
     {
       "t": "@level.confluence.intro.0.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 3,
           "C": 4,
-          "cells": { "0,0": { "value": 1, "cls": "src" }, "1,1": { "value": "?", "cls": "hot" } },
+          "cells": {
+            "0,0": {
+              "value": 1,
+              "cls": "src"
+            },
+            "1,1": {
+              "value": "?",
+              "cls": "hot"
+            }
+          },
           "robot": "1,1"
         }
       }
@@ -16,10 +25,16 @@
     {
       "t": "@level.confluence.intro.1.t",
       "fig": {
-        "circuit": {
+        "table:figure-circuit": {
           "taps": [
-            { "id": "u", "label": "@level.confluence.intro.1.fig.circuit.taps.u.label" },
-            { "id": "l", "label": "@level.confluence.intro.1.fig.circuit.taps.l.label" }
+            {
+              "id": "u",
+              "label": "@level.confluence.intro.1.fig.circuit.taps.u.label"
+            },
+            {
+              "id": "l",
+              "label": "@level.confluence.intro.1.fig.circuit.taps.l.label"
+            }
           ],
           "parts": [
             {
@@ -28,18 +43,42 @@
               "tag": "@level.confluence.intro.1.fig.circuit.parts.m.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.confluence.intro.1.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "u", "to": "m" }, { "from": "l", "to": "m" }, { "from": "m", "to": "o" }]
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.confluence.intro.1.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "u",
+              "to": "m"
+            },
+            {
+              "from": "l",
+              "to": "m"
+            },
+            {
+              "from": "m",
+              "to": "o"
+            }
+          ]
         }
       }
     },
     {
       "t": "@level.confluence.intro.2.t",
       "fig": {
-        "circuit": {
+        "table:figure-circuit": {
           "taps": [
-            { "id": "u", "label": "@level.confluence.intro.2.fig.circuit.taps.u.label" },
-            { "id": "l", "label": "@level.confluence.intro.2.fig.circuit.taps.l.label" }
+            {
+              "id": "u",
+              "label": "@level.confluence.intro.2.fig.circuit.taps.u.label"
+            },
+            {
+              "id": "l",
+              "label": "@level.confluence.intro.2.fig.circuit.taps.l.label"
+            }
           ],
           "parts": [
             {
@@ -48,8 +87,27 @@
               "tag": "@level.confluence.intro.2.fig.circuit.parts.m.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.confluence.intro.2.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "u", "to": "m", "kind": "off" }, { "from": "l", "to": "m" }, { "from": "m", "to": "o" }]
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.confluence.intro.2.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "u",
+              "to": "m",
+              "kind": "off"
+            },
+            {
+              "from": "l",
+              "to": "m"
+            },
+            {
+              "from": "m",
+              "to": "o"
+            }
+          ]
         }
       }
     },
@@ -61,9 +119,11 @@
     "goal": "@level.confluence.mission.goal",
     "how": "@level.confluence.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "showcase": "@level.confluence.showcase",
-  "adds": ["msum"],
+  "adds": [
+    "table:msum"
+  ],
   "debrief": {
     "title": "@level.confluence.debrief.title",
     "body": [
@@ -75,28 +135,58 @@
   "tasks": [
     {
       "id": "confluence",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "guide": [
         {
-          "until": { "all": [{ "reads": "up" }, { "reads": "left" }] },
+          "until": {
+            "table:condition-all": [
+              {
+                "table:condition-reads": "up"
+              },
+              {
+                "table:condition-reads": "left"
+              }
+            ]
+          },
           "say": "@level.confluence.tasks.confluence.guide.0.say"
         },
         {
-          "until": "placed",
+          "until": "table:condition-placed",
           "say": "@level.confluence.tasks.confluence.guide.1.say"
         },
         {
-          "until": "wiredOut",
+          "until": "table:condition-wiredOut",
           "say": "@level.confluence.tasks.confluence.guide.2.say"
         }
       ],
       "hints": [
         "@level.confluence.tasks.confluence.hints.0"
       ],
-      "world": "grid",
-      "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
-      "expected": [10, 35],
-      "solution": ["m = msum(view.up, view.left)", "cell <- m"]
+      "world": "table:world-grid",
+      "tests": [
+        {
+          "R": 3,
+          "C": 4,
+          "given": {
+            "0,0": 1
+          }
+        },
+        {
+          "R": 4,
+          "C": 5,
+          "given": {
+            "0,0": 1
+          }
+        }
+      ],
+      "expected": [
+        10,
+        35
+      ],
+      "solution": [
+        "m = table:msum(view.up, view.left)",
+        "cell <- m"
+      ]
     }
   ]
 }

@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "4-20",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-20.tasks.4-20.brief",
       "hint": "@level.4-20.tasks.4-20.hint",
       "withholds": ["vision-complete/softmax"],
@@ -40,7 +40,7 @@
         "pp": "@level.4-20.tasks.4-20.outputLabels.pp"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "scores",
+      "scene": "image:scene-scores",
       "tests": [
         { "label": "@level.4-20.tasks.4-20.tests.0.label", "s": [2, 0, -1] },
         { "label": "@level.4-20.tasks.4-20.tests.1.label", "s": [0.5, 0.5, 0.5] },

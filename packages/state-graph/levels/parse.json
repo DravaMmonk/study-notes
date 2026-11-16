@@ -19,7 +19,7 @@
     "goal": "@level.parse.mission.goal",
     "how": "@level.parse.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.parse.debrief.title",
     "body": [
@@ -31,13 +31,16 @@
   "tasks": [
     {
       "id": "parse",
-      "mode": "circuit",
-      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "mode": "table:circuit",
+      "boardOpt": {
+        "minScale": 0.6,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.parse.tasks.parse.hints.0",
         "@level.parse.tasks.parse.hints.1"
       ],
-      "world": "interval",
+      "world": "table:world-interval",
       "tests": [
         {
           "words": [
@@ -64,8 +67,16 @@
           ]
         }
       ],
-      "expected": [2, 5, 14],
-      "solution": ["x = mul(view.segL, view.segR)", "s = msum(x)", "cell <- s"],
+      "expected": [
+        2,
+        5,
+        14
+      ],
+      "solution": [
+        "x = table:mul(view.segL, view.segR)",
+        "s = table:msum(x)",
+        "cell <- s"
+      ],
       "diag": 1
     }
   ]

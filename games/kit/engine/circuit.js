@@ -2,7 +2,7 @@
 //
 //   { nodes: [{ id, type, … }], wires: [{ from, to, port }] }      from: '<node>' or '<node>#<key>'
 //
-// What a node does comes from its domain's part registry (../domains/*/parts.js), keyed by type:
+// What a node does comes from its domain's part registry (../modules/*/parts.js), keyed by type:
 //
 //   inputs        [port] or (node) → [port]
 //   outputs?      (node) → [key] | null: a node with several outputs, each a value of its own ('<node>#<key>'; the
@@ -26,6 +26,7 @@
 // marks its node with that message, and the nodes downstream read it as missing; a Halt stops the whole evaluation
 // (a robot reading a cell not computed yet). Anything else a part throws marks its node as unable to compute.
 
+import { acceptsType } from './value-types.js'
 import { sourceOf, splitSource } from './wire-source.js'
 
 /** A node that cannot compute, with a message for the player ({ zh, en } or a string). */
@@ -124,6 +125,17 @@ export function evaluation(circuit, { parts, ctx = {}, prepare = null } = {}) {
     let connected = 0
     for (const port of ports) {
       const from = into.get(id)?.get(port)
+      if (from !== undefined && part.inputTypes?.[port]) {
+        const [sourceId, output] = splitSource(from)
+        const source = byId.get(sourceId)
+        const upstream = source && partOf(source.type)
+        const actual = output === null ? upstream?.outputType : upstream?.outputTypes?.[output]
+        const expected = part.inputTypes[port]
+        if (actual && !acceptsType(expected, actual)) {
+          fault(id, `Port ${port} expects ${expected}, received ${actual}`)
+          return
+        }
+      }
       const value = from === undefined ? undefined : pull(from)
       if (ids && from !== undefined) inIds[port] = ids.get(from) ?? null
       if (from !== undefined && value !== undefined) connected++

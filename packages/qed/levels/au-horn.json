@@ -5,15 +5,25 @@
       "t": "@level.au-horn.intro.0.t"
     }
   ],
-  "adds": ["resolve"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "resolve"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "after": "@level.au-horn.after",
   "tasks": [
     {
       "id": "au-horn",
-      "kind": "machine",
-      "want": "refuted",
-      "inputs": [{ "name": "in", "label": "@level.au-horn.tasks.au-horn.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-refuted",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-horn.tasks.au-horn.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
         {
@@ -59,7 +69,10 @@
         "}",
         "out <- c0"
       ],
-      "naive": ["c0 = saturate(in)", "out <- c0"]
+      "naive": [
+        "c0 = saturate(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

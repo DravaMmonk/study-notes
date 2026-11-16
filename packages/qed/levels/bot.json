@@ -1,6 +1,9 @@
 {
   "title": "@level.bot.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.bot.intro.0.t"
@@ -16,22 +19,59 @@
   "tasks": [
     {
       "id": "bot_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.bot.tasks.bot_1.step",
-      "tests": [{ "premises": { "p": "A", "q": "¬A" }, "goal": "B" }],
-      "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Pigs" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A",
+            "q": "¬A"
+          },
+          "goal": "B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Locked",
+          "B": "Moon"
+        },
+        {
+          "A": "Rain",
+          "B": "Pigs"
+        }
+      ],
       "hint": [
         "@level.bot.tasks.bot_1.hint.0",
         "@level.bot.tasks.bot_1.hint.1"
       ],
-      "solution": ["m = mp(q, p)", "b = botE[C=B](m)", "goal <- b"]
+      "solution": [
+        "m = mp(q, p)",
+        "b = botE[C=B](m)",
+        "goal <- b"
+      ]
     },
     {
       "id": "bot_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.bot.tasks.bot_2.step",
-      "tests": [{ "premises": { "p": "¬A" }, "goal": "A → B" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Locked", "B": "Moon" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬A"
+          },
+          "goal": "A → B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Locked",
+          "B": "Moon"
+        }
+      ],
       "hint": [
         "@level.bot.tasks.bot_2.hint.0"
       ],
@@ -51,5 +91,11 @@
       ]
     }
   ],
-  "pieceRevisions": [{ "piece": "mp", "at": true, "desc": "@piece.mp.revisions.0.desc" }]
+  "pieceRevisions": [
+    {
+      "piece": "mp",
+      "at": true,
+      "desc": "@piece.mp.revisions.0.desc"
+    }
+  ]
 }

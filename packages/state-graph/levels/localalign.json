@@ -19,7 +19,7 @@
     "goal": "@level.localalign.mission.goal",
     "how": "@level.localalign.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.localalign.debrief.title",
     "body": [
@@ -31,45 +31,87 @@
   "tasks": [
     {
       "id": "localalign",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "naive": [
-        "a = add(view.ul, facts.score)",
-        "k = const[value=-1]()",
-        "b = add(view.up, k)",
-        "c = add(view.left, k)",
-        "m = mmax(a, b, c)",
+        "a = table:add(view.ul, facts.score)",
+        "k = table:const[value=-1]()",
+        "b = table:add(view.up, k)",
+        "c = table:add(view.left, k)",
+        "m = table:mmax(a, b, c)",
         "cell <- m"
       ],
       "diagnose": [
         {
-          "when": { "all": [{ "not": { "has": { "part": "const", "value": 0 } } }, { "uses": "score" }] },
+          "when": {
+            "table:condition-all": [
+              {
+                "table:condition-not": {
+                  "table:condition-has": {
+                    "part": "table:const",
+                    "value": 0
+                  }
+                }
+              },
+              {
+                "table:condition-uses": "score"
+              }
+            ]
+          },
           "say": "@level.localalign.tasks.localalign.diagnose.0.say"
         }
       ],
-      "trace": "local",
-      "after": "local",
-      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-      "consts": [-2, -1, 0, 1, 2],
+      "trace": "table:trace-local",
+      "after": "table:panel-local",
+      "boardOpt": {
+        "minScale": 0.62,
+        "maxScale": 1.15
+      },
+      "consts": [
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
       "hints": [
         "@level.localalign.tasks.localalign.hints.0",
         "@level.localalign.tasks.localalign.hints.1"
       ],
-      "world": "local",
-      "facts": ["score"],
-      "tests": [{ "top": "AGTACGCA", "left": "TATGC" }, { "top": "GGTTGACTA", "left": "TGTTACGG" }],
-      "expected": [7, 9],
+      "world": "table:world-local",
+      "facts": [
+        "score"
+      ],
+      "tests": [
+        {
+          "top": "AGTACGCA",
+          "left": "TATGC"
+        },
+        {
+          "top": "GGTTGACTA",
+          "left": "TGTTACGG"
+        }
+      ],
+      "expected": [
+        7,
+        9
+      ],
       "solution": [
-        "a = add(view.ul, facts.score)",
-        "k = const[value=-1]()",
-        "z = const[value=0]()",
-        "b = add(view.up, k)",
-        "c = add(view.left, k)",
-        "m = mmax(a, b, c)",
-        "n = mmax(m, z)",
+        "a = table:add(view.ul, facts.score)",
+        "k = table:const[value=-1]()",
+        "z = table:const[value=0]()",
+        "b = table:add(view.up, k)",
+        "c = table:add(view.left, k)",
+        "m = table:mmax(a, b, c)",
+        "n = table:mmax(m, z)",
         "cell <- n"
       ],
       "border0": true,
-      "publishes": [{ "piece": "local", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "local",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

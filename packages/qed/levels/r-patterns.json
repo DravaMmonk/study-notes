@@ -1,6 +1,12 @@
 {
-  "adds": ["uPattern", "unifier"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "uPattern",
+    "unifier"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.r-patterns.title",
   "intro": [
     {
@@ -10,14 +16,35 @@
   "tasks": [
     {
       "id": "r-patterns",
-      "kind": "machine",
-      "want": "unify",
-      "inputs": [{ "name": "in", "label": "@level.r-patterns.tasks.r-patterns.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-unify",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-patterns.tasks.r-patterns.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "eqs": ["∀x. ∀y. ?P(x, y) ≐ ∀x. ∀y. Likes(x, y) ∨ Likes(y, x)"] },
-        { "eqs": ["∀x. ?P(x) ∧ ?Q(x) ≐ ∀y. Human(y) ∧ Likes(y, i)"] },
-        { "eqs": ["∀x. ∀y. ?P(y, x) ≐ ∀x. ∀y. Likes(x, y)"] },
-        { "eqs": ["∀x. ?P(x) ∧ ?A ≐ ∀y. Likes(y, i) ∧ Likes(y, j)"] }
+        {
+          "eqs": [
+            "∀x. ∀y. ?P(x, y) ≐ ∀x. ∀y. Likes(x, y) ∨ Likes(y, x)"
+          ]
+        },
+        {
+          "eqs": [
+            "∀x. ?P(x) ∧ ?Q(x) ≐ ∀y. Human(y) ∧ Likes(y, i)"
+          ]
+        },
+        {
+          "eqs": [
+            "∀x. ∀y. ?P(y, x) ≐ ∀x. ∀y. Likes(x, y)"
+          ]
+        },
+        {
+          "eqs": [
+            "∀x. ?P(x) ∧ ?A ≐ ∀y. Likes(y, i) ∧ Likes(y, j)"
+          ]
+        }
       ],
       "brief": "@level.r-patterns.tasks.r-patterns.brief",
       "hint": [

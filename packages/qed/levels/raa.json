@@ -1,6 +1,9 @@
 {
   "title": "@level.raa.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.raa.intro.0.t"
@@ -10,10 +13,21 @@
   "tasks": [
     {
       "id": "raa_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.raa.tasks.raa_1.step",
-      "tests": [{ "goal": "¬¬(A ∨ ¬A)" }],
-      "cases": [{ "A": "Rain" }, { "A": "Exam" }],
+      "tests": [
+        {
+          "goal": "¬¬(A ∨ ¬A)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Exam"
+        }
+      ],
       "hint": [
         "@level.raa.tasks.raa_1.hint.0",
         "@level.raa.tasks.raa_1.hint.1"
@@ -44,13 +58,28 @@
     },
     {
       "id": "raa_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.raa.tasks.raa_2.step",
       "carries": true,
-      "adds": ["raa"],
-      "tests": [{ "goal": "A ∨ ¬A" }],
-      "sentences": ["¬(A ∨ ¬A)"],
-      "cases": [{ "A": "Rain" }, { "A": "Exam" }],
+      "adds": [
+        "raa"
+      ],
+      "tests": [
+        {
+          "goal": "A ∨ ¬A"
+        }
+      ],
+      "sentences": [
+        "¬(A ∨ ¬A)"
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Exam"
+        }
+      ],
       "intro": [
         {
           "t": "@level.raa.tasks.raa_2.intro.0.t"
@@ -76,7 +105,12 @@
         "r = raa(f)",
         "goal <- r"
       ],
-      "publishes": [{ "piece": "lem", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "lem",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

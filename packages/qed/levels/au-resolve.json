@@ -1,6 +1,9 @@
 {
   "title": "@level.au-resolve.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-resolve.intro.0.t"
@@ -10,9 +13,28 @@
   "tasks": [
     {
       "id": "au-resolve",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A ∨ B", "q": "¬A ∨ C" }, "goal": "B ∨ C" }],
-      "cases": [{ "A": "Rain", "B": "Bus", "C": "Wet" }, { "A": "Exam", "B": "Rest", "C": "Study" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A ∨ B",
+            "q": "¬A ∨ C"
+          },
+          "goal": "B ∨ C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Bus",
+          "C": "Wet"
+        },
+        {
+          "A": "Exam",
+          "B": "Rest",
+          "C": "Study"
+        }
+      ],
       "hint": [
         "@level.au-resolve.tasks.au-resolve.hint.0",
         "@level.au-resolve.tasks.au-resolve.hint.1"
@@ -36,7 +58,12 @@
         "}",
         "goal <- e"
       ],
-      "publishes": [{ "piece": "res", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "res",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

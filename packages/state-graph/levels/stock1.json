@@ -16,7 +16,7 @@
     "goal": "@level.stock1.mission.goal",
     "how": "@level.stock1.mission.how"
   },
-  "robot": "stack",
+  "robot": "table:robot-stack",
   "debrief": {
     "title": "@level.stock1.debrief.title",
     "body": [
@@ -26,10 +26,14 @@
   "tasks": [
     {
       "id": "stock1",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "uses": "leftPrev" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-uses": "leftPrev"
+            }
+          },
           "say": "@level.stock1.tasks.stock1.diagnose.0.say"
         }
       ],
@@ -37,11 +41,51 @@
         "@level.stock1.tasks.stock1.hints.0",
         "@level.stock1.tasks.stock1.hints.1"
       ],
-      "world": "stock",
-      "facts": ["gain"],
-      "tests": [{ "p": [7, 1, 5, 3, 6, 4] }, { "p": [7, 6, 4, 3, 1] }, { "p": [3, 2, 6, 5, 0, 3] }],
-      "expected": [5, 0, 4],
-      "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"]
+      "world": "table:world-stock",
+      "facts": [
+        "gain"
+      ],
+      "tests": [
+        {
+          "p": [
+            7,
+            1,
+            5,
+            3,
+            6,
+            4
+          ]
+        },
+        {
+          "p": [
+            7,
+            6,
+            4,
+            3,
+            1
+          ]
+        },
+        {
+          "p": [
+            3,
+            2,
+            6,
+            5,
+            0,
+            3
+          ]
+        }
+      ],
+      "expected": [
+        5,
+        0,
+        4
+      ],
+      "solution": [
+        "a = table:add(view.leftPrev, facts.gain)",
+        "m = table:mmax(view.left, a)",
+        "cell <- m"
+      ]
     }
   ]
 }

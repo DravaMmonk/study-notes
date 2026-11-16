@@ -1,15 +1,33 @@
 {
   "title": "@level.u-ls.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "after": "@level.u-ls.after",
   "tasks": [
     {
       "id": "u-ls",
-      "kind": "proof",
-      "tests": [{ "premises": { "r": "∃x. ∀y. M(x, c(y)) ↔ L(c(y))", "ls": "∀y. L(c(y)) ↔ ¬M(y, c(y))" }, "goal": "⊥" }],
-      "cases": [{ "M": "Accepts", "L": "Ls" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "r": "∃x. ∀y. M(x, c(y)) ↔ L(c(y))",
+            "ls": "∀y. L(c(y)) ↔ ¬M(y, c(y))"
+          },
+          "goal": "⊥"
+        }
+      ],
+      "cases": [
+        {
+          "M": "Accepts",
+          "L": "Ls"
+        }
+      ],
       "brief": "@level.u-ls.tasks.u-ls.brief",
-      "hint": ["@level.u-ls.tasks.u-ls.hint.0"],
+      "hint": [
+        "@level.u-ls.tasks.u-ls.hint.0"
+      ],
       "solution": [
         "e = exE[x=a](r, body: l) {",
         "  body {",

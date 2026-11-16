@@ -1,6 +1,14 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
   "title": "@level.fo-atoms.title",
   "brief": "@level.fo-atoms.brief",
   "intro": [
@@ -17,9 +25,13 @@
   "tasks": [
     {
       "id": "fo-atoms_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-atoms.tasks.fo-atoms_1.step",
-      "decoys": ["Bird(h) ∨ Human(h)", "Likes(i, j) → Human(j)", "Mortal(h)"],
+      "decoys": [
+        "Bird(h) ∨ Human(h)",
+        "Likes(i, j) → Human(j)",
+        "Mortal(h)"
+      ],
       "say": "@level.fo-atoms.tasks.fo-atoms_1.say",
       "target": "Parent(i, j) ∧ ¬Likes(j, i)",
       "hint": [
@@ -29,9 +41,13 @@
     },
     {
       "id": "fo-atoms_2",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-atoms.tasks.fo-atoms_2.step",
-      "decoys": ["Parent(i, j) ∧ ¬Likes(j, i)", "Likes(i, j) → Human(j)", "Mortal(h)"],
+      "decoys": [
+        "Parent(i, j) ∧ ¬Likes(j, i)",
+        "Likes(i, j) → Human(j)",
+        "Mortal(h)"
+      ],
       "say": "@level.fo-atoms.tasks.fo-atoms_2.say",
       "target": "Bird(h) ∨ Human(h)",
       "hint": [
@@ -40,9 +56,13 @@
     },
     {
       "id": "fo-atoms_3",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-atoms.tasks.fo-atoms_3.step",
-      "decoys": ["Parent(i, j) ∧ ¬Likes(j, i)", "Bird(h) ∨ Human(h)", "Mortal(h)"],
+      "decoys": [
+        "Parent(i, j) ∧ ¬Likes(j, i)",
+        "Bird(h) ∨ Human(h)",
+        "Mortal(h)"
+      ],
       "say": "@level.fo-atoms.tasks.fo-atoms_3.say",
       "target": "Likes(i, j) → Human(j)",
       "hint": [

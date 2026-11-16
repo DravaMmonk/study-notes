@@ -11,17 +11,84 @@
     {
       "t": "@level.stones.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "t0", "x": 0, "y": -42, "w": 46, "h": 30, "value": "3", "cls": "axis" },
-            { "id": "t1", "x": 54, "y": -42, "w": 46, "h": 30, "value": "1", "cls": "axis" },
-            { "id": "t2", "x": 108, "y": -42, "w": 46, "h": 30, "value": "2", "cls": "axis" },
-            { "id": "0,0", "x": 0, "y": 0, "w": 46, "h": 46, "value": 0, "cls": "lit" },
-            { "id": "0,1", "x": 54, "y": 0, "w": 46, "h": 46 },
-            { "id": "0,2", "x": 108, "y": 0, "w": 46, "h": 46, "cls": "sel" },
-            { "id": "1,1", "x": 54, "y": 54, "w": 46, "h": 46, "value": 0, "cls": "lit" },
-            { "id": "1,2", "x": 108, "y": 54, "w": 46, "h": 46 },
-            { "id": "2,2", "x": 108, "y": 108, "w": 46, "h": 46, "value": 0, "cls": "lit" }
+            {
+              "id": "t0",
+              "x": 0,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "3",
+              "cls": "axis"
+            },
+            {
+              "id": "t1",
+              "x": 54,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "1",
+              "cls": "axis"
+            },
+            {
+              "id": "t2",
+              "x": 108,
+              "y": -42,
+              "w": 46,
+              "h": 30,
+              "value": "2",
+              "cls": "axis"
+            },
+            {
+              "id": "0,0",
+              "x": 0,
+              "y": 0,
+              "w": 46,
+              "h": 46,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "0,1",
+              "x": 54,
+              "y": 0,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "0,2",
+              "x": 108,
+              "y": 0,
+              "w": 46,
+              "h": 46,
+              "cls": "sel"
+            },
+            {
+              "id": "1,1",
+              "x": 54,
+              "y": 54,
+              "w": 46,
+              "h": 46,
+              "value": 0,
+              "cls": "lit"
+            },
+            {
+              "id": "1,2",
+              "x": 108,
+              "y": 54,
+              "w": 46,
+              "h": 46
+            },
+            {
+              "id": "2,2",
+              "x": 108,
+              "y": 108,
+              "w": 46,
+              "h": 46,
+              "value": 0,
+              "cls": "lit"
+            }
           ],
           "edges": []
         }
@@ -38,7 +105,7 @@
     "goal": "@level.stones.mission.goal",
     "how": "@level.stones.mission.how"
   },
-  "robot": "broom",
+  "robot": "table:robot-broom",
   "debrief": {
     "title": "@level.stones.debrief.title",
     "body": [
@@ -50,21 +117,75 @@
   "tasks": [
     {
       "id": "stones",
-      "mode": "circuit",
-      "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }],
-      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "mode": "table:circuit",
+      "ports": [
+        {
+          "table:port-reads": "segL"
+        },
+        {
+          "table:port-reads": "segR"
+        },
+        {
+          "table:port-reads": "weight"
+        }
+      ],
+      "boardOpt": {
+        "minScale": 0.6,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.stones.tasks.stones.hints.0",
         "@level.stones.tasks.stones.hints.1"
       ],
-      "world": "interval",
-      "facts": ["weight"],
-      "tests": [{ "w": [3, 1, 2] }, { "w": [4, 1, 1, 4] }, { "w": [2, 3, 1, 5, 2] }],
-      "expected": [9, 18, 30],
-      "solution": ["a = add(view.segL, view.segR)", "m = mmin(a)", "b = add(m, facts.weight)", "cell <- b"],
+      "world": "table:world-interval",
+      "facts": [
+        "weight"
+      ],
+      "tests": [
+        {
+          "w": [
+            3,
+            1,
+            2
+          ]
+        },
+        {
+          "w": [
+            4,
+            1,
+            1,
+            4
+          ]
+        },
+        {
+          "w": [
+            2,
+            3,
+            1,
+            5,
+            2
+          ]
+        }
+      ],
+      "expected": [
+        9,
+        18,
+        30
+      ],
+      "solution": [
+        "a = table:add(view.segL, view.segR)",
+        "m = table:mmin(a)",
+        "b = table:add(m, facts.weight)",
+        "cell <- b"
+      ],
       "scan": "len",
       "diag": 0,
-      "publishes": [{ "piece": "interval", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "interval",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

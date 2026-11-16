@@ -13,7 +13,7 @@
     "goal": "@level.lps.mission.goal",
     "how": "@level.lps.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.lps.debrief.title",
     "body": [
@@ -24,10 +24,21 @@
   "tasks": [
     {
       "id": "lps",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "all": [{ "not": { "uses": "dl" } }, { "uses": "same" }] },
+          "when": {
+            "table:condition-all": [
+              {
+                "table:condition-not": {
+                  "table:condition-uses": "dl"
+                }
+              },
+              {
+                "table:condition-uses": "same"
+              }
+            ]
+          },
           "say": "@level.lps.tasks.lps.diagnose.0.say"
         }
       ],
@@ -35,15 +46,31 @@
         "@level.lps.tasks.lps.hints.0",
         "@level.lps.tasks.lps.hints.1"
       ],
-      "world": "interval",
-      "facts": ["same"],
-      "tests": [{ "s": "CHARACTER" }, { "s": "AGBDBA" }, { "s": "BBABCBCAB" }],
-      "expected": [5, 5, 7],
+      "world": "table:world-interval",
+      "facts": [
+        "same"
+      ],
+      "tests": [
+        {
+          "s": "CHARACTER"
+        },
+        {
+          "s": "AGBDBA"
+        },
+        {
+          "s": "BBABCBCAB"
+        }
+      ],
+      "expected": [
+        5,
+        5,
+        7
+      ],
       "solution": [
-        "k = const[value=2]()",
-        "a = add(view.dl, k)",
-        "g = pass(facts.same, a)",
-        "m = mmax(view.down, view.left, g)",
+        "k = table:const[value=2]()",
+        "a = table:add(view.dl, k)",
+        "g = table:pass(facts.same, a)",
+        "m = table:mmax(view.down, view.left, g)",
         "cell <- m"
       ],
       "diag": 1,

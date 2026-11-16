@@ -1,12 +1,31 @@
 {
   "title": "@level.orSwap.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "orSwap",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A ∨ B" }, "goal": "B ∨ A" }],
-      "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A ∨ B"
+          },
+          "goal": "B ∨ A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Bus",
+          "B": "Bike"
+        },
+        {
+          "A": "Coffee",
+          "B": "Tea"
+        }
+      ],
       "hint": [
         "@level.orSwap.tasks.orSwap.hint.0"
       ],

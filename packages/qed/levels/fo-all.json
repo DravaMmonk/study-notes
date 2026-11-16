@@ -1,7 +1,17 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "adds": ["formulaForall"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
+  "adds": [
+    "formulaForall"
+  ],
   "title": "@level.fo-all.title",
   "intro": [
     {
@@ -15,7 +25,7 @@
   "tasks": [
     {
       "id": "fo-all_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.fo-all.tasks.fo-all_1.step",
       "brief": "@level.fo-all.tasks.fo-all_1.brief",
       "say": "@level.fo-all.tasks.fo-all_1.say",
@@ -24,17 +34,23 @@
         "@level.fo-all.tasks.fo-all_1.hint.0",
         "@level.fo-all.tasks.fo-all_1.hint.1"
       ],
-      "decoys": ["∀x. Human(x) ∧ Mortal(x)", "∀x. Mortal(x) → Human(x)"]
+      "decoys": [
+        "∀x. Human(x) ∧ Mortal(x)",
+        "∀x. Mortal(x) → Human(x)"
+      ]
     },
     {
       "id": "fo-all_2",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.fo-all.tasks.fo-all_2.step",
       "say": "@level.fo-all.tasks.fo-all_2.say",
       "meant": "∀x. Human(x) → Mortal(x)",
       "brief": "@level.fo-all.tasks.fo-all_2.brief",
       "wrong": "∀x. Human(x) ∧ Mortal(x)",
-      "answer": { "size": 1, "preds": {} },
+      "answer": {
+        "size": 1,
+        "preds": {}
+      },
       "hint": [
         "@level.fo-all.tasks.fo-all_2.hint.0",
         "@level.fo-all.tasks.fo-all_2.hint.1"
@@ -50,14 +66,23 @@
     },
     {
       "id": "fo-all_3",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.fo-all.tasks.fo-all_3.step",
       "say": "@level.fo-all.tasks.fo-all_3.say",
       "meant": "∀x. Human(x) → Mortal(x)",
       "brief": "@level.fo-all.tasks.fo-all_3.brief",
       "wrong": "∀x. Mortal(x) → Human(x)",
-      "answer": { "size": 1, "preds": { "Human": ["0"] } },
-      "hint": ["@level.fo-all.tasks.fo-all_3.hint.0"]
+      "answer": {
+        "size": 1,
+        "preds": {
+          "Human": [
+            "0"
+          ]
+        }
+      },
+      "hint": [
+        "@level.fo-all.tasks.fo-all_3.hint.0"
+      ]
     }
   ]
 }

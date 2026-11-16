@@ -1,6 +1,9 @@
 {
   "title": "@level.byContra.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.byContra.intro.0.t"
@@ -9,9 +12,26 @@
   "tasks": [
     {
       "id": "byContra",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "¬A → B", "q": "¬A → ¬B" }, "goal": "A" }],
-      "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Wet" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "¬A → B",
+            "q": "¬A → ¬B"
+          },
+          "goal": "A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Locked",
+          "B": "Moon"
+        },
+        {
+          "A": "Rain",
+          "B": "Wet"
+        }
+      ],
       "hint": [
         "@level.byContra.tasks.byContra.hint.0",
         "@level.byContra.tasks.byContra.hint.1"

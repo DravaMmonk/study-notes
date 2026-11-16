@@ -1,6 +1,9 @@
 {
   "title": "@level.pl-grand.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.pl-grand.intro.0.t"
@@ -13,32 +16,65 @@
   "tasks": [
     {
       "id": "pl-grand",
-      "kind": "machine",
-      "want": "answers",
-      "inputs": [{ "name": "in", "label": "@level.pl-grand.tasks.pl-grand.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-answers",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.pl-grand.tasks.pl-grand.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "rules": {
         "grand": {
           "name": "@level.pl-grand.tasks.pl-grand.rules.grand.name",
-          "premises": ["Parent(?x, ?y)", "Parent(?y, ?z)"],
+          "premises": [
+            "Parent(?x, ?y)",
+            "Parent(?y, ?z)"
+          ],
           "conclusion": "Grand(?x, ?z)"
         }
       },
       "tests": [
         {
           "goal": "Grand(?w, k)",
-          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-          "answers": ["i"]
+          "hyps": [
+            "Parent(i, j)",
+            "Parent(j, k)",
+            "Parent(j, l)",
+            "Parent(l, m)",
+            "Parent(n, m)"
+          ],
+          "answers": [
+            "i"
+          ]
         },
         {
           "goal": "Grand(j, ?w)",
-          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-          "answers": ["m"]
+          "hyps": [
+            "Parent(i, j)",
+            "Parent(j, k)",
+            "Parent(j, l)",
+            "Parent(l, m)",
+            "Parent(n, m)"
+          ],
+          "answers": [
+            "m"
+          ]
         },
         {
           "goal": "Grand(i, ?w)",
-          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-          "answers": ["k", "l"]
+          "hyps": [
+            "Parent(i, j)",
+            "Parent(j, k)",
+            "Parent(j, l)",
+            "Parent(l, m)",
+            "Parent(n, m)"
+          ],
+          "answers": [
+            "k",
+            "l"
+          ]
         }
       ],
       "brief": "@level.pl-grand.tasks.pl-grand.brief",
@@ -46,7 +82,13 @@
         "@level.pl-grand.tasks.pl-grand.hint.0",
         "@level.pl-grand.tasks.pl-grand.hint.1"
       ],
-      "solution": ["c0r0 = grand()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"]
+      "solution": [
+        "c0r0 = grand()",
+        "c0 = rule(in, c0r0)",
+        "c1 = assumption(c0)",
+        "c2 = assumption(c1)",
+        "out <- c2"
+      ]
     }
   ]
 }

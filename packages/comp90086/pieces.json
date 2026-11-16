@@ -39,18 +39,23 @@
       "name": "@piece.line3.name",
       "desc": "@piece.line3.desc",
       "icon": "Grid3x3",
-      "family": "neighbour",
-      "inputs": [{ "name": "in", "label": "" }],
+      "family": "image:family-neighbour",
+      "inputs": [{ "name": "in", "label": "", "type": "image:image" }],
       "settings": [{"key": "axis", "setting": "line3_axis"}, {"key": "a", "setting": "line3_a"}, {"key": "b", "setting": "line3_b"}, {"key": "c", "setting": "line3_c"}, {"key": "border", "setting": "border"}],
-      "compute": "image_line3(in, $axis, $a, $b, $c, $border)"
+      "compute": "image:line3(in, $axis, $a, $b, $c, $border)",
+      "outputType": "image:image"
     },
     "add": {
       "name": "@piece.add.name",
       "desc": "@piece.add.desc",
       "icon": "Calculator",
-      "family": "pixel",
-      "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],
-      "compute": "image_add(a, b)"
+      "family": "image:family-pixel",
+      "inputs": [
+        { "name": "a", "label": "a", "type": "image:image" },
+        { "name": "b", "label": "b", "type": "image:image" }
+      ],
+      "compute": "image:add(a, b)",
+      "outputType": "image:image"
     }
   }
 }

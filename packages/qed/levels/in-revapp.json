@@ -1,6 +1,9 @@
 {
   "title": "@level.in-revapp.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.in-revapp.intro.0.t"
@@ -9,14 +12,24 @@
   "tasks": [
     {
       "id": "in-revapp_1",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.in-revapp.tasks.in-revapp_1.step",
       "fn": "rev",
       "on": 0,
-      "defs": ["app"],
+      "defs": [
+        "app"
+      ],
       "rows": [
-        { "lhs": "rev(nil)", "choices": ["nil"] },
+        {
+          "lhs": "rev(nil)",
+          "choices": [
+            "nil"
+          ]
+        },
         {
           "lhs": "rev(cons(x, xs))",
           "choices": [
@@ -28,25 +41,57 @@
         }
       ],
       "tests": [
-        { "term": "rev(cons(i, cons(j, cons(k, nil))))", "value": "cons(k, cons(j, cons(i, nil)))" },
-        { "term": "rev(cons(i, nil))", "value": "cons(i, nil)" }
+        {
+          "term": "rev(cons(i, cons(j, cons(k, nil))))",
+          "value": "cons(k, cons(j, cons(i, nil)))"
+        },
+        {
+          "term": "rev(cons(i, nil))",
+          "value": "cons(i, nil)"
+        }
       ],
-      "solution": ["nil", "app(rev(xs), cons(x, nil))"],
-      "naive": ["nil", "cons(x, rev(xs))"],
+      "solution": [
+        "nil",
+        "app(rev(xs), cons(x, nil))"
+      ],
+      "naive": [
+        "nil",
+        "cons(x, rev(xs))"
+      ],
       "brief": "@level.in-revapp.tasks.in-revapp_1.brief",
-      "hint": ["@level.in-revapp.tasks.in-revapp_1.hint.0"]
+      "hint": [
+        "@level.in-revapp.tasks.in-revapp_1.hint.0"
+      ]
     },
     {
       "id": "in-revapp_2",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-revapp.tasks.in-revapp_2.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-revapp.tasks.in-revapp_2.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "step": "@level.in-revapp.tasks.in-revapp_2.step",
-      "types": ["list"],
-      "defs": ["app", "len", "rev"],
-      "tests": [{ "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))" }],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "app",
+        "len",
+        "rev"
+      ],
+      "tests": [
+        {
+          "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))"
+        }
+      ],
       "brief": "@level.in-revapp.tasks.in-revapp_2.brief",
       "hint": [
         "@level.in-revapp.tasks.in-revapp_2.hint.0",
@@ -60,7 +105,7 @@
         "    c2r0 = allI()",
         "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\", appNil, appAssoc]]()",
         "    c4r0 = refl()",
-        "    c3r6 = hyp(c3r0)",
+        "    c3r6 = logic:hyp(c3r0)",
         "    c2 = rule(c1.body, c2r0)",
         "    c3 = simp(c2, c3r6)",
         "    c4 = rule(c3, c4r0)",
@@ -76,7 +121,7 @@
         "    c2r0 = allI()",
         "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\"]]()",
         "    c4r0 = refl()",
-        "    c3r4 = hyp(c3r0)",
+        "    c3r4 = logic:hyp(c3r0)",
         "    c2 = rule(c1.body, c2r0)",
         "    c3 = simp(c2, c3r4)",
         "    c4 = rule(c3, c4r0)",
@@ -84,7 +129,12 @@
         "}",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "revApp", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "revApp",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

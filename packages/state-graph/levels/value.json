@@ -8,7 +8,7 @@
     {
       "t": "@level.value.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "v0",
@@ -20,10 +20,42 @@
               "label": "@level.value.intro.1.fig.scene.cells.v0.label",
               "cls": "gold"
             },
-            { "id": "v1", "x": 62, "y": 0, "w": 54, "h": 54, "value": 9, "cls": "lit" },
-            { "id": "v2", "x": 124, "y": 0, "w": 54, "h": 54, "value": 8.1, "cls": "lit" },
-            { "id": "v3", "x": 186, "y": 0, "w": 54, "h": 54, "value": 7.29, "cls": "lit" },
-            { "id": "v4", "x": 248, "y": 0, "w": 54, "h": 54, "value": 6.56, "cls": "lit" }
+            {
+              "id": "v1",
+              "x": 62,
+              "y": 0,
+              "w": 54,
+              "h": 54,
+              "value": 9,
+              "cls": "lit"
+            },
+            {
+              "id": "v2",
+              "x": 124,
+              "y": 0,
+              "w": 54,
+              "h": 54,
+              "value": 8.1,
+              "cls": "lit"
+            },
+            {
+              "id": "v3",
+              "x": 186,
+              "y": 0,
+              "w": 54,
+              "h": 54,
+              "value": 7.29,
+              "cls": "lit"
+            },
+            {
+              "id": "v4",
+              "x": 248,
+              "y": 0,
+              "w": 54,
+              "h": 54,
+              "value": 6.56,
+              "cls": "lit"
+            }
           ],
           "edges": []
         }
@@ -32,14 +64,46 @@
     {
       "t": "@level.value.intro.2.t",
       "fig": {
-        "circuit": {
-          "taps": [{ "id": "m", "label": "@level.value.intro.2.fig.circuit.taps.m.label" }],
-          "parts": [
-            { "id": "k", "name": "@level.value.intro.2.fig.circuit.parts.k.name", "tag": "= 0.9" },
-            { "id": "x", "name": "@level.value.intro.2.fig.circuit.parts.x.name", "tag": "a × b", "row": 1 }
+        "table:figure-circuit": {
+          "taps": [
+            {
+              "id": "m",
+              "label": "@level.value.intro.2.fig.circuit.taps.m.label"
+            }
           ],
-          "outs": [{ "id": "o", "label": "@level.value.intro.2.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "m", "to": "x" }, { "from": "k", "to": "x" }, { "from": "x", "to": "o" }]
+          "parts": [
+            {
+              "id": "k",
+              "name": "@level.value.intro.2.fig.circuit.parts.k.name",
+              "tag": "= 0.9"
+            },
+            {
+              "id": "x",
+              "name": "@level.value.intro.2.fig.circuit.parts.x.name",
+              "tag": "a × b",
+              "row": 1
+            }
+          ],
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.value.intro.2.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "m",
+              "to": "x"
+            },
+            {
+              "from": "k",
+              "to": "x"
+            },
+            {
+              "from": "x",
+              "to": "o"
+            }
+          ]
         }
       }
     },
@@ -51,7 +115,7 @@
     "goal": "@level.value.mission.goal",
     "how": "@level.value.mission.how"
   },
-  "robot": "loop",
+  "robot": "table:robot-loop",
   "debrief": {
     "title": "@level.value.debrief.title",
     "body": [
@@ -63,47 +127,148 @@
   "tasks": [
     {
       "id": "value",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "ports": [
-        { "way": { "n": 1, "sensor": "up" } },
-        { "way": { "n": 2, "sensor": "down" } },
-        { "way": { "n": 3, "sensor": "left" } },
-        { "way": { "n": 4, "sensor": "right" } }
+        {
+          "table:port-way": {
+            "n": 1,
+            "sensor": "up"
+          }
+        },
+        {
+          "table:port-way": {
+            "n": 2,
+            "sensor": "down"
+          }
+        },
+        {
+          "table:port-way": {
+            "n": 3,
+            "sensor": "left"
+          }
+        },
+        {
+          "table:port-way": {
+            "n": 4,
+            "sensor": "right"
+          }
+        }
       ],
       "diagnose": [
         {
-          "when": { "not": { "has": "mul" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-has": "table:mul"
+            }
+          },
           "say": "@level.value.tasks.value.diagnose.0.say"
         }
       ],
-      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-      "consts": [0, 0.5, 0.8, 0.9, 1],
+      "boardOpt": {
+        "minScale": 0.62,
+        "maxScale": 1.15
+      },
+      "consts": [
+        0,
+        0.5,
+        0.8,
+        0.9,
+        1
+      ],
       "hints": [
         "@level.value.tasks.value.hints.0",
         "@level.value.tasks.value.hints.1"
       ],
-      "world": "vgrid",
+      "world": "table:world-vgrid",
       "tests": [
         {
           "R": 5,
           "C": 6,
-          "gold": [0, 5],
-          "traps": [[1, 4], [3, 2]],
-          "walls": [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]]
+          "gold": [
+            0,
+            5
+          ],
+          "traps": [
+            [
+              1,
+              4
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "walls": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              4
+            ]
+          ]
         },
-        { "R": 4, "C": 5, "gold": [3, 4], "traps": [[2, 3]], "walls": [[1, 1], [1, 2], [3, 2]] }
+        {
+          "R": 4,
+          "C": 5,
+          "gold": [
+            3,
+            4
+          ],
+          "traps": [
+            [
+              2,
+              3
+            ]
+          ],
+          "walls": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              2
+            ]
+          ]
+        }
       ],
-      "expected": [5.9049, 4.782969],
+      "expected": [
+        5.9049,
+        4.782969
+      ],
       "solution": [
-        "a = mmax(view.up, view.down, view.left)",
-        "k = const[value=0.9]()",
-        "b = mmax(a, view.right)",
-        "x = mul(b, k)",
+        "a = table:mmax(view.up, view.down, view.left)",
+        "k = table:const[value=0.9]()",
+        "b = table:mmax(a, view.right)",
+        "x = table:mul(b, k)",
         "cell <- x"
       ],
       "rounds": true,
       "arrows": true,
-      "publishes": [{ "piece": "value", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "value",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

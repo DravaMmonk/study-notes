@@ -5,7 +5,7 @@
     {
       "t": "@level.robber.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -65,7 +65,7 @@
     {
       "t": "@level.robber.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -125,17 +125,67 @@
     {
       "t": "@level.robber.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "f0", "x": 0, "y": 0, "w": 52, "h": 52, "corner": 0, "cls": "dimc" },
-            { "id": "f1", "x": 62, "y": 0, "w": 52, "h": 52, "corner": 1, "cls": "dimc" },
-            { "id": "f2", "x": 124, "y": 0, "w": 52, "h": 52, "corner": 2, "cls": "lit" },
-            { "id": "f3", "x": 186, "y": 0, "w": 52, "h": 52, "corner": 3, "cls": "sel" }
+            {
+              "id": "f0",
+              "x": 0,
+              "y": 0,
+              "w": 52,
+              "h": 52,
+              "corner": 0,
+              "cls": "dimc"
+            },
+            {
+              "id": "f1",
+              "x": 62,
+              "y": 0,
+              "w": 52,
+              "h": 52,
+              "corner": 1,
+              "cls": "dimc"
+            },
+            {
+              "id": "f2",
+              "x": 124,
+              "y": 0,
+              "w": 52,
+              "h": 52,
+              "corner": 2,
+              "cls": "lit"
+            },
+            {
+              "id": "f3",
+              "x": 186,
+              "y": 0,
+              "w": 52,
+              "h": 52,
+              "corner": 3,
+              "cls": "sel"
+            }
           ],
           "edges": [
-            { "a": "f0", "b": "f1", "cls": "dim", "bend": 0, "off": 0 },
-            { "a": "f1", "b": "f2", "cls": "dim", "bend": 0, "off": 0 },
-            { "a": "f2", "b": "f3", "cls": "hot", "bend": 0, "off": 0 }
+            {
+              "a": "f0",
+              "b": "f1",
+              "cls": "dim",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "f1",
+              "b": "f2",
+              "cls": "dim",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "f2",
+              "b": "f3",
+              "cls": "hot",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -148,7 +198,7 @@
     "goal": "@level.robber.mission.goal",
     "how": "@level.robber.mission.how"
   },
-  "robot": "stack",
+  "robot": "table:robot-stack",
   "debrief": {
     "title": "@level.robber.debrief.title",
     "body": [
@@ -161,29 +211,97 @@
   "tasks": [
     {
       "id": "robber",
-      "mode": "circuit",
-      "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
-      "world": "rob1",
-      "facts": ["money"],
-      "expected": [12, 10, 18],
+      "mode": "table:circuit",
+      "tests": [
+        {
+          "a": [
+            2,
+            7,
+            9,
+            3,
+            1
+          ]
+        },
+        {
+          "a": [
+            5,
+            1,
+            1,
+            5
+          ]
+        },
+        {
+          "a": [
+            4,
+            10,
+            3,
+            1,
+            8,
+            6
+          ]
+        }
+      ],
+      "world": "table:world-rob1",
+      "facts": [
+        "money"
+      ],
+      "expected": [
+        12,
+        10,
+        18
+      ],
       "onFail": {
         "head": "@level.robber.tasks.robber.onFail.head",
         "body": "@level.robber.tasks.robber.onFail.body",
-        "show": "robConflict",
+        "show": "table:panel-robConflict",
         "next": "@level.robber.tasks.robber.onFail.next"
       }
     },
     {
       "id": "robber_2",
-      "mode": "circuit",
-      "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
-      "world": "rob2",
-      "facts": ["money"],
-      "expected": [12, 10, 18],
+      "mode": "table:circuit",
+      "tests": [
+        {
+          "a": [
+            2,
+            7,
+            9,
+            3,
+            1
+          ]
+        },
+        {
+          "a": [
+            5,
+            1,
+            1,
+            5
+          ]
+        },
+        {
+          "a": [
+            4,
+            10,
+            3,
+            1,
+            8,
+            6
+          ]
+        }
+      ],
+      "world": "table:world-rob2",
+      "facts": [
+        "money"
+      ],
+      "expected": [
+        12,
+        10,
+        18
+      ],
       "solution": [
-        "n = mmax(view.pn, view.pr)",
-        "a = add(view.pn, facts.money)",
-        "b = mmax(n, a)",
+        "n = table:mmax(view.pn, view.pr)",
+        "a = table:add(view.pn, facts.money)",
+        "b = table:mmax(n, a)",
         "no <- n",
         "yes <- a",
         "best <- b"
@@ -195,7 +313,12 @@
       ],
       "tip": "@level.robber.tasks.robber_2.tip",
       "unlockToast": "@level.robber.tasks.robber_2.unlockToast",
-      "publishes": [{ "piece": "layer", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "layer",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

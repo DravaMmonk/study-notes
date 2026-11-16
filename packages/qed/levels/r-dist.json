@@ -1,6 +1,9 @@
 {
   "title": "@level.r-dist.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-dist.intro.0.t"
@@ -10,12 +13,21 @@
   "tasks": [
     {
       "id": "r-dist",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-dist.tasks.r-dist.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-dist.tasks.r-dist.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
-        { "goal": "Sat ∧ (Bus ∨ Bike) → (Sat ∧ Bus) ∨ (Sat ∧ Bike)" }
+        {
+          "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)"
+        },
+        {
+          "goal": "Sat ∧ (Bus ∨ Bike) → (Sat ∧ Bus) ∨ (Sat ∧ Bike)"
+        }
       ],
       "brief": "@level.r-dist.tasks.r-dist.brief",
       "hint": [

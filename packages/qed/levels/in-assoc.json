@@ -1,19 +1,40 @@
 {
   "title": "@level.in-assoc.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "in-assoc",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-assoc.tasks.in-assoc.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-assoc.tasks.in-assoc.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "defs": ["plus"],
-      "tests": [{ "goal": "∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "defs": [
+        "plus"
+      ],
+      "tests": [
+        {
+          "goal": "∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))"
+        }
+      ],
       "brief": "@level.in-assoc.tasks.in-assoc.brief",
-      "hint": ["@level.in-assoc.tasks.in-assoc.hint.0"],
+      "hint": [
+        "@level.in-assoc.tasks.in-assoc.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"nat.induct\"]]()",
         "c0 = rule(in, c0r0)",
@@ -21,7 +42,7 @@
         "  body {",
         "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "    c5r0 = refl()",
-        "    c2r2 = hyp(c2r0)",
+        "    c2r2 = logic:hyp(c2r0)",
         "    c2 = simp(c1.body, c2r2)",
         "    c3 = repeat(c2, body: c4) {",
         "      body {",
@@ -34,7 +55,12 @@
         "}",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "addAssoc", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "addAssoc",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

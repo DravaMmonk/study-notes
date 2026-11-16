@@ -16,23 +16,23 @@
       "t": "@level.5-7.intro.3.t"
     }
   ],
-  "unlocks": ["embed"],
+  "unlocks": ["image:unlock-embed"],
   "tasks": [
     {
       "id": "5-7",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.5-7.tasks.5-7.brief",
       "hint": "@level.5-7.tasks.5-7.hint",
       "bench": {
-        "model": "contrast",
+        "model": "image:benchModel-contrast",
         "setup": {
           "names": ["T", "L", "X", "O", "F"],
           "base": [
-            { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
-            { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
-            { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
-            { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
-            { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
+            { "image:picture-glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
+            { "image:picture-glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
+            { "image:picture-glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
+            { "image:picture-glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
+            { "image:picture-glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
           ],
           "tau": 0.2,
           "rate": 0.5,
@@ -72,21 +72,21 @@
         "layout": {
           "main": [
             {
-              "embedding": {
+              "image:display-embedding": {
                 "with": [
                   {
-                    "text": {
+                    "circuit:display-text": {
                       "text": "@level.5-7.tasks.5-7.bench.layout.main.0.embedding.with.0.text.text",
                       "look": "label"
                     }
                   },
-                  { "chips": { "of": "steps" } }
+                  { "circuit:display-chips": { "of": "steps" } }
                 ]
               }
             },
-            { "verdict": { "center": true } },
+            { "circuit:display-verdict": { "center": true } },
             {
-              "text": {
+              "circuit:display-text": {
                 "text": "@level.5-7.tasks.5-7.bench.layout.main.2.text.text",
                 "look": "legend"
               }
@@ -97,23 +97,23 @@
             {
               "panel": [
                 {
-                  "text": {
+                  "circuit:display-text": {
                     "text": "@level.5-7.tasks.5-7.bench.layout.side.0.panel.0.text.text",
                     "look": "label"
                   }
                 },
-                "goals"
+                "circuit:display-goals"
               ]
             },
             {
               "panel": [
-                { "text": { "of": "formula", "look": "serif" } },
-                "knobs",
-                "actions",
-                { "curve": { "of": "losses", "caption": "lossNote" } }
+                { "circuit:display-text": { "of": "formula", "look": "serif" } },
+                "circuit:display-knobs",
+                "circuit:display-actions",
+                { "circuit:display-curve": { "of": "losses", "caption": "lossNote" } }
               ]
             },
-            "choiceMatrix"
+            "image:display-choiceMatrix"
           ]
         }
       }

@@ -20,7 +20,7 @@
   "tasks": [
     {
       "id": "6-4",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-4.tasks.6-4.brief",
       "hint": "@level.6-4.tasks.6-4.hint",
       "inputs": ["d1", "d2", "d3"],
@@ -32,7 +32,7 @@
       "outputs": ["idx"],
       "outputLabels": { "idx": "@level.6-4.tasks.6-4.outputLabels.idx" },
       "check": { "tolerance": 0.1 },
-      "scene": "distances",
+      "scene": "image:scene-distances",
       "tests": [
         { "label": "@level.6-4.tasks.6-4.tests.0.label", "seed": 21, "ambiguous": [3, 9, 27, 40, 51] },
         { "label": "@level.6-4.tasks.6-4.tests.1.label", "seed": 22, "ambiguous": [0, 14, 33, 47, 60, 62] },

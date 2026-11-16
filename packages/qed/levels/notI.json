@@ -1,6 +1,9 @@
 {
   "title": "@level.notI.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.notI.intro.0.t"
@@ -10,10 +13,27 @@
   "tasks": [
     {
       "id": "notI_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.notI.tasks.notI_1.step",
-      "tests": [{ "premises": { "p": "A → B", "q": "A → ¬B" }, "goal": "¬A" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "A → ¬B"
+          },
+          "goal": "¬A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Exam",
+          "B": "Study"
+        }
+      ],
       "hint": [
         "@level.notI.tasks.notI_1.hint.0"
       ],
@@ -30,17 +50,40 @@
     },
     {
       "id": "notI_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.notI.tasks.notI_2.step",
-      "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
-      "cases": [{ "A": "Rain" }, { "A": "Locked" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "¬¬A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Locked"
+        }
+      ],
       "hint": [
         "@level.notI.tasks.notI_2.hint.0"
       ],
       "intro": [
-        { "t": "@level.notI.tasks.notI_2.intro.0.t" }
+        {
+          "t": "@level.notI.tasks.notI_2.intro.0.t"
+        }
       ],
-      "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"]
+      "solution": [
+        "f = impI[A=\"~A\"](body: m) {",
+        "  body {",
+        "    m = mp(f.body, p)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
     }
   ]
 }

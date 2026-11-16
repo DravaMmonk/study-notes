@@ -1,13 +1,21 @@
 {
   "title": "@level.is-ten.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "after": "@level.is-ten.after",
   "tasks": [
     {
       "id": "is-ten",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.is-ten.tasks.is-ten.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.is-ten.tasks.is-ten.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
         {
@@ -57,8 +65,13 @@
         }
       ],
       "brief": "@level.is-ten.tasks.is-ten.brief",
-      "hint": ["@level.is-ten.tasks.is-ten.hint.0"],
-      "solution": ["c0 = metis(in)", "out <- c0"]
+      "hint": [
+        "@level.is-ten.tasks.is-ten.hint.0"
+      ],
+      "solution": [
+        "c0 = metis(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

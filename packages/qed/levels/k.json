@@ -1,24 +1,60 @@
 {
   "title": "@level.k.title",
-  "tray": ["#proof", "#formula"],
-  "intro": [{ "t": "@level.k.intro.0.t" }],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.k.intro.0.t"
+    }
+  ],
   "after": "@level.k.after",
   "tasks": [
     {
       "id": "k_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.k.tasks.k_1.step",
-      "tests": [{ "goal": "A → A" }],
-      "cases": [{ "A": "Rain" }, { "A": "Sat" }],
-      "hint": ["@level.k.tasks.k_1.hint.0"],
-      "solution": ["f = impI[A=A](body: f.body)", "goal <- f"]
+      "tests": [
+        {
+          "goal": "A → A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Sat"
+        }
+      ],
+      "hint": [
+        "@level.k.tasks.k_1.hint.0"
+      ],
+      "solution": [
+        "f = impI[A=A](body: f.body)",
+        "goal <- f"
+      ]
     },
     {
       "id": "k_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.k.tasks.k_2.step",
-      "tests": [{ "goal": "A → (B → A)" }],
-      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
+      "tests": [
+        {
+          "goal": "A → (B → A)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wind"
+        },
+        {
+          "A": "Coffee",
+          "B": "Late"
+        }
+      ],
       "hint": [
         "@level.k.tasks.k_2.hint.0",
         "@level.k.tasks.k_2.hint.1"
@@ -28,8 +64,20 @@
           "t": "@level.k.tasks.k_2.intro.0.t"
         }
       ],
-      "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=B](body: f.body)", "  }", "}", "goal <- f"],
-      "publishes": [{ "piece": "axK", "variant": "base" }]
+      "solution": [
+        "f = impI[A=A](body: g) {",
+        "  body {",
+        "    g = impI[A=B](body: f.body)",
+        "  }",
+        "}",
+        "goal <- f"
+      ],
+      "publishes": [
+        {
+          "piece": "axK",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

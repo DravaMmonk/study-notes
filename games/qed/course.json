@@ -41,7 +41,7 @@
     "qed/defer",
     "qed/search",
     "qed/rw",
-    "hyp",
+    "logic:hyp",
     "qed/skolem",
     "qed/toClauses",
     "qed/resolve",

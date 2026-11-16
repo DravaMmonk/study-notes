@@ -1,8 +1,16 @@
 {
   "title": "@level.in-induct.title",
-  "tray": ["#proof", "#formula"],
-  "consts": ["zero"],
-  "words": ["everyday", "terms"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
+  "consts": [
+    "zero"
+  ],
+  "words": [
+    "everyday",
+    "terms"
+  ],
   "intro": [
     {
       "t": "@level.in-induct.intro.0.t"
@@ -15,7 +23,7 @@
   "tasks": [
     {
       "id": "in-induct_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.in-induct.tasks.in-induct_1.step",
       "cases": [],
       "tests": [
@@ -33,20 +41,30 @@
         "@level.in-induct.tasks.in-induct_1.hint.0",
         "@level.in-induct.tasks.in-induct_1.hint.1"
       ],
-      "solution": ["i = allE[t=\"plus(x, zero) = x\"](ind)", "m1 = mp(i, z)", "m2 = mp(m1, st)", "goal <- m2"]
+      "solution": [
+        "i = allE[t=\"plus(x, zero) = x\"](ind)",
+        "m1 = mp(i, z)",
+        "m2 = mp(m1, st)",
+        "goal <- m2"
+      ]
     },
     {
       "id": "in-induct_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.in-induct.tasks.in-induct_2.step",
       "cases": [],
       "tests": [
         {
-          "premises": { "ind": "∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))" },
+          "premises": {
+            "ind": "∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))"
+          },
           "goal": "∀n. n = zero ∨ (∃m. n = s(m))"
         }
       ],
-      "sentences": ["∃m. zero = s(m)", "s(n) = zero ∨ (∃m. s(n) = s(m))"],
+      "sentences": [
+        "∃m. zero = s(m)",
+        "s(n) = zero ∨ (∃m. s(n) = s(m))"
+      ],
       "brief": "@level.in-induct.tasks.in-induct_2.brief",
       "hint": [
         "@level.in-induct.tasks.in-induct_2.hint.0",

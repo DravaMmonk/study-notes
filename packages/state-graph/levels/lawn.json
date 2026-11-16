@@ -13,7 +13,7 @@
     "goal": "@level.lawn.mission.goal",
     "how": "@level.lawn.mission.how"
   },
-  "robot": "scout",
+  "robot": "table:robot-scout",
   "debrief": {
     "title": "@level.lawn.debrief.title",
     "body": [
@@ -25,35 +25,88 @@
   "tasks": [
     {
       "id": "lawn",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "naive": [
-        "m = mmax(view.up, view.left)",
-        "k = const[value=1]()",
-        "z = const[value=0]()",
-        "a = add(m, k)",
-        "g = pass(facts.open, a)",
-        "s = msum(g, z)",
+        "m = table:mmax(view.up, view.left)",
+        "k = table:const[value=1]()",
+        "z = table:const[value=0]()",
+        "a = table:add(m, k)",
+        "g = table:pass(facts.open, a)",
+        "s = table:msum(g, z)",
         "cell <- s"
       ],
       "hints": [
         "@level.lawn.tasks.lawn.hints.0",
         "@level.lawn.tasks.lawn.hints.1"
       ],
-      "world": "lawn",
-      "facts": ["open"],
-      "tests": [
-        { "R": 4, "C": 4, "trees": [[1, 3], [4, 1]] },
-        { "R": 4, "C": 5, "trees": [[2, 2], [1, 5], [4, 4]] },
-        { "R": 5, "C": 5, "trees": [[1, 1], [3, 5], [5, 2]] }
+      "world": "table:world-lawn",
+      "facts": [
+        "open"
       ],
-      "expected": [3, 2, 3],
+      "tests": [
+        {
+          "R": 4,
+          "C": 4,
+          "trees": [
+            [
+              1,
+              3
+            ],
+            [
+              4,
+              1
+            ]
+          ]
+        },
+        {
+          "R": 4,
+          "C": 5,
+          "trees": [
+            [
+              2,
+              2
+            ],
+            [
+              1,
+              5
+            ],
+            [
+              4,
+              4
+            ]
+          ]
+        },
+        {
+          "R": 5,
+          "C": 5,
+          "trees": [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              5,
+              2
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        3,
+        2,
+        3
+      ],
       "solution": [
-        "m = mmin(view.up, view.left, view.ul)",
-        "k = const[value=1]()",
-        "z = const[value=0]()",
-        "a = add(m, k)",
-        "g = pass(facts.open, a)",
-        "s = msum(g, z)",
+        "m = table:mmin(view.up, view.left, view.ul)",
+        "k = table:const[value=1]()",
+        "z = table:const[value=0]()",
+        "a = table:add(m, k)",
+        "g = table:pass(facts.open, a)",
+        "s = table:msum(g, z)",
         "cell <- s"
       ]
     }

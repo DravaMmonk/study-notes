@@ -1,0 +1,86 @@
+{
+  "title": "@level.1-1.title",
+  "intro": [
+    {
+      "t": "@level.1-1.intro.0.t"
+    }
+  ],
+  "adds": [
+    "add",
+    "sub"
+  ],
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": "@level.1-1.tasks.1-1.brief",
+      "hint": [
+        "@level.1-1.tasks.1-1.hint.0"
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "label": "a"
+        },
+        {
+          "name": "b",
+          "label": "b"
+        },
+        {
+          "name": "c",
+          "label": "c"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "label": "@level.1-1.tasks.1-1.outputs.0.label"
+        }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "a": 1,
+            "b": 2,
+            "c": 3
+          },
+          "expect": {
+            "out": 0
+          }
+        },
+        {
+          "inputs": {
+            "a": 10,
+            "b": 4,
+            "c": 6
+          },
+          "expect": {
+            "out": 8
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "a": 7,
+            "b": 8,
+            "c": -9
+          },
+          "expect": {
+            "out": 24
+          }
+        }
+      ],
+      "solution": [
+        "s = add(a, b)",
+        "d = sub(s, c)",
+        "out <- d"
+      ],
+      "publishes": [
+        {
+          "piece": "addSub",
+          "variant": "base"
+        }
+      ]
+    }
+  ]
+}

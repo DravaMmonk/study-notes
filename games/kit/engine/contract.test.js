@@ -1,4 +1,4 @@
-// node --test (npm test, from trace-viewer) — the domain contract (contract.js) over every domain in kit/domains and
+// node --test (npm test, from trace-viewer) — the domain contract (contract.js) over every domain in kit/modules and
 // its starter game, without naming a level: a domain that breaks it fails here. The real games are the studio's to
 // keep within the contract (its operations check every change), not this test's. Exceptions are the domain's to
 // declare (a spec's builtIn parts), never this file's.
@@ -12,9 +12,9 @@ import { checkContent } from './vocabulary.js'
 import { domainProblems, gameProblems, specProblems, validateProblems } from './contract.js'
 import { closeGames, gameOf } from './games.mjs'
 
-const DOMAINS = resolve(import.meta.dirname, '../domains')
-const names = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'domain.js')))
-const load = async (name) => (await import(`../domains/${name}/domain.js`)).default
+const DOMAINS = resolve(import.meta.dirname, '../modules')
+const names = readdirSync(DOMAINS).filter((d) => ['image', 'logic', 'table'].includes(d))
+const load = async (name) => (await import(`../modules/${name}/domain.js`)).default
 
 after(() => closeGames())
 

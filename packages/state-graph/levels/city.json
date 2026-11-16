@@ -4,16 +4,35 @@
   "intro": [
     {
       "t": "@level.city.intro.0.t",
-      "fig": { "grid": { "R": 2, "C": 3, "cells": { "0,0": { "value": 1, "cls": "src" } } } }
+      "fig": {
+        "table:figure-grid": {
+          "R": 2,
+          "C": 3,
+          "cells": {
+            "0,0": {
+              "value": 1,
+              "cls": "src"
+            }
+          }
+        }
+      }
     },
     {
       "t": "@level.city.intro.1.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 2,
           "C": 3,
-          "cells": { "1,1": { "value": "?", "cls": "sel" } },
-          "edges": { "0,1>1,1": "hot", "1,0>1,1": "hot" }
+          "cells": {
+            "1,1": {
+              "value": "?",
+              "cls": "sel"
+            }
+          },
+          "edges": {
+            "0,1>1,1": "hot",
+            "1,0>1,1": "hot"
+          }
         }
       }
     },
@@ -37,8 +56,11 @@
   "tasks": [
     {
       "id": "city",
-      "mode": "fill",
-      "grid": { "R": 3, "C": 4 }
+      "mode": "table:fill",
+      "grid": {
+        "R": 3,
+        "C": 4
+      }
     }
   ]
 }

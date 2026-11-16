@@ -5,21 +5,103 @@
     {
       "t": "@level.link.intro.0.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "a0", "x": 0, "y": 0, "w": 42, "h": 42, "value": "A", "cls": "tile ok" },
-            { "id": "a1", "x": 50, "y": 0, "w": 42, "h": 42, "value": "B", "cls": "tile ok" },
-            { "id": "a2", "x": 100, "y": 0, "w": 42, "h": 42, "value": "C", "cls": "tile" },
-            { "id": "a3", "x": 150, "y": 0, "w": 42, "h": 42, "value": "D", "cls": "tile ok" },
-            { "id": "b0", "x": 0, "y": 120, "w": 42, "h": 42, "value": "A", "cls": "tile ok" },
-            { "id": "b1", "x": 50, "y": 120, "w": 42, "h": 42, "value": "C", "cls": "tile" },
-            { "id": "b2", "x": 100, "y": 120, "w": 42, "h": 42, "value": "B", "cls": "tile ok" },
-            { "id": "b3", "x": 150, "y": 120, "w": 42, "h": 42, "value": "D", "cls": "tile ok" }
+            {
+              "id": "a0",
+              "x": 0,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "A",
+              "cls": "tile ok"
+            },
+            {
+              "id": "a1",
+              "x": 50,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "B",
+              "cls": "tile ok"
+            },
+            {
+              "id": "a2",
+              "x": 100,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "C",
+              "cls": "tile"
+            },
+            {
+              "id": "a3",
+              "x": 150,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "D",
+              "cls": "tile ok"
+            },
+            {
+              "id": "b0",
+              "x": 0,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "A",
+              "cls": "tile ok"
+            },
+            {
+              "id": "b1",
+              "x": 50,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "C",
+              "cls": "tile"
+            },
+            {
+              "id": "b2",
+              "x": 100,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "B",
+              "cls": "tile ok"
+            },
+            {
+              "id": "b3",
+              "x": 150,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "D",
+              "cls": "tile ok"
+            }
           ],
           "edges": [
-            { "a": "a0", "b": "b0", "cls": "link", "bend": 0, "off": 0 },
-            { "a": "a1", "b": "b2", "cls": "link", "bend": 0, "off": 0 },
-            { "a": "a3", "b": "b3", "cls": "link", "bend": 0, "off": 0 }
+            {
+              "a": "a0",
+              "b": "b0",
+              "cls": "link",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "a1",
+              "b": "b2",
+              "cls": "link",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "a3",
+              "b": "b3",
+              "cls": "link",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -30,20 +112,96 @@
     {
       "t": "@level.link.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "a0", "x": 0, "y": 0, "w": 42, "h": 42, "value": "A", "cls": "tile" },
-            { "id": "a1", "x": 50, "y": 0, "w": 42, "h": 42, "value": "B", "cls": "tile bad" },
-            { "id": "a2", "x": 100, "y": 0, "w": 42, "h": 42, "value": "C", "cls": "tile bad" },
-            { "id": "a3", "x": 150, "y": 0, "w": 42, "h": 42, "value": "D", "cls": "tile" },
-            { "id": "b0", "x": 0, "y": 120, "w": 42, "h": 42, "value": "A", "cls": "tile" },
-            { "id": "b1", "x": 50, "y": 120, "w": 42, "h": 42, "value": "C", "cls": "tile bad" },
-            { "id": "b2", "x": 100, "y": 120, "w": 42, "h": 42, "value": "B", "cls": "tile bad" },
-            { "id": "b3", "x": 150, "y": 120, "w": 42, "h": 42, "value": "D", "cls": "tile" }
+            {
+              "id": "a0",
+              "x": 0,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "A",
+              "cls": "tile"
+            },
+            {
+              "id": "a1",
+              "x": 50,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "B",
+              "cls": "tile bad"
+            },
+            {
+              "id": "a2",
+              "x": 100,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "C",
+              "cls": "tile bad"
+            },
+            {
+              "id": "a3",
+              "x": 150,
+              "y": 0,
+              "w": 42,
+              "h": 42,
+              "value": "D",
+              "cls": "tile"
+            },
+            {
+              "id": "b0",
+              "x": 0,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "A",
+              "cls": "tile"
+            },
+            {
+              "id": "b1",
+              "x": 50,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "C",
+              "cls": "tile bad"
+            },
+            {
+              "id": "b2",
+              "x": 100,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "B",
+              "cls": "tile bad"
+            },
+            {
+              "id": "b3",
+              "x": 150,
+              "y": 120,
+              "w": 42,
+              "h": 42,
+              "value": "D",
+              "cls": "tile"
+            }
           ],
           "edges": [
-            { "a": "a1", "b": "b2", "cls": "linkbad", "bend": 0, "off": 0 },
-            { "a": "a2", "b": "b1", "cls": "linkbad", "bend": 0, "off": 0 }
+            {
+              "a": "a1",
+              "b": "b2",
+              "cls": "linkbad",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "a2",
+              "b": "b1",
+              "cls": "linkbad",
+              "bend": 0,
+              "off": 0
+            }
           ]
         }
       }
@@ -67,8 +225,17 @@
   "tasks": [
     {
       "id": "link",
-      "mode": "link",
-      "tests": [{ "a": "CABD", "b": "ABCD" }, { "a": "ABCBDAB", "b": "BDCABA" }],
+      "mode": "table:link",
+      "tests": [
+        {
+          "a": "CABD",
+          "b": "ABCD"
+        },
+        {
+          "a": "ABCBDAB",
+          "b": "BDCABA"
+        }
+      ],
       "hints": [
         "@level.link.tasks.link.hints.0",
         "@level.link.tasks.link.hints.1"

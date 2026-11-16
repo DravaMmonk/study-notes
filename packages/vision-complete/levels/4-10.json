@@ -21,14 +21,14 @@
       }
     }
   ],
-  "unlocks": ["maxpool"],
+  "unlocks": ["image:unlock-maxpool"],
   "tasks": [
     {
       "id": "4-10",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-10.tasks.4-10.brief",
       "hint": "@level.4-10.tasks.4-10.hint",
-      "scene": "movedDots",
+      "scene": "image:scene-movedDots",
       "tests": [
         {
           "label": "@level.4-10.tasks.4-10.tests.0.label",

@@ -13,8 +13,10 @@
     "goal": "@level.safefrog.mission.goal",
     "how": "@level.safefrog.mission.how"
   },
-  "robot": "reach",
-  "adds": ["mul"],
+  "robot": "table:robot-reach",
+  "adds": [
+    "table:mul"
+  ],
   "debrief": {
     "title": "@level.safefrog.debrief.title",
     "body": [
@@ -24,10 +26,14 @@
   "tasks": [
     {
       "id": "safefrog",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "has": "mul" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-has": "table:mul"
+            }
+          },
           "say": "@level.safefrog.tasks.safefrog.diagnose.0.say"
         }
       ],
@@ -35,19 +41,89 @@
         "@level.safefrog.tasks.safefrog.hints.0",
         "@level.safefrog.tasks.safefrog.hints.1"
       ],
-      "world": "river",
-      "facts": ["bank", "hold"],
-      "tests": [
-        { "k": [0, null, 2, 3, 2, 4, 3], "p": [1, 0.9, 0.5, 0.8, 0.9, 0.6, 0.9] },
-        { "k": [0, null, 2, 2, 3, null, 4, 2], "p": [1, 0.8, 0.9, 0.5, 0.9, 0.7, 0.9, 0.8] },
-        { "k": [0, null, 2, 3, 4, 2, 5, 3, 2], "p": [1, 0.6, 0.9, 0.8, 0.5, 0.9, 0.9, 0.7, 0.9] }
+      "world": "table:world-river",
+      "facts": [
+        "bank",
+        "hold"
       ],
-      "expected": [0.72, 0.648, 0.5832],
+      "tests": [
+        {
+          "k": [
+            0,
+            null,
+            2,
+            3,
+            2,
+            4,
+            3
+          ],
+          "p": [
+            1,
+            0.9,
+            0.5,
+            0.8,
+            0.9,
+            0.6,
+            0.9
+          ]
+        },
+        {
+          "k": [
+            0,
+            null,
+            2,
+            2,
+            3,
+            null,
+            4,
+            2
+          ],
+          "p": [
+            1,
+            0.8,
+            0.9,
+            0.5,
+            0.9,
+            0.7,
+            0.9,
+            0.8
+          ]
+        },
+        {
+          "k": [
+            0,
+            null,
+            2,
+            3,
+            4,
+            2,
+            5,
+            3,
+            2
+          ],
+          "p": [
+            1,
+            0.6,
+            0.9,
+            0.8,
+            0.5,
+            0.9,
+            0.9,
+            0.7,
+            0.9
+          ]
+        }
+      ],
+      "expected": [
+        0.72,
+        0.648,
+        0.5832
+      ],
       "solution": [
-        "k = const[value=1]()",
-        "g = pass(facts.bank, k)",
-        "m = mmax(view.m1, view.back, g)",
-        "x = mul(m, facts.hold)",
+        "k = table:const[value=1]()",
+        "g = table:pass(facts.bank, k)",
+        "m = table:mmax(view.m1, view.back, g)",
+        "x = table:mul(m, facts.hold)",
         "cell <- x"
       ]
     }

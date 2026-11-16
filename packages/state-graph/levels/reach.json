@@ -5,19 +5,45 @@
     {
       "t": "@level.reach.intro.0.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 3,
           "C": 3,
           "cells": {
-            "0,0": { "value": "@level.reach.intro.0.fig.grid.cells.0-0.value", "cls": "yes" },
-            "0,1": { "value": "@level.reach.intro.0.fig.grid.cells.0-1.value", "cls": "yes" },
-            "0,2": { "value": "@level.reach.intro.0.fig.grid.cells.0-2.value", "cls": "yes" },
-            "1,0": { "value": "@level.reach.intro.0.fig.grid.cells.1-0.value", "cls": "yes" },
-            "1,1": { "cls": "rock" },
-            "1,2": { "value": "@level.reach.intro.0.fig.grid.cells.1-2.value", "cls": "yes" },
-            "2,0": { "value": "@level.reach.intro.0.fig.grid.cells.2-0.value", "cls": "yes" },
-            "2,1": { "value": "@level.reach.intro.0.fig.grid.cells.2-1.value", "cls": "yes" },
-            "2,2": { "value": "@level.reach.intro.0.fig.grid.cells.2-2.value", "cls": "yes" }
+            "0,0": {
+              "value": "@level.reach.intro.0.fig.grid.cells.0-0.value",
+              "cls": "yes"
+            },
+            "0,1": {
+              "value": "@level.reach.intro.0.fig.grid.cells.0-1.value",
+              "cls": "yes"
+            },
+            "0,2": {
+              "value": "@level.reach.intro.0.fig.grid.cells.0-2.value",
+              "cls": "yes"
+            },
+            "1,0": {
+              "value": "@level.reach.intro.0.fig.grid.cells.1-0.value",
+              "cls": "yes"
+            },
+            "1,1": {
+              "cls": "rock"
+            },
+            "1,2": {
+              "value": "@level.reach.intro.0.fig.grid.cells.1-2.value",
+              "cls": "yes"
+            },
+            "2,0": {
+              "value": "@level.reach.intro.0.fig.grid.cells.2-0.value",
+              "cls": "yes"
+            },
+            "2,1": {
+              "value": "@level.reach.intro.0.fig.grid.cells.2-1.value",
+              "cls": "yes"
+            },
+            "2,2": {
+              "value": "@level.reach.intro.0.fig.grid.cells.2-2.value",
+              "cls": "yes"
+            }
           }
         }
       }
@@ -25,10 +51,18 @@
     {
       "t": "@level.reach.intro.1.t",
       "fig": {
-        "circuit": {
+        "table:figure-circuit": {
           "taps": [
-            { "id": "u", "label": "@level.reach.intro.1.fig.circuit.taps.u.label", "kind": "bool" },
-            { "id": "l", "label": "@level.reach.intro.1.fig.circuit.taps.l.label", "kind": "bool" }
+            {
+              "id": "u",
+              "label": "@level.reach.intro.1.fig.circuit.taps.u.label",
+              "kind": "bool"
+            },
+            {
+              "id": "l",
+              "label": "@level.reach.intro.1.fig.circuit.taps.l.label",
+              "kind": "bool"
+            }
           ],
           "parts": [
             {
@@ -37,11 +71,28 @@
               "tag": "@level.reach.intro.1.fig.circuit.parts.m.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.reach.intro.1.fig.circuit.outs.o.label" }],
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.reach.intro.1.fig.circuit.outs.o.label"
+            }
+          ],
           "wires": [
-            { "from": "u", "to": "m", "kind": "bool" },
-            { "from": "l", "to": "m", "kind": "bool" },
-            { "from": "m", "to": "o", "kind": "bool" }
+            {
+              "from": "u",
+              "to": "m",
+              "kind": "bool"
+            },
+            {
+              "from": "l",
+              "to": "m",
+              "kind": "bool"
+            },
+            {
+              "from": "m",
+              "to": "o",
+              "kind": "bool"
+            }
           ]
         }
       }
@@ -54,8 +105,10 @@
     "goal": "@level.reach.mission.goal",
     "how": "@level.reach.mission.how"
   },
-  "robot": "scout",
-  "adds": ["many"],
+  "robot": "table:robot-scout",
+  "adds": [
+    "table:many"
+  ],
   "debrief": {
     "title": "@level.reach.debrief.title",
     "body": [
@@ -67,7 +120,7 @@
   "tasks": [
     {
       "id": "reach",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "testLabel": "@level.reach.tasks.reach.testLabel",
       "checkAll": true,
       "hints": [
@@ -75,15 +128,81 @@
         "@level.reach.tasks.reach.hints.1",
         "@level.reach.tasks.reach.hints.2"
       ],
-      "world": "gridYes",
-      "facts": ["start", "rock"],
-      "tests": [
-        { "R": 4, "C": 5, "rocks": [[0, 3], [1, 1], [2, 3]] },
-        { "R": 4, "C": 4, "rocks": [[0, 2], [1, 1], [2, 0]] },
-        { "R": 5, "C": 5, "rocks": [[1, 2], [2, 1], [3, 3], [4, 2]] }
+      "world": "table:world-gridYes",
+      "facts": [
+        "start",
+        "rock"
       ],
-      "expected": [true, false, true],
-      "solution": ["m = many(view.up, view.left, facts.start)", "b = block(facts.rock, m)", "cell <- b"]
+      "tests": [
+        {
+          "R": 4,
+          "C": 5,
+          "rocks": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ]
+        },
+        {
+          "R": 4,
+          "C": 4,
+          "rocks": [
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "R": 5,
+          "C": 5,
+          "rocks": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              4,
+              2
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        true,
+        false,
+        true
+      ],
+      "solution": [
+        "m = table:many(view.up, view.left, facts.start)",
+        "b = table:block(facts.rock, m)",
+        "cell <- b"
+      ]
     }
   ]
 }

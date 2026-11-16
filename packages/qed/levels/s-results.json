@@ -1,6 +1,9 @@
 {
   "title": "@level.s-results.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "showcase": "@level.s-results.showcase",
   "intro": [
     {
@@ -14,16 +17,38 @@
   "tasks": [
     {
       "id": "s-results",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-results.tasks.s-results.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-results.tasks.s-results.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
-        { "goal": "∃x. Likes(x, i) ∧ Likes(x, j)", "hyps": ["Likes(k, i)", "Likes(m, j)", "Likes(l, j)", "Likes(l, i)"] }
+        {
+          "goal": "∃x. Human(x) ∧ Likes(x, i)",
+          "hyps": [
+            "Human(k)",
+            "Human(j)",
+            "Likes(j, i)"
+          ]
+        },
+        {
+          "goal": "∃x. Likes(x, i) ∧ Likes(x, j)",
+          "hyps": [
+            "Likes(k, i)",
+            "Likes(m, j)",
+            "Likes(l, j)",
+            "Likes(l, i)"
+          ]
+        }
       ],
       "brief": "@level.s-results.tasks.s-results.brief",
-      "hint": ["@level.s-results.tasks.s-results.hint.0"],
+      "hint": [
+        "@level.s-results.tasks.s-results.hint.0"
+      ],
       "solution": [
         "c0r0 = exI()",
         "c1r0 = andI()",
@@ -36,9 +61,25 @@
     }
   ],
   "pieceRevisions": [
-    { "piece": "repeat", "at": true, "desc": "@piece.repeat.revisions.0.desc" },
-    { "piece": "assumption", "at": true, "desc": "@piece.assumption.revisions.0.desc" },
-    { "piece": "append", "at": true, "desc": "@piece.append.revisions.0.desc" },
-    { "piece": "erule", "at": true, "desc": "@piece.erule.revisions.0.desc" }
+    {
+      "piece": "repeat",
+      "at": true,
+      "desc": "@piece.repeat.revisions.0.desc"
+    },
+    {
+      "piece": "assumption",
+      "at": true,
+      "desc": "@piece.assumption.revisions.0.desc"
+    },
+    {
+      "piece": "append",
+      "at": true,
+      "desc": "@piece.append.revisions.0.desc"
+    },
+    {
+      "piece": "erule",
+      "at": true,
+      "desc": "@piece.erule.revisions.0.desc"
+    }
   ]
 }

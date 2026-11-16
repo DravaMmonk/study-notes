@@ -15,9 +15,9 @@ export function runtimeOf(task, view) {
 }
 
 /** Bind only the versioned dependencies the passing board actually uses. */
-function bindWorkshopWork(graph, task, circuit, library, { domain, partDefs }) {
+function bindWorkshopWork(graph, task, circuit, library, { partDefs }) {
   const runtime = runtimeOf(task, circuit)
-  const context = { domain, resolve: runtime, identity: (type) => workshopIdentity(domain, partDefs, type) }
+  const context = { resolve: runtime, identity: (type) => workshopIdentity(partDefs, type) }
   const versions = new Map()
   const embedded = new Set()
   const visiting = new Set()
@@ -50,7 +50,7 @@ export function courseWorkshop(game, load) {
     const task = tasks.get(key)
     const view = task && game.circuit?.forTask(task)
     return view
-      ? bindWorkshopWork(board, task, view, library(), { domain: game.workshop.domain, partDefs: game.partDefs })
+      ? bindWorkshopWork(board, task, view, library(), { partDefs: game.partDefs })
       : board
   }
   return {

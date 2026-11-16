@@ -1,7 +1,12 @@
 {
   "title": "@level.s-search.title",
-  "adds": ["search"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "search"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-search.intro.0.t"
@@ -13,14 +18,34 @@
   "tasks": [
     {
       "id": "s-search",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-search.tasks.s-search.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-search.tasks.s-search.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wet"] },
-        { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wind"] },
-        { "goal": "(Rain ∨ Wind) ∨ Wet", "hyps": ["Wind"] }
+        {
+          "goal": "Rain ∨ (Wind ∨ Wet)",
+          "hyps": [
+            "Wet"
+          ]
+        },
+        {
+          "goal": "Rain ∨ (Wind ∨ Wet)",
+          "hyps": [
+            "Wind"
+          ]
+        },
+        {
+          "goal": "(Rain ∨ Wind) ∨ Wet",
+          "hyps": [
+            "Wind"
+          ]
+        }
       ],
       "brief": "@level.s-search.tasks.s-search.brief",
       "hint": [

@@ -1,6 +1,9 @@
 {
   "title": "@level.c-dneg.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.c-dneg.intro.0.t"
@@ -12,23 +15,75 @@
   "tasks": [
     {
       "id": "c-dneg_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dneg.tasks.c-dneg_1.step",
-      "tests": [{ "premises": { "p": "¬¬A" }, "goal": "A" }],
-      "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": ["@level.c-dneg.tasks.c-dneg_1.hint.0"],
-      "solution": ["r = raa(p)", "goal <- r"],
-      "publishes": [{ "piece": "dneg", "variant": "elim" }]
+      "tests": [
+        {
+          "premises": {
+            "p": "¬¬A"
+          },
+          "goal": "A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Locked"
+        }
+      ],
+      "hint": [
+        "@level.c-dneg.tasks.c-dneg_1.hint.0"
+      ],
+      "solution": [
+        "r = raa(p)",
+        "goal <- r"
+      ],
+      "publishes": [
+        {
+          "piece": "dneg",
+          "variant": "elim"
+        }
+      ]
     },
     {
       "id": "c-dneg_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.c-dneg.tasks.c-dneg_2.step",
-      "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
-      "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": ["@level.c-dneg.tasks.c-dneg_2.hint.0"],
-      "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"],
-      "publishes": [{ "piece": "dneg", "variant": "intro" }]
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "¬¬A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain"
+        },
+        {
+          "A": "Locked"
+        }
+      ],
+      "hint": [
+        "@level.c-dneg.tasks.c-dneg_2.hint.0"
+      ],
+      "solution": [
+        "f = impI[A=\"~A\"](body: m) {",
+        "  body {",
+        "    m = mp(f.body, p)",
+        "  }",
+        "}",
+        "goal <- f"
+      ],
+      "publishes": [
+        {
+          "piece": "dneg",
+          "variant": "intro"
+        }
+      ]
     }
   ]
 }

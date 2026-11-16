@@ -14,29 +14,31 @@
   "tasks": [
     {
       "id": "9-5",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.9-5.tasks.9-5.brief",
       "hint": "@level.9-5.tasks.9-5.hint",
-      "scene": "filter",
-      "setup": { "target": { "upsample": { "kernel": [0.25, 0.5, 0.25, 0.5, 1, 0.5, 0.25, 0.5, 0.25] } } },
+      "scene": "image:scene-filter",
+      "setup": {
+        "target": { "image:target-upsample": { "kernel": [0.25, 0.5, 0.25, 0.5, 1, 0.5, 0.25, 0.5, 0.25] } }
+      },
       "tests": [
         {
           "label": "@level.9-5.tasks.9-5.tests.0.label",
-          "in": { "rect": { "x0": 2, "y0": 2, "w": 4, "h": 4, "size": 8 } }
+          "in": { "image:picture-rect": { "x0": 2, "y0": 2, "w": 4, "h": 4, "size": 8 } }
         },
         {
           "label": "@level.9-5.tasks.9-5.tests.1.label",
-          "in": { "diagonal": { "size": 8 } }
+          "in": { "image:picture-diagonal": { "size": 8 } }
         },
         {
           "label": "@level.9-5.tasks.9-5.tests.2.label",
-          "in": { "rampX": { "size": 8 } }
+          "in": { "image:picture-rampX": { "size": 8 } }
         }
       ],
       "hidden": [
         {
           "label": "@level.9-5.tasks.9-5.hidden.0.label",
-          "in": { "impulse": { "x": 3, "y": 5, "size": 8 } }
+          "in": { "image:picture-impulse": { "x": 3, "y": 5, "size": 8 } }
         }
       ],
       "solution": [

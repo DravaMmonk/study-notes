@@ -19,8 +19,10 @@
     "goal": "@level.forward.mission.goal",
     "how": "@level.forward.mission.how"
   },
-  "robot": "reach",
-  "adds": ["mul"],
+  "robot": "table:robot-reach",
+  "adds": [
+    "table:mul"
+  ],
   "debrief": {
     "title": "@level.forward.debrief.title",
     "body": [
@@ -32,20 +34,37 @@
   "tasks": [
     {
       "id": "forward",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "any": [{ "has": "mmin" }, { "has": "mmax" }] },
+          "when": {
+            "table:condition-any": [
+              {
+                "table:condition-has": "table:mmin"
+              },
+              {
+                "table:condition-has": "table:mmax"
+              }
+            ]
+          },
           "say": "@level.forward.tasks.forward.diagnose.0.say"
         }
       ],
-      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "boardOpt": {
+        "minScale": 0.62,
+        "maxScale": 1.15
+      },
       "hints": [
         "@level.forward.tasks.forward.hints.0",
         "@level.forward.tasks.forward.hints.1"
       ],
-      "world": "tags",
-      "facts": ["tN", "tV", "tA", "emit"],
+      "world": "table:world-tags",
+      "facts": [
+        "tN",
+        "tV",
+        "tA",
+        "emit"
+      ],
       "tests": [
         {
           "words": [
@@ -53,12 +72,39 @@
             "@level.forward.tasks.forward.tests.0.words.1",
             "@level.forward.tasks.forward.tests.0.words.2"
           ],
-          "emit": [{ "N": 0.5 }, { "N": 0.2, "V": 0.4 }, { "N": 0.3 }],
-          "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
+          "emit": [
+            {
+              "N": 0.5
+            },
+            {
+              "N": 0.2,
+              "V": 0.4
+            },
+            {
+              "N": 0.3
+            }
+          ],
+          "start": {
+            "N": 0.6,
+            "V": 0.3,
+            "A": 0.1
+          },
           "trans": {
-            "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
-            "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
-            "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
+            "N": {
+              "N": 0.2,
+              "V": 0.6,
+              "A": 0.2
+            },
+            "V": {
+              "N": 0.7,
+              "V": 0.1,
+              "A": 0.2
+            },
+            "A": {
+              "N": 0.8,
+              "V": 0.1,
+              "A": 0.1
+            }
           }
         },
         {
@@ -68,22 +114,56 @@
             "@level.forward.tasks.forward.tests.1.words.2",
             "@level.forward.tasks.forward.tests.1.words.3"
           ],
-          "emit": [{ "N": 0.2, "V": 0.3 }, { "N": 0.4 }, { "N": 0.3 }, { "A": 0.5, "V": 0.1 }],
-          "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
+          "emit": [
+            {
+              "N": 0.2,
+              "V": 0.3
+            },
+            {
+              "N": 0.4
+            },
+            {
+              "N": 0.3
+            },
+            {
+              "A": 0.5,
+              "V": 0.1
+            }
+          ],
+          "start": {
+            "N": 0.6,
+            "V": 0.3,
+            "A": 0.1
+          },
           "trans": {
-            "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
-            "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
-            "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
+            "N": {
+              "N": 0.2,
+              "V": 0.6,
+              "A": 0.2
+            },
+            "V": {
+              "N": 0.7,
+              "V": 0.1,
+              "A": 0.2
+            },
+            "A": {
+              "N": 0.8,
+              "V": 0.1,
+              "A": 0.1
+            }
           }
         }
       ],
-      "expected": [0.01584, 0.00033408],
+      "expected": [
+        0.01584,
+        0.00033408
+      ],
       "solution": [
-        "a = mul(view.pN, facts.tN)",
-        "b = mul(view.pV, facts.tV)",
-        "c = mul(view.pA, facts.tA)",
-        "s = msum(a, b, c)",
-        "e = mul(s, facts.emit)",
+        "a = table:mul(view.pN, facts.tN)",
+        "b = table:mul(view.pV, facts.tV)",
+        "c = table:mul(view.pA, facts.tA)",
+        "s = table:msum(a, b, c)",
+        "e = table:mul(s, facts.emit)",
         "cell <- e"
       ],
       "prob": true

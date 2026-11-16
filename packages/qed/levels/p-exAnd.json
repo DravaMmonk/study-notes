@@ -1,11 +1,19 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
   "title": "@level.p-exAnd.title",
   "tasks": [
     {
       "id": "p-exAnd_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.p-exAnd.tasks.p-exAnd_1.step",
       "brief": "@level.p-exAnd.tasks.p-exAnd_1.brief",
       "say": "@level.p-exAnd.tasks.p-exAnd_1.say",
@@ -17,14 +25,29 @@
     },
     {
       "id": "p-exAnd_2",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.p-exAnd.tasks.p-exAnd_2.step",
       "say": "@level.p-exAnd.tasks.p-exAnd_2.say",
       "brief": "@level.p-exAnd.tasks.p-exAnd_2.brief",
-      "given": ["∃x. Bird(x)", "∃x. Flies(x)"],
+      "given": [
+        "∃x. Bird(x)",
+        "∃x. Flies(x)"
+      ],
       "goal": "∃x. Bird(x) ∧ Flies(x)",
-      "answer": { "size": 2, "preds": { "Bird": ["0"], "Flies": ["1"] } },
-      "hint": ["@level.p-exAnd.tasks.p-exAnd_2.hint.0"]
+      "answer": {
+        "size": 2,
+        "preds": {
+          "Bird": [
+            "0"
+          ],
+          "Flies": [
+            "1"
+          ]
+        }
+      },
+      "hint": [
+        "@level.p-exAnd.tasks.p-exAnd_2.hint.0"
+      ]
     }
   ]
 }

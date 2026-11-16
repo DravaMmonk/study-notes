@@ -1,6 +1,12 @@
 {
-  "adds": ["replay", "clausify"],
-  "tray": ["#certificate", "#formula"],
+  "adds": [
+    "replay",
+    "clausify"
+  ],
+  "tray": [
+    "#certificate",
+    "#formula"
+  ],
   "title": "@level.au-wrong.title",
   "intro": [
     {
@@ -11,31 +17,61 @@
   "tasks": [
     {
       "id": "au-wrong_1",
-      "kind": "machine",
-      "want": "fails",
-      "inputs": [{ "name": "in", "label": "@level.au-wrong.tasks.au-wrong_1.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-fails",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-wrong.tasks.au-wrong_1.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "step": "@level.au-wrong.tasks.au-wrong_1.step",
-      "preset": ["c1"],
-      "tests": [
-        { "goal": "Wet", "hyps": ["Rain ∨ Wind", "¬Rain ∨ ¬Wind"] },
-        { "goal": "Late", "hyps": ["Bus ∨ ¬Up", "Up ∨ ¬Bus"] }
+      "preset": [
+        "c1"
       ],
-      "adds": ["oracle"],
+      "tests": [
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain ∨ Wind",
+            "¬Rain ∨ ¬Wind"
+          ]
+        },
+        {
+          "goal": "Late",
+          "hyps": [
+            "Bus ∨ ¬Up",
+            "Up ∨ ¬Bus"
+          ]
+        }
+      ],
+      "adds": [
+        "oracle"
+      ],
       "brief": "@level.au-wrong.tasks.au-wrong_1.brief",
       "hint": [
         "@level.au-wrong.tasks.au-wrong_1.hint.0"
       ],
-      "solution": ["c0 = clausify(in)", "c1 = oracle(c0)", "c2 = replay(c1)", "out <- c2"]
+      "solution": [
+        "c0 = clausify(in)",
+        "c1 = oracle(c0)",
+        "c2 = replay(c1)",
+        "out <- c2"
+      ]
     },
     {
       "id": "au-wrong_2",
-      "kind": "truth",
+      "kind": "logic:truth",
       "step": "@level.au-wrong.tasks.au-wrong_2.step",
       "ask": "counter",
-      "formulas": ["(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind) → Wet"],
+      "formulas": [
+        "(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind) → Wet"
+      ],
       "intro": [
-        { "t": "@level.au-wrong.tasks.au-wrong_2.intro.0.t" }
+        {
+          "t": "@level.au-wrong.tasks.au-wrong_2.intro.0.t"
+        }
       ],
       "brief": "@level.au-wrong.tasks.au-wrong_2.brief",
       "hint": [

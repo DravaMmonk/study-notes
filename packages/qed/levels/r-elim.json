@@ -1,6 +1,9 @@
 {
   "title": "@level.r-elim.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-elim.intro.0.t"
@@ -12,25 +15,61 @@
   "tasks": [
     {
       "id": "r-elim",
-      "kind": "machine",
-      "want": "becomes",
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
       "inputs": [
-        { "name": "in", "label": "@level.r-elim.tasks.r-elim.inputs.0.label" },
-        { "name": "rules", "label": "@level.r-elim.tasks.r-elim.inputs.1.label" }
+        {
+          "name": "in",
+          "label": "@level.r-elim.tasks.r-elim.inputs.0.label"
+        },
+        {
+          "name": "rules",
+          "label": "@level.r-elim.tasks.r-elim.inputs.1.label"
+        }
       ],
       "tests": [
         {
           "goal": "Wind ∧ Rain",
-          "hyps": ["Rain ∧ Wind"],
-          "rules": ["conjE"],
-          "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain"]]
+          "hyps": [
+            "Rain ∧ Wind"
+          ],
+          "rules": [
+            "conjE"
+          ],
+          "becomes": [
+            [
+              "Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain"
+            ]
+          ]
         },
-        { "goal": "Slip", "hyps": ["Wet ∧ Slip"], "rules": ["conjE"], "becomes": [["Wet ∧ Slip; Wet; Slip ⊢ Slip"]] },
+        {
+          "goal": "Slip",
+          "hyps": [
+            "Wet ∧ Slip"
+          ],
+          "rules": [
+            "conjE"
+          ],
+          "becomes": [
+            [
+              "Wet ∧ Slip; Wet; Slip ⊢ Slip"
+            ]
+          ]
+        },
         {
           "goal": "Wind ∧ Wet",
-          "hyps": ["Rain", "Wet ∧ Wind"],
-          "rules": ["conjE"],
-          "becomes": [["Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet"]]
+          "hyps": [
+            "Rain",
+            "Wet ∧ Wind"
+          ],
+          "rules": [
+            "conjE"
+          ],
+          "becomes": [
+            [
+              "Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet"
+            ]
+          ]
         }
       ],
       "brief": "@level.r-elim.tasks.r-elim.brief",
@@ -38,8 +77,17 @@
         "@level.r-elim.tasks.r-elim.hint.0",
         "@level.r-elim.tasks.r-elim.hint.1"
       ],
-      "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"],
-      "publishes": [{ "piece": "erule", "variant": "base" }]
+      "solution": [
+        "c0 = rule(in, rules)",
+        "c1 = assumption(c0)",
+        "out <- c1"
+      ],
+      "publishes": [
+        {
+          "piece": "erule",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

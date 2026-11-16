@@ -405,7 +405,7 @@ export default function PackageStudio({ game, games, onGame, space }) {
     if (schema?.type !== 'list') return undefined
     if (creationChoices(schema.of, { vocabulary: vocab.vocabulary }).length > 1) return pickField(path)
     const list = getAt(content.partDefs, path) ?? []
-    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { en: '' } } }
+    const blankOf = { rules: { set: {} }, checks: { holds: 'circuit:eq(1, 1)', say: { en: '' } } }
     edit({ op: 'pieces.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
     return pickField([...path, list.length], true)
   }

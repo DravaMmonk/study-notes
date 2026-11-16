@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "10-6",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.10-6.tasks.10-6.brief",
       "hint": "@level.10-6.tasks.10-6.hint",
       "inputs": ["a", "b"],
@@ -26,7 +26,7 @@
       "outputLabels": {
         "ok": "@level.10-6.tasks.10-6.outputLabels.ok"
       },
-      "scene": "boxPair",
+      "scene": "image:scene-boxPair",
       "setup": { "expect": "good" },
       "tests": [
         {

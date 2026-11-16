@@ -27,25 +27,61 @@
   "tasks": [
     {
       "id": "pack",
-      "mode": "pack",
+      "mode": "table:pack",
       "tests": [
         {
           "W": 5,
           "items": [
-            { "n": "@level.pack.tasks.pack.tests.0.items.0.n", "w": 4, "v": 5 },
-            { "n": "@level.pack.tasks.pack.tests.0.items.1.n", "w": 2, "v": 3 },
-            { "n": "@level.pack.tasks.pack.tests.0.items.2.n", "w": 3, "v": 4 },
-            { "n": "@level.pack.tasks.pack.tests.0.items.3.n", "w": 1, "v": 1 }
+            {
+              "n": "@level.pack.tasks.pack.tests.0.items.0.n",
+              "w": 4,
+              "v": 5
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.0.items.1.n",
+              "w": 2,
+              "v": 3
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.0.items.2.n",
+              "w": 3,
+              "v": 4
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.0.items.3.n",
+              "w": 1,
+              "v": 1
+            }
           ]
         },
         {
           "W": 10,
           "items": [
-            { "n": "@level.pack.tasks.pack.tests.1.items.0.n", "w": 6, "v": 30 },
-            { "n": "@level.pack.tasks.pack.tests.1.items.1.n", "w": 3, "v": 14 },
-            { "n": "@level.pack.tasks.pack.tests.1.items.2.n", "w": 4, "v": 16 },
-            { "n": "@level.pack.tasks.pack.tests.1.items.3.n", "w": 2, "v": 9 },
-            { "n": "@level.pack.tasks.pack.tests.1.items.4.n", "w": 1, "v": 1 }
+            {
+              "n": "@level.pack.tasks.pack.tests.1.items.0.n",
+              "w": 6,
+              "v": 30
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.1.items.1.n",
+              "w": 3,
+              "v": 14
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.1.items.2.n",
+              "w": 4,
+              "v": 16
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.1.items.3.n",
+              "w": 2,
+              "v": 9
+            },
+            {
+              "n": "@level.pack.tasks.pack.tests.1.items.4.n",
+              "w": 1,
+              "v": 1
+            }
           ]
         }
       ]

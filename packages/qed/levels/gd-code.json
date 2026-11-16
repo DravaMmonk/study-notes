@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-code.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-code.intro.0.t"
@@ -13,11 +16,20 @@
   "tasks": [
     {
       "id": "gd-code",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.gd-code.tasks.gd-code.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.gd-code.tasks.gd-code.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms", "codes"],
+      "words": [
+        "everyday",
+        "terms",
+        "codes"
+      ],
       "stated": [
         "code(rain) = cons(one, nil)",
         "code(wet) = cons(two, nil)",
@@ -27,12 +39,20 @@
         "app(cons(x, xs), ys) = cons(x, app(xs, ys))"
       ],
       "tests": [
-        { "goal": "code(neg(rain)) = cons(three, cons(one, nil))" },
-        { "goal": "code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))" },
-        { "goal": "code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))" }
+        {
+          "goal": "code(neg(rain)) = cons(three, cons(one, nil))"
+        },
+        {
+          "goal": "code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))"
+        },
+        {
+          "goal": "code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))"
+        }
       ],
       "brief": "@level.gd-code.tasks.gd-code.brief",
-      "hint": ["@level.gd-code.tasks.gd-code.hint.0"],
+      "hint": [
+        "@level.gd-code.tasks.gd-code.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\"]]()",
         "c1r0 = refl()",

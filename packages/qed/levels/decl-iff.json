@@ -3,42 +3,162 @@
   "tray": "#formula",
   "declare": "@level.decl-iff.declare",
   "target": "Rain ↔ Wet",
-  "sentences": ["Rain → Wet", "Wet → Rain"],
+  "sentences": [
+    "Rain → Wet",
+    "Wet → Rain"
+  ],
   "tests": [
-    { "given": ["Rain → Wet", "Wet → Rain"], "make": true },
-    { "given": ["Rain → Wet"], "make": false },
-    { "given": ["Wet → Rain"], "make": false },
-    { "given": [], "make": false },
-    { "given": ["Rain ↔ Wet"], "goal": "Rain → Wet", "make": true },
-    { "given": ["Rain ↔ Wet", "Wet"], "goal": "Rain", "make": true },
-    { "given": ["Rain ↔ Wet"], "goal": "Rain", "make": false }
+    {
+      "given": [
+        "Rain → Wet",
+        "Wet → Rain"
+      ],
+      "make": true
+    },
+    {
+      "given": [
+        "Rain → Wet"
+      ],
+      "make": false
+    },
+    {
+      "given": [
+        "Wet → Rain"
+      ],
+      "make": false
+    },
+    {
+      "given": [],
+      "make": false
+    },
+    {
+      "given": [
+        "Rain ↔ Wet"
+      ],
+      "goal": "Rain → Wet",
+      "make": true
+    },
+    {
+      "given": [
+        "Rain ↔ Wet",
+        "Wet"
+      ],
+      "goal": "Rain",
+      "make": true
+    },
+    {
+      "given": [
+        "Rain ↔ Wet"
+      ],
+      "goal": "Rain",
+      "make": false
+    }
   ],
   "intro": [
     {
       "t": "@level.decl-iff.intro.0.t"
     }
   ],
-  "solution": [{ "binds": [], "needs": ["Rain → Wet", "Wet → Rain"] }],
-  "naive": [{ "binds": [], "needs": ["Rain → Wet"] }, { "binds": [], "needs": ["Wet → Rain"] }],
+  "solution": [
+    {
+      "binds": [],
+      "needs": [
+        "Rain → Wet",
+        "Wet → Rain"
+      ]
+    }
+  ],
+  "naive": [
+    {
+      "binds": [],
+      "needs": [
+        "Rain → Wet"
+      ]
+    },
+    {
+      "binds": [],
+      "needs": [
+        "Wet → Rain"
+      ]
+    }
+  ],
   "tasks": [
     {
       "id": "decl-iff_1",
-      "kind": "iso",
+      "kind": "logic:iso",
       "step": "@level.decl-iff.tasks.decl-iff_1.step",
-      "play": "audit",
-      "want": "expose",
-      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain → Wet"] }, { "binds": [], "needs": ["Wet → Rain"] }] }],
+      "play": "logic:audit",
+      "want": "logic:want-expose",
+      "boards": [
+        {
+          "rules": [
+            {
+              "binds": [],
+              "needs": [
+                "Rain → Wet"
+              ]
+            },
+            {
+              "binds": [],
+              "needs": [
+                "Wet → Rain"
+              ]
+            }
+          ]
+        }
+      ],
       "slots": [
-        { "make": false, "fixed": ["goal", "make"] },
-        { "given": ["Rain ↔ Wet"], "keep": ["Rain ↔ Wet"], "make": true, "fixed": ["make"] }
+        {
+          "make": false,
+          "fixed": [
+            "goal",
+            "make"
+          ]
+        },
+        {
+          "given": [
+            "Rain ↔ Wet"
+          ],
+          "keep": [
+            "Rain ↔ Wet"
+          ],
+          "make": true,
+          "fixed": [
+            "make"
+          ]
+        }
       ],
       "answer": [
-        { "given": ["Rain → Wet"], "make": false },
-        { "given": ["Rain ↔ Wet", "Wet"], "goal": "Rain", "make": true }
+        {
+          "given": [
+            "Rain → Wet"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ↔ Wet",
+            "Wet"
+          ],
+          "goal": "Rain",
+          "make": true
+        }
       ],
       "naive": [
-        { "given": ["Rain → Wet", "Wet → Rain"], "make": false },
-        { "given": ["Rain ↔ Wet"], "goal": "Rain", "make": true }
+        {
+          "given": [
+            "Rain → Wet",
+            "Wet → Rain"
+          ],
+          "make": false
+        },
+        {
+          "given": [
+            "Rain ↔ Wet"
+          ],
+          "goal": "Rain",
+          "make": true
+        }
       ],
       "intro": [
         {
@@ -53,7 +173,7 @@
     },
     {
       "id": "decl-iff_2",
-      "kind": "iso",
+      "kind": "logic:iso",
       "step": "@level.decl-iff.tasks.decl-iff_2.step",
       "intro": [
         {

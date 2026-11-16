@@ -1,25 +1,53 @@
 {
   "title": "@level.s-defer.title",
-  "adds": ["defer"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "defer"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-defer.intro.0.t"
     },
-    { "t": "@level.s-defer.intro.1.t" }
+    {
+      "t": "@level.s-defer.intro.1.t"
+    }
   ],
   "tasks": [
     {
       "id": "s-defer",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-defer.tasks.s-defer.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-defer.tasks.s-defer.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
-        { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Bird(i)", "Bird(l)", "Flies(l)"] }
+        {
+          "goal": "∃x. Human(x) ∧ Likes(x, i)",
+          "hyps": [
+            "Human(k)",
+            "Human(j)",
+            "Likes(j, i)"
+          ]
+        },
+        {
+          "goal": "∃x. Bird(x) ∧ Flies(x)",
+          "hyps": [
+            "Bird(i)",
+            "Bird(l)",
+            "Flies(l)"
+          ]
+        }
       ],
       "brief": "@level.s-defer.tasks.s-defer.brief",
-      "hint": ["@level.s-defer.tasks.s-defer.hint.0"],
+      "hint": [
+        "@level.s-defer.tasks.s-defer.hint.0"
+      ],
       "solution": [
         "c0r0 = exI()",
         "c1r0 = andI()",

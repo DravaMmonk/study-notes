@@ -1,6 +1,11 @@
 {
-  "adds": ["frule"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "frule"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.in-loop.title",
   "intro": [
     {
@@ -11,13 +16,30 @@
   "tasks": [
     {
       "id": "in-loop",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-loop.tasks.in-loop.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-loop.tasks.in-loop.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "tests": [{ "goal": "⊥", "hyps": ["∀x. f(x) = s(f(x))"] }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "tests": [
+        {
+          "goal": "⊥",
+          "hyps": [
+            "∀x. f(x) = s(f(x))"
+          ]
+        }
+      ],
       "brief": "@level.in-loop.tasks.in-loop.brief",
       "hint": [
         "@level.in-loop.tasks.in-loop.hint.0",

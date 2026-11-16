@@ -14,35 +14,43 @@
   "tasks": [
     {
       "id": "2-12",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.2-12.tasks.2-12.brief",
       "hint": "@level.2-12.tasks.2-12.hint",
       "inputs": ["a", "b"],
       "inputLabels": { "a": "A", "b": "B" },
       "check": { "tolerance": 0.02 },
-      "constraint": { "transforms": { "max": 1 } },
-      "scene": "filter",
-      "setup": { "target": { "hybrid": { "R": 3 } } },
+      "constraint": { "image:constraint-transforms": { "max": 1 } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-hybrid": { "R": 3 } } },
       "tests": [
         {
           "label": "@level.2-12.tasks.2-12.tests.0.label",
           "inputs": {
-            "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
-            "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+            "a": {
+              "image:picture-disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 }
+            },
+            "b": {
+              "image:picture-glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 }
+            }
           }
         },
         {
           "label": "@level.2-12.tasks.2-12.tests.1.label",
           "inputs": {
-            "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
-            "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+            "a": {
+              "image:picture-rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 }
+            },
+            "b": {
+              "image:picture-glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 }
+            }
           }
         },
         {
           "label": "@level.2-12.tasks.2-12.tests.2.label",
           "inputs": {
-            "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
-            "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
+            "a": { "image:picture-disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "image:picture-checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
           }
         }
       ],
@@ -50,22 +58,28 @@
         {
           "label": "@level.2-12.tasks.2-12.hidden.0.label",
           "inputs": {
-            "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
-            "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+            "a": {
+              "image:picture-rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 }
+            },
+            "b": {
+              "image:picture-glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 }
+            }
           }
         },
         {
           "label": "@level.2-12.tasks.2-12.hidden.1.label",
           "inputs": {
-            "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
-            "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
+            "a": {
+              "image:picture-glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 }
+            },
+            "b": { "image:picture-disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
           }
         },
         {
           "label": "@level.2-12.tasks.2-12.hidden.2.label",
           "inputs": {
-            "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
-            "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
+            "a": { "image:picture-disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
+            "b": { "image:picture-checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
           }
         }
       ],

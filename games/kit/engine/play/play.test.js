@@ -1,4 +1,4 @@
-// The play interface on every domain that has a play hook, over its starter game (kit/domains/<d>/starter, what npm run
+// The play interface on every domain that has a play hook, over its starter game (kit/modules/<d>/starter, what npm run
 // new-game copies) in course order until the course is done (run from trace-viewer: npm test). A scripted player answers
 // each level with the content's reference board (or moves) through the interface: before it, the naive answer (where
 // the level has one) fails with the game's feedback; the reference then passes, and the session goes on from its
@@ -18,7 +18,7 @@ import { checkPlaytest, newSession } from './session.js'
 
 after(() => closeGames())
 
-const DOMAINS = resolve(import.meta.dirname, '../../domains')
+const DOMAINS = resolve(import.meta.dirname, '../../modules')
 const withPlay = []
 for (const name of readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'domain.js')))) {
   if ((await import(resolve(DOMAINS, name, 'domain.js'))).default.play) withPlay.push(name)

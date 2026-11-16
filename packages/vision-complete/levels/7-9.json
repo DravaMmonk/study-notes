@@ -13,7 +13,7 @@
   "tasks": [
     {
       "id": "7-9",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.7-9.tasks.7-9.brief",
       "hint": "@level.7-9.tasks.7-9.hint",
       "inputs": ["c1", "c2", "c3", "z"],
@@ -23,7 +23,7 @@
         "c3": "@level.7-9.tasks.7-9.inputLabels.c3",
         "z": "@level.7-9.tasks.7-9.inputLabels.z"
       },
-      "scene": "epipole",
+      "scene": "image:scene-epipole",
       "tests": [{ "label": "@level.7-9.tasks.7-9.tests.0.label", "columns": [0, 1, 2] }],
       "hidden": [{ "label": "@level.7-9.tasks.7-9.hidden.0.label", "columns": [1, 0, 2] }],
       "solution": [

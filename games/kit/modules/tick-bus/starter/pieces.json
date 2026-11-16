@@ -1,0 +1,114 @@
+{
+  "settings": {
+    "reg_reg": {
+      "control": "select",
+      "label": "@setting.reg_reg.label",
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ],
+      "default": "A"
+    },
+    "reg_start": {
+      "control": "number",
+      "label": "@setting.reg_start.label",
+      "default": null
+    },
+    "keep_reg": {
+      "control": "select",
+      "label": "@setting.keep_reg.label",
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ],
+      "default": "A"
+    },
+    "const_value": {
+      "control": "number",
+      "label": "@setting.const_value.label",
+      "min": 0,
+      "max": 32,
+      "integer": true,
+      "default": 0
+    }
+  },
+  "parts": {
+    "reg": {
+      "name": "@piece.reg.name",
+      "desc": "@piece.reg.desc",
+      "icon": "ArrowUpFromLine",
+      "family": "tick-bus:family-memory",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "reg",
+          "setting": "reg_reg"
+        },
+        {
+          "key": "start",
+          "setting": "reg_start"
+        }
+      ],
+      "compute": "circuit:held($reg, $start)",
+      "outputType": "circuit:number"
+    },
+    "keep": {
+      "name": "@piece.keep.name",
+      "desc": "@piece.keep.desc",
+      "icon": "ArrowDownToLine",
+      "family": "tick-bus:family-memory",
+      "inputs": [
+        {
+          "name": "in",
+          "type": "circuit:number"
+        }
+      ],
+      "settings": [
+        {
+          "key": "reg",
+          "setting": "keep_reg"
+        }
+      ],
+      "keeps": {
+        "input": "in",
+        "register": "reg"
+      },
+      "outputType": "circuit:number"
+    },
+    "const": {
+      "name": "@piece.const.name",
+      "desc": "@piece.const.desc",
+      "icon": "Hash",
+      "family": "tick-bus:family-value",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "value",
+          "setting": "const_value"
+        }
+      ],
+      "compute": "$value",
+      "outputType": "circuit:number"
+    }
+  }
+}

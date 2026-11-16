@@ -1,6 +1,9 @@
 {
   "title": "@level.chain.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.chain.intro.0.t"
@@ -13,10 +16,31 @@
   "tasks": [
     {
       "id": "chain",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
-      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
-      "hint": ["@level.chain.tasks.chain.hint.0"],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "B → C"
+          },
+          "goal": "A → C"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet",
+          "C": "Slip"
+        },
+        {
+          "A": "Alarm",
+          "B": "Up",
+          "C": "OnTime"
+        }
+      ],
+      "hint": [
+        "@level.chain.tasks.chain.hint.0"
+      ],
       "solution": [
         "f = impI[A=A](body: m2) {",
         "  body {",
@@ -26,7 +50,12 @@
         "}",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "chain", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "chain",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

@@ -1,7 +1,12 @@
 {
   "title": "@level.s-orelse.title",
-  "adds": ["append"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "append"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-orelse.intro.0.t"
@@ -11,16 +16,35 @@
   "tasks": [
     {
       "id": "s-orelse",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-orelse.tasks.s-orelse.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-orelse.tasks.s-orelse.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Wind ∨ Rain", "hyps": ["Wind"] },
-        { "goal": "Rain → Rain" },
-        { "goal": "Slip ∨ Wet", "hyps": ["Slip"] }
+        {
+          "goal": "Wind ∨ Rain",
+          "hyps": [
+            "Wind"
+          ]
+        },
+        {
+          "goal": "Rain → Rain"
+        },
+        {
+          "goal": "Slip ∨ Wet",
+          "hyps": [
+            "Slip"
+          ]
+        }
       ],
       "brief": "@level.s-orelse.tasks.s-orelse.brief",
-      "hint": ["@level.s-orelse.tasks.s-orelse.hint.0"],
+      "hint": [
+        "@level.s-orelse.tasks.s-orelse.hint.0"
+      ],
       "solution": [
         "c0 = append(in, first: c1, second: c2) {",
         "  first {",

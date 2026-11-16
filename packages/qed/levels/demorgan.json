@@ -1,6 +1,9 @@
 {
   "title": "@level.demorgan.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.demorgan.intro.0.t"
@@ -9,10 +12,26 @@
   "tasks": [
     {
       "id": "demorgan_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.demorgan.tasks.demorgan_1.step",
-      "tests": [{ "premises": { "p": "¬(A ∨ B)" }, "goal": "¬A ∧ ¬B" }],
-      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬(A ∨ B)"
+          },
+          "goal": "¬A ∧ ¬B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Sun"
+        },
+        {
+          "A": "Rain",
+          "B": "Wind"
+        }
+      ],
       "hint": [
         "@level.demorgan.tasks.demorgan_1.hint.0",
         "@level.demorgan.tasks.demorgan_1.hint.1"
@@ -33,14 +52,35 @@
         "c = andI(na, nb)",
         "goal <- c"
       ],
-      "publishes": [{ "piece": "dm", "variant": "notOr" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "notOr"
+        }
+      ]
     },
     {
       "id": "demorgan_2",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.demorgan.tasks.demorgan_2.step",
-      "tests": [{ "premises": { "p": "¬A ∧ ¬B" }, "goal": "¬(A ∨ B)" }],
-      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬A ∧ ¬B"
+          },
+          "goal": "¬(A ∨ B)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Sun"
+        },
+        {
+          "A": "Rain",
+          "B": "Wind"
+        }
+      ],
       "hint": [
         "@level.demorgan.tasks.demorgan_2.hint.0",
         "@level.demorgan.tasks.demorgan_2.hint.1"
@@ -61,14 +101,35 @@
         "e = andE(p)",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "dm", "variant": "andNot" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "andNot"
+        }
+      ]
     },
     {
       "id": "demorgan_3",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.demorgan.tasks.demorgan_3.step",
-      "tests": [{ "premises": { "p": "¬A ∨ ¬B" }, "goal": "¬(A ∧ B)" }],
-      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬A ∨ ¬B"
+          },
+          "goal": "¬(A ∧ B)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Sun"
+        },
+        {
+          "A": "Rain",
+          "B": "Wind"
+        }
+      ],
       "hint": [
         "@level.demorgan.tasks.demorgan_3.hint.0",
         "@level.demorgan.tasks.demorgan_3.hint.1"
@@ -89,14 +150,35 @@
         "}",
         "goal <- f"
       ],
-      "publishes": [{ "piece": "dm", "variant": "orNot" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "orNot"
+        }
+      ]
     },
     {
       "id": "demorgan_4",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.demorgan.tasks.demorgan_4.step",
-      "tests": [{ "premises": { "p": "¬(A ∧ B)" }, "goal": "¬A ∨ ¬B" }],
-      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "¬(A ∧ B)"
+          },
+          "goal": "¬A ∨ ¬B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Sun"
+        },
+        {
+          "A": "Rain",
+          "B": "Wind"
+        }
+      ],
       "hint": [
         "@level.demorgan.tasks.demorgan_4.hint.0",
         "@level.demorgan.tasks.demorgan_4.hint.1"
@@ -119,7 +201,12 @@
         "}",
         "goal <- e"
       ],
-      "publishes": [{ "piece": "dm", "variant": "notAnd" }]
+      "publishes": [
+        {
+          "piece": "dm",
+          "variant": "notAnd"
+        }
+      ]
     }
   ]
 }

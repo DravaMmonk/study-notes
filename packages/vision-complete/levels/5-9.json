@@ -15,63 +15,71 @@
   "tasks": [
     {
       "id": "5-9",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.5-9.tasks.5-9.brief",
       "hint": "@level.5-9.tasks.5-9.hint",
       "inputs": ["a", "b"],
       "inputLabels": { "a": "@level.5-9.tasks.5-9.inputLabels.a", "b": "@level.5-9.tasks.5-9.inputLabels.b" },
       "outputs": ["same"],
       "outputLabels": { "same": "@level.5-9.tasks.5-9.outputLabels.same" },
-      "scene": "duplicate",
+      "scene": "image:scene-duplicate",
       "tests": [
         {
           "label": "@level.5-9.tasks.5-9.tests.0.label",
-          "a": { "glyph": { "letter": "T" } },
-          "b": { "glyph": { "letter": "T", "ox": 4 } },
+          "a": { "image:picture-glyph": { "letter": "T" } },
+          "b": { "image:picture-glyph": { "letter": "T", "ox": 4 } },
           "same": true
         },
         {
           "label": "@level.5-9.tasks.5-9.tests.1.label",
-          "a": { "glyph": { "letter": "X" } },
-          "b": { "glyph": { "letter": "X", "lo": 0.4, "hi": 1 } },
+          "a": { "image:picture-glyph": { "letter": "X" } },
+          "b": { "image:picture-glyph": { "letter": "X", "lo": 0.4, "hi": 1 } },
           "same": true
         },
         {
           "label": "@level.5-9.tasks.5-9.tests.2.label",
-          "a": { "glyph": { "letter": "O", "oy": 4 } },
-          "b": { "glyph": { "letter": "O", "lo": 0.4, "hi": 0.6 } },
+          "a": { "image:picture-glyph": { "letter": "O", "oy": 4 } },
+          "b": { "image:picture-glyph": { "letter": "O", "lo": 0.4, "hi": 0.6 } },
           "same": true
         },
         {
           "label": "@level.5-9.tasks.5-9.tests.3.label",
-          "a": { "glyph": { "letter": "F" } },
-          "b": { "noisy": { "of": { "glyph": { "letter": "F" } }, "seed": 7, "amp": 0.15 } },
+          "a": { "image:picture-glyph": { "letter": "F" } },
+          "b": {
+            "image:picture-noisy": {
+              "of": { "image:picture-glyph": { "letter": "F" } },
+              "seed": 7,
+              "amp": 0.15
+            }
+          },
           "same": true
         },
         {
           "label": "@level.5-9.tasks.5-9.tests.4.label",
-          "a": { "glyph": { "letter": "T" } },
-          "b": { "glyph": { "letter": "L" } },
+          "a": { "image:picture-glyph": { "letter": "T" } },
+          "b": { "image:picture-glyph": { "letter": "L" } },
           "same": false
         },
         {
           "label": "@level.5-9.tasks.5-9.tests.5.label",
-          "a": { "glyph": { "letter": "O", "lo": 0.3, "hi": 1 } },
-          "b": { "glyph": { "letter": "X" } },
+          "a": { "image:picture-glyph": { "letter": "O", "lo": 0.3, "hi": 1 } },
+          "b": { "image:picture-glyph": { "letter": "X" } },
           "same": false
         }
       ],
       "hidden": [
         {
           "label": "@level.5-9.tasks.5-9.hidden.0.label",
-          "a": { "glyph": { "letter": "L" } },
-          "b": { "glyph": { "letter": "L", "hi": 0.6, "ox": 2, "oy": 4 } },
+          "a": { "image:picture-glyph": { "letter": "L" } },
+          "b": { "image:picture-glyph": { "letter": "L", "hi": 0.6, "ox": 2, "oy": 4 } },
           "same": true
         },
         {
           "label": "@level.5-9.tasks.5-9.hidden.1.label",
-          "a": { "glyph": { "letter": "F", "lo": 0.2, "hi": 1 } },
-          "b": { "noisy": { "of": { "glyph": { "letter": "T" } }, "seed": 9, "amp": 0.1 } },
+          "a": { "image:picture-glyph": { "letter": "F", "lo": 0.2, "hi": 1 } },
+          "b": {
+            "image:picture-noisy": { "of": { "image:picture-glyph": { "letter": "T" } }, "seed": 9, "amp": 0.1 }
+          },
           "same": false
         }
       ],

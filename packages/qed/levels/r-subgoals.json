@@ -1,6 +1,9 @@
 {
   "title": "@level.r-subgoals.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-subgoals.intro.0.t"
@@ -9,16 +12,29 @@
   "tasks": [
     {
       "id": "r-subgoals",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-subgoals.tasks.r-subgoals.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-subgoals.tasks.r-subgoals.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Rain → (Wind → Rain ∧ Wind)" },
-        { "goal": "Wet → (Slip → Wet ∧ Slip)" },
-        { "goal": "¬Rain → (Wind → ¬Rain ∧ Wind)" }
+        {
+          "goal": "Rain → (Wind → Rain ∧ Wind)"
+        },
+        {
+          "goal": "Wet → (Slip → Wet ∧ Slip)"
+        },
+        {
+          "goal": "¬Rain → (Wind → ¬Rain ∧ Wind)"
+        }
       ],
       "brief": "@level.r-subgoals.tasks.r-subgoals.brief",
-      "hint": ["@level.r-subgoals.tasks.r-subgoals.hint.0"],
+      "hint": [
+        "@level.r-subgoals.tasks.r-subgoals.hint.0"
+      ],
       "solution": [
         "c0r0 = impI()",
         "c1r0 = impI()",

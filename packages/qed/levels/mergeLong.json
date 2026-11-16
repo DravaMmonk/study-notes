@@ -1,6 +1,9 @@
 {
   "title": "@level.mergeLong.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.mergeLong.intro.0.t"
@@ -9,16 +12,45 @@
   "tasks": [
     {
       "id": "mergeLong",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "C → (D → (A → E))", "d": "D" }, "goal": "A → E" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "B → C",
+            "r": "C → (D → (A → E))",
+            "d": "D"
+          },
+          "goal": "A → E"
+        }
+      ],
       "cases": [
-        { "A": "Alarm", "B": "Up", "C": "Coffee", "D": "Bus", "E": "OnTime" },
-        { "A": "Rain", "B": "Wet", "C": "Slip", "D": "Bike", "E": "Fall" }
+        {
+          "A": "Alarm",
+          "B": "Up",
+          "C": "Coffee",
+          "D": "Bus",
+          "E": "OnTime"
+        },
+        {
+          "A": "Rain",
+          "B": "Wet",
+          "C": "Slip",
+          "D": "Bike",
+          "E": "Fall"
+        }
       ],
       "hint": [
         "@level.mergeLong.tasks.mergeLong.hint.0"
       ],
-      "solution": ["c1 = chain(p, q)", "c2 = chain(c1, r)", "w = swap(c2)", "m = mp(w, d)", "g = merge(m)", "goal <- g"]
+      "solution": [
+        "c1 = chain(p, q)",
+        "c2 = chain(c1, r)",
+        "w = swap(c2)",
+        "m = mp(w, d)",
+        "g = merge(m)",
+        "goal <- g"
+      ]
     }
   ]
 }

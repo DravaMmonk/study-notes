@@ -1,0 +1,35 @@
+{
+  "adds": [
+    "formulaOr"
+  ],
+  "title": "@level.g-or.title",
+  "intro": [
+    {
+      "t": "@level.g-or.intro.0.t"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "g-or",
+      "kind": "logic:gates",
+      "target": "Rain ∨ Wind",
+      "brief": "@level.g-or.tasks.g-or.brief",
+      "hint": [
+        "@level.g-or.tasks.g-or.hint.0"
+      ],
+      "solution": [
+        "n1 = gNot(Rain)",
+        "n2 = gNot(Wind)",
+        "a = gAnd(n1, n2)",
+        "n3 = gNot(a)",
+        "out <- n3"
+      ],
+      "publishes": [
+        {
+          "piece": "gOr",
+          "variant": "base"
+        }
+      ]
+    }
+  ]
+}

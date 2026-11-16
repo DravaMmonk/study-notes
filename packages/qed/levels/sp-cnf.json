@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-cnf.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-cnf.intro.0.t"
@@ -10,16 +13,39 @@
   "tasks": [
     {
       "id": "sp-cnf",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-cnf.tasks.sp-cnf.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-cnf.tasks.sp-cnf.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Rain ∨ (Wind ∧ Wet)", "becomes": [["(Rain ∨ Wind) ∧ (Rain ∨ Wet)"]] },
-        { "goal": "¬(Rain ∧ Wind) ∨ (Wet ∧ Slip)", "becomes": [["(¬Rain ∨ ¬Wind ∨ Wet) ∧ (¬Rain ∨ ¬Wind ∨ Slip)"]] },
+        {
+          "goal": "Rain ∨ (Wind ∧ Wet)",
+          "becomes": [
+            [
+              "(Rain ∨ Wind) ∧ (Rain ∨ Wet)"
+            ]
+          ]
+        },
+        {
+          "goal": "¬(Rain ∧ Wind) ∨ (Wet ∧ Slip)",
+          "becomes": [
+            [
+              "(¬Rain ∨ ¬Wind ∨ Wet) ∧ (¬Rain ∨ ¬Wind ∨ Slip)"
+            ]
+          ]
+        },
         {
           "goal": "(Rain → Wet) ∧ (Wind ∨ (Rain ∧ Slip))",
-          "becomes": [["(¬Rain ∨ Wet) ∧ ((Wind ∨ Rain) ∧ (Wind ∨ Slip))"]]
+          "becomes": [
+            [
+              "(¬Rain ∨ Wet) ∧ ((Wind ∨ Rain) ∧ (Wind ∨ Slip))"
+            ]
+          ]
         }
       ],
       "brief": "@level.sp-cnf.tasks.sp-cnf.brief",

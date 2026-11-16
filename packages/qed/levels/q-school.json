@@ -4,20 +4,89 @@
   "tasks": [
     {
       "id": "q-school",
-      "kind": "query",
-      "consts": ["h", "i", "j", "k", "l", "m", "n"],
+      "kind": "logic:query",
+      "consts": [
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n"
+      ],
       "worlds": [
         {
           "title": "@level.q-school.tasks.q-school.worlds.0.title",
-          "things": ["i", "j", "k", "l", "m"],
-          "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
+          "things": [
+            "i",
+            "j",
+            "k",
+            "l",
+            "m"
+          ],
+          "preds": {
+            "Parent": [
+              [
+                "i",
+                "j"
+              ],
+              [
+                "i",
+                "k"
+              ],
+              [
+                "j",
+                "l"
+              ],
+              [
+                "k",
+                "m"
+              ]
+            ],
+            "School": [
+              "l"
+            ]
+          }
         },
         {
           "title": "@level.q-school.tasks.q-school.worlds.1.title",
-          "things": ["i", "j", "k", "l", "m", "n"],
+          "things": [
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n"
+          ],
           "preds": {
-            "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
-            "School": ["k", "l", "m", "n"]
+            "Parent": [
+              [
+                "j",
+                "i"
+              ],
+              [
+                "i",
+                "k"
+              ],
+              [
+                "i",
+                "l"
+              ],
+              [
+                "k",
+                "m"
+              ],
+              [
+                "l",
+                "n"
+              ]
+            ],
+            "School": [
+              "k",
+              "l",
+              "m",
+              "n"
+            ]
           }
         }
       ],

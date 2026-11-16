@@ -1,17 +1,38 @@
 {
   "title": "@level.in-noteq.title",
-  "tray": ["#machine", "#formula"],
-  "intro": [{ "t": "@level.in-noteq.intro.0.t" }],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
+  "intro": [
+    {
+      "t": "@level.in-noteq.intro.0.t"
+    }
+  ],
   "tasks": [
     {
       "id": "in-noteq",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-noteq.tasks.in-noteq.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-noteq.tasks.in-noteq.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["nat"],
-      "tests": [{ "goal": "∀x. ¬(x = s(x))" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "nat"
+      ],
+      "tests": [
+        {
+          "goal": "∀x. ¬(x = s(x))"
+        }
+      ],
       "brief": "@level.in-noteq.tasks.in-noteq.brief",
       "hint": [
         "@level.in-noteq.tasks.in-noteq.hint.0",
@@ -33,7 +54,12 @@
         "c6 = assumption(c5)",
         "out <- c6"
       ],
-      "publishes": [{ "piece": "succNeq", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "succNeq",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

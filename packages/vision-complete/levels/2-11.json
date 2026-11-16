@@ -16,15 +16,15 @@
       "t": "@level.2-11.intro.3.t"
     }
   ],
-  "unlocks": ["downsample"],
+  "unlocks": ["image:unlock-downsample"],
   "tasks": [
     {
       "id": "2-11",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.2-11.tasks.2-11.brief",
       "hint": "@level.2-11.tasks.2-11.hint",
       "bench": {
-        "model": "alias",
+        "model": "image:benchModel-alias",
         "setup": { "fine": 256, "folds": [[9, 16, 7], [12, 16, 4]] },
         "knobs": {
           "k": { "label": "@level.2-11.tasks.2-11.bench.knobs.k.label", "min": 0, "max": 24, "step": 1 },
@@ -74,11 +74,14 @@
         ],
         "layout": {
           "main": [
-            { "plot": { "of": "plot", "height": [260, 220], "legend": true } },
-            { "text": { "of": "readout" } },
-            { "chips": { "of": "chips", "look": "wave" } }
+            { "circuit:display-plot": { "of": "plot", "height": [260, 220], "legend": true } },
+            { "circuit:display-text": { "of": "readout" } },
+            { "circuit:display-chips": { "of": "chips", "look": "wave" } }
           ],
-          "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+          "side": [
+            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
+            "circuit:display-stages"
+          ]
         }
       }
     }

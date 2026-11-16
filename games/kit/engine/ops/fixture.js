@@ -25,7 +25,7 @@ const ID = 'proofs'
 
 const GAME = {
   domain: 'logic',
-  vocabulary: 7,
+  vocabulary: 1,
   title: T('Proofs · Test'),
   kicker: T('Test'),
   lede: T('Proofs built from Apply and the assumption box.'),
@@ -64,9 +64,9 @@ const GLOSSARY = {
 const PARTS = {
   settings: { assumption: { control: 'tree', label: T('假设', 'Assume') } },
   parts: {
-    formulaImplies: { editor: 'strip', mark: 'formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
-    mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp', label: T('A → B') }, { name: 'a', label: T('A') }], compute: 'mp(imp, a)' },
-    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'box', inputs: [], settings: [{ key: 'A', setting: 'assumption' }], regions: [{ name: 'body', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'impI(body)' },
+    formulaImplies: { editor: 'strip', mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
+    mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'logic:family-rule', outputType: 'logic:judgment', inputs: [{ name: 'imp', type: 'logic:judgment', label: T('A → B') }, { name: 'a', type: 'logic:judgment', label: T('A') }], compute: 'logic:mp(imp, a)' },
+    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: [{ key: 'A', setting: 'assumption' }], regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'logic:impI(body)' },
   },
 }
 const LEVELS = {
@@ -76,7 +76,7 @@ const LEVELS = {
     after: T('A given is already a proof of itself.'),
     tasks: [{
       id: 'given',
-      kind: 'proof',
+      kind: 'logic:proof',
       tests: [{ premises: { p: 'A' }, goal: 'A' }],
       cases: [{ A: 'Sat' }, { A: 'Rain' }],
       solution: ['goal <- p'],
@@ -90,7 +90,7 @@ const LEVELS = {
     after: T('Apply looks only at shape.'),
     tasks: [{
       id: 'apply',
-      kind: 'proof',
+      kind: 'logic:proof',
       tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'A' }, goal: 'C' }],
       cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       brief: T('Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “it rains”, prove “the road is slippery”.'),
@@ -104,7 +104,7 @@ const LEVELS = {
     after: T('To prove an “if … then …”, assume its first half.'),
     tasks: [{
       id: 'suppose',
-      kind: 'proof',
+      kind: 'logic:proof',
       tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
       cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }],
       brief: T('Given “today is Saturday → it rains” and “it rains → I rest”, prove “today is Saturday → I rest”.'),

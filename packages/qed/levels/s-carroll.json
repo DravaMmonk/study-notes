@@ -1,6 +1,9 @@
 {
   "title": "@level.s-carroll.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-carroll.intro.0.t"
@@ -9,14 +12,25 @@
   "tasks": [
     {
       "id": "s-carroll",
-      "kind": "proof",
+      "kind": "logic:proof",
       "tests": [
         {
-          "premises": { "p": "∀x. A(x) → ¬B(x)", "q": "∀x. C(x) → D(x)", "r": "∀x. ¬B(x) → ¬D(x)" },
+          "premises": {
+            "p": "∀x. A(x) → ¬B(x)",
+            "q": "∀x. C(x) → D(x)",
+            "r": "∀x. ¬B(x) → ¬D(x)"
+          },
           "goal": "∀x. A(x) → ¬C(x)"
         }
       ],
-      "cases": [{ "A": "Baby", "B": "Logical", "C": "Tamer", "D": "Respected" }],
+      "cases": [
+        {
+          "A": "Baby",
+          "B": "Logical",
+          "C": "Tamer",
+          "D": "Respected"
+        }
+      ],
       "hint": [
         "@level.s-carroll.tasks.s-carroll.hint.0",
         "@level.s-carroll.tasks.s-carroll.hint.1"

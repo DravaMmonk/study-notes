@@ -10,7 +10,7 @@
       "t": "@level.11-2.intro.1.t",
       "fig": {
         "test": 3,
-        "view": "terrain",
+        "view": "image:view-terrain",
         "caption": "@level.11-2.intro.1.fig.caption"
       }
     }
@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "11-2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.11-2.tasks.11-2.brief",
       "hint": "@level.11-2.tasks.11-2.hint",
       "inputs": ["in", "w"],
@@ -27,8 +27,8 @@
         "w": "@level.11-2.tasks.11-2.inputLabels.w",
         "m": "@level.11-2.tasks.11-2.inputLabels.m"
       },
-      "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
-      "scene": "classifier",
+      "views": { "in": "image:view-pixels", "out": "image:view-terrain", "mid": "image:view-terrain" },
+      "scene": "image:scene-classifier",
       "setup": { "check": "occlusion", "cover": { "v": 0.5 } },
       "tests": [
         { "label": "@level.11-2.tasks.11-2.tests.0.label", "street": { "cx": 5 }, "weights": "car" },

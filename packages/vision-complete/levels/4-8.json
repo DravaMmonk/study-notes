@@ -11,39 +11,48 @@
       "fig": { "test": 0, "caption": "@level.4-8.intro.1.fig.caption" }
     }
   ],
-  "unlocks": ["max"],
+  "unlocks": ["image:unlock-max"],
   "tasks": [
     {
       "id": "4-8",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-8.tasks.4-8.brief",
       "hint": "@level.4-8.tasks.4-8.hint",
       "inputs": ["a", "b"],
       "inputLabels": { "a": "a", "b": "b" },
-      "scene": "filter",
-      "setup": { "target": "max" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-max" },
       "tests": [
         {
           "label": "@level.4-8.tasks.4-8.tests.0.label",
-          "inputs": { "a": "square", "b": { "disk": { "cx": 9, "cy": 9, "r": 5 } } }
+          "inputs": { "a": "image:picture-square", "b": { "image:picture-disk": { "cx": 9, "cy": 9, "r": 5 } } }
         },
         {
           "label": "@level.4-8.tasks.4-8.tests.1.label",
-          "inputs": { "a": { "stepY": { "edge": 8 } }, "b": { "stepX": { "edge": 8 } } }
+          "inputs": {
+            "a": { "image:picture-stepY": { "edge": 8 } },
+            "b": { "image:picture-stepX": { "edge": 8 } }
+          }
         },
         {
           "label": "@level.4-8.tasks.4-8.tests.2.label",
-          "inputs": { "a": { "noise": { "seed": 51 } }, "b": { "noise": { "seed": 52 } } }
+          "inputs": {
+            "a": { "image:picture-noise": { "seed": 51 } },
+            "b": { "image:picture-noise": { "seed": 52 } }
+          }
         }
       ],
       "hidden": [
         {
           "label": "@level.4-8.tasks.4-8.hidden.0.label",
-          "inputs": { "a": { "glyph": { "letter": "T" } }, "b": { "checker": { "cell": 4, "lo": 0.2, "hi": 0.6 } } }
+          "inputs": {
+            "a": { "image:picture-glyph": { "letter": "T" } },
+            "b": { "image:picture-checker": { "cell": 4, "lo": 0.2, "hi": 0.6 } }
+          }
         },
         {
           "label": "@level.4-8.tasks.4-8.hidden.1.label",
-          "inputs": { "a": "rampX", "b": { "noise": { "seed": 53 } } }
+          "inputs": { "a": "image:picture-rampX", "b": { "image:picture-noise": { "seed": 53 } } }
         }
       ],
       "solution": ["d = arith[op=sub](a, b)", "r = relu(d)", "s = arith[op=add](r, b)", "out <- s"],

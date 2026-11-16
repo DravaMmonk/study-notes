@@ -1,6 +1,9 @@
 {
   "title": "@level.au-hyps.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-hyps.intro.0.t"
@@ -9,18 +12,53 @@
   "tasks": [
     {
       "id": "au-hyps",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.au-hyps.tasks.au-hyps.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-hyps.tasks.au-hyps.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "⊥", "hyps": ["Rain → Wet", "Rain", "¬Wet"], "becomes": [["¬Rain ∨ Wet; Rain; ¬Wet ⊢ ⊥"]] },
         {
           "goal": "⊥",
-          "hyps": ["Bus ∨ (Bike ∧ Rain)", "¬(Bus → OnTime)"],
-          "becomes": [["(Bus ∨ Bike) ∧ (Bus ∨ Rain); Bus ∧ ¬OnTime ⊢ ⊥"]]
+          "hyps": [
+            "Rain → Wet",
+            "Rain",
+            "¬Wet"
+          ],
+          "becomes": [
+            [
+              "¬Rain ∨ Wet; Rain; ¬Wet ⊢ ⊥"
+            ]
+          ]
         },
-        { "goal": "⊥", "hyps": ["KA ↔ ¬KB", "¬¬KA"], "becomes": [["(¬KA ∨ ¬KB) ∧ (KB ∨ KA); KA ⊢ ⊥"]] }
+        {
+          "goal": "⊥",
+          "hyps": [
+            "Bus ∨ (Bike ∧ Rain)",
+            "¬(Bus → OnTime)"
+          ],
+          "becomes": [
+            [
+              "(Bus ∨ Bike) ∧ (Bus ∨ Rain); Bus ∧ ¬OnTime ⊢ ⊥"
+            ]
+          ]
+        },
+        {
+          "goal": "⊥",
+          "hyps": [
+            "KA ↔ ¬KB",
+            "¬¬KA"
+          ],
+          "becomes": [
+            [
+              "(¬KA ∨ ¬KB) ∧ (KB ∨ KA); KA ⊢ ⊥"
+            ]
+          ]
+        }
       ],
       "brief": "@level.au-hyps.tasks.au-hyps.brief",
       "hint": [
@@ -48,7 +86,15 @@
     }
   ],
   "pieceRevisions": [
-    { "piece": "rw", "at": true, "desc": "@piece.rw.revisions.0.desc" },
-    { "piece": "simp", "at": true, "desc": "@piece.simp.revisions.0.desc" }
+    {
+      "piece": "rw",
+      "at": true,
+      "desc": "@piece.rw.revisions.0.desc"
+    },
+    {
+      "piece": "simp",
+      "at": true,
+      "desc": "@piece.simp.revisions.0.desc"
+    }
   ]
 }

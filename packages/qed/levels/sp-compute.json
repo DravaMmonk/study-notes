@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-compute.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-compute.intro.0.t"
@@ -10,16 +13,32 @@
   "tasks": [
     {
       "id": "sp-compute",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.sp-compute.tasks.sp-compute.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-compute.tasks.sp-compute.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "defs": ["plus"],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "defs": [
+        "plus"
+      ],
       "tests": [
-        { "goal": "plus(s(zero), s(zero)) = s(s(zero))" },
-        { "goal": "plus(s(s(zero)), s(zero)) = s(s(s(zero)))" },
-        { "goal": "plus(zero, s(s(zero))) = s(s(zero))" }
+        {
+          "goal": "plus(s(zero), s(zero)) = s(s(zero))"
+        },
+        {
+          "goal": "plus(s(s(zero)), s(zero)) = s(s(s(zero)))"
+        },
+        {
+          "goal": "plus(zero, s(s(zero))) = s(s(zero))"
+        }
       ],
       "brief": "@level.sp-compute.tasks.sp-compute.brief",
       "hint": [

@@ -1,6 +1,9 @@
 {
   "title": "@level.au-machine.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-machine.intro.0.t"
@@ -9,23 +12,49 @@
   "tasks": [
     {
       "id": "au-machine",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.au-machine.tasks.au-machine.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-machine.tasks.au-machine.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Anc(i, k)", "hyps": ["∀x. ∀y. ∀z. Anc(x, y) ∧ Anc(y, z) → Anc(x, z)", "Anc(i, j)", "Anc(j, k)"] },
+        {
+          "goal": "Anc(i, k)",
+          "hyps": [
+            "∀x. ∀y. ∀z. Anc(x, y) ∧ Anc(y, z) → Anc(x, z)",
+            "Anc(i, j)",
+            "Anc(j, k)"
+          ]
+        },
         {
           "goal": "∀x. Baby(x) → ¬Tamer(x)",
-          "hyps": ["∀x. Baby(x) → ¬Logical(x)", "∀x. Tamer(x) → Respected(x)", "∀x. ¬Logical(x) → ¬Respected(x)"]
+          "hyps": [
+            "∀x. Baby(x) → ¬Logical(x)",
+            "∀x. Tamer(x) → Respected(x)",
+            "∀x. ¬Logical(x) → ¬Respected(x)"
+          ]
         },
-        { "goal": "Flies(i)", "hyps": ["∀x. Bird(x) → Flies(x)", "Bird(j)"], "want": "fails" }
+        {
+          "goal": "Flies(i)",
+          "hyps": [
+            "∀x. Bird(x) → Flies(x)",
+            "Bird(j)"
+          ],
+          "want": "logic:want-fails"
+        }
       ],
       "brief": "@level.au-machine.tasks.au-machine.brief",
       "hint": [
         "@level.au-machine.tasks.au-machine.hint.0"
       ],
-      "solution": ["c0 = metis(in)", "out <- c0"]
+      "solution": [
+        "c0 = metis(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

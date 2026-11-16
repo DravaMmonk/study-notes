@@ -10,13 +10,25 @@
   "tasks": [
     {
       "id": "q-capture",
-      "kind": "model",
+      "kind": "logic:model",
       "say": "@level.q-capture.tasks.q-capture.say",
-      "given": ["∀x. ∃y. Likes(x, y)"],
+      "given": [
+        "∀x. ∃y. Likes(x, y)"
+      ],
       "goal": "∃y. Likes(y, y)",
-      "answer": { "size": 2, "preds": { "Likes": ["0,1", "1,0"] } },
+      "answer": {
+        "size": 2,
+        "preds": {
+          "Likes": [
+            "0,1",
+            "1,0"
+          ]
+        }
+      },
       "brief": "@level.q-capture.tasks.q-capture.brief",
-      "hint": ["@level.q-capture.tasks.q-capture.hint.0"]
+      "hint": [
+        "@level.q-capture.tasks.q-capture.hint.0"
+      ]
     }
   ]
 }

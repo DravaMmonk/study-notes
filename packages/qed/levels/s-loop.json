@@ -1,6 +1,9 @@
 {
   "title": "@level.s-loop.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-loop.intro.0.t"
@@ -9,21 +12,48 @@
   "tasks": [
     {
       "id": "s-loop",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.s-loop.tasks.s-loop.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.s-loop.tasks.s-loop.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "rules": {
         "trans": {
           "name": "@level.s-loop.tasks.s-loop.rules.trans.name",
-          "premises": ["Older(?x, ?y)", "Older(?y, ?z)"],
+          "premises": [
+            "Older(?x, ?y)",
+            "Older(?y, ?z)"
+          ],
           "conclusion": "Older(?x, ?z)"
         }
       },
       "tests": [
-        { "goal": "Older(i, k)", "hyps": ["Older(i, j)", "Older(j, k)"] },
-        { "goal": "Older(j, l)", "hyps": ["Older(j, k)", "Older(k, l)"] },
-        { "goal": "Older(k, i)", "hyps": ["Older(i, j)", "Older(j, k)"], "want": "fails" }
+        {
+          "goal": "Older(i, k)",
+          "hyps": [
+            "Older(i, j)",
+            "Older(j, k)"
+          ]
+        },
+        {
+          "goal": "Older(j, l)",
+          "hyps": [
+            "Older(j, k)",
+            "Older(k, l)"
+          ]
+        },
+        {
+          "goal": "Older(k, i)",
+          "hyps": [
+            "Older(i, j)",
+            "Older(j, k)"
+          ],
+          "want": "logic:want-fails"
+        }
       ],
       "brief": "@level.s-loop.tasks.s-loop.brief",
       "hint": [

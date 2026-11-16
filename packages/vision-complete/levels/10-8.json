@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "10-8",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.10-8.tasks.10-8.brief",
       "hint": "@level.10-8.tasks.10-8.hint",
       "inputs": ["f1", "g1", "f2", "g2", "k"],
@@ -26,7 +26,7 @@
         "k": "@level.10-8.tasks.10-8.inputLabels.k"
       },
       "check": { "tolerance": 0.005 },
-      "scene": "twoRankings",
+      "scene": "image:scene-twoRankings",
       "tests": [
         {
           "label": "@level.10-8.tasks.10-8.tests.0.label",

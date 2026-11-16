@@ -7,16 +7,20 @@
     {
       "t": "@level.onerow.intro.1.t"
     },
-    { "t": "@level.onerow.intro.2.t" }
+    {
+      "t": "@level.onerow.intro.2.t"
+    }
   ],
   "after": "@level.onerow.after",
   "tray": "#formula",
   "tasks": [
     {
       "id": "onerow",
-      "kind": "truth",
+      "kind": "logic:truth",
       "ask": "counter",
-      "formulas": ["(Rain → Wet) → (Wet → Rain)"],
+      "formulas": [
+        "(Rain → Wet) → (Wet → Rain)"
+      ],
       "brief": "@level.onerow.tasks.onerow.brief",
       "hint": [
         "@level.onerow.tasks.onerow.hint.0",

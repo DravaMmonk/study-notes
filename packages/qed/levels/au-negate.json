@@ -1,6 +1,9 @@
 {
   "title": "@level.au-negate.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-negate.intro.0.t"
@@ -9,25 +12,65 @@
   "tasks": [
     {
       "id": "au-negate",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.au-negate.tasks.au-negate.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-negate.tasks.au-negate.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "becomes": [["Rain → Wet; Rain; ¬Wet ⊢ ⊥"]] },
-        { "goal": "Rain ∨ ¬Rain", "becomes": [["¬(Rain ∨ ¬Rain) ⊢ ⊥"]] },
+        {
+          "goal": "Wet",
+          "hyps": [
+            "Rain → Wet",
+            "Rain"
+          ],
+          "becomes": [
+            [
+              "Rain → Wet; Rain; ¬Wet ⊢ ⊥"
+            ]
+          ]
+        },
+        {
+          "goal": "Rain ∨ ¬Rain",
+          "becomes": [
+            [
+              "¬(Rain ∨ ¬Rain) ⊢ ⊥"
+            ]
+          ]
+        },
         {
           "goal": "Bus → OnTime",
-          "hyps": ["Bus → Up", "Up → OnTime"],
-          "becomes": [["Bus → Up; Up → OnTime; ¬(Bus → OnTime) ⊢ ⊥"]]
+          "hyps": [
+            "Bus → Up",
+            "Up → OnTime"
+          ],
+          "becomes": [
+            [
+              "Bus → Up; Up → OnTime; ¬(Bus → OnTime) ⊢ ⊥"
+            ]
+          ]
         }
       ],
       "brief": "@level.au-negate.tasks.au-negate.brief",
       "hint": [
         "@level.au-negate.tasks.au-negate.hint.0"
       ],
-      "solution": ["c0r0 = raa()", "c1r0 = impI()", "c0 = rule(in, c0r0)", "c1 = rule(c0, c1r0)", "out <- c1"],
-      "naive": ["c0r0 = raa()", "c0 = rule(in, c0r0)", "out <- c0"]
+      "solution": [
+        "c0r0 = raa()",
+        "c1r0 = impI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0r0 = raa()",
+        "c0 = rule(in, c0r0)",
+        "out <- c0"
+      ]
     }
   ]
 }

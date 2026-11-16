@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "1-10",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.1-10.tasks.1-10.brief",
       "hint": "@level.1-10.tasks.1-10.hint",
       "bench": {
-        "model": "racer",
+        "model": "image:benchModel-racer",
         "setup": {
           "kernels": [
             { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
@@ -39,14 +39,14 @@
             { "id": "laplace", "cells": [0, 1, 0, 1, -4, 1, 0, 1, 0], "div": 1 }
           ],
           "inputs": [
-            { "impulse": { "x": 7, "y": 7 } },
-            "square",
-            { "glyph": { "letter": "F" } },
-            { "glyph": { "letter": "L" } },
-            "disk",
-            { "stepX": { "edge": 8 } },
-            { "checker": { "cell": 4 } },
-            "corner"
+            { "image:picture-impulse": { "x": 7, "y": 7 } },
+            "image:picture-square",
+            { "image:picture-glyph": { "letter": "F" } },
+            { "image:picture-glyph": { "letter": "L" } },
+            "image:picture-disk",
+            { "image:picture-stepX": { "edge": 8 } },
+            { "image:picture-checker": { "cell": 4 } },
+            "image:picture-corner"
           ],
           "rounds": 10,
           "minGap": 0.15,
@@ -63,26 +63,33 @@
         ],
         "goal": [{ "of": "final", "atLeast": 8 }],
         "layout": {
-          "head": [{ "progress": { "of": "dots" } }, { "chips": { "of": "score" } }, "knobs"],
+          "head": [
+            { "circuit:display-progress": { "of": "dots" } },
+            { "circuit:display-chips": { "of": "score" } },
+            "circuit:display-knobs"
+          ],
           "main": [
-            { "kernelRound": { "when": "playing" } },
+            { "image:display-kernelRound": { "when": "playing" } },
             {
               "stack": [
-                { "text": { "of": "result", "look": "title", "unless": "playing" } },
+                { "circuit:display-text": { "of": "result", "look": "title", "unless": "playing" } },
                 {
-                  "text": {
+                  "circuit:display-text": {
                     "text": "@level.1-10.tasks.1-10.bench.layout.main.1.stack.1.text.text",
                     "look": "lede",
                     "unless": "playing"
                   }
                 },
-                { "chips": { "of": "rules", "look": "plain", "unless": "playing" } },
-                { "actions": { "unless": "playing" } }
+                { "circuit:display-chips": { "of": "rules", "look": "plain", "unless": "playing" } },
+                { "circuit:display-actions": { "unless": "playing" } }
               ],
               "center": true
             }
           ],
-          "side": [{ "kernelChoices": { "when": "playing" } }, { "verdict": { "center": true, "when": "playing" } }],
+          "side": [
+            { "image:display-kernelChoices": { "when": "playing" } },
+            { "circuit:display-verdict": { "center": true, "when": "playing" } }
+          ],
           "split": "even"
         }
       }

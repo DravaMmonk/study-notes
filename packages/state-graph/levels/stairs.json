@@ -8,14 +8,56 @@
     {
       "t": "@level.stairs.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "s0", "x": 0, "y": 0, "w": 50, "h": 50, "corner": 0 },
-            { "id": "s1", "x": 60, "y": 0, "w": 50, "h": 50, "corner": 1 },
-            { "id": "s2", "x": 120, "y": 0, "w": 50, "h": 50, "corner": 2 },
-            { "id": "s3", "x": 180, "y": 0, "w": 50, "h": 50, "corner": 3 },
-            { "id": "s4", "x": 240, "y": 0, "w": 50, "h": 50, "corner": 4 },
-            { "id": "s5", "x": 300, "y": 0, "w": 50, "h": 50, "corner": 5 }
+            {
+              "id": "s0",
+              "x": 0,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 0
+            },
+            {
+              "id": "s1",
+              "x": 60,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 1
+            },
+            {
+              "id": "s2",
+              "x": 120,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 2
+            },
+            {
+              "id": "s3",
+              "x": 180,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 3
+            },
+            {
+              "id": "s4",
+              "x": 240,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 4
+            },
+            {
+              "id": "s5",
+              "x": 300,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 5
+            }
           ],
           "edges": []
         }
@@ -24,18 +66,76 @@
     {
       "t": "@level.stairs.intro.2.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
-            { "id": "s0", "x": 0, "y": 0, "w": 50, "h": 50, "corner": 0 },
-            { "id": "s1", "x": 60, "y": 0, "w": 50, "h": 50, "corner": 1 },
-            { "id": "s2", "x": 120, "y": 0, "w": 50, "h": 50, "corner": 2 },
-            { "id": "s3", "x": 180, "y": 0, "w": 50, "h": 50, "corner": 3, "cls": "lit" },
-            { "id": "s4", "x": 240, "y": 0, "w": 50, "h": 50, "corner": 4, "cls": "lit" },
-            { "id": "s5", "x": 300, "y": 0, "w": 50, "h": 50, "value": "?", "corner": 5, "cls": "sel" }
+            {
+              "id": "s0",
+              "x": 0,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 0
+            },
+            {
+              "id": "s1",
+              "x": 60,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 1
+            },
+            {
+              "id": "s2",
+              "x": 120,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 2
+            },
+            {
+              "id": "s3",
+              "x": 180,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 3,
+              "cls": "lit"
+            },
+            {
+              "id": "s4",
+              "x": 240,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 4,
+              "cls": "lit"
+            },
+            {
+              "id": "s5",
+              "x": 300,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "value": "?",
+              "corner": 5,
+              "cls": "sel"
+            }
           ],
           "edges": [
-            { "a": "s4", "b": "s5", "cls": "hot", "bend": 0, "off": 0 },
-            { "a": "s3", "b": "s5", "cls": "hot", "bend": -46, "off": 0 }
+            {
+              "a": "s4",
+              "b": "s5",
+              "cls": "hot",
+              "bend": 0,
+              "off": 0
+            },
+            {
+              "a": "s3",
+              "b": "s5",
+              "cls": "hot",
+              "bend": -46,
+              "off": 0
+            }
           ]
         }
       }
@@ -51,7 +151,7 @@
     "goal": "@level.stairs.mission.goal",
     "how": "@level.stairs.mission.how"
   },
-  "robot": "ranger",
+  "robot": "table:robot-ranger",
   "debrief": {
     "title": "@level.stairs.debrief.title",
     "body": [
@@ -63,17 +163,36 @@
   "tasks": [
     {
       "id": "stairs",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "hints": [
         "@level.stairs.tasks.stairs.hints.0",
         "@level.stairs.tasks.stairs.hints.1",
         "@level.stairs.tasks.stairs.hints.2"
       ],
-      "world": "strip",
-      "facts": ["ground"],
-      "tests": [{ "n": 4 }, { "n": 6 }, { "n": 9 }],
-      "expected": [5, 13, 55],
-      "solution": ["c = counter(view.m1, view.m2, facts.ground)", "cell <- c"]
+      "world": "table:world-strip",
+      "facts": [
+        "ground"
+      ],
+      "tests": [
+        {
+          "n": 4
+        },
+        {
+          "n": 6
+        },
+        {
+          "n": 9
+        }
+      ],
+      "expected": [
+        5,
+        13,
+        55
+      ],
+      "solution": [
+        "c = counter(view.m1, view.m2, facts.ground)",
+        "cell <- c"
+      ]
     }
   ]
 }

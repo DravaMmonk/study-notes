@@ -1,6 +1,9 @@
 {
   "title": "@level.au-adder.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-adder.intro.0.t"
@@ -10,21 +13,54 @@
   "tasks": [
     {
       "id": "au-adder",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.au-adder.tasks.au-adder.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-adder.tasks.au-adder.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬(Sum ∧ Carry)", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] },
-        { "goal": "Carry → InA", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] },
-        { "goal": "Sum → InA", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"], "want": "fails" },
-        { "goal": "InA ∧ InB → Carry ∧ ¬Sum", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] }
+        {
+          "goal": "¬(Sum ∧ Carry)",
+          "hyps": [
+            "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)",
+            "Carry ↔ InA ∧ InB"
+          ]
+        },
+        {
+          "goal": "Carry → InA",
+          "hyps": [
+            "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)",
+            "Carry ↔ InA ∧ InB"
+          ]
+        },
+        {
+          "goal": "Sum → InA",
+          "hyps": [
+            "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)",
+            "Carry ↔ InA ∧ InB"
+          ],
+          "want": "logic:want-fails"
+        },
+        {
+          "goal": "InA ∧ InB → Carry ∧ ¬Sum",
+          "hyps": [
+            "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)",
+            "Carry ↔ InA ∧ InB"
+          ]
+        }
       ],
       "brief": "@level.au-adder.tasks.au-adder.brief",
       "hint": [
         "@level.au-adder.tasks.au-adder.hint.0"
       ],
-      "solution": ["c0 = metis(in)", "out <- c0"]
+      "solution": [
+        "c0 = metis(in)",
+        "out <- c0"
+      ]
     }
   ]
 }

@@ -1,7 +1,12 @@
 {
   "title": "@level.r-assumption.title",
-  "adds": ["assumption"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "assumption"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.r-assumption.intro.0.t"
@@ -13,10 +18,25 @@
   "tasks": [
     {
       "id": "r-assumption",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-assumption.tasks.r-assumption.inputs.0.label" }],
-      "tests": [{ "goal": "Rain → (Wind → Rain)" }, { "goal": "Wet → (Slip → Wet)" }, { "goal": "¬Rain → (Rain → ¬Rain)" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-assumption.tasks.r-assumption.inputs.0.label"
+        }
+      ],
+      "tests": [
+        {
+          "goal": "Rain → (Wind → Rain)"
+        },
+        {
+          "goal": "Wet → (Slip → Wet)"
+        },
+        {
+          "goal": "¬Rain → (Rain → ¬Rain)"
+        }
+      ],
       "brief": "@level.r-assumption.tasks.r-assumption.brief",
       "hint": [
         "@level.r-assumption.tasks.r-assumption.hint.0"

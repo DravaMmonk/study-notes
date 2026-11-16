@@ -8,7 +8,7 @@
     {
       "t": "@level.nim.intro.1.t",
       "fig": {
-        "scene": {
+        "table:figure-scene": {
           "cells": [
             {
               "id": "p0",
@@ -20,11 +20,46 @@
               "value": "@level.nim.intro.1.fig.scene.cells.p0.value",
               "cls": "no"
             },
-            { "id": "p1", "x": 60, "y": 0, "w": 50, "h": 50, "corner": 1 },
-            { "id": "p2", "x": 120, "y": 0, "w": 50, "h": 50, "corner": 2 },
-            { "id": "p3", "x": 180, "y": 0, "w": 50, "h": 50, "corner": 3 },
-            { "id": "p4", "x": 240, "y": 0, "w": 50, "h": 50, "corner": 4 },
-            { "id": "p5", "x": 300, "y": 0, "w": 50, "h": 50, "corner": 5 }
+            {
+              "id": "p1",
+              "x": 60,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 1
+            },
+            {
+              "id": "p2",
+              "x": 120,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 2
+            },
+            {
+              "id": "p3",
+              "x": 180,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 3
+            },
+            {
+              "id": "p4",
+              "x": 240,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 4
+            },
+            {
+              "id": "p5",
+              "x": 300,
+              "y": 0,
+              "w": 50,
+              "h": 50,
+              "corner": 5
+            }
           ],
           "edges": []
         }
@@ -36,8 +71,14 @@
     {
       "t": "@level.nim.intro.3.t",
       "fig": {
-        "circuit": {
-          "taps": [{ "id": "a", "label": "@level.nim.intro.3.fig.circuit.taps.a.label", "kind": "bool" }],
+        "table:figure-circuit": {
+          "taps": [
+            {
+              "id": "a",
+              "label": "@level.nim.intro.3.fig.circuit.taps.a.label",
+              "kind": "bool"
+            }
+          ],
           "parts": [
             {
               "id": "n",
@@ -45,8 +86,24 @@
               "tag": "@level.nim.intro.3.fig.circuit.parts.n.tag"
             }
           ],
-          "outs": [{ "id": "o", "label": "@level.nim.intro.3.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "a", "to": "n", "kind": "bool" }, { "from": "n", "to": "o", "kind": "bool" }]
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.nim.intro.3.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "a",
+              "to": "n",
+              "kind": "bool"
+            },
+            {
+              "from": "n",
+              "to": "o",
+              "kind": "bool"
+            }
+          ]
         }
       }
     }
@@ -55,8 +112,10 @@
     "goal": "@level.nim.mission.goal",
     "how": "@level.nim.mission.how"
   },
-  "robot": "ranger",
-  "adds": ["not"],
+  "robot": "table:robot-ranger",
+  "adds": [
+    "table:not"
+  ],
   "debrief": {
     "title": "@level.nim.debrief.title",
     "body": [
@@ -68,10 +127,14 @@
   "tasks": [
     {
       "id": "nim",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "diagnose": [
         {
-          "when": { "not": { "has": "not" } },
+          "when": {
+            "table:condition-not": {
+              "table:condition-has": "table:not"
+            }
+          },
           "say": "@level.nim.tasks.nim.diagnose.0.say"
         }
       ],
@@ -80,11 +143,32 @@
         "@level.nim.tasks.nim.hints.0",
         "@level.nim.tasks.nim.hints.1"
       ],
-      "world": "pile",
-      "facts": ["ground"],
-      "tests": [{ "n": 5 }, { "n": 9 }, { "n": 10 }],
-      "expected": [true, false, true],
-      "solution": ["a = not(view.m1)", "b = not(view.m2)", "m = many(a, b)", "cell <- m"]
+      "world": "table:world-pile",
+      "facts": [
+        "ground"
+      ],
+      "tests": [
+        {
+          "n": 5
+        },
+        {
+          "n": 9
+        },
+        {
+          "n": 10
+        }
+      ],
+      "expected": [
+        true,
+        false,
+        true
+      ],
+      "solution": [
+        "a = table:not(view.m1)",
+        "b = table:not(view.m2)",
+        "m = table:many(a, b)",
+        "cell <- m"
+      ]
     }
   ]
 }

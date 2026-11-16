@@ -16,9 +16,11 @@
   "tasks": [
     {
       "id": "table",
-      "kind": "truth",
+      "kind": "logic:truth",
       "ask": "fill",
-      "formulas": ["Rain → Wet"],
+      "formulas": [
+        "Rain → Wet"
+      ],
       "brief": "@level.table.tasks.table.brief",
       "hint": [
         "@level.table.tasks.table.hint.0",

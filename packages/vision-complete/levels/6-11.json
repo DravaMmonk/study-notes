@@ -16,15 +16,15 @@
       "t": "@level.6-11.intro.3.t"
     }
   ],
-  "unlocks": ["homography"],
+  "unlocks": ["image:unlock-homography"],
   "tasks": [
     {
       "id": "6-11",
-      "kind": "board",
+      "kind": "image:board",
       "brief": "@level.6-11.tasks.6-11.brief",
       "hint": "@level.6-11.tasks.6-11.hint",
       "bench": {
-        "model": "cover",
+        "model": "image:benchModel-cover",
         "setup": {
           "cover": { "w": 60, "h": 84 },
           "photo": { "w": 200, "h": 150 },
@@ -64,7 +64,7 @@
           }
         ],
         "layout": {
-          "main": [{ "coverPairs": { "with": ["goals"] } }],
+          "main": [{ "image:display-coverPairs": { "with": ["circuit:display-goals"] } }],
           "foot": [
             {
               "panel": [
@@ -73,24 +73,24 @@
                     {
                       "stack": [
                         {
-                          "text": {
+                          "circuit:display-text": {
                             "text": "@level.6-11.tasks.6-11.bench.layout.foot.0.panel.0.row.0.stack.0.text.text",
                             "look": "label"
                           }
                         },
-                        { "text": { "of": "transform", "look": "note" } },
-                        { "row": ["knobs", "actions"], "tight": true }
+                        { "circuit:display-text": { "of": "transform", "look": "note" } },
+                        { "row": ["circuit:display-knobs", "circuit:display-actions"], "tight": true }
                       ]
                     },
                     {
                       "stack": [
                         {
-                          "text": {
+                          "circuit:display-text": {
                             "text": "@level.6-11.tasks.6-11.bench.layout.foot.0.panel.0.row.1.stack.0.text.text",
                             "look": "label"
                           }
                         },
-                        "coverPairList"
+                        "image:display-coverPairList"
                       ]
                     }
                   ]

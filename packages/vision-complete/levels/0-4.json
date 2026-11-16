@@ -21,25 +21,25 @@
   ],
   "adds": ["mul", "const", "add"],
   "tray": "#pipeline",
-  "unlocks": ["invert"],
+  "unlocks": ["image:unlock-invert"],
   "tasks": [
     {
       "id": "0-4",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.0-4.tasks.0-4.brief",
       "hint": "@level.0-4.tasks.0-4.hint",
-      "scene": "filter",
-      "setup": { "target": "negative" },
+      "scene": "image:scene-filter",
+      "setup": { "target": "image:target-negative" },
       "tests": [
-        { "label": "@level.0-4.tasks.0-4.tests.0.label", "in": "square" },
-        { "label": "@level.0-4.tasks.0-4.tests.1.label", "in": "disk" },
-        { "label": "@level.0-4.tasks.0-4.tests.2.label", "in": { "glyph": { "letter": "T" } } },
-        { "label": "@level.0-4.tasks.0-4.tests.3.label", "in": "checker" },
-        { "label": "@level.0-4.tasks.0-4.tests.4.label", "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": "@level.0-4.tasks.0-4.tests.0.label", "in": "image:picture-square" },
+        { "label": "@level.0-4.tasks.0-4.tests.1.label", "in": "image:picture-disk" },
+        { "label": "@level.0-4.tasks.0-4.tests.2.label", "in": { "image:picture-glyph": { "letter": "T" } } },
+        { "label": "@level.0-4.tasks.0-4.tests.3.label", "in": "image:picture-checker" },
+        { "label": "@level.0-4.tasks.0-4.tests.4.label", "in": { "image:picture-impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
-        { "label": "@level.0-4.tasks.0-4.hidden.0.label", "in": "rampX" },
-        { "label": "@level.0-4.tasks.0-4.hidden.1.label", "in": { "noise": { "seed": 3 } } }
+        { "label": "@level.0-4.tasks.0-4.hidden.0.label", "in": "image:picture-rampX" },
+        { "label": "@level.0-4.tasks.0-4.hidden.1.label", "in": { "image:picture-noise": { "seed": 3 } } }
       ],
       "solution": ["kN = const[c=-1]()", "cN = const()", "k = mul(in, kN)", "c = add(k, cN)", "out <- c"],
       "naive": ["kN = const[c=-1]()", "k = mul(in, kN)", "out <- k"]

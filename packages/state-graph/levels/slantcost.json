@@ -5,23 +5,56 @@
     {
       "t": "@level.slantcost.intro.0.t",
       "fig": {
-        "grid": {
+        "table:figure-grid": {
           "R": 3,
           "C": 4,
-          "moves": [[0, 1], [1, 1]],
+          "moves": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
           "cells": {
-            "0,0": { "corner": 2 },
-            "0,1": { "corner": 1 },
-            "0,2": { "corner": 3 },
-            "0,3": { "corner": 1 },
-            "1,0": { "corner": 1 },
-            "1,1": { "corner": 4 },
-            "1,2": { "corner": 1 },
-            "1,3": { "corner": 2 },
-            "2,0": { "corner": 1 },
-            "2,1": { "corner": 1 },
-            "2,2": { "corner": 2 },
-            "2,3": { "corner": 1 }
+            "0,0": {
+              "corner": 2
+            },
+            "0,1": {
+              "corner": 1
+            },
+            "0,2": {
+              "corner": 3
+            },
+            "0,3": {
+              "corner": 1
+            },
+            "1,0": {
+              "corner": 1
+            },
+            "1,1": {
+              "corner": 4
+            },
+            "1,2": {
+              "corner": 1
+            },
+            "1,3": {
+              "corner": 2
+            },
+            "2,0": {
+              "corner": 1
+            },
+            "2,1": {
+              "corner": 1
+            },
+            "2,2": {
+              "corner": 2
+            },
+            "2,3": {
+              "corner": 1
+            }
           }
         }
       }
@@ -35,11 +68,45 @@
     {
       "t": "@level.slantcost.intro.3.t",
       "fig": {
-        "circuit": {
-          "taps": [{ "id": "a", "label": "a · —" }, { "id": "b", "label": "b · 4" }],
-          "parts": [{ "id": "p", "name": "@level.slantcost.intro.3.fig.circuit.parts.p.name", "tag": "a + b" }],
-          "outs": [{ "id": "o", "label": "@level.slantcost.intro.3.fig.circuit.outs.o.label" }],
-          "wires": [{ "from": "a", "to": "p", "kind": "off" }, { "from": "b", "to": "p" }, { "from": "p", "to": "o" }]
+        "table:figure-circuit": {
+          "taps": [
+            {
+              "id": "a",
+              "label": "a · —"
+            },
+            {
+              "id": "b",
+              "label": "b · 4"
+            }
+          ],
+          "parts": [
+            {
+              "id": "p",
+              "name": "@level.slantcost.intro.3.fig.circuit.parts.p.name",
+              "tag": "a + b"
+            }
+          ],
+          "outs": [
+            {
+              "id": "o",
+              "label": "@level.slantcost.intro.3.fig.circuit.outs.o.label"
+            }
+          ],
+          "wires": [
+            {
+              "from": "a",
+              "to": "p",
+              "kind": "off"
+            },
+            {
+              "from": "b",
+              "to": "p"
+            },
+            {
+              "from": "p",
+              "to": "o"
+            }
+          ]
         }
       }
     }
@@ -48,8 +115,10 @@
     "goal": "@level.slantcost.mission.goal",
     "how": "@level.slantcost.mission.how"
   },
-  "robot": "scout",
-  "adds": ["add"],
+  "robot": "table:robot-scout",
+  "adds": [
+    "table:add"
+  ],
   "debrief": {
     "title": "@level.slantcost.debrief.title",
     "body": [
@@ -61,23 +130,44 @@
   "tasks": [
     {
       "id": "slantcost",
-      "mode": "circuit",
+      "mode": "table:circuit",
       "ports": [
-        { "way": { "n": 1, "sensor": "left" } },
-        { "way": { "n": 2, "sensor": "ul" } },
-        { "start": { "sensor": "start" } },
         {
-          "named": {
+          "table:port-way": {
+            "n": 1,
+            "sensor": "left"
+          }
+        },
+        {
+          "table:port-way": {
+            "n": 2,
+            "sensor": "ul"
+          }
+        },
+        {
+          "table:port-start": {
+            "sensor": "start"
+          }
+        },
+        {
+          "table:port-named": {
             "label": "@level.slantcost.tasks.slantcost.ports.3.named.label",
             "short": "@level.slantcost.tasks.slantcost.ports.3.named.short",
             "sensor": "cost"
           }
         },
-        { "way": { "n": 3, "input": "way3" } }
+        {
+          "table:port-way": {
+            "n": 3,
+            "input": "way3"
+          }
+        }
       ],
       "diagnose": [
         {
-          "when": { "uses": "up" },
+          "when": {
+            "table:condition-uses": "up"
+          },
           "say": "@level.slantcost.tasks.slantcost.diagnose.0.say"
         }
       ],
@@ -87,27 +177,115 @@
         "@level.slantcost.tasks.slantcost.hints.2",
         "@level.slantcost.tasks.slantcost.hints.3"
       ],
-      "world": "grid",
-      "facts": ["start", "cost"],
+      "world": "table:world-grid",
+      "facts": [
+        "start",
+        "cost"
+      ],
       "tests": [
-        { "R": 3, "C": 3, "costs": [[2, 1, 3], [1, 4, 1], [1, 1, 2]] },
-        { "R": 3, "C": 4, "costs": [[2, 1, 1, 1], [1, 4, 9, 9], [1, 1, 5, 1]] },
+        {
+          "R": 3,
+          "C": 3,
+          "costs": [
+            [
+              2,
+              1,
+              3
+            ],
+            [
+              1,
+              4,
+              1
+            ],
+            [
+              1,
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "R": 3,
+          "C": 4,
+          "costs": [
+            [
+              2,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              4,
+              9,
+              9
+            ],
+            [
+              1,
+              1,
+              5,
+              1
+            ]
+          ]
+        },
         {
           "R": 4,
           "C": 6,
-          "costs": [[1, 2, 4, 3, 1, 2], [1, 3, 1, 5, 4, 1], [1, 1, 6, 2, 1, 3], [1, 1, 1, 4, 2, 1]]
+          "costs": [
+            [
+              1,
+              2,
+              4,
+              3,
+              1,
+              2
+            ],
+            [
+              1,
+              3,
+              1,
+              5,
+              4,
+              1
+            ],
+            [
+              1,
+              1,
+              6,
+              2,
+              1,
+              3
+            ],
+            [
+              1,
+              1,
+              1,
+              4,
+              2,
+              1
+            ]
+          ]
         }
       ],
-      "expected": [8, 12, 8],
+      "expected": [
+        8,
+        12,
+        8
+      ],
       "solution": [
-        "m = mmin(view.left, view.ul, way3)",
-        "k = const[value=0]()",
-        "g = pass(facts.start, k)",
-        "s = mmin(m, g)",
-        "a = add(s, facts.cost)",
+        "m = table:mmin(view.left, view.ul, way3)",
+        "k = table:const[value=0]()",
+        "g = table:pass(facts.start, k)",
+        "s = table:mmin(m, g)",
+        "a = table:add(s, facts.cost)",
         "cell <- a"
       ],
-      "publishes": [{ "piece": "min", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "min",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

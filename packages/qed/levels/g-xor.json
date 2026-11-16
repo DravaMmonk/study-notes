@@ -1,11 +1,14 @@
 {
   "title": "@level.g-xor.title",
-  "tray": ["#gates", "#formula"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
   "after": "@level.g-xor.after",
   "tasks": [
     {
       "id": "g-xor",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "(Rain ∨ Wind) ∧ ¬(Rain ∧ Wind)",
       "blind": true,
       "budget": 4,
@@ -13,7 +16,13 @@
       "hint": [
         "@level.g-xor.tasks.g-xor.hint.0"
       ],
-      "solution": ["o = gOr(Rain, Wind)", "a = gAnd(Rain, Wind)", "n = gNot(a)", "b = gAnd(o, n)", "out <- b"],
+      "solution": [
+        "o = gOr(Rain, Wind)",
+        "a = gAnd(Rain, Wind)",
+        "n = gNot(a)",
+        "b = gAnd(o, n)",
+        "out <- b"
+      ],
       "naive": [
         "n1 = gNot(Wind)",
         "n2 = gNot(Rain)",

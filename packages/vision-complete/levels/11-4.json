@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "11-4",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.11-4.tasks.11-4.brief",
       "hint": "@level.11-4.tasks.11-4.hint",
       "inputs": ["in", "w", "m"],
@@ -27,7 +27,7 @@
         "m": "@level.11-4.tasks.11-4.inputLabels.m"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "classifier",
+      "scene": "image:scene-classifier",
       "setup": { "check": "share" },
       "tests": [
         { "label": "@level.11-4.tasks.11-4.tests.0.label", "street": { "cx": 5 }, "weights": "car" },

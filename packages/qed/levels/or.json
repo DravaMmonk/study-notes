@@ -1,6 +1,9 @@
 {
   "title": "@level.or.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.or.intro.0.t"
@@ -12,14 +15,34 @@
   "tasks": [
     {
       "id": "or",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "A" }, "goal": "B ∨ (A ∨ B)" }],
-      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Bus", "B": "Bike" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "A"
+          },
+          "goal": "B ∨ (A ∨ B)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Sat",
+          "B": "Sun"
+        },
+        {
+          "A": "Bus",
+          "B": "Bike"
+        }
+      ],
       "hint": [
         "@level.or.tasks.or.hint.0",
         "@level.or.tasks.or.hint.1"
       ],
-      "solution": ["i = orI[other=B, side=right](p)", "j = orI[other=B, side=left](i)", "goal <- j"]
+      "solution": [
+        "i = orI[other=B, side=right](p)",
+        "j = orI[other=B, side=left](i)",
+        "goal <- j"
+      ]
     }
   ]
 }

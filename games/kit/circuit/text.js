@@ -32,7 +32,7 @@ import { regionAddress, regionProblems, regionsOf, terminalRegionProblem } from 
 // A blueprint declares parts. The level supplies the inputs and outputs; the text connects them and can list
 // settings they expose. Preset parts are written as parts, with their locks supplied by the level on import.
 
-const WORD = /^(?:@?[a-z][a-z0-9-]*\/)?[A-Za-z_][A-Za-z0-9_-]*$/
+const WORD = /^(?:(?:@?[a-z][a-z0-9-]*\/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z_][A-Za-z0-9_-]*$/
 const NUMBER = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/
 const RESERVED = new Set(['true', 'false', 'null', '_'])
 const HEADER = 'blueprint'
@@ -153,7 +153,7 @@ function tokens(text) {
         push({ t: c, line, p: true })
         i += 1
       } else {
-        const m = /^-?\d+(\.\d+)?([eE][-+]?\d+)?(?![A-Za-z0-9_-])|^(?:@?[a-z][a-z0-9-]*\/)?[A-Za-z0-9_][A-Za-z0-9_-]*/.exec(raw.slice(i))
+        const m = /^-?\d+(\.\d+)?([eE][-+]?\d+)?(?![A-Za-z0-9_-])|^(?:(?:@?[a-z][a-z0-9-]*\/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9_][A-Za-z0-9_-]*/.exec(raw.slice(i))
         if (!m) throw /[^\x20-\x7e]/.test(c) ? say(line, `只能用 ASCII 字符，这里有「${c}」。`, `Only ASCII characters; found “${c}”.`) : say(line, `看不懂「${c}」。`, `Cannot read “${c}”.`)
         push({ t: m[0], line })
         i += m[0].length

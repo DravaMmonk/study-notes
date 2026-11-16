@@ -14,11 +14,11 @@
   "tasks": [
     {
       "id": "6-7",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.6-7.tasks.6-7.brief",
       "hint": "@level.6-7.tasks.6-7.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },
-      "scene": "clutter",
+      "scene": "image:scene-clutter",
       "tests": [
         {
           "label": "@level.6-7.tasks.6-7.tests.0.label",

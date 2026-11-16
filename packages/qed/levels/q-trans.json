@@ -1,17 +1,40 @@
 {
   "title": "@level.q-trans.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "q-trans",
-      "words": ["everyday", "stars"],
-      "kind": "proof",
-      "consts": ["i", "k", "j"],
-      "tests": [{ "premises": { "p": "i = k", "q": "k = j" }, "goal": "i = j" }],
+      "words": [
+        "everyday",
+        "stars"
+      ],
+      "kind": "logic:proof",
+      "consts": [
+        "i",
+        "k",
+        "j"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "p": "i = k",
+            "q": "k = j"
+          },
+          "goal": "i = j"
+        }
+      ],
       "cases": [],
       "brief": "@level.q-trans.tasks.q-trans.brief",
-      "hint": ["@level.q-trans.tasks.q-trans.hint.0"],
-      "solution": ["w = rewrite[at=[0]](q, p)", "goal <- w"]
+      "hint": [
+        "@level.q-trans.tasks.q-trans.hint.0"
+      ],
+      "solution": [
+        "w = rewrite[at=[0]](q, p)",
+        "goal <- w"
+      ]
     }
   ]
 }

@@ -1,7 +1,12 @@
 {
   "title": "@level.g-iff.title",
-  "tray": ["#gates", "#formula"],
-  "adds": ["formulaIff"],
+  "tray": [
+    "#gates",
+    "#formula"
+  ],
+  "adds": [
+    "formulaIff"
+  ],
   "intro": [
     {
       "t": "@level.g-iff.intro.0.t"
@@ -10,13 +15,25 @@
   "tasks": [
     {
       "id": "g-iff",
-      "kind": "gates",
+      "kind": "logic:gates",
       "target": "(Rain → Wet) ∧ (Wet → Rain)",
       "hideTarget": true,
       "brief": "@level.g-iff.tasks.g-iff.brief",
-      "hint": ["@level.g-iff.tasks.g-iff.hint.0"],
-      "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "a = gAnd(i1, i2)", "out <- a"],
-      "publishes": [{ "piece": "gIff", "variant": "base" }]
+      "hint": [
+        "@level.g-iff.tasks.g-iff.hint.0"
+      ],
+      "solution": [
+        "i1 = gImp(Rain, Wet)",
+        "i2 = gImp(Wet, Rain)",
+        "a = gAnd(i1, i2)",
+        "out <- a"
+      ],
+      "publishes": [
+        {
+          "piece": "gIff",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

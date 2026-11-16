@@ -23,7 +23,7 @@ import { eraLevels } from '../course.js'
 import { PROJECT_DIR, isDataGame, readContent } from '../engine/content-node.js'
 
 const PREFIX = '/studio/api/'
-const DOMAINS = resolve(import.meta.dirname, '../domains')
+const DOMAINS = resolve(import.meta.dirname, '../modules')
 const MODULE = 'virtual:studio-domains'
 
 const courseCatalog = {

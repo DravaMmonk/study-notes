@@ -1,6 +1,9 @@
 {
   "title": "@level.mt.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.mt.intro.0.t"
@@ -9,21 +12,47 @@
   "tasks": [
     {
       "id": "mt_1",
-      "kind": "proof",
+      "kind": "logic:proof",
       "step": "@level.mt.tasks.mt_1.step",
-      "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "¬C" }, "goal": "¬A" }],
-      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A → B",
+            "q": "B → C",
+            "r": "¬C"
+          },
+          "goal": "¬A"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet",
+          "C": "Slip"
+        },
+        {
+          "A": "Alarm",
+          "B": "Up",
+          "C": "OnTime"
+        }
+      ],
       "hint": [
         "@level.mt.tasks.mt_1.hint.0"
       ],
-      "solution": ["c1 = chain(p, q)", "c2 = chain(c1, r)", "goal <- c2"]
+      "solution": [
+        "c1 = chain(p, q)",
+        "c2 = chain(c1, r)",
+        "goal <- c2"
+      ]
     },
     {
       "id": "mt_2",
-      "kind": "truth",
+      "kind": "logic:truth",
       "step": "@level.mt.tasks.mt_2.step",
       "ask": "counter",
-      "formulas": ["(Rain → Wet) → (¬Rain → ¬Wet)"],
+      "formulas": [
+        "(Rain → Wet) → (¬Rain → ¬Wet)"
+      ],
       "brief": "@level.mt.tasks.mt_2.brief",
       "hint": [
         "@level.mt.tasks.mt_2.hint.0",

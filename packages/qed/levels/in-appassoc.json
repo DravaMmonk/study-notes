@@ -1,19 +1,41 @@
 {
   "title": "@level.in-appassoc.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "tasks": [
     {
       "id": "in-appassoc",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.in-appassoc.tasks.in-appassoc.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.in-appassoc.tasks.in-appassoc.inputs.0.label"
+        }
+      ],
       "backtrack": true,
-      "words": ["everyday", "terms"],
-      "types": ["list"],
-      "defs": ["app", "len"],
-      "tests": [{ "goal": "∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))" }],
+      "words": [
+        "everyday",
+        "terms"
+      ],
+      "types": [
+        "list"
+      ],
+      "defs": [
+        "app",
+        "len"
+      ],
+      "tests": [
+        {
+          "goal": "∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))"
+        }
+      ],
       "brief": "@level.in-appassoc.tasks.in-appassoc.brief",
-      "hint": ["@level.in-appassoc.tasks.in-appassoc.hint.0"],
+      "hint": [
+        "@level.in-appassoc.tasks.in-appassoc.hint.0"
+      ],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",
@@ -21,7 +43,7 @@
         "  body {",
         "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "    c5r0 = refl()",
-        "    c2r2 = hyp(c2r0)",
+        "    c2r2 = logic:hyp(c2r0)",
         "    c2 = simp(c1.body, c2r2)",
         "    c3 = repeat(c2, body: c4) {",
         "      body {",
@@ -34,7 +56,12 @@
         "}",
         "out <- c1"
       ],
-      "publishes": [{ "piece": "appAssoc", "variant": "base" }]
+      "publishes": [
+        {
+          "piece": "appAssoc",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

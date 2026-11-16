@@ -38,10 +38,10 @@
     "vision-complete/dg_sample": "vision-complete/latent"
   },
   "views": {
-    "profile": "vision-complete/1-1",
-    "terrain": "vision-complete/1-4",
-    "spectrum": "vision-complete/2-6",
-    "slope": "vision-complete/3-9"
+    "image:view-profile": "vision-complete/1-1",
+    "image:view-terrain": "vision-complete/1-4",
+    "image:view-spectrum": "vision-complete/2-6",
+    "image:view-slope": "vision-complete/3-9"
   },
   "chapters": [
     {

@@ -10,23 +10,58 @@
   "tasks": [
     {
       "id": "def-plus",
-      "kind": "define",
-      "words": ["everyday", "terms"],
+      "kind": "logic:define",
+      "words": [
+        "everyday",
+        "terms"
+      ],
       "fn": "plus",
       "on": 0,
       "rows": [
-        { "lhs": "plus(zero, y)", "choices": ["y", "zero", "s(y)"] },
-        { "lhs": "plus(s(x), y)", "choices": ["s(plus(x, y))", "plus(x, y)", "s(plus(s(x), y))", "s(y)"] }
+        {
+          "lhs": "plus(zero, y)",
+          "choices": [
+            "y",
+            "zero",
+            "s(y)"
+          ]
+        },
+        {
+          "lhs": "plus(s(x), y)",
+          "choices": [
+            "s(plus(x, y))",
+            "plus(x, y)",
+            "s(plus(s(x), y))",
+            "s(y)"
+          ]
+        }
       ],
       "tests": [
-        { "term": "plus(s(zero), s(zero))", "value": "s(s(zero))" },
-        { "term": "plus(s(s(zero)), s(zero))", "value": "s(s(s(zero)))" },
-        { "term": "plus(zero, s(zero))", "value": "s(zero)" }
+        {
+          "term": "plus(s(zero), s(zero))",
+          "value": "s(s(zero))"
+        },
+        {
+          "term": "plus(s(s(zero)), s(zero))",
+          "value": "s(s(s(zero)))"
+        },
+        {
+          "term": "plus(zero, s(zero))",
+          "value": "s(zero)"
+        }
       ],
-      "solution": ["y", "s(plus(x, y))"],
-      "naive": ["y", "s(plus(s(x), y))"],
+      "solution": [
+        "y",
+        "s(plus(x, y))"
+      ],
+      "naive": [
+        "y",
+        "s(plus(s(x), y))"
+      ],
       "brief": "@level.def-plus.tasks.def-plus.brief",
-      "hint": ["@level.def-plus.tasks.def-plus.hint.0"]
+      "hint": [
+        "@level.def-plus.tasks.def-plus.hint.0"
+      ]
     }
   ]
 }

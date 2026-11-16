@@ -1,6 +1,14 @@
 {
   "tray": "#formula",
-  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "consts": [
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+  ],
   "title": "@level.m-counter.title",
   "intro": [
     {
@@ -11,7 +19,7 @@
   "tasks": [
     {
       "id": "m-counter_1",
-      "kind": "translate",
+      "kind": "logic:translate",
       "step": "@level.m-counter.tasks.m-counter_1.step",
       "brief": "@level.m-counter.tasks.m-counter_1.brief",
       "say": "@level.m-counter.tasks.m-counter_1.say",
@@ -23,14 +31,29 @@
     },
     {
       "id": "m-counter_2",
-      "kind": "model",
+      "kind": "logic:model",
       "step": "@level.m-counter.tasks.m-counter_2.step",
       "say": "@level.m-counter.tasks.m-counter_2.say",
       "brief": "@level.m-counter.tasks.m-counter_2.brief",
-      "given": ["∀x. Human(x) → Mortal(x)", "Mortal(h)"],
+      "given": [
+        "∀x. Human(x) → Mortal(x)",
+        "Mortal(h)"
+      ],
       "goal": "Human(h)",
-      "answer": { "size": 1, "preds": { "Mortal": ["0"] }, "consts": { "h": 0 } },
-      "hint": ["@level.m-counter.tasks.m-counter_2.hint.0"],
+      "answer": {
+        "size": 1,
+        "preds": {
+          "Mortal": [
+            "0"
+          ]
+        },
+        "consts": {
+          "h": 0
+        }
+      },
+      "hint": [
+        "@level.m-counter.tasks.m-counter_2.hint.0"
+      ],
       "intro": [
         {
           "t": "@level.m-counter.tasks.m-counter_2.intro.0.t"

@@ -21,18 +21,18 @@
   ],
   "adds": ["dg_mu", "dg_sigma", "dg_sample"],
   "tray": "#generative",
-  "unlocks": ["dg-reparam"],
+  "unlocks": ["image:unlock-dg-reparam"],
   "tasks": [
     {
       "id": "8-4",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.8-4.tasks.8-4.brief",
       "hint": "@level.8-4.tasks.8-4.hint",
       "inputs": ["eps"],
       "inputLabels": { "eps": "@level.8-4.tasks.8-4.inputLabels.eps" },
       "check": { "tolerance": 0.05, "mismatches": 2 },
       "trainRate": 5,
-      "scene": "latent",
+      "scene": "image:scene-latent",
       "setup": { "mu": [0.4, -0.3], "sigma": [0.5, 0.25] },
       "tests": [
         { "label": "@level.8-4.tasks.8-4.tests.0.label", "eps": [-0.15738025902594666, -0.3665433102133928] },

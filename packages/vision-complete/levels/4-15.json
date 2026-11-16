@@ -28,12 +28,12 @@
   "tasks": [
     {
       "id": "4-15",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.4-15.tasks.4-15.brief",
       "hint": "@level.4-15.tasks.4-15.hint",
       "check": { "tolerance": 0.4 },
       "trainRate": 80,
-      "scene": "xo",
+      "scene": "image:scene-xo",
       "tests": [
         {
           "label": "@level.4-15.tasks.4-15.tests.0.label",

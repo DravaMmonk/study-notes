@@ -1,6 +1,9 @@
 {
   "title": "@level.s-barbara.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.s-barbara.intro.0.t"
@@ -13,9 +16,28 @@
   "tasks": [
     {
       "id": "s-barbara",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "∀x. A(x) → B(x)", "q": "∀x. B(x) → C(x)" }, "goal": "∀x. A(x) → C(x)" }],
-      "cases": [{ "A": "Cat", "B": "Pet", "C": "Fluffy" }, { "A": "Baby", "B": "Human", "C": "Mortal" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "∀x. A(x) → B(x)",
+            "q": "∀x. B(x) → C(x)"
+          },
+          "goal": "∀x. A(x) → C(x)"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Cat",
+          "B": "Pet",
+          "C": "Fluffy"
+        },
+        {
+          "A": "Baby",
+          "B": "Human",
+          "C": "Mortal"
+        }
+      ],
       "hint": [
         "@level.s-barbara.tasks.s-barbara.hint.0"
       ],

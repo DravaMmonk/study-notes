@@ -1,7 +1,12 @@
 {
   "title": "@level.au-saturate.title",
-  "adds": ["resolve"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "resolve"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.au-saturate.intro.0.t"
@@ -11,24 +16,71 @@
   "tasks": [
     {
       "id": "au-saturate",
-      "kind": "machine",
-      "want": "decide",
-      "inputs": [{ "name": "in", "label": "@level.au-saturate.tasks.au-saturate.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-decide",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.au-saturate.tasks.au-saturate.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬Bike ∨ OnTime", "¬OnTime"] },
-        { "clauses": ["Alarm", "¬Alarm ∨ Up", "¬Up ∨ Coffee", "¬Coffee ∨ Awake", "¬Awake"] },
-        { "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬OnTime"] },
-        { "clauses": ["¬Human(x) ∨ Mortal(x)", "Human(h)", "¬Mortal(h)"] }
+        {
+          "clauses": [
+            "Bus ∨ Bike",
+            "¬Bus ∨ OnTime",
+            "¬Bike ∨ OnTime",
+            "¬OnTime"
+          ]
+        },
+        {
+          "clauses": [
+            "Alarm",
+            "¬Alarm ∨ Up",
+            "¬Up ∨ Coffee",
+            "¬Coffee ∨ Awake",
+            "¬Awake"
+          ]
+        },
+        {
+          "clauses": [
+            "Bus ∨ Bike",
+            "¬Bus ∨ OnTime",
+            "¬OnTime"
+          ]
+        },
+        {
+          "clauses": [
+            "¬Human(x) ∨ Mortal(x)",
+            "Human(h)",
+            "¬Mortal(h)"
+          ]
+        }
       ],
       "brief": "@level.au-saturate.tasks.au-saturate.brief",
       "hint": [
         "@level.au-saturate.tasks.au-saturate.hint.0",
         "@level.au-saturate.tasks.au-saturate.hint.1"
       ],
-      "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = resolve(c0.body)", "  }", "}", "out <- c0"],
-      "naive": ["c0 = resolve(in)", "out <- c0"],
-      "publishes": [{ "piece": "saturate", "variant": "base" }]
+      "solution": [
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1 = resolve(c0.body)",
+        "  }",
+        "}",
+        "out <- c0"
+      ],
+      "naive": [
+        "c0 = resolve(in)",
+        "out <- c0"
+      ],
+      "publishes": [
+        {
+          "piece": "saturate",
+          "variant": "base"
+        }
+      ]
     }
   ]
 }

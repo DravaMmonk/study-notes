@@ -1,12 +1,19 @@
 {
   "title": "@level.kk-two.title",
-  "intro": [{ "t": "@level.kk-two.intro.0.t" }],
+  "intro": [
+    {
+      "t": "@level.kk-two.intro.0.t"
+    }
+  ],
   "tray": "#formula",
   "tasks": [
     {
       "id": "kk-two_1",
-      "kind": "gates",
-      "tray": ["#gates", "#formula"],
+      "kind": "logic:gates",
+      "tray": [
+        "#gates",
+        "#formula"
+      ],
       "step": "@level.kk-two.tasks.kk-two_1.step",
       "blind": true,
       "target": "KA ↔ ¬KA ∧ ¬KB",
@@ -14,15 +21,40 @@
       "hint": [
         "@level.kk-two.tasks.kk-two_1.hint.0"
       ],
-      "solution": ["na = gNot(KA)", "nb = gNot(KB)", "both = gAnd(na, nb)", "e = gIff(KA, both)", "out <- e"]
+      "solution": [
+        "na = gNot(KA)",
+        "nb = gNot(KB)",
+        "both = gAnd(na, nb)",
+        "e = gIff(KA, both)",
+        "out <- e"
+      ]
     },
     {
       "id": "kk-two_2",
-      "kind": "proof",
-      "tray": ["#proof", "#formula"],
+      "kind": "logic:proof",
+      "tray": [
+        "#proof",
+        "#formula"
+      ],
       "step": "@level.kk-two.tasks.kk-two_2.step",
-      "tests": [{ "premises": { "p": "A ↔ ¬A ∧ ¬B" }, "goal": "¬A ∧ B" }],
-      "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],
+      "tests": [
+        {
+          "premises": {
+            "p": "A ↔ ¬A ∧ ¬B"
+          },
+          "goal": "¬A ∧ B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "KA",
+          "B": "KB"
+        },
+        {
+          "A": "KC",
+          "B": "KD"
+        }
+      ],
       "hint": [
         "@level.kk-two.tasks.kk-two_2.hint.0",
         "@level.kk-two.tasks.kk-two_2.hint.1"

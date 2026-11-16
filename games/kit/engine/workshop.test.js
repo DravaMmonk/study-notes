@@ -17,7 +17,7 @@ const wire = (from, to, port = 'in') => ({ from, to, port })
 const primitive = { inputs: ['in'], eval: ({ in: value }, node) => value * node.params.factor }
 const types = { in: source(), out: sink(), multiply: primitive }
 const resolve = (type) => types[type]
-const identity = (type) => workshopIdentity('math', {}, type)
+const identity = (type) => workshopIdentity({}, type)
 const empty = () => loadWorkshop({ getItem: () => null })
 const drawing = {
   role: ({ type }) => type === 'in' ? 'source' : type === 'out' ? 'sink' : 'part',
@@ -30,7 +30,7 @@ const base = (factor = 2) => ({
   wires: [wire('in', 'mul'), wire('mul', 'out')],
 })
 const take = (graph, options = {}) => captureWorkshop(graph, {
-  parts: drawing, resolve, identity, defaults: () => ({}), book: empty(), domain: 'math', scope: 'user_mul',
+  parts: drawing, resolve, identity, defaults: () => ({}), book: empty(), scope: 'user_mul',
   name: 'Doubler', description: '', tray: trayKey('local', 'first'), ...options,
 })
 const from = (type) => ({ nodes: [inNode('in'), { id: 'p', type }, outNode('out')], wires: [wire('in', 'p'), wire('p', 'out')] })
@@ -42,12 +42,11 @@ test('a workshop snapshot is reusable wherever all its exact base settings are a
   assert.equal(library.featured[trayKey('local', 'first')], undefined)
   library = featureWorkshop(library, trayKey('local', 'first'), piece.id, true)
   assert.deepEqual(library.featured[trayKey('local', 'first')], [piece.id])
-  const target = { domain: 'math', identity, types: new Set(['multiply']), has: () => true, allows: () => true, resolve }
+  const target = { identity, types: new Set(['multiply']), has: () => true, allows: () => true, resolve }
   assert.ok(workshopAvailable(piece, target))
   assert.ok(workshopInTray(piece, trayKey('other', 'first'), new Set(['multiply'])))
   assert.ok(!workshopInTray(piece, trayKey('other', 'first'), new Set(['different'])))
   assert.ok(!workshopAvailable(piece, { ...target, has: (_type, _key, value) => value !== '2' }))
-  assert.ok(!workshopAvailable(piece, { ...target, domain: 'different' }))
   assert.ok(!workshopInTray(piece, trayKey('local', 'second'), new Set(['multiply'])))
   assert.equal(runBoard(from(piece.id), { parts: workshopParts(library, resolve), bind: { in: 5 } }).outputs.out, 10)
 })
@@ -63,11 +62,11 @@ test('workshop compatibility follows resolved settings and executable checks acr
     settings: { [id]: definition },
     parts: { multiply: { ...part, settings: [{ key: 'factor', setting: id }] } },
   })
-  const identityFor = (file) => (type) => workshopIdentity('math', file, type)
+  const identityFor = (file) => (type) => workshopIdentity(file, type)
   const original = identityFor(catalog('original', setting))
   const piece = take(base(), { identity: original })
   const accepts = (file) => workshopAvailable(piece, {
-    domain: 'math', identity: identityFor(file), types: new Set(['multiply']), has: () => true, allows: () => true, resolve,
+    identity: identityFor(file), types: new Set(['multiply']), has: () => true, allows: () => true, resolve,
   })
   assert.ok(accepts(catalog('renamed', { ...setting, label: 'Gain', stepper: true }, {
     ...declaration, inputs: [{ name: 'in', label: 'Signal' }],
@@ -194,7 +193,7 @@ test('a multiport draft packages each wired input and every output as an indepen
   assert.deepEqual(piece.inputs, ['left', 'right'])
   assert.deepEqual(piece.outputs, ['first', 'second'])
   assert.deepEqual(piece.terminals, [WORKSHOP_OUTPUT])
-  assert.equal(workshopCompatible(piece, { domain: 'math', resolve, identity }), true)
+  assert.equal(workshopCompatible(piece, { resolve, identity }), true)
   const engine = workshopParts({ pieces: { [piece.id]: piece } }, resolve)
   assert.deepEqual(runBoard(piece.graph, { parts: engine, bind: { left: 7, right: 3 } }).outputs, { first: 7, second: 3 })
 })

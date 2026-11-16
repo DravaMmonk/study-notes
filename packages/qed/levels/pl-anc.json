@@ -1,6 +1,9 @@
 {
   "title": "@level.pl-anc.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.pl-anc.intro.0.t"
@@ -9,36 +12,70 @@
   "tasks": [
     {
       "id": "pl-anc",
-      "kind": "machine",
-      "want": "answers",
-      "inputs": [{ "name": "in", "label": "@level.pl-anc.tasks.pl-anc.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-answers",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.pl-anc.tasks.pl-anc.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "rules": {
         "anc1": {
           "name": "@level.pl-anc.tasks.pl-anc.rules.anc1.name",
-          "premises": ["Parent(?x, ?y)"],
+          "premises": [
+            "Parent(?x, ?y)"
+          ],
           "conclusion": "Anc(?x, ?y)"
         },
         "anc2": {
           "name": "@level.pl-anc.tasks.pl-anc.rules.anc2.name",
-          "premises": ["Parent(?x, ?y)", "Anc(?y, ?z)"],
+          "premises": [
+            "Parent(?x, ?y)",
+            "Anc(?y, ?z)"
+          ],
           "conclusion": "Anc(?x, ?z)"
         }
       },
       "tests": [
         {
           "goal": "Anc(i, ?w)",
-          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-          "answers": ["j", "k", "l", "m"]
+          "hyps": [
+            "Parent(i, j)",
+            "Parent(j, k)",
+            "Parent(j, l)",
+            "Parent(l, m)",
+            "Parent(n, m)"
+          ],
+          "answers": [
+            "j",
+            "k",
+            "l",
+            "m"
+          ]
         },
         {
           "goal": "Anc(?w, m)",
-          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-          "answers": ["i", "j", "l", "n"]
+          "hyps": [
+            "Parent(i, j)",
+            "Parent(j, k)",
+            "Parent(j, l)",
+            "Parent(l, m)",
+            "Parent(n, m)"
+          ],
+          "answers": [
+            "i",
+            "j",
+            "l",
+            "n"
+          ]
         }
       ],
       "brief": "@level.pl-anc.tasks.pl-anc.brief",
-      "hint": ["@level.pl-anc.tasks.pl-anc.hint.0"],
+      "hint": [
+        "@level.pl-anc.tasks.pl-anc.hint.0"
+      ],
       "solution": [
         "c0 = search(in, body: c1) {",
         "  body {",

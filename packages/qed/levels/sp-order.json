@@ -1,6 +1,9 @@
 {
   "title": "@level.sp-order.title",
-  "tray": ["#machine", "#formula"],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.sp-order.intro.0.t"
@@ -9,13 +12,32 @@
   "tasks": [
     {
       "id": "sp-order",
-      "kind": "machine",
-      "want": "becomes",
-      "inputs": [{ "name": "in", "label": "@level.sp-order.tasks.sp-order.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-becomes",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.sp-order.tasks.sp-order.inputs.0.label"
+        }
+      ],
       "backtrack": true,
       "tests": [
-        { "goal": "¬(Rain ∨ (Wind ∧ Wet))", "becomes": [["¬Rain ∧ (¬Wind ∨ ¬Wet)"]] },
-        { "goal": "¬(Rain → (Wind ∧ Wet))", "becomes": [["Rain ∧ (¬Wind ∨ ¬Wet)"]] }
+        {
+          "goal": "¬(Rain ∨ (Wind ∧ Wet))",
+          "becomes": [
+            [
+              "¬Rain ∧ (¬Wind ∨ ¬Wet)"
+            ]
+          ]
+        },
+        {
+          "goal": "¬(Rain → (Wind ∧ Wet))",
+          "becomes": [
+            [
+              "Rain ∧ (¬Wind ∨ ¬Wet)"
+            ]
+          ]
+        }
       ],
       "brief": "@level.sp-order.tasks.sp-order.brief",
       "hint": [

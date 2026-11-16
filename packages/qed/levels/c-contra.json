@@ -1,6 +1,9 @@
 {
   "title": "@level.c-contra.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.c-contra.intro.0.t"
@@ -9,9 +12,25 @@
   "tasks": [
     {
       "id": "c-contra",
-      "kind": "proof",
-      "tests": [{ "premises": { "p": "¬B → ¬A" }, "goal": "A → B" }],
-      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
+      "kind": "logic:proof",
+      "tests": [
+        {
+          "premises": {
+            "p": "¬B → ¬A"
+          },
+          "goal": "A → B"
+        }
+      ],
+      "cases": [
+        {
+          "A": "Rain",
+          "B": "Wet"
+        },
+        {
+          "A": "Exam",
+          "B": "Study"
+        }
+      ],
       "hint": [
         "@level.c-contra.tasks.c-contra.hint.0",
         "@level.c-contra.tasks.c-contra.hint.1"

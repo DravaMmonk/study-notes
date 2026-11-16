@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "10-2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.10-2.tasks.10-2.brief",
       "hint": "@level.10-2.tasks.10-2.hint",
       "inputs": ["cx", "cy", "w", "h", "tx", "ty", "tw", "th"],
@@ -36,7 +36,7 @@
         "bh": "@level.10-2.tasks.10-2.outputLabels.bh"
       },
       "check": { "tolerance": 0.005 },
-      "scene": "nudge",
+      "scene": "image:scene-nudge",
       "tests": [
         {
           "label": "@level.10-2.tasks.10-2.tests.0.label",

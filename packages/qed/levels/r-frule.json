@@ -1,6 +1,11 @@
 {
-  "adds": ["frule"],
-  "tray": ["#machine", "#formula"],
+  "adds": [
+    "frule"
+  ],
+  "tray": [
+    "#machine",
+    "#formula"
+  ],
   "title": "@level.r-frule.title",
   "intro": [
     {
@@ -10,15 +15,34 @@
   "tasks": [
     {
       "id": "r-frule",
-      "kind": "machine",
-      "want": "proved",
-      "inputs": [{ "name": "in", "label": "@level.r-frule.tasks.r-frule.inputs.0.label" }],
+      "kind": "logic:machine",
+      "want": "logic:want-proved",
+      "inputs": [
+        {
+          "name": "in",
+          "label": "@level.r-frule.tasks.r-frule.inputs.0.label"
+        }
+      ],
       "tests": [
-        { "goal": "Even(s(s(s(s(zero)))))", "hyps": ["∀x. Even(x) → Even(s(s(x)))", "Even(zero)"] },
-        { "goal": "Odd(s(s(s(s(s(zero))))))", "hyps": ["∀x. Odd(x) → Odd(s(s(x)))", "Odd(s(zero))"] }
+        {
+          "goal": "Even(s(s(s(s(zero)))))",
+          "hyps": [
+            "∀x. Even(x) → Even(s(s(x)))",
+            "Even(zero)"
+          ]
+        },
+        {
+          "goal": "Odd(s(s(s(s(s(zero))))))",
+          "hyps": [
+            "∀x. Odd(x) → Odd(s(s(x)))",
+            "Odd(s(zero))"
+          ]
+        }
       ],
       "brief": "@level.r-frule.tasks.r-frule.brief",
-      "hint": ["@level.r-frule.tasks.r-frule.hint.0"],
+      "hint": [
+        "@level.r-frule.tasks.r-frule.hint.0"
+      ],
       "solution": [
         "c0r0 = allE[use=[spec]]()",
         "c1r0 = allE[use=[spec]]()",

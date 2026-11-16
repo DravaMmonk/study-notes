@@ -1,6 +1,9 @@
 {
   "title": "@level.gd-second.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.gd-second.intro.0.t"
@@ -10,18 +13,30 @@
   "tasks": [
     {
       "id": "gd-second",
-      "kind": "proof",
-      "consts": ["g", "gn", "cs"],
-      "words": ["goedel"],
+      "kind": "logic:proof",
+      "consts": [
+        "g",
+        "gn",
+        "cs"
+      ],
+      "words": [
+        "goedel"
+      ],
       "cases": [],
       "tests": [
         {
-          "premises": { "f1": "Prov(cs) → Prov(gn)", "f2": "Prov(gn) → Prov(g)", "first": "¬Prov(g)" },
+          "premises": {
+            "f1": "Prov(cs) → Prov(gn)",
+            "f2": "Prov(gn) → Prov(g)",
+            "first": "¬Prov(g)"
+          },
           "goal": "¬Prov(cs)"
         }
       ],
       "brief": "@level.gd-second.tasks.gd-second.brief",
-      "hint": ["@level.gd-second.tasks.gd-second.hint.0"],
+      "hint": [
+        "@level.gd-second.tasks.gd-second.hint.0"
+      ],
       "solution": [
         "f = impI[A=\"Prov(cs)\"](body: m3) {",
         "  body {",

@@ -1,6 +1,9 @@
 {
   "title": "@level.h-eq-subst.title",
-  "tray": ["#proof", "#formula"],
+  "tray": [
+    "#proof",
+    "#formula"
+  ],
   "intro": [
     {
       "t": "@level.h-eq-subst.intro.0.t"
@@ -10,17 +13,43 @@
   "tasks": [
     {
       "id": "h-eq-subst",
-      "kind": "proof",
-      "consts": ["i", "j"],
+      "kind": "logic:proof",
+      "consts": [
+        "i",
+        "j"
+      ],
       "propertyWords": true,
-      "words": ["everyday", "stars", "properties"],
-      "tests": [{ "premises": { "e": "∀P. P(i) → P(j)", "p": "B(i)" }, "goal": "B(j)" }],
-      "cases": [{ "B": "Bright" }, { "B": "Seen" }],
+      "words": [
+        "everyday",
+        "stars",
+        "properties"
+      ],
+      "tests": [
+        {
+          "premises": {
+            "e": "∀P. P(i) → P(j)",
+            "p": "B(i)"
+          },
+          "goal": "B(j)"
+        }
+      ],
+      "cases": [
+        {
+          "B": "Bright"
+        },
+        {
+          "B": "Seen"
+        }
+      ],
       "hint": [
         "@level.h-eq-subst.tasks.h-eq-subst.hint.0",
         "@level.h-eq-subst.tasks.h-eq-subst.hint.1"
       ],
-      "solution": ["i = allE[t=\"B(x)\"](e)", "m = mp(i, p)", "goal <- m"]
+      "solution": [
+        "i = allE[t=\"B(x)\"](e)",
+        "m = mp(i, p)",
+        "goal <- m"
+      ]
     }
   ]
 }

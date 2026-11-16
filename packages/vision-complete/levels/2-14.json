@@ -15,26 +15,37 @@
   "tasks": [
     {
       "id": "2-14",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.2-14.tasks.2-14.brief",
       "hint": "@level.2-14.tasks.2-14.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },
-      "scene": "filter",
-      "setup": { "target": { "shrink": { "sigma": 2, "halvings": 2 } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-shrink": { "sigma": 2, "halvings": 2 } } },
       "tests": [
-        { "label": "@level.2-14.tasks.2-14.tests.0.label", "in": { "zonePlate": { "k": 0.06, "A": 0.4 } } },
-        { "label": "@level.2-14.tasks.2-14.tests.1.label", "in": { "fabric": { "period": 3, "angle": 30 } } },
+        {
+          "label": "@level.2-14.tasks.2-14.tests.0.label",
+          "in": { "image:picture-zonePlate": { "k": 0.06, "A": 0.4 } }
+        },
+        {
+          "label": "@level.2-14.tasks.2-14.tests.1.label",
+          "in": { "image:picture-fabric": { "period": 3, "angle": 30 } }
+        },
         {
           "label": "@level.2-14.tasks.2-14.tests.2.label",
-          "in": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.85, "ox": 4, "oy": 4, "scale": 5, "size": 32 } }
+          "in": {
+            "image:picture-glyph": { "letter": "F", "lo": 0.15, "hi": 0.85, "ox": 4, "oy": 4, "scale": 5, "size": 32 }
+          }
         }
       ],
       "hidden": [
         {
           "label": "@level.2-14.tasks.2-14.hidden.0.label",
-          "in": { "zonePlate": { "k": 0.05, "cx": 10, "cy": 20, "A": 0.4 } }
+          "in": { "image:picture-zonePlate": { "k": 0.05, "cx": 10, "cy": 20, "A": 0.4 } }
         },
-        { "label": "@level.2-14.tasks.2-14.hidden.1.label", "in": { "fabric": { "period": 2.5, "angle": 75 } } }
+        {
+          "label": "@level.2-14.tasks.2-14.hidden.1.label",
+          "in": { "image:picture-fabric": { "period": 2.5, "angle": 75 } }
+        }
       ],
       "solution": ["n0 = gauss[sigma=2, border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],
       "naive": ["n0 = gauss[border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],

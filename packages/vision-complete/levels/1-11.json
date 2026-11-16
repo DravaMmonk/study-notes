@@ -6,10 +6,10 @@
     {
       "t": "@level.1-11.intro.0.t",
       "fig": {
-        "part": "shift",
+        "part": "vision-complete/shift",
         "params": { "dir": "right" },
         "caption": "@level.1-11.intro.0.fig.caption",
-        "input": { "stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
+        "input": { "image:picture-stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
       }
     },
     {
@@ -18,7 +18,7 @@
     {
       "t": "@level.1-11.intro.2.t",
       "fig": {
-        "part": "box3",
+        "part": "vision-complete/box3",
         "caption": "@level.1-11.intro.2.fig.caption",
         "input": "test"
       }
@@ -43,35 +43,38 @@
   "tasks": [
     {
       "id": "1-11_1",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-11.tasks.1-11_1.brief",
       "hint": "@level.1-11.tasks.1-11_1.hint",
       "after": "@level.1-11.tasks.1-11_1.after",
       "step": "@level.1-11.tasks.1-11_1.step",
-      "unlocks": ["edge-pad"],
+      "unlocks": ["image:unlock-edge-pad"],
       "withholds": ["vision-complete/shift.border"],
-      "scene": "filter",
-      "setup": { "target": { "shift": { "dx": 1, "dy": 0, "border": "edge" } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-shift": { "dx": 1, "dy": 0, "border": "edge" } } },
       "tests": [
         {
           "label": "@level.1-11.tasks.1-11_1.tests.0.label",
-          "in": { "stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
+          "in": { "image:picture-stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_1.tests.1.label",
-          "in": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.9, "ox": 0, "oy": 3 } }
+          "in": { "image:picture-glyph": { "letter": "F", "lo": 0.15, "hi": 0.9, "ox": 0, "oy": 3 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_1.tests.2.label",
-          "in": { "square": { "x0": 0, "y0": 4, "s": 6, "lo": 0.1, "hi": 0.9 } }
+          "in": { "image:picture-square": { "x0": 0, "y0": 4, "s": 6, "lo": 0.1, "hi": 0.9 } }
         },
-        { "label": "@level.1-11.tasks.1-11_1.tests.3.label", "in": { "ramp": { "c": 0.1, "dy": 0.05 } } }
+        {
+          "label": "@level.1-11.tasks.1-11_1.tests.3.label",
+          "in": { "image:picture-ramp": { "c": 0.1, "dy": 0.05 } }
+        }
       ],
       "hidden": [
-        { "label": "@level.1-11.tasks.1-11_1.hidden.0.label", "in": { "noise": { "seed": 31 } } },
+        { "label": "@level.1-11.tasks.1-11_1.hidden.0.label", "in": { "image:picture-noise": { "seed": 31 } } },
         {
           "label": "@level.1-11.tasks.1-11_1.hidden.1.label",
-          "in": { "square": { "x0": 0, "y0": 9, "s": 5, "lo": 0.85, "hi": 0.25 } }
+          "in": { "image:picture-square": { "x0": 0, "y0": 9, "s": 5, "lo": 0.85, "hi": 0.25 } }
         }
       ],
       "solution": [
@@ -87,40 +90,40 @@
     },
     {
       "id": "1-11_2",
-      "kind": "graph",
+      "kind": "image:graph",
       "brief": "@level.1-11.tasks.1-11_2.brief",
       "hint": "@level.1-11.tasks.1-11_2.hint",
       "step": "@level.1-11.tasks.1-11_2.step",
-      "unlocks": ["edge-filter"],
+      "unlocks": ["image:unlock-edge-filter"],
       "withholds": ["vision-complete/blur3h.border","vision-complete/box3.border","vision-complete/gauss.border","vision-complete/sobelx.border","vision-complete/sobely.border","vision-complete/kernel3.border","vision-complete/gradmag.border"],
-      "scene": "filter",
-      "setup": { "target": { "box": { "size": 3, "border": "edge" } } },
+      "scene": "image:scene-filter",
+      "setup": { "target": { "image:target-box": { "size": 3, "border": "edge" } } },
       "tests": [
         {
           "label": "@level.1-11.tasks.1-11_2.tests.0.label",
-          "in": { "square": { "x0": 5, "y0": 5, "s": 6, "lo": 0.85, "hi": 0.3 } }
+          "in": { "image:picture-square": { "x0": 5, "y0": 5, "s": 6, "lo": 0.85, "hi": 0.3 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_2.tests.1.label",
-          "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 4, "lo": 0.9, "hi": 0.2 } }
+          "in": { "image:picture-disk": { "cx": 7.5, "cy": 7.5, "r": 4, "lo": 0.9, "hi": 0.2 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_2.tests.2.label",
-          "in": { "glyph": { "letter": "T", "lo": 0.9, "hi": 0.2 } }
+          "in": { "image:picture-glyph": { "letter": "T", "lo": 0.9, "hi": 0.2 } }
         }
       ],
       "hidden": [
         {
           "label": "@level.1-11.tasks.1-11_2.hidden.0.label",
-          "in": { "square": { "x0": 0, "y0": 10, "s": 5, "lo": 0.8, "hi": 0.3 } }
+          "in": { "image:picture-square": { "x0": 0, "y0": 10, "s": 5, "lo": 0.8, "hi": 0.3 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_2.hidden.1.label",
-          "in": { "glyph": { "letter": "X", "lo": 0.75, "hi": 0.15, "ox": 6, "oy": 4 } }
+          "in": { "image:picture-glyph": { "letter": "X", "lo": 0.75, "hi": 0.15, "ox": 6, "oy": 4 } }
         },
         {
           "label": "@level.1-11.tasks.1-11_2.hidden.2.label",
-          "in": { "stepX": { "edge": 13, "lo": 0.9, "hi": 0.35 } }
+          "in": { "image:picture-stepX": { "edge": 13, "lo": 0.9, "hi": 0.35 } }
         }
       ],
       "solution": [
