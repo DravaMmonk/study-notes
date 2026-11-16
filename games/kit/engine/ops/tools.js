@@ -11,6 +11,7 @@ import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
+import { visibleOverrides } from '../layers.js'
 import { PROJECT_DIR, domainOf, isDataGame, readContent, readGameConfig } from '../content-node.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
@@ -80,13 +81,13 @@ const scoped = (scope) => {
   if (scope !== undefined && !SCOPES.includes(scope)) throw new Error(`scope is ${SCOPES.join(' or ')}, not ${scope}`)
   return scope ?? null
 }
-const open = (game, scope) => openGame(known(game), ROOT, { scope: scoped(scope) })
+const open = (game, scope, layer) => openGame(known(game), ROOT, { scope: scoped(scope), layer })
 const readAs = (game, scope) => readContent(known(game), ROOT, { overrides: scoped(scope) !== 'package' })
 
 /** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
-async function contentAfter(game, changeset, scope) {
-  if (!changeset) return readAs(game, scope)
-  const r = await runChangeset(open(game, scope), changeset, { write: false, check: false })
+async function contentAfter(game, changeset, scope, layer) {
+  if (!changeset && !layer) return readAs(game, scope)
+  const r = await runChangeset(open(game, scope, layer), changeset ?? { ops: [] }, { write: false, check: false })
   if (!r.content) throw new Error(r.problems.join('; '))
   return r.content
 }
@@ -109,6 +110,14 @@ async function boardsOf(content, level) {
 }
 
 export const TOOLS = {
+  overrides: {
+    about: 'List every override visible at a layer, with object kind, full name, author and before/after values, optionally after a pending changeset.',
+    params: { game: 'string', layer: 'string?', changeset: 'object?' },
+    async run({ game, layer, changeset = null }) {
+      const content = await contentAfter(game, changeset, null, layer)
+      return { overrides: visibleOverrides(content, layer), sources: content.sources }
+    },
+  },
   objects: {
     about: 'Read registered tags, relations or layouts and the expanded course route, optionally after a pending changeset.',
     params: { game: 'string', kind: 'string?', name: 'string?', changeset: 'object?', scope: 'string?' },
@@ -147,9 +156,9 @@ export const TOOLS = {
   },
   modify: {
     about: 'Apply a changeset { why?, by?, ops: [{ op, …args }] } to a game (by: who makes it, e.g. agent:<step>:<model>; the change log keeps it): every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
-    params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?', scope: 'string?' },
-    async run({ game, changeset, dryRun = false, base = null, scope }) {
-      const r = await runChangeset(open(game, scope), changeset, { write: !dryRun, base, cache: kept(game) })
+    params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?', scope: 'string?', layer: 'string?' },
+    async run({ game, changeset, dryRun = false, base = null, scope, layer }) {
+      const r = await runChangeset(open(game, scope, layer), changeset, { write: !dryRun, base, cache: kept(game) })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff, undo: r.inverse }
     },
   },
@@ -221,9 +230,9 @@ export const TOOLS = {
   },
   preview: {
     about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
-    params: { game: 'string', changeset: 'object?', check: 'boolean?', scope: 'string?' },
-    async run({ game, changeset = { ops: [] }, check = true, scope }) {
-      const r = await runChangeset(open(game, scope), changeset, { write: false, check, cache: kept(game) })
+    params: { game: 'string', changeset: 'object?', check: 'boolean?', scope: 'string?', layer: 'string?' },
+    async run({ game, changeset = { ops: [] }, check = true, scope, layer }) {
+      const r = await runChangeset(open(game, scope, layer), changeset, { write: false, check, cache: kept(game) })
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).

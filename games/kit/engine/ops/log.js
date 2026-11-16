@@ -50,7 +50,12 @@ const alive = (pid) => {
 
 /** Run `fn` holding game `ws`'s lock (another writer waits, up to `wait` ms; a lock its writer left by dying is taken). */
 export function withLock(ws, fn, { wait = 5000 } = {}) {
-  const path = resolve(ws.packageDir, LOCK)
+  const paths = [...new Set([ws.dir, ...(ws.packageDirs ?? [ws.packageDir])])].map((dir) => resolve(dir, LOCK)).sort()
+  const acquire = (index) => index === paths.length ? fn() : locked(paths[index], ws.id, () => acquire(index + 1), wait)
+  return acquire(0)
+}
+
+function locked(path, id, fn, wait) {
   const until = Date.now() + wait
   for (;;) {
     try {
@@ -60,7 +65,7 @@ export function withLock(ws, fn, { wait = 5000 } = {}) {
       if (error.code !== 'EEXIST') throw error
       const holder = Number(readFileSync(path, 'utf8'))
       if (holder && !alive(holder)) rmSync(path, { force: true })
-      else if (Date.now() > until) throw new Error(`${ws.id} is being changed by another writer (${LOCK}); try again`)
+      else if (Date.now() > until) throw new Error(`${id} is being changed by another writer (${LOCK}); try again`)
       else pause(50)
     }
   }

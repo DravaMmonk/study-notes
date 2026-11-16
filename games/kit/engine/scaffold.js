@@ -100,7 +100,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
       const piecesFile = resolve(starter, 'pieces.json')
       const pieces = new Set(existsSync(piecesFile) ? Object.keys(JSON.parse(readFileSync(piecesFile, 'utf8')).parts) : [])
       const vocabulary = vocabularyAt(resolve(root, 'games/kit/domains', packageConfig.domain))
-      writeFileSync(resolve(dir, name), writeJson(expandNames(source, id, { pieces, vocabulary, schema: vocabulary?.game, context: 'configuration' }), null))
+      writeFileSync(resolve(dir, name), writeJson(expandNames(source, id, { pieces, vocabulary, schema: vocabulary?.game, context: 'configuration', textKeys: false }), null))
     }
     else if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
   }
@@ -108,7 +108,7 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
     const source = resolve(starter, 'i18n', scope)
     if (existsSync(source)) fill(source, resolve(target, 'i18n'), words)
   }
-  writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ package: id, ...game }, null, 2)}\n`)
+  writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ packages: [id], ...game }, null, 2)}\n`)
   const { title: gameTitle, lede } = catalogReader(readCatalogs(resolve(dir, 'i18n')))(game)
   const files = readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json'))
   register(root, id, { title: gameTitle, lede, levels: courseLevelCount(readContent(id, root, { vocabulary: vocabularyAt(resolve(root, 'games/kit/domains', domain)) }), files.length) })
@@ -133,7 +133,7 @@ export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
   if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
   const source = gameDirectory(from ?? '', root)
   if (!from || !existsSync(resolve(source, 'game.json'))) fail(`no game ${from} to take the course settings from`)
-  const { package: packageId } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
+  const { packages } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
   const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
   const { levels: _, layout: __, ...chapter } = chapters[0] ?? { id: 1 }
   const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
@@ -149,7 +149,7 @@ export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
     own['game.lede'] = words[lang] ?? words.en
     writeFileSync(resolve(dir, 'i18n', `${lang}.json`), writeJson(Object.fromEntries(Object.entries(own).sort(([a], [b]) => (a < b ? -1 : 1))), null))
   }
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ package: packageId, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ packages, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   register(root, id, { title: words, lede: words, levels: 0 })
   return dir

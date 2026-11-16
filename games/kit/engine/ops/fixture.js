@@ -133,7 +133,7 @@ export function writeContentFixture(root, id, { game, glossary, partDefs, levels
   const piecesText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'pieces')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const objectText = Object.entries({ tags, relations, layouts }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
-  put(join(course, 'game.json'), { package: id, ...sourceValue(shell) })
+  put(join(course, 'game.json'), { packages: [id], ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { pieces: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
   put(join(pkg, 'glossary.json'), sourceValue(glossaryText))

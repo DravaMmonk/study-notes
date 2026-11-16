@@ -168,7 +168,7 @@ test('a game puts its own wording over a package text, which the package keeps; 
   assert.throws(() => run(ws, 'text.override', { in: 'game', path: 'title', lang: 'en', value: 'x' }), /the game's own text/)
   const written = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'text.override', level: 'b1', path: 'title', lang: 'en', value: 'Ours' }] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(written.ok, true, written.problems.join('\n'))
-  assert.deepEqual(written.files, ['games/toy/overrides/en.json'])
+  assert.deepEqual(written.files, ['games/toy/overrides/toy/i18n/en.json'])
   assert.equal(openGame('toy', root).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'Ours')
   assert.equal(openGame('toy', root, { scope: 'package' }).content().levels.find(({ id }) => id === 'toy/b1').title.en, 'b1')
   const refused = await runChangeset(openGame('toy', root, { scope: 'game' }), { ops: [{ op: 'level.set', level: 'b1', path: 'tests', value: [] }] }, { check: false, domain: DOMAIN })
