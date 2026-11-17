@@ -1,10 +1,10 @@
 // The object types the build workspace's left column lists (games/MODULES.md 5.3, 5.4): the kernel's own (levels,
 // parts, symbols, entries and the content kinds it still carries) and every type a package declares in kinds/. Which
-// are listed by default comes from the packages' `studio-left` tags (members: object types); each author can choose
+// are listed by default comes from the tag `kernel/studio-left` (members: object types), which packages add to; each author can choose
 // their own on top (kept in the browser, never in a package). The tool lists — capabilities, overrides, search — come
 // after them, search last.
 import { contentKindSchemas } from '../engine/content-kinds.js'
-import { tagMembers } from './objects-edit.js'
+import { tagKey, tagMembers } from './objects-edit.js'
 
 /** The lists the kernel's own types have always had (their keys stay, so saved choices and addresses keep working). */
 export const BUILT_IN_LISTS = { level: 'tree', part: 'parts', symbol: 'symbols', entry: 'entries' }
@@ -50,25 +50,12 @@ export function hasObjects(content, type) {
   return objectsOfType(content, type).length > 0
 }
 
-/** The tags of a member type named `name` in any loaded layer, the deepest dependency's first. */
-function conventionTags(content, kind, name) {
-  const order = content?.layerOrder ?? []
-  const rank = (full) => { const i = order.indexOf(full.split('/')[0]); return i < 0 ? order.length : i }
-  return Object.entries(content?.registries?.tag ?? {})
-    .filter(([full, tag]) => tag.kind === kind && full.slice(full.indexOf('/') + 1) === name)
-    .map(([full]) => full).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
-}
-
-/** The members of every `name` tag of member type `kind`, merged in layer order, each once. */
-function conventionMembers(content, kind, name) {
-  return [...new Set(conventionTags(content, kind, name).flatMap((full) => tagMembers(content, full)))]
-}
-
-/** The types the packages list by default (their `studio-left` tags merged), or null when none says. */
+/** The types the packages list by default: the members every package added to `kernel/studio-left`, or null when none did. */
 export function studioLeft(content) {
+  const key = tagKey('kind', 'kernel/studio-left')
   const known = new Set(objectTypes(content).map(({ type }) => type))
-  const members = conventionMembers(content, 'kind', 'studio-left').filter((type) => known.has(type))
-  return conventionTags(content, 'kind', 'studio-left').length ? members : null
+  const members = tagMembers(content, key)
+  return members.length ? members.filter((type) => known.has(type)) : null
 }
 
 /** The types listed by default: what the packages say, else every type with something to list. */

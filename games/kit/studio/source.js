@@ -59,8 +59,8 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
     const newGroups = Object.fromEntries(after.groups.filter((g) => g.id).map((g) => [g.id, g]))
     for (const tag of changedKeys(oldGroups, newGroups)) {
       const group = newGroups[tag]
-      if (!group) ops.push({ op: 'tag.remove', tag })
-      else ops.push({ op: 'tag.put', tag, data: { ...sourceValue(content.tags?.[tag]), kind: 'entry', title: group.title, values: group.values ?? after.entries.filter((e) => e.group === tag).map((e) => e.id) } })
+      if (!group) ops.push({ op: 'tag.remove', tag, member: 'entry' })
+      else ops.push({ op: 'tag.put', tag, member: 'entry', data: { ...sourceValue(content.tags?.[`entry:${tag}`]), title: group.title, values: group.values ?? after.entries.filter((e) => e.group === tag).map((e) => e.id) } })
     }
     if (after.entries.some((entry) => before.entries.find((old) => old.id === entry.id)?.group !== entry.group)) throw new Error(tr('请通过词条标签修改分组。', 'Edit encyclopedia membership through entry tags.'))
     return ops

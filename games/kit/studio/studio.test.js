@@ -124,18 +124,18 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
 })
 
 test('the package sidebar lists each group with a drop place before and after its levels, then the levels in no group', () => {
-  const tags = { g: { kind: 'level', title: 'G', values: ['a', 'b'] } }
+  const tags = { 'level:g': { kind: 'level', title: 'G', values: ['a', 'b'] } }
   const content = { tags, registries: { tag: tags, level: { a: {}, b: {}, c: {} } }, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] }
   const tree = groupTree(content)
   assert.deepEqual(tree.sections.map(({ group, levels, slots }) => [group, levels.map(({ id }) => id), slots]), [
-    ['g', ['a', 'b'], [{ group: 'g', at: 0 }, { group: 'g', after: 'a' }, { group: 'g', after: 'b' }]],
+    ['level:g', ['a', 'b'], [{ group: 'level:g', at: 0 }, { group: 'level:g', after: 'a' }, { group: 'level:g', after: 'b' }]],
     [null, ['c'], [{ out: true }, null]],
   ])
-  assert.equal(stays(tree, 'a', { group: 'g', at: 0 }), true)
-  assert.equal(stays(tree, 'b', { group: 'g', after: 'a' }), true)
-  assert.equal(stays(tree, 'a', { group: 'g', after: 'b' }), false)
+  assert.equal(stays(tree, 'a', { group: 'level:g', at: 0 }), true)
+  assert.equal(stays(tree, 'b', { group: 'level:g', after: 'a' }), true)
+  assert.equal(stays(tree, 'a', { group: 'level:g', after: 'b' }), false)
   assert.equal(stays(tree, 'c', { out: true }), true)
-  assert.equal(groupOf(content, 'b'), 'g')
+  assert.equal(groupOf(content, 'b'), 'level:g')
   assert.equal(groupOf(content, 'c'), null)
 })
 

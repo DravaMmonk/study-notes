@@ -10,7 +10,7 @@ import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
 import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, shownName, tagCandidates } from './objects-edit.js'
+import { localName, namespaceOf, shownName, tagByRef, tagCandidates } from './objects-edit.js'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, relationOverrideOps } from './override-edit.js'
 import { declaredEdges, endpointKind, endpointsOf, withEdge, withRequired, withoutEdge, withoutEndpoint, writeEdges } from './relation-edit.js'
@@ -46,7 +46,7 @@ function OneRelation({ full, name, relation, own, content, namespace, pending, o
   const board = useMemo(() => wiringBoard(ends, [], requires, links), [ends, requires, links])
   const registry = kind
   const titleOf = (id) => {
-    if (id.startsWith('#')) return L(content.registries?.tag?.[id.slice(1)]?.title)
+    if (id.startsWith('#')) return L(tagByRef(content, kind, id)?.title)
     const value = content.registries?.[registry]?.[id]
     return L(value?.title ?? value?.name)
   }

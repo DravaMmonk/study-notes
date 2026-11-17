@@ -16,7 +16,7 @@ import { confirmDelete } from './delete.js'
 import MapEditor from './MapEditor.jsx'
 import { addEdgeOps, removeEdgeOps } from './override-edit.js'
 import { usePref } from './prefs.js'
-import { objectsOf, tagMembers } from './objects-edit.js'
+import { objectsOf, tagByRef, tagMembers, tagName } from './objects-edit.js'
 import { chapterOrderRefusal, importLevels } from './course-edit.js'
 import { reordered } from './tag-order.js'
 import { useDragOrder } from './useDragOrder.js'
@@ -29,7 +29,7 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
   const chapter = course.chapters[e]
   const played = content.eras?.[e]
   const titleOf = (id) => {
-    if (id.startsWith('#')) return L(content.registries?.tag?.[id.slice(1)]?.title)
+    if (id.startsWith('#')) return L(tagByRef(content, 'level', id)?.title)
     return L(content.registries?.level?.[id]?.title)
   }
   const describe = (id) => `${id} ${titleOf(id) ?? ''}`.trim()
@@ -37,7 +37,7 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
   const placedIds = useMemo(() => new Set((content.eras ?? []).flatMap(eraLevels)), [content])
   const additions = [
     ...objectsOf(content, 'tag', null).filter(([full, tag]) => tag.kind === 'level' && tagMembers(content, full).some((id) => !placedIds.has(id)))
-      .map(([full, tag]) => ({ value: `#${full}`, label: `#${full}`, title: tag.title, group: tr('关卡标签', 'Level tags') })),
+      .map(([full, tag]) => ({ value: `#${tagName(full)}`, label: `#${tagName(full)}`, title: tag.title, group: tr('关卡标签', 'Level tags') })),
     ...Object.entries(content.registries?.level ?? {}).filter(([id]) => !placedIds.has(id))
       .map(([id, level]) => ({ value: id, label: id, title: level.title, group: tr('关卡', 'Levels') })),
   ]

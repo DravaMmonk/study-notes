@@ -480,7 +480,7 @@ export function glossaryFile(glossary, path) {
 export function glossaryTarget(glossary, keys) {
   const object = glossary[keys[0]]?.[keys[1]]
   if (!object?.id) return null
-  return { ...(keys[0] === 'entries' ? { entry: object.id } : { tag: object.id }), path: keys.slice(2) }
+  return { ...(keys[0] === 'entries' ? { entry: object.id } : { tag: object.id, member: 'entry' }), path: keys.slice(2) }
 }
 
 /**

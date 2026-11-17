@@ -4,7 +4,7 @@
 // its own, opened in the middle from its heading row.
 import { grantObjects } from '../engine/grants.js'
 import { orderedTags, relationOrder } from '../engine/objects.js'
-import { tagMembers } from './objects-edit.js'
+import { tagKey, tagKeyOfRef, tagMembers, tagName } from './objects-edit.js'
 import { edgesOf } from './override-edit.js'
 
 /** How each list can be grouped, the first the default. */
@@ -30,14 +30,14 @@ export function relationKind(content, relation) {
   if (relation.of) return ['level', 'part', 'symbol', 'entry'].includes(relation.of) ? relation.of : null
   const registries = content?.registries ?? {}
   for (const { from } of edgesOf(relation)) {
-    if (from.startsWith('#')) return registries.tag?.[from.slice(1)]?.kind ?? null
+    if (from.startsWith('#')) return relation.member ?? Object.entries(registries.tag ?? {}).find(([key]) => tagName(key) === from.slice(1))?.[1]?.kind ?? null
     for (const kind of ['level', 'part', 'symbol', 'entry']) if (registries[kind]?.[from]) return kind
   }
   return null
 }
 
 /** Each reference expanded (a `#` tag to its members), each once, in order; `owner` maps a member to the row it is. */
-const expanded = (content, refs, owner = (id) => id) => [...new Set(refs.flatMap((ref) => (ref.startsWith('#') ? tagMembers(content, ref.slice(1)) : [ref])).map(owner))]
+const expanded = (content, refs, owner = (id) => id, kinds = ['level', 'part', 'symbol', 'entry']) => [...new Set(refs.flatMap((ref) => (ref.startsWith('#') ? tagMembers(content, tagKeyOfRef(content, kinds, ref)) : [ref])).map(owner))]
 
 /**
  * The groups of the `kind` list by `by` ('tag', 'relation', 'tray', 'section'), in their order: [{ kind: the group's
@@ -47,19 +47,19 @@ export function groupsOf(content, kind, by) {
   const registries = content?.registries ?? {}
   const owners = ['part', 'symbol'].includes(kind) ? stageOwners(content) : null
   const owner = owners ? (id) => owners.get(id) ?? id : (id) => id
-  if (by === 'tag') return orderedTags(content, kind).map((full) => ({ kind: 'tag', full, members: [...new Set(tagMembers(content, full).map(owner))] }))
+  if (by === 'tag') return orderedTags(content, kind).map((name) => tagKey(kind, name)).map((full) => ({ kind: 'tag', full, members: [...new Set(tagMembers(content, full).map(owner))] }))
   if (by === 'tray' || by === 'section') {
     const names = Object.keys(registries[by] ?? {}).sort(byName)
     return relationOrder(names, (content?.relationEdges?.order ?? []).map((e) => ({ ...e, from: e.from.replace(/^#/, ''), to: e.to.replace(/^#/, '') })), by)
       .map((full) => {
         const value = registries[by][full]
-        return { kind: by, full, members: expanded(content, [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])], owner) }
+        return { kind: by, full, members: expanded(content, [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])], owner, by === 'section' ? ['entry'] : ['part', 'symbol']) }
       })
   }
   if (by === 'relation') {
     return Object.entries(registries.relation ?? {}).filter(([, relation]) => relationKind(content, relation) === kind)
       .sort(([a], [b]) => byName(a, b))
-      .map(([full, relation]) => ({ kind: 'relation', full, members: expanded(content, edgesOf(relation).flatMap(({ from, to }) => [from, to]), owner) }))
+      .map(([full, relation]) => ({ kind: 'relation', full, members: expanded(content, edgesOf(relation).flatMap(({ from, to }) => [from, to]), owner, [kind]) }))
   }
   return []
 }

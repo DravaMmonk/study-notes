@@ -1,13 +1,22 @@
 // What a layer writes when it overrides a package's object from the studio (games/DESIGN.md 6.1, 2, 6.7). A game
 // overrides only copy and level relations: a relation by the edges it adds and removes.
 import { sameJson } from '../engine/json-value.js'
+import { splitTagKey } from './objects-edit.js'
+
+/** How an override names an object: a tag (studio key `<member>:<full>`) by its full name and member type. */
+const named = (kind, name) => {
+  const tag = kind === 'tag' && splitTagKey(name)
+  return tag ? { name: tag.full, member: tag.member } : { name }
+}
 
 const sameEdge = (a, b) => a.from === b.from && a.to === b.to
 const plain = ({ from, to, required, game }) => ({ from, to, ...(required && { required: true }), ...(game && { game }) })
 
 /** This layer's override event of one object, if it has one: { before, after } (layers.js visibleOverrides). */
-export const overrideEvent = (content, layer, kind, name) =>
-  (content?.overrideHistory ?? []).find((event) => event.layer === layer && event.kind === kind && event.name === name) ?? null
+export const overrideEvent = (content, layer, kind, name) => {
+  const id = named(kind, name)
+  return (content?.overrideHistory ?? []).find((event) => event.layer === layer && event.kind === kind && event.name === id.name && (id.member === undefined || event.member === id.member)) ?? null
+}
 
 /** An object as it stood before `layer` overrode it, or as it is when the layer has not. */
 export const beforeLayer = (content, layer, kind, name) => overrideEvent(content, layer, kind, name)?.before ?? content?.registries?.[kind]?.[name] ?? null
@@ -76,8 +85,8 @@ export function tagPatch(before, wanted) {
 export function tagOverrideOps(content, layer, name, wanted) {
   const patch = tagPatch(beforeLayer(content, layer, 'tag', name), wanted)
   const had = overrideEvent(content, layer, 'tag', name)
-  if (!patch) return had ? [{ op: 'override.remove', layer, kind: 'tag', name }] : []
-  return [{ op: 'override.put', layer, kind: 'tag', name, data: patch }]
+  if (!patch) return had ? [{ op: 'override.remove', layer, kind: 'tag', ...named('tag', name) }] : []
+  return [{ op: 'override.put', layer, kind: 'tag', ...named('tag', name), data: patch }]
 }
 
 /** Whether `layer` already overrides the object (games/DESIGN.md 6.1: content.sources). */

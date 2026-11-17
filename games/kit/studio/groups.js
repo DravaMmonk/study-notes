@@ -3,13 +3,13 @@
 // dragged writes the tags' members (tag.set) and the order of the group it lands in (`<tag>-order`).
 import { referenceResolver, relationOrder } from '../engine/objects.js'
 import { sameJson } from '../engine/json-value.js'
-import { localName } from './objects-edit.js'
+import { localName, tagKey, tagName, tagTarget } from './objects-edit.js'
 import { memberOrderName, memberOrderOps, orderedTags, reordered } from './tag-order.js'
 
 /** Read-only sidebar projection of level tags in effective relation order. */
 export const levelTags = (content) => Object.fromEntries(Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').map(([name, tag]) => {
   const expand = referenceResolver(content.registries)
-  return [name, { ...tag, levels: relationOrder(expand(`#${name}`, 'level'), content.relationEdges?.order ?? []).map((id) => ({ id })) }]
+  return [name, { ...tag, levels: relationOrder(expand(`#${tagName(name)}`, 'level'), content.relationEdges?.order ?? []).map((id) => ({ id })) }]
 }))
 export const groupOf = (content, level) => Object.entries(levelTags(content)).find(([, tag]) => tag.levels.some(({ id }) => id === level))?.[0] ?? null
 
@@ -20,7 +20,7 @@ export const groupOf = (content, level) => Object.entries(levelTags(content)).fi
 export function groupTree(content, order = []) {
   const grouped = new Set()
   const tags = levelTags(content)
-  const sections = orderedTags(content, 'level').filter((id) => tags[id]).map((id) => [id, tags[id]]).map(([id, group]) => {
+  const sections = orderedTags(content, 'level').map((full) => tagKey('level', full)).filter((id) => tags[id]).map((id) => [id, tags[id]]).map(([id, group]) => {
     for (const { id: level } of group.levels) grouped.add(level)
     return { key: id, group: id, levels: group.levels, slots: [{ group: id, at: 0 }, ...group.levels.map(({ id: level }) => ({ group: id, after: level }))] }
   })
@@ -48,7 +48,7 @@ export function groupMoves(levels, to, content, namespace) {
     if (full === to.group) values.push(...levels.filter((id) => !values.includes(id)))
     // A tag is a set: the same members in another order is no change.
     const same = values.length === value.values.length && values.every((id) => value.values.includes(id))
-    return same ? [] : [{ op: 'tag.set', tag: localName(namespace, full), path: 'values', value: values.map((id) => localName(namespace, id) ?? id) }]
+    return same ? [] : [{ op: 'tag.set', ...tagTarget(namespace, full), path: 'values', value: values.map((id) => localName(namespace, id) ?? id) }]
   })
 }
 

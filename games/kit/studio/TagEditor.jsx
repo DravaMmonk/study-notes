@@ -9,7 +9,7 @@ import { L, getLang, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, shownName, tagCandidates, tagMembers } from './objects-edit.js'
+import { localName, namespaceOf, shownName, tagCandidates, tagKey, tagMembers, tagTarget } from './objects-edit.js'
 import { tagKindWord } from './ObjectLists.jsx'
 import { canOrder, memberOrderName, memberOrderOps, reordered, valuesInOrder } from './tag-order.js'
 import { useDragOrder } from './useDragOrder.js'
@@ -31,7 +31,7 @@ export default function TagEditor({ content, namespace, full, pending, onSelect,
   const own = namespaceOf(full) === namespace
   const remove = () => {
     if (!own || pending || !confirmDelete(localName(namespace, full))) return
-    onEdit({ op: 'tag.remove', tag: localName(namespace, full) })
+    onEdit({ op: 'tag.remove', ...tagTarget(namespace, full) })
     onSelect(null)
   }
   return (
@@ -45,7 +45,6 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
   const [open, setOpen] = useState(() => new Set())
   const [notice, setNotice] = useState('')
   const lang = getLang()
-  const name = localName(namespace, full)
   const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'tag', full))
   const editable = own || overriding
   const locked = pending || !editable
@@ -104,7 +103,7 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
       <div className="object-title" onFocus={() => onPick?.(['title'])} onClick={() => onPick?.(['title'])}>
         {own
           ? <TextField key={lang} lang={lang} value={tag.title} label={tr('标题', 'Title')} placeholder={tr('标题', 'Title')} compact
-            onSet={(text) => { if (!pending) onEdit({ op: 'tag.set', tag: name, path: 'title', value: textWith(namespace, tag.title, lang, text) }) }} />
+            onSet={(text) => { if (!pending) onEdit({ op: 'tag.set', ...tagTarget(namespace, full), path: 'title', value: textWith(namespace, tag.title, lang, text) }) }} />
           : <span>{L(tag.title)}</span>}
       </div>
       <div className="arrange-actions">
@@ -121,13 +120,13 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
               </button>
               <button type="button" className="tag-link" onClick={() => { onPick?.(['values', k]); onSelect(member.slice(1)) }}>
                 <Layers size={13} aria-hidden="true" /><code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
-                <small className="object-count">{tagMembers(content, member.slice(1)).length}</small>
+                <small className="object-count">{tagMembers(content, tagKey(tag.kind, member.slice(1))).length}</small>
               </button>
               {mover(member)}
               {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
             </div>
             {open.has(member) && <ul className="tag-members">
-              {tagMembers(content, member.slice(1)).map((id) => <li key={id} className="tag-member is-nested">
+              {tagMembers(content, tagKey(tag.kind, member.slice(1))).map((id) => <li key={id} className="tag-member is-nested">
                 <code>{shownName(namespace, id)}</code><span>{titleOf(id)}</span>
               </li>)}
             </ul>}

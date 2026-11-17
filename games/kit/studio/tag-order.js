@@ -5,14 +5,14 @@
 // another package's by an override of it (override-edit.js), once the layer overrides. The order the studio shows tags
 // in is the kernel's (engine/objects.js orderedTags): the tag orders, then prerequisites between members, then names.
 import { orderedTags } from '../engine/objects.js'
-import { localName, namespaceOf, tagMembers } from './objects-edit.js'
+import { localName, namespaceOf, splitTagKey, tagKey, tagMembers, tagName } from './objects-edit.js'
 import { edgesOf, overridesIt, relationOverrideOps } from './override-edit.js'
 import { writtenName } from './tag-edit.js'
 
 export { orderedTags }
 
 /** The relation that orders a tag's members, and the one that orders the tags of a kind in `namespace`. */
-export const memberOrderName = (tag) => `${tag}-order`
+export const memberOrderName = (tag) => `${tagName(tag)}-order`
 export const kindOrderName = (namespace, kind) => `${namespace}/${kind}-tags-order`
 
 /** `list` with `ids` moved before or after `to.before` / `to.after` (to the end without either). */
@@ -61,6 +61,9 @@ export function orderOps(content, layer, relation, sequence, of, owner = null, o
  * tags of its kind, written as the layer's `<kind>-tags-order` (of tags).
  */
 export function tagMoveOps(content, layer, kind, tag, to) {
+  const plain = (id) => splitTagKey(id)?.full ?? id
+  tag = plain(tag)
+  to = Object.fromEntries(Object.entries(to ?? {}).map(([k, v]) => [k, typeof v === 'string' ? plain(v) : v]))
   const now = orderedTags(content, kind)
   const next = reordered(now, [tag], to)
   if (next.every((id, k) => id === now[k])) return []
@@ -81,7 +84,7 @@ export function valuesInOrder(content, tag) {
   const values = content?.registries?.tag?.[tag]?.values ?? []
   const ordered = tagMembers(content, tag)
   const rank = (value) => {
-    const at = value.startsWith('#') ? tagMembers(content, value.slice(1)).map((id) => ordered.indexOf(id)).filter((k) => k >= 0) : [ordered.indexOf(value)].filter((k) => k >= 0)
+    const at = value.startsWith('#') ? tagMembers(content, tagKey(content.registries.tag[tag].kind, value.slice(1))).map((id) => ordered.indexOf(id)).filter((k) => k >= 0) : [ordered.indexOf(value)].filter((k) => k >= 0)
     return at.length ? Math.min(...at) : Infinity
   }
   return values.map((value, k) => [value, rank(value), k]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map(([value]) => value)

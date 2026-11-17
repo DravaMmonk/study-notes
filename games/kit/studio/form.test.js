@@ -105,10 +105,10 @@ test('encyclopedia form and copy edits target entry and tag objects', async () =
   const glossary = { groups: [{ id: 'toy/terms', title: { en: 'Terms' }, values: ['toy/term'] }], entries: [{ id: 'toy/term', group: 'toy/terms', title: { en: 'Term' }, body: [] }] }
   const file = { glossary }
   assert.deepEqual(opFor(file, ['entries', 0, 'title'], { set: 'New', lang: 'en' }, 'text'), { op: 'text.set', entry: 'toy/term', path: ['title'], lang: 'en', value: 'New' })
-  assert.deepEqual(opFor(file, ['groups', 0, 'title'], { set: 'New', lang: 'en' }, 'text'), { op: 'text.set', tag: 'toy/terms', path: ['title'], lang: 'en', value: 'New' })
+  assert.deepEqual(opFor(file, ['groups', 0, 'title'], { set: 'New', lang: 'en' }, 'text'), { op: 'text.set', tag: 'toy/terms', member: 'entry', path: ['title'], lang: 'en', value: 'New' })
   assert.equal(glossaryFile(glossary, ['entries', 0, 'body']), 'entries/term.json')
   assert.equal(glossaryFile(glossary, ['groups', 0, 'title']), 'tags/entry/terms.json')
   const rows = copyRows({ glossary }, {}, 'glossary', [])
   assert.deepEqual(copyEdit(rows.find((r) => r.name === 'toy/term'), 'en', 'New'), { op: 'text.set', entry: 'toy/term', path: ['title'], lang: 'en', value: 'New' })
-  assert.deepEqual(copyEdit(rows.find((r) => r.name === 'toy/terms'), 'en', 'New', 'game'), { op: 'text.override', tag: 'toy/terms', path: ['title'], lang: 'en', value: 'New' })
+  assert.deepEqual(copyEdit(rows.find((r) => r.name === 'toy/terms'), 'en', 'New', 'game'), { op: 'text.override', tag: 'toy/terms', member: 'entry', path: ['title'], lang: 'en', value: 'New' })
 })

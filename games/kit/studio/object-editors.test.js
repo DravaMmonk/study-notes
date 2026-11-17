@@ -12,11 +12,11 @@ const CONTENT = {
     part: { 'p/and': { name: { en: 'And' } }, not: {} },
     entry: { 'p/e': { title: { en: 'E' } } },
     tag: {
-      'p/first': { kind: 'level', values: ['p/a', '#p/second'] },
-      'p/second': { kind: 'level', values: ['p/b', '#p/third'] },
-      'p/third': { kind: 'level', values: ['p/c'] },
-      'p/gates': { kind: 'part', values: ['p/and'] },
-      'o/more': { kind: 'level', values: ['o/d', '#p/first'] },
+      'level:p/first': { kind: 'level', values: ['p/a', '#p/second'] },
+      'level:p/second': { kind: 'level', values: ['p/b', '#p/third'] },
+      'level:p/third': { kind: 'level', values: ['p/c'] },
+      'part:p/gates': { kind: 'part', values: ['p/and'] },
+      'level:o/more': { kind: 'level', values: ['o/d', '#p/first'] },
     },
   },
   relationEdges: { order: [], requires: [{ from: 'p/a', to: 'p/b' }, { from: 'p/b', to: 'p/c' }] },
@@ -27,7 +27,7 @@ test('a member is written short for the layer’s own, full for another namespac
   assert.equal(writtenName('p', '#p/first'), '#first')
   assert.equal(writtenName('p', '#o/more'), '#o/more')
   assert.equal(writtenName('p', 'not'), 'not')
-  assert.deepEqual(tagValuesOp('p', 'p/first', ['p/a', 'o/d', '#p/third']), { op: 'tag.set', tag: 'first', path: 'values', value: ['a', 'o/d', '#third'] })
+  assert.deepEqual(tagValuesOp('p', 'level:p/first', ['p/a', 'o/d', '#p/third']), { op: 'tag.set', tag: 'first', member: 'level', path: 'values', value: ['a', 'o/d', '#third'] })
 })
 
 test('members show their object’s title, a part its name', () => {
@@ -38,14 +38,14 @@ test('members show their object’s title, a part its name', () => {
 })
 
 test('a member is added, and refused when it is there, the tag itself, another kind or a ring', () => {
-  assert.deepEqual(withMember(CONTENT, 'p/third', 'o/d'), { values: ['p/c', 'o/d'] })
-  assert.deepEqual(withMember(CONTENT, 'p/first', 'p/a'), { refusal: 'duplicate' })
-  assert.deepEqual(withMember(CONTENT, 'p/first', '#p/first'), { refusal: 'self' })
-  assert.deepEqual(withMember(CONTENT, 'p/first', '#p/gates'), { refusal: 'kind' })
-  assert.deepEqual(withMember(CONTENT, 'p/third', '#p/first'), { refusal: 'cycle' })
-  assert.equal(tagCycle(CONTENT, 'p/third', '#o/more'), true)
-  assert.equal(tagCycle(CONTENT, 'o/more', '#p/third'), false)
-  assert.deepEqual(withoutMember(CONTENT, 'p/first', '#p/second'), ['p/a'])
+  assert.deepEqual(withMember(CONTENT, 'level:p/third', 'o/d'), { values: ['p/c', 'o/d'] })
+  assert.deepEqual(withMember(CONTENT, 'level:p/first', 'p/a'), { refusal: 'duplicate' })
+  assert.deepEqual(withMember(CONTENT, 'level:p/first', '#p/first'), { refusal: 'self' })
+  assert.deepEqual(withMember(CONTENT, 'level:p/first', '#p/gates'), { refusal: 'kind' })
+  assert.deepEqual(withMember(CONTENT, 'level:p/third', '#p/first'), { refusal: 'cycle' })
+  assert.equal(tagCycle(CONTENT, 'level:p/third', '#o/more'), true)
+  assert.equal(tagCycle(CONTENT, 'level:o/more', '#p/third'), false)
+  assert.deepEqual(withoutMember(CONTENT, 'level:p/first', '#p/second'), ['p/a'])
 })
 
 test('a text keeps its other languages and its message key, the layer’s own key short', () => {
@@ -62,8 +62,8 @@ test('a tag is written back whole in the layer’s own short names, concept set 
 })
 
 test('a new tag takes a name the layer does not use', () => {
-  const content = { registries: { tag: { 'p/new-level': { kind: 'level', values: [] }, 'o/new-level-2': { kind: 'level', values: [] } } } }
-  assert.deepEqual(newTag(content, 'p', 'level'), { name: 'new-level-2', full: 'p/new-level-2', op: { op: 'tag.put', tag: 'new-level-2', data: { kind: 'level', values: [] } } })
+  const content = { registries: { tag: { 'level:p/new-level': { kind: 'level', values: [] }, 'level:o/new-level-2': { kind: 'level', values: [] } } } }
+  assert.deepEqual(newTag(content, 'p', 'level'), { name: 'new-level-2', full: 'level:p/new-level-2', op: { op: 'tag.put', tag: 'new-level-2', member: 'level', data: { values: [] } } })
 })
 
 test('a chapter map’s unplaced levels are the chapter’s levels no row places', () => {

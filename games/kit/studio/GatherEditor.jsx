@@ -11,7 +11,7 @@ import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import SourceMark from './SourceMark.jsx'
 import { confirmDelete } from './delete.js'
-import { localName, namespaceOf, shownName, tagMembers } from './objects-edit.js'
+import { localName, namespaceOf, shownName, tagByRef, tagKeyOfRef, tagMembers, tagName } from './objects-edit.js'
 import { ownObjectData } from './object-file.js'
 import { overridesIt } from './override-edit.js'
 import { textWith } from './tag-edit.js'
@@ -98,13 +98,13 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   const parts = grantObjects(content)
   const owners = stageOwners(content)
   const titleOf = (ref) => {
-    if (ref.startsWith('#')) return L(content.registries?.tag?.[ref.slice(1)]?.title)
+    if (ref.startsWith('#')) return L(content.registries?.tag?.[tagKeyOfRef(content, [...grants.types.keys()], ref)]?.title)
     const part = parts[owners.get(ref) ?? ref]
     return L(part?.name) ?? ''
   }
   const candidates = (taken) => [
     ...[...owners.keys()].filter((id) => !taken.includes(id)).map((id) => ({ value: id, label: shownName(namespace, id), title: titleOf(id), group: owners.get(id) === id ? tr('元件', 'Parts') : tr('阶段', 'Stages') })),
-    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => grants.types.has(tag.kind) && !taken.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
+    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => grants.types.has(tag.kind) && !taken.includes(`#${tagName(name)}`)).map(([name]) => ({ value: `#${tagName(name)}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
   ]
   const menus = value.menus ?? []
   const setMenus = (next) => write.set('menus', next)
@@ -184,18 +184,18 @@ export function SectionEditor({ content, namespace, full, pending, onSelect, onE
   const locked = pending || !editable
   const write = writer({ kind: 'section', full, namespace, own, value: withoutId(value), content, onEdit, onOps })
   const entries = content.registries?.entry ?? {}
-  const titleOf = (ref) => (ref.startsWith('#') ? L(content.registries?.tag?.[ref.slice(1)]?.title) : L(entries[ref]?.title)) ?? ''
+  const titleOf = (ref) => (ref.startsWith('#') ? L(tagByRef(content, 'entry', ref)?.title) : L(entries[ref]?.title)) ?? ''
   const refs = value.values ?? []
   const candidates = [
     ...Object.keys(entries).filter((id) => !refs.includes(id)).map((id) => ({ value: id, label: shownName(namespace, id), title: titleOf(id), group: tr('词条', 'Entries') })),
-    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === 'entry' && !refs.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
+    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === 'entry' && !refs.includes(`#${tagName(name)}`)).map(([name]) => ({ value: `#${tagName(name)}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
   ]
   const remove = () => {
     if (!own || pending || !confirmDelete(shownName(namespace, full))) return
     onEdit({ op: 'section.remove', section: localName(namespace, full) })
     onSelect(null)
   }
-  const shown = content.glossary?.groups?.find((group) => group.id === full)?.values ?? [...new Set(refs.flatMap((ref) => (ref.startsWith('#') ? tagMembers(content, ref.slice(1)) : [ref])))]
+  const shown = content.glossary?.groups?.find((group) => group.id === full)?.values ?? [...new Set(refs.flatMap((ref) => (ref.startsWith('#') ? tagMembers(content, tagKeyOfRef(content, ['entry'], ref)) : [ref])))]
   const relation = `${full}-order`
   const ordering = !pending && canOrder(content, namespace, relation, full, overriding)
     ? (sequence) => { const ops = subsetOrderOps(content, namespace, relation, shown, sequence, 'entry', full, overriding); if (ops?.length) onOps(ops) }

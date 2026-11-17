@@ -3,7 +3,7 @@
 import { partStages } from '../engine/part-stages.js'
 import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
-import { freeObjectName, localName, ownNames } from './objects-edit.js'
+import { freeObjectName, localName, ownNames, tagByRef, tagKey, tagName, tagTarget } from './objects-edit.js'
 
 export const TAG_KINDS = ['level', 'part', 'symbol', 'entry']
 
@@ -18,11 +18,11 @@ const objectOf = (content, kind, id) => {
 }
 
 /** Does the registry of a tag's kind hold `member` (a `#` reference: is there such a tag)? */
-export const memberKnown = (content, kind, member) => member.startsWith('#') ? Boolean(content?.registries?.tag?.[member.slice(1)]) : Boolean(objectOf(content, kind, member))
+export const memberKnown = (content, kind, member) => member.startsWith('#') ? Boolean(tagByRef(content, kind, member)) : Boolean(objectOf(content, kind, member))
 
 /** What a member is called besides its name: a level's or entry's title, a part's name, a tag's title. */
 export function memberTitle(content, kind, member) {
-  if (member.startsWith('#')) return content?.registries?.tag?.[member.slice(1)]?.title ?? null
+  if (member.startsWith('#')) return tagByRef(content, kind, member)?.title ?? null
   const object = objectOf(content, kind, member)
   return (['part', 'symbol'].includes(kind) ? object?.name : object?.title) ?? null
 }
@@ -30,13 +30,13 @@ export function memberTitle(content, kind, member) {
 /** Would `member` (a `#` reference) inside the tag `full` close a ring of tags? Asked of the kernel's resolver. */
 export function tagCycle(content, full, member) {
   if (!member.startsWith('#')) return false
-  if (member.slice(1) === full) return true
+  if (member.slice(1) === tagName(full)) return true
   const tags = content?.registries?.tag ?? {}
   const tag = tags[full]
   if (!tag) return false
   const problems = []
   const registries = { level: {}, part: {}, entry: {}, ...content.registries, tag: { ...tags, [full]: { ...tag, values: [...tag.values, member] } } }
-  referenceResolver(registries, problems)(`#${full}`, tag.kind)
+  referenceResolver(registries, problems)(`#${tagName(full)}`, tag.kind)
   return problems.some(({ says }) => says.startsWith('circular tags'))
 }
 
@@ -48,8 +48,8 @@ export function withMember(content, full, member) {
   const tag = content?.registries?.tag?.[full]
   if (!tag) return { refusal: 'unknown' }
   if (tag.values.includes(member)) return { refusal: 'duplicate' }
-  if (member === `#${full}`) return { refusal: 'self' }
-  if (member.startsWith('#') && content.registries.tag[member.slice(1)]?.kind !== tag.kind) return { refusal: 'kind' }
+  if (member === `#${tagName(full)}`) return { refusal: 'self' }
+  if (member.startsWith('#') && !tagByRef(content, tag.kind, member)) return { refusal: 'kind' }
   if (tagCycle(content, full, member)) return { refusal: 'cycle' }
   return { values: [...tag.values, member] }
 }
@@ -58,7 +58,7 @@ export function withMember(content, full, member) {
 export const withoutMember = (content, full, member) => (content?.registries?.tag?.[full]?.values ?? []).filter((v) => v !== member)
 
 /** The operation writing `values` (full names) into the layer's own tag `full`. */
-export const tagValuesOp = (namespace, full, values) => ({ op: 'tag.set', tag: localName(namespace, full), path: 'values', value: values.map((v) => writtenName(namespace, v)) })
+export const tagValuesOp = (namespace, full, values) => ({ op: 'tag.set', ...tagTarget(namespace, full), path: 'values', value: values.map((v) => writtenName(namespace, v)) })
 
 /** A text with `lang` set to `text`, keeping its other languages and its message key (the layer's own key short). */
 export function textWith(namespace, old, lang, text) {
@@ -83,5 +83,5 @@ export function ownTagData(namespace, tag) {
 /** A new empty tag of `kind` in `namespace`: its short name (free among the layer's tags) and the operation. */
 export function newTag(content, namespace, kind) {
   const name = freeObjectName(ownNames(content, 'tag', namespace), `new-${kind}`)
-  return { name, full: `${namespace}/${name}`, op: { op: 'tag.put', tag: name, data: { kind, values: [] } } }
+  return { name, full: tagKey(kind, `${namespace}/${name}`), op: { op: 'tag.put', tag: name, member: kind, data: { values: [] } } }
 }

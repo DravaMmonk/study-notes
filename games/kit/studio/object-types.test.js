@@ -17,18 +17,15 @@ const content = (tags = {}) => ({
   },
 })
 
-test('the left column lists object types: the packages’ studio-left, else what has objects; tools after, search last', () => {
+test('the left column lists object types: kernel/studio-left, else what has objects; tools after, search last', () => {
   const plain = content()
   assert.deepEqual(objectTypes(plain).map(({ type }) => type).slice(-1), ['story/scene'])
   assert.ok(!objectTypes(plain).some(({ type }) => type === 'story/extra'), 'a field extension is not a type of its own')
   assert.equal(studioLeft(plain), null)
   assert.deepEqual(defaultTypes(plain), ['level', 'story/scene'])
   assert.deepEqual(leftLists(plain), ['tree', 'type:story/scene', 'kernel', 'overrides', 'search'])
-  const said = content({
-    'base/studio-left': { kind: 'kind', values: ['story/scene'] },
-    'story/studio-left': { kind: 'kind', values: ['level', 'quote'] },
-  })
-  assert.deepEqual(studioLeft(said), ['story/scene', 'level', 'quote'])
+  const said = content({ 'kind:kernel/studio-left': { kind: 'kind', values: ['story/scene', 'level', 'quote', 'gone'] } })
+  assert.deepEqual(studioLeft(said), ['level', 'quote', 'story/scene'], 'a tag is a set: its order is its order relation’s, else by name')
   assert.deepEqual(leftLists(said, ['quote']), ['type:quote', 'kernel', 'overrides', 'search'])
   assert.equal(typeOfList(listOfType('story/scene')), 'story/scene')
   assert.equal(typeOfList('tree'), 'level')

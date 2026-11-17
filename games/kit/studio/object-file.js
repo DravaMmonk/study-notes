@@ -9,7 +9,7 @@ import { folders } from '../engine/layers.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
 import { isText, textKey } from '../engine/i18n.js'
 import { getAt, parsePath, unsetAt } from '../engine/ops/edit.js'
-import { localName, namespaceOf } from './objects-edit.js'
+import { localName, namespaceOf, splitTagKey, tagTarget } from './objects-edit.js'
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
@@ -51,6 +51,8 @@ export function ownObjectData(namespace, value) {
 
 /** The file an object is written in: in `namespace`'s own package by its path there, another's prefixed with it. */
 export function objectFileName(kind, full, tagKind = null, namespace = null, declared = null) {
+  const tag = kind === 'tag' && splitTagKey(full)
+  if (tag) [full, tagKind] = [tag.full, tagKind ?? tag.member]
   const name = full.slice(full.indexOf('/') + 1)
   const folder = kind === 'tag' ? `tags/${tagKind ?? 'level'}` : folderOf(kind, declared)
   const owner = namespaceOf(full) ?? ''
@@ -68,9 +70,11 @@ export function objectOp(object, path, edit, type = null) {
   if (!name || !folderOf(kind, declared)) return null
   const keys = parsePath(path)
   // A declared type's objects are edited through the one object operation family; the kernel's through their own.
-  const set = (data) => (declared ? { op: 'object.set', kind, name, path: keys, value: data } : { op: `${kind}.set`, [kind]: name, path: keys, value: data })
+  // A tag's operations name it by its short name and member type (games/MODULES.md 5.4).
+  const target = kind === 'tag' ? tagTarget(namespace, full) ?? { tag: name, member: object.tagKind } : { [kind]: name }
+  const set = (data) => (declared ? { op: 'object.set', kind, name, path: keys, value: data } : { op: `${kind}.set`, ...target, path: keys, value: data })
   const put = (data) => (declared ? { op: 'object.put', kind, name, data: ownObjectData(namespace, data) }
-    : { op: `${kind}.put`, [kind]: name, data: ownObjectData(namespace, kind === 'tag' ? { kind: object.tagKind, ...data } : data) })
+    : { op: `${kind}.put`, ...target, data: ownObjectData(namespace, data) })
   if (type === 'text' && !edit.unset) {
     if (!keys.length) return null
     return set(edit.lang ? textWith(namespace, getAt(value, keys), edit.lang, edit.set) : edit.set)
@@ -104,5 +108,5 @@ export function overrideFileName(event) {
 /** The operation an override's file edited as raw JSON makes, in the layer that owns it; null in another layer. */
 export function overrideOp(event, layer, data) {
   if (event.layer !== layer) return null
-  return { op: 'override.put', layer, kind: event.kind, name: event.name, data }
+  return { op: 'override.put', layer, kind: event.kind, ...(event.member && { member: event.member }), name: event.name, data }
 }
