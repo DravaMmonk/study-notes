@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { L, tr, getLang, Picker, TextField, confirmDelete, localName, namespaceOf, shownName, tagKeyOfRef, tagName, overridesIt, textWith, reordered, stageOwners, gatherWriter as writer, withoutId, Members, GatherHead as Head } from 'kernel/view'
-import { grantObjects, grants } from '../../core/index.js'
+import { MENU_THRESHOLD, grantObjects, grants } from '../../core/index.js'
 
 /** The tray `full`: its members and menus, and the order the tray shows them in. */
 export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
@@ -42,6 +42,12 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
         <label className="object-flag">
           <input type="checkbox" className="field-check" checked={value.workshop ?? true} disabled={locked} onChange={(e) => write.set('workshop', e.target.checked)} />
           {tr('工坊', 'Workshop')}
+        </label>
+        <label className="object-flag" title={tr('关卡里同一菜单未被折叠的元件达到这个数，才收进二级菜单', 'A menu gathers its parts only when a level shows at least this many of them')}>
+          {tr('二级菜单至少', 'Menu from')}
+          <input type="number" className="field-number" min={1} step={1} value={value.menuThreshold ?? MENU_THRESHOLD} disabled={locked}
+            onChange={(e) => { const n = Number(e.target.value); if (Number.isInteger(n) && n >= 1) write.set('menuThreshold', n) }} />
+          {tr('个', 'parts')}
         </label>
       </Head>
       {menus.map((menu, m) => (

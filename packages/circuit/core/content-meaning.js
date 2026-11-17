@@ -161,7 +161,7 @@ export const partMeaning = {
       const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: menu.values.flatMap(value => resolve(value, 'circuit/grant', `trays/${name}/menus/${menu.id}`)) }))
       if (new Set(menus.map(menu => menu.id)).size !== menus.length) problems.push({ at: `trays/${name}`, says: 'duplicate menu id' })
       const direct = tray.values.flatMap(value => resolve(value, 'circuit/grant', `trays/${name}`))
-      trays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop,
+      trays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop, ...(tray.menuThreshold !== undefined && { menuThreshold: tray.menuThreshold }),
         items: [...menus.map(menu => menu.id), ...direct].map(id => menus.find(menu => menu.id === id) ?? id) }
     }
     return { partDefs: { parts }, trays, replaces }
