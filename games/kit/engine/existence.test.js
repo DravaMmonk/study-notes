@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { S } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
 import { assembleLayers } from './resolver.js'
-import { existenceProblems, publicSurfaces, collectReferences } from './existence.js'
+import { existenceProblems, contentExistenceProblems, publicSurfaces, collectReferences } from './existence.js'
 
 const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({}), level: S.obj({ nested: S.opt(S.list(S.obj({ arbitrary: S.ref('lib/scene') }))), grants: S.opt(S.list(S.str({ reference: 'grant' }))) }),
@@ -68,3 +68,78 @@ test('typed tags, registered readers, unknown member types and ambiguous unconst
 function contentLayers(owner) {
   return [{ ...owner, objects: owner.objects.map(object => ({ ...object, name: `lib/${object.name}` })) }]
 }
+
+
+test('assembled typed tags report each authored missing member once, preserving member identity', () => {
+  const content = assembleLayers('consumer', [layer('consumer', [
+    object('tag', 'gone-test', { kind: 'level', values: ['consumer/nowhere'] }),
+    object('tag', 'gone-test', { kind: 'entry', values: ['consumer/nowhere'] }),
+  ])], schemas, { packageId: 'consumer' })
+  const problems = contentExistenceProblems(content, schemas)
+  assert.equal(problems.length, 2)
+  for (const [i, member] of ['level', 'entry'].entries()) {
+    assert.deepEqual(problems[i].object, { kind: 'tag', name: 'consumer/gone-test', member })
+    assert.equal(problems[i].path, 'values[0]')
+    assert.equal(problems[i].at, 'consumer/tag/consumer/gone-test.values[0]')
+  }
+})
+
+test('locations identify nested level fields, override targets and dependency selections', () => {
+  const vocabulary = { ...schemas, level: S.obj({ tasks: S.list(S.obj({ id: S.str(), solution: S.ref('lib/scene') })) }) }
+  const content = assembleLayers('consumer', [lib(), layer('consumer', [
+    object('level', 'one', { tasks: [{ id: 'task', solution: 'lib/gone' }] }),
+  ], [object('lib/scene', 'lib/no-override', { next: 'lib/missing' })], ['lib', 'absent'])], vocabulary, { packageId: 'consumer' })
+  const problems = contentExistenceProblems(content, vocabulary)
+  const location = target => problems.filter(problem => problem.target === target).map(({ object, path }) => ({ object, path }))
+  assert.deepEqual(location('lib/gone'), [{ object: { kind: 'level', name: 'consumer/one' }, path: 'tasks[0].solution' }])
+  assert.deepEqual(location('lib/no-override'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: '' }])
+  assert.deepEqual(location('lib/missing'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: 'next' }])
+  assert.deepEqual(location('absent'), [{ object: { kind: 'package', name: 'consumer' }, path: 'uses[1]' }])
+  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { packages: ['absent'] } })), schemas)
+  assert.deepEqual(selection.object, { kind: 'package', name: '@game' })
+  assert.equal(selection.path, 'packages[0]')
+})
+
+test('collection overrides retain authored locations after assembly shifts indices and expands sequences', () => {
+  const owner = layer('lib', [object('level', 'one'), object('tag', 'levels', { kind: 'level', values: ['lib/one'] }), object('relation', 'route', { kind: 'order', of: 'level', edges: [] })])
+  const consumer = layer('consumer', [], [
+    object('tag', 'lib/levels', { kind: 'level', values: ['lib/gone'] }),
+    object('relation', 'lib/route', { kind: 'order', of: 'level', sequence: ['lib/one', 'lib/absent'], remove: [{ from: 'lib/one', to: 'lib/removed' }] }),
+  ], ['lib'])
+  const problems = contentExistenceProblems(assembleLayers('consumer', [owner, consumer], schemas), schemas)
+  for (const [target, kind, name, path] of [
+    ['lib/gone', 'tag', 'lib/levels', 'values[0]'],
+    ['lib/absent', 'relation', 'lib/route', 'sequence[1]'],
+    ['lib/removed', 'relation', 'lib/route', 'remove[0].to'],
+  ]) {
+    const found = problems.filter(problem => problem.target === target)
+    assert.equal(found.length, 1, target)
+    assert.deepEqual(found[0].object, { kind, name, ...(kind === 'tag' && { member: 'level' }), override: true })
+    assert.equal(found[0].path, path)
+  }
+})
+
+test('distinct authored fields and pending assembled references remain checkable', () => {
+  const content = assembleLayers('consumer', [layer('consumer', [object('level', 'one', {
+    nested: [{ arbitrary: 'lib/gone' }, { arbitrary: 'lib/gone' }],
+  })])], schemas)
+  content.levels[0].nested.push({ arbitrary: 'lib/pending' })
+  const problems = contentExistenceProblems(content, schemas)
+  assert.deepEqual(problems.map(problem => problem.path), ['nested[0].arbitrary', 'nested[1].arbitrary', 'nested[2].arbitrary'])
+  assert.ok(problems.every(problem => problem.object.kind === 'level' && problem.object.name === 'consumer/one'))
+})
+
+
+test('text overrides name the overridden public copy identity and custom kind failures locate the object itself', () => {
+  const consumer = { ...layer('consumer', [object('absent/scene', 'consumer/one')], [], ['lib']),
+    textOverrides: [{ namespace: 'lib', lang: 'en', entries: { missing: 'Missing' } }],
+  }
+  const problems = existenceProblems([consumer], schemas)
+  const copy = problems.find(problem => problem.kind === 'i18n')
+  assert.deepEqual(copy.object, { kind: 'i18n', name: 'lib/missing', override: true })
+  assert.equal(copy.path, '')
+  assert.equal(copy.at, 'consumer/overrides/lib/i18n/en.json.missing')
+  const kind = problems.find(problem => problem.kind === 'kind')
+  assert.deepEqual(kind.object, { kind: 'absent/scene', name: 'consumer/one' })
+  assert.equal(kind.path, '')
+})

@@ -2,11 +2,13 @@
 import { textKey } from './i18n.js'
 import { shapeAt } from './schema.js'
 import { grants } from './grants.js'
-import { tagKey, kernelTags } from './tag-identity.js'
+import { tagKey, tagName, kernelTags } from './tag-identity.js'
 import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { schemaForKind } from './layers.js'
 
 const ownerOf = name => name.replace(/^#/, '').split(/[/:]/)[0]
+const uniqueProblems = problems => [...new Map(problems.map(problem => [JSON.stringify([problem.layer, problem.object, problem.path, problem.kind, problem.target, problem.member]), problem])).values()]
+const fieldAt = (at, key) => at ? `${at}.${key}` : key
 const identity = (kind, name, member) => `${kind}:${kind === 'tag' ? tagKey(member, name) : name}`
 
 /** This projection will be supplied by manifests when releases are introduced. Overrides never declare identities. */
@@ -47,53 +49,60 @@ export function collectReferences(value, schema, schemas, emit, at) {
   }
   if (Array.isArray(value)) value.forEach((child, index) => collectReferences(child, schema.of, schemas, emit, `${at}[${index}]`))
   else if (typeof value === 'object') for (const [key, child] of Object.entries(value)) {
-    if (schema.key) collectReferences(key, schema.key, schemas, emit, `${at}.${key}`)
+    if (schema.key) collectReferences(key, schema.key, schemas, emit, fieldAt(at, key))
     if (schema.type === 'call') {
-      emit(schema.kind, key, `${at}.${key}`)
-      collectReferences(child, schemas.kinds?.[schema.kind]?.[key]?.params, schemas, emit, `${at}.${key}`)
-    } else collectReferences(child, schema.type === 'map' ? schema.of : schema.fields?.[key], schemas, emit, `${at}.${key}`)
+      emit(schema.kind, key, fieldAt(at, key))
+      collectReferences(child, schemas.kinds?.[schema.kind]?.[key]?.params, schemas, emit, fieldAt(at, key))
+    } else collectReferences(child, schema.type === 'map' ? schema.of : schema.fields?.[key], schemas, emit, fieldAt(at, key))
   }
 }
 
 export function existenceProblems(layers, schemas, surfaces = publicSurfaces(layers, schemas)) {
   const targets = []
   for (const layer of layers) {
-    const emit = (kind, target, at, member) => {
+    const emitter = (object, base) => (kind, target, path, member) => {
       if (typeof target !== 'string') return
       if (target.startsWith('#')) { member = kind === 'tag' ? member : kind; kind = 'tag'; target = target.slice(1) }
-      targets.push({ layer: layer.id, kind, target, at, ...(member && { member }) })
+      targets.push({ layer: layer.id, object, path, kind, target, at: path ? fieldAt(base, path) : base, ...(member && { member }) })
     }
-    for (const [i, name] of (layer.config.uses ?? layer.config.packages ?? []).entries()) emit('package', name, `${layer.id}/${layer.id.startsWith('@') ? 'game.json.packages' : 'package.json.uses'}[${i}]`)
-    for (const object of layer.codeObjects ?? []) if (object.value.type) emit('kind', object.value.type, `${layer.id}/code/${object.kind}/${object.name}.type`)
-    collectReferences(layer.config, schemas.game, schemas, emit, `${layer.id}/configuration`)
+    const emit = emitter({ kind: 'package', name: layer.id }, `${layer.id}/configuration`)
+    const dependencies = layer.config.uses ? 'uses' : 'packages'
+    const dependency = emitter({ kind: 'package', name: layer.id }, `${layer.id}/${layer.id.startsWith('@') ? 'game.json' : 'package.json'}`)
+    for (const [i, name] of (layer.config[dependencies] ?? []).entries()) dependency('package', name, `${dependencies}[${i}]`)
+    for (const object of layer.codeObjects ?? []) if (object.value.type) emitter({ kind: object.kind, name: object.name }, `${layer.id}/code/${object.kind}/${object.name}`)('kind', object.value.type, 'type')
+    collectReferences(layer.config, schemas.game, schemas, emit, '')
     for (const [override, objects] of [[false, layer.objects], [true, layer.overrides ?? []]]) for (const object of objects) {
       const { kind, name, value } = object
       const at = `${layer.id}/${override ? 'overrides/' : ''}${kind}/${name}`
-      if (override) emit(kind, name, at, value.kind)
-      if (kind.includes('/')) emit('kind', kind, `${at}.$kind`)
-      if (kind === 'relation' && (value.member ?? value.of) && !['any', 'tag'].includes(value.member ?? value.of)) emit('kind', value.member ?? value.of, `${at}.$kind`)
-      collectReferences(value, schemaForKind(kind, schemas), schemas, emit, at)
+      const emit = emitter({ kind, name, ...(kind === 'tag' && { member: value.kind }), ...(override && { override: true }) }, at)
+      if (override) emit(kind, name, '', value.kind)
+      if (kind.includes('/')) emit('kind', kind, '')
+      if (kind === 'relation' && (value.member ?? value.of) && !['any', 'tag'].includes(value.member ?? value.of)) emit('kind', value.member ?? value.of, value.member ? 'member' : 'of')
+      collectReferences(value, schemaForKind(kind, schemas), schemas, emit, '')
       if (kind === 'tag') {
-        emit('kind', value.kind, `${at}.kind`)
-        for (const field of ['values', 'remove']) for (const [i, ref] of (value[field] ?? []).entries()) emit(value.kind, ref, `${at}.${field}[${i}]`)
+        emit('kind', value.kind, 'kind')
+        for (const field of ['values', 'remove']) for (const [i, ref] of (value[field] ?? []).entries()) emit(value.kind, ref, `${field}[${i}]`)
       }
       if (kind === 'relation') {
         const definition = Object.values(schemas.objectKinds ?? {}).map(d => d.relations?.[value.kind]).find(Boolean)
         const endpointKind = value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'part' : value.of ?? 'any'
-        const endpoint = (ref, at, side) => emit(value.kind === 'order' && ['part', 'any'].includes(endpointKind) && [...surfaces.values()].some(surface => surface.has(identity('menu', ref))) ? 'menu' : definition?.[side] ?? endpointKind, ref, at, value.member)
-        for (const [i, edge] of [...(value.edges ?? []), ...(value.remove ?? [])].entries()) {
-          if (!edge.game) endpoint(edge.from, `${at}.edges[${i}].from`, 'from')
-          endpoint(edge.to, `${at}.edges[${i}].to`, 'to')
+        const endpoint = (ref, path, side) => emit(value.kind === 'order' && ['part', 'any'].includes(endpointKind) && [...surfaces.values()].some(surface => surface.has(identity('menu', ref))) ? 'menu' : definition?.[side] ?? endpointKind, ref, path, value.member)
+        for (const field of ['edges', 'remove']) for (const [i, edge] of (value[field] ?? []).entries()) {
+          if (!edge.game) endpoint(edge.from, `${field}[${i}].from`, 'from')
+          endpoint(edge.to, `${field}[${i}].to`, 'to')
         }
-        for (const [i, ref] of (value.sequence ?? []).entries()) endpoint(ref, `${at}.sequence[${i}]`, i ? 'to' : 'from')
+        for (const [i, ref] of (value.sequence ?? []).entries()) endpoint(ref, `sequence[${i}]`, i ? 'to' : 'from')
       }
     }
-    for (const { namespace, lang, entries } of layer.textOverrides ?? []) for (const key of Object.keys(entries)) emit('i18n', key.includes('/') ? key : `${namespace}/${key}`, `${layer.id}/overrides/${namespace}/i18n/${lang}.json.${key}`)
+    for (const { namespace, lang, entries } of layer.textOverrides ?? []) for (const key of Object.keys(entries)) {
+      const name = key.includes('/') ? key : `${namespace}/${key}`
+      emitter({ kind: 'i18n', name, override: true }, `${layer.id}/overrides/${namespace}/i18n/${lang}.json.${key}`)('i18n', name, '')
+    }
   }
   const entries = [...new Map([...surfaces.values()].flatMap(surface => [...surface.values()]).map(entry => [identity(entry.kind, entry.name, entry.member), entry])).values()]
   const problems = []
   for (const ref of targets) {
-    const { kind, target, member, layer, at } = ref
+    const { kind, target, member, layer, at, object, path } = ref
     const matches = entries.filter(entry => entry.name === target && (kind === 'tag' ? entry.kind === 'tag' && (!member || member === 'any' || member === 'grant' && grants.types.has(entry.member) || entry.member === member) : kind === 'grant' ? grants.types.has(entry.kind) : kind === 'any' ? entry.kind !== 'tag' : entry.kind === kind))
     // Menu identities are valid untyped order endpoints.
     const owner = ownerOf(target)
@@ -101,9 +110,9 @@ export function existenceProblems(layers, schemas, surfaces = publicSurfaces(lay
     const foreign = target.includes('/') || kind === 'package' || layers.some(item => item.id === owner)
     const allowed = owner === layer || owner === 'kernel' || layer.startsWith('@') && (author.config.packages ?? layers.filter(item => !item.id.startsWith('@')).map(item => item.id)).includes(owner) || (author.config.uses ?? []).includes(owner)
     const reason = !matches.length ? 'missing' : matches.length > 1 && ['tag', 'grant', 'any'].includes(kind) ? 'ambiguous' : foreign && !allowed ? 'undeclared dependency' : null
-    if (reason) problems.push({ at, says: `${reason} target ${kind} ${target}${member ? ` (member ${member})` : ''}`, rule: 'exists', layer, kind, target, ...(member && { member }), reason })
+    if (reason) problems.push({ at, object, path, says: `${reason} target ${kind} ${target}${member ? ` (member ${member})` : ''}`, rule: 'exists', layer, kind, target, ...(member && { member }), reason })
   }
-  return problems.filter((problem, i, all) => all.findIndex(other => other.at === problem.at && other.kind === problem.kind && other.target === problem.target && other.member === problem.member) === i)
+  return uniqueProblems(problems)
 }
 
 /** Recheck pending assembled values as well as unexpanded contribution targets. */
@@ -115,12 +124,20 @@ export function contentExistenceProblems(content, schemas) {
   for (const [kind, values] of Object.entries(content.registries)) {
     if (kind === 'level' || !schemaForKind(kind, schemas)) continue
     for (const [name, value] of Object.entries(values)) {
-      const owner = kind === 'tag' ? ownerOf(name.slice(name.indexOf(':') + 1)) : ownerOf(name)
-      current.find(layer => layer.id === owner)?.objects.push({ kind, name, value })
+      const fullName = kind === 'tag' ? tagName(name) : name
+      const owner = ownerOf(fullName)
+      current.find(layer => layer.id === owner)?.objects.push({ kind, name: fullName, value })
     }
   }
   for (const value of content.levels) current.find(layer => layer.id === ownerOf(value.id))?.objects.push({ kind: 'level', name: value.id, value })
-  return [...existenceProblems(layers, schemas, surfaces), ...existenceProblems(current, schemas, surfaces).filter(problem => problem.reason !== 'undeclared dependency')].filter((problem, i, all) => all.findIndex(other => other.at === problem.at && other.kind === problem.kind && other.target === problem.target && other.member === problem.member) === i)
+  const authored = existenceProblems(layers, schemas, surfaces)
+  // Assembly may shift collection indices or turn sequences into edges. Keep the authored
+  // locations for references already checked there; only pending assembled references are new.
+  const pending = existenceProblems(current, schemas, surfaces).filter(problem => problem.reason !== 'undeclared dependency' && !authored.some(other =>
+    other.object.kind === problem.object.kind && other.object.name === problem.object.name && other.object.member === problem.object.member &&
+    other.kind === problem.kind && other.target === problem.target && other.member === problem.member &&
+    (other.path === problem.path || ['tag', 'relation', 'tray', 'section'].includes(problem.object.kind))))
+  return uniqueProblems([...authored, ...pending])
 }
 
 /** Core/view registration references use the same identity check as authored content. */

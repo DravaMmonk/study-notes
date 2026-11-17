@@ -556,3 +556,17 @@ test('package operations write collection tags and local items on levels and tas
   ] }, { check: false, domain: DOMAIN })
   assert.equal(refused.ok, false)
 })
+
+
+test('package preview returns a single structured problem for a missing tag member', async () => {
+  const { root } = toy()
+  const ws = openGame('toy', root)
+  const result = await runChangeset(ws, { ops: [{ op: 'tag.put', tag: 'gone-test', member: 'level', data: { values: ['toy/nowhere'] } }] }, { check: false, domain: DOMAIN })
+  const problems = result.lines.filter(line => line.problem?.target === 'toy/nowhere').map(line => line.problem)
+  assert.equal(result.ok, false)
+  assert.equal(result.failed, null)
+  assert.equal(problems.length, 1)
+  assert.deepEqual(problems[0].object, { kind: 'tag', name: 'toy/gone-test', member: 'level' })
+  assert.equal(problems[0].path, 'values[0]')
+  assert.equal(existsSync(join(root, 'packages/toy/tags/level/gone-test.json')), false)
+})
