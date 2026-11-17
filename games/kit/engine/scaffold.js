@@ -91,7 +91,7 @@ export function newPackage({ root = contentRoot(), id, template, from, empty = f
   if (existsSync(packageDir)) fail(`packages/${id} is there already`)
   mkdirSync(packageDir, { recursive: true })
   const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
-  for (const name of readdirSync(starter)) if (!['game.json', 'course.json', 'i18n'].includes(name)) fill(resolve(starter, name), resolve(packageDir, name), words)
+  for (const name of readdirSync(starter)) if (!['game.json', 'course.json', 'chapters', 'i18n'].includes(name)) fill(resolve(starter, name), resolve(packageDir, name), words)
   const locales = resolve(starter, 'i18n/package')
   if (existsSync(locales)) fill(locales, resolve(packageDir, 'i18n'), words)
   lockTarget({ kind: 'package', id }, root)
@@ -108,6 +108,8 @@ export function newGame({ root = contentRoot(), id, template, title = id }) {
   mkdirSync(dir, { recursive: true })
   const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
   const game = JSON.parse(readFileSync(resolve(starter, 'game.json'), 'utf8').replaceAll('__title__', () => words.__title__))
+  game.chapters = game.chapters.map(name => name.replace(/^@?starter\//, `@${id}/`))
+  fill(resolve(starter, 'chapters'), resolve(dir, 'chapters'), words)
   const source = JSON.parse(readFileSync(resolve(starter, 'course.json'), 'utf8').replaceAll('starter/', `${id}/`))
   // Template-local selections belong to the copied package, while chapter wording belongs to the game.
   for (const kind of ['power', 'box']) if (source[kind]) source[kind] = `${id}/${source[kind]}`
@@ -141,13 +143,14 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
   if (!from || !isDataGame(from, root)) fail(`no game ${from} to take the course settings from`)
   const { packageRanges: packages, files, layers } = resolveLayers({ game: from, root })
-  const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = files['course.json']
-  const { levels: _, rows: __, ...chapter } = chapters[0] ?? { id: 1 }
-  const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
+  const { optional: _optional, skippable: _skippable, ...settings } = files['course.json']
+  const sourceChapter = layers.at(-1).objects.find(object => object.kind === 'chapter' && files['game.json'].chapters[0]?.endsWith(`/${object.name}`))
+  const { levels: _, rows: __, ...chapter } = sourceChapter?.value ?? {}
+  const course = settings
   const words = { zh: typeof title === 'string' ? title : title?.zh ?? id, en: typeof title === 'string' ? title : title?.en ?? id }
   mkdirSync(dir, { recursive: true })
   mkdirSync(resolve(dir, 'i18n'), { recursive: true })
-  const keys = refs(course)
+  const keys = refs([course, chapter])
   for (const [lang, theirs] of Object.entries(layers.at(-1).catalogs)) {
     const own = Object.fromEntries([...keys].filter((key) => Object.hasOwn(theirs, key)).map((key) => [key, theirs[key]]))
     own['game.title'] = words[lang] ?? words.en
@@ -155,7 +158,9 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
     own['game.lede'] = words[lang] ?? words.en
     writeFileSync(resolve(dir, 'i18n', `${lang}.json`), writeJson(Object.fromEntries(Object.entries(own).sort(([a], [b]) => (a < b ? -1 : 1))), null))
   }
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ kernel: files['game.json'].kernel, packages, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ kernel: files['game.json'].kernel, packages, chapters: [`@${id}/main`], title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
+  mkdirSync(resolve(dir, 'chapters'), { recursive: true })
+  writeFileSync(resolve(dir, 'chapters/main.json'), writeJson({ ...chapter, levels: [] }, null))
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   lockTarget({ kind: 'game', id }, root)
   register(root, id, { title: words, lede: words, levels: 0 })

@@ -49,6 +49,8 @@ export const S = {
   str: make('str'),
   text: make('text'),
   oneOf: (values, extra = {}) => ({ type: 'oneOf', values, ...extra }),
+  set: (of, extra = {}) => ({ type: 'set', of, ...extra }),
+  edges: (of, extra = {}) => ({ type: 'edges', of: { type: 'obj', fields: { from: of, to: of, required: { type: 'bool', optional: true }, game: { type: 'str', optional: true } } }, ...extra }),
   list: (of, extra = {}) => ({ type: 'list', of, ...extra }),
   map: (of, extra = {}) => ({ type: 'map', of, ...extra }),
   obj: (fields, extra = {}) => ({ type: 'obj', fields, ...extra }),
@@ -109,6 +111,8 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)
         return
+      case 'set':
+      case 'edges':
       case 'list':
         if (!Array.isArray(v)) return say(where, `expected a list, found ${show(v)}`)
         if (s.min !== undefined && v.length < s.min) say(where, `expected at least ${s.min} item(s), found ${v.length}`)
@@ -209,7 +213,7 @@ const sameShape = (s, v) => {
   if (s.type === 'either') return s.of.some(option => sameShape(option, v))
   if (s.type === 'by') return isObj(v) && Boolean(s.cases[v[s.field]]) && sameShape(s.cases[v[s.field]], v)
   if (s.type === 'obj') return isObj(v) && Object.entries(v).every(([key, value]) => s.fields[key] && sameShape(s.fields[key], value))
-  if (s.type === 'list') return Array.isArray(v) && v.every(value => sameShape(s.of, value))
+  if (['list', 'set', 'edges'].includes(s.type)) return Array.isArray(v) && v.every(value => sameShape(s.of, value))
   if (s.type === 'map') return isObj(v)
   if (s.type === 'oneOf') return s.values.includes(v)
   if (s.type === 'text') return typeof v === 'string' || isText(v)
@@ -235,8 +239,17 @@ export function find(schema, value, type, { vocabulary = null } = {}) {
     if (v === undefined) return
     if (s.type === type) out.push({ path, value: v, schema: s })
     switch (s.type) {
+      case 'set':
+      case 'edges':
       case 'list':
         if (Array.isArray(v)) v.forEach((x, k) => walk(s.of, x, [...path, k]))
+        else if (isObj(v)) for (const [key, items] of Object.entries(v)) {
+          if (key === 'insert') items.forEach((item, i) => {
+            for (const side of ['before', 'after']) if (item[side] !== undefined) walk(s.of, item[side], [...path, key, i, side])
+            item.values.forEach((child, j) => walk(s.of, child, [...path, key, i, 'values', j]))
+          })
+          else if (Array.isArray(items)) items.forEach((child, i) => walk(s.of, child, [...path, key, i]))
+        }
         return
       case 'map':
         if (isObj(v)) for (const [k, x] of Object.entries(v)) {
@@ -288,7 +301,7 @@ export function shapeAt(schema, value, path, { vocabulary = null } = {}) {
   resolve()
   for (const key of path) {
     if (!s) return null
-    if (s.type === 'list') s = s.of
+    if (['list', 'set', 'edges'].includes(s.type)) s = s.of
     else if (s.type === 'map') s = s.of
     else if (s.type === 'obj') s = s.fields[key] ?? null
     else if (s.type === 'call') s = vocabulary?.kinds[s.kind]?.[key]?.params ?? null
@@ -301,7 +314,7 @@ export function shapeAt(schema, value, path, { vocabulary = null } = {}) {
 
 const leaves = (s, out = new Set()) => {
   if (!s || typeof s !== 'object') return out
-  if (['list', 'map'].includes(s.type)) return leaves(s.of, out)
+  if (['list', 'set', 'edges', 'map'].includes(s.type)) return leaves(s.of, out)
   if (s.type === 'either') { s.of.forEach((x) => leaves(x, out)); return out }
   if (s.type === 'obj') { Object.values(s.fields).forEach((x) => leaves(x, out)); return out }
   if (s.type === 'by') { Object.values(s.cases).forEach((x) => leaves(x, out)); return out }

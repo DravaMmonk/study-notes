@@ -1,8 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "nim",
-    "piles"
-  ],
-  "of": "level"
-}

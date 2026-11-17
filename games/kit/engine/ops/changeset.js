@@ -1,3 +1,4 @@
+import { kindPolicy } from '../kind-policy.js'
 import { meaningsOf } from '../kind-meanings.js'
 import { tagKey } from '../tag-identity.js'
 import { kindSchemas } from '../plugin-kinds.js'
@@ -66,7 +67,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     // Operations resolve references against the workspace vocabulary.
     const vocabulary = meaningsOf(domain.vocabulary).reduce((vocabulary, meaning) => meaning.validationVocabulary?.({ vocabulary, workspace: ws }) ?? vocabulary, domain.vocabulary)
     if (args.layer && args.layer !== ws.layer) return fail([`${where}: open layer ${args.layer} to edit its objects`], k)
-    if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
+    if (ws.scope && (domain.vocabulary.objectKinds?.[name.startsWith('object.') ? args.kind : name.split('.')[0]]?.declares ?? opScope({ op: name, ...args })) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
     if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
     try {
@@ -109,10 +110,13 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 // Tool results carry full names. Operations edit this layer's source spelling before writing it back.
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
-  const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = [...Object.keys(contentKindSchemas), ...meaningsOf(vocabulary).flatMap(meaning => meaning.selectors ?? []), 'level', 'entry', 'tag', 'relation', 'section', 'task', 'to', 'after']
+  const layerPrefix = `${ws.layer}/`
+  const local = (value) => typeof value === 'string' && value.startsWith(layerPrefix) ? value.slice(layerPrefix.length) : typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
+  const selectors = [...Object.keys(contentKindSchemas), ...meaningsOf(vocabulary).flatMap(meaning => meaning.selectors ?? []), 'level', 'entry', 'tag', 'relation', 'section', 'chapter', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
-  const source = (value, schema) => expandNames(value, ws.packageId, { objects: Object.fromEntries(Object.entries(ws.contentObjects ?? {}).map(([kind, values]) => [kind, Object.fromEntries(values)])), schema, vocabulary, resolve: local })
+  const gameObject = operation.startsWith('chapter.') || operation.startsWith('object.') && kindPolicy(supplied.kind, vocabulary).declares === 'game' || supplied.chapter !== undefined
+  const gameLocal = value => typeof value === 'string' && value.startsWith(layerPrefix) ? value.slice(layerPrefix.length) : value
+  const source = (value, schema) => expandNames(value, gameObject ? ws.layer : ws.packageId, { objects: Object.fromEntries(Object.entries(ws.contentObjects ?? {}).map(([kind, values]) => [kind, Object.fromEntries(values)])), schema, vocabulary, resolve: gameObject ? gameLocal : local })
   const args = source(selected, operationsFor(vocabulary)[operation].params)
   if (operation.startsWith('kind.')) args.kind = local(args.kind)
   if (operation.startsWith('object.')) args.name = local(args.name)
@@ -125,6 +129,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],
     game: [undefined, ws.game],
+    chapter: [kindSchemas(vocabulary).chapter, ws.contentObjects.chapter?.get(args.chapter)],
     ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(kind === 'tag' ? tagKey(args.member, args.tag) : args[kind])]])),
     ...Object.assign({}, ...meaningsOf(vocabulary).map(meaning => meaning.operationTargets?.({ workspace: ws, args, vocabulary }))),
   }

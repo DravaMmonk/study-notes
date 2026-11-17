@@ -8444,5 +8444,14 @@
   "studio": {
     "name": "@kind.part.name",
     "icon": "Component"
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
   }
 }

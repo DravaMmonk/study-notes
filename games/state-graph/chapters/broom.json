@@ -1,0 +1,19 @@
+{
+  "machine": "table:robot-broom",
+  "chapter": {
+    "title": "@course.eras.broom.chapter.title",
+    "desc": "@course.eras.broom.chapter.desc"
+  },
+  "levels": [
+    "state-graph/prefix",
+    "state-graph/rising",
+    "state-graph/stones",
+    "state-graph/change",
+    "state-graph/twoorders",
+    "state-graph/parse",
+    "state-graph/wordbreak",
+    "state-graph/wordcost",
+    "state-graph/segment",
+    "state-graph/maxsub"
+  ]
+}

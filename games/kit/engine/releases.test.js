@@ -93,7 +93,7 @@ test('checked archives and workspace sources use the same reader, manifests and 
     lockTarget({ id: 'demo', kind: 'game' }, root)
     const workspace = openGame('demo', root)
     workspace.game = { ...workspace.game, chapters: [] }
-    assert.ok(workspace.write().includes('games/demo/course.json'))
+    assert.ok(workspace.write().includes('games/demo/game.json'))
     assert.throws(() => workspace.selectPackages({ library: '^2.0.0' }), /outside/)
     rmSync(resolve(root, 'games'), { recursive: true })
     // An archived package is also a standalone check target.

@@ -12,7 +12,7 @@ import { mapBlueprintNames, textParse as parse } from '../../../packages/circuit
 const schemas = {
   meanings: contentMeanings,
   kinds: { part: { given: {} } },
-  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part', { reference: 'circuit/part' })) }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.str({ reference: 'chapter' })), primitives: S.list(S.ref('part', { reference: 'circuit/part' })) }),
   level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), part: S.ref('part', { reference: 'circuit/part' }), carry: S.level(), solution: S.board() })) }),
 }
 const t = (key, en) => ({ $key: key, en })

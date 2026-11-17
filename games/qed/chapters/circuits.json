@@ -1,0 +1,23 @@
+{
+  "machine": "prover",
+  "chapter": {
+    "title": "@course.eras.circuits.chapter.title",
+    "question": "@course.eras.circuits.chapter.question"
+  },
+  "levels": [
+    "qed/g-not",
+    "qed/g-and",
+    "qed/g-tree",
+    "qed/g-or",
+    "qed/g-imp",
+    "qed/g-always",
+    "qed/g-iff",
+    "qed/e-words",
+    "qed/e-says",
+    "qed/e-one",
+    "qed/e-two",
+    "qed/e-three",
+    "qed/e-count",
+    "qed/g-xor"
+  ]
+}

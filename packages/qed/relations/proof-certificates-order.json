@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "au-cert",
-    "au-replay",
-    "au-wrong"
-  ],
-  "of": "level"
-}

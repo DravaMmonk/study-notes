@@ -1,1 +1,20 @@
-{ "folder": "quote", "schema": { "type": "obj", "fields": { "text": { "type": "str" } } } }
+{
+  "folder": "quote",
+  "schema": {
+    "type": "obj",
+    "fields": {
+      "text": {
+        "type": "str"
+      }
+    }
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
+  }
+}

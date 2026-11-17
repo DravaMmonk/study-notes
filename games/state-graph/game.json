@@ -6,5 +6,21 @@
   },
   "title": "@course.title",
   "kicker": "@course.kicker",
-  "lede": "@course.lede"
+  "lede": "@course.lede",
+  "chapters": [
+    "@state-graph/paper",
+    "@state-graph/scout",
+    "@state-graph/ranger",
+    "@state-graph/reach",
+    "@state-graph/broom",
+    "@state-graph/stack",
+    "@state-graph/settle"
+  ],
+  "encyclopedia": [
+    "state-graph/play",
+    "state-graph/entries-basics",
+    "state-graph/order",
+    "state-graph/classic",
+    "state-graph/further"
+  ]
 }

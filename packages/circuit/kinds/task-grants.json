@@ -5,7 +5,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -13,7 +13,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -21,7 +21,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -29,7 +29,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -37,7 +37,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -45,7 +45,7 @@
       "type": "list",
       "of": {
         "type": "str",
-        "reference": "grant"
+        "reference": "circuit/grant"
       },
       "optional": true
     },
@@ -81,5 +81,14 @@
       },
       "optional": true
     }
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
   }
 }

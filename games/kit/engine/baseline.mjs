@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { contentRoot, readContent, readPackage, runtimeOf, contentTargets, packageIds } from './resolver.js'
 import { packageLevel } from './package-play.js'
 import { closeGames } from './games.mjs'
-import { baselineValue, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, collectionFieldsBaseline, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
 import { contentSchemas } from './content.js'
 import { meaningsOf } from './kind-meanings.js'
@@ -35,7 +35,7 @@ try {
     const runtime = await runtimeOf(content)
     const meanings = meaningsOf(contentSchemas.get(content))
     const names = new Set()
-    for (const [kind, registry] of Object.entries(content.registries)) if (kind !== 'kind') for (const name of Object.keys(registry)) names.add(name)
+    for (const [kind, registry] of Object.entries(content.registries)) if (!['kind', 'chapter', 'game'].includes(kind)) for (const name of Object.keys(registry)) names.add(name)
     for (const registry of Object.values(runtime.vocabulary.kinds)) for (const name of Object.keys(registry)) names.add(name)
     for (const level of content.levels) for (const task of level.tasks) names.add(task.id)
     const checked = spawnSync(process.execPath, [fileURLToPath(new URL('./check.js', import.meta.url)), ...(packaged ? ['--package'] : ['--game']), id, '--fresh'], {
@@ -67,7 +67,7 @@ try {
       const normalizeBefore = nameNormalizer(before.names), normalizeAfter = nameNormalizer(snapshot.names)
       // The inventory itself describes migration locations, not behaviour.
       const { names: _old, ...oldData } = before, { names: _new, ...newData } = snapshot
-      const changes = differences(versionMetadataBaseline(existenceBaseline(normalizeBefore(oldData))), versionMetadataBaseline(existenceBaseline(normalizeAfter(newData))))
+      const changes = differences(collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeBefore(oldData)))), collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeAfter(newData)))))
       changeCount = changes.length
       total += changeCount
       writeFileSync(resolve(folder, `${kind}-${id}.diff.json`), JSON.stringify(packBaseline(changes)) + '\n')

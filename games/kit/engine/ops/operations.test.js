@@ -8,7 +8,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { COURSE_FIELDS, COURSE_OPTIONS } from '../course-schema.js'
+import { COURSE_OPTIONS } from '../course-schema.js'
 import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
@@ -24,12 +24,12 @@ import { writeContentFixture } from './fixture.js'
 
 const openGame = (id, root, options = {}) => (options.scope === 'game' ? openWorkspace : openPackage)(id, root, { vocabulary: id === 'ptoy' ? PVOCAB : VOCAB, ...options })
 
-const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS, COURSE_OPTIONS })
+const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_OPTIONS })
 const VOCAB = defineVocabulary({
   module: 'toy',
   version: 1,
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
-  game: S.obj({ title: S.text(), chapters: S.list(ERA), ...COURSE_OPTIONS, views: S.opt(S.map(S.level())) }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.str({ reference: 'chapter' })), ...COURSE_OPTIONS, views: S.opt(S.map(S.level())) }),
   // What a toy level says once is its whole puzzle; its one task is only its id.
   level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
 })
@@ -90,10 +90,6 @@ test('field edits, patches and replacements reject id changes before mutation', 
     ['level.patch', { level: 'a1', fields: { tasks: changed.tasks } }],
     ['level.patch', { level: 'a1', fields: { id: 'new' } }],
     ['level.replace', { level: 'a1', data: changed }],
-    ['game.set', { path: 'chapters[0].id', value: 'new' }],
-    ['game.unset', { path: 'chapters[0].id' }],
-    ['game.set', { path: 'chapters[0]', value: { ...ws.game.chapters[0], id: 'new' } }],
-    ['game.set', { path: 'chapters', value: [{ ...ws.game.chapters[0], id: 'new' }, ws.game.chapters[1]] }],
     ['entry.set', { entry: 'e', path: 'id', value: 'new' }],
     ['entry.patch', { entry: 'e', fields: { id: 'new' } }],
     ['entry.put', { entry: 'e', data: { ...ws.entries.get('e'), id: 'new' } }],
@@ -112,7 +108,7 @@ test('stable ids allow list reordering, insertion, deletion and undo', () => {
   const { ws } = toy()
   const chapters = ws.game.chapters
   roundTrip(ws, 'game.set', { path: 'chapters', value: [...chapters].reverse() })
-  roundTrip(ws, 'game.set', { path: 'chapters', value: [...ws.game.chapters, { id: 'new', levels: [] }] })
+  roundTrip(ws, 'game.set', { path: 'chapters', value: [...ws.game.chapters, '@toy/new'] })
   roundTrip(ws, 'game.unset', { path: 'chapters[0]' })
   roundTrip(ws, 'level.set', { level: 'a1', path: 'tasks[0].id', value: 'a1' })
 })
@@ -195,11 +191,11 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
 test('level.add and level.remove update placement while preserving content references', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' } })
-  assert.deepEqual(ws.game.chapters[0].levels, ['toy/a1', 'toy/a2', 'toy/a3'])
+  assert.deepEqual(ws.contentObjects.chapter.get('one').levels, ['toy/a1', 'toy/a2', 'toy/a3'])
   roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named/)
   roundTrip(ws, 'level.remove', { level: 'c1' })
-  assert.ok(!ws.game.chapters[1].levels.includes('toy/c1'))
+  assert.ok(!ws.contentObjects.chapter.get('two').levels.includes('toy/c1'))
 
 })
 
@@ -412,7 +408,7 @@ const PVOCAB = defineVocabulary({
   module: 'ptoy',
   version: 1,
   kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
-  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part', { reference: 'circuit/part' })), chapters: S.list(ERA), ...COURSE_OPTIONS }),
+  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part', { reference: 'circuit/part' })), chapters: S.list(S.str({ reference: 'chapter' })), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part', { reference: 'circuit/part' }) })) }),
 })
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], op: 'add' }

@@ -1,3 +1,4 @@
+import { BUILTIN_POLICIES } from '../kind-policy.js'
 import { tagName } from '../tag-identity.js'
 import { packageLevel, packageLevelOrder } from '../package-play.js'
 import { runtimeIds } from '../runtime.js'
@@ -434,6 +435,7 @@ const tools = {
         // the object types packages declare (kinds/).
         legacyModules: vocabulary.legacyModules ?? runtimeIds(content), packageCode: Boolean(vocabulary.packageCode),
         objectKinds: vocabulary.objectKinds ?? {},
+        kindPolicies: { ...BUILTIN_POLICIES, ...vocabulary.objectKinds },
         vocabulary: describe(vocabulary),
         operations: Object.fromEntries(Object.entries(operationsFor(vocabulary)).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }

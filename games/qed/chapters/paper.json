@@ -1,0 +1,12 @@
+{
+  "machine": null,
+  "chapter": {
+    "title": "@course.eras.paper.chapter.title",
+    "question": "@course.eras.paper.chapter.question"
+  },
+  "levels": [
+    "qed/table",
+    "qed/always",
+    "qed/onerow"
+  ]
+}

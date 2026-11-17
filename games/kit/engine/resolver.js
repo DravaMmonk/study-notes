@@ -1,3 +1,4 @@
+import { expandNames } from './names.js'
 import { registerCircuitConsumers } from './circuit-bridge.js'
 import { projectVocabulary } from './kind-meanings.js'
 import { validateConfig, kernelIdentity, readJSON, dependencyProblem, satisfies } from './release-data.js'
@@ -118,10 +119,8 @@ export function entryValue(name, value) {
 }
 
 /** Games arrange package objects and cannot declare objects of their own. */
-export function gameDeclarationProblems(gameDir, schemas) {
-  return [...new Set(['kinds', 'symbols', 'core', 'view', ...Object.values(schemas?.objectKinds ?? {}).filter(d => !d.extends).map(d => d.folder), 'levels', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'groups', ...Object.keys(contentKindSchemas).map(kind => folders[kind])])]
-    .filter((name) => existsSync(resolve(gameDir, name)))
-    .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
+export function gameDeclarationProblems(gameDir) {
+  return ['core', 'view'].filter(name => existsSync(resolve(gameDir, name))).map(name => ({ at: name, says: 'game layers contain data only' }))
 }
 
 /** The level files of a content package, [[id, path]]. */
@@ -154,12 +153,12 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
   const ownText = (file) => (file === 'game.json' || file === 'course.json' ? courseText : packageText)
   return assemble({
     id, packageId, courseNamespace, schemas, provenance,
-    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file, schemas.game, schemas)]))),
+    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, expandNames(ownText(file)(value, file, schemas.game, schemas), file === 'course.json' ? packageId : courseNamespace, { schema: schemas.game, vocabulary: schemas, context: 'configuration', textKeys: false })]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
     ...Object.fromEntries(['tags', 'relations', 'sections'].map((kind) => [kind, [
       ...objectFiles(packageDir, folders[kind] ?? kind).map(([name, file]) => [kind === 'tags' ? name.split('/').at(-1) : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.slice(0, name.lastIndexOf('/')) }) }, packageId]),
     ]])),
-    contentObjects: Object.fromEntries(Object.entries(kindSchemas(schemas)).filter(([kind]) => kind !== 'kind').map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(packageDir, schemas.objectKinds?.[kind]?.folder ?? folders[kind] ?? kind).map(([name, file]) => [name, read(packageText, file, schema)]))])),
+    contentObjects: Object.fromEntries(Object.entries(kindSchemas(schemas)).filter(([kind]) => kind !== 'kind').map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(kind === 'chapter' ? gameDir : packageDir, schemas.objectKinds?.[kind]?.folder ?? folders[kind] ?? kind).map(([name, file]) => [name, read(kind === 'chapter' ? courseText : packageText, file, schema)]))])),
     declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
     glossary: { groups: [], entries: objectFiles(packageDir, 'entries').map(([id, file]) => ({ id, ...read(packageText, file, ENTRY) })) },
     blueprint: existsSync(blueprint) ? read(courseText, blueprint, BLUEPRINT) : undefined,
@@ -186,7 +185,7 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
     if (result?.then) throw new Error(`${id}: register(kernel) must register declarations synchronously`)
   }
   const objects = levelFiles(dir).map(([name, file]) => ({ kind: 'level', name, value: json(file) }))
-  for (const folder of ['tags', 'relations', 'sections']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/').at(-1) : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
+  for (const folder of ['tags', 'relations', 'sections', 'chapters']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/').at(-1) : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
   for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
   for (const kind of Object.keys(contentKindSchemas)) for (const [name, file] of objectFiles(dir, folders[kind])) objects.push({ kind, name, value: json(file) })
   for (const [name, file] of objectFiles(dir, 'kinds')) objects.push({ kind: 'kind', name, value: json(file) })
@@ -287,7 +286,7 @@ export const readPackageLayers = (packages, root) => resolveLayers({ packages, r
 /** Assemble qualified layers once, after every override has been composed. */
 export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
-  declarationProblems = [...declarationProblems, ...layers.flatMap(layer => layer.dependencyProblems ?? []), ...existenceProblems(result.qualifiedLayers, schemas)]
+  declarationProblems = [...declarationProblems, ...result.policyProblems, ...layers.flatMap(layer => layer.dependencyProblems ?? []), ...existenceProblems(result.qualifiedLayers, schemas)]
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
   const game = Object.assign({}, ...configurations)
   delete game.uses
@@ -314,7 +313,6 @@ export function readContent(id, root = contentRoot(), { overrides = true, vocabu
   const own = resolved.at(-1), layers = resolved.slice(0, -1)
   const gameDir = gameDirectory(id, root)
   if (!overrides) { own.overrides = []; own.textOverrides = [] }
-  own.objects = []
   const schemas = vocabulary ?? layerVocabulary(layers)
   const blueprintPath = resolve(gameDir, 'blueprint.json')
   const blueprint = existsSync(blueprintPath) ? catalogReader(own.catalogs)(json(blueprintPath), blueprintPath, BLUEPRINT, schemas) : undefined
@@ -363,7 +361,7 @@ export function readStarter(templateDir) {
   const files = { 'game.json': json(resolve(dir, 'game.json')), ...configuration(configPaths(dir, dir)) }
   const dependencies = resolveLayers({ packages: Object.keys(files['package.json'].uses ?? {}), closure: true, unlocked: true }).layers
   const declarations = layerVocabulary(dependencies).objectKinds
-  return readFiles('starter', files, { vocabulary: layerVocabulary([...dependencies, readLayer('starter', dir, files['package.json'], declarations)]), provenance: { layerOrder: dependencies.map(layer => layer.id) }, courseNamespace: 'starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
+  return readFiles('starter', files, { vocabulary: layerVocabulary([...dependencies, readLayer('starter', dir, files['package.json'], declarations)]), provenance: { layerOrder: dependencies.map(layer => layer.id) }, courseNamespace: '@starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
 export { runtimeOf } from './runtime.js'

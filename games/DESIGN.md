@@ -23,19 +23,18 @@
 
 ## 2. 课程结构
 
-**包提供对象，游戏编排课程。** 关卡设计在 `packages/<包>/` 里做：关卡、元件、词条各自独立，标签把同种对象收成集合，关系写先修和显示顺序。标签没有教学含义，也不规定一关只能属于一个组；同一关可以出现在几个标签里。包之间可以依赖和覆盖，基础元件可以放进库包共用（第 6.1 节）。
+**包提供对象，游戏编排课程。** 关卡设计在 `packages/<包>/` 里做：关卡、元件、词条各自独立，标签把同种对象收成集合，关系写先修和元件取代。标签没有教学含义，也不规定一关只能属于一个组；同一关可以出现在几个标签里。包之间可以依赖和覆盖，基础元件可以放进库包共用（第 6.1 节）。
 
-**章是游戏自己的有序列表。** `games/<游戏>/game.json` 的 `packages` 选用包，`course.json` 的 `chapters` 把关卡全名排成章。章的 `levels` 顺序就是玩法顺序和编号，不能违背先修；同一关只放进一章。`rows` 是这一章的路线图布局（第 2.6 节）。导入标签是一次编排操作：把成员排好写入列表，之后顺序由游戏维护，不把标签保存在章里。
+**章是游戏层的内核对象。** 游戏配置 `game.json` 的 `chapters` 是 `list<chapter>`，给出章的全名和顺序。每章独立写在 `games/<游戏>/chapters/<章>.json`，全名为 `@<游戏>/<章>`。章的 `levels: list<level>` 保存具体关卡全名，`rows` 保存路线图。章文案和现有 `machine` 字段随章保存。原本用数字 id 编号的章增加 `number`，保留现有地图编号。游戏配置的 `encyclopedia: list<section>` 保留百科分组的显示顺序，分组内顺序取其 `values`。`course.json` 保留 `optional`、`skippable`、开局配置及工作单。导入标签会一次性展开并写入章的列表，之后由游戏维护顺序。
 
 ```json
+// games/qed/game.json
+{ "chapters": ["@qed/paper"] }
+// games/qed/chapters/paper.json
 {
-  "chapters": [{
-    "id": "paper", "title": "@chapter.paper.title",
-    "levels": ["qed/table", "qed/always", "qed/onerow"],
-    "rows": [["qed/table"], ["qed/always", null, "qed/onerow"]]
-  }],
-  "optional": ["qed/onerow"],
-  "skippable": ["qed/onerow"]
+  "chapter": { "title": "@course.eras.paper.chapter.title" },
+  "levels": ["qed/table", "qed/always", "qed/onerow"],
+  "rows": [["qed/table"], ["qed/always", null, "qed/onerow"]]
 }
 ```
 
@@ -76,7 +75,7 @@
 - 地图按章内先修关系分层，同一层依课程顺序排列，每行最多三关。跨章先修通过锁关提示查看。
 - 关卡统一用章号和章内数字序号，取自 `levels` 的顺序。关卡的内容 ID 用于编排板、引用和存档。
 - 可选关用虚线描边，关卡分别显示「可选」和「可跳过」标签。里程碑用较大的按钮，包括每章第一关、首次引入元件、阶段或解锁作品的关。按钮右侧显示玩法图标，通关后可显示成绩。线路图的解锁标记显示电路元件。通关弹窗列出本次新获得的元件，以及在课程中刚满足全部前置的关卡。
-- 游戏 `course.json` 的 `chapters[].rows` 保存本章路线图布局，成员写关卡全名：每一行从左到右放哪些关卡，`null` 是空位，用来让关卡排得更整齐；一行最多三个位置，关卡要在它每个章内前置的下面。没有保存布局，或布局没写到的关卡，在满足已有布局的前提下按上面的规则排（`kit/course.js` 的 `mapRows`）：按先修关系一层一层排在前面各层的行之后，每行最多三关，排在它前置的下面、需要它的已排关卡的上面（插进的行把下面的行往下推）。
+- 游戏 `chapters/<章>.json` 的 `rows` 保存本章路线图布局，成员写关卡全名：每一行从左到右放哪些关卡，`null` 是空位，用来让关卡排得更整齐；一行最多三个位置，关卡要在它每个章内前置的下面。没有保存布局，或布局没写到的关卡，在满足已有布局的前提下按上面的规则排（`kit/course.js` 的 `mapRows`）：按先修关系一层一层排在前面各层的行之后，每行最多三关，排在它前置的下面、需要它的已排关卡的上面（插进的行把下面的行往下推）。
 - 排得紧：一关只往下排到必须的位置（它的来路和同一列上面那关的下方，再避开横穿它这一列的连线拐弯），同一行的关不必对齐；连线上没有标签时，两关之间只留一小段线。
 - 点一个还锁着的关，它和所有还要先通过的关一起高亮（跨章也算），并列出现在就能做的那几关，点一下直接去。
 - 每关下面的连线上标出它带来的东西：这一关新带来的原始元件（这一关打开后显示名字，`introductions`），和通过它解锁的元件（通过后显示名字）。
@@ -180,7 +179,7 @@
 | 关卡有课程位置，机体已可用且能执行所需机制 | `unplaced`、`machine`、`mechanism` |
 | 沿用作品的来源关是先修，托盘成员和阶段确实被引入 | `carry-unseen`、`tray-unmet` |
 | 引用存在、标签和关系无环、覆盖来源明确、游戏仅覆盖文案和关卡关系 | 对象和内容检查 |
-| 章的路线图一行最多三个位置，后置关在前置关之后 | 游戏 `course.json` 章的 `rows` 检查 |
+| 章的路线图一行最多三个位置，后置关在前置关之后 | 游戏 `chapter` 对象的 `rows` 检查 |
 | 元件的行为与签名一致，参考解通过、naive 解失败 | 元件契约和逐任务检查 |
 
 `npm run check` 在 `trace-viewer` 目录运行。技术问题可暂记在游戏 `course.json` 的 `open` 工作单；新问题或已解决但未移除的工作单项目使检查失败。包检查不生成课程，逐关独立验证。教学建议不进入 `open`，也不影响 check 的通过与否。
@@ -231,16 +230,20 @@
 | 符号 `symbol` | `symbols/<名>.json` | 填句子条的连接词，含 `mark`、`name`、`desc`、`icon` 和可选 `stages` |
 | 词条 `entry` | `entries/<名>.json` | 百科正文、关联和开放位置 |
 | 标签 `tag` | `tags/<对象类型>/<名>.json` | 同种对象的无序集合，可嵌套，不成环 |
-| 关系 `relation` | `relations/<名>.json` | `requires`、`order`、`replaces` 的有向边 |
+| 关系 `relation` | `relations/<名>.json` | `requires`、`replaces` 的有向边 |
 | 托盘 `circuit/tray` | `trays/<名>.json` | 可发放对象和阶段的 `values`、二级 `menus`、标题、说明、`workshop` |
 | 百科分组 `section` | `sections/<名>.json` | 标题、说明和词条或词条标签的 `values` |
 | 对象类型 `kind` | `kinds/<名>.json` | schema、目录、引用方、关系、覆盖、文案与左栏声明；全名 `<包>/<名>` |
+| 章 `chapter` | 游戏 `chapters/<名>.json` | `levels: list<level>`、`rows`、文案与显示配置 |
+| 游戏配置 `game` | 游戏 `game.json` | 选包、`chapters: list<chapter>`、入口文案 |
 | 包声明的对象 | `<声明目录>/<名>.json` | 自动参与引用、标签、关系、覆盖、来源、文案和操作集 |
 | 尚待迁出的内容种类 | `<种类>/<名>.json` | `wordset`、`quote`、`power`、`box` 暂随旧模块 |
 
 一个对象一个文件，文件名提供 id，文件不再重复存对象 id。任务、阶段、菜单等对象内部的身份仍写在内部。标签只提供集合和 Studio 的名字、说明，不承担托盘、百科分组或概念功能；同一个词条可进几个分组，未分组的归「其它」。组装后的 `glossary`、`partDefs` 和 `eras` 是运行与显示投影，不是可写文件。
 
-**关系加载即生效。** 关系写 `{ kind, of?, edges: [{ from, to, required?, game? }] }`；`order` 也可写 `sequence`，等同相邻边。标签端点连到集合的起点、从终点连出；`of: "tag"` 必须同时写 `member: "<成员类型>"`，保留 `#全名`，排标签本身，不展开成员。跨对象类型的 `order` 不写 `of`，直接用对象全名，在已登记的对象类型中查找，同名歧义报错；不再使用 `of: "grant"`。`requires`、`order` 各自无环；关卡的 `order` 只排 Studio，游戏顺序只读章的列表。元件和词条的 `order`、元件的 `replaces` 对所有加载者生效。无显式先后时按全名字典序；`orderedTags(content, kind)` 先满足标签显式顺序，再从成员的本地先修推断，最后按全名排。通常把成员顺序写成 `<标签名>-order`，标签间顺序写成 `<种类>-tags-order`。
+**集合字段按 schema 工作。** `set<T>` 无序且不重复，`list<T>` 有序且不重复，`edges<T>` 是无环有向边。`T` 用成员 schema 表示，例如 `{ "type": "str", "reference": "circuit/grant" }`；类型组由包登记的引用匹配提供。标签的 `values` 是 `set`，托盘的 `values` 和 `menus[].values`、百科分组的 `values`、章的 `levels` 与游戏配置的 `chapters`、`encyclopedia` 是 `list`。`menus` 是以 `id` 为身份的对象列表。托盘先按 `menus` 顺序显示菜单，再按 `values` 顺序显示直接成员，菜单内部各自保留 `values` 顺序，`workshop` 省略表示可进工坊。
+
+关系文件写 `{ kind, edges: [{ from, to, required?, game? }] }`。`requires` 的 `edges` 是 `edges<level>`，`replaces` 是 `edges<circuit/part>`。先修关系的标签端点按集合边界连接。内核统一检查集合成员引用、重复、标签嵌套环和有向环。Studio 用 `orderedMembers(content, ids, kind)` 按先修和名字排列分组成员，标签名称按全名排列。
 
 **依赖。** `package.json` declares `version`, a `kernel` range, and direct `uses` as a range map. 包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；The first key in the ordered `packages` map selects the primary package. Selection order does not change topological loading.
 
@@ -250,17 +253,27 @@
 
 **覆盖。** 凡是改别人的对象，都写在覆盖者的 `overrides/<命名空间>/` 下，原声明不动。覆盖路径由 `engine/layers.js` 与操作集统一解释：关卡用 `levels/<名>.json`，元件用 `parts/<名>.json`，符号用 `symbols/<名>.json`，词条用 `entries/<名>.json`，标签用 `tags/<种类>/<名>.json`，关系、托盘、百科分组分别用 `relations/`、`trays/`、`sections/`，其它内容种类用自身目录；文案用 `i18n/<lang>.json`。
 
-| 对象 | 合并规则 |
+| 字段类型 | 覆盖补丁 |
 |---|---|
-| 关卡、元件、词条、内核内容种类 | 默认整份替换；`$merge: true` 按 JSON merge patch 改指定字段 |
-| 标签、关系、托盘、百科分组 | 默认追加成员或边并去重；`replace: true` 清空后重写，`remove` 逐项去掉 |
-| 文案 | 按键合并，后层盖前层 |
+| `set<T>`、`edges<T>` | `{ "add": […], "remove": […] }` |
+| `list<T>` | 同上，并支持 `{ "insert": [{ "before": <成员>, "values": […] }] }` 或 `after` |
+| 普通值 | 写集合数组表示整份替换，未写的字段保留 |
+| 文案 | i18n 按键合并，后层覆盖前层 |
 
-托盘菜单与成员、百科分组的显示顺序也写 `order`；菜单通常用 `<托盘>-<菜单>-order`。托盘菜单按 id 合并；`remove` 可移除菜单或成员。标签的独立贡献按依赖顺序取并集，记录每个成员的贡献者；`replace: true` 重置集合与来源，`remove` 移除成员及来源。其它对象由两个互不依赖的包覆盖时，检查拒绝，须明确依赖。游戏层只准覆盖文案及关卡的 `requires`、`order`，不能声明对象。`sources`、`overrideHistory` 保留声明者、覆盖层及前后值，Studio 和检查共用，不能只看最终 JSON 猜来源。
+`engine/collections.js` 统一完成字段合并。嵌套对象列表用 `id` 定位成员，边用 `from`、`to`、可选的 `game` 定位，移除边时无需重复 `required`。独立包可向同一对象提交集合字段的增量补丁，纯集合贡献按加载顺序合并。整份替换或覆盖普通字段的独立覆盖要求明确依赖。成员来源存于 `sources[kind][name].collections[fieldPath][memberKey] = [layer, …]`。标签键用 `tagKey`，边键是 `[from,to,game或null]` 的 JSON，嵌套路径例如 `menus[qed/proof-and].values`。游戏配置的来源身份为 `sources.game["@<游戏>/config"]`，其中 `collections.chapters` 和 `collections.encyclopedia` 同样记录成员贡献。原始标签引用保留自身贡献来源，展开时可沿对应标签的同一份来源表查询成员。`overrideHistory` 保留覆盖前后值。
+
+**每种对象类型显式声明层权限。** `declares` 是 `package` 或 `game`，`overrides` 按覆盖层列出字段路径。`*` 允许全部字段，`$text` 允许 schema 中的文案字段。未列出的层和字段不能覆盖。包声明示例为 `{ "declares": "package", "overrides": { "package": ["*"], "game": ["$text"] } }`。内核类型的定义在 `kind-policy.js`，包类型在 `kinds/`，`layerProblems` 按同样的两个属性报告 `rule: "layer"`。
+
+| 内核类型 | 谁能声明 | 包层覆盖 | 游戏层覆盖 |
+|---|---|---|---|
+| level、task、tag、entry、section、kind | package | 全部字段 | 文案 |
+| relation | package | 全部字段 | 文案，requires 另允许 edges |
+| chapter、game | game | 无 | 全部字段 |
+| i18n | 各自语言表 | 文案键 | 文案键 |
 
 **检查命令**（`trace-viewer/`）：`npm run check -- <游戏>` 查课程和选入的关；`npm run check -- --package <包>` 不生成课程，先查对象、引用、依赖和覆盖，再查元件的类型与设置，最后逐关检查参考解通过、naive 解失败。课程解锁、托盘引入来源、章和进度只在游戏上查。不写目标时查全部游戏，再查没有游戏玩的包；同名时用 `--game`、`--package` 区分。
 
-包和游戏各有 `i18n/<lang>.json`、`changes.jsonl`。游戏另有 `game.json`、`course.json`，可有作者侧 `blueprint.json`、`pipeline.json`。`resolver.js` 读盘，`content.js` 组装；页面加载构建出的 `content.json` 和语言文件，`publish:content` 检查后只发布内容。文件按职责放，开发按对象做：Studio 聚合对象的定义、文案、标签、关系和覆盖，不要求作者来回找文件。
+包和游戏各有 `i18n/<lang>.json`、`changes.jsonl`。游戏另有 `game.json`、`course.json`、`chapters/`，可有作者侧 `blueprint.json`、`pipeline.json`。`resolver.js` 读盘，`content.js` 组装；页面加载构建出的 `content.json` 和语言文件，`publish:content` 检查后只发布内容。文件按职责放，开发按对象做：Studio 聚合对象的定义、文案、标签、关系和覆盖，不要求作者来回找文件。
 
 ### 6.1.1 Versions, locks and releases
 
@@ -447,7 +460,8 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 
 中栏放复杂、跨对象、需要直接看见的编辑：关卡单关试玩、元件的板、阶段链、标签、托盘、百科分组、关系板、章的接线板和路线图、能力说明、覆盖差异、语言对照。右栏随选择显示 schema 控件或原始 JSON，id 只显示。左栏按职责找资源，中栏按对象工作，右栏补任意字段，不再靠旧的「画面、字段、文案、比较、变更」顶栏页签分流程。
 
-**关系和路线图分开。** 包关系板改 `requires`、`order` 等关系；编排板加边、去边写成游戏对包关系的覆盖，关卡和元件仍只读。章内拖动编号顺序改 `chapters[].levels`，路线图拖放改本章 `rows`。标签成员和组的显示顺序写成 `order` 关系，标签间用 `of: "tag"`，不借成员数组的顺序。覆盖审计列出本层可见的对象、覆盖者和前后差异，可跳回对象。
+**关系和路线图分开。** 包关系板编辑 `requires`、`replaces` 的 `edges`，编排板增删先修边写成游戏覆盖。章内编号顺序编辑 `registries.chapter` 中对应对象的 `levels`，路线图编辑 `rows`，章序编辑游戏配置的 `chapters`。集合来源来自 `sources` 的 `collections`。Studio 的新列表、勾选和关系板控件由 Studio 会话接入这套数据与操作协议。
+
 
 **修改只有一份待定变更集。** 画面、配置、检查、文案和 diff 都读 `preview` 的同一份结果；应用调用 `modify`，撤销调用日志 `undo`。画面上的内容字段可点进右栏，包画面使用单关试玩，不借任何游戏的课程。审计、变更集和日志放在中栏的辅助抽屉。桌面可调栏宽，窄屏按工作区现有响应式呈现；样式和交互由 Studio 共用组件维护。
 
@@ -978,7 +992,7 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 
 ---
 
-## 9. 实例：《状态之图》按代际重排（`course.json` 的 `chapters`）
+## 9. 实例：《状态之图》按代际重排（游戏章对象）
 
 以下实例记录各课程曾采用的设计选择，供比较，不是其他课程必须照搬的模板。
 
@@ -1011,7 +1025,7 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 
 ## 10. 实例：《视觉完备》
 
-每一章是一个 chapter（`games/vision-complete/course.json` 的 `chapters`）：主线是步骤（新元件和紧跟的小练习交替），专题和挑战挂在各自需要的那一关之后；主线按机制整理成带名字的系列；互不依赖的系列排成并行组（比如第 1 章的「锐化」和「找边」，第 8 章的「对抗」和「扩散」），先后随意，全部通过才继续。哪些关能并行，按元件依赖判断：一关用到的元件，搭出它的关必须在它之前。全部 12 章（第 0–11 章）都已这样重排，技术检查通过，抽象链由作者评审：
+每一章是一个 chapter（`games/vision-complete/chapters/`）：主线是步骤（新元件和紧跟的小练习交替），专题和挑战挂在各自需要的那一关之后；主线按机制整理成带名字的系列；互不依赖的系列排成并行组（比如第 1 章的「锐化」和「找边」，第 8 章的「对抗」和「扩散」），先后随意，全部通过才继续。哪些关能并行，按元件依赖判断：一关用到的元件，搭出它的关必须在它之前。全部 12 章（第 0–11 章）都已这样重排，技术检查通过，抽象链由作者评审：
 
 - 能拼出来的元件都由玩家拼：ReLU = 相乘 + 阈值，取较大 = ReLU 再加回去，最大池化 = 取较大 + 平移 + 隔点取样，Sigmoid = exp + 加常数 + 相除；
 - 拼不出来的原元件用探测关引入（平移、阈值），或声明为原始元件（cos、exp、相除、开方、求平均、全图最大值、频域相乘、可学习的数）；

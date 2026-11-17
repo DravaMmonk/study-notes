@@ -1,8 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "h-and-make",
-    "h-or-make"
-  ],
-  "of": "level"
-}

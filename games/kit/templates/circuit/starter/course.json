@@ -2,16 +2,5 @@
   "primitives": [
     "add",
     "sub"
-  ],
-  "chapters": [
-    {
-      "id": 1,
-      "title": "@course.eras.1.title",
-      "question": "@course.eras.1.question",
-      "levels": [
-        "starter/1-1",
-        "starter/1-2"
-      ]
-    }
   ]
 }

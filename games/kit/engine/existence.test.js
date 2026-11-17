@@ -9,7 +9,7 @@ import { existenceProblems, contentExistenceProblems, publicSurfaces, collectRef
 const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({}), level: S.obj({ nested: S.opt(S.list(S.obj({ arbitrary: S.ref('lib/scene') }))), grants: S.opt(S.list(S.str({ reference: 'grant' }))) }),
 })
-schemas.objectKinds = { ...circuitFixtureKinds, 'lib/scene': { folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
+schemas.objectKinds = { ...circuitFixtureKinds, 'lib/scene': { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
 const object = (kind, name, value = {}) => ({ kind, name, value })
 const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^0.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 const lib = () => ({ ...layer('lib', [object('kind', 'scene', schemas.objectKinds['lib/scene']), object('lib/scene', 'start')]), codeObjects: [object('lib/scene', 'lib/registered') ] })
@@ -23,8 +23,8 @@ test('one structured check covers schema references, overrides, tag contribution
   const consumer = layer('consumer', [
     object('level', 'one', { nested: [{ arbitrary: 'lib/missing' }], grants: ['lib/no-grant'] }),
     object('circuit/tray', 'tray', { values: ['lib/no-tray-member'], menus: [{ id: 'menu', title: 'Menu', values: ['lib/no-menu-member'] }] }),
-    object('relation', 'order', { kind: 'order', of: 'lib/scene', sequence: ['lib/start', 'lib/no-endpoint'] }),
-  ], [object('lib/scene', 'lib/no-override', {}), object('tag', 'lib/no-tag', { kind: 'lib/scene', values: ['lib/no-member'], remove: ['lib/no-remove'] })], ['lib', 'absent'])
+    object('relation', 'order', { kind: 'requires', edges: [{ from: 'lib/start', to: 'lib/no-endpoint' }] }),
+  ], [object('lib/scene', 'lib/no-override', {}), object('tag', 'lib/no-tag', { kind: 'lib/scene', values: { add: ['lib/no-member'], remove: ['lib/no-remove'] } })], ['lib', 'absent'])
   const content = assembleLayers('consumer', [lib(), consumer], schemas, { packageId: 'consumer' })
   const problems = content.objectProblems.filter(problem => problem.rule === 'exists')
   for (const target of ['absent', 'lib/missing', 'lib/no-grant', 'lib/no-tray-member', 'lib/no-menu-member', 'lib/no-endpoint', 'lib/no-override', 'lib/no-tag', 'lib/no-member', 'lib/no-remove']) {
@@ -66,7 +66,7 @@ test('typed tags, registered readers, unknown member types and ambiguous unconst
   assert.ok(!content.objectProblems.some(problem => problem.target === 'lib/reader'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'tag' && problem.member === 'missing-kind'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'kind' && problem.target === 'missing-kind'))
-  const refs = [{ id: '@game', config: { kernel: '^0.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
+  const refs = [{ id: '@game', config: { kernel: '^0.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('tag', '@game/all', { kind: 'any', values: ['#lib/same'] })] }]
   const problems = existenceProblems(refs, schemas, publicSurfaces(contentLayers(owner), schemas))
   assert.equal(problems.find(problem => problem.target === 'lib/same')?.reason, 'ambiguous')
 })
@@ -107,16 +107,16 @@ test('locations identify nested level fields, override targets and dependency se
 })
 
 test('collection overrides retain authored locations after assembly shifts indices and expands sequences', () => {
-  const owner = layer('lib', [object('level', 'one'), object('tag', 'levels', { kind: 'level', values: ['lib/one'] }), object('relation', 'route', { kind: 'order', of: 'level', edges: [] })])
+  const owner = layer('lib', [object('level', 'one'), object('tag', 'levels', { kind: 'level', values: ['lib/one'] }), object('relation', 'route', { kind: 'requires', edges: [] })])
   const consumer = layer('consumer', [], [
     object('tag', 'lib/levels', { kind: 'level', values: ['lib/gone'] }),
-    object('relation', 'lib/route', { kind: 'order', of: 'level', sequence: ['lib/one', 'lib/absent'], remove: [{ from: 'lib/one', to: 'lib/removed' }] }),
+    object('relation', 'lib/route', { kind: 'requires', edges: { add: [{ from: 'lib/one', to: 'lib/absent' }], remove: [{ from: 'lib/one', to: 'lib/removed' }] } }),
   ], ['lib'])
   const problems = contentExistenceProblems(assembleLayers('consumer', [owner, consumer], schemas), schemas)
   for (const [target, kind, name, path] of [
     ['lib/gone', 'tag', 'lib/levels', 'values[0]'],
-    ['lib/absent', 'relation', 'lib/route', 'sequence[1]'],
-    ['lib/removed', 'relation', 'lib/route', 'remove[0].to'],
+    ['lib/absent', 'relation', 'lib/route', 'edges.add[0].to'],
+    ['lib/removed', 'relation', 'lib/route', 'edges.remove[0].to'],
   ]) {
     const found = problems.filter(problem => problem.target === target)
     assert.equal(found.length, 1, target)

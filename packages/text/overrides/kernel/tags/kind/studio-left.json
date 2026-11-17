@@ -1,1 +1,7 @@
-{ "values": ["level"] }
+{
+  "values": {
+    "add": [
+      "level"
+    ]
+  }
+}

@@ -16,7 +16,8 @@
       "id": "certificate-certificate",
       "title": "@tray.certificate-formula.menu.certificate-certificate.title",
       "values": [
-        "#certificate-certificate"
+        "clausify",
+        "replay"
       ]
     }
   ]

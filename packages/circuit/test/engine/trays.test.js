@@ -41,19 +41,18 @@ test('switching trays groups only the parts in the selected tray', () => {
   assert.deepEqual(trayDisplay(trays, ['rules'], items, []).items, items)
 })
 
-test('tray overrides append members and merge menus by id, with explicit removal and replacement', async () => {
-  const { contentMeanings } = await import('../../core/index.js')
+test('tray overrides use generic collection patches and nested identified lists', async () => {
   const { applyOverride: override } = await import('../../../../games/kit/engine/layers.js')
-  const applyOverride = (kind, before, patch) => override(kind, before, patch, { meanings: contentMeanings })
+  const apply = (before, patch) => override('circuit/tray', before, patch, circuitFixtureSchema({}))
   const source = { title: 'Tools', values: ['a'], menus: [{ id: 'group', title: 'Group', values: ['b'] }] }
-  const next = applyOverride('circuit/tray', source, { values: ['c', 'a'], menus: [{ id: 'group', values: ['d', 'b'] }, { id: 'other', title: 'Other', values: ['e'] }] })
+  const next = apply(source, { values: { add: ['c'] }, menus: { add: [{ id: 'group', values: { add: ['d'] } }, { id: 'other', title: 'Other', values: ['e'] }] } })
   assert.deepEqual(next.values, ['a', 'c'])
   assert.deepEqual(next.menus[0], { id: 'group', title: 'Group', values: ['b', 'd'] })
-  assert.deepEqual(applyOverride('circuit/tray', next, { remove: ['a', 'group'] }).menus.map(menu => menu.id), ['other'])
-  assert.deepEqual(applyOverride('circuit/tray', source, { replace: true, values: ['z'], menus: [] }), { title: 'Tools', values: ['z'], menus: [] })
+  assert.deepEqual(apply(next, { menus: { remove: ['group'] } }).menus.map(menu => menu.id), ['other'])
+  assert.deepEqual(apply(source, { values: ['z'], menus: [] }), { title: 'Tools', values: ['z'], menus: [] })
 })
 
-test('tray order interleaves menus and direct members without changing menu-member order', async () => {
+test('tray lists retain menu and grant order', async () => {
   const { assembleCircuitFixture: assemble } = await import('../../../../games/kit/engine/ops/fixture.js')
   const { S } = await import('../../../../games/kit/engine/schema.js')
   const content = assemble({ id: 'sample', schemas: circuitFixtureSchema({ game: S.obj({}), level: S.obj({}), kinds: {} }), game: {}, levels: [],
@@ -62,12 +61,9 @@ test('tray order interleaves menus and direct members without changing menu-memb
       { id: 'z-menu', title: 'First', values: ['two', 'one'] },
       { id: 'a-menu', title: 'Second', values: ['two'] },
     ] }]],
-    relations: [['tools-order', { kind: 'order', of: 'circuit/part', edges: [
-      { from: 'z-menu', to: 'last' }, { from: 'last', to: 'a-menu' }, { from: 'two', to: 'one' },
-    ] }]],
   })
   assert.deepEqual(content.objectProblems, [])
-  assert.deepEqual(content.trays['sample/tools'].items.map(item => typeof item === 'string' ? item : item.id), ['sample/z-menu', 'sample/last', 'sample/a-menu'])
+  assert.deepEqual(content.trays['sample/tools'].items.map(item => typeof item === 'string' ? item : item.id), ['sample/z-menu', 'sample/a-menu', 'sample/last'])
   assert.deepEqual(content.trays['sample/tools'].items[0].items, ['sample/two', 'sample/one'])
 })
 const assemble = options => assembleContent({ ...options, schemas: circuitFixtureSchema(options.schemas) })

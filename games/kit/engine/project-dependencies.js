@@ -1,4 +1,3 @@
-import { expandNames } from './names.js'
 import { existenceProblems, publicSurfaces } from './existence.js'
 import { tagKey, tagName } from './tag-identity.js'
 import { runtimeIds } from './runtime.js'
@@ -17,7 +16,7 @@ const external = (eras) => eras?.some((era) => era.links?.some(({ fromGame }) =>
 function siblingCourseProblems(own, content, peers, root) {
   if (!own) return []
   return peers.filter(([, peer]) => peer.packageIds.some((id) => own.packageIds.includes(id))).flatMap(([id, peer]) => {
-    const { game: { chapters = [] } } = peer
+    const chapterObjects = readContent(id, root).registries.chapter ?? {}
     const shared = new Set(peer.packageIds.filter((id) => own.packageIds.includes(id)))
     const belongs = (name) => shared.has(name.split('/')[0])
     const extra = peer.packageIds.filter((packageId) => !own.packageIds.includes(packageId))
@@ -30,11 +29,11 @@ function siblingCourseProblems(own, content, peers, root) {
       ...Object.fromEntries(Object.entries(content.tags ?? {}).filter(([name]) => belongs(tagName(name)))),
     } }
     for (const layer of readPackageLayers(peer.packageIds, root).filter((layer) => extra.includes(layer.id))) for (const patch of layer.overrides.filter((o) => o.kind === 'tag')) {
-      if (registries.tag[tagKey(patch.value.kind, patch.name)]) registries.tag[tagKey(patch.value.kind, patch.name)] = applyOverride('tag', registries.tag[tagKey(patch.value.kind, patch.name)], qualifyObject('tags', patch.value, layer.id))
+      if (registries.tag[tagKey(patch.value.kind, patch.name)]) registries.tag[tagKey(patch.value.kind, patch.name)] = applyOverride('tag', registries.tag[tagKey(patch.value.kind, patch.name)], qualifyObject('tags', patch.value, layer.id), contentVocabularyFor(installed))
     }
     const schemas = contentVocabularyFor(installed)
     const surfaces = contentLayers(installed).map(layer => ({ ...layer, manifest: undefined, objects: [...layer.objects.filter(object => !['level', 'tag'].includes(object.kind)), ...Object.entries(registries).flatMap(([kind, values]) => Object.entries(values).filter(([key]) => (kind === 'tag' ? tagName(key) : key).startsWith(`${layer.id}/`)).map(([key, value]) => ({ kind, name: kind === 'tag' ? tagName(key) : key, value })))] }))
-    return existenceProblems([{ id: `@${id}`, config: expandNames({ chapters, packages: peer.packageRanges }, `@${id}`, { schema: schemas.game, vocabulary: schemas }), objects: [] }], schemas, publicSurfaces(surfaces, schemas))
+    return existenceProblems([{ id: `@${id}`, config: { packages: peer.packageRanges }, objects: Object.entries(chapterObjects).map(([name, value]) => ({ kind: 'chapter', name, value })) }], schemas, publicSurfaces(surfaces, schemas))
   })
 }
 

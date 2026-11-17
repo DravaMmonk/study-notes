@@ -48,8 +48,8 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
     lockFixture(root)
     let ws = openPackage('story', root)
     let result = await runChangeset(ws, { why: 'Declare a scene', ops: [{ op: 'kind.put', kind: 'scene', data: {
-      folder: 'scenes', schema: { type: 'obj', fields: { title: { type: 'text' }, next: { type: 'name', kind: 'story/scene', optional: true } } },
-      references: ['level', 'story/scene'], override: 'replace', studio: { name: { en: 'Scenes', zh: '场景' }, icon: 'Book' },
+      declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: { type: 'obj', fields: { title: { type: 'text' }, next: { type: 'name', kind: 'story/scene', optional: true } } },
+      references: ['level', 'story/scene'],  studio: { name: { en: 'Scenes', zh: '场景' }, icon: 'Book' },
       relations: { 'story:follows': { from: 'story/scene', to: 'story/scene' } },
     } }] }, { write: true })
     assert.equal(result.ok, true, result.problems.join('\n'))
@@ -84,9 +84,9 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
 test('kind declarations cannot change built-in structure or hide malformed schemas', () => {
   const layer = data => [{ id: 'story', objects: [{ kind: 'kind', name: 'thing', value: data }] }]
   const base = vocabularyFor('circuit')
-  assert.throws(() => withKindDeclarations(base, layer({ folder: 'levels', schema: { type: 'str' } })), /reserved/)
-  assert.throws(() => withKindDeclarations(base, layer({ extends: 'level', fields: { title: { type: 'str' } } })), /redefine/)
-  assert.throws(() => withKindDeclarations(base, layer({ folder: 'scenes', schema: { type: 'invalid' } })), /schema/)
+  assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'levels', schema: { type: 'str' } })), /reserved/)
+  assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, extends: 'level', fields: { title: { type: 'str' } } })), /redefine/)
+  assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: { type: 'invalid' } })), /schema/)
 })
 
 
@@ -177,6 +177,6 @@ test('Node assembly discovers code-owned tags before composing contributions', (
     const content = readPackage('writer', root)
     assert.deepEqual(content.registries.tag['entry:reader/picks'].values, ['writer/example'])
     assert.equal(content.sources.tag['entry:reader/picks'].reader, 'reader')
-    assert.deepEqual(content.sources.tag['entry:reader/picks'].members, { 'writer/example': ['writer'] })
+    assert.deepEqual(content.sources.tag['entry:reader/picks'].collections.values, { 'writer/example': ['writer'] })
   } finally { rmSync(root, { recursive: true, force: true }) }
 })

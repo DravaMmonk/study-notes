@@ -1,0 +1,22 @@
+{
+  "machine": "prover",
+  "chapter": {
+    "title": "@course.eras.boxes.chapter.title",
+    "question": "@course.eras.boxes.chapter.question"
+  },
+  "levels": [
+    "qed/and",
+    "qed/or",
+    "qed/bot",
+    "qed/curry",
+    "qed/cases",
+    "qed/notI",
+    "qed/orSwap",
+    "qed/mt",
+    "qed/iffUse",
+    "qed/orImp",
+    "qed/contra",
+    "qed/dist",
+    "qed/dsyll"
+  ]
+}

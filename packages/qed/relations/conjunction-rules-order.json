@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "decl-and",
-    "and",
-    "curry"
-  ],
-  "of": "level"
-}

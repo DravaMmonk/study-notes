@@ -229,3 +229,24 @@ export function versionMetadataBaseline(input) {
   }
   return walk(input)
 }
+
+/** Step 6 changes chapter identities and removes the retired display-order representation only. */
+export function collectionFieldsBaseline(value) {
+  const result = structuredClone(value)
+  const local = id => typeof id === 'string' ? id.replace(/^@(?:[^/]+\/)?/, '') : String(id)
+  if (result.structure?.relations) delete result.structure.relations.order
+  for (const era of Array.isArray(result.structure?.eras) ? result.structure.eras : []) {
+    era.id = local(era.id)
+    if (Number.isInteger(era.number) && String(era.number) === era.id) delete era.number
+  }
+  for (const record of result.records ?? []) {
+    const plan = record.course?.plan
+    if (!plan) continue
+    for (const [, place] of plan.place?.$map ?? []) if (place.era !== undefined) place.era = local(place.era)
+    for (const key of ['rows', 'tracks']) if (plan[key]?.$map) {
+      plan[key].$map = plan[key].$map.map(([id, value]) => [local(id), value]).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
+    }
+    for (const link of plan.dependencyLinks ?? []) if (link.source === 'course') link.detail = local(link.detail)
+  }
+  return result
+}

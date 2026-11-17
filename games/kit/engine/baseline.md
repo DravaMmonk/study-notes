@@ -139,3 +139,15 @@ Kind meanings provide course, structure, availability and execution-report obser
 The observer location changes without changing the compared values. Declared relation kinds retain empty
 edge arrays even when no objects use them. No work, verdict, trace, member ordering or availability result
 is excluded by the step-5 normalization.
+
+Step 6 adds `collectionFieldsBaseline`. It removes only `structure.relations.order`, whose authored
+presentation order has moved into the tray/section list fields. Tray items, menus, ordered menu members,
+requires/replaces edges, works, availability and execution reports continue to compare exactly.
+Chapter identities normalize only at `structure.eras[].id`, course plan place.era, rows/tracks map keys,
+and dependencyLinks.detail when source is course. These positions accept the new @game/chapter identity
+and historical local id, including numeric chapter ids. Map keys are re-sorted after this identity conversion.
+An era.number equal to its numeric file id carries the old displayed chapter number and normalizes away;
+other number changes remain differences. Chapter and game-configuration objects are excluded from the instance-alias inventory,
+so a chapter name cannot create artificial ambiguity with an entry, level or robot of the same local name.
+Missing eras are serialized undefined markers and remain unchanged. No check lines or task array order
+are suppressed by this rule. Snapshots remain unchanged.

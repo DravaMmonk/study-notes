@@ -5,12 +5,12 @@ import { assembleCircuitFixture as assembleContent } from './ops/fixture.js'
 import { S, validate } from './schema.js'
 import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
-import { referenceResolver, expandReferences, expandRelations, relationOrder, orderedTags, importLevelOrder } from './objects.js'
+import { referenceResolver, expandReferences, relationOrder, importLevelOrder } from './objects.js'
 
 const assemble = options => assembleContent({ ...options, schemas: circuitFixtureSchema(options.schemas) })
 
 const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
-  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), ...COURSE_OPTIONS }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.str({ reference: 'chapter' })), primitives: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), ...COURSE_OPTIONS }),
   level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
@@ -18,7 +18,7 @@ const source = () => ({ id: 'toy', schemas: vocabulary,
   levels: ['start', 'a', 'b', 'c', 'end'].map((id) => [id, { title: id }]),
   glossary: { groups: [], entries: [] },
   tags: [['core', { kind: 'level', title: 'Core', values: ['a', '#extras', 'b'] }], ['extras', { kind: 'level', values: ['c'] }]],
-  relations: [['path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }, { from: 'start', to: '#core' }, { from: '#core', to: 'end' }] }], ['sequence', { kind: 'order', sequence: ['start', 'a', 'b', 'c', 'end'] }]],
+  relations: [['path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }, { from: 'start', to: '#core' }, { from: '#core', to: 'end' }] }]],
 })
 
 test('tags, relation boundaries and chapter rows assemble the route; all relations take effect', () => {
@@ -52,11 +52,11 @@ test('the generic resolver expands every typed list, checks kind and cycles, and
 
 test('checks reject separate relation cycles, duplicate chapter membership, invalid layout rows and inverted prerequisites', () => {
   const wrong = source()
-  wrong.relations.push(['loop', { kind: 'requires', edges: [{ from: 'b', to: 'a' }] }], ['order-loop', { kind: 'order', edges: [{ from: 'end', to: 'start' }] }])
+  wrong.relations.push(['loop', { kind: 'requires', edges: [{ from: 'b', to: 'a' }] }])
   wrong.game.chapters.push({ id: 'two', levels: ['toy/a'] })
   wrong.game.chapters[0].rows = [['toy/b', 'toy/a', 'toy/c', null]]
   const problems = checkContent({ vocabulary }, assemble(wrong)).map((p) => p.says)
-  for (const pattern of [/circular requires/, /circular order/, /placed twice/, /no lower/, /at most|max|more than/]) assert.ok(problems.some((s) => pattern.test(s)), String(pattern) + problems.join('\n'))
+  for (const pattern of [/circular requires/, /placed twice/, /no lower/, /at most|max|more than/]) assert.ok(problems.some((s) => pattern.test(s)), String(pattern) + problems.join('\n'))
 })
 
 test('partial courses restrict both ends of loaded level relations', () => {
@@ -74,7 +74,7 @@ test('reference maps and item containers use the same typed resolver and loaded 
   expand.order = [{ from: 'p/b', to: 'p/a', of: 'circuit/part' }]
   const schema = S.obj({ list: S.list(S.ref('part', { reference: 'circuit/part' })), keyed: S.map(S.str(), { key: S.ref('part', { reference: 'circuit/part' }) }), tray: S.name('tag', { members: 'circuit/part' }) })
   assert.deepEqual(expandReferences({ list: ['#items'], keyed: { '#items': 'same' }, tray: '#items' }, schema, expand), {
-    list: ['p/b', 'p/a'], keyed: { 'p/a': 'same', 'p/b': 'same' }, tray: '#items',
+    list: ['p/a', 'p/b'], keyed: { 'p/a': 'same', 'p/b': 'same' }, tray: '#items',
   })
   expandReferences({ tray: '#levels' }, schema, expand)
   assert.deepEqual(problems, [])
@@ -99,15 +99,6 @@ test('schema-aware catalogs resolve text while preserving package object referen
 })
 
 
-test('untyped order endpoints infer level scope and honor partial courses', () => {
-  const input = source()
-  input.game.chapters = [{ id: 'partial', levels: ['toy/b', 'toy/a'] }]
-  input.game.optional = []
-  input.relations = [['sequence', { kind: 'order', sequence: ['start', 'b', 'a', 'end'] }]]
-  const content = assemble(input)
-  assert.deepEqual(content.relationEdges.order, [{ from: 'toy/b', to: 'toy/a', of: 'level' }])
-  assert.deepEqual(content.eras[0].levels.map(({ id }) => id), ['toy/b', 'toy/a'])
-})
 
 test('cycles between tag endpoints cannot vanish during boundary expansion', () => {
   const input = source()
@@ -119,7 +110,7 @@ test('cycles between tag endpoints cannot vanish during boundary expansion', () 
 test('game namespaces cannot declare tags, relations or sections', () => {
   const input = source()
   input.tags.push(['illegal', { kind: 'level', values: [] }, '@toy'])
-  assert.ok(checkContent({ vocabulary }, assemble(input)).some((p) => /games cannot declare objects/.test(p.says)))
+  assert.ok(checkContent({ vocabulary }, assemble(input)).some((p) => /may only be declared by package/.test(p.says)))
 })
 
 test('explicit trays produce ordered menus, expand task items and apply replacements on load', () => {
@@ -127,15 +118,14 @@ test('explicit trays produce ordered menus, expand task items and apply replacem
   input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('circuit/tray'), adds: S.list(S.ref('part', { reference: 'circuit/part' })), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'circuit/part' })) })) }) }
   input.partDefs = { parts: { one: {}, two: {}, three: {} } }
   input.tags.push(['menu', { kind: 'circuit/part', title: 'Menu', values: ['one', 'two'] }], ['tray', { kind: 'circuit/part', title: 'Tray', values: ['three', '#menu'] }])
-  input.trays = [['tray', { title: 'Tray', values: ['three'], menus: [{ id: 'menu', title: 'Menu', values: ['#menu'] }] }]]
-  input.relations.push(['menu-order', { kind: 'order', of: 'circuit/part', sequence: ['menu', 'three'] }])
-  input.relations.push(['items', { kind: 'order', sequence: ['two', 'one', 'three'] }], ['upgrade', { kind: 'replaces', edges: [{ from: 'three', to: 'one' }] }])
+  input.trays = [['tray', { title: 'Tray', values: ['three'], menus: [{ id: 'menu', title: 'Menu', values: ['two', 'one'] }] }]]
+  input.relations.push( ['upgrade', { kind: 'replaces', edges: [{ from: 'three', to: 'one' }] }])
   input.levels[0][1] = { title: 'Start', tray: 'tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
   const content = assemble(input)
   const start = content.levels.find(({ id }) => id === 'toy/start')
   assert.equal(start.tray, 'toy/tray')
-  assert.deepEqual(start.adds, ['toy/two', 'toy/one'])
-  assert.deepEqual(start.tasks[0].gives, ['toy/two', 'toy/one', 'toy/three'])
+  assert.deepEqual(start.adds, ['toy/one', 'toy/two'])
+  assert.deepEqual(start.tasks[0].gives, ['toy/one', 'toy/three', 'toy/two'])
   assert.deepEqual(content.trays['toy/tray'].items, [{ id: 'toy/menu', title: 'Menu', items: ['toy/two', 'toy/one'] }, 'toy/three'])
   assert.deepEqual(content.replaces, { 'toy/three': ['toy/one'] })
 })
@@ -151,12 +141,6 @@ test('chapter rows retain authored empty positions', () => {
 })
 
 
-test('order qualification follows the referenced kind when a level shares a native part name', () => {
-  const input = source()
-  input.schemas = { ...vocabulary, kinds: { part: { start: {} } } }
-  const content = assemble(input)
-  assert.equal(content.relations['toy/sequence'].sequence[0], 'toy/start')
-})
 
 test('item tags distinguish setting definitions from a part setting and its values', () => {
   const input = source()
@@ -185,38 +169,7 @@ test('tags reject teaching metadata and never implicitly declare trays', () => {
 })
 
 
-test('tag order never expands into member order or conflicts with chapter order', () => {
-  const input = source()
-  input.relations.push(['level-tags-order', { kind: 'order', of: 'tag', member: 'level', sequence: ['#extras', '#core'] }])
-  const content = assemble(input)
-  assert.deepEqual(checkContent({ vocabulary }, content), [])
-  assert.deepEqual(content.relationEdges.order.filter((e) => e.of === 'tag'), [{ from: '#toy/extras', to: '#toy/core', of: 'tag', member: 'level' }])
-  assert.deepEqual(content.eras[0].levels.map((l) => l.id), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
-  assert.deepEqual(orderedTags(content, 'level'), ['toy/extras', 'toy/core'])
-  assert.deepEqual(relationOrder(['#toy/core', '#toy/extras'], content.relationEdges.order, 'tag', 'level'), ['#toy/extras', '#toy/core'])
-})
 
-test('tag orders validate tag endpoints and detect cycles across relations independently of scheduled members', () => {
-  const problems = []
-  const expand = referenceResolver({ tag: { a: { kind: 'level', values: [] }, b: { kind: 'level', values: [] } } }, problems)
-  expandRelations({ a: { kind: 'order', of: 'tag', member: 'level', sequence: ['#a', '#b'] }, b: { kind: 'order', of: 'tag', member: 'level', edges: [{ from: '#b', to: '#a' }] } }, expand, new Set(), problems)
-  assert.ok(problems.some((p) => /circular order/.test(p.says)))
-  expandRelations({ wrong: { kind: 'order', of: 'tag', member: 'level', sequence: ['#missing', 'a'] } }, expand, new Set(), problems)
-  assert.ok(!problems.some(p => /unknown tag/.test(p.says)))
-  assert.ok(problems.some((p) => /expected a tag reference/.test(p.says)))
-})
-
-test('tag sorting uses explicit tag order before member prerequisites, then full names, including nested tags', () => {
-  const registries = { tag: {
-    'p/a': { kind: 'level', values: ['p/last'] }, 'p/b': { kind: 'level', values: ['#p/c'] },
-    'p/c': { kind: 'level', values: ['p/first'] }, 'p/d': { kind: 'level', values: [] },
-    'p/items': { kind: 'circuit/part', values: [] },
-  }, level: { 'p/first': {}, 'p/last': {} } }
-  const content = { registries, relationEdges: { requires: [{ from: 'p/first', to: 'p/last' }], order: [] } }
-  assert.deepEqual(orderedTags(content, 'level'), ['p/b', 'p/c', 'p/a', 'p/d'])
-  content.relationEdges.order.push({ of: 'tag', member: 'level', from: '#p/a', to: '#p/b' })
-  assert.deepEqual(orderedTags(content, 'level'), ['p/c', 'p/a', 'p/b', 'p/d'])
-})
 
 
 test('chapters retain authored order independently of display relations and reject tags or reversed prerequisites', () => {
@@ -236,17 +189,10 @@ test('imports include unscheduled prerequisite closures, using dependency order 
   assert.deepEqual(content.relationEdges.requires, [])
   assert.deepEqual(importLevelOrder(content, 'toy/end'), ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'])
   assert.deepEqual(importLevelOrder(content, '#toy/core'), ['toy/start', 'toy/a', 'toy/b', 'toy/c'])
-  content.registries.relation['toy/sequence'].sequence = ['toy/b', 'toy/a', 'toy/start', 'toy/c', 'toy/end']
   assert.deepEqual(importLevelOrder(content, 'toy/b'), ['toy/start', 'toy/a', 'toy/b'])
 })
 
 
-test('import display order retains paths through levels outside the imported selection', () => {
-  const input = source()
-  input.game.chapters = []
-  input.relations = [['display', { kind: 'order', sequence: ['c', 'end', 'a'] }]]
-  assert.deepEqual(importLevelOrder(assemble(input), ['toy/a', 'toy/c']), ['toy/c', 'toy/a'])
-})
 
 test('same-named typed tags resolve in context and ambiguous unconstrained references fail', () => {
   const problems = []
@@ -264,22 +210,7 @@ test('same-named typed tags resolve in context and ambiguous unconstrained refer
   assert.match(problems.at(-1).says, /ambiguous tag/)
   expand('#p/nested', 'entry')
   assert.match(problems.at(-1).says, /circular tags/)
-  const edges = expandRelations({ order: { kind: 'order', of: 'tag', member: 'level', sequence: ['#p/nested', '#p/all'] } }, expand, new Set(), problems)
-  assert.deepEqual(edges.order, [{ from: '#p/nested', to: '#p/all', of: 'tag', member: 'level' }])
-})
 
-test('mixed object orders omit of, reject ambiguous endpoints and detect cycles', () => {
-  const problems = []
-  const expand = referenceResolver({ level: { 'p/a': {}, 'p/same': {} }, entry: { 'p/b': {}, 'p/same': {} }, tag: {} }, problems, circuitFixtureSchema({}))
-  const edges = expandRelations({ mixed: { kind: 'order', sequence: ['p/a', 'p/b'] } }, expand, new Set(['p/a']), problems)
-  assert.deepEqual(edges.order, [{ from: 'p/a', to: 'p/b' }])
-  assert.deepEqual(problems, [])
-  expandRelations({ a: { kind: 'order', sequence: ['p/a', 'p/b'] }, b: { kind: 'order', sequence: ['p/b', 'p/a'] } }, expand, new Set(['p/a']), problems)
-  assert.ok(problems.some(p => /circular order/.test(p.says)))
-  expandRelations({ bad: { kind: 'order', sequence: ['p/a', 'p/same'] } }, expand, new Set(['p/a']), problems)
-  assert.ok(problems.some(p => /ambiguous object p\/same/.test(p.says)))
-  expandRelations({ old: { kind: 'order', of: 'grant', edges: [] } }, expand, new Set(), problems)
-  assert.ok(problems.some(p => /omit of/.test(p.says)))
 })
 
 

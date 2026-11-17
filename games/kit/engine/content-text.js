@@ -63,7 +63,6 @@ export function catalogsOf(scope, ...values) {
   const locales = new Map()
   const used = new Set()
   function walk(value) {
-    if (referenceKey(value)) throw new Error(`${scope}: unresolved text reference ${value}`)
     if (!value || typeof value !== 'object') return
     const key = textKey(value)
     if (key && isText(value)) {

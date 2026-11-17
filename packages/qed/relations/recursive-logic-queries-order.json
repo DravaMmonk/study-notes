@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "pl-grand",
-    "pl-anc",
-    "pl-order"
-  ],
-  "of": "level"
-}

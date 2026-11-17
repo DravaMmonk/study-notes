@@ -42,9 +42,9 @@ export function checkContent({ vocabulary: suppliedVocabulary, languages = null,
   const vocabulary = { ...baseVocabulary, kinds: { ...baseVocabulary.kinds, ...Object.fromEntries(Object.entries(domainVocabulary.objectKinds ?? {}).filter(([, definition]) => !definition.extends).map(([kind]) => [kind, content.registries?.[kind] ?? {}])) } }
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // Audit findings remain optional. Chapters retain their authored tag references.
-  const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: _version, open, blueprint, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: _version, open, blueprint, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters: _sourceChapters, eras, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const configuration = Object.fromEntries(Object.entries(played).filter(([key]) => !derivedFields(domainVocabulary).includes(key)))
-  const game = sourceChapters ? { ...configuration, chapters: sourceChapters } : configuration
+  const game = configuration
   out.push(...objectProblems.filter(problem => problem.rule !== 'exists'), ...contentExistenceProblems(content, vocabulary))
   if (out.some(problem => problem.rule === 'exists')) return out
   const courseKeys = new Map(), packageKeys = new Map()
@@ -65,7 +65,7 @@ export function checkContent({ vocabulary: suppliedVocabulary, languages = null,
   for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary)).filter(([kind]) => !meaningsOf(domainVocabulary).some(meaning => meaning.type === kind && meaning.validate))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
     if (kind === 'kind' && !content.objectKinds?.[name] || name.includes(':')) continue
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
-    if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
+    if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, kind === 'chapter' ? courseKeys : packageKeys))
   }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), entry: {}, tag: tags }, out)
   const inspectReferences = (schema, value, from, at) => {

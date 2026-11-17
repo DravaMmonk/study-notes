@@ -5,7 +5,7 @@ import { qualifyVocabulary } from '../../engine/capabilities.js'
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
 // targets, budgets, bench models and bench displays in items/.
-import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
+import { CHAPTERS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -119,11 +119,6 @@ const BENCH = S.obj({ kind: S.oneOf(['board']), ...TASK, bench: benchSchema(BENC
 
 /* ---------- game.json ---------- */
 
-const ERA = S.obj({
-  id: S.int({ min: 0 }),
-  ...COURSE_FIELDS,
-  chapter: S.obj({ title: TEXT, label: S.opt(TEXT), question: TEXT }),
-})
 const GAME = S.obj({
   title: TEXT,
   kicker: TEXT,
@@ -132,7 +127,7 @@ const GAME = S.obj({
   power: S.opt(S.name('power')),
   primitives: S.list(S.ref('part', { reference: 'circuit/part' }), { about: t('没有电路能搭出的元件') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
-  chapters: S.list(ERA, { min: 1 }),
+  chapters: CHAPTERS,
   ...COURSE_OPTIONS,
   box: S.opt(S.name('box')),
 })

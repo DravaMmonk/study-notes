@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "sp-nnf",
-    "sp-cnf",
-    "sp-order"
-  ],
-  "of": "level"
-}

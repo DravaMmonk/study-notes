@@ -1,0 +1,13 @@
+{
+  "number": 0,
+  "chapter": {
+    "title": "@course.eras.0.chapter.title",
+    "label": "@course.eras.0.chapter.label",
+    "question": "@course.eras.0.chapter.question"
+  },
+  "levels": [
+    "starter/0-1",
+    "starter/0-2",
+    "starter/0-3"
+  ]
+}

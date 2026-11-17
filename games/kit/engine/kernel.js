@@ -1,4 +1,4 @@
-import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
+import { CHAPTERS, COURSE_OPTIONS } from './course-schema.js'
 import { registerCircuitConsumers } from './circuit-bridge.js'
 import { S } from './schema.js'
 import { createCapabilityRegistry, registeredOperations, registeredValueTypes, selectModuleVocabulary } from './capabilities.js'
@@ -30,7 +30,7 @@ export const vocabulary = {
 export function vocabularyFor(course) {
   const ids = Array.isArray(course) ? course : [course]
   const choices = ids.map((id) => selectModuleVocabulary(vocabulary, id))
-  const selected = !choices.length ? { ...vocabulary, game: S.obj({ title: S.opt(S.text()), kicker: S.opt(S.text()), lede: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.either(S.str(), S.int()), title: S.opt(S.text()), question: S.opt(S.text()), ...COURSE_FIELDS }))), ...COURSE_OPTIONS }), level: null } : choices.length === 1 ? choices[0] : {
+  const selected = !choices.length ? { ...vocabulary, game: S.obj({ title: S.opt(S.text()), kicker: S.opt(S.text()), lede: S.opt(S.text()), chapters: S.opt(CHAPTERS), ...COURSE_OPTIONS }), level: null } : choices.length === 1 ? choices[0] : {
     ...vocabulary,
     game: S.obj(Object.fromEntries([...new Set(choices.flatMap(choice => Object.keys(choice.game.fields)))].map(key => {
       const schemas = choices.map(choice => choice.game.fields[key]).filter(Boolean)

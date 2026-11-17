@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "edges": [
-    {
-      "from": "natInd",
-      "to": "formulaForall"
-    }
-  ]
-}

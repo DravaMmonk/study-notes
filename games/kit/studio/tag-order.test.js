@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { canOrder, kindOrderName, memberOrderOps, orderOps, orderedTags, reordered, resequence, shifted, subsetOrderOps, tagMoveOps } from './tag-order.js'
+import { canOrder, memberOrderOps, orderOps, orderedTags, reordered, resequence, shifted, subsetOrderOps } from './tag-order.js'
 import { groupTree, treeMoves } from './groups.js'
 
 test('moving in a list, by a drop or a key', () => {
@@ -24,10 +24,10 @@ const content = (relations = {}, more = {}, order = []) => {
 }
 
 test('the tags of a kind in the kernel’s order: tag orders, then prerequisites between their levels, then names', () => {
-  assert.deepEqual(orderedTags(content(), 'level'), ['base/far', 'demo/two', 'demo/one'])
-  assert.deepEqual(orderedTags(content({}, {}, [{ from: '#demo/one', to: '#base/far', of: 'tag', member: 'level' }]), 'level'), ['demo/two', 'demo/one', 'base/far'])
+  assert.deepEqual(orderedTags(content(), 'level'), ['base/far', 'demo/one', 'demo/two'])
+  assert.deepEqual(orderedTags(content({}, {}, [{ from: '#demo/one', to: '#base/far', of: 'tag', member: 'level' }]), 'level'), ['base/far', 'demo/one', 'demo/two'])
   // The tree's sections follow it.
-  assert.deepEqual(groupTree(content(), []).sections.map((s) => s.group), ['level:base/far', 'level:demo/two', 'level:demo/one', null])
+  assert.deepEqual(groupTree(content(), []).sections.map((s) => s.group), ['level:base/far', 'level:demo/one', 'level:demo/two', null])
 })
 
 test('an order is written as the layer’s own sequence, or as an override of another package’s, once the layer overrides', () => {
@@ -45,22 +45,6 @@ test('an order is written as the layer’s own sequence, or as an override of an
   assert.deepEqual(orderOps(overriding, 'demo', 'base/far-order', ['base/x', 'base/y'], 'level', 'level:base/far'), [])
 })
 
-test('a tag moved among its kind writes the layer’s <kind>-tags-order, an order of the tags themselves', () => {
-  assert.equal(kindOrderName('demo', 'level'), 'demo/level-tags-order')
-  assert.deepEqual(tagMoveOps(content(), 'demo', 'level', 'demo/one', { before: 'base/far' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#one', '#base/far', '#two'] } }])
-  // Only the tags the move passes over, besides those the relation already names.
-  const four = content({}, { 'level:demo/zz': tag([]) })
-  assert.deepEqual(orderedTags(four, 'level'), ['base/far', 'demo/two', 'demo/one', 'demo/zz'])
-  assert.deepEqual(tagMoveOps(four, 'demo', 'level', 'demo/two', { after: 'demo/one' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#one', '#two'] } }])
-  // Once the relation names tags, it keeps them and adds the one moved where it lands.
-  const named = content({ 'demo/level-tags-order': { kind: 'order', of: 'tag', member: 'level', sequence: ['#demo/two', '#demo/one'] } }, {}, [{ from: '#demo/two', to: '#demo/one', of: 'tag', member: 'level' }])
-  assert.deepEqual(orderedTags(named, 'level'), ['base/far', 'demo/two', 'demo/one'])
-  assert.deepEqual(tagMoveOps(named, 'demo', 'level', 'base/far', { after: 'demo/one' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#two', '#one', '#base/far'] } }])
-  assert.deepEqual(tagMoveOps(content(), 'demo', 'level', 'base/far', { before: 'demo/two' }), [])
-})
 
 test('a level dropped in the tree writes the members and the order of the group it lands in and leaves', () => {
   const c = content({ 'demo/one-order': { kind: 'order', of: 'level', sequence: ['demo/a', 'demo/b'] } })

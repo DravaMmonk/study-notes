@@ -29,12 +29,12 @@ const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { 
 
 test('content prototypes qualify, merge, replace, reject undeclared dependencies and retain provenance', () => {
   const base = layer('base', [{ kind: 'wordset', name: 'words', value: { A: 'alpha', B: 'beta' } }])
-  const extra = layer('extra', [], ['base'], [{ kind: 'wordset', name: 'base/words', value: { $merge: true, B: 'bravo' } }])
+  const extra = layer('extra', [], ['base'], [{ kind: 'wordset', name: 'base/words', value: { B: 'bravo' } }])
   const composed = composeLayers([extra, base], vocabulary)
   assert.deepEqual(composed.registries.wordset['base/words'], { A: 'alpha', B: 'bravo' })
-  assert.deepEqual(composed.sources.wordset['base/words'], { declaration: 'base', overrides: ['extra'] })
-  extra.overrides[0].value = { C: 'charlie' }
-  assert.deepEqual(composeLayers([base, extra], vocabulary).registries.wordset['base/words'], { C: 'charlie' })
+  assert.deepEqual(composed.sources.wordset['base/words'], { declaration: 'base', overrides: ['extra'], collections: {} })
+  extra.overrides[0].value = { A: 'alpha', B: 'beta', C: 'charlie' }
+  assert.deepEqual(composeLayers([base, extra], vocabulary).registries.wordset['base/words'], { A: 'alpha', B: 'beta', C: 'charlie' })
   extra.config.uses = {}
   assert.ok(existenceProblems(composeLayers([base, extra], vocabulary).qualifiedLayers, vocabulary).some(p => p.reason === 'undeclared dependency'))
   const badReference = layer('extra', [{ kind: 'level', name: 'one', value: { words: ['base/words'] } }])

@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "s-intro",
-    "s-elim",
-    "s-auto"
-  ],
-  "of": "level"
-}

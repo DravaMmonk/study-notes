@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "edges": [
-    {
-      "from": "res",
-      "to": "formulaForall"
-    }
-  ]
-}

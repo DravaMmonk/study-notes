@@ -180,3 +180,21 @@ Only `studio/object-types.test.js` required a mechanical update in this continua
 ## Corpus coverage
 
 The locked corpus contains all four games and five pre-existing content packages. `circuit` and `text` are newer code packages and have no locked snapshot. The baseline command reports this explicitly and their individual checks/contracts cover them. No snapshots were saved.
+
+## Step 6 collection checkpoint
+
+Collection composition now belongs to `engine/collections.js`. Circuit's tray-specific override hook and all
+runtime display-order relation interpretation were removed. Circuit consumes `circuit/grant` reference lists,
+keeps menu and direct-grant order, and retains the existing workshop default. The five native module bridges
+listed above remain scheduled for steps 7–10 with their existing public imports.
+
+Chapters are kernel game-layer objects in `chapters/`; game.json stores their ordered full-name list.
+Chapter copy/machine metadata stays on each chapter, while optional/skippable and startup settings stay in course.json.
+`kind-policy.js` supplies common declaration/override checking; package declarations carry the same policy fields.
+Provenance uses `sources[kind][name].collections[path][memberKey]`, including nested menu values and edge identities.
+Studio production files were left to their owner. Mechanical changes affect only api.test.js, object-types.test.js,
+list-groups.test.js and tag-order.test.js. The Studio owner connects schema-driven list/set/edges controls,
+chapter objects, policies and contributor audit through the existing operation/tool API.
+
+Game configuration is exposed as `registries.game["@<game>/config"]`, with collection provenance in sources.game.
+`game.json.encyclopedia` preserves former section order, and the shell consumes each section list in that order.

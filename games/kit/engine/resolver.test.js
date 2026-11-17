@@ -49,7 +49,7 @@ test('source core registers arbitrary typed objects; missing dependencies and wo
   const root = mkdtempSync(resolve(tmpdir(), 'registered-objects-'))
   try {
     put(root, 'packages/library/package.json', { version: '1.0.0', kernel: '^0.0.0', uses: {} })
-    put(root, 'packages/library/kinds/scene.json', { folder: 'scenes', schema: { type: 'obj', fields: {} } })
+    put(root, 'packages/library/kinds/scene.json', { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: { type: 'obj', fields: {} } })
     put(root, 'packages/library/core/index.js', "export function register(k) { k.object('library/scene', 'library/registered') }")
     put(root, 'packages/consumer/package.json', { version: '1.0.0', kernel: '^0.0.0', uses: { 'library': '^1.0.0', 'absent': '^1.0.0' } })
     put(root, 'packages/consumer/overrides/library/scenes/registered.json', {})

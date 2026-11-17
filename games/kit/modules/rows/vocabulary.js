@@ -1,4 +1,4 @@
-import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
+import { CHAPTERS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { taskLevel } from '../../engine/tasks.js'
 
@@ -12,7 +12,7 @@ export const vocabulary = qualifyVocabulary('rows', defineVocabulary({
   version: 1,
   languages: { sum: { about: { zh: '由整数和加号组成的等式右边', en: 'The right side of an equation, built from integers and addition' } } },
   kinds: { kind: { equation: { about: { zh: '补齐等式右边的加法式' } } } },
-  game: S.obj({ title: S.text(), kicker: S.text(), lede: S.text(), chapters: S.list(S.obj({ id: S.int(), ...COURSE_FIELDS })), ...COURSE_OPTIONS }),
+  game: S.obj({ title: S.text(), kicker: S.text(), lede: S.text(), chapters: CHAPTERS, ...COURSE_OPTIONS }),
   level: taskLevel({ title: S.text() }, {
     kind: S.ref('kind'), brief: S.text(), rows: S.list(row, { min: 1 }),
   }),

@@ -4,7 +4,7 @@ export const eraLevels = (era) => era.levels.map(({ id }) => id)
 /** Numeric positions follow the chapter's ordered list. */
 export function levelLabels(eras) {
   return new Map(eras.flatMap((era, e) => {
-    const chapter = typeof era.id === 'number' ? era.id : e
+    const chapter = era.number ?? e
     return eraLevels(era).map((id, i) => [id, `${chapter}-${i + 1}`])
   }))
 }

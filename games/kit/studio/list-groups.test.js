@@ -29,7 +29,7 @@ const content = {
 
 test('each list groups by the tags of its kind, or by the objects that gather it', () => {
   assert.deepEqual(GROUPINGS['circuit/part'], ['tag', 'circuit/tray', 'relation'])
-  assert.deepEqual(groupsOf(content, 'level', 'tag').map((g) => [g.full, g.members]), [['level:p/more', ['p/a', 'p/c']], ['level:p/basics', ['p/a', 'p/b']]])
+  assert.deepEqual(groupsOf(content, 'level', 'tag').map((g) => [g.full, g.members]), [['level:p/basics', ['p/a', 'p/b']], ['level:p/more', ['p/a', 'p/c']]])
   // A stage stands for its part; a tray's menus count as its members.
   assert.deepEqual(stageOwners(content).get('p/add-carry'), 'p/add')
   assert.deepEqual(groupsOf(content, 'circuit/part', 'tag').map((g) => g.members), [['p/add', 'p/mul']])

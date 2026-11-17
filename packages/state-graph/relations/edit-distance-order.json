@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "replace",
-    "edit",
-    "spell"
-  ],
-  "of": "level"
-}

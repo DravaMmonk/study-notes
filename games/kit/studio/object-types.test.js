@@ -4,8 +4,8 @@ import { defaultTypes, leftLists, listOfType, objectTypes, studioLeft, typeOfLis
 import { objectFileName, objectOp, objectSchema } from './object-file.js'
 import { headingParam, listOfHeading, readHeading } from './left-lists.js'
 
-const scene = { folder: 'scenes', schema: { type: 'obj', fields: { title: { type: 'str' } } }, studio: { name: { zh: '场景', en: 'Scenes' }, icon: 'Image' } }
-const quoteDeclaration = { folder: 'quote', schema: { type: 'obj', fields: { text: { type: 'str' } } } }
+const scene = { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: { type: 'obj', fields: { title: { type: 'str' } } }, studio: { name: { zh: '场景', en: 'Scenes' }, icon: 'Image' } }
+const quoteDeclaration = { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'quote', schema: { type: 'obj', fields: { text: { type: 'str' } } } }
 const content = (tags = {}) => ({
   layerOrder: ['base', 'story'],
   objectKinds: { 'circuit/quote': quoteDeclaration, 'story/scene': scene, 'story/extra': { extends: 'task', fields: {} } },

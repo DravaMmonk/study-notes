@@ -7,7 +7,7 @@
 import { taskLevel } from 'kernel'
 import { ITEM_REFERENCE } from './task-fields.js'
 import { TRAY } from './trays.js'
-import { COURSE_FIELDS, COURSE_OPTIONS } from 'kernel'
+import { CHAPTERS, COURSE_OPTIONS } from 'kernel'
 import { S } from 'kernel'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS } from 'kernel'
 import { T as t } from 'kernel'
@@ -71,19 +71,13 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
 
 // The schema of a game.json on the base (a domain's vocabulary game): its eras laid out as ../course.js layout reads
 // them and the primitives it starts from.
-const ERA = S.obj({
-  id: S.int(),
-  title: S.text(),
-  question: S.text(),
-  ...COURSE_FIELDS,
-})
 export const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   primitives: S.list(ITEM_REFERENCE),
-  chapters: S.list(ERA, { min: 1 }),
+  chapters: CHAPTERS,
   ...COURSE_OPTIONS,
   views: GAME_VIEWS,
 })

@@ -20,7 +20,7 @@
         "of": {
           "type": "str",
           "pattern": "^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$",
-          "reference": "grant"
+          "reference": "circuit/grant"
         }
       },
       "menus": {
@@ -41,7 +41,7 @@
               "of": {
                 "type": "str",
                 "pattern": "^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$",
-                "reference": "grant"
+                "reference": "circuit/grant"
               }
             }
           }
@@ -50,9 +50,17 @@
       }
     }
   },
-  "override": "append",
   "studio": {
     "name": "@kind.tray.name",
     "icon": "LayoutGrid"
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
   }
 }

@@ -6,5 +6,30 @@
   },
   "title": "@course.title",
   "kicker": "@course.kicker",
-  "lede": "@course.lede"
+  "lede": "@course.lede",
+  "chapters": [
+    "@vision-complete/0",
+    "@vision-complete/1",
+    "@vision-complete/2",
+    "@vision-complete/3",
+    "@vision-complete/4",
+    "@vision-complete/5",
+    "@vision-complete/6",
+    "@vision-complete/7",
+    "@vision-complete/8",
+    "@vision-complete/9",
+    "@vision-complete/10",
+    "@vision-complete/11"
+  ],
+  "encyclopedia": [
+    "vision-complete/play",
+    "vision-complete/image",
+    "vision-complete/freq",
+    "vision-complete/light",
+    "vision-complete/learn",
+    "vision-complete/geo",
+    "vision-complete/gen",
+    "vision-complete/scene",
+    "vision-complete/check"
+  ]
 }

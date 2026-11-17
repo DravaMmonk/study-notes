@@ -17,63 +17,80 @@
       "id": "proof-implication",
       "title": "@tray.proof-formula.menu.proof-implication.title",
       "values": [
-        "#proof-implication"
+        "mp-bot-desc",
+        "impI",
+        "chain",
+        "merge",
+        "swap",
+        "axK",
+        "axS"
       ]
     },
     {
       "id": "proof-and",
       "title": "@tray.proof-formula.menu.proof-and.title",
       "values": [
-        "#proof-and"
+        "andI",
+        "andE-iffUse-desc"
       ]
     },
     {
       "id": "proof-or",
       "title": "@tray.proof-formula.menu.proof-or.title",
       "values": [
-        "#proof-or"
+        "orI",
+        "orE"
       ]
     },
     {
       "id": "proof-contradiction",
       "title": "@tray.proof-formula.menu.proof-contradiction.title",
       "values": [
-        "#proof-contradiction"
+        "botE",
+        "liar"
       ]
     },
     {
       "id": "proof-forall",
       "title": "@tray.proof-formula.menu.proof-forall.title",
       "values": [
-        "#proof-forall"
+        "allI",
+        "allE"
       ]
     },
     {
       "id": "proof-exists",
       "title": "@tray.proof-formula.menu.proof-exists.title",
       "values": [
-        "#proof-exists"
+        "exI",
+        "exE"
       ]
     },
     {
       "id": "proof-equality",
       "title": "@tray.proof-formula.menu.proof-equality.title",
       "values": [
-        "#proof-equality"
+        "rewrite",
+        "refl"
       ]
     },
     {
       "id": "proof-classical",
       "title": "@tray.proof-formula.menu.proof-classical.title",
       "values": [
-        "#proof-classical"
+        "raa",
+        "lem"
       ]
     },
     {
       "id": "proof-equivalences",
       "title": "@tray.proof-formula.menu.proof-equivalences.title",
       "values": [
-        "#proof-equivalences"
+        "dneg-sp-rw-desc",
+        "arrow-sp-rw-desc",
+        "dist-sp-rw-desc",
+        "dm-q-dm-desc",
+        "iff-intro"
       ]
     }
   ]

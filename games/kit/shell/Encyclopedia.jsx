@@ -60,7 +60,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, edit = n
   const list = groups.map((group) => ({
     id: group.id,
     title: group.title,
-    items: entries.filter((e) => group.values.includes(e.id)).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
+    items: group.values.map(id => entries.find(entry => entry.id === id)).filter(Boolean).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
   }))
 
   const article = (id, back, pick) => {

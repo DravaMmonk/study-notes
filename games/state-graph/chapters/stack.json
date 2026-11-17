@@ -1,0 +1,18 @@
+{
+  "machine": "table:robot-stack",
+  "chapter": {
+    "title": "@course.eras.stack.chapter.title",
+    "desc": "@course.eras.stack.chapter.desc"
+  },
+  "levels": [
+    "state-graph/robber",
+    "state-graph/breach",
+    "state-graph/keydoor",
+    "state-graph/stock1",
+    "state-graph/cooldown",
+    "state-graph/twokeys",
+    "state-graph/threekeys",
+    "state-graph/enough",
+    "state-graph/ring"
+  ]
+}

@@ -13,12 +13,12 @@ export function contentAssets(content) {
   const source = assemblySource(content)
   const { levels, glossary, blueprint, game, tags, relations, sections, contentObjects } = source
   const objects = [...tags, ...relations, ...sections]
-  const packageObjects = [...objects.map(([, value]) => value), ...Object.values(contentObjects).flatMap(Object.values)]
+  const packageObjects = [...objects.map(([, value]) => value), ...Object.entries(contentObjects).filter(([kind]) => kind !== 'chapter').flatMap(([, values]) => Object.values(values))]
   const { 'game.json': meta, 'course.json': course, ...configuration } = configurationFiles(game)
   const assets = new Map()
   const manifests = {}
   for (const [scope, catalogs] of Object.entries({
-    course: catalogsOf('course', meta, course, blueprint),
+    course: catalogsOf('course', meta, course, blueprint, ...Object.values(contentObjects.chapter ?? {})),
     package: catalogsOf('package', ...Object.values(configuration), levels, glossary, ...packageObjects),
   })) {
     manifests[scope] = Object.fromEntries(Object.entries(catalogs).map(([lang, entries]) => {

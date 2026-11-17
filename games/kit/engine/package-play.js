@@ -39,5 +39,5 @@ export function standalonePlan(content) {
 export function packageLevelOrder(content) {
   const ids = content.levels.map(level => level.id)
   const edges = content.relationEdges
-  return relationOrder(ids, [...(edges?.order ?? []), ...(edges?.requires ?? []).filter(edge => !edge.game)])
+  return relationOrder(ids, (edges?.requires ?? []).filter(edge => !edge.game))
 }

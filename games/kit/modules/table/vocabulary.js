@@ -6,7 +6,7 @@
 // modes in ui/modes/ (one screen each, ui/LevelScreen.jsx), and the items content calls (figures, conditions, traces,
 // panels, explains) in items/.
 
-import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js';
+import { CHAPTERS, COURSE_OPTIONS } from '../../engine/course-schema.js';
 import { S } from '../../engine/schema.js';
 import { qualifyVocabulary } from '../../engine/capabilities.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
@@ -244,18 +244,12 @@ const CIRCUIT_TASK = S.by('world', Object.fromEntries(Object.entries(WORLDS).map
 
 /* ---------- game.json ---------- */
 
-const ERA = S.obj({
-  id: S.str(),
-  machine: S.either(S.ref('robot'), NONE),
-  ...COURSE_FIELDS,
-  chapter: S.obj({ title: S.text(), desc: S.text() }),
-});
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(ITEM_REFERENCE),
-  chapters: S.list(ERA, { min: 1 }),
+  chapters: CHAPTERS,
   ...COURSE_OPTIONS,
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板') })),
 });

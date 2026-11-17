@@ -1,3 +1,4 @@
+import { CHAPTER } from '../course-schema.js'
 import { kernelIdentity } from '../release-data.js'
 import { lockTarget } from '../releases.js'
 import { folders } from '../layers.js'
@@ -132,13 +133,17 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   if (id !== 'circuit') installCircuitFixture(root)
   const vocabulary = withParts(circuitFixtureSchema(domainVocabulary), partDefs)
   const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
-  const gameText = normalize(game, vocabulary.game, 'course')
+  const chapterValues = game.chapters ?? []
+  const chapterText = chapterValues.map(({ id, ...value }) => [String(id), normalize(value, CHAPTER, `course.eras.${id}`)])
+  const gameText = normalize({ ...game, chapters: chapterText.map(([name]) => `@${id}/${name}`) }, vocabulary.game, 'course')
   const { 'game.json': shell, 'course.json': route } = configurationFiles(gameText)
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kind === 'trays' ? JSON.parse(readFileSync(new URL('../../../../packages/circuit/kinds/tray.json', import.meta.url))).schema : OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
   put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^0.0.0', circuit: '^0.0.0' }, ...sourceValue(shell) })
+  mkdirSync(join(course, 'chapters'), { recursive: true })
+  for (const [name, value] of chapterText) put(join(course, 'chapters', `${name}.json`), sourceValue(expandNames(value, id, { schema: CHAPTER, vocabulary, textKeys: false })))
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   put(join(pkg, 'package.json'), { version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^0.0.0' } })
   mkdirSync(join(pkg, 'entries'), { recursive: true })
@@ -154,7 +159,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
     const { kind: _kind, ...tag } = value
     put(join(pkg, folder, `${name}.json`), sourceValue(kind === 'tags' ? tag : value))
   }
-  putCatalogs(course, shell, route)
+  putCatalogs(course, shell, route, ...chapterText.map(([, value]) => value))
   const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
   for (const [kind, name, value] of extra) { mkdirSync(join(pkg, folders[kind]), { recursive: true }); put(join(pkg, folders[kind], `${name}.json`), sourceValue(value)) }
   putCatalogs(pkg, ...extra.map(([, , value]) => value), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
@@ -164,7 +169,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
 
 export function proofsRoot() {
   const root = mkdtempSync(join(tmpdir(), 'games-'))
-  writeContentFixture(root, ID, { game: { ...GAME, contentObjects: { ...GAME.contentObjects, symbol: { formulaImplies: { mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') } } } }, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] }, sequence: { kind: 'order', of: 'level', sequence: ['given', 'apply', 'suppose'] } } }, proofVocabulary)
+  writeContentFixture(root, ID, { game: { ...GAME, contentObjects: { ...GAME.contentObjects, symbol: { formulaImplies: { mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') } } } }, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] } } }, proofVocabulary)
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
 }
@@ -212,20 +217,23 @@ export function installCircuitFixture(root) {
 }
 
 export const circuitFixtureKinds = {
-  'circuit/part': { folder: 'parts', relations: { replaces: { from: 'circuit/part', to: 'circuit/part' } }, schema: { type: 'any' } },
+  'circuit/part': { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'parts', relations: { replaces: { from: 'circuit/part', to: 'circuit/part' } }, schema: { type: 'any' } },
   'circuit/tray': { folder: 'trays', schema: { type: 'obj', fields: {
     title: { type: 'text', optional: true }, values: { type: 'list', of: { type: 'str', reference: 'grant' } },
     menus: { type: 'list', optional: true, of: { type: 'obj', fields: {
       id: { type: 'str', reference: 'menu' }, title: { type: 'text', optional: true }, values: { type: 'list', of: { type: 'str', reference: 'grant' } },
     } } },
-  } }, override: 'append' },
+  } }, declares: 'package', overrides: { package: ['*'], game: ['$text'] } },
 }
 export const circuitFixtureSchema = schemas => ({ ...schemas, meanings: contentMeanings, objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })
 
 /** Synthetic circuit inputs enter the same typed registries as installed packages. */
 export function assembleCircuitFixture({ partDefs, trays = [], ...options }) {
-  return assembleContent({ ...options, schemas: circuitFixtureSchema(options.schemas), contentObjects: {
+  const chapterObjects = Object.fromEntries((options.game.chapters ?? []).filter(value => typeof value === 'object').map(({ id, ...value }) => [String(id), value]))
+  const game = Object.keys(chapterObjects).length ? { ...options.game, chapters: Object.keys(chapterObjects).map(name => `@${options.id}/${name}`) } : options.game
+  return assembleContent({ ...options, game, schemas: circuitFixtureSchema(options.schemas), contentObjects: {
     ...options.contentObjects,
+    chapter: { ...chapterObjects, ...options.contentObjects?.chapter },
     ...(partDefs && { 'circuit/part': partDefs.parts }),
     ...(trays.length && { 'circuit/tray': Object.fromEntries(trays.map(([name, value, namespace]) => [namespace && !name.includes('/') ? `${namespace}/${name}` : name, value])) }),
   } })

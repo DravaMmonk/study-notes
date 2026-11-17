@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "starter/0-1",
-    "starter/0-2",
-    "starter/0-3"
-  ],
-  "of": "level"
-}

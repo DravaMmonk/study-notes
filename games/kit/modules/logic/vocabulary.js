@@ -10,7 +10,7 @@
 
 import { qualifyVocabulary } from '../../engine/capabilities.js'
 import { symbolFor } from './symbols.js'
-import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
+import { CHAPTERS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -174,19 +174,13 @@ const LEVEL = taskLevel({ title: S.text(), intro: S.opt(INTRO), after: AFTER_TEX
 
 /* ---------- game.json ---------- */
 
-const ERA = S.obj({
-  id: S.str(),
-  machine: S.either(S.oneOf(['prover'], { about: t('证明器：从这一代起，每一章给它加一个模块') }), NONE),
-  ...COURSE_FIELDS,
-  chapter: S.obj({ title: S.text(), question: S.text() }),
-})
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   words: WORDS,
   primitives: S.list(ITEM_REFERENCE),
-  chapters: S.list(ERA, { min: 1 }),
+  chapters: CHAPTERS,
   ...COURSE_OPTIONS,
 })
 

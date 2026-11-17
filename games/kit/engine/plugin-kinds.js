@@ -1,21 +1,24 @@
+import { BUILTIN_POLICIES } from './kind-policy.js'
+import { CHAPTER } from './course-schema.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 // Data declarations extend an assembly, never process-wide content registries.
 import { S, validate } from './schema.js'
-import { mergePatch } from './ops/edit.js'
+import { mergeFields } from './collections.js'
 import { contentKindSchemas } from './content-kinds.js'
 
-export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', ...Object.keys(contentKindSchemas)]
+export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', 'chapter', 'game', ...Object.keys(contentKindSchemas)]
 
 export const KIND_DECLARATION = S.obj({
   folder: S.opt(S.str({ pattern: '^[a-z][a-z0-9-]*$' })),
   schema: S.opt(S.any()), extends: S.opt(S.oneOf(['level', 'task'])),
   fields: S.opt(S.map(S.any())), references: S.opt(S.list(S.str())),
   relations: S.opt(S.map(S.obj({ from: S.str(), to: S.str() }))),
-  override: S.opt(S.oneOf(['replace', 'append'])),
+  declares: S.oneOf(['package', 'game']),
+  overrides: S.map(S.list(S.str()), { keys: '^(package|game)$' }),
   text: S.opt(S.list(S.str())),
   studio: S.opt(S.obj({ name: S.text(), icon: S.str(), group: S.opt(S.text()) })),
 })
-export const kindSchemas = schemas => ({ ...contentKindSchemas, kind: KIND_DECLARATION,
+export const kindSchemas = schemas => ({ ...contentKindSchemas, chapter: CHAPTER, kind: KIND_DECLARATION,
   ...Object.fromEntries(Object.entries(schemas?.objectKinds ?? {}).filter(([, d]) => !d.extends).map(([name, d]) => [name, d.schema])) })
 
 const extend = (schema, fields) => {
@@ -35,8 +38,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     for (const object of layer.objects.filter(o => o.kind === 'kind')) raw[object.name.includes('/') ? object.name : `${layer.id}/${object.name}`] = read(object)
     for (const object of (layer.overrides ?? []).filter(o => o.kind === 'kind')) {
       if (!raw[object.name]) continue
-      const { $merge, ...value } = read(object)
-      raw[object.name] = $merge ? mergePatch(raw[object.name], value) : value
+      raw[object.name] = mergeFields(raw[object.name], read(object), KIND_DECLARATION)
     }
   }
   for (const [name, d] of Object.entries(raw)) {
@@ -44,13 +46,12 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     if (errors.length) throw new Error(`${name}: ${JSON.stringify(errors)}`)
     if (d.extends ? !d.fields || d.schema || d.folder : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
     if (!d.extends && Object.values(definitions).some(other => other.folder === d.folder)) throw new Error(`${name}: duplicate object folder ${d.folder}`)
-    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
-    if (d.override === 'append' && d.schema?.fields?.values?.type !== 'list') throw new Error(`${name}: append overrides require a values list`)
+    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'chapters', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
     const inspect = schema => {
-      const types = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'map', 'obj', 'either', 'by', 'ref', 'name', 'level', 'task', 'board', 'syntax', 'call']
+      const types = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'set', 'edges', 'map', 'obj', 'either', 'by', 'ref', 'name', 'level', 'task', 'board', 'syntax', 'call']
       if (!schema || !types.includes(schema.type)) throw new Error(`${name}: invalid field schema`)
       if (schema.type === 'obj') Object.values(schema.fields ?? {}).forEach(inspect)
-      if (['list', 'map'].includes(schema.type)) inspect(schema.of)
+      if (['list', 'set', 'edges', 'map'].includes(schema.type)) inspect(schema.of)
       if (schema.type === 'either') schema.of.forEach(inspect)
       if (schema.type === 'by') Object.values(schema.cases).forEach(inspect)
     }
@@ -79,5 +80,5 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
       level = tasks(level)
     }
   }
-  return { ...vocabulary, level, objectKinds: definitions }
+  return { ...vocabulary, level, kindPolicies: { ...BUILTIN_POLICIES, ...definitions }, objectKinds: definitions }
 }

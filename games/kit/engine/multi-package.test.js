@@ -40,7 +40,7 @@ test('three packages compose across logic, image and rows, retain layered text a
   // Select packages through the public operation boundary; no image-only game fields are needed.
   const selected = await runChangeset(openGame(id, root), { ops: [
     { op: 'game.package.add', package: 'z-pictures', range: '^1.0.0' }, { op: 'game.package.add', package: 'sums', range: '^1.0.0' },
-    { op: 'game.set', path: 'chapters[0].levels', value: [`${id}/given`, `${id}/apply`, `${id}/suppose`, 'z-pictures/same', 'sums/add'] },
+    { op: 'chapter.set', chapter: 'ground', path: 'levels', value: [`${id}/given`, `${id}/apply`, `${id}/suppose`, 'z-pictures/same', 'sums/add'] },
   ] }, { write: true })
   assert.equal(selected.ok, true, selected.problems.join('\n'))
   const content = readContent(id, root)

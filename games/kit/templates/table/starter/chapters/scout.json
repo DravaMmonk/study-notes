@@ -1,0 +1,13 @@
+{
+  "machine": "table:robot-scout",
+  "chapter": {
+    "title": "@course.eras.scout.chapter.title",
+    "desc": "@course.eras.scout.chapter.desc"
+  },
+  "levels": [
+    "starter/copy",
+    "starter/merge",
+    "starter/stamp",
+    "starter/rocks"
+  ]
+}

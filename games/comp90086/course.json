@@ -5,31 +5,6 @@
     "comp90086/add"
   ],
   "views": {},
-  "chapters": [
-    {
-      "id": 1,
-      "chapter": {
-        "title": "@course.eras.1.chapter.title",
-        "label": "@course.eras.1.chapter.label",
-        "question": "@course.eras.1.chapter.question"
-      },
-      "levels": [
-        "comp90086/projection"
-      ]
-    },
-    {
-      "id": 2,
-      "chapter": {
-        "title": "@course.eras.2.chapter.title",
-        "label": "@course.eras.2.chapter.label",
-        "question": "@course.eras.2.chapter.question"
-      },
-      "levels": [
-        "comp90086/separable",
-        "comp90086/sinusoid"
-      ]
-    }
-  ],
   "power": "comp90086/default",
   "box": "comp90086/default"
 }

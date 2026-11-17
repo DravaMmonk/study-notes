@@ -44,21 +44,31 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   select the complete dependency closure in `game.json`'s ordered `packages` range map and declare `kernel`; the first key is primary; loading is topological, with the game last.
 - Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
   `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
-  File names supply object ids; task, stage, menu and chapter ids remain inside their containing objects.
+  File names supply object ids; task, stage and menu ids remain inside their containing objects. Chapters are game objects in chapters/<name>.json.
   Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
   Local short references are qualified on assembly. Tags are unordered, typed development collections; they
-  have no runtime teaching or presentation role. Relations (`requires`, `order`, `replaces`) load automatically.
-  Use `of: "tag", member: "<member-type>"` for ordering tags themselves. Tag identity is member type plus full name, so different member types may share a full name. Read `registries.tag[tagKey(member, name)]` (key `<member>:<full-name>`); references remain `#<namespace>/<name>` and resolve in the expected member type. Untyped ambiguous references fail. Mixed object order relations omit `of`; never write `of: "grant"`. Trays and encyclopedia sections are separate objects.
+  have no runtime teaching or presentation role. Relations use typed `edges` fields (`requires`, `replaces`).
+  Tag identity is member type plus full name. Read `registries.tag[tagKey(member, name)]`.
+  Studio members use `orderedMembers(content, ids, kind)` for prerequisite order, then names.
+  Trays and encyclopedia sections are separate objects with their own ordered lists.
 - Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `symbols/`, `entries/`,
   `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
-  Objects replace by default (`$merge` opts into merge patch); collections append (`replace` and `remove`
-  control membership). Independent tag contributions union in dependency order; each member retains its contributors in `sources.tag[key].members`. Other independent overrides of one object require a dependency. Every foreign target requires its owner declaration or code registration, for every object type; a tag contribution additionally matches its member type. Core registers `kernel/studio-left` (`kind`); `kernel` is reserved as a package namespace. Package readers register `kernel.tag("<own-package>/<name>", "<member-type>")`. Never merge conventions by short name or register `templates`.
-  Preserve source and override history; never edit a dependency's declaration from the current workspace.
-- A game only arranges content: `course.json` has `chapters`, each with an ordered list of full level names
-  in `levels`, and map `rows` (up to three positions per row). The order must respect `requires`. Optional and
-  skippable selections belong to the game. Game overrides are limited to copy and level relations; no objects
-  or behavior changes are declared there. Use a dependent package for new or changed behavior.
+  Collection semantics follow field schemas, implemented in `engine/collections.js`. `set<T>` and `edges<T>`
+  accept `{ add, remove }`; `list<T>` also accepts `{ insert: [{ before|after, values }] }`. Arrays replace
+  the entire field. Omitted fields remain. Nested identified lists use `id`; edge identity uses endpoints and game.
+  Independent typed tag contributions use `values: { add: [...] }`. Provenance is
+  `sources[kind][identity].collections[fieldPath][memberKey] = [layer, ...]`; edge keys serialize `[from,to,game|null]`.
+  Independent collection patches compose by field type; replacements and scalar overrides require a dependency. Every foreign target needs a declaration or code registration.
+  Core registers `kernel/studio-left` (`kind`); `kernel` is reserved. Preserve override history.
+- All object types declare `declares: package|game` and `overrides: { package?: [fieldPath], game?: [fieldPath] }`.
+  `*` permits every field; `$text` permits schema text fields. The common `layerProblems` check enforces these
+  attributes. Native level/task/tag/relation/entry/section kinds declare at package level; chapter/game at game level.
+  Game overrides may change requires.edges and all localized copy. Package-declared game kinds use the same registry.
+- A game arranges `game.json`'s `chapters: list<chapter>`. Chapter objects are `games/<game>/chapters/<id>.json`,
+  named `@<game>/<id>`, with concrete `levels: list<level>` and map `rows`. Chapter copy and machine settings stay
+  on the chapter; optional/skippable and other startup settings stay in course.json. `number` preserves authored
+  numeric chapter labels; `game.json.encyclopedia: list<section>` preserves section display order. Importing a tag is a one-time expansion into the chapter list.
 - A package has no course, chapters, unlock graph or learning progress. `check -- --package` checks objects,
   parts and each level separately; package play opens a single level with its tray (all parts/stages when
   omitted). Never generate a package course to reuse a game-only check or UI path.

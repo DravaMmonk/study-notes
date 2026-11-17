@@ -1,0 +1,20 @@
+{
+  "machine": "table:robot-reach",
+  "chapter": {
+    "title": "@course.eras.reach.chapter.title",
+    "desc": "@course.eras.reach.chapter.desc"
+  },
+  "levels": [
+    "state-graph/frog",
+    "state-graph/frogfar",
+    "state-graph/tagging",
+    "state-graph/safefrog",
+    "state-graph/forward",
+    "state-graph/pack",
+    "state-graph/knaptable",
+    "state-graph/knapmany",
+    "state-graph/knapmix",
+    "state-graph/coinways",
+    "state-graph/roll"
+  ]
+}

@@ -8,7 +8,8 @@
       "id": "certificate-certificate",
       "title": "@tray.certificate.menu.certificate-certificate.title",
       "values": [
-        "#certificate-certificate"
+        "clausify",
+        "replay"
       ]
     }
   ]

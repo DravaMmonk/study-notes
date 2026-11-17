@@ -114,12 +114,12 @@ test('package dependencies are readable while only the selected layer can be edi
   lockFixture(root)
   const ws = openPackage('extra', root)
   assert.ok(ws.content().registries['circuit/part']['library/apply'])
-  const wrongLayer = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'library', kind: 'circuit/part', name: 'library/apply', merge: true, data: { desc: 'Wrong layer' } }] })
+  const wrongLayer = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'library', kind: 'circuit/part', name: 'library/apply', data: { desc: 'Wrong layer' } }] })
   assert.equal(wrongLayer.ok, false)
   assert.match(wrongLayer.problems[0], /open layer library/)
   const gameOp = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'title', value: 'Game title' }] })
   assert.equal(gameOp.ok, false)
-  const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'circuit/part', name: 'library/apply', merge: true, data: { desc: 'Local override' } }] }, { write: true })
+  const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'circuit/part', name: 'library/apply', data: { desc: 'Local override' } }] }, { write: true })
   assert.equal(edited.ok, true, edited.problems.join('\n'))
   assert.deepEqual(edited.files, ['packages/extra/overrides/library/parts/apply.json'])
   assert.equal(readPackage('library', root).partDefs.parts['library/apply'].desc, 'Apply an implication.')
@@ -158,7 +158,7 @@ test('game course writes maintain the derived hub count without writing package 
   const { root, id } = proofsRoot()
   roots.push(root)
   const ws = openGame(id, root)
-  const result = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'chapters[0].levels', value: [`${id}/given`, `${id}/apply`] }] }, { write: true, check: false })
+  const result = await runChangeset(ws, { ops: [{ op: 'chapter.set', chapter: 'ground', path: 'levels', value: [`${id}/given`, `${id}/apply`] }] }, { write: true, check: false })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.ok(result.files.includes('games/games.js'))
   assert.ok(result.files.every((file) => file === 'games/games.js' || file.startsWith(`games/${id}/`)))
@@ -173,10 +173,10 @@ test('packages reject invalid authored package fields', async () => {
 })
 
 
-test('package lists use order relations, then prerequisites, without constructing chapters', () => {
+test('package lists use prerequisites then names without constructing chapters', () => {
   const content = { levels: ['p/a', 'p/b', 'p/c'].map(id => ({ id })),
-    relationEdges: { order: [{ from: 'p/c', to: 'p/b', of: 'level' }], requires: [{ from: 'p/b', to: 'p/a' }] } }
-  assert.deepEqual(packageLevelOrder(content), ['p/c', 'p/b', 'p/a'])
+    relationEdges: { requires: [{ from: 'p/b', to: 'p/a' }] } }
+  assert.deepEqual(packageLevelOrder(content), ['p/b', 'p/a', 'p/c'])
   assert.equal('eras' in content, false)
 })
 
@@ -187,13 +187,13 @@ test('symbol files, wording, typed tags and overrides use symbols throughout aut
   put('packages/library/tags/symbol/formulas.json', { values: ['and'] })
   put('packages/library/trays/mixed.json', { values: ['apply', '#formulas'] })
   put('packages/extra/package.json', { version: '1.0.0', kernel: '^0.0.0', uses: { library: '^1.0.0', circuit: '^0.0.0' } })
-  put('packages/extra/overrides/library/symbols/and.json', { $merge: true, icon: 'Box' })
+  put('packages/extra/overrides/library/symbols/and.json', { icon: 'Box' })
   lockFixture(root)
   const content = readPackage('extra', root)
   assert.equal(content.registries.symbol['library/and'].icon, 'Box')
   assert.equal(content.registries.symbol['library/and'].desc.en, 'Conjunction')
   assert.deepEqual(content.objectProblems, [])
-  assert.deepEqual(content.trays['library/mixed'].items, ['library/and', 'library/apply'])
+  assert.deepEqual(content.trays['library/mixed'].items, ['library/apply', 'library/and'])
   const ws = openPackage('library', root)
   const result = await runChangeset(ws, { why: 'Edit a symbol.', ops: [{ op: 'symbol.set', symbol: 'and', path: 'icon', value: 'Box' }, { op: 'text.set', symbol: 'and', path: 'desc', lang: 'en', value: 'Both sentences' }] }, { write: true, check: false })
   assert.equal(result.ok, true, result.problems.join('\n'))

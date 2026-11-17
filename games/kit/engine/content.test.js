@@ -141,12 +141,19 @@ test('a data game is read from its folder', () => {
 
   // Another game on the same package must still find what its course names.
   mkdirSync(join(dir, 'games', 'draft'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ kernel: '^0.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Draft' }))
-  writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ chapters: [{ id: 'main', levels: ['shared-toy/one'] }] }))
+  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ kernel: '^0.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Draft', chapters: ['@draft/main'] }))
+  writeFileSync(join(dir, 'games', 'draft', 'course.json'), '{}')
+  mkdirSync(join(dir, 'games', 'draft', 'chapters'))
+  writeFileSync(join(dir, 'games', 'draft', 'chapters/main.json'), JSON.stringify({ levels: ['shared-toy/one'] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
   assert.ok(dependencyProblemsInProject({ ...content, levels: [] }, dir).some(problem => problem.rule === 'exists' && problem.layer === '@draft' && problem.target === 'shared-toy/one'))
 
-  for (const kind of ['tags', 'relations', 'sections']) mkdirSync(join(dir, 'games', 'toy', kind))
+  mkdirSync(join(dir, 'games', 'toy', 'tags/level'), { recursive: true })
+  mkdirSync(join(dir, 'games', 'toy', 'relations'))
+  mkdirSync(join(dir, 'games', 'toy', 'sections'))
+  writeFileSync(join(dir, 'games/toy/tags/level/forbidden.json'), JSON.stringify({ values: [] }))
+  writeFileSync(join(dir, 'games/toy/relations/forbidden.json'), JSON.stringify({ kind: 'requires', edges: [] }))
+  writeFileSync(join(dir, 'games/toy/sections/forbidden.json'), JSON.stringify({ title: 'Forbidden', values: [] }))
   const forbidden = readContent('toy', dir, { vocabulary: VOCAB })
-  assert.equal(checkContent({ vocabulary: VOCAB }, forbidden).filter((p) => /games cannot declare objects/.test(p.says)).length, 3)
+  assert.equal(checkContent({ vocabulary: VOCAB }, forbidden).filter((p) => /may only be declared by package/.test(p.says)).length, 3)
 })

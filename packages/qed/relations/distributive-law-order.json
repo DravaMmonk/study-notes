@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "dist",
-    "r-dist",
-    "c-dist"
-  ],
-  "of": "level"
-}

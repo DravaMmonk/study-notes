@@ -1,10 +1,9 @@
 // Sections are authored objects; the glossary is their ordered display projection.
-import { relationOrder } from './objects.js'
 
-export function encyclopedia(entries, sections, resolve, order) {
-  const groups = relationOrder(Object.keys(sections), order, 'section').map(id => ({
+export function encyclopedia(entries, sections, resolve, ordered = []) {
+  const groups = [...new Set([...ordered, ...Object.keys(sections).sort()])].filter(id => sections[id]).map(id => ({
     id, title: sections[id].title, desc: sections[id].desc,
-    values: relationOrder(resolve(sections[id].values, 'entry', `sections/${id}`), order, 'entry'),
+    values: sections[id].values.flatMap(value => resolve(value, 'entry', `sections/${id}`)),
   }))
   const grouped = entries.map(({ group: _group, ...entry }) => ({
     ...entry, group: groups.find(group => group.values.includes(entry.id))?.id ?? '',

@@ -24,16 +24,11 @@ export const workspaceFiles = (ws, vocabulary) => [
 
 // Object registries are separate: level references never name a same-named object of another type.
 function objectReferenceSchema(ws, kind, value, schema, vocabulary) {
-  const local = (id) => id?.replace(`#${ws.packageId}/`, '').replace(`${ws.packageId}/`, '').replace(/^#/, '')
-  const endpoints = [...(value.edges ?? []).flatMap(({ from, to }) => [from, to]), ...(value.sequence ?? [])]
-  const first = endpoints.find((id) => id.startsWith('#')) ?? endpoints[0]
-  const of = value.of ?? (first?.startsWith('#') ? [...ws.tags].filter(([key]) => tagName(key) === local(first)).map(([, tag]) => tag.kind).filter(type => !value.member || type === value.member)[0] : ws.levels.has(local(first)) ? 'level' : Object.keys(ws.contentObjects ?? {}).find(kind => ws.contentObjects[kind].has(local(first))) ?? 'any')
   const reference = (type) => type === 'level' ? S.level() : S.str({ reference: type })
-  if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.list(reference(value.kind)) } }
+  if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.set(reference(value.kind)) } }
   if (kind === 'relations') {
-    const ref = reference(value.kind === 'requires' ? 'level' : Object.values(vocabulary.objectKinds ?? {}).map(definition => definition.relations?.[value.kind]?.from).find(Boolean) ?? of)
-    const edge = S.obj({ from: ref, to: ref })
-    return { ...schema, fields: { ...schema.fields, edges: S.list(edge), sequence: S.list(ref) } }
+    const ref = reference(value.kind === 'requires' ? 'level' : Object.values(vocabulary.objectKinds ?? {}).map(definition => definition.relations?.[value.kind]?.from).find(Boolean) ?? 'any')
+    return { ...schema, fields: { ...schema.fields, edges: S.edges(ref) } }
   }
   return schema
 }

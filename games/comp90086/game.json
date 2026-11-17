@@ -6,5 +6,10 @@
   },
   "title": "@course.title",
   "kicker": "@course.kicker",
-  "lede": "@course.lede"
+  "lede": "@course.lede",
+  "chapters": [
+    "@comp90086/1",
+    "@comp90086/2"
+  ],
+  "encyclopedia": []
 }

@@ -1,9 +1,0 @@
-{
-  "kind": "order",
-  "sequence": [
-    "clausify",
-    "replay"
-  ],
-  "of": "circuit/part",
-  "edges": []
-}

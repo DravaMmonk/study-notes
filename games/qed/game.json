@@ -6,5 +6,30 @@
   },
   "title": "@course.title",
   "kicker": "@course.kicker",
-  "lede": "@course.lede"
+  "lede": "@course.lede",
+  "chapters": [
+    "@qed/paper",
+    "@qed/circuits",
+    "@qed/kernel",
+    "@qed/packing",
+    "@qed/boxes",
+    "@qed/quantifiers",
+    "@qed/qrules",
+    "@qed/metavars",
+    "@qed/tactics",
+    "@qed/classical",
+    "@qed/simplifier",
+    "@qed/automation",
+    "@qed/inductive"
+  ],
+  "encyclopedia": [
+    "qed/play",
+    "qed/prop",
+    "qed/entries-proof",
+    "qed/fol",
+    "qed/rules",
+    "qed/types",
+    "qed/limits",
+    "qed/assist"
+  ]
 }

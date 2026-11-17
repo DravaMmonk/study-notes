@@ -36,7 +36,7 @@ test('the page loads independent course and package catalogs, and a translation 
 })
 
 test('browser assembly resolves kind metadata from the published package catalogs', async () => {
-  const declaration = { folder: 'pictures', schema: { type: 'obj', fields: {} }, studio: { name: '@sample/kind.picture.name', icon: 'Image' } }
+  const declaration = { declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'pictures', schema: { type: 'obj', fields: {} }, studio: { name: '@sample/kind.picture.name', icon: 'Image' } }
   const manifest = {
     id: 'sample', game: {}, levels: [], glossary: { groups: [], entries: [] },
     contentObjects: { kind: { 'sample/picture': declaration }, 'sample/picture': {} },

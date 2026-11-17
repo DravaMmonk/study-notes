@@ -12,7 +12,7 @@ import { readWorkSet } from './course-model.js'
 import { implementationProblems } from './parts/dependencies.js'
 import { taskIdsOf } from 'kernel'
 import { partProblems, withParts } from './parts/define.js'
-import { shapeAt, relationOrder } from 'kernel'
+import { shapeAt } from 'kernel'
 import { mapBlueprintNames } from './board/text.js'
 import { grantIndex, grants } from './grants.js'
 import { makesParts, PARTS_FILE } from './parts/schema.js'
@@ -34,7 +34,7 @@ export function circuitNames({ name, vocabulary, objects = {}, parts = new Set()
       return `${target.slice(0, colon + 1)}${part(target.slice(colon + 1))}`
     },
     rewrite({ value, schema, path, key, object }) {
-      if (['circuit/part', 'grant'].includes(schema?.reference) || ['part', 'unlock', 'circuit/part'].includes(schema?.kind) && ['ref', 'name'].includes(schema?.type)) return { value: part(value) }
+      if (['circuit/part', 'grant', 'circuit/grant'].includes(schema?.reference) || ['part', 'unlock', 'circuit/part'].includes(schema?.kind) && ['ref', 'name'].includes(schema?.type)) return { value: part(value) }
       if (schema?.type === 'board' || schema?.view === 'board') return { value: Array.isArray(value) && value.every(line => typeof line === 'string') ? mapBlueprintNames(value, type => type.includes('/') || parts.has(type) ? name(type) : type, rule) : value }
       if (key === 'id' && path.length === 3 && path[0] === 'stages') return { value: name(value) }
       if (['rules', 'using', 'simp'].includes(key) && Array.isArray(value)) return { value: value.map(rule) }
@@ -50,8 +50,6 @@ export function circuitNames({ name, vocabulary, objects = {}, parts = new Set()
     },
   }
 }
-
-const grantOrder = (ids, edges) => relationOrder(ids, edges.filter(edge => !edge.of || edge.of === 'grant' || grants.types.has(edge.of)).map(({ of: _of, ...edge }) => edge))
 
 export const partMeaning = {
   capability: 'part',
@@ -131,10 +129,7 @@ export const partMeaning = {
   names: circuitNames,
   vocabulary: circuitVocabulary,
   derived: ['partDefs', 'trays', 'replaces'],
-  referenceType({ kind, target, relation, entries }) {
-    if (relation?.kind === 'order' && ['circuit/part', 'any'].includes(kind) && entries.some(entry => entry.kind === 'menu' && entry.name === target)) return 'menu'
-  },
-  matches: (expected, actual) => expected === 'grant' && grants.types.has(actual),
+  matches: (expected, actual) => ['grant', 'circuit/grant'].includes(expected) && grants.types.has(actual),
   identities: ({ kind, value }) => (grants.types.has(kind) ? (value.stages ?? []).map(stage => ({ kind, name: stage.id, value: stage })) : []),
   indexes: ({ registries }) => [...grantIndex(registries)].map(([name, entry]) => ({ kind: entry.type, name, value: entry.object })),
   source: ({ content }) => ({ 'circuit/part': content.partDefs?.parts ?? {} }),
@@ -145,16 +140,15 @@ export const partMeaning = {
     for (const { from, to } of relationEdges.replaces ?? []) (replaces[from] ??= []).push(to)
     const trays = {}
     for (const [name, tray] of Object.entries(registries['circuit/tray'] ?? {})) {
-      const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: grantOrder(resolve(menu.values, 'grant', `trays/${name}/menus/${menu.id}`), relationEdges.order) }))
+      const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: menu.values.flatMap(value => resolve(value, 'circuit/grant', `trays/${name}/menus/${menu.id}`)) }))
       if (new Set(menus.map(menu => menu.id)).size !== menus.length) problems.push({ at: `trays/${name}`, says: 'duplicate menu id' })
-      const direct = grantOrder(resolve(tray.values, 'grant', `trays/${name}`), relationEdges.order)
+      const direct = tray.values.flatMap(value => resolve(value, 'circuit/grant', `trays/${name}`))
       trays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop,
-        items: grantOrder([...direct, ...menus.map(menu => menu.id)], relationEdges.order).map(id => menus.find(menu => menu.id === id) ?? id) }
+        items: [...menus.map(menu => menu.id), ...direct].map(id => menus.find(menu => menu.id === id) ?? id) }
     }
     return { partDefs: { parts }, trays, replaces }
   },
   relationProblems({ name, relation, edges, expand }) {
-    if (relation.of === 'grant') return [{ at: `relations/${name}`, says: 'order endpoints use registered object types; omit of for mixed types' }]
     if (relation.kind !== 'replaces') return []
     return edges.flatMap(edge => [
       ...[edge.from, edge.to].flatMap(endpoint => expand(endpoint, 'circuit/part').some(id => grantIndex(expand.registries).get(id)?.part !== id) ? [{ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' }] : []),
@@ -174,15 +168,6 @@ export const trayMeaning = {
   operationTargets: ({ workspace, args, vocabulary }) => ({ tray: [vocabulary.objectKinds['circuit/tray']?.schema, workspace.trays?.get(args.tray)] }),
   textPrefix: 'tray',
   workspace(ws) { Object.defineProperty(ws, 'trays', { get: () => ws.contentObjects['circuit/tray'], set: value => { ws.contentObjects['circuit/tray'] = value } }) },
-  override(before = {}, { replace, remove = [], ...data }) {
-    const values = [...(replace ? [] : before.values ?? []).filter(value => !remove.includes(value)), ...data.values ?? []]
-    const menus = new Map((replace ? [] : before.menus ?? []).filter(menu => !remove.includes(menu.id)).map(menu => [menu.id, menu]))
-    for (const menu of data.menus ?? []) {
-      const old = menus.get(menu.id)
-      menus.set(menu.id, { ...old, ...menu, values: [...new Set([...(old?.values ?? []).filter(value => !remove.includes(value)), ...menu.values])] })
-    }
-    return { ...before, ...data, values: [...new Set(values)], menus: [...menus.values()] }
-  },
   identities: ({ kind, value }) => kind === 'circuit/tray' ? (value.menus ?? []).map(menu => ({ kind: 'menu', name: menu.id, value: menu })) : [],
 }
 

@@ -1,0 +1,15 @@
+{
+  "machine": "table:robot-loop",
+  "chapter": {
+    "title": "@course.eras.settle.chapter.title",
+    "desc": "@course.eras.settle.chapter.desc"
+  },
+  "levels": [
+    "state-graph/loop",
+    "state-graph/value",
+    "state-graph/arrows",
+    "state-graph/treasure",
+    "state-graph/slip",
+    "state-graph/ice"
+  ]
+}

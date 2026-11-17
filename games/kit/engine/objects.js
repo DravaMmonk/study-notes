@@ -9,20 +9,18 @@ import { dependencyCycle } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.str(), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
-const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.str(), of: S.opt(S.str()), member: S.opt(S.str()), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const TAG = S.obj({ kind: S.str(), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.set({ ...REFERENCE, reference: '$kind' }) })
+export const RELATION = S.obj({ kind: S.str(), edges: S.edges({ ...REFERENCE, reference: '$endpoint' }) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
 export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
 
 /** Qualify each object at its declaring layer, including relation patches. */
 export function qualifyObject(kind, value, namespace, text = (v) => v, resolve = referenceName) {
-  const ref = (v) => resolve(namespace, v)
-  if (['tags', 'sections'].includes(kind)) return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(value.values && { values: value.values.map(ref) }), ...(value.remove && { remove: value.remove.map(ref) }) }
-  const edge = (e) => ({ ...e, from: ref(e.from), to: ref(e.to) })
-  if (kind === 'relations') return { ...value, ...(value.edges && { edges: value.edges.map(edge) }), ...(value.sequence && { sequence: value.sequence.map(ref) }), ...(value.remove && { remove: value.remove.map(edge) }) }
-  throw new Error(`unknown object kind ${kind}`)
+  const refs = value => Array.isArray(value) ? value.map(v => typeof v === 'string' ? resolve(namespace, v) : { ...v, from: resolve(namespace, v.from), to: resolve(namespace, v.to) }) : value
+  const field = kind === 'relations' ? 'edges' : 'values'
+  const collection = value[field]
+  return { ...value, ...(value.title !== undefined && { title: text(value.title) }), ...(value.desc !== undefined && { desc: text(value.desc) }), ...(collection !== undefined && { [field]: Array.isArray(collection) ? refs(collection) : Object.fromEntries(Object.entries(collection).map(([key, values]) => [key, key === 'insert' ? values.map(item => ({ ...item, ...(item.before && { before: resolve(namespace, item.before) }), ...(item.after && { after: resolve(namespace, item.after) }), values: refs(item.values) })) : refs(values)])) }) }
 }
 
 /** One resolver for every typed reference field and relation endpoint. Tags are unordered sets. */
@@ -87,13 +85,19 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
     return value
   }
   if (schema?.type === 'by') return expandReferences(value, schema.cases[value[schema.field]], expand, vocabulary, at)
+  if (schema?.type === 'edges' && Array.isArray(value)) return value.flatMap(edge => {
+    const from = edge.game ? [edge.from] : expand(edge.from, referenceKind(schema.of.fields.from), at)
+    const to = expand(edge.to, referenceKind(schema.of.fields.to), at)
+    return from.flatMap(from => to.map(to => ({ ...edge, from, to })))
+  })
+
   if (Array.isArray(value)) {
     const kind = referenceKind(schema?.of)
     const tagged = kind && value.some((child) => typeof child === 'string' && child.startsWith('#'))
     const list = value.flatMap((child, i) => typeof child === 'string' && child.startsWith('#') && kind
       ? expand(child, kind, `${at}[${i}]`)
       : [expandReferences(child, schema?.of, expand, vocabulary, `${at}[${i}]`)])
-    return tagged ? relationOrder(list, expand.order ?? [], kind) : list
+    return tagged ? [...new Set(list)] : list
   }
   if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind] || schema?.kind?.includes('/')) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
   if (typeof value === 'string' && value.startsWith('#') && referenceKind(schema)) {
@@ -110,44 +114,36 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
   }))
 }
 
-const edgesOf = (relation) => [...(relation.edges ?? []), ...(relation.sequence ?? []).slice(1).map((to, i) => ({ from: relation.sequence[i], to }))]
+const edgesOf = relation => relation.edges ?? []
 
 /** Expand each relation's tag boundaries against its own edges, restricted to scheduled levels. */
 export function expandRelations(relations, expand, scheduled, problems = [], optional = new Set(), definitions = {}) {
-  const result = Object.fromEntries(['requires', 'order', ...Object.keys(definitions)].map(kind => [kind, []]))
+  const result = Object.fromEntries(['requires', ...Object.keys(definitions)].map(kind => [kind, []]))
   for (const [name, relation] of Object.entries(relations)) {
     const declaration = definitions[relation.kind]
-    const endpointKinds = !relation.of && relation.kind === 'order' ? [...new Set(edgesOf(relation).flatMap(edge => [edge.from, edge.to]).map(id => expand.kindOf?.(id)))] : []
-    const inferredKind = endpointKinds.length === 1 ? endpointKinds[0] : undefined
-    const kind = relation.kind === 'requires' ? 'level' : declaration?.from ?? relation.of ?? inferredKind ?? 'any'
-    if (kind === 'tag' && !relation.member) problems.push({ at: `relations/${name}`, says: 'tag order needs a member type' })
-    if (kind !== 'tag' && relation.member) problems.push({ at: `relations/${name}`, says: 'member belongs to tag order relations' })
-    const ends = (id, external = false, side = 'from') => (external && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`, [], relation.member)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const kind = relation.kind === 'requires' ? 'level' : declaration?.from ?? 'any'
+    const ends = (id, external = false, side = 'from') => (external && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     for (const meaning of meaningsOf(expand.vocabulary)) problems.push(...(meaning.relationProblems?.({ name, relation, edges: raw, expand }) ?? []))
-    if (relation.of === 'tag' && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations can order tags' })
-    if (relation.sequence && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations have a sequence' })
-    if (['requires', 'order'].includes(relation.kind) && raw.some((e) => e.from === e.to)) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: a relation cannot link an endpoint to itself` })
+    if (raw.some(e => e.from === e.to)) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: a relation cannot link an endpoint to itself` })
     const candidates = raw.map((edge) => ({ edge, from: ends(edge.from, Boolean(edge.game)), to: ends(edge.to, false, 'to') }))
     const direct = candidates.flatMap(({ edge, from, to }) => from.flatMap((f) => to.map((t) => ({ ...edge, from: f, to: t }))))
-    if (['requires', 'order'].includes(relation.kind)) {
+    if (relation.kind === 'requires') {
       const ids = [...new Set(direct.filter((edge) => !edge.game).flatMap((edge) => [edge.from, edge.to]))]
       const graph = new Map(ids.map((id) => [id, direct.filter((edge) => !edge.game && edge.to === id).map((edge) => edge.from)]))
       const cycle = dependencyCycle(graph)
       if (cycle) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: ${cycle.join(' → ')}` })
     }
     const boundary = (id, ids, side) => {
-      if (kind === 'tag' || !id.startsWith('#')) return ids
+      if (!id.startsWith('#')) return ids
       const ends = ids.filter((v) => !direct.some((e) => !e.game && (side === 'from' ? e.from === v && ids.includes(e.to) : e.to === v && ids.includes(e.from))))
       const required = ends.filter((v) => !optional.has(v))
       return side === 'from' && kind === 'level' && required.length ? required : ends
     }
-    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) (result[relation.kind] ??= []).push({ ...edge, ...(relation.kind === 'order' && { ...(kind !== 'any' && { of: kind }), ...(kind === 'tag' && { member: relation.member }) }), from: f, to: t })
+    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) (result[relation.kind] ??= []).push({ ...edge, from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) {
-    const node = (edge, id) => kind === 'requires' ? id : edge.of === 'tag' ? tagKey(edge.member, id)
-      : tagKey(edge.of ?? expand.kindOf?.(id) ?? 'menu', id)
-    const edges = result[kind].filter(edge => !edge.game).map(edge => ({ from: node(edge, edge.from), to: node(edge, edge.to) }))
+  for (const kind of Object.keys(result)) {
+    const edges = result[kind].filter(edge => !edge.game)
     const graph = new Map([...new Set(edges.flatMap(edge => [edge.from, edge.to]))].map(id => [id, edges.filter(edge => edge.to === id).map(edge => edge.from)]))
     const cycle = dependencyCycle(graph)
     if (cycle) problems.push({ at: 'relations', says: `circular ${kind}: ${cycle.join(' → ')}` })
@@ -157,8 +153,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
 }
 
 /** Stable topological order: satisfy edges first, then compare full names by code point. */
-export function relationOrder(ids, edges, kind = 'level', member) {
-  edges = edges.filter((e) => !e.of || e.of === 'any' || e.of === kind && (kind !== 'tag' || e.member === member))
+export function relationOrder(ids, edges) {
   const pending = new Set(ids), out = []
   while (pending.size) {
     const ready = [...pending].filter((id) => !edges.some((e) => e.to === id && pending.has(e.from))).sort()
@@ -169,28 +164,15 @@ export function relationOrder(ids, edges, kind = 'level', member) {
   return out
 }
 
-/** Order tag full names by explicit tag orders, then member prerequisites, then code point. */
+/** Studio groups derive member order from prerequisites, then full names. */
+export function orderedMembers(content, ids, kind = 'level') {
+  const edges = kind === 'level' ? (content.relationEdges?.requires ?? []).filter(edge => !edge.game) : []
+  const selected = new Set(ids)
+  const nodes = [...new Set([...ids, ...edges.flatMap(edge => [edge.from, edge.to])])]
+  return relationOrder(nodes, edges, kind).filter(id => selected.has(id))
+}
 export function orderedTags(content, kind) {
-  const tags = content.registries?.tag ?? {}
-  const names = Object.keys(tags).filter((name) => tags[name].kind === kind).map(tagName).sort()
-  const expand = referenceResolver(content.registries)
-  const owners = new Map()
-  for (const name of names) for (const member of expand(`#${name}`, kind)) {
-    owners.set(member, [...(owners.get(member) ?? []), name])
-  }
-  const requires = (content.relationEdges?.requires ?? []).filter((edge) => !edge.game).flatMap(({ from, to }) =>
-    (owners.get(from) ?? []).flatMap((a) => (owners.get(to) ?? []).filter((b) => a !== b).map((b) => ({ from: a, to: b }))))
-  const inferred = relationOrder(names, requires, kind)
-  const hard = (content.relationEdges?.order ?? []).filter((edge) => edge.of === 'tag' && edge.member === kind)
-    .map(({ from, to }) => ({ from: from.slice(1), to: to.slice(1) }))
-  // Explicit author order wins when inferred prerequisites disagree with it.
-  const pending = new Set(inferred), out = []
-  while (pending.size) {
-    const next = inferred.find((name) => pending.has(name) && !hard.some((edge) => edge.to === name && pending.has(edge.from)))
-      ?? inferred.find((name) => pending.has(name))
-    pending.delete(next); out.push(next)
-  }
-  return out
+  return Object.entries(content.registries?.tag ?? {}).filter(([, tag]) => tag.kind === kind).map(([key]) => tagName(key)).sort()
 }
 
 /** The runtime route consumed by courseLayout, maps and domains; chapter rows belong to the game. */
@@ -241,7 +223,7 @@ export function importLevelOrder(content, references) {
   }
   for (const id of selected) visit(id)
   if (problems.length) throw new Error(problems.map(({ at, says }) => `${at}: ${says}`).join('\n'))
-  const display = relationOrder([...ids], edges.order).filter(id => selected.has(id))
+  const display = relationOrder([...ids], edges.requires).filter(id => selected.has(id))
   const pending = new Set(display), out = []
   while (pending.size) {
     const next = display.find(id => pending.has(id) && !edges.requires.some(edge => !edge.game && edge.to === id && pending.has(edge.from)))

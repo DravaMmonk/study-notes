@@ -31,10 +31,10 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   ]))
   return assemble({
     id, schemas: vocabulary,
-    contentObjects: Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.fromEntries(Object.entries(values).map(([name, value]) => [name, packageText(value, `${kind}/${name}.json`, kindSchemas(vocabulary)[kind], vocabulary)]))])),
+    contentObjects: Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.fromEntries(Object.entries(values).map(([name, value]) => [name, (kind === 'chapter' ? courseText : packageText)(value, `${kind}/${name}.json`, kindSchemas(vocabulary)[kind], vocabulary)]))])),
     game: combineConfiguration(configuration),
     levels: levels.map(([level, value]) => [level, packageText(value, `levels/${level}.json`, vocabulary.level, vocabulary)]),
-    ...Object.fromEntries(Object.entries({ tags, relations, sections }).map(([kind, values]) => [kind, (values ?? []).map(([name, value, ns]) => [name, packageText(value, `${kind}/${name}.json`, OBJECT_SCHEMAS[kind], vocabulary), ns])])),
+    ...Object.fromEntries(Object.entries({ tags, relations, sections }).map(([kind, values]) => [kind, (values ?? []).map(([name, value, ns]) => [name, (kind === 'chapter' ? courseText : packageText)(value, `${kind}/${name}.json`, OBJECT_SCHEMAS[kind], vocabulary), ns])])),
     glossary: { groups: [], entries: glossary.entries.map(({ id, ...entry }) => ({ id, ...packageText(entry, `entries/${id}.json`, ENTRY, vocabulary) })) },
     blueprint: courseText(blueprint, 'blueprint.json', BLUEPRINT, vocabulary),
     fromDisk: true,

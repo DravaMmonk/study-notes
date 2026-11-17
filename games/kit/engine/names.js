@@ -5,7 +5,7 @@ import { meaningsOf } from './kind-meanings.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 import { shapeAt } from './schema.js'
 
-export const OBJECT_KINDS = ['level', 'entry', 'tag', 'relation', 'section', ...Object.keys(CONTENT_KINDS)]
+export const OBJECT_KINDS = ['level', 'entry', 'tag', 'relation', 'section', 'chapter', 'game', ...Object.keys(CONTENT_KINDS)]
 
 export { fullName } from './object-name.js'
 import { fullName } from './object-name.js'
@@ -41,7 +41,7 @@ export function expandNames(value, namespace, { resolve, textKeys = true, schema
     const replacement = readers.map(reader => reader.rewrite?.({ value: v, schema: { type: 'ref', kind, reference: kind }, path: [] })).find(result => result && Object.hasOwn(result, 'value'))
     if (replacement) return replacement.value
     if (kind === 'kind' && BUILTIN_KIND_NAMES.includes(v)) return v
-    return ['entry', 'group', 'tag', 'relation', 'section', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
+    return ['entry', 'group', 'tag', 'relation', 'section', 'chapter', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v
@@ -49,6 +49,9 @@ export function expandNames(value, namespace, { resolve, textKeys = true, schema
       return walk(v, shapeAt(s, v, [], { vocabulary }), path)
     }
     if (s?.type === 'by') return walk(v, s.cases[v[s.field]], path)
+    if (['set', 'list', 'edges'].includes(s?.type) && v && !Array.isArray(v) && typeof v === 'object') {
+      return Object.fromEntries(Object.entries(v).map(([key, values]) => [key, key === 'insert' ? values.map(item => ({ ...item, ...(item.before && { before: walk(item.before, s.of) }), ...(item.after && { after: walk(item.after, s.of) }), values: item.values.map(value => walk(value, s.of)) })) : values.map(value => walk(value, s.of))]))
+    }
     if (s?.type === 'text') {
       if (typeof v === 'string') return v.startsWith('@') && textKeys ? `@${name(v.slice(1))}` : text(v)
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
@@ -56,7 +59,7 @@ export function expandNames(value, namespace, { resolve, textKeys = true, schema
     }
     const replacement = readers.map(reader => reader.rewrite?.({ value: v, schema: s, path, key: path.at(-1) })).find(result => result && Object.hasOwn(result, 'value'))
     if (replacement) return replacement.value
-    if (s?.reference) return name(v)
+    if (s?.reference) return s.reference === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : name(v)
     if (s?.type === 'level' || s?.type === 'task') return name(v)
     if (s?.type === 'ref' || s?.type === 'name') return ref(s.kind, v)
     if (s?.type === 'call') {
