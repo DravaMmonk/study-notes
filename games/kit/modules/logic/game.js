@@ -1,3 +1,4 @@
+import { circuitScreen } from '../../../../packages/circuit/view/index.jsx'
 import { loadDisplays } from '../../engine/displays.js'
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
@@ -115,7 +116,7 @@ export default function logicGame(content, logic = logicWorks(content)) {
       'logic:query': { icon: Search, label: { zh: '查询', en: 'Query' } },
       'logic:model': { icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
       'logic:script': { icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
-    }),
+    }, { circuit: circuitScreen }),
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [

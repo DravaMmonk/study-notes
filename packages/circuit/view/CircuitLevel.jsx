@@ -24,7 +24,7 @@ import { useSlotEditing } from "./board/useSlotEditing.js"
 import { useCircuitEdits } from "./board/useCircuitEdits.js"
 import Glyph from "./board/Glyph.jsx"
 import { InsideBoard, PackedDetail, insideOf } from "./board/Inside.jsx"
-import { WORDS } from 'kernel/view'
+import { WORDS } from './words.js'
 
 import { L, tr, T } from 'kernel/view'
 
@@ -45,7 +45,7 @@ import { usePlayback } from 'kernel/view'
 import { checkAction, useCheckOnce } from 'kernel/view'
 
 import { useRunHistory } from "./useLevelRuns.js"
-import Workbench, { TestStatus } from "./Workbench.jsx"
+import { Workbench, TestStatus } from 'kernel/view'
 import { definedFaces } from "./parts/faces.jsx"
 
 // A circuit level, the same in every game (games/DESIGN.md 6.3): the board the player wires on the shared editor
@@ -311,7 +311,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       className={`cl-level ${className}`}
       brief={brief}
       taskNav={taskNav}
-      parts={(trayControl || trayItems.length > 0 || all.length > 0 || edit) && <>{(trayControl || trayItems.length > 0 || all.length > 0) && <Palette compact start={trayControl} items={trayItems} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
+      tools={(trayControl || trayItems.length > 0 || all.length > 0 || edit) && <>{(trayControl || trayItems.length > 0 || all.length > 0) && <Palette compact start={trayControl} items={trayItems} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
           <div className="cl-board">
@@ -430,7 +430,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, needs
   }
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} taskNav={taskNav} tests={tests} tray={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} taskNav={taskNav} tests={tests} tools={<Tray start={trayControl} items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       {above}
       <SlotBoard
         boardRef={boardRef}

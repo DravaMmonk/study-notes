@@ -5,7 +5,7 @@ import { Markup } from './Markup.jsx'
 import { RunResults } from './RunDock.jsx'
 import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
-import { Workbench } from '../../../packages/circuit/view/index.jsx'
+import { default as Workbench } from './Workbench.jsx'
 import { useEmbed } from './embed.js'
 import { TASK_BOARD_SECTIONS } from '../engine/plays.js'
 
@@ -27,13 +27,13 @@ export function Level({ phone, stage, ...props }) {
 /**
  * A level on a phone, the same in every game: one page. The tests (their tabs) pinned at the top; in between, what
  * scrolls: task navigation, the foldable 任务 card, the play area, and what a run or check gives (`results`); at the
- * bottom the tray (parts to place) and the run bar, pinned. A run, a step or a check brings the results into view
+ * bottom the tools and the run bar, pinned. A run, a step or a check brings the results into view
  * (RunDock). `results` null or left out: nothing below the play area; `brief` null: no task card.
  *
  * Embedded in a note (embed.js), the page is a block in the note's flow: nothing pinned and nothing scrolling of its
- * own, the task open above the play area, the tray and the run bar under the results.
+ * own, the task open above the play area, the tools and the run bar under the results.
  */
-export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, taskNav, tests, children, tray, results, dock }) {
+export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, taskNav, tests, children, tools, results, dock }) {
   const box = useRef(null)
   const embed = useEmbed()
   const shown = useMemo(() => ({ show: () => requestAnimationFrame(() => box.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' })) }), [])
@@ -46,7 +46,7 @@ export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief,
         {children}
         {results && <section ref={box} className="pl-results" aria-label={tr('结果', 'Results')}>{results}</section>}
       </div>
-      {tray}
+      {tools}
       {dock && <footer className="run-foot"><RunResults.Provider value={shown}>{dock}</RunResults.Provider></footer>}
     </div>
   )

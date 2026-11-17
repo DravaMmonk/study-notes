@@ -1,3 +1,4 @@
+import { meaningsOf } from './kind-meanings.js'
 // Dependency ordering, override composition and provenance shared by readers and author operations.
 import { dependencyIds, validateConfig } from './semver.js'
 import { tagKey, tagName, kernelTags } from './tag-identity.js'
@@ -34,23 +35,17 @@ const edges = (value) => [...(value.edges ?? []), ...(value.sequence ?? []).slic
 const same = (a, b) => typeof a === 'string' ? a === b : Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([key, value]) => b[key] === value)
 
 /** Apply the override rules without retaining patch control fields in objects. */
-export function applyOverride(kind, before, patch) {
+export function applyOverride(kind, before, patch, schemas) {
+  const meaning = meaningsOf(schemas).find(meaning => meaning.type === kind && meaning.override)
+  if (meaning) return meaning.override(before, patch)
   const { $merge, replace, remove = [], ...data } = patch
-  if (!['tag', 'relation', 'circuit/tray', 'section'].includes(kind)) return $merge ? mergePatch(before, data) : data
+  if (!['tag', 'relation', 'section'].includes(kind)) return $merge ? mergePatch(before, data) : data
   before ??= {}
   if (kind === 'tag' && before.kind && data.kind && data.kind !== before.kind) throw new Error('a tag override cannot change its member kind')
   const field = kind === 'relation' ? 'edges' : 'values'
   const values = kind === 'relation' ? edges : (v) => v.values ?? []
   const result = [...(replace ? [] : values(before)).filter((v) => !remove.some((r) => kind !== 'relation' ? r === v : Object.entries(r).every(([key, value]) => v[key] === value))), ...values(data)]
   const { sequence: _sequence, ...merged } = { ...before, ...data }
-  if (kind === 'circuit/tray') {
-    const menus = new Map((replace ? [] : before.menus ?? []).filter(menu => !remove.includes(menu.id)).map(menu => [menu.id, menu]))
-    for (const menu of data.menus ?? []) {
-      const old = menus.get(menu.id)
-      menus.set(menu.id, { ...old, ...menu, values: [...new Set([...(old?.values ?? []).filter(value => !remove.includes(value)), ...menu.values])] })
-    }
-    merged.menus = [...menus.values()]
-  }
   return { ...merged, [field]: result.filter((v, i) => result.findIndex((other) => same(v, other)) === i) }
 }
 
@@ -65,16 +60,15 @@ export function visibleOverrides(content, layer = content.layerOrder?.at(-1)) {
 
 function contextFor(layer, layers, schemas) {
   const name = v => fullName(layer.id, v)
-  const parts = new Set(layer.objects.filter((o) => o.kind === 'circuit/part').map((o) => o.name))
-  const partRules = new Set(layer.objects.filter((o) => o.kind === 'circuit/part' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
-  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { parts, partRules, schema, vocabulary: schemas, context, resolve: name })
-  return { name, parts, qualify }
+  const objects = Object.fromEntries([...new Set(layer.objects.map(object => object.kind))].map(kind => [kind, Object.fromEntries(layer.objects.filter(object => object.kind === kind).map(object => [object.name, object.value]))]))
+  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { objects, schema, vocabulary: schemas, context, resolve: name })
+  return { name, objects, qualify }
 }
 
 /** Qualify declarations before composing, so short references retain their author's namespace. */
 export function composeLayers(layers, schemas) {
   layers = [...orderPackages(layers.filter((layer) => !layer.id.startsWith('@'))), ...layers.filter((layer) => layer.id.startsWith('@'))]
-  const registries = Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(kindSchemas(schemas)), 'i18n'])].map((kind) => [kind, {}]))
+  const registries = Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(kindSchemas(schemas)), ...layers.flatMap(layer => layer.objects.map(object => object.kind)), 'i18n'])].map((kind) => [kind, {}]))
   const sources = Object.fromEntries(Object.keys(registries).map((kind) => [kind, {}]))
   const history = [], catalogs = {}, configurations = [], qualifiedLayers = []
   const readers = new Map([...kernelTags, ...layers.flatMap(layer => (layer.tagReaders ?? []).map(reader => [tagKey(reader.member, reader.name), reader]))])
@@ -134,7 +128,7 @@ export function composeLayers(layers, schemas) {
   for (const [name, text] of Object.entries(registries.i18n)) { const i = name.indexOf(':'); (catalogs[name.slice(0, i)] ??= {})[name.slice(i + 1)] = text }
   const readText = catalogReader(catalogs, 'i18n', { allowMissing: true })
   for (const layer of layers) {
-    const { name, parts, qualify } = contextFor(layer, layers, schemas)
+    const { name, objects, qualify } = contextFor(layer, layers, schemas)
     const texts = (value, schema, context = '') => readText(sourceValue(qualify(value, schema, context)), layer.id, schema, schemas)
     const object = (kind, value) => {
       if (kind === 'entry' && (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group'))) throw new Error('entry identity belongs in its name and membership in entry tags')
@@ -148,8 +142,9 @@ export function composeLayers(layers, schemas) {
       ].filter(tag => !expectedMember || tag.kind === expectedMember) : []
       const endpointKinds = [...new Set(endpointTags.map(tag => tag.kind))]
       const endpointTag = endpointKinds.length === 1 ? endpointTags[0] : null
-      const item = kind === 'tag' && value.kind === 'circuit/part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'circuit/part' || endpointTag?.kind === 'circuit/part' || schemas.kinds?.part?.[endpoint]))
-      const objectName = (v) => kind === 'tag' && value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
+      const definition = Object.values(schemas.objectKinds ?? {}).map(d => d.relations?.[value.kind]).find(Boolean)
+      const expected = kind === 'tag' ? value.kind : definition?.from ?? value.of ?? endpointTag?.kind ?? 'any'
+      const objectName = v => expected === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : expandNames(v, layer.id, { schema: { type: 'str', reference: expected }, vocabulary: schemas, objects })
       if (['tag', 'relation', 'section'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
@@ -171,7 +166,7 @@ export function composeLayers(layers, schemas) {
       name(id)
       const before = registries[kind]?.[identity(kind, id, value)]
       qualifiedLayer.overrides.push({ kind, name: id, value: object(kind, value) })
-      const after = applyOverride(schemas.objectKinds?.[kind]?.override === 'append' ? 'tag' : kind, before, object(kind, value))
+      const after = applyOverride(meaningsOf(schemas).some(meaning => meaning.type === kind && meaning.override) ? kind : schemas.objectKinds?.[kind]?.override === 'append' ? 'tag' : kind, before, object(kind, value), schemas)
       const levelRelation = (value = {}) => ['requires', 'order'].includes(value.kind) && (!value.of || value.of === 'level') && edges(value).every((edge) => [edge.from, edge.to].every((ref) => ref.startsWith('#') ? Boolean(registries.tag[tagKey('level', ref.slice(1))]) : Boolean(registries.level[ref]) || Boolean(edge.game && ref === edge.from)))
       if (before !== undefined && layer.id.startsWith('@') && !(kind === 'relation' && (!before || levelRelation(before)) && levelRelation(after))) throw new Error(`${layer.id}: games cannot override ${kind} ${id}`)
       record(kind, id, after, layer, true, object(kind, value))

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Markup } from 'kernel/view'
+import { Markup } from './Markup.jsx'
 
 
 export const buzz = (pattern) => {
@@ -22,7 +22,7 @@ export function useToast() {
     clearTimeout(timer.current)
     timer.current = setTimeout(() => setShown(false), 2400)
   }
-  // A message may name a part (<part-ref>), drawn by the shell as a link.
+  // A message may name an object using a registered inline reference.
   return [show, <div key="toast" className={`toast ${shown ? 'show' : ''}`} role="status"><Markup text={String(msg ?? '')} /></div>]
 }
 

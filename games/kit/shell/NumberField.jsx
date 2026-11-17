@@ -34,7 +34,7 @@ const shownText = (value) => (value === '' || value === null || value === undefi
 
 /**
  * A number to edit. On a desktop, a text field that takes decimals and fractions (1/9) as typed, ↑ and ↓ stepping by
- * `step` (1 when any); on a phone, a keypad, which walks on to the next number of the same part (下一项), so a row of
+ * `step` (1 when any); on a phone, a keypad, which walks on to the next number of the same form (下一项), so a row of
  * weights or a kernel is filled in one go. Neither path changes read-only inspection.
  */
 export default function NumberField({ id, label, value, onChange, phone, readOnly, min, max, step, stepper }) {
@@ -53,7 +53,7 @@ export default function NumberField({ id, label, value, onChange, phone, readOnl
     setOpen(false)
     trigger.current?.focus()
   }
-  // The part's number fields in order, so the keypad can walk on to the next one.
+  // The form's number fields in order, so the keypad can walk on to the next one.
   const nextField = () => {
     const face = trigger.current?.closest('.pf-face')
     const fields = Array.from(face?.querySelectorAll('button.number-field:not(:disabled)') ?? [])

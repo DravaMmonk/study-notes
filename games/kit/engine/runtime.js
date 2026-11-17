@@ -1,4 +1,3 @@
-import { runtime as circuitRuntime } from '../../../packages/circuit/core/index.js'
 import { pluginRuntime } from './plugin-runtime.js'
 import { contentRoots, contentSchemas } from './content.js'
 // Server-side capability implementations are loaded only for checks and textual play.
@@ -12,10 +11,13 @@ export async function runtimeOf(content, root) {
   const { contentRoot } = await import('./resolver.js')
   root ??= contentRoots.get(content) ?? contentRoot()
   const plugins = await loadPlugins(content, root)
-  const pluginIds = new Set([...plugins.tables.play.keys()].map(name => name.split(':')[0]).filter(id => id !== 'circuit'))
+  const pluginIds = new Set([...plugins.tables.play.keys()].map(name => name.split(':')[0]))
   const vocabulary = contentSchemas.get(content) ?? vocabularyFor(runtimeIds(content).filter(id => !pluginIds.has(id)))
-  const runtimes = await Promise.all(runtimeIds(content).filter(id => pluginIds.has(id) || modules.some(module => module.id === id)).map(async (id) => ({ id, runtime: pluginIds.has(id) ? pluginRuntime(id, plugins, vocabulary) : id === 'circuit' ? circuitRuntime : (await import(`../modules/${id}/runtime.js`)).default })))
-  const complete = runtime => ({ ...runtime, validate: async spec => [...await runtime.validate(spec), ...await plugins.checks({ content, levels: spec.levels, excludePackages: runtimes.map(({ id }) => id) })] })
+  const runtimes = await Promise.all(runtimeIds(content).filter(id => pluginIds.has(id) || modules.some(module => module.id === id)).map(async (id) => ({ id, runtime: pluginIds.has(id) ? pluginRuntime(id, plugins, vocabulary) : (await import(`../modules/${id}/runtime.js`)).default })))
+  const provided = id => [...plugins.tables.play].find(([name, play]) => name.startsWith(`${id}:`) && play.runtime)?.[1].runtime
+  for (const entry of runtimes) if (provided(entry.id)) entry.runtime = provided(entry.id)
+  if (!runtimes.length) runtimes.push({ id: 'kernel', runtime: pluginRuntime('kernel', plugins, vocabulary) })
+  const complete = runtime => ({ ...runtime, checkPhase: context => plugins.checks(context), validate: async spec => [...await runtime.validate(spec), ...await plugins.checks({ content, levels: spec.levels, excludePackages: runtimes.map(({ id }) => id) })] })
   if (runtimes.length === 1) return complete({ ...runtimes[0].runtime, vocabulary })
   const byId = new Map(runtimes.map(({ id, runtime }) => [id, runtime]))
   const choose = (ctx) => byId.get(taskModule(ctx.level.source ?? ctx.level))

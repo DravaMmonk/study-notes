@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { workSignature } from '../engine/stamp.js'
+import { workSignature } from '../../../packages/circuit/core/index.js'
 import { completedRun, keepRunMark, markForWork, playbackMark, runKey } from './run-marks.js'
 
 test('clearing one slot preserves another task with the same slot number', () => {

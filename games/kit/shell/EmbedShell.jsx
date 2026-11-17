@@ -9,7 +9,7 @@ import { setRefs } from './refs.js'
 import { SettingsContext } from './useSetting.js'
 import { EmbedContext } from './embed.js'
 import { settings } from './settings.js'
-import { useLevelRuns } from '../../../packages/circuit/view/index.jsx'
+import { useLevelRuns } from './useLevelRuns.js'
 
 const THEME_KEY = 'fieldnotes.theme'
 const HEIGHT = 'kit-embed-height'
@@ -48,6 +48,7 @@ export default function EmbedShell({ game, store, levelId }) {
   useEffect(() => setRefs({
     name: (kind, id) => (kind === 'level' && game.byId[id] ? { label: game.levelLabel(game.byId[id]), title: L(game.byId[id].title) } : null),
     open: () => {},
+    displays: [...game.pluginKernel?.tables.display.values() ?? []],
   }))
   if (!level) return <div ref={root} className="game is-embed"><div className="board-loading">{tr(`没有「${levelId}」这一关。`, `There is no level “${levelId}”.`)}</div></div>
 

@@ -19,7 +19,7 @@ const OUTCOME = S.obj({
   required: S.bool({ about: 'whether the level is on the main path (not a topic or a challenge)' }),
   attempts: S.int({ min: 0 }),
   hints: S.int({ min: 0, about: 'hints the player asked for' }),
-  parts: S.list(S.str(), { about: 'the part types on the passing board (the last board tried, when not passed)' }),
+  usage: S.map(S.any(), { about: 'opaque observations supplied by the play' }),
   seconds: S.opt(S.num({ about: 'from first seeing the level to its outcome' })),
   why: S.opt(S.str({ about: 'why a level was skipped' })),
   seen: S.opt(S.num({ about: 'while open: when the level was first seen (ms since 1970)' })),
@@ -65,7 +65,7 @@ export function newSession({ game, session, player = { kind: 'llm' }, lang = 'en
 export function outcomeOf(record, level, task, required, now = new Date()) {
   let entry = record.levels.find((e) => e.level === level && e.task === task)
   if (!entry) {
-    entry = { level, task, outcome: 'open', required, attempts: 0, hints: 0, parts: [], seen: now.getTime() }
+    entry = { level, task, outcome: 'open', required, attempts: 0, hints: 0, usage: {}, seen: now.getTime() }
     record.levels.push(entry)
   }
   return entry

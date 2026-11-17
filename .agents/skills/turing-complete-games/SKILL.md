@@ -62,6 +62,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - A package has no course, chapters, unlock graph or learning progress. `check -- --package` checks objects,
   parts and each level separately; package play opens a single level with its tray (all parts/stages when
   omitted). Never generate a package course to reuse a game-only check or UI path.
+- Circuit owns content meanings, availability state, work readers, authoring operations and shell extensions through package protocols. Kernel progression only unlocks tasks and levels. Circuit-specific editors remain in Studio until step 11. See `references/package-plugins.md`.
 - Parts in `parts/<name>.json` choose `op` (or one operation per output) and narrow its settings, then add
   presentation. Settings are inline, not independent objects. No `compute` expressions implement calculations;
   expressions remain for interaction rules, checks and readouts. `stages` lists later linear upgrades, with the
@@ -100,7 +101,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   All commands here run in `trace-viewer/`. Kernel changes require `npm test`, `npm run lint:kit`, and
   `npm run words -- --check`. Use `deps -- lock <target>` to update dependency hashes, `deps -- upgrade <target> [package]` for explicit upgrades,
   and `publish -- <package> --launch` only for the explicit first launch and later checked releases in `releases/`. Before launch, package/platform versions stay at `0.0.0` and dependency ranges at `^0.0.0`; publication without `--launch` is rejected. Platform structure uses
-  `publish -- kernel`; platform behavior probing remains pending. Do not hand-edit versions or recreate vocabulary snapshots. For behavior refactors, capture affected game
+  `publish -- kernel --launch`; platform behavior probing remains pending. Do not hand-edit versions or recreate vocabulary snapshots. For behavior refactors, capture affected game
   check output before the change and compare afterwards, reporting only explicitly authorized differences.
 - For bounded copy, UI or local behavior changes, select checks from handbook §7.0; inspect desktop and phone
   when interaction changes. Passing tests or a build do not establish visual or teaching quality.

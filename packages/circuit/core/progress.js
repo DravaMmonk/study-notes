@@ -1,8 +1,9 @@
+import { solutionStamp } from './stamp.js'
 // Circuit saved works, publications, rewards and availability derived from task progress.
 import { createProgress as createProgressStore, current as currentProgress, fresh as freshProgress, taskKey, completedTask, taskPassed } from 'kernel'
 import { openPackedPart, packedWorkReferences } from './board/packed-boards.js'
 import { openWorkshopPart } from './board/workshop-view.js'
-import { solutionStamp } from 'kernel'
+
 
 /** The work kept from a prerequisite's pass. */
 export function passedWork(progress, task) {
@@ -116,5 +117,8 @@ export const circuitProgress = game => ({
   afterPass(progress, level) {
     return progress.solved.includes(level.id) ? { ...progress, flags: [...new Set([...progress.flags, ...earnedUnlocks(level, progress)])] } : progress
   },
-  rewards: (level, before, after) => completionUnlocks(game, level, before, after),
+  rewards: (level, before, after) => {
+    const { parts, levels } = completionUnlocks(game, level, before, after)
+    return { rewards: [{ label: { zh: '解锁的元件', en: 'Parts unlocked' }, items: parts.map(part => ({ ...part, key: part.part })) }], levels }
+  },
 })

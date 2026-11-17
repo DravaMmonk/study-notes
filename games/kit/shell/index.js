@@ -75,6 +75,5 @@ export function defineGame(def) {
   game.textAt = text => text
   game.textFor = text => text
   game.introduced = () => []
-  game.earnedParts = () => []
   return game
 }

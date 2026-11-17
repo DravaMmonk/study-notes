@@ -11,15 +11,15 @@ export function contentAssets(content) {
   const dependencies = (content.objectProblems ?? []).filter(problem => problem.rule === 'dependency')
   if (dependencies.length) throw new Error(JSON.stringify(dependencies))
   const source = assemblySource(content)
-  const { levels, glossary, partDefs, blueprint, game, tags, relations, sections, trays, contentObjects } = source
-  const objects = [...tags, ...relations, ...sections, ...trays]
+  const { levels, glossary, blueprint, game, tags, relations, sections, contentObjects } = source
+  const objects = [...tags, ...relations, ...sections]
   const packageObjects = [...objects.map(([, value]) => value), ...Object.values(contentObjects).flatMap(Object.values)]
   const { 'game.json': meta, 'course.json': course, ...configuration } = configurationFiles(game)
   const assets = new Map()
   const manifests = {}
   for (const [scope, catalogs] of Object.entries({
     course: catalogsOf('course', meta, course, blueprint),
-    package: catalogsOf('package', ...Object.values(configuration), levels, glossary, partDefs, ...packageObjects),
+    package: catalogsOf('package', ...Object.values(configuration), levels, glossary, ...packageObjects),
   })) {
     manifests[scope] = Object.fromEntries(Object.entries(catalogs).map(([lang, entries]) => {
       const text = JSON.stringify(entries)

@@ -11,7 +11,7 @@ export function reviewTerminology(content, spec, vocabulary) {
       at: `${p.file}:${path}${p.side ? `.${p.side}` : ''}`, side: p.side, text: p.text,
       level: entry ? entry.at : p.level, entry: entry?.id,
       label: p.path.some((k) => ['title', 'name', 'label', 'step', 'unit', 'aliases'].includes(k)),
-      description: p.path[p.path.length - 1] === 'desc',
+      literal: p.literal,
     }
   })
   const usage = termUsage(registry, places, (a, b) => spec.course.before(a, b))

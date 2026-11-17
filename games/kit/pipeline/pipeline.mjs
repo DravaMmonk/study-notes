@@ -28,7 +28,7 @@ import { closeGames } from '../engine/games.mjs'
 import { runtimeOf, readContent, gameDirectory, contentRoot } from '../engine/resolver.js'
 import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { describe } from '../engine/vocabulary.js'
-import { OPERATIONS } from '../engine/ops/operations.js'
+import { operationsFor } from '../engine/ops/operations.js'
 import { knownGames } from '../engine/cli-args.js'
 import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
@@ -118,7 +118,7 @@ async function run(step, state) {
     chmodSync(resolve(work, c), 0o755)
   }
   const content = readContent(game)
-  writeFileSync(resolve(work, 'vocabulary.json'), JSON.stringify({ vocabulary: describe((await runtimeOf(content)).vocabulary), operations: Object.fromEntries(Object.entries(OPERATIONS).map(([k, o]) => [k, { about: o.about, params: o.params }])) }, null, 1))
+  writeFileSync(resolve(work, 'vocabulary.json'), JSON.stringify({ vocabulary: describe((await runtimeOf(content)).vocabulary), operations: Object.fromEntries(Object.entries(operationsFor((await runtimeOf(content)).vocabulary)).map(([k, o]) => [k, { about: o.about, params: o.params }])) }, null, 1))
   const prompt = `${briefOf(step.id)}\n\n${inputs(step, state, option('--scope'))}\n`
   writeFileSync(resolve(work, 'prompt.md'), prompt)
   const before = new Set(seqs())
@@ -212,7 +212,7 @@ if (command === 'status') {
   code = found.length ? 1 : 0
 } else if (command === 'vocab') {
   const content = readContent(game)
-  console.log(JSON.stringify({ vocabulary: describe((await runtimeOf(content)).vocabulary), operations: Object.keys(OPERATIONS) }, null, 1))
+  console.log(JSON.stringify({ vocabulary: describe((await runtimeOf(content)).vocabulary), operations: Object.keys(operationsFor((await runtimeOf(content)).vocabulary)) }, null, 1))
 } else if (command === 'resolve' && arg !== undefined && option('--why')) {
   const findings = state.steps.review?.runs?.at(-1)?.findings
   if (!findings?.[Number(arg)]) {

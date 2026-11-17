@@ -14,8 +14,7 @@ export function AddMark({ at, scope = 'task', index = null, label, className = '
   )
 }
 
-/** A small button that picks field `at` (in `scope`) where the screen shows it only in part (the parts a level brings
- *  are some of those in its tray); nothing outside the studio. */
+/** A small button that picks field `at` (in `scope`) where the screen shows it only in part (a selection contains only some of its source objects); nothing outside the studio. */
 export function PickMark({ at, scope = 'task', label, className = '' }) {
   const edit = useEdit()
   if (!edit) return null

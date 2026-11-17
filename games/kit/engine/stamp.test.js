@@ -1,11 +1,12 @@
 // node --test (npm test, from trace-viewer) — task stamps (stamp.js), on a schema and content written here.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { contentMeanings, solutionStamp as boardStamp } from '../../../packages/circuit/core/index.js'
 import { S } from './schema.js'
 import { solutionStamp, taskStamps } from './stamp.js'
 
 const TASK = S.obj({ id: S.str(), brief: S.text(), tests: S.list(S.num()) })
-const vocabulary = { kinds: {}, level: S.obj({ id: S.str(), title: S.text(), size: S.num(), tasks: S.list(TASK) }) }
+const vocabulary = { meanings: contentMeanings, kinds: {}, level: S.obj({ id: S.str(), title: S.text(), size: S.num(), tasks: S.list(TASK) }) }
 const text = (zh) => ({ zh, en: zh })
 const content = (change = {}) => ({
   partDefs: change.parts ?? null,
@@ -62,5 +63,5 @@ test('a solution stamp includes the selected works throughout a shared reference
 test('presentation changes leave a board solution stamp alone', () => {
   const root = { key: 'root', work: { nodes: [{ id: 'x', type: 'sum', x: 20 }], wires: [], blocks: [] } }
   const moved = { ...root, work: { ...root.work, nodes: [{ ...root.work.nodes[0], x: 120 }] } }
-  assert.equal(solutionStamp(root, () => []).stamp, solutionStamp(moved, () => []).stamp)
+  assert.equal(boardStamp(root, () => []).stamp, boardStamp(moved, () => []).stamp)
 })

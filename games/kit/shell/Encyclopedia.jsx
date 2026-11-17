@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { L, T, tr, isPair } from './i18n.js'
-import { Library, useSeen } from '../../../packages/circuit/view/index.jsx'
+import { default as Library, useSeen } from './Library.jsx'
 import { Markup } from './Markup.jsx'
 import { fileMark } from './edit.js'
 

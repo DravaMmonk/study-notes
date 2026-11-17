@@ -40,7 +40,7 @@ export const PRIMITIVES = qualifyItems('table', 'part', {
   const: { name: T('常数', 'Constant'), ins: [], out: 'circuit:number', params: ['value'], f: (_, n) => n.params?.value ?? 1, desc: T('一直输出同一个数。放上电路板后，点它可以改数值。', 'Always outputs the same number. Once it is on the board, click it to change the number.') },
   pass: { name: T('放行闸', 'Pass gate'), tag: T('是 → 放行', 'yes → pass'), ins: ['circuit:boolean', 'circuit:any'], labels: [T('条件', 'if'), T('数', 'num')], out: { copy: 1 }, f: ([c, v]) => (c ? v : null), desc: T('条件是「是」时，把另一个口收到的信号放过去；否则输出「—」。', 'When the condition is “yes”, lets through whatever signal reaches the other input; otherwise outputs “—”.') },
   block: { name: T('拦截闸', 'Block gate'), tag: T('是 → 拦下', 'yes → block'), ins: ['circuit:boolean', 'circuit:any'], labels: [T('条件', 'if'), T('数', 'num')], out: { copy: 1 }, f: ([c, v]) => (c ? null : v), desc: T('条件是「是」时，输出「—」；否则把另一个口收到的信号原样放过去。', 'When the condition is “yes”, outputs “—”; otherwise lets whatever signal reaches the other input through unchanged.') },
-});
+}, { bare: true });
 
 /** Models that swap for one another on the card, keeping their wires: the mergers that merge numbers. */
 export const MODELS = [['table:msum', 'table:mmin', 'table:mmax']];

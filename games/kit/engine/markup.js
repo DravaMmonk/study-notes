@@ -1,18 +1,18 @@
-// The markup a game's text may carry, the same in every game: a few inline tags and the references to levels, parts
+// The markup a game's text may carry, the same in every game: a few inline tags and the references to objects
 // and encyclopedia entries (../shell/refs.js). Text is never set as HTML: the shell draws what markupOf reads
 // (../shell/Markup.jsx), so a tag outside this set shows as the characters it is, and `npm run check` refuses it
 // (schema.js, every text).
 //
 //   <b> <i> <strong> <code>                    emphasis and code, nested freely, no attributes
-//   <level-ref to="id"></level-ref>            a reference (also part-ref, wiki-ref), its one attribute `to`
+//   <level-ref to="id"></level-ref>            a reference (or another registered reference kind), its one attribute `to`
 //
 //   \( … \) / \[ … \]                    inline / display LaTeX; code spans stay literal
 //
 // A `<` that does not start a tag (a < b, x <- y) is plain text.
 
 export const TAGS = ['b', 'i', 'strong', 'code']
-const REF_KINDS = ['level', 'part', 'wiki']
-const TOKEN = /\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]|(\\\(|\\\[)|<(level|part|wiki)-ref to="([^"<>]+)"><\/\4-ref>|<(\/?)([A-Za-z][A-Za-z0-9-]*)([^<>]*)>/g
+const REF_KINDS = ['level', 'wiki']
+const TOKEN = /\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]|(\\\(|\\\[)|<([a-z][a-z0-9-]*)-ref to="([^"<>]+)"><\/\4-ref>|<(\/?)([A-Za-z][A-Za-z0-9-]*)([^<>]*)>/g
 
 /**
  * A text read as markup: { nodes, problems }. nodes: [string | { tag, kids } | { ref, to } | { math, display }]; problems: what in it is

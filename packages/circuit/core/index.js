@@ -1,3 +1,6 @@
+import { courseChecks, referenceChecks } from './content-checks.js'
+import circuitRuntime from './mechanism/runtime.js'
+import { partMeaning, trayMeaning } from './content-meaning.js'
 
 export { loadWorkshop } from './workshop.js'
 export { courseWorkshop } from './board/workshop-view.js'
@@ -227,11 +230,14 @@ import { grantIndex } from './grants.js'
 export { boardPlay, boardContext } from './board-play.js'
 
 export function register(kernel) {
-  kernel.kind('circuit:part', { type: 'circuit/part', read: value => value })
-  kernel.kind('circuit:tray', { type: 'circuit/tray', read: value => value })
+  kernel.kind('circuit:part', partMeaning)
+  kernel.kind('circuit:tray', trayMeaning)
+  kernel.kind('circuit:quote', { type: 'circuit/quote', read: value => value, selector: 'quote' })
   kernel.state('circuit:grants', ({ course, at, flags }) => course ? grantState(course, at, flags) : {})
-  kernel.play('circuit:board', boardPlay)
+  kernel.play('circuit:board', { ...boardPlay, runtime: circuitRuntime })
   kernel.check('circuit:boards', boardChecks)
+  kernel.check('circuit:course', Object.assign(courseChecks, { phase: 'course' }))
+  kernel.check('circuit:references', Object.assign(referenceChecks, { phase: 'references' }))
   kernel.check('circuit:grants', ({ content }) => { grantIndex(content.registries); return [] })
   kernel.agent('circuit:board', {
     observe: ({ task }) => ({ brief: task.brief, inputs: task.inputs, outputs: task.outputs }),
@@ -240,16 +246,7 @@ export function register(kernel) {
 }
 
 // Remove the old module-owned availability fields before data declarations extend their schemas.
-export function circuitVocabulary(vocabulary) {
-  const grantFields = new Set(['tray', 'adds', 'gives', 'withholds', 'opens', 'awards', 'local', 'featuredParts', 'publishes'])
-  const strip = schema => {
-    if (!schema) return schema
-    if (schema.type === 'either') return { ...schema, of: schema.of.map(strip) }
-    if (schema.type === 'by') return { ...schema, cases: Object.fromEntries(Object.entries(schema.cases).map(([name, shape]) => [name, strip(shape)])) }
-    return { ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => !grantFields.has(key)).map(([key, field]) => [key, key === 'tasks' ? { ...field, of: strip(field.of) } : field])) }
-  }
-  return { ...vocabulary, level: strip(vocabulary.level) }
-}
+export { circuitVocabulary } from './content-meaning.js'
 export { prepareWorks, circuitWorks } from './mechanism/work.js'
 export { GAME, PORT, levelSchema } from './level-schema.js'
 export { ITEM_REFERENCE, TASK_ITEMS } from './task-fields.js'
@@ -265,3 +262,12 @@ export { drive, hearing, boardNode, runTicks } from './ticks.js'
 export { tableAt, MAX_ROUNDS, walk } from './machine.js'
 
 export { mutants, mutationScore } from './mutate.js'
+
+export const contentMeanings = [partMeaning, trayMeaning]
+
+export { workSignature, solutionStamp } from './stamp.js'
+
+export { partRefs } from './author-references.js'
+export { plainBoard } from './contracts.js'
+export { dependencies, dot, mermaid } from './dependencies.js'
+export { circuitPlaySchema } from './play-schema.js'

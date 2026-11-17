@@ -26,7 +26,7 @@
 // marks its node with that message, and the nodes downstream read it as missing; a Halt stops the whole evaluation
 // (a robot reading a cell not computed yet). Anything else a part throws marks its node as unable to compute.
 
-import { acceptsType } from 'kernel'
+import { acceptsType } from './value-types.js'
 
 
 import { sourceOf, splitSource } from "./wire-source.js"

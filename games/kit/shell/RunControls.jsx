@@ -1,6 +1,6 @@
-import { RunDock } from 'kernel/view'
+import RunDock from './RunDock.jsx'
 
-import { tr } from 'kernel/view'
+import { tr } from './i18n.js'
 
 
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']

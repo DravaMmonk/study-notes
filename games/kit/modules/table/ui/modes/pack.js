@@ -4,7 +4,7 @@ import { knapBest } from '../../model/algo.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { T, tr } from '../../lang.js'
 import { reduced } from '../../../../shell/useMedia.js'
-import { buzz, useLater, useVerdict } from '../../../../../../packages/circuit/view/index.jsx'
+import { buzz, useLater, useVerdict } from '../../../../shell/useInteraction.jsx'
 
 const GREEDY = { val: T('最贵的先放', 'Priciest first'), ratio: T('最划算的先放', 'Best value first') }
 

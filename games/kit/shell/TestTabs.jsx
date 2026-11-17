@@ -4,7 +4,7 @@ import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
 
 /**
- * A level's tests as tabs, the same in every game: in a circuit level's strip on a desktop (a row of chips) or across
+ * A level's tests as tabs, the same in every game: in a level's strip on a desktop (a row of chips) or across
  * the top of the phone page. Each shows whether it passed once checked, and hidden tests (shown once the level is
  * solved) say so; a sample (a larger picture the board also runs on, never judged) shows a picture instead. While the
  * studio edits, each tab is a test of the content to pick (edit.js), and a + adds one.

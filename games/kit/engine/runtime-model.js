@@ -1,6 +1,8 @@
 // Runtime selection follows declared task capabilities, never the package's historical domain field.
 import { courseLayout } from './course-dependencies.js'
-import { readWorkSet } from '../../../packages/circuit/core/index.js'
+import { readWorkSet } from './work-model.js'
+import { meaningsOf } from './kind-meanings.js'
+import { contentSchemas } from './content.js'
 
 const namedOwner = (value) => {
   if (typeof value === 'string') return ownerOf(value)
@@ -10,33 +12,32 @@ const namedOwner = (value) => {
 
 const ownerOf = (name) => typeof name === 'string' && name.includes(':') ? name.split(':')[0] : null
 export const taskModule = (task) => ownerOf(task.play) ?? ownerOf(task.kind) ?? ownerOf(task.mode)
-  ?? namedOwner(task.want) ?? 'circuit'
+  ?? namedOwner(task.want)
 
 /** Empty libraries select a work reader from their interfaces; no course requires a domain declaration. */
-export function runtimeIds(content) {
-  const tasks = (content.levels ?? []).flatMap((level) => (level.tasks ?? []).map((task) => ({ ...level, ...task })))
-  if (tasks.length) return [...new Set(tasks.map(taskModule))]
-  const parts = [...Object.values(content.partDefs?.parts ?? {}), ...Object.values(content.registries?.symbol ?? {})]
-  const references = parts.flatMap((part) => part.inside?.map((entry) => entry.reference) ?? [])
-  if (references.length) return [...new Set(references.map(taskModule))]
-  const types = parts.flatMap((part) => [part.outputType, ...(part.inputs ?? []).map((port) => port.type)])
-  return [[...types.map(ownerOf), ...parts.map((part) => ownerOf(part.family) ?? ownerOf(part.mark))].find((id) => id && id !== 'circuit') ?? 'circuit']
+export function runtimeIds(content, schemas = contentSchemas.get(content)) {
+  const tasks = (content.levels ?? []).flatMap(level => (level.tasks ?? []).map(task => ({ ...level, ...task })))
+  const explicit = tasks.map(task => taskModule(task) ?? meaningsOf(schemas).map(meaning => meaning.taskModule?.(task)).find(Boolean)).filter(Boolean)
+  const inferred = meaningsOf(schemas).flatMap(meaning => meaning.runtimeIds?.({ content, tasks, taskModule }) ?? [])
+  return [...new Set(tasks.length ? explicit : inferred)]
 }
+
+export const contentTaskModule = (content, task) => taskModule(task) ?? meaningsOf(contentSchemas.get(content)).map(meaning => meaning.taskModule?.(task)).find(Boolean)
 
 /** Prepare module projections against one shared course and preserve original task positions. */
 export function runtimeWorks(content, runtimes) {
   const plan = courseLayout(content)
   const scopes = runtimes.map(({ id, runtime }) => {
-    const levels = content.levels.map(level => ({ ...level, tasks: level.tasks.filter(task => taskModule({ ...level, ...task }) === id) })).filter(level => level.tasks.length)
+    const levels = content.levels.map(level => ({ ...level, tasks: level.tasks.filter(task => contentTaskModule(content, { ...level, ...task }) === id) })).filter(level => level.tasks.length)
     const ids = new Set(levels.map((level) => level.id))
-    const parts = Object.fromEntries(Object.entries(content.partDefs?.parts ?? {}).filter(([, part]) =>
-      !part.inside || part.inside.some((entry) => taskModule(entry.reference) === id)))
-    const scope = { ...content, levels, partDefs: { ...content.partDefs, parts } }
+    const scope = meaningsOf(contentSchemas.get(content)).reduce((scope, meaning) => meaning.scope?.({ content: scope, id, taskModule }) ?? scope, { ...content, levels })
+    contentSchemas.set(scope, contentSchemas.get(content))
     Object.defineProperty(scope, 'taskPositions', { value: new Map(content.levels.flatMap(level => level.tasks.map((task, index) => [task.id, index]))) })
     Object.defineProperty(scope, 'coursePlan', { value: { ...plan, order: plan.order.filter((id) => ids.has(id)) } })
     return { id, runtime, content: scope, prepare: runtime.prepare }
   })
   const shared = { ...content }
+  contentSchemas.set(shared, contentSchemas.get(content))
   Object.defineProperty(shared, 'coursePlan', { value: plan })
   const works = readWorkSet(shared, scopes)
   return { plan, scopes, works }
@@ -69,7 +70,6 @@ export function runtimeSpec(content, runtimes) {
       })),
       glossary: content.glossary.entries,
     },
-    quotes: Object.values(content.registries?.quote ?? {}).map(quote => quote.text),
+    quotes: meaningsOf(contentSchemas.get(content)).flatMap(meaning => meaning.quotes?.({ content }) ?? []),
   }
 }
-

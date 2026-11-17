@@ -1,5 +1,5 @@
 // One thin projection lets package plays share the existing course and task dispatch.
-import { readWorks } from '../../../packages/circuit/core/index.js'
+import { readWorks } from './work-model.js'
 import { courseLayout } from './course-dependencies.js'
 import { taskLevels } from './tasks.js'
 
@@ -11,7 +11,7 @@ export function pluginRuntime(id, kernel, vocabulary) {
     const levels = plan.order.map(name => {
       const level = content.levels.find(level => level.id === name)
       const tasks = taskLevels(level, content.taskPositions).map(source => ({ ...source, key: source.taskId, kind: source.play, source }))
-      return { ...level, tasks, kind: tasks[0].kind, chapter: plan.place.get(name).era, requires: plan.requires.get(name), unlocks: [] }
+      return { ...level, tasks, kind: tasks[0]?.kind, chapter: plan.place.get(name).era, requires: plan.requires.get(name), unlocks: [] }
     })
     const course = yield { levels, plan }
     return { levels, course, chapters: (content.eras ?? []).map(era => ({ ...era, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) })) }

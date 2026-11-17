@@ -1,3 +1,4 @@
+import { module as circuit } from '../../../../packages/circuit/core/index.js'
 import { registerContentKinds } from '../../engine/content-kinds.js'
 import { IMAGE_OPS } from './engine/definitions.js'
 import { vocabulary } from './vocabulary.js'
@@ -5,6 +6,7 @@ import { vocabulary } from './vocabulary.js'
 export default {
   id: 'image',
   register(registry) {
+    if (!registry.schemas.circuit) circuit.register(registry)
     registerContentKinds(registry, 'image')
     registry.vocabulary('image', vocabulary)
     registry.add('display', 'image:hero', { about: { en: 'Image course map illustration' }, role: 'hero' })

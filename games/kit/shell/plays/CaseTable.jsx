@@ -3,7 +3,7 @@ import { L } from '../i18n.js'
 import { WORDS } from '../words.js'
 
 /** Pick a case to inspect its inputs and result, with the target column controlled by the play. */
-export default function CircuitCheckTable({ play, inputs, rows, at, select }) {
+export default function CaseTable({ play, inputs, rows, at, select }) {
   const columns = inputs.map(({ key, label }) => ({
     key: `input:${key}`, label, cell: ({ given }) => L(given[key]),
   }))

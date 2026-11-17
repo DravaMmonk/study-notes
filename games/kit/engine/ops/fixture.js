@@ -16,11 +16,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { catalogsOf, normalizeText } from '../content-text.js'
 import { catalogReader, sourceValue } from '../catalogs.js'
-import { configurationFiles } from '../content.js'
+import { assemble as assembleContent, configurationFiles } from '../content.js'
 import { GLOSSARY as GLOSSARY_SCHEMA } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
 import { PARTS_FILE } from '../../../../packages/circuit/core/index.js'
-import { withParts } from '../../../../packages/circuit/core/index.js'
+import { contentMeanings, withParts } from '../../../../packages/circuit/core/index.js'
 import { expandNames } from '../names.js'
 import { readCatalogs, contentVocabulary } from '../resolver.js'
 
@@ -130,7 +130,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
     for (const [lang, entries] of Object.entries(catalogsOf(dir, ...values))) put(join(dir, 'i18n', `${lang}.json`), entries)
   }
   if (id !== 'circuit') installCircuitFixture(root)
-  const vocabulary = withParts(domainVocabulary, partDefs)
+  const vocabulary = withParts(circuitFixtureSchema(domainVocabulary), partDefs)
   const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
   const gameText = normalize(game, vocabulary.game, 'course')
   const { 'game.json': shell, 'course.json': route } = configurationFiles(gameText)
@@ -207,12 +207,12 @@ export function installCircuitFixture(root) {
   const dir = join(root, 'packages', 'circuit')
   if (existsSync(join(dir, 'package.json'))) return
   mkdirSync(dir, { recursive: true })
-  for (const folder of ['kinds', 'i18n']) cpSync(new URL(`../../../../packages/circuit/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+  for (const folder of ['kinds', 'i18n', 'core']) cpSync(new URL(`../../../../packages/circuit/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null, 2) + '\n')
 }
 
 export const circuitFixtureKinds = {
-  'circuit/part': { folder: 'parts', schema: { type: 'any' } },
+  'circuit/part': { folder: 'parts', relations: { replaces: { from: 'circuit/part', to: 'circuit/part' } }, schema: { type: 'any' } },
   'circuit/tray': { folder: 'trays', schema: { type: 'obj', fields: {
     title: { type: 'text', optional: true }, values: { type: 'list', of: { type: 'str', reference: 'grant' } },
     menus: { type: 'list', optional: true, of: { type: 'obj', fields: {
@@ -220,4 +220,13 @@ export const circuitFixtureKinds = {
     } } },
   } }, override: 'append' },
 }
-export const circuitFixtureSchema = schemas => ({ ...schemas, objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })
+export const circuitFixtureSchema = schemas => ({ ...schemas, meanings: contentMeanings, objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })
+
+/** Synthetic circuit inputs enter the same typed registries as installed packages. */
+export function assembleCircuitFixture({ partDefs, trays = [], ...options }) {
+  return assembleContent({ ...options, schemas: circuitFixtureSchema(options.schemas), contentObjects: {
+    ...options.contentObjects,
+    ...(partDefs && { 'circuit/part': partDefs.parts }),
+    ...(trays.length && { 'circuit/tray': Object.fromEntries(trays.map(([name, value, namespace]) => [namespace && !name.includes('/') ? `${namespace}/${name}` : name, value])) }),
+  } })
+}

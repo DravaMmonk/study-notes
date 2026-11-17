@@ -1,5 +1,5 @@
 // Browser assembly shared by Studio's preview and its single-level play page.
-import { circuitVocabulary, runtime as circuitRuntime } from '../../../packages/circuit/core/index.js'
+import { projectVocabulary } from '../engine/kind-meanings.js'
 import { registerPlugins } from '../engine/plugins.js'
 import { withKindDeclarations } from '../engine/plugin-kinds.js'
 import { vocabularyFor } from '../engine/kernel.js'
@@ -12,20 +12,19 @@ export async function loadGame(content, moduleLoaders, packageLoaders) {
   for (const id of content.layerOrder ?? []) if (packageLoaders[id]) entries.push({ id, ...await packageLoaders[id]() })
   const kernel = await registerPlugins(entries, { view: true, tasks: content.levels.flatMap(level => level.tasks) })
   const ids = runtimeIds(content)
-  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]).filter(id => id !== 'circuit'))
+  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))
   const legacy = ids.filter(id => !pluginIds.has(id))
   const layers = Object.entries(content.objectKinds ?? {}).map(([name, value]) => ({ id: name.split('/')[0], resolved: true, objects: [{ kind: 'kind', name: name.split('/')[1], value }] }))
-  const vocabulary = withKindDeclarations(circuitVocabulary(vocabularyFor(legacy)), layers, pluginIds.size > 0)
+  const vocabulary = withKindDeclarations(projectVocabulary({ ...vocabularyFor(legacy), meanings: [...kernel.tables.kind.values()] }), layers, pluginIds.size > 0)
   const modules = []
   for (const id of ids) {
-    if (id === 'circuit') {
-      const entry = await import('../../../packages/circuit/view/index.jsx')
-      modules.push({ id, define: entry.default, runtime: circuitRuntime })
-    } else if (pluginIds.has(id)) modules.push(pluginGame(id, kernel, vocabulary))
+    if (pluginIds.has(id)) modules.push(pluginGame(id, kernel, vocabulary))
     else {
       const [entry, , runtime] = await moduleLoaders[id]()
       modules.push({ id, define: entry.default, runtime: runtime.default })
     }
   }
-  return composeGame(content, modules)
+  const game = composeGame(content, modules)
+  game.pluginKernel = kernel
+  return game
 }

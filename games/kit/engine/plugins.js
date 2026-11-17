@@ -1,3 +1,4 @@
+import { registerMeaning } from './kind-meanings.js'
 import { tagKey, kernelTags } from './tag-identity.js'
 // Environment-neutral package registration. Each assembly owns its registry.
 const CORE = ['play', 'kind', 'state', 'check', 'agent']
@@ -22,6 +23,7 @@ export function createPluginKernel() {
         for (const key of required) if (typeof value?.[key] !== 'function') throw new Error(`${name}: ${type} needs ${key}()`)
         if (['kind', 'editor'].includes(type) && typeof value?.type !== 'string') throw new Error(`${name}: ${type} needs an object type`)
         if (['check', 'state'].includes(type) && typeof value !== 'function') throw new Error(`${name}: ${type} needs a function`)
+        if (type === 'kind') registerMeaning(value)
         add(type === 'play' && side === 'view' ? 'playView' : type, name, value)
       }]))
       api.object = (kind, name, value = {}) => {
@@ -47,7 +49,7 @@ export function createPluginKernel() {
     },
     meanings(type, value, context) { return Object.fromEntries([...tables.kind].filter(([, meaning]) => meaning.type === type).map(([name, meaning]) => [name, meaning.read(value, context)])) },
     state(context) { return Object.fromEntries([...tables.state].map(([name, derive]) => [name, derive(context)])) },
-    async checks(context) { return (await Promise.all([...tables.check].filter(([name]) => (!context.package || name.startsWith(`${context.package}:`)) && !context.excludePackages?.includes(name.split(':')[0])).map(async ([name, check]) => (await check(context)).map(line => ({ ...line, plugin: name }))))).flat() },
+    async checks(context) { return (await Promise.all([...tables.check].filter(([name, check]) => (context.phase ? check.phase === context.phase : !check.phase) && (!context.package || name.startsWith(`${context.package}:`)) && !context.excludePackages?.includes(name.split(':')[0])).map(async ([name, check]) => (await check(context)).map(line => ({ ...line, plugin: name }))))).flat() },
   }
 }
 

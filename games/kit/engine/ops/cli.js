@@ -1,3 +1,4 @@
+import { resolveLayers, packageIds, layerVocabulary } from '../resolver.js'
 /* global process */
 // npm run op -- … — the operation set (operations.js) from the command line, through a changeset (changeset.js):
 //
@@ -14,7 +15,7 @@
 // of the project with games/ and packages/.
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { OPERATIONS } from './operations.js'
+import { operationsFor } from './operations.js'
 import { openGame, openPackage } from './workspace.js'
 import { adopt, readLog, runChangeset, undo } from './changeset.js'
 import { authorship, driftOf } from './log.js'
@@ -36,7 +37,8 @@ const value = (text) => {
 }
 
 if (words[0] === 'list') {
-  for (const [name, op] of Object.entries(OPERATIONS)) console.log(`${name}  ${op.about.en}\n  ${Object.entries(op.params.fields).map(([k, s]) => `${k}${s.optional ? '?' : ''}: ${s.type}`).join(', ')}`)
+  const schemas = layerVocabulary(resolveLayers({ packages: packageIds(), closure: true, unlocked: true }).layers)
+  for (const [name, op] of Object.entries(operationsFor(schemas))) console.log(`${name}  ${op.about.en}\n  ${Object.entries(op.params.fields).map(([k, s]) => `${k}${s.optional ? '?' : ''}: ${s.type}`).join(', ')}`)
   process.exit(0)
 }
 

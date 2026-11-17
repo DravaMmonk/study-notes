@@ -67,8 +67,8 @@ export function termUsage(registry, places, before) {
   const reports = []
   const available = (entry, level) => !entry.at || entry.at === level || Boolean(level && before(entry.at, level))
   for (const place of places) {
-    if (place.description) {
-      if (/<\/?(?:wiki|part|level)-ref\b/.test(place.text)) failures.push(problem('part-description-reference', place.at, 'component descriptions are plain text; write names without reference markup'))
+    if (place.literal) {
+      if (/<\/?[a-z][a-z0-9-]*-ref\b/.test(place.text)) failures.push(problem(place.literal.rule, place.at, place.literal.says))
       continue
     }
     if (/<\/?wiki-ref\b/.test(place.text.replace(REF, ''))) failures.push(problem('term-reference-format', place.at, 'malformed term reference; use a closed wiki-ref with a registered id'))

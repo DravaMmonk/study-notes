@@ -1,3 +1,4 @@
+import { circuitPlaySchema } from '../../../../packages/circuit/core/index.js'
 import { definePlays, playFor } from '../../engine/plays.js'
 
 const boardLabel = { zh: '棋盘', en: 'Board' }
@@ -24,6 +25,6 @@ export const plays = definePlays({
   'table:breach': { ...hand, resources: 'breach' },
   'table:policy': { ...hand, resources: 'policy' },
   'table:seam': { ...hand, resources: 'seam' },
-})
+}, circuitPlaySchema)
 
 export const playOf = (task) => playFor(plays, { kind: task.mode })

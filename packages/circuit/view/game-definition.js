@@ -1,3 +1,7 @@
+import { describeObservation } from '../core/observation.js'
+import { circuitSettings } from './settings.js'
+import { composeCircuitModules } from './compose.js'
+import { useCircuitShell } from './shell.jsx'
 import { passedLevelIn, taskOpen } from 'kernel/view'
 import { holds } from '../core/course.js'
 import { stageDefinition } from '../core/part-stages.js'
@@ -181,5 +185,19 @@ export function defineGame(def) {
     game.bindPassingBoard = workshop.bind
     return createProgress({ id: content.id, tasks, restoreBuilt: workshop.restore })
   }
+  game.describeObservation = describeObservation
+  game.referenceName = (kind, id, lang) => {
+    if (kind !== 'part') return null
+    const name = game.parts?.all.find(part => part.key === id)?.name
+    return (name && typeof name === 'object' ? name[lang] ?? name.zh ?? name.en : name) || null
+  }
+  game.settings = circuitSettings
+  game.mapBadges = (level, { solved, all }) => {
+    const first = { ...level, unlocks: (level.unlocks ?? []).filter(flag => !game.unlocksBefore(level).includes(flag)) }
+    const accepts = ({ part }) => game.isCircuitPart(part)
+    return [...game.introduced(level).filter(accepts).map(part => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })), ...game.unlocked(first).filter(accepts).map(part => ({ label: part.label, open: all || solved.has(level.id) }))]
+  }
+  game.composeModules = composeCircuitModules
+  game.shell = { useShell: useCircuitShell }
   return game
 }

@@ -70,24 +70,24 @@ export function SolvedDialog({ game, level, unlocked, onStay, onExit }) {
             <div className="dialog-lines">{passed.lines.map((line, k) => <code key={k}>{L(line)}</code>)}</div>
           </div>
         )}
-        {unlocked.parts.length > 0 && (
-          <div className="unlocked">
-            <span className="panel-label">{tr('解锁的元件', 'Parts unlocked')}</span>
+        {(unlocked.rewards ?? []).filter(group => group.items.length).map(group => (
+          <div className="unlocked" key={L(group.label)}>
+            <span className="panel-label">{L(group.label)}</span>
             <ul className="unlocked-list">
-              {unlocked.parts.map((part) => (
-                <li key={part.part} className="unlocked-part" data-family={part.family}>
-                  {part.icon && <i className="family-chip">{createElement(part.icon, { size: 14, strokeWidth: 1.7 })}</i>}
-                  {L(part.label)}
+              {group.items.map((item) => (
+                <li key={item.key} className="unlocked-item" data-family={item.family}>
+                  {item.icon && <i className="family-chip">{createElement(item.icon, { size: 14, strokeWidth: 1.7 })}</i>}
+                  {L(item.label)}
                 </li>
               ))}
             </ul>
           </div>
-        )}
+        ))}
         {unlocked.levels.length > 0 && (
           <div className="unlocked">
             <span className="panel-label">{tr('解锁的关卡', 'Levels unlocked')}</span>
             <ul className="unlocked-list">
-              {unlocked.levels.map((next) => <li key={next.id} className="unlocked-part"><span className="map-node-id">{game.levelLabel(next)}</span>{L(next.title)}</li>)}
+              {unlocked.levels.map((next) => <li key={next.id} className="unlocked-item"><span className="map-node-id">{game.levelLabel(next)}</span>{L(next.title)}</li>)}
             </ul>
           </div>
         )}
@@ -123,4 +123,3 @@ export function FailDialog({ fail, fails, onClose }) {
     </div>
   )
 }
-

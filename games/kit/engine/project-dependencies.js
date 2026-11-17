@@ -7,7 +7,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { contentVocabulary, contentLayers, gameDirectory, isDataGame, contentRoot, readContent, readGameConfig, readPackageLayers } from './resolver.js'
 import { projectDependencyProblems } from './course-dependencies.js'
-import { assemble, assemblySource } from './content.js'
+import { contentSchemas, assemble, assemblySource } from './content.js'
 import { applyOverride } from './layers.js'
 import { qualifyObject } from './objects.js'
 
@@ -55,8 +55,8 @@ export function dependencyProblemsInProject(content, root = contentRoot()) {
   const collection = loaded.map((peer) => {
     if (peers.find(([id]) => id === peer.id)?.[1].packageId !== packageId) return peer
     const source = assemblySource(peer), pending = assemblySource(content)
-    return assemble({ ...source, schemas: contentVocabularyFor(peer), levels: pending.levels, partDefs: pending.partDefs,
-      tags: pending.tags, relations: pending.relations, sections: pending.sections, trays: pending.trays,
+    return assemble({ ...source, schemas: contentVocabularyFor(peer), levels: pending.levels, contentObjects: pending.contentObjects,
+      tags: pending.tags, relations: pending.relations, sections: pending.sections,
     })
   })
   const packages = new Map(peers.map(([id, { packageId }]) => [id, packageId]))
@@ -64,4 +64,4 @@ export function dependencyProblemsInProject(content, root = contentRoot()) {
   return [...siblingProblems, ...projectDependencyProblems([content, ...collection], packages)]
 }
 
-const contentVocabularyFor = (content) => contentVocabulary(runtimeIds(content))
+const contentVocabularyFor = content => contentSchemas.get(content) ?? contentVocabulary(runtimeIds(content))

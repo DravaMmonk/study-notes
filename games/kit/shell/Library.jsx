@@ -1,8 +1,8 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
-import { L, tr } from 'kernel/view'
+import { L, tr } from './i18n.js'
 
-import { SheetOverlay } from 'kernel/view'
+import { SheetOverlay } from './Sheet.jsx'
 
 
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the

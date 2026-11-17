@@ -75,8 +75,12 @@ function logicReport(task) {
   }
 }
 
-export async function taskReports(spec) {
-  const works = spec.table ?? spec.image ?? spec.logic ?? spec.circuit ?? {}
+export async function taskReports(spec, providers = []) {
+  for (const provider of providers) {
+    const records = provider.baselineReports?.({ spec })
+    if (records) return records.map(baselineValue)
+  }
+  const works = spec.table ?? spec.image ?? spec.logic ?? {}
   const tasks = spec.levels.flatMap(level => (works.played?.get(level.id) ?? level.tasks).map(task => ({ level: level.id, task })))
   const records = []
   for (const { level, task } of tasks) {
@@ -93,7 +97,7 @@ export async function taskReports(spec) {
       }
     else if (spec.logic) report = logicReport(task)
     else {
-      const { runLevel } = await import(`../modules/${kind?.split(':')[0] ?? 'circuit'}/run.js`)
+      const { runLevel } = await import(`../modules/${kind?.split(':')[0]}/run.js`)
       report = examples(task, work => runLevel(withHidden(task), work, works.forTask(task).partOf, { traced: true }))
     }
     records.push(baselineValue({ level, task: task.taskId ?? task.key ?? task.id, kind, report }))

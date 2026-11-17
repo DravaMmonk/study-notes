@@ -1,3 +1,4 @@
+import { circuitScreen } from '../../../../packages/circuit/view/index.jsx'
 import { loadDisplays } from '../../engine/displays.js'
 // A table game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the table domain's screen (every level played through its mode), its
@@ -91,7 +92,7 @@ export default function tableGame(content, table = tableWorks(content)) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,
     IntroFigure: ui['table:introduction'],
-    kinds: playKinds(plays, { ...hand, robot: ui['table:circuit'](table) }, icons),
+    kinds: playKinds(plays, { ...hand, robot: ui['table:circuit'](table) }, icons, { circuit: circuitScreen }),
     unlocked: (level) => level.unlocks.map((k) => ({ part: k, label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {

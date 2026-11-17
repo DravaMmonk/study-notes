@@ -1,14 +1,14 @@
+import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
 import { registerCircuitConsumers } from './circuit-bridge.js'
 import { S } from './schema.js'
 import { createCapabilityRegistry, registeredOperations, registeredValueTypes, selectModuleVocabulary } from './capabilities.js'
 import image from '../modules/image/module.js'
 import logic from '../modules/logic/module.js'
 import table from '../modules/table/module.js'
-import { module as circuit } from '../../../packages/circuit/core/index.js'
 import rows from '../modules/rows/module.js'
 import tickBus from '../modules/tick-bus/module.js'
 
-export const modules = [circuit, rows, tickBus, image, logic, table]
+export const modules = [rows, tickBus, image, logic, table]
 export const capabilities = createCapabilityRegistry()
 for (const module of modules) module.register(capabilities)
 registerCircuitConsumers()
@@ -17,6 +17,7 @@ Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
   plugins: { tags: { key: '<member>:<namespace>/<name>', register: 'tag(fullName, member)', reserved: ['kernel'], readers: [{ name: 'kernel/studio-left', member: 'kind' }] }, core: ['play', 'kind', 'state', 'check', 'agent', 'tag', 'object'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
+  meanings: capabilities.meanings,
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,
@@ -29,7 +30,7 @@ export const vocabulary = {
 export function vocabularyFor(course) {
   const ids = Array.isArray(course) ? course : [course]
   const choices = ids.map((id) => selectModuleVocabulary(vocabulary, id))
-  const selected = !choices.length ? { ...vocabulary, game: S.obj({}), level: null } : choices.length === 1 ? choices[0] : {
+  const selected = !choices.length ? { ...vocabulary, game: S.obj({ title: S.opt(S.text()), kicker: S.opt(S.text()), lede: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.either(S.str(), S.int()), title: S.opt(S.text()), question: S.opt(S.text()), ...COURSE_FIELDS }))), ...COURSE_OPTIONS }), level: null } : choices.length === 1 ? choices[0] : {
     ...vocabulary,
     game: S.obj(Object.fromEntries([...new Set(choices.flatMap(choice => Object.keys(choice.game.fields)))].map(key => {
       const schemas = choices.map(choice => choice.game.fields[key]).filter(Boolean)

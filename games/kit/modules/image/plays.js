@@ -1,3 +1,4 @@
+import { circuitPlaySchema } from '../../../../packages/circuit/core/index.js'
 import { definePlays } from '../../engine/plays.js'
 
 export const plays = definePlays({
@@ -10,4 +11,4 @@ export const plays = definePlays({
   },
   'image:board': { editor: 'workshop', judge: 'parameters', resources: 'parameters', layout: 'level-board', pinOnPhone: true },
   'image:probe': { editor: 'workshop', judge: 'gridProbe', resources: 'probe', layout: 'level-probe', pinOnPhone: true },
-})
+}, circuitPlaySchema)

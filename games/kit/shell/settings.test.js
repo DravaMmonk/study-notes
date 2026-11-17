@@ -1,8 +1,9 @@
+import { circuitSettings } from '../../../packages/circuit/view/settings.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createSettings, settingsFor } from './settings.js'
 
-const game = { id: 'a', circuit: { played: new Map([['level', [{ carry: 'before' }]]]) } }
+const game = { id: 'a', settings: circuitSettings, circuit: { played: new Map([['level', [{ carry: 'before' }]]]) } }
 const memory = () => { let text = null; return { getItem: () => text, setItem: (_, value) => { text = value } } }
 test('device settings use defaults, validate choices and separate games', () => {
   const storage = memory(), prefs = createSettings(() => storage)

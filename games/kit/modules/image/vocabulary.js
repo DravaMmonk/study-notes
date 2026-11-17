@@ -171,4 +171,4 @@ export const vocabulary = qualifyVocabulary('image', defineVocabulary({
   game: GAME,
   // A level is a list of tasks (../../engine/tasks.js), each by its kind, and a circuit task by its scene too.
   level: taskLevel(ONCE, S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH }), { parts: true }),
-}))
+}), { bareKinds: ['part'], categories: { part: 'primitive' } })

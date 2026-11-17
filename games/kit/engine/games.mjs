@@ -1,7 +1,7 @@
 import { contentRoot } from './resolver.js'
 import { contentRoots, contentSchemas } from './content.js'
 import { packageApp } from '../app/package-vite.js'
-// A game's whole definition (the shell's levels, parts box and encyclopedia), made under node for the checks from its
+// A game's whole definition (the shell's levels, reference panels and encyclopedia), made under node for the checks from its
 // content (content.js): its domain's game.js loaded through vite, as the build loads it, with the few browser globals
 // the games touch at import time stubbed. vite and the games' packages are trace-viewer's, wherever node runs from.
 import { createRequire } from 'node:module'
@@ -42,13 +42,15 @@ export async function gameOf(content, { view = false } = {}) {
   const kernel = await plugins(content, root, file => server.ssrLoadModule(file), view)
   const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
   const vocabulary = contentSchemas.get(content)
-  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]).filter(id => id !== 'circuit'))
+  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))
   const modules = await Promise.all(runtimeIds(content).map(async id => pluginIds.has(id) ? pluginGame(id, kernel, vocabulary, { view }) : ({
     id, define: (await server.ssrLoadModule(gameModule(DOMAINS, id))).default,
-    runtime: id === 'circuit' ? (await server.ssrLoadModule(resolve(DOMAINS, '../../../../packages/circuit/core/index.js'))).runtime : (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
+    runtime: (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
   })))
   const { composeGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/compose-game.js'))
-  return composeGame(content, modules)
+  const game = composeGame(content, modules)
+  game.pluginKernel = kernel
+  return game
 }
 
 async function serve() {

@@ -10,12 +10,13 @@ import { SYMBOL } from '../content-kinds.js'
 //
 //   query: { find, regex?, caseSensitive?, word?, kinds?: ['text', 'board', 'id'] }
 //   a hit: { file, level?, in?, path, kind, side?, line?, text (the string searched), at: [[start, end]…] }
-import { PARTS_FILE } from '../../../../packages/circuit/core/index.js'
+import { meaningsOf, derivedFields } from '../kind-meanings.js'
+import { contentSchemas } from '../content.js'
 import { find } from '../schema.js'
 import { textEntries } from '../i18n.js'
 import { ENTRY } from '../vocabulary.js'
 
-const REF_TAG = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/g
+const REF_TAG = /<([a-z][a-z0-9-]*)-ref to="[^"]+"><\/\1-ref>/g
 const KINDS = ['text', 'board', 'id']
 
 /** The query as a global regular expression, or null when there is nothing to find (or the pattern does not read). */
@@ -57,11 +58,14 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   const texts = (value, schema, at, prefix = []) => {
     for (const { path: ownPath, value: v } of find(schema, value, 'text', { vocabulary })) {
       const path = [...prefix, ...ownPath]
-      if (typeof v === 'string') out.push({ ...at, path, kind: 'text', text: v })
-      else for (const [side, text] of textEntries(v)) out.push({ ...at, path, kind: 'text', side, text })
+      const { annotations, ...location } = at
+      const annotated = { ...location, ...annotations?.(ownPath) }
+      if (typeof v === 'string') out.push({ ...annotated, path, kind: 'text', text: v })
+      else for (const [side, text] of textEntries(v)) out.push({ ...annotated, path, kind: 'text', side, text })
     }
   }
-  const { id: _g, levels, glossary, vocabulary: _v, open: _o, blueprint: _b, partDefs, ...game } = content
+  const { id: _g, levels, glossary, vocabulary: _v, open: _o, blueprint: _b, ...configuration } = content
+  const game = Object.fromEntries(Object.entries(configuration).filter(([key]) => !derivedFields(contentSchemas.get(content)).includes(key)))
   for (const { id, ...level } of levels) {
     const at = { file: `levels/${id}.json`, level: id }
     if (kinds.includes('id')) out.push({ ...at, path: [], kind: 'id', text: id })
@@ -77,7 +81,7 @@ export function searchable(content, vocabulary, kinds = KINDS) {
     for (const { id, group: _group, ...entry } of glossary.entries) texts(entry, ENTRY, { file: `entries/${id}.json`, entry: id })
     for (const [key, tag] of Object.entries(content.tags ?? {})) texts(tag, OBJECT_SCHEMAS.tags, { file: `tags/${tag.kind}/${tagName(key)}.json`, tag: tagName(key), member: tag.kind })
     for (const [symbol, value] of Object.entries(content.registries?.symbol ?? {})) texts(value, SYMBOL, { file: `symbols/${symbol}.json`, symbol })
-    for (const [id, part] of Object.entries(partDefs?.parts ?? {})) texts(part, PARTS_FILE.fields.parts.of, { file: `parts/${id}.json`, in: 'parts' }, ['parts', id])
+    for (const meaning of meaningsOf(contentSchemas.get(content))) meaning.search?.({ content, texts })
   }
   if (kinds.includes('id')) for (const [key, tag] of Object.entries(content.tags ?? {})) out.push({ file: `tags/${tag.kind}/${tagName(key)}.json`, tag: tagName(key), member: tag.kind, path: [], kind: 'id', text: tagName(key) })
   if (kinds.includes('id')) glossary.entries.forEach((e) => out.push({ file: `entries/${e.id}.json`, entry: e.id, path: [], kind: 'id', text: e.id }))

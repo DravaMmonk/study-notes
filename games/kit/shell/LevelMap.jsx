@@ -4,13 +4,13 @@ import { mapRows } from '../course.js'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useOverlay } from './useOverlay.js'
-import { ArrowRight, BookMarked, Check, CircuitBoard, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
 // The player's map draws chapter-local prerequisite wires. Cross-chapter gates appear in the prerequisite prompt.
 // Tree geometry in px: node size, the gap between columns, and the gap under a level: `gap` when a chip sits on its
-// wire (the parts it brings in and what passing it unlocks, UnlockChip), `plain` when none does. A level that is not a
+// wire (its reward badges, UnlockChip), `plain` when none does. A level that is not a
 // milestone (game.core) is drawn smaller, `minor`, centred on its column.
 const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, plain: 16, minor: { w: 180, h: 40 } }, compact: { w: 114, h: 62, col: 12, gap: 30, plain: 12, minor: { w: 100, h: 50 } } }
 const R = 8
@@ -127,14 +127,7 @@ function Tree({ game, track, rows, byId, solved, all, best = () => null, current
   const half = Math.max(0, ...spots.map((p) => Math.abs(p.col)))
   const x = (c) => (c + half) * (w + col)
   const width = x(half) + w
-  // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks, less
-  // what a level before it unlocked already (an upgrade of a part shows no chip of its own).
-  const firstUnlocks = (level) => ({ ...level, unlocks: (level.unlocks ?? []).filter((flag) => !game.unlocksBefore(level).includes(flag)) })
-  const circuitPart = ({ part }) => game.isCircuitPart(part)
-  const chipOf = (level) => [
-    ...game.introduced(level).filter(circuitPart).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })),
-    ...game.unlocked(firstUnlocks(level)).filter(circuitPart).map((part) => ({ label: part.label, open: all || solved.has(level.id) })),
-  ]
+  const chipOf = level => game.mapBadges?.(level, { solved, all }) ?? []
   // A level's own box: full size, or smaller; and the gap under it.
   const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
   const chip = (id) => Boolean(byId.get(id) && chipOf(byId.get(id)).length)
@@ -185,11 +178,7 @@ function Tree({ game, track, rows, byId, solved, all, best = () => null, current
   )
 }
 
-/**
- * What a level brings, on the wire just under it: the primitives it brings in (fresh, named once the level opens) and
- * the circuit parts passing it gives (named once it is passed), ？？？ until then. Once there, a part stays usable
- * in every level after it (../course.js offer).
- */
+/** Rewards shown by the game, with names hidden until their reveal condition holds. */
 function UnlockChip({ items, style }) {
   if (!items.length) return null
   const names = items.map((item) => (item.open ? L(item.label) : '？？？'))
@@ -245,7 +234,7 @@ export function NeededNote({ game, needed, onOpen }) {
   )
 }
 
-export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, onWorkshop, partsNew = 0, onWiki, unread = 0, theme, edit = null }) {
+export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, actions, progressText, onWiki, unread = 0, theme, edit = null }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !level.optional && !solved.has(level.id) && game.isOpen(level, solved, progress.all)) ?? levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
@@ -292,8 +281,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
             </button>
           )}
           <div className="map-tools">
-            {onWorkshop && <button className="kit-btn is-label" onClick={onWorkshop}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}
-            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱')}</span><b>{partsNew > 0 ? tr(`新增 ${partsNew} 个`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
+            {actions}
             {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科')}</span>{unread > 0 && <b>{tr(`新增 ${unread} 条`, `${unread} new`)}</b>}</button>}
             <button className={`kit-btn is-label map-reset ${progress.all ? 'is-all' : ''}`} onClick={() => setProgressOpen(true)} aria-haspopup="dialog">
               <RotateCcw size={14} /><span>{tr('清空进度')}</span>{progress.all && <b>{tr('已全部解锁')}</b>}
@@ -323,14 +311,14 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
         })}
       </div>
       <NeededNote game={game} needed={needed} onOpen={onOpen} />
-      {progressOpen && <ProgressDialog progress={progress} onAll={onAll} onReset={onReset} onClose={() => setProgressOpen(false)} />}
+      {progressOpen && <ProgressDialog progressText={progressText} progress={progress} onAll={onAll} onReset={onReset} onClose={() => setProgressOpen(false)} />}
     </main>
   )
 }
 
-/** The progress dialog behind 清空进度: unlock every level (and with it every part and encyclopedia entry), or clear
+/** The progress dialog behind 清空进度: unlock every level (and with it every registered resource and encyclopedia entry), or clear
  *  all progress, which asks twice. */
-function ProgressDialog({ progress, onAll, onReset, onClose }) {
+function ProgressDialog({ progressText, progress, onAll, onReset, onClose }) {
   const [armed, setArmed] = useState(false)
   const overlay = useOverlay(onClose)
   return (
@@ -342,11 +330,11 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
             ? <strong role="status"><LockOpen size={14} />{tr('已全部解锁')}</strong>
             : <button type="button" className="kit-btn is-label" onClick={onAll}><Lock size={14} />{tr('全部解锁')}</button>}
           <small>{progress.all
-            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。清空进度会恢复正常解锁。')
-            : tr('开放所有关卡、任务、元件和百科。')}</small>
+            ? progressText?.all ?? tr('所有关卡和任务均已开放，进度照常记录。', 'All levels and tasks are open. Progress is recorded normally.')
+            : progressText?.open ?? tr('开放所有关卡和任务。', 'Open all levels and tasks.')}</small>
         </div>
         <div className="progress-clear">
-          <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。')}</p>
+          <p>{progressText?.clear ?? tr('清空后，这台设备上的作品和进度将全部删除，无法恢复。', 'Clearing removes all work and progress on this device permanently.')}</p>
           <button
             type="button"
             className={`progress-clear-btn ${armed ? 'is-armed' : ''}`}

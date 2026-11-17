@@ -1,3 +1,4 @@
+import { circuitPlaySchema } from '../../../../packages/circuit/core/index.js'
 import { definePlays, playFor } from '../../engine/plays.js'
 
 const corePlays = {
@@ -15,7 +16,7 @@ const corePlays = {
 }
 
 const taskBoard = ['brief', 'hints']
-export const plays = definePlays(Object.fromEntries(Object.entries(corePlays).map(([id, play]) => [`logic:${id}`, { ...play, taskBoard }])))
+export const plays = definePlays(Object.fromEntries(Object.entries(corePlays).map(([id, play]) => [`logic:${id}`, { ...play, taskBoard }])), circuitPlaySchema)
 
 /** Apply the task's reveal policy to the circuit template, for the screen and text play alike. */
 export function gatesPlayFor(task) {

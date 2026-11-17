@@ -5,7 +5,7 @@ import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
 import { reduced } from '../../../../shell/useMedia.js'
-import { buzz, useLater, useVerdict } from '../../../../../../packages/circuit/view/index.jsx'
+import { buzz, useLater, useVerdict } from '../../../../shell/useInteraction.jsx'
 
 export default function useTrace({ level, saved, save, solve, fail, toast }) {
   const L = level.source

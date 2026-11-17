@@ -15,7 +15,7 @@ import { boardDrawing } from './scene.js'
 import { robotDrawing, robotWindow } from './robotDrawing.js'
 import { missingRobotOutput, robotHint, tutorialFailure } from '../model/verdict.js'
 import { probeValues, wireStateOf } from './circuitRun.js'
-import { buzz, typing, useToast, useVerdict } from '../../../../../packages/circuit/view/index.jsx'
+import { buzz, typing, useToast, useVerdict } from '../../../shell/useInteraction.jsx'
 import { useWorkspaceKeys } from '../../../shell/useOverlay.js'
 import { T } from '../../../shell/i18n.js'
 

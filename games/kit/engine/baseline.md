@@ -129,7 +129,13 @@ snapshots still fail. Their Node and Vite contracts validate the new package ind
 Step 5 treats only the declared `circuit/tray` object-type spelling and
 `tags/circuit/tray/` directory spelling as their former `tray` equivalents.
 The already declared `circuit/part` alias also covers `tags/circuit/part/`.
-Version metadata accepts platform range `^2.0.0` for this breaking extraction,
-and removes the new explicit `circuit: ^1.0.0` dependency from package/game
+Version metadata accepts the prelaunch `0.0.0` package version and `^0.0.0`
+package/platform ranges alongside their historical `1.0.0` / `^1.0.0` / `^2.0.0`
+spellings, and removes the explicit `circuit` dependency from package/game
 selection metadata, where that dependency was previously native. Object values,
 ordered members, reference works, verdicts and traces still compare normally.
+
+Kind meanings provide course, structure, availability and execution-report observers after extraction.
+The observer location changes without changing the compared values. Declared relation kinds retain empty
+edge arrays even when no objects use them. No work, verdict, trace, member ordering or availability result
+is excluded by the step-5 normalization.

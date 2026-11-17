@@ -1,3 +1,4 @@
+import { circuitFixtureSchema } from './fixture.js'
 // node --test games/kit/engine/ops — every operation on a toy game in a temp folder: what it changes, what it
 // refuses, and that its inverse puts the content back exactly.
 import { after, test } from 'node:test'
@@ -11,7 +12,7 @@ import { COURSE_FIELDS, COURSE_OPTIONS } from '../course-schema.js'
 import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
-import { OPERATIONS } from './operations.js'
+import { OPERATIONS, operationsFor } from './operations.js'
 import { openGame as openWorkspace, openPackage } from './workspace.js'
 import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
@@ -57,7 +58,7 @@ function toy() {
   writeFileSync(join(root, 'games', 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
   return { root, ws: openWorkspace('toy', root, { vocabulary: VOCAB }) }
 }
-const run = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: VOCAB, domain: DOMAIN })
+const run = (ws, op, args) => operationsFor(circuitFixtureSchema(VOCAB))[op].apply(ws, args, { vocabulary: VOCAB, domain: DOMAIN })
 const undone = (ws, inverse) => { for (const { op, ...args } of inverse) run(ws, op, args) }
 /** Runs op, checks its inverse restores the content exactly, and returns what it did (with the content after it). */
 function roundTrip(ws, op, args) {
@@ -384,7 +385,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.remove
   const tx = (s) => ({ en: s })
   const levels = new Map([['p', { title: tx('p'), tasks: [{ id: 'p', brief: tx('p1') }, { id: 'p2', brief: tx('p2') }] }], ['q', { title: tx('q'), tasks: [{ id: 'q', brief: tx('q1') }] }], ['r', { title: tx('r'), tasks: [{ id: 'r1', brief: tx('r1') }] }]])
   const ws = { levels: new Map(levels), game: { eras: [] } }
-  const go = (op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: T, domain: null })
+  const go = (op, args) => operationsFor(circuitFixtureSchema(T))[op].apply(ws, args, { vocabulary: T, domain: null })
   const ids = (id) => ws.levels.get(id).tasks.map((x) => x.id)
   const before = JSON.stringify([...ws.levels])
   // A level's only task moved out leaves it empty, for the same changeset to remove (the check refuses it otherwise).
@@ -424,11 +425,11 @@ function partsToy() {
   writeContentFixture(root, 'ptoy', { game, glossary, partDefs, levels }, PVOCAB)
   return openWorkspace('ptoy', root, { vocabulary: PVOCAB })
 }
-const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
+const prun = (ws, op, args) => operationsFor(circuitFixtureSchema(PVOCAB))[op].apply(ws, args, { vocabulary: withParts(circuitFixtureSchema(PVOCAB), ws.partDefs), domain: { vocabulary: PVOCAB } })
 
 test('the first part of a game makes its parts.json', () => {
   const ws = partsToy()
-  ws.partDefs = undefined
+  ws.contentObjects['circuit/part'].clear()
   prun(ws, 'part.add', { part: 'sum', data: sum })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })

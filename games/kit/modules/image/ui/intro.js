@@ -36,7 +36,7 @@ export function imageIntroduction({ fig, level, theme, types }) {
   try {
     const made = partFigure(fig, level, types)
     const inputs = made.ins.map((image, index) => item(made.ins.length > 1 ? String.fromCharCode(97 + index) : INPUT, image, view))
-    return createElement(IntroFigure, { caption, inputs, part: types[fig.part].label, outputs: [item(OUTPUT, made.out, view)] })
+    return createElement(IntroFigure, { caption, inputs, operation: types[fig.part].label, outputs: [item(OUTPUT, made.out, view)] })
   } catch {
     return null
   }

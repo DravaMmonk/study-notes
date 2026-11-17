@@ -1,4 +1,4 @@
-// node --test games/kit/circuit — a board as text: printed, read back to the same board, and what reading refuses.
+// node --test packages/circuit — a board as text: printed, read back to the same board, and what reading refuses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart } from '../../core/index.js'

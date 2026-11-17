@@ -205,4 +205,4 @@ export const vocabulary = qualifyVocabulary('logic', defineVocabulary({
   game: GAME,
   level: LEVEL,
   languages: LANGUAGES,
-}))
+}), { bareKinds: ['part'], categories: { part: 'primitive' } })

@@ -1,11 +1,11 @@
 import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 // Content names are resolved at the file boundary. Ports, settings keys, variant ids and domain resources stay local.
 import { CONTENT_KINDS } from './content-kinds.js'
-import { mapBlueprintNames } from '../../../packages/circuit/core/index.js'
+import { meaningsOf } from './kind-meanings.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 import { shapeAt } from './schema.js'
 
-export const OBJECT_KINDS = ['level', 'circuit/part', 'entry', 'tag', 'relation', 'section', 'circuit/tray', ...Object.keys(CONTENT_KINDS)]
+export const OBJECT_KINDS = ['level', 'entry', 'tag', 'relation', 'section', ...Object.keys(CONTENT_KINDS)]
 
 export { fullName } from './object-name.js'
 import { fullName } from './object-name.js'
@@ -20,41 +20,28 @@ export function registryOf(kind, declarations) {
   return registry
 }
 
-/** Separate registries let a level, part and entry share a name. */
+/** Separate registries let objects of different types share a name. */
 export function createRegistries(objects = {}) {
   return Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(objects)])].map((kind) => [kind, registryOf(kind, objects[kind] ?? [])]))
 }
 
 /** Expand typed references while preserving domain syntax, local ports, variant ids and ordinary strings. */
-export function expandNames(value, namespace, { parts = new Set(), partRules = new Set(), resolve, textKeys = true, schema, vocabulary, context = '' } = {}) {
+export function expandNames(value, namespace, { resolve, textKeys = true, schema, vocabulary, context = '', ...options } = {}) {
   const rawName = resolve ?? ((v) => fullName(namespace, v))
   const name = (v) => typeof v === 'string' && v.startsWith('#') ? `#${rawName(v.slice(1))}` : rawName(v)
-  const part = (v) => {
-    if (typeof v !== 'string') return v
-    if (v.includes(':')) return v
-    if (v.includes('/')) return name(v)
-    const base = v.split(/[.=]/)[0]
-    return parts.has(base) || !vocabulary?.kinds.part?.[base] ? name(v) : v
-  }
+  const readers = meaningsOf(vocabulary).map(meaning => meaning.names?.({ ...options, name, vocabulary, context })).filter(Boolean)
   const text = (value) => {
     if (typeof value !== 'string') return value
-    return value.replace(/<(level|part|wiki)-ref to="([^"<>]+)">/g, (_, kind, target) => {
-      const colon = target.indexOf(':')
-      const resolved = kind === 'part' && /^(part|lemma):/.test(target)
-        ? `${target.slice(0, colon + 1)}${part(target.slice(colon + 1))}`
-        : name(target)
+    return value.replace(/<([a-z][a-z0-9-]*)-ref to="([^"<>]+)">/g, (_, kind, target) => {
+      const resolved = readers.map(reader => reader.link?.(kind, target)).find(value => value !== undefined) ?? name(target)
       return `<${kind}-ref to="${resolved}">`
     })
   }
-  const rule = (v) => typeof v === 'string' && (v.includes('/') || partRules.has(v.split('.')[0])) ? name(v) : v
-  const board = (lines) => {
-    if (!Array.isArray(lines) || lines.some((line) => typeof line !== 'string')) return lines
-    return mapBlueprintNames(lines, (type) => type.includes('/') || parts.has(type) ? name(type) : type, rule)
-  }
   const ref = (kind, v) => {
+    const replacement = readers.map(reader => reader.rewrite?.({ value: v, schema: { type: 'ref', kind, reference: kind }, path: [] })).find(result => result && Object.hasOwn(result, 'value'))
+    if (replacement) return replacement.value
     if (kind === 'kind' && BUILTIN_KIND_NAMES.includes(v)) return v
-    if (kind === 'circuit/part') return part(v)
-    return ['entry', 'group', 'tag', 'relation', 'section', 'circuit/tray', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
+    return ['entry', 'group', 'tag', 'relation', 'section', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v
@@ -67,10 +54,11 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
       return textKey(v) ? withTextKey(translated, textKeys ? name(textKey(v)) : textKey(v)) : translated
     }
-    if (s?.reference) return ['circuit/part', 'grant'].includes(s.reference) ? part(v) : name(v)
+    const replacement = readers.map(reader => reader.rewrite?.({ value: v, schema: s, path, key: path.at(-1) })).find(result => result && Object.hasOwn(result, 'value'))
+    if (replacement) return replacement.value
+    if (s?.reference) return name(v)
     if (s?.type === 'level' || s?.type === 'task') return name(v)
     if (s?.type === 'ref' || s?.type === 'name') return ref(s.kind, v)
-    if (s?.type === 'board' || s?.view === 'board') return board(v)
     if (s?.type === 'call') {
       if (typeof v === 'string') return v
       return Object.fromEntries(Object.entries(v).map(([key, child]) => [key, walk(child, vocabulary?.kinds[s.kind]?.[key]?.params, [...path, key])]))
@@ -82,18 +70,14 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
     return Object.fromEntries(Object.entries(v).map(([key, child]) => {
       let field = s?.type === 'map' ? s.of : s?.fields?.[key]
       let target = s?.key ? ref(s.key.reference ?? s.key.kind, key) : key
-      const parent = path.at(-1)
-      if (key === 'id' && path.length === 2 && ['tasks', 'entries', 'groups', 'stages'].includes(path[0])) return [key, name(child)]
-      if (['rules', 'using', 'simp'].includes(key) && Array.isArray(child)) return [key, child.map(rule)]
-      if (['gives', 'opens', 'withholds', 'awards'].includes(key) && Array.isArray(child) && (path.length === 0 || path.at(-2) === 'tasks' || path.at(-1) === 'reference')) return [key, child.map(part)]
-      if (key === 'tray') return [key, Array.isArray(child) ? child.map(name) : name(child)]
+      if (key === 'id' && path.length === 2 && ['tasks', 'entries', 'groups'].includes(path[0])) return [key, name(child)]
       if (key === 'from' && v.fromGame) return [key, child]
-      if (context === 'configuration' && parent === 'borrow') target = part(key)
-      if (key === 'open' && context === 'configuration') return [key, Object.fromEntries(Object.entries(child).map(([rule, items]) => [rule, items.map((item) => {
-        const at = item.indexOf('@', item.startsWith('@') ? 1 : 0)
-        return at < 0 ? item : `${part(item.slice(0, at))}@${name(item.slice(at + 1))}`
-      })]))]
-      if (key === 'reference' && vocabulary?.level?.fields?.tasks) field = { type: 'obj', fields: { ...vocabulary.level.fields, ...shapeAt(vocabulary.level.fields.tasks.of, child, [], { vocabulary })?.fields, solution: { type: 'board' } } }
+      for (const reader of readers) {
+        const replacement = reader.rewrite?.({ value: child, schema: field, path: [...path, key], key, object: v })
+        if (replacement && Object.hasOwn(replacement, 'value')) return [target, replacement.value]
+        target = replacement?.key ?? target
+        field = replacement?.schema ?? field
+      }
       return [target, walk(child, field, [...path, key])]
     }))
   }

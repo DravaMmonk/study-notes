@@ -8,7 +8,7 @@ import { boardDrawing } from '../scene.js'
 import { sceneSVG } from '../svg.js'
 import { usePlayback } from '../../../../shell/usePlayback.jsx'
 import { reduced } from '../../../../shell/useMedia.js'
-import { buzz, useLater, useVerdict } from '../../../../../../packages/circuit/view/index.jsx'
+import { buzz, useLater, useVerdict } from '../../../../shell/useInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 /** The picture with one pixel of each row taken out, along `path` ([r, c] a row). */

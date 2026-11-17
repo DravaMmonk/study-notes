@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { judgeFor } from '../../engine/plays.js'
 import { useCheckOnce } from '../useCheckOnce.js'
-import { useRunHistory } from '../../../../packages/circuit/view/index.jsx'
+import { useRunHistory } from '../useLevelRuns.js'
 
 /** Keep the editor's work as local state and let the play encode its saved form. */
 export function useSavedWork(screen, { read, write }) {

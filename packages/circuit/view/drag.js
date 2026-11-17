@@ -1,4 +1,4 @@
-// Circuit kit: pointer dragging for a component board, shared by every game's circuit editor (games/kit/circuit).
+// Circuit kit: pointer dragging for a component board, shared by every game's circuit editor (packages/circuit).
 // Framework-free; each app marks its DOM with data attributes and supplies handlers.
 //
 // Markup contract

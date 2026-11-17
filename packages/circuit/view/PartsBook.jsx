@@ -2,7 +2,7 @@ import { createElement, useEffect, useState } from 'react'
 import { L, sideOf, tr } from 'kernel/view'
 
 import { Lock } from 'lucide-react'
-import Library, { store, useSeen } from "./Library.jsx"
+import { Library, libraryStore as store, useSeen } from 'kernel/view'
 import { editorFor } from "./parts/previews.js"
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,

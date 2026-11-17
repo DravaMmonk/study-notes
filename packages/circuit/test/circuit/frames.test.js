@@ -1,4 +1,4 @@
-// node --test games/kit/circuit — frames: which wires a box lets through, moving cards in and out, taking one off.
+// node --test packages/circuit — frames: which wires a box lets through, moving cards in and out, taking one off.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart, moveInto } from '../../core/index.js'

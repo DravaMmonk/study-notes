@@ -73,7 +73,7 @@ test('bare names are candidates: longest match, Latin boundaries, literal symbol
 
 test('component descriptions use plain terminology while learning prose retains annotation checks', () => {
   const r = registry(entry('axis'))
-  const desc = (text) => termUsage(r, [place(text, { description: true })], () => false)
+  const desc = (text) => termUsage(r, [place(text, { literal: { rule: 'part-description-reference', says: 'component descriptions are plain text; write names without reference markup' } })], () => false)
   assert.deepEqual(desc('沿光轴移动。'), { failures: [], reports: [] })
   assert.deepEqual(rules(desc(ref('axis')).failures), ['part-description-reference'])
   assert.deepEqual(rules(desc('<part-ref to="camera"></part-ref>').failures), ['part-description-reference'])

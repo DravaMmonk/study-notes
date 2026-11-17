@@ -1,29 +1,17 @@
+import { tr } from 'kernel/view'
+import defineCircuit from './game.js'
 import './board/circuit.css'
 
 export { partsFor } from './board/board-parts.js'
 export { iconOf } from './parts/icons.js'
 export { default as WeightGrid } from './parts/WeightGrid.jsx'
-export { buzz } from './useBoardInteraction.jsx'
-export { useLater } from './useBoardInteraction.jsx'
-export { useVerdict } from './useBoardInteraction.jsx'
-export { typing } from './useBoardInteraction.jsx'
-export { useToast } from './useBoardInteraction.jsx'
 export { definedGame } from './circuit-game.js'
-export { useLevelRuns } from './useLevelRuns.js'
-export { default as Library } from './Library.jsx'
-export { useSeen } from './Library.jsx'
 export { default as PartsBook } from './PartsBook.jsx'
 export { levelOf } from './PartsBook.jsx'
 export { useParts } from './PartsBook.jsx'
-export { SlotsContext } from './board/SaveSlots.jsx'
-export { default as Workbench } from './Workbench.jsx'
-export { TestStatus } from './Workbench.jsx'
 export { default as CircuitLevel } from './CircuitLevel.jsx'
 export { useLevelBoard } from './CircuitLevel.jsx'
 export { useLevelRun } from './CircuitLevel.jsx'
-export { CheckIcon } from './BoardControls.jsx'
-export { Dock } from './BoardControls.jsx'
-export { SkipIcon } from './BoardControls.jsx'
 export { circuitScreen } from './CircuitScreen.jsx'
 export { useRunHistory } from './useLevelRuns.js'
 export { default as ClearButton } from './board/ClearButton.jsx'
@@ -35,7 +23,8 @@ export { editorFor } from './parts/previews.js'
 
 import BoardPlay from './BoardPlay.jsx'
 export function register(kernel) {
-  kernel.play('circuit:board', { component: BoardPlay, preview: BoardPlay })
+  kernel.display('circuit:part-link', { reference: 'part', icon: '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>', action: name => tr(`在元件箱里看 ${name}`, `See ${name} in the components box`) })
+  kernel.play('circuit:board', { component: BoardPlay, preview: BoardPlay, define: defineCircuit })
 }
 
 export { displays as circuitDisplays } from './mechanism/displays.js'
@@ -47,3 +36,7 @@ export { cardAt, enableDrag } from './drag.js'
 export { default as TracePanel } from './TracePanel.jsx'
 import './board/wires.css'
 export { centerIn, pointIn } from './coordinates.js'
+
+import { displays as screenDisplays } from './mechanism/displays.js'
+import { displays as layoutDisplays } from './mechanism/bench.jsx'
+export const displays = { ...screenDisplays, ...layoutDisplays }

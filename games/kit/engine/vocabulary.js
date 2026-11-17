@@ -1,3 +1,4 @@
+import { meaningsOf, derivedFields } from './kind-meanings.js'
 import { contentExistenceProblems } from './existence.js'
 import { shapeAt } from './schema.js'
 import { kindSchemas } from './plugin-kinds.js'
@@ -15,20 +16,13 @@ import { kindSchemas } from './plugin-kinds.js'
 //             them (its `languages`: { lang: (text) → why it cannot be read, or null }, never throwing on bad text)
 // })
 //
-// A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
-// has a parts/<name>.json (parts/schema.js), and content's S.ref('part', { reference: 'circuit/part' }) names a part of it (parts/define.js withParts). Such
-// a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
-// displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
 import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { courseDependencies } from './course-dependencies.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
-import { taskIdProblems, taskIdsOf } from './tasks.js'
+import { taskIdProblems } from './tasks.js'
 
-import { partProblems, withParts } from '../../../packages/circuit/core/index.js'
-import { implementationProblems } from '../../../packages/circuit/core/index.js'
-import { makesParts, PARTS_FILE } from '../../../packages/circuit/core/index.js'
-import { configurationFiles, contentFileFor, hasCatalogSource } from './content.js'
+import { contentSchemas, configurationFiles, contentFileFor, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
 import { OBJECT_SCHEMAS, referenceResolver, expandReferences } from './objects.js'
 
@@ -41,14 +35,16 @@ import { ENTRY, GLOSSARY, OPEN } from './content-schemas.js'
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-export function checkContent({ vocabulary: domainVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
+export function checkContent({ vocabulary: suppliedVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
   const out = []
-  const baseVocabulary = withParts(domainVocabulary, content.partDefs)
+  const domainVocabulary = { ...suppliedVocabulary, meanings: contentSchemas.get(content)?.meanings ?? suppliedVocabulary.meanings }
+  const baseVocabulary = meaningsOf(domainVocabulary).reduce((vocabulary, meaning) => meaning.validationVocabulary?.({ vocabulary, content }) ?? vocabulary, domainVocabulary)
   const vocabulary = { ...baseVocabulary, kinds: { ...baseVocabulary.kinds, ...Object.fromEntries(Object.entries(domainVocabulary.objectKinds ?? {}).filter(([, definition]) => !definition.extends).map(([kind]) => [kind, content.registries?.[kind] ?? {}])) } }
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // Audit findings remain optional. Chapters retain their authored tag references.
-  const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: _version, open, blueprint, partDefs: parts, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
-  const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
+  const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: _version, open, blueprint, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const configuration = Object.fromEntries(Object.entries(played).filter(([key]) => !derivedFields(domainVocabulary).includes(key)))
+  const game = sourceChapters ? { ...configuration, chapters: sourceChapters } : configuration
   out.push(...objectProblems.filter(problem => problem.rule !== 'exists'), ...contentExistenceProblems(content, vocabulary))
   if (out.some(problem => problem.rule === 'exists')) return out
   const courseKeys = new Map(), packageKeys = new Map()
@@ -59,20 +55,19 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
     for (const { id, group: _group, ...entry } of glossary?.entries ?? []) out.push(...catalogTextProblems(entry, ENTRY, `entries/${id}.json`, vocabulary, packageKeys))
-    for (const [name, part] of Object.entries(parts?.parts ?? {})) out.push(...catalogTextProblems(part, PARTS_FILE.fields.parts.of, `parts/${name}.json`, vocabulary, packageKeys))
     for (const level of levels) out.push(...catalogTextProblems(level, vocabulary.level, `levels/${level.id}.json`, vocabulary, packageKeys))
     for (const [id, tag] of Object.entries(tags)) out.push(...catalogTextProblems(tag, OBJECT_SCHEMAS.tags, `tags/${id}.json`, vocabulary, id.startsWith('@') ? courseKeys : packageKeys))
   }
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { ...Object.fromEntries(Object.keys(kindSchemas(domainVocabulary)).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.['circuit/tray'] ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
-  for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary)).filter(([kind]) => !['circuit/part', 'circuit/tray'].includes(kind))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
+  const names = { ...Object.fromEntries(Object.keys(kindSchemas(domainVocabulary)).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map(entry => entry.id)), group: new Set((glossary?.groups ?? []).map(group => group.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content), ...Object.assign({}, ...meaningsOf(domainVocabulary).map(meaning => meaning.validationNames?.({ content }))) }
+  for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary)).filter(([kind]) => !meaningsOf(domainVocabulary).some(meaning => meaning.type === kind && meaning.validate))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
     if (kind === 'kind' && !content.objectKinds?.[name] || name.includes(':')) continue
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
-  const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), part: parts?.parts ?? {}, entry: {}, tag: tags }, out)
+  const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), entry: {}, tag: tags }, out)
   const inspectReferences = (schema, value, from, at) => {
     if (!schema || value == null) return
     if (schema.type === 'either') return inspectReferences(shapeAt(schema, value, [], { vocabulary }), value, from, at)
@@ -112,11 +107,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   out.push(...taskIdProblems(levels))
   for (const { id, ...entry } of Object.values(content.registries?.entry ?? Object.fromEntries((glossary?.entries ?? []).map(({ group: _group, ...entry }) => [entry.id, entry])))) add(validate(ENTRY, entry, { vocabulary, levels: ids, names }), `entries/${id}.json`)
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
-  if (parts !== undefined) {
-    const problems = partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) })
-    out.push(...(problems.length ? problems : implementationProblems(parts)))
-  }
-  else if (makesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'parts', says: `the ${domainVocabulary.module} module's parts are data: the game needs parts` })
+  for (const meaning of meaningsOf(domainVocabulary)) out.push(...(meaning.validate?.({ content, vocabulary: domainVocabulary }) ?? []))
   return out
 }
 

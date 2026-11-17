@@ -6,7 +6,7 @@ import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopE
 import { L, tr } from 'kernel/view'
 
 import { useWorkshop } from "./useWorkshop.js"
-import { useToast } from "./useBoardInteraction.jsx"
+import { useToast } from 'kernel/view'
 
 /** Project the independent player library onto the current task and its board rules. */
 export function useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready }) {

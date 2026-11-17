@@ -44,7 +44,7 @@ export function circuitRuntime({ vocabulary, course, run, entries, failure, more
     vocabulary,
     names: circuitNames,
     spec: circuitSpec(course),
-    validate: ({ circuit, memo }) => checkCircuitTasks(circuit, { run, entries, failure, more, kinds, memo }),
+    validate: ({ circuit, memo, mutants }) => checkCircuitTasks({ ...circuit, ...(mutants && { mutants }) }, { run, entries, failure, more, kinds, memo }),
     ...extensions,
   }
 }

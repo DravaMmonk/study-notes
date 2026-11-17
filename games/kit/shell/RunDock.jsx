@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 import { Check, Play, SkipForward } from 'lucide-react'
 
-// The run bar every level ends in, the same in every game (after 状态之图's): where the level stands (tests, parts),
+// The run bar every level ends in, the same in every game (after 状态之图's): where the level stands (tests and resources),
 // a quiet second action (clear, undo a step…), and the big Run button, which skips the animation while a run plays
 // and shows a tick once everything passes. The level's frame puts it at the bottom right on a desktop (Workbench.jsx)
 // and pinned to the bottom of the page on a phone (Layout.jsx PhonePage), where a run, a step or a check brings the

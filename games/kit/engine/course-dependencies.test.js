@@ -1,10 +1,15 @@
+import { contentSchemas } from './content.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { defineCourse, holds, usable } from '../../../packages/circuit/core/index.js'
+import { contentMeanings, defineCourse, holds, usable } from '../../../packages/circuit/core/index.js'
 import { courseDependencies, courseLayout, projectDependencyProblems } from './course-dependencies.js'
 
 const parts = { shift: { settings: { border: { control: 'select', options: [{ value: 'edge' }] } }, stages: [{ id: 'shift-wrap', settings: { border: { options: [{ value: 'edge' }, { value: 'wrap' }] } } }] }, adder: { stages: [{ id: 'adder-wide' }] } }
-const course = (id, levels, entries, links = []) => ({ id, levels, partDefs: { parts: parts }, eras: [{ id: 0, levels: entries, links }] })
+const course = (id, levels, entries, links = []) => {
+  const content = { id, levels, partDefs: { parts }, eras: [{ id: 0, levels: entries, links }] }
+  contentSchemas.set(content, { meanings: contentMeanings })
+  return content
+}
 const inspect = (id, solution, hints = {}) => ({ id, ...hints, tasks: [{ id: `${id}Task`, solution, ...hints.task }] })
 
 test('package prerequisites upgrade an optional authored edge and reject a missing binding', () => {

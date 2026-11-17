@@ -1,3 +1,4 @@
+import { circuitScreen } from '../../../../packages/circuit/view/index.jsx'
 import { stageDefinition } from '../../../../packages/circuit/core/index.js'
 import { loadDisplays, benchDisplays } from '../../engine/displays.js'
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
@@ -67,7 +68,7 @@ export default function imageGame(content, image = imageWorks(content)) {
       'image:graph': { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
       'image:board': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       'image:probe': { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-    }),
+    }, { circuit: circuitScreen }),
     unlocked: (level) => [...shownUnlocks(level).map(unlockOf), ...course.awards({ id: level.id }).map(id => {
       const stage = course.stages.get(id)
       return { part: stage.part, label: stage.definition.name, icon: iconOf(stage.part, types) }

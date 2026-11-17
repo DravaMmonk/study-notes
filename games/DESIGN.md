@@ -203,14 +203,14 @@
 
 ## 6. 引擎：内核与内容
 
-包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。当前执行 `MODULES.md` 第 5 步。`circuit` 的实现位于 `packages/circuit`，其余五个既有模块继续通过公开导出使用它；内容、运行分派和 Studio 的过渡接点仍需按迁移边界收尾。新增玩法使用包协议。
+包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，其余五个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
 
 | 位置 | 职责 |
 |---|---|
 | `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
 | `kit/modules/<模块>/` | 尚未迁出的 rows、tick-bus、image、logic、table |
 | `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
-| `packages/circuit/view/` | 画板、工作台、电路屏、读数、元件册、训练控件和样式 |
+| `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
 | `kit/strip/`、`kit/shell/`、`kit/views/` | 外壳、通用呈现，以及尚待所属模块迁出的编辑部件 |
 | `kit/templates/<模板>/starter/` | 复制起步的内容，不被依赖 |
 | `packages/<包>/` | 对象、依赖、文案、覆盖；可带 `core/`、`view/` 机制代码 |
@@ -355,8 +355,15 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 - 代码读取的标签归读者所有。内核登记 `kernel/studio-left`，成员类型为 `kind`；`kernel` 是保留命名空间，不能用作包名。包用 `kernel.tag("包/名字", "成员类型")` 登记，登记表 `kernel.tables.tag` 使用相同的复合键。自己声明写 `tags/<成员类型>/<名>.json`，贡献给读者或依赖标签写 `overrides/<命名空间>/tags/<成员类型>/<名>.json`。所有对象类型的目标都必须由所属包声明或由代码登记；标签还须匹配成员类型。不存在的目标统一由存在性检查报告。标签文案键使用 `@tag.<名>.title`、`@tag.<名>.desc`，托盘继续使用 `@tray.`。没有短名跨包合并或 `templates` 约定标签。新对象复制任意已有对象或从 schema 起步；精选起点可用普通标签。Studio 的左栏读取、标签打开与地址携带成员类型的界面接入另行完成。
 - `plugin-boundaries.js` 用 AST 同时检查静态 import、re-export、动态 import 和 require，拒绝计算出的导入路径。核心只能引用公开无界面接口与本核心，禁止界面库、JSX、CSS、Node I/O；视图可读本核心。`npm run check` 加载代码前检查，`lint:kit` 使用同一规则覆盖包代码。核心判定应保持确定性，只使用传入种子，不访问时间、文件或网络。
 
-共存只在任务所属者分派处发生：`runtimeOf`、游戏组装与 Studio 入口把已登记的包玩法投影为现有的两阶段课程读者，和未迁出的内核模块共用课程、进度、检查和外壳。没有第二份判定实现。`modules/circuit` 已移除。`engine/kernel.js` 暂经 `circuit` 的公开导出登记五个原生模块需要的共享能力。原生运行分派、能力投影和内容系统中的电路投影仍是第 5 步的收尾项；对应消费者迁出后删除这些接点。
+对象类型的含义由 `kind` 登记提供。内核依 schema 读取、覆盖、展开引用和检查字段，调用含义对象完成派生。`circuit:part` 解释元件、阶段、发放和 `replaces`，`circuit:tray` 解释托盘及菜单，`circuit:quote` 读取引语。它们的文件类型分别是 `circuit/part`、`circuit/tray`、`circuit/quote`。`relations` 声明给出自定义关系的端点类型。
 
+- 内容生命周期包括 `vocabulary`、`names`、`identities`、`indexes`、`matches`、`assemble`、`source`、`override`、`validate` 和 `stamp`。派生字段由 `derived` 列明，`source` 给出派生注册表对应的源对象，写回时只序列化声明。`configuration` 为扩展字段声明所属配置文件。内核无需理解元件和发放字段。
+- 课程含义通过 `dependencies`、`plan`、`supplies`、`readWorks`、`taskModule`、`runtimeIds` 和 `scope` 参与通用课程组装。`state` 返回包的派生状态，`check` 判定作品，`play` 负责作品读写、运行和盲玩。现有五个原生消费者使用包的两阶段读者适配。内核进度只推进任务和关卡。
+- 创作适配使用 `workspace`、`operations`、`selector`、`textTarget`、`sourceArguments`、`search`、`tools`、`dependencyGraph` 和 `renderWork`，共享操作集保持通用对象 CRUD。`part.*`、`parts.*`、`level.blueprint`、`level.adds` 和 `flow` 实现在包内。类型 schema 和文案定位由包提供。
+- 外壳通过游戏的 `shell`、`settings`、`mapBadges`、`referenceName`、`describeObservation`、`composeModules` 接口挂载包行为，引用显示器由 `display` 登记元数据定义。元件册、工坊、元件奖励、连接标签设置和元件样式归包。`Workbench`、`Library`、运行控件、存档上下文和输入交互是共享布局部件。
+- 基线观察由含义对象的 `baselineCourse`、`baselineStructure`、`baselineRecords`、`baselineReports` 提供，继续比较完整作品、顺序、结果和轨迹。引擎工具保存通用快照与差异算法。
+
+临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/{rows,tick-bus,image,table,logic}` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
 包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
 
 ### 6.4 参数台
@@ -662,7 +669,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 **版面**
 
-- **每一关的版面都一样**（`packages/circuit/view/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`，关卡界面只交出各块内容，不自己排版面）。桌面：左边是任务；中间上方是玩的地方（画布、表、句子条……，可以带一行元件 `parts`）；下方是结果条：头部是测试标签和通过情况（有的话），下面左边是结果区（运行或检查给出的东西：输出、测试棋盘、运行过程、检查的结论；头部只放读数、视图开关这类控件），右下角一列是运行栏，检查、运行按钮永远在这里。结果条按内容定高，拖它的上沿可以调高矮。手机：一页，测试标签钉在顶上，中间滚动：任务卡、玩的地方，结果区接在玩的地方下面，不另开抽屉；底下是托盘和运行栏，运行栏固定在最底下。点运行或检查（或步进）时，页面滚到结果区刚好露出来。
+- **每一关的版面都一样**（`kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`，关卡界面只交出各块内容，不自己排版面）。桌面：左边是任务；中间上方是玩的地方（画布、表、句子条……，可以带一行元件 `parts`）；下方是结果条：头部是测试标签和通过情况（有的话），下面左边是结果区（运行或检查给出的东西：输出、测试棋盘、运行过程、检查的结论；头部只放读数、视图开关这类控件），右下角一列是运行栏，检查、运行按钮永远在这里。结果条按内容定高，拖它的上沿可以调高矮。手机：一页，测试标签钉在顶上，中间滚动：任务卡、玩的地方，结果区接在玩的地方下面，不另开抽屉；底下是托盘和运行栏，运行栏固定在最底下。点运行或检查（或步进）时，页面滚到结果区刚好露出来。
 - **关卡导航。** 地图是关卡树（第 2.6 节）。关卡里的关卡列表是从左侧拉出的抽屉，直接画每章的关卡树（紧凑尺寸），标出当前关，不做成列表，也不常驻占用版面。
 - **通关窗口**只有"留在这里"和"返回关卡导航"，不直接跳到下一关；回到地图时，页面直接跳到刚才那一关（不平滑滚过去），并在顶部插图加载完之前一直对准它。外壳的滚动都写明 `behavior: 'instant'`，不受某款游戏页面带进来的全局 `scroll-behavior` 影响（《视觉完备》借用的笔记站样式里有 `html { scroll-behavior: smooth }`）。
 
@@ -761,7 +768,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 **共用的件**
 
-关卡界面只交各块内容，版面和交互由下面这几样给（第 6.3 节说明模块如何接注册能力）。版面是 `packages/circuit/view/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`：关卡给 `results` 就有结果区（还没有内容时传 `null`：桌面上留着空的结果区，手机上不显示），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
+关卡界面只交各块内容，版面和交互由下面这几样给（第 6.3 节说明模块如何接注册能力）。版面是 `kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`：关卡给 `results` 就有结果区（还没有内容时传 `null`：桌面上留着空的结果区，手机上不显示），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
 
 - **电路关由 circuit 包提供界面。** 拼电路的关卡用 `packages/circuit/view/CircuitLevel.jsx`：`useLevelBoard(屏幕, { open, fresh, clearable? })` 管板（打开时用哪块：存档合不合、升级、带过来的板由模块的 `open` 决定；清空回到 `fresh()`；`change(板, { keep })` 里 `keep` 的改动——挪元件、换显示——只存档，不算改了板，运行和结论留着）；`useLevelRun(屏幕, 板, { tests, steps | judge, hidden?, score?, onSolve?, onFail?, guard? })` 管运行和判定：测试标签后面可以跟一个「样张」（`tests` 里 `sample: true` 的一项，只用于一次判完的关）：一张较大的图，板也在上面跑，只看效果、不判定，不计入通过数；`steps`（每个测试的步骤、检查、`final`）逐步跑（`usePlayback`），`judge` 一次判完（`useCheckOnce`），两种都把最后一次运行留在板上。**默认一次判完、直接出结果**；只有一步一步的运算过程本身就是要看的东西时才用 `steps`（证明的推导、一拍一拍的总线、一轮一轮的循环），逐像素算一整张图的电路关用 `judge`；隐藏测试每次一并跑。公开测试和整板约束通过后，桌面和手机的结果区说明有几个隐藏测试失败。通过后按玩法配置公开；`onSolve` 让模块在全过时另做打算（还有下一段、板还不能做成元件），`onFail` 在逐步运行停在失败上时调用，`guard` 在还不能运行时拦下。`<CircuitLevel>` 管版面和其余一切：桌面工作台（元件栏、画布、存档切换、测试标签、通过情况、结果条、运行栏）和手机页（格位板、板下的结果区、托盘、元件的单子和空格的单子、清空、撤销）、框的区域里加元件、简介和提示、封装元件的「编辑」和详情。模块只交：元件描述（`parts`）、元件目录（`items`、`folded`）、新元件的设置（`defaults`，或整个 `create`）、此刻板上的值（`view`）、元件的几面（`card`：`body`、`head`、`cardClass`、`outNote`、`wireState`、`regionNote`、`resultNote`，手机上 `thumb`、`tileExtra`、`sinkBody`、`sinkClass`、`nodeClass`，每面都拿 `(node, ctx)`，`ctx` 是 `{ view, board, path, readOnly }`：同一套画法既画关卡的板，也画封装元件里面的板）、结果区（`results` 等）、手机上板下面的东西（`below`，`follow` 让页面跟着跑到底）、单子里的说明和内容（`describe`、`sheet`，或整个 `addSheet`）、封装元件（`packed`：`open(node, board)` 给出它跑的那块板和画它的 `parts`，`edit` 去搭它的那一关，`trace()` 给出板上此刻显示的那次求值的轨迹）和运行键的字。模块自己的面板放进任务板（由 `taskBoard` 选取）、结果区或单子里，不另排版面。
 - **步进运行用共用的 kit。** React 界面的关卡用 `shell/usePlayback.jsx`：给它每个测试的步骤和检查，它管运行、步进、暂停/继续、跳到结果、第一个测试慢后面快、遇到失败的一步或不对的测试立刻停、全过才通关，并生成运行栏的控制按钮（`dock()`，手机上小按钮只剩图标，和运行键同一行）。当前这一步的元件加 `is-step` 类（桌面画布和手机格位都有样式，出错时加 `is-step-fail`），输出区用 `shell/StepLog.jsx` 列出每一步的结果，列表和每条结果都限高、超出滚动。电路类的板用 `packages/circuit/core/circuit.js` 的轨迹直接得到步骤。步骤日志是电路屏的一项功能：屏的声明写 `log: true`，跑一次的板就在结果下面列出到当前为止的每一步（`packages/circuit/core/trace.js` 的 `traceSteps`）：元件按它所在的板取名，搭出的元件里的一步前面依次写上它所在的元件（`自建 auto › 回溯搜索 · 第 1 轮`），框进入的轮次和元件自己说的动作（轨迹项的 `round`、`inner`）接在名字后面，算不出的一步标红并说明原因。板上的设置怎么写成蓝图文本由板自己给（`circuitBoard` 的 `text`），所以导入的蓝图和内容里的读法一致。现在用它的：《证明完毕》的机器板（规则与元变量一章起）和真值电路板，都经 `CircuitLevel`。《状态之图》的机器人电路和自动剪缝都用 `usePlayback`，由 `paceOf` 计算节奏；自动剪缝一开始就标出第一条缝，每帧从模块读出图像、缝和累计条数。顶部栏的「设置」可选自动步进速度（`0.5×`、`1×`、`2×`），按游戏保存在当前浏览器里，默认 `1×`，下一次运行时生效。倍率只缩放自动步进的等待时间。参数台的动作间隔和限时由关卡和模型定义。

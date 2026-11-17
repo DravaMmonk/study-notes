@@ -1,3 +1,4 @@
+import { module as circuit } from '../../../../packages/circuit/core/index.js'
 import { vocabulary } from './vocabulary.js'
 import { PRIMITIVES } from './model/parts.js'
 
@@ -5,6 +6,7 @@ import { PRIMITIVES } from './model/parts.js'
 export default {
   id: 'table',
   register(registry) {
+    if (!registry.schemas.circuit) circuit.register(registry)
     registry.vocabulary('table', vocabulary)
     registry.add('display', 'table:hero', { about: { en: 'Table course map illustration' }, role: 'hero' })
     registry.add('display', 'table:introduction', { about: { en: 'Table introduction figure' }, role: 'figure' })

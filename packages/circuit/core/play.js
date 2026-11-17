@@ -139,7 +139,7 @@ export function circuitPlay(hook) {
       if (result.errors) return { pass: false, refused: result.errors.map((e) => T(e.zh, e.en)), parts: [] }
       const graph = result.graph
       const types = [...new Set(graph.nodes.filter((n) => isPart(board.parts, n)).map((n) => n.type))].sort()
-      return { ...hook.run(ctx, graph), board: graph, parts: types }
+      return { ...hook.run(ctx, graph), board: graph, parts: types, usage: { parts: types } }
     },
   }
 }

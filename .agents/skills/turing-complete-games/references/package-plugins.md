@@ -35,16 +35,30 @@
   Never save over the locked migration corpus. Workspace source changes do not invalidate locks. Refresh locks to record current snapshots. Archive dependencies retain strict version/hash pins. Publication requires `publish -- <package|kernel> --launch`; compatibility previews expose a proposed version without writing it. Versions remain `0.0.0` and ranges `^0.0.0` before launch. Publication computes semantic versions from manifests and dependent check observations; vocabulary has no separate version line. See DESIGN.md 6.1.1 for release metadata and Studio data sources.
 - Installed layers enter through `engine/resolver.js:resolveLayers`; content roots and source/code locations belong
   to that resolver. Game consumers use resolved public data. The workspace existence projection is
-  `engine/existence.js:publicSurfaces`, to be replaced by manifests in step 4. The same check covers schema refs,
+  `engine/existence.js:publicSurfaces`, backed by installed declarations and registered object readers. The same check covers schema refs,
   overrides, tag contributions, relation endpoints, trays/grants and package selections; code registrations count
   for every object type. Preserve `{ rule: "exists", at, layer, kind, target, member?, reason, says }` in reports.
   Missing targets are diagnostics, not separate loader exceptions. Tag copy uses `@tag.<name>.title/desc`.
-- Until steps 5–9, package projections and internal modules share the existing course reader and dispatch.
-  Do not add another implementation or permanent fallback. Move circuit first and remove its internal registration.
+- Native consumers use the public circuit work reader until their extraction in steps 7–10.
+  Keep a single implementation of each reader and judge.
 
 
-Circuit uses the same paired `play`, `kind`, `state`, `check` and `agent` registrations. Its public grant
-registry is `grants.register({ type, used })`. A view receives `context` and `phone` alongside task/work state.
-The native module readers still consume the circuit package through public exports during steps 5–9.
-Keep the step-5 content and authoring projection cleanup explicit until it is finished. Circuit-specific
-progress callbacks live in `circuit/core/progress.js`; kernel progress only performs task/level transitions.
+Circuit owns its content semantics through `kind` meanings. The kernel stores typed registries and interprets
+schemas. Meanings supply qualification, nested identities, reference indexes/matching, assembly/source serialization, override,
+validation and stamps. `derived` fields are excluded from source serialization. Custom relation endpoints
+come from declaration `relations`. Circuit declares `circuit/part`, `circuit/tray` and `circuit/quote`.
+
+Course dependency inference, supplies, native work readers and runtime selection are meaning hooks.
+`state`, `check` and paired `play` registrations own derived availability, verdicts and work execution.
+Kernel progress only performs task/level transitions. Authoring projections, part operations, flow/dependency
+and rendering tools live in circuit and enter the shared operation/tool framework through meaning hooks.
+The public grant registry remains `grants.register({ type, used })` for its native consumers.
+
+Shared shell components own layout, interaction, run controls and save-slot context. Circuit's game definition
+supplies shell panels/actions, settings, map rewards, reference display metadata and observation descriptions.
+A view receives `context` and `phone` alongside task/work state. Studio's current editors remain usable through
+the same schemas and operation metadata; moving the specialized editors into the package is step 11.
+
+Only `engine/circuit-bridge.js` (logic symbol grants) and the five remaining native modules' public circuit
+imports are temporary bridges. Remove them as their consumers move in steps 7–10. Synthetic kernel tests
+install explicit circuit fixtures. Baseline observers are provided by kind meanings and compare full reports.

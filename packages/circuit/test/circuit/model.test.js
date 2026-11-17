@@ -1,4 +1,4 @@
-// node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
+// node --test packages/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cardPorts, portNotes, portOnCard } from '../../core/index.js'

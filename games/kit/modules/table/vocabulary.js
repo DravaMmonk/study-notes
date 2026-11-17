@@ -278,4 +278,4 @@ export const vocabulary = qualifyVocabulary('table', defineVocabulary({
   },
   game: GAME,
   level: taskLevel(ONCE, S.by('mode', { circuit: CIRCUIT_TASK, ...HAND }), { parts: true }),
-}));
+}), { bareKinds: ['part'], categories: { part: 'primitive' } });

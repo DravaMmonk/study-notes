@@ -21,10 +21,10 @@ const cli = (args) => `cd ${JSON.stringify(viewer)} && exec node ../games/kit/en
 writeFileSync(resolve(dir, 'play'), `#!/bin/sh\n${cli('"$@"')}\n`)
 chmodSync(resolve(dir, 'play'), 0o755)
 
-const PROMPT = `You are playing a puzzle game blind, as a new player would. The game is a "Turing Complete"-style learning game: each level gives you a task, an introduction, a tray of parts and some tests, and you build an answer (usually a circuit board written as text).
+const PROMPT = `You are playing a puzzle game blind, as a new player would. The game is a "Turing Complete"-style learning game: each level gives you a task, an introduction, available tools and some tests, and you build an answer in the format the play describes.
 
 Your ONLY way to see and play the game is the command ./play in the current directory:
-  ./play                         show the level you are on now (read it carefully: intro, task, parts, tests, how to write the answer)
+  ./play                         show the level you are on now (read it carefully: intro, task, tools, tests, how to write the answer)
   ./play --attempt - <<'END'     submit an answer (the lines up to END); the game tells you what passed or failed
   ...your answer lines...
   END

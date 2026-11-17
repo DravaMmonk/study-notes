@@ -9,7 +9,7 @@ import { usePointerSession } from 'kernel/view'
 import useBlockDrag from "./useBlockDrag.js"
 import { containerUnderPointer } from "../../core/board/dropTarget.js"
 import { assignBlock, rectangleMembers } from "../../core/board/blocks.js"
-import { WORDS } from 'kernel/view'
+import { WORDS } from '../words.js'
 
 import BlockHeader from "./BlockHeader.jsx"
 import { useSetting } from 'kernel/view'

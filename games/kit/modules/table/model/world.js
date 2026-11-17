@@ -1,7 +1,7 @@
 // Worlds the circuit runs in. A world walks its table cell by cell; on each cell the robot reads its sensors,
 // runs the circuit, and writes the circuit's outputs back into the table.
 //
-// Sensors are everything the robot can read on a cell, one value each (the kit's sensor shape, kit/circuit/sensors.js).
+// Sensors are everything the robot can read on a cell, one value each (the kit's sensor shape, packages/circuit/core/sensors.js).
 // A world names them in `sensors` ({ id: { label, short, type, icon?, off? } }) and world() completes them to
 // { id, label, type, family, short, icon?, at?, cats? }:
 //   family 'view'  a board cell near the robot, at = [dr, dc]; every cell within REACH has one (named or not)

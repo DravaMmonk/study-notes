@@ -1,5 +1,6 @@
+import { solutionStamp, workSignature } from '../stamp.js'
 import { workView } from "./workshop-view.js"
-import { solutionStamp, workSignature } from 'kernel'
+
 
 
 

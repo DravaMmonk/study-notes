@@ -219,10 +219,10 @@ export function versionMetadataBaseline(input) {
     let entries = Object.entries(value)
     if (file === 'package.json') {
       const old = Number.isInteger(value.vocabulary) && Object.keys(value).every(key => ['vocabulary', 'uses'].includes(key))
-      const current = value.version === '1.0.0' && ['^1.0.0', '^2.0.0'].includes(value.kernel) && value.uses && !Array.isArray(value.uses) && Object.keys(value).every(key => ['version', 'kernel', 'uses'].includes(key)) && Object.values(value.uses).every(range => range === '^1.0.0')
+      const current = ['0.0.0', '1.0.0'].includes(value.version) && ['^0.0.0', '^1.0.0', '^2.0.0'].includes(value.kernel) && value.uses && !Array.isArray(value.uses) && Object.keys(value).every(key => ['version', 'kernel', 'uses'].includes(key)) && Object.values(value.uses).every(range => ['^0.0.0', '^1.0.0'].includes(range))
       if (old || current) entries = [['uses', old ? value.uses ?? [] : Object.keys(value.uses).filter(id => id !== 'circuit')]]
     }
-    if (file === 'game.json' && ['^1.0.0', '^2.0.0'].includes(value.kernel) && value.packages && !Array.isArray(value.packages) && Object.values(value.packages).every(range => range === '^1.0.0')) entries = entries.filter(([key]) => key !== 'kernel').map(([key, child]) => [key, key === 'packages' ? Object.keys(child).filter(id => id !== 'circuit') : child])
+    if (file === 'game.json' && ['^0.0.0', '^1.0.0', '^2.0.0'].includes(value.kernel) && value.packages && !Array.isArray(value.packages) && Object.values(value.packages).every(range => ['^0.0.0', '^1.0.0'].includes(range))) entries = entries.filter(([key]) => key !== 'kernel').map(([key, child]) => [key, key === 'packages' ? Object.keys(child).filter(id => id !== 'circuit') : child])
     const out = Array.isArray(value) ? value.map(child => walk(child)) : Object.fromEntries(entries.map(([key, child]) => [key, walk(child, key)]))
     memo.set(value, out)
     return out

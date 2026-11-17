@@ -1,3 +1,4 @@
+import { contentMeanings } from '../../core/index.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { registeredOperations } from "../../../../games/kit/engine/capabilities.js"
@@ -69,7 +70,7 @@ test('the normal circuit view evaluates stage defaults under the stable part id'
 
 test('part tags expand stages while replaces accepts only distinct base parts', () => {
   const problems = []
-  const resolve = referenceResolver({ 'circuit/part': { scale: { stages: [{ id: 'advanced' }] } }, tag: { tray: { kind: 'circuit/part', values: ['scale', 'advanced'] } } }, problems)
+  const resolve = referenceResolver({ 'circuit/part': { scale: { stages: [{ id: 'advanced' }] } }, tag: { tray: { kind: 'circuit/part', values: ['scale', 'advanced'] } } }, problems, { meanings: contentMeanings })
   assert.deepEqual(resolve('#tray', 'circuit/part'), ['advanced', 'scale'])
   resolve('scale.gain', 'circuit/part')
   assert.deepEqual(problems, [])

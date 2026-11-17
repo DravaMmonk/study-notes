@@ -9,6 +9,11 @@ import { checkAction } from '../shell/useCheckOnce.js'
 import { evaluatePlay, pluginRuntime } from '../engine/plugin-runtime.js'
 
 export function pluginGame(id, kernel, vocabulary, { view = true } = {}) {
+  const provided = [...kernel.tables.play].find(([name, play]) => name.startsWith(`${id}:`) && play.runtime)
+  if (provided) {
+    const presentation = kernel.tables.playView.get(provided[0])
+    return { id, runtime: provided[1].runtime, define: presentation.define }
+  }
   const runtime = pluginRuntime(id, kernel, vocabulary)
   const kinds = Object.fromEntries([...kernel.tables.play].filter(([name]) => name.startsWith(`${id}:`)).map(([name, core]) => {
     const view = kernel.tables.playView.get(name)

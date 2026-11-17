@@ -1,4 +1,4 @@
-import { registeredValueTypes } from './capabilities.js'
+import { registeredValueTypes } from 'kernel'
 
 const scalar = (type) => ({ num: 'circuit:number', int: 'circuit:number', str: 'circuit:string', bool: 'circuit:boolean' })[type] ?? type
 export const typeAlternatives = (type) => Array.isArray(type) ? type.flatMap(typeAlternatives) : [scalar(type)]

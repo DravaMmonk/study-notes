@@ -2,10 +2,7 @@
 // a domain can train the parameters a board holds by working back from a loss.
 //
 // The tape numbers values, not by what they are (two equal numbers are not the same value) but by where they came
-// from: a board's run (circuit.js) passes each card the numbers of the values on its inputs (`tape.ins`), a part's
-// expression (parts/expr.js evaluateTaped) numbers each resource it calls, and the card's value takes the number of
-// what its expression returns (`tape.last`). A packed part runs its circuit with its inputs' numbers bound to its
-// sources, so a gradient flows through the player's own circuit inside.
+// Runners bind input value ids, record operation calls and retain the resulting value id.
 //
 //   new Tape()                      a fresh tape; put it on a run's ctx (ctx.tape)
 //   tape.leaf(key, value) → id      a parameter: a value the training may change, under the key it is saved by

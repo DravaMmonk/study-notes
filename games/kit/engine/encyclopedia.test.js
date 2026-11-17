@@ -18,5 +18,5 @@ test('sections order independently of tags, share entries and collect ungrouped 
   assert.deepEqual(content.glossary.groups.at(-1).title, { zh: '其它', en: 'Other' })
   assert.deepEqual(applyOverride('section', { title: 'First', values: ['a'] }, { remove: ['a'], values: ['b'] }), { title: 'First', values: ['b'] })
   assert.equal(Object.hasOwn(content.registries, 'layout'), false)
-  assert.deepEqual(content.trays, {})
+  assert.equal(content.trays, undefined)
 })

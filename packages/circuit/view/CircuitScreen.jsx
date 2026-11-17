@@ -3,7 +3,7 @@ import { openCircuit } from "../core/board-view.js"
 import { VIEWS, valueText } from 'kernel/view'
 
 import { useMemo, useState } from 'react'
-import { Dock } from "./BoardControls.jsx"
+import { Dock } from 'kernel/view'
 import { InteractiveDrawing } from 'kernel/view'
 
 import { default as TracePanel } from './TracePanel.jsx'
@@ -41,7 +41,7 @@ import { extentOf } from 'kernel/view'
 
 import { L, T } from 'kernel/view'
 
-import { WORDS } from 'kernel/view'
+import { WORDS } from './words.js'
 
 import Workshop from "./Workshop.jsx"
 import { useCircuitWorkshop } from "./useCircuitWorkshop.js"
@@ -55,7 +55,7 @@ import { PHONE, useMedia } from 'kernel/view'
 import Readouts from "./Readouts.jsx"
 import { Brief, TaskNavigation } from 'kernel/view'
 
-import { CircuitCheckTable } from 'kernel/view'
+import { CaseTable } from 'kernel/view'
 
 import { StepLog } from 'kernel/view'
 
@@ -105,7 +105,7 @@ import "./training.css"
 //   canvas                { height } of a part's card on the desktop board
 //   words                 what the game calls its tests (../engine/tests.js TEST_WORDS)
 //   says?                 { go?, done?, pass?, fail? } the run button's words, and a table's verdicts
-//   table?(task) → play   the tests are the rows of a table (CircuitCheckTable.jsx, its target column the play's),
+//   table?(task) → play   the tests are the rows of a table (CaseTable.jsx, its target column the play's),
 //                         picked there rather than in tabs; a run goes down it a row at a time, with no steps inside
 //   told?(task, test) → [{ label?, text }]   lines the task says, under it (a sentence, a script to follow)
 //   readouts?(task, board, report) → [{ value, label }]   the numbers under the task (Readouts.jsx)
@@ -376,7 +376,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const out = kind.portsOut(level)[0]?.name
   const cases = showResults && table && (
     <div className="cs-cases">
-      <CircuitCheckTable
+      <CaseTable
         play={table(level)} inputs={ins.map((p) => ({ key: p.name, label: p.label }))} at={run.at} select={run.select}
         rows={tests.map((t, k) => ({
           given: Object.fromEntries(ins.map((p) => [p.name, show(t.inputs[p.name])])),

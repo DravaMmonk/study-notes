@@ -206,7 +206,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .unlocked { margin-top: var(--sp-6); padding: var(--sp-5) var(--sp-5); border-radius: var(--r-md); background: var(--canvas); }
 .unlocked .panel-label { margin-bottom: var(--sp-4); }
 .unlocked-list { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: 0; padding: 0; list-style: none; }
-.unlocked-part { min-height: 32px; padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-2); display: inline-flex; align-items: center; gap: var(--gap-local); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; animation: rise-in 300ms 500ms ease both; }
+.unlocked-item { min-height: 32px; padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-2); display: inline-flex; align-items: center; gap: var(--gap-local); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; animation: rise-in 300ms 500ms ease both; }
 .dialog-actions { margin-top: var(--sp-6); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-4); }
 /* A long dialog scrolls; its buttons stay in reach at the bottom. */
 .dialog-actions { position: sticky; bottom: calc(var(--sp-7) * -1); margin-bottom: calc(var(--sp-7) * -1); padding: var(--sp-5) 0 var(--sp-7); background: linear-gradient(transparent, var(--paper) 12px); }
@@ -265,8 +265,8 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
   .game *, .game *::before, .game *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
 }
 
-/* ---- Phone: one scrolling page per level (task, pinned tests, the circuit as a list of steps) ---- */
-/* A level on a phone (Layout.jsx PhonePage): the tests pinned at the top, the page scrolling between, and the tray,
+/* ---- Phone: one scrolling page per level (task, pinned tests, the work as a list of steps) ---- */
+/* A level on a phone (Layout.jsx PhonePage): the tests pinned at the top, the page scrolling between, and the tools,
    the results drawer and the run bar pinned at the bottom. */
 .level-phone { flex: 1; min-width: 0; width: 100%; max-width: 100%; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--canvas); }
 .pl-scroll { --pb-sticky-top: calc(var(--sp-5) * -1); flex: 1; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: var(--sp-6); padding: var(--sp-5) var(--sp-5) var(--sp-7); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--gap-group); }
@@ -322,8 +322,8 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .intro-value .image-view, .intro-value canvas { border-radius: var(--r-sm); }
 .intro-value small { color: var(--muted); font-family: var(--mono); font-size: 10.5px; line-height: 1.3; }
 .intro-arrow { color: var(--muted); }
-.intro-part { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--muted); }
-.intro-part b { padding: var(--sp-2) var(--sp-4); border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font-size: 13px; font-weight: 500; }
+.intro-operation { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--muted); }
+.intro-operation b { padding: var(--sp-2) var(--sp-4); border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font-size: 13px; font-weight: 500; }
 .intro-foot { padding: var(--sp-5) var(--sp-6) calc(var(--sp-6) + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: var(--sp-4); border-top: 1px solid var(--hairline); }
 .intro-dots { flex: 1; display: flex; gap: var(--sp-2); }
 .intro-dots i { width: 6px; height: 6px; border-radius: var(--r-full); background: var(--line); transition: width 200ms ease, background 200ms ease; }
@@ -375,19 +375,6 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .wiki-chip.is-locked { color: var(--faint); cursor: default; }
 .wiki-empty { padding: var(--sp-8) var(--sp-8); }
 .wiki-back { margin: calc(var(--sp-3) * -1) 0 var(--sp-5) calc(var(--sp-4) * -1); }
-/* The components box (PartsBook.jsx) on the same layout: a part's chip beside its name; its bench is games/kit/circuit DemoBench. */
-.wiki-item .family-chip { flex: none; width: 20px; height: 20px; }
-.parts-article h2 { display: flex; align-items: center; gap: var(--sp-5); }
-.parts-article h2 .family-chip { width: 34px; height: 34px; border-radius: var(--r-md); }
-.parts-filters { display: flex; gap: var(--sp-3); margin: 0 var(--sp-2) var(--sp-5); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
-.parts-filters::-webkit-scrollbar { display: none; }
-.parts-filter { flex: none; display: inline-flex; align-items: center; gap: var(--gap-local); height: 30px; padding: 0 var(--sp-4) 0 var(--sp-3); border: 0; border-radius: var(--r-full); color: var(--ink-2, var(--ink)); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 12.5px; cursor: pointer; }
-.parts-filter svg { flex: none; }
-.parts-filter-icon { width: 20px; height: 20px; }
-.parts-filter[aria-pressed='true'] { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); }
-.parts-filter:disabled { color: var(--faint, var(--muted)); cursor: default; box-shadow: inset 0 0 0 1px var(--hairline); background: none; }
-.parts-filter small { font: 11px var(--mono); color: var(--faint, var(--muted)); }
-.parts-filter:not(:disabled):hover { box-shadow: inset 0 0 0 1px var(--ink); }
 /* A dot on the buttons that open it while there are entries not read yet. */
 .wiki-button { position: relative; }
 .wiki-button .wiki-dot { position: absolute; top: 6px; right: 5px; box-shadow: 0 0 0 2px var(--paper); }
@@ -439,7 +426,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 }
 
 /* ---------- the strip under a desktop level's stage (Workbench.jsx), the same in every game: a header of tests, then
-   the results pane and the run column at the bottom right; over a board, the parts row. ---------- */
+   the results pane and the run column at the bottom right; over a board, the tools row. ---------- */
 @media (min-width: 761px) {
   /* The strip is as tall as what it holds (up to 60% of the screen), until the player drags its edge (--world-h);
      a drag never folds it under what keeps its header, a few rows of the results and the whole run column in view. */
@@ -451,24 +438,12 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
   .wb-pane-body { flex: 1; min-height: 0; padding: var(--sp-4) var(--sp-5) var(--sp-5); overflow: auto; scrollbar-width: thin; }
   /* Before there is anything to show, the results pane keeps its place unseen. */
   .wb-pane:has(> .wb-pane-body:empty:only-child) { background: none; box-shadow: none; }
-  /* A board keeps its own layers (cards, floating windows) to itself, so nothing on it covers the parts row's tooltips. */
+  /* A board keeps its own layers (cards, floating windows) to itself, so nothing on it covers the tools row's tooltips. */
   .is-board > .wb-stage { position: relative; z-index: 0; isolation: isolate; flex: 1; min-height: 0; }
   .is-board > .wb-stage > * { position: absolute; inset: 0; }
-  .wb-stage .kit-board { height: 100%; margin: 0; }
-  /* The parts: one row of icons and names; what each does is its tooltip, under it. */
+  /* The tools: one row of icons and names; what each does is its tooltip, under it. */
   .wb-toolbar { flex: none; position: relative; z-index: 6; padding: var(--sp-4) var(--sp-5); border-bottom: 1px solid var(--hairline); background: var(--paper); }
   .wb-toolbar .palette { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-  /* Framed like the phone's tray (circuit.css .pb-part): a hairline and the family's colour along the bottom. As
-     specific as the compact palette's own rules (circuit.css), which load after these and would drop the frame. */
-  .wb-toolbar .palette.is-compact .palette-item, .wb-toolbar .palette .palette-item { width: auto; min-height: 36px; padding: var(--sp-1) var(--sp-5) var(--sp-3) var(--sp-2); grid-template-columns: 22px auto; gap: var(--sp-3); border-radius: var(--r-md); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline), inset 0 -3px 0 var(--fam, var(--rule)); }
-  .wb-toolbar .palette.is-compact .palette-item:hover, .wb-toolbar .palette .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule), inset 0 -3px 0 var(--fam, var(--rule)); transform: none; }
-  .wb-toolbar .palette .family-chip { width: 20px; height: 20px; }
-  .wb-toolbar .palette .palette-text { display: flex; }
-  .wb-toolbar .palette .palette-text span { font-size: 13px; white-space: nowrap; }
-  .wb-toolbar .palette-text small, .wb-toolbar .palette-add { display: none; }
-  .wb-toolbar .palette-tip { left: 0; right: auto; top: calc(100% + 6px); }
-  .wb-toolbar .palette-item[data-tip='left'] .palette-tip { left: auto; right: 0; }
-  .wb-toolbar .palette-item:hover .palette-tip, .wb-toolbar .palette-item:focus-visible .palette-tip { display: block; }
   /* The strip: header, then the outputs pane and the run column. */
   .level > .wb-strip { position: relative; grid-column: 2; grid-row: 2; height: var(--world-h, auto); max-height: var(--world-max, 60dvh); min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--paper); }
   .wb-resize { position: absolute; z-index: 5; left: 0; right: 0; top: -5px; height: 10px; cursor: row-resize; touch-action: none; }
@@ -520,9 +495,9 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .tests-inline { margin: 0; padding: 0; border: 0; background: transparent; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-/* A reference inside a text (refs.js): a link chip, an icon and the name of a level (with its number), a part or an
+/* A reference inside a text (refs.js): a link chip, an icon and the name of a level (with its number), an
    encyclopedia entry. */
-level-ref, part-ref, wiki-ref { display: inline; }
+level-ref, wiki-ref { display: inline; }
 .ref-chip { display: inline-flex; align-items: center; gap: var(--sp-1); margin: 0 var(--sp-1); padding: 0 var(--sp-3); border: 0; border-radius: var(--r-sm); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font: inherit; line-height: 1.45; vertical-align: baseline; white-space: nowrap; cursor: pointer; }
 .ref-chip:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); }
 .ref-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -562,15 +537,6 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .step-log-value { max-height: calc(5 * 18.8px); max-width: 100%; overflow: auto; font-size: 13px; white-space: pre-line; }
 .step-log-value b, .step-log-value code { white-space: nowrap; }
 .step-log-why { font: 600 12.5px var(--sans); color: var(--fail); }
-
-/* A part's rules in the components box: one per row, written out. */
-.parts-rules { margin: var(--sp-5) 0 0; }
-.parts-rules h3 { margin: 0 0 var(--sp-3); color: var(--muted); font: 600 12px var(--mono); letter-spacing: .06em; }
-.parts-rules table { width: 100%; border-collapse: collapse; }
-.parts-rules td { padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--hairline); }
-.parts-rules tr:last-child td { border-bottom: 1px solid var(--hairline); }
-.parts-rules code { font: 13px/1.5 var(--mono); overflow-wrap: anywhere; }
-.parts-setting { display: inline-block; margin: var(--sp-1) var(--sp-2) var(--sp-1) 0; padding: var(--sp-1) var(--sp-3); border: 1px solid var(--hairline); border-radius: var(--r-full); }
 
 /* Rows of rules to fill in (RuleRows.jsx): a card of rows, a head on top, then each row's name and its slots as
    buttons to press, each opening its editor beside it; the words that end a row, the button that adds a slot, the one

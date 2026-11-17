@@ -1,3 +1,4 @@
+import { meaningsOf } from './kind-meanings.js'
 import { sourceValue } from './catalogs.js'
 // Public identities are collected from the same qualified layers as existence checking.
 import { readFileSync } from 'node:fs'
@@ -56,8 +57,7 @@ export function layerManifest(layer, layers, schemas, dir) {
   const values = new Map([...layer.objects, ...(layer.codeObjects ?? [])].map(object => [`${object.kind}:${object.kind === 'tag' ? `${object.value.kind}:` : ''}${object.name}`, object.value]))
   for (const object of layer.objects) {
     for (const task of object.kind === 'level' ? object.value.tasks ?? [] : []) values.set(`task:${task.id}`, task)
-    for (const stage of object.value.stages ?? []) values.set(`${object.kind}:${stage.id}`, stage)
-    for (const menu of object.kind === 'circuit/tray' ? object.value.menus ?? [] : []) values.set(`menu:${menu.id}`, menu)
+    for (const meaning of meaningsOf(schemas)) for (const entry of meaning.identities?.(object) ?? []) values.set(`${entry.kind}:${entry.name}`, entry.value)
   }
   for (const [lang, entries] of Object.entries(layer.catalogs ?? {})) for (const [name, value] of Object.entries(entries)) {
     const key = `i18n:${name.includes('/') ? name : `${layer.id}/${name}`}`

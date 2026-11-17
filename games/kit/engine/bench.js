@@ -1,4 +1,4 @@
-// The parameter bench (games/DESIGN.md 6.4): a level for a mechanism no circuit can wire (a dark box, sampling,
+// The parameter bench (games/DESIGN.md 6.4): a level for a parameterized mechanism (a dark box, sampling,
 // thousands of training steps). A bench is data over a domain's code:
 //
 //   model    the simulation, picked by name from the domain (code): what it computes from the knobs, and for a

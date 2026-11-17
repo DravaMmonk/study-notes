@@ -9,7 +9,7 @@
 //   rawStyles(paths) → { sizes, colours, spacing, radii }   counted over the .css, .jsx and .js files at `paths`
 //                                                           (files, or directories walked whole)
 //   measure(kit) → { key: counts }   the kit's own sheets (key `kit`), each shared part of the interface (`shell`,
-//                                    `circuit`, `views`, `strip`), every kernel module (modules/<name>). The studio keeps its own denser scale (DESIGN.md 6.7).
+//                                    `views`, `strip`), every kernel module (modules/<name>). The studio keeps its own denser scale (DESIGN.md 6.7).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -18,7 +18,7 @@ const SIZE = /font(?:-size)?\s*:[^;{}]*?\d+(?:\.\d+)?px/g
 const COLOUR = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?(?:[0-9a-fA-F]{2})?\b|rgba?\(/g
 const SPACING = /(?<![-\w])(?:(?:padding|margin|scroll-padding|scroll-margin)(?:-[a-z-]+)?|gap|row-gap|column-gap)\s*:\s*([^;{}]+)/g
 const RADIUS = /(?<![-\w])border(?:-[a-z]+)*-radius\s*:\s*([^;{}]+)/g
-const SHARED = ['shell', 'circuit', 'views', 'strip']
+const SHARED = ['shell', 'views', 'strip']
 
 function files(path) {
   if (!statSync(path).isDirectory()) return [path]

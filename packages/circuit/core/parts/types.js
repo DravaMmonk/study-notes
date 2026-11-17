@@ -2,7 +2,7 @@ import { partPath } from "./schema.js"
 import { operationPart, operationTrees } from "./operation.js"
 import { holesOf, outletsOf, resolveSettings, insideOf, regionsOf } from "../parts.js"
 
-import { acceptsType, typeAlternatives as alternatives } from 'kernel'
+import { acceptsType, typeAlternatives as alternatives } from '../value-types.js'
 
 
 

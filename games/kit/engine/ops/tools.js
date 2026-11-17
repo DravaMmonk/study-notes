@@ -13,17 +13,17 @@ import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
 import { visibleOverrides } from '../layers.js'
-import { workspaceCheckCache, contentRoot, runtimeOf, isDataGame, readContent, readPackage, packageIds, resolveLayers, contentTargets, gameDirectory } from '../resolver.js'
+import { workspaceCheckCache, contentRoot, runtimeOf, isDataGame, readContent, readPackage, packageIds, resolveLayers, layerVocabulary, contentTargets, gameDirectory } from '../resolver.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
-import { partFlow } from '../../../../packages/circuit/core/index.js'
+import { contentSchemas } from '../content.js'
+import { meaningsOf } from '../kind-meanings.js'
 import { fresh } from '../../shell/progress.js'
 import { taskContext } from '../../shell/played-task.js'
 import { drawDeps } from '../deps.js'
-import { boardSvg } from '../../../../packages/circuit/core/index.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { objectOf, courseRoute } from '../objects.js'
-import { OPERATIONS } from './operations.js'
+import { operationsFor } from './operations.js'
 import { hubCount, openGame, openPackage } from './workspace.js'
 import { adopt, lastUndoable, readLog, runChangeset, undo } from './changeset.js'
 import { driftOf, headOf } from './log.js'
@@ -59,7 +59,7 @@ const about = (lines, level) => lines.filter((l) => new RegExp(`^${escape(level)
 /**
  * The levels a line of the check is about (`ids`: the levels in play order, as the check's paths count them): the
  * level a domain names, the level file a content problem is in, the level a copy problem's path counts to, the level
- * a blind-play report is on, the levels a course finding lists (`part@level`), or the level the line starts with.
+ * a blind-play report is on, the levels a course finding lists (`object@level`), or the level the line starts with.
  */
 export function levelsOfLine(line, ids) {
   if (line.level) return [line.level]
@@ -171,7 +171,7 @@ const tools = {
     },
   },
   audit: {
-    about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail). mutants: also, for each circuit task, how many small mistakes made to its reference answer the tests catch, and those they let pass (slow; a mutant left alive is a board the tests do not rule out, or another right answer).',
+    about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail). mutants: ask supported checks to report reference-work mutation coverage.',
     params: { game: 'string', mutants: 'boolean?' },
     async run({ game, mutants = false }) {
       const content = readTarget(game)
@@ -212,7 +212,7 @@ const tools = {
     },
   },
   render: {
-    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), changeset: as a changeset would leave it. PNG is not drawn.',
+    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: works drawn by their registered renderer, changeset: as a changeset would leave it. PNG is not drawn.',
     params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
     async run({ game, level, path, format = 'text', changeset = null }) {
       if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
@@ -222,9 +222,9 @@ const tools = {
       if (format === 'svg') {
         if (path !== undefined) {
           const board = boards.find((b) => b.path === showPath(parsePath(path)))
-          return board ? { svg: boardSvg(board.text, { title: `${level} ${board.path}` }) } : { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
+          return board ? { svg: renderWork(content, board.text, `${level} ${board.path}`) } : { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
         }
-        return { boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
+        return { boards: boards.map((b) => ({ path: b.path, svg: renderWork(content, b.text, `${level} ${b.path}`) })) }
       }
       if (path !== undefined) {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))
@@ -239,7 +239,7 @@ const tools = {
         `${level} · ${pick(value.title)}`,
         ...picks.map((k) => `${k}: ${JSON.stringify(value[k])}`),
         ...(value.brief ? [`brief: ${pick(value.brief)}`] : []),
-        ...(value.adds ? [`brings in: ${value.adds.join(', ')}`] : []),
+        ...meaningsOf(contentSchemas.get(content)).flatMap(meaning => meaning.renderFields?.({ value }) ?? []),
         ...(value.tests ? [`tests: ${JSON.stringify(value.tests).slice(0, 600)}`] : []),
         ...value.tasks.map((task, k) => `task ${k + 1} (${task.id}): ${pick(task.step) ?? ''} ${task.brief ? `— ${pick(task.brief)}` : ''}`),
         ...boards.flatMap((b) => ['', `${b.path}:`, ...b.text.split('\n').map((l) => `  ${l}`)]),
@@ -248,7 +248,7 @@ const tools = {
     },
   },
   deps: {
-    about: 'A game’s part dependency graph as Mermaid (dot: DOT), drawn from its course data; levels: draw the levels too.',
+    about: 'A dependency graph supplied by the loaded object kinds, drawn as Mermaid or DOT.',
     params: { game: 'string', dot: 'boolean?', levels: 'boolean?' },
     async run({ game, dot = false, levels = false }) {
       const content = readTarget(game)
@@ -280,18 +280,8 @@ const tools = {
       }
     },
   },
-  flow: {
-    about: 'A part’s way through a game’s course (as a changeset would leave it), read off the course, in course order: where it is at hand from the start, where a level brings it in, where a level or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its upgrade chains (the task whose work runs inside it, with its form). Each event names the level, the task (an index) and the path of the field in the level’s content that says it (null: none).',
-    params: { game: 'string', part: 'string', changeset: 'object?', scope: 'string?' },
-    async run({ game, part, changeset = null, scope }) {
-      const content = await contentAfter(game, changeset, scope)
-      if (content.packageTarget) return { events: [] }
-      const domain = await runtimeOf(content)
-      return { events: partFlow(domain.spec(content).course, content, part) }
-    },
-  },
   names: {
-    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box (with the part it is and the level that first gives it), each encyclopedia entry’s title; and the names copy may quote rather than link.',
+    about: 'The labels, titles and names shown by a game’s references and registered object kinds, including names copy may quote.',
     params: { game: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
@@ -299,7 +289,7 @@ const tools = {
       if (content.packageTarget) return {
         tags,
         levels: packageLevelOrder(content).map(id => ({ id, label: id, title: levelIn(content, id).title })),
-        parts: Object.entries(content.partDefs?.parts ?? {}).map(([key, p]) => ({ key, name: p.name, part: key, at: null })),
+        ...Object.assign({}, ...meaningsOf(contentSchemas.get(content)).map(meaning => meaning.namesForTool?.({ content }))),
         entries: content.glossary.entries.map(e => ({ id: e.id, title: e.title })), quotes: [],
       }
       const shown = await gameOf(content)
@@ -307,9 +297,7 @@ const tools = {
       return {
         tags,
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
-        // Each with the part it is (its type in parts/<name>.json) and the level that first gives it: a primitive's first level
-        // bringing it in, a built one's level earning its flag.
-        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, part: p.part ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
+        ...Object.assign({}, ...meaningsOf(contentSchemas.get(content)).map(meaning => meaning.namesForTool?.({ content, game: shown }))),
         entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),
         quotes: domain.spec(content).quotes ?? [],
       }
@@ -328,7 +316,7 @@ const tools = {
       const { lines, task } = board
       const shown = await gameOf(content)
       const at = shown.byId[level]
-      // Every part met before the level is in the tray, as the studio's game plays it (unlock all).
+      // The Studio preview opens all progression gates.
       const progress = { ...fresh(), all: true }
       const ctx = taskContext(shown, progress, at, task)
       // A hook that cannot open the level without the boards a played session would have built says so.
@@ -398,7 +386,7 @@ const tools = {
         const text = git('show', `${tree}:${path}`)
         if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
         let value = JSON.parse(text)
-        const isObject = /^(levels|parts|entries|tags|relations|sections|trays)\//.test(fileName)
+        const isObject = Object.values(ws.kindFolders).some(folder => fileName.startsWith(`${folder}/`))
         if (isObject || ['game.json', 'blueprint.json'].includes(fileName)) {
           const scope = join(isObject ? path.slice(0, -fileName.length) : dirname(path), 'i18n')
           const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))
@@ -447,7 +435,7 @@ const tools = {
         legacyModules: vocabulary.legacyModules ?? runtimeIds(content), packageCode: Boolean(vocabulary.packageCode),
         objectKinds: vocabulary.objectKinds ?? {},
         vocabulary: describe(vocabulary),
-        operations: Object.fromEntries(Object.entries(OPERATIONS).map(([name, op]) => [name, { about: op.about, params: op.params }])),
+        operations: Object.fromEntries(Object.entries(operationsFor(vocabulary)).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }
     },
   },
@@ -471,6 +459,9 @@ tools.play_task = {
 }
 
 /** The same tools accept exactly one explicit target. Package calls share no game state or game log. */
+const toolMeanings = layerVocabulary(resolveLayers({ packages: packageIds(ROOT), closure: true, root: ROOT, unlocked: true }).layers).meanings
+for (const meaning of toolMeanings) for (const [name, tool] of Object.entries(meaning.tools ?? {})) tools[name] = { ...tool, run: args => tool.run(args, { contentAfter, runtimeOf }) }
+
 export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, tool]) => {
   if (!tool.params.game || name === 'create_game') return [name, tool]
   return [name, {
@@ -483,3 +474,9 @@ export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, tool])
     },
   }]
 }))
+
+function renderWork(content, text, title) {
+  const renderer = meaningsOf(contentSchemas.get(content)).find(meaning => meaning.renderWork)
+  if (!renderer) throw new Error('the loaded object kinds do not provide work rendering')
+  return renderer.renderWork({ text, title })
+}

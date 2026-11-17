@@ -1622,8 +1622,10 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [],
-   "seconds": 15
+   "seconds": 15,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "0-2",
@@ -1632,9 +1634,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a probe level (reading pixels with the pointer); no board to wire",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "0-3",
@@ -1643,10 +1647,12 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "shift"
-   ],
-   "seconds": 21
+   "seconds": 21,
+   "usage": {
+    "parts": [
+     "shift"
+    ]
+   }
   },
   {
    "level": "0-4",
@@ -1655,12 +1661,14 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "add",
-    "const",
-    "mul"
-   ],
-   "seconds": 21
+   "seconds": 21,
+   "usage": {
+    "parts": [
+     "add",
+     "const",
+     "mul"
+    ]
+   }
   },
   {
    "level": "0-5",
@@ -1669,12 +1677,14 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "add",
-    "const",
-    "mul"
-   ],
-   "seconds": 21
+   "seconds": 21,
+   "usage": {
+    "parts": [
+     "add",
+     "const",
+     "mul"
+    ]
+   }
   },
   {
    "level": "0-6",
@@ -1683,9 +1693,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a probe level (reading pixels with the pointer); no board to wire",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "0-7",
@@ -1694,12 +1706,14 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "mul",
-    "sub",
-    "threshold"
-   ],
-   "seconds": 18
+   "seconds": 18,
+   "usage": {
+    "parts": [
+     "mul",
+     "sub",
+     "threshold"
+    ]
+   }
   },
   {
    "level": "0-10",
@@ -1708,11 +1722,13 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "sub",
-    "threshold"
-   ],
-   "seconds": 20
+   "seconds": 20,
+   "usage": {
+    "parts": [
+     "sub",
+     "threshold"
+    ]
+   }
   },
   {
    "level": "0-11",
@@ -1721,13 +1737,15 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "const",
-    "mul",
-    "sub",
-    "threshold"
-   ],
-   "seconds": 21
+   "seconds": 21,
+   "usage": {
+    "parts": [
+     "const",
+     "mul",
+     "sub",
+     "threshold"
+    ]
+   }
   },
   {
    "level": "0-12",
@@ -1736,13 +1754,15 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "const",
-    "mul",
-    "sub",
-    "threshold"
-   ],
-   "seconds": 14
+   "seconds": 14,
+   "usage": {
+    "parts": [
+     "const",
+     "mul",
+     "sub",
+     "threshold"
+    ]
+   }
   },
   {
    "level": "0-9",
@@ -1751,13 +1771,15 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "mul",
-    "shift",
-    "sub",
-    "threshold"
-   ],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": [
+     "mul",
+     "shift",
+     "sub",
+     "threshold"
+    ]
+   }
   },
   {
    "level": "0-8",
@@ -1766,9 +1788,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a parameter bench (turning knobs); no board to wire",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "1-1",
@@ -1777,13 +1801,15 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "arith",
-    "const",
-    "merge",
-    "shift"
-   ],
-   "seconds": 15
+   "seconds": 15,
+   "usage": {
+    "parts": [
+     "arith",
+     "const",
+     "merge",
+     "shift"
+    ]
+   }
   },
   {
    "level": "1-2",
@@ -1792,13 +1818,15 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "arith",
-    "const",
-    "merge",
-    "shift"
-   ],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": [
+     "arith",
+     "const",
+     "merge",
+     "shift"
+    ]
+   }
   },
   {
    "level": "1-3",
@@ -1807,14 +1835,16 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "arith",
-    "blur3h",
-    "const",
-    "merge",
-    "shift"
-   ],
-   "seconds": 10
+   "seconds": 10,
+   "usage": {
+    "parts": [
+     "arith",
+     "blur3h",
+     "const",
+     "merge",
+     "shift"
+    ]
+   }
   }
  ],
  "attempts": [

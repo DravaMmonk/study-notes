@@ -6,7 +6,7 @@ import { L, tr } from './i18n.js'
 // A table the player fills in, row by row, the same in every game (a 填表格 level: the test cases of a declaration, …).
 // On a desktop the rows are edited in place: each column that can be changed gives its editor (`edit`), a × at the row's
 // end deletes it, and a small button under the table adds a blank row. On a phone the table only shows the rows, in a window of its own that scrolls sideways: each column is as wide as its text up
-// to a limit (then the text wraps), and each row is tall enough to tap; and tapping one opens it in a sheet, like a part's:
+// to a limit (then the text wraps), and each row is tall enough to tap; and tapping one opens it in a sheet, like another editable object:
 // what is changed there is changed at once, a Delete under the fields removes the row, and the sheet just closes. A
 // large button under the table adds a blank row and opens it. The game gives the columns and the form's fields
 // (FormFields.jsx has the shared ones).

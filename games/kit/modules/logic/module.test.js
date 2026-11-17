@@ -7,9 +7,9 @@ import { OPS } from './ops.js'
 test('logic registers its boards, languages and typed executable operations', () => {
   const registry = createCapabilityRegistry()
   logic.register(registry)
-  assert.deepEqual(Object.keys(registry.tables.board).sort(), ['logic:gates', 'logic:machine', 'logic:proof'])
+  assert.deepEqual(Object.keys(registry.tables.board).filter(name => name.startsWith('logic:')).sort(), ['logic:gates', 'logic:machine', 'logic:proof'])
   assert.deepEqual(Object.keys(registry.tables.language).sort(), ['logic:condition', 'logic:formula', 'logic:side'])
-  for (const [name, operation] of Object.entries(registry.tables.operation)) {
+  for (const [name, operation] of Object.entries(registry.tables.operation).filter(([name]) => name.startsWith('logic:'))) {
     assert.equal(typeof OPS[name].run, 'function', name)
     assert.ok(registry.tables.valueType[operation.returns], name)
     for (const input of operation.args) assert.ok(registry.tables.valueType[input.type], `${name}.${input.name}`)

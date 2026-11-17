@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowUpFromLine, Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from 'kernel/view'
@@ -17,7 +17,7 @@ import { print } from "../../core/board/text.js"
  * studio edits one of the level's boards in the game (../studio): a button beside the switcher hands it the board on
  * screen as blueprint text.
  */
-export const SlotsContext = createContext(null)
+import { SlotsContext } from 'kernel/view'
 
 const labelOf = (slot) => slot.name || tr(`电路 ${slot.no}`, `Board ${slot.no}`)
 

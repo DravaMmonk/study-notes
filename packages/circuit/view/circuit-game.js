@@ -1,3 +1,5 @@
+import { circuitPlaySchema } from '../core/play-schema.js'
+import { circuitScreen } from './CircuitScreen.jsx'
 // A game on a circuit domain (../engine/circuit-preset.js) on the shared shell, from its content (games/DESIGN.md 6.3):
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
 // and the parts box holding the game's primitives and its built parts (`part`: the parts.json entry; each opens on
@@ -30,7 +32,7 @@ import { iconOf } from "./parts/icons.js"
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
 export function circuitGame(content, circuit, { kind, screen, cards, Hero, IntroFigure }) {
-  const plays = definePlays({ [kind.id]: { editor: 'circuit', judge: 'steps', resources: kind.id } })
+  const plays = definePlays({ [kind.id]: { editor: 'circuit', judge: 'steps', resources: kind.id } }, circuitPlaySchema)
   const resources = { [kind.id]: { ...screen, cards, course: (game) => game.circuit } }
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
@@ -79,7 +81,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
     }),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds: playKinds(plays, resources, { [kind.id]: kind }),
+    kinds: playKinds(plays, resources, { [kind.id]: kind }, { circuit: circuitScreen }),
     parts: {
       all: [...primitives, ...built],
       // A built part shows the board it runs: the one the player passed its task with, else the reference.

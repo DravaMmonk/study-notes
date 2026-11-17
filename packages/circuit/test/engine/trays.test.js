@@ -42,7 +42,9 @@ test('switching trays groups only the parts in the selected tray', () => {
 })
 
 test('tray overrides append members and merge menus by id, with explicit removal and replacement', async () => {
-  const { applyOverride } = await import('../../../../games/kit/engine/layers.js')
+  const { contentMeanings } = await import('../../core/index.js')
+  const { applyOverride: override } = await import('../../../../games/kit/engine/layers.js')
+  const applyOverride = (kind, before, patch) => override(kind, before, patch, { meanings: contentMeanings })
   const source = { title: 'Tools', values: ['a'], menus: [{ id: 'group', title: 'Group', values: ['b'] }] }
   const next = applyOverride('circuit/tray', source, { values: ['c', 'a'], menus: [{ id: 'group', values: ['d', 'b'] }, { id: 'other', title: 'Other', values: ['e'] }] })
   assert.deepEqual(next.values, ['a', 'c'])
@@ -52,7 +54,7 @@ test('tray overrides append members and merge menus by id, with explicit removal
 })
 
 test('tray order interleaves menus and direct members without changing menu-member order', async () => {
-  const { assemble } = await import('../../../../games/kit/engine/content.js')
+  const { assembleCircuitFixture: assemble } = await import('../../../../games/kit/engine/ops/fixture.js')
   const { S } = await import('../../../../games/kit/engine/schema.js')
   const content = assemble({ id: 'sample', schemas: circuitFixtureSchema({ game: S.obj({}), level: S.obj({}), kinds: {} }), game: {}, levels: [],
     partDefs: { parts: { one: {}, two: {}, last: {} } },

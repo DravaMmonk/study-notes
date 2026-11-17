@@ -1,7 +1,7 @@
 import { circuitFixtureSchema } from './ops/fixture.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { assemble as assembleContent } from './content.js'
+import { assembleCircuitFixture as assembleContent } from './ops/fixture.js'
 import { S, validate } from './schema.js'
 import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
@@ -70,7 +70,7 @@ test('partial courses restrict both ends of loaded level relations', () => {
 
 test('reference maps and item containers use the same typed resolver and loaded ordering', () => {
   const registry = { tag: { items: { kind: 'circuit/part', values: ['p/b', 'p/a'] }, levels: { kind: 'level', values: ['p/one'] } }, level: { 'p/one': {} }, part: { 'p/a': {}, 'p/b': {} }, setting: {}, entry: {} }
-  const problems = [], expand = referenceResolver(registry, problems)
+  const problems = [], expand = referenceResolver(registry, problems, circuitFixtureSchema({}))
   expand.order = [{ from: 'p/b', to: 'p/a', of: 'circuit/part' }]
   const schema = S.obj({ list: S.list(S.ref('part', { reference: 'circuit/part' })), keyed: S.map(S.str(), { key: S.ref('part', { reference: 'circuit/part' }) }), tray: S.name('tag', { members: 'circuit/part' }) })
   assert.deepEqual(expandReferences({ list: ['#items'], keyed: { '#items': 'same' }, tray: '#items' }, schema, expand), {
@@ -256,7 +256,7 @@ test('same-named typed tags resolve in context and ambiguous unconstrained refer
     'entry:p/all': { kind: 'entry', values: ['p/word'] },
     'entry:p/nested': { kind: 'entry', values: ['#p/nested'] },
   } }
-  const expand = referenceResolver(registries, problems)
+  const expand = referenceResolver(registries, problems, circuitFixtureSchema({}))
   assert.deepEqual(expand('#p/all', 'level'), ['p/a'])
   assert.deepEqual(expand('#p/all', 'entry'), ['p/word'])
   assert.deepEqual(problems, [])
@@ -270,7 +270,7 @@ test('same-named typed tags resolve in context and ambiguous unconstrained refer
 
 test('mixed object orders omit of, reject ambiguous endpoints and detect cycles', () => {
   const problems = []
-  const expand = referenceResolver({ level: { 'p/a': {}, 'p/same': {} }, entry: { 'p/b': {}, 'p/same': {} }, tag: {} }, problems)
+  const expand = referenceResolver({ level: { 'p/a': {}, 'p/same': {} }, entry: { 'p/b': {}, 'p/same': {} }, tag: {} }, problems, circuitFixtureSchema({}))
   const edges = expandRelations({ mixed: { kind: 'order', sequence: ['p/a', 'p/b'] } }, expand, new Set(['p/a']), problems)
   assert.deepEqual(edges.order, [{ from: 'p/a', to: 'p/b' }])
   assert.deepEqual(problems, [])

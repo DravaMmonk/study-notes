@@ -1,3 +1,4 @@
+import { meaningsOf } from './kind-meanings.js'
 // Allocate catalog keys at the authoring boundary. Display text is identified by schema so language-like data keys
 // (for example a level placement's "id") remain ordinary configuration.
 import { find } from './schema.js'
@@ -7,9 +8,9 @@ import { getAt, setAt, showPath } from './ops/edit.js'
 
 const segment = (value) => String(value).replace(/[^a-zA-Z0-9_-]+/g, '-') || '_'
 
-function keyPath(value, prefix, path) {
-  const [field, id, ...rest] = path
-  if (prefix === 'parts' && field === 'parts') return ['part', id, ...rest].map(segment).join('.')
+function keyPath(value, prefix, path, vocabulary) {
+  const named = meaningsOf(vocabulary).map(meaning => meaning.catalogKey?.({ prefix, path, segment })).find(Boolean)
+  if (named) return named
   let parent = value
   const names = path.map((step) => {
     parent = parent[step]
@@ -30,7 +31,7 @@ export function normalizeText(value, schema, prefix, { vocabulary, reserved = ne
     const oldKey = textKey(getAt(previous, field.path))
     let key = oldKey && !used.has(oldKey) ? oldKey : undefined
     if (!key) {
-      const base = keyPath(value, prefix, field.path)
+      const base = keyPath(value, prefix, field.path, vocabulary)
       key = base
       for (let n = 2; reserved.has(key); n++) key = `${base}.${n}`
     }

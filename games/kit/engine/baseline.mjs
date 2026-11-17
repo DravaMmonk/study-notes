@@ -9,7 +9,8 @@ import { packageLevel } from './package-play.js'
 import { closeGames } from './games.mjs'
 import { baselineValue, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
-import { usable, offer, holds } from '../../../packages/circuit/core/index.js'
+import { contentSchemas } from './content.js'
+import { meaningsOf } from './kind-meanings.js'
 
 const root = contentRoot()
 const folder = resolve(root, 'output/modules-baseline')
@@ -32,6 +33,7 @@ try {
     }
     const content = (packaged ? readPackage : readContent)(id, root)
     const runtime = await runtimeOf(content)
+    const meanings = meaningsOf(contentSchemas.get(content))
     const names = new Set()
     for (const [kind, registry] of Object.entries(content.registries)) if (kind !== 'kind') for (const name of Object.keys(registry)) names.add(name)
     for (const registry of Object.values(runtime.vocabulary.kinds)) for (const name of Object.keys(registry)) names.add(name)
@@ -45,33 +47,16 @@ try {
     for (const scope of scopes) {
       const spec = runtime.spec(scope)
       for (const fragment of spec.specs ?? [spec]) {
-        records.push({ course: { levels: fragment.course.levels, plan: fragment.course.plan, publications: fragment.course.publications, stages: fragment.course.stages } })
-        const reports = await taskReports(fragment)
+        records.push({ course: { levels: fragment.course.levels, plan: fragment.course.plan, ...Object.assign({}, ...meanings.map(meaning => meaning.baselineCourse?.({ fragment }))) } })
+        const reports = await taskReports(fragment, meanings)
         records.push(...reports)
-        // Order and identity are data. Do not serialize runtime closures or caches.
-        for (const level of fragment.levels) {
-          const works = fragment.table ?? fragment.image ?? fragment.logic ?? fragment.circuit ?? {}
-          const tasks = works.played?.get(level.id) ?? level.tasks
-          for (const task of tasks) {
-            const at = { id: level.id, task: task.task }
-            const course = fragment.course
-            const ancestors = course.levels.filter(prior => course.before(prior.id, level.id))
-            const flags = new Set(ancestors.flatMap(prior => [...(prior.unlocks ?? []), ...course.opens(prior), ...course.awards(prior)]))
-            for (const flag of [...course.opens(at), ...course.awards(at)]) flags.add(flag)
-            const holding = holds(course, at, flags)
-            records.push({ level: level.id, task: task.taskId ?? task.key ?? task.id, availability: {
-              usable: usable(course, at, flags), emptyProgress: usable(course, at, new Set()), gives: course.gives(at), opens: course.opens(at), awards: course.awards(at),
-              tray: offer(course, at, flags),
-              definitions: Object.fromEntries(usable(course, at, flags).map(type => [type, holding.definition(type)])),
-            } })
-          }
-        }
+        for (const meaning of meanings) records.push(...(meaning.baselineRecords?.({ fragment }) ?? []))
       }
     }
     const snapshot = baselineValue({
       format: 1, names: [...names].sort(),
       check: { status: checked.status, stdout: checked.stdout.replaceAll(root, '<project>'), stderr: checked.stderr.replaceAll(root, '<project>') },
-      structure: { levels: content.levels, eras: content.eras, relations: content.relationEdges, parts: content.partDefs, ...(Object.keys(content.registries.symbol ?? {}).length && { symbols: content.registries.symbol }), trays: content.trays },
+      structure: { levels: content.levels, eras: content.eras, relations: content.relationEdges, ...Object.assign({}, ...meanings.map(meaning => meaning.baselineStructure?.({ content }))) },
       records,
     })
     const file = resolve(folder, `${kind}-${id}.json`)

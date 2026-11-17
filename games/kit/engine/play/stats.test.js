@@ -6,7 +6,7 @@ import { perLevel } from './stats.js'
 
 const session = (attempts, outcomes = {}) => ({
   limits: { attempts: 6 },
-  levels: Object.entries(attempts).map(([level, n]) => ({ level, task: 0, outcome: outcomes[level] ?? 'solved', required: level !== 'x', attempts: n, hints: 0, parts: [] })),
+  levels: Object.entries(attempts).map(([level, n]) => ({ level, task: 0, outcome: outcomes[level] ?? 'solved', required: level !== 'x', attempts: n, hints: 0, usage: {} })),
 })
 
 test('a level given up costs the cap and one more; a skipped level costs nothing', () => {

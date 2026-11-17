@@ -1,10 +1,11 @@
 // What a save is a save of, task by task: a short hash of each task's puzzle (its fields and its level's in the puzzle
-// and tests sections, schema.js sectionOf, the words inside them aside) and the game's parts. A save keeps the stamp
+// and tests sections, schema.js sectionOf, the words inside them aside) and dependencies supplied by kind meanings. A save keeps the stamp
 // each of its tasks was made on, and what it keeps of a task whose puzzle has changed since is not read: the player
 // starts that task afresh and keeps the rest (../shell/progress.js). Wording, answers, ids and the course's order are
 // no part of a stamp, so editing them, or moving a task, keeps every save.
 import { find, sectionOf, shapeAt } from './schema.js'
-import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
+import { meaningsOf } from './kind-meanings.js'
+import { contentSchemas } from './content.js'
 import { isText } from './i18n.js'
 import { canonicalJson } from './json-value.js'
 
@@ -33,36 +34,25 @@ function hash(text) {
 export function taskStamps(vocabulary, content, { courseField } = {}) {
   const localizedFields = (schema, value) => new Set(find(schema, value, 'text', { vocabulary }).map((field) => field.value).filter(isText))
   const plain = (value, texts) => JSON.stringify(value, (_k, v) => (texts.has(v) ? undefined : v))
-  const file = content.partDefs
-  const puzzleParts = file
-  const texts = localizedFields(PARTS_FILE, puzzleParts)
-  const parts = plain(puzzleParts ?? null, texts)
+  const semantics = contentSchemas.get(content) ?? vocabulary
+  const dependencies = meaningsOf(semantics).map(meaning => meaning.stamp?.({ content, plain: (value, schema) => plain(value, localizedFields(schema, value)) }) ?? '').join('')
   return Object.fromEntries(content.levels.flatMap((level) => {
     const texts = localizedFields(vocabulary.level, level)
     const own = plain(puzzleOf(vocabulary.level, level, vocabulary, courseField), texts)
-    return level.tasks.map((task, k) => [task.id, { level: level.id, stamp: hash(`${own}${plain(puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary), texts)}${parts}`) }])
+    return level.tasks.map((task, k) => [task.id, { level: level.id, stamp: hash(`${own}${plain(puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary), texts)}${dependencies}`) }])
   }))
 }
 
-/** Omit board presentation when identifying the work a run executes. */
-function workOf(work) {
-  if (!Array.isArray(work?.nodes) || !Array.isArray(work?.wires)) return work
-  return {
-    nodes: work.nodes.map(({ id, type, params, in: region }) => ({ id, type, params, region })),
-    wires: work.wires.map(({ from, to, port }) => ({ from, to, port })),
-  }
-}
-
-/** Compare the executed work while ignoring board layout and JSON object key order. */
-export const workSignature = (work) => canonicalJson(workOf(work)) ?? ''
+/** Compare canonical work data supplied by its owning play. */
+export const workSignature = work => canonicalJson(work) ?? ''
 
 /**
  * Record a work and the transitive closure of the works it uses. A resolver returns the task key, selected work and
  * its puzzle stamp for each direct dependency. An already seen task can occur several times on a board.
  */
-export function solutionStamp(root, references) {
+export function solutionStamp(root, references, projectWork = work => work) {
   const works = new Map()
-  const identity = (entry) => `${entry.key}@${hash(JSON.stringify([entry.puzzle, workOf(entry.work)]))}`
+  const identity = (entry) => `${entry.key}@${hash(JSON.stringify([entry.puzzle, projectWork(entry.work)]))}`
   const visit = (entry) => {
     const id = identity(entry)
     if (works.has(id)) return
@@ -71,7 +61,7 @@ export function solutionStamp(root, references) {
       id,
       key: entry.key,
       puzzle: entry.puzzle,
-      work: workOf(entry.work),
+      work: projectWork(entry.work),
       uses: [...new Set(dependencies.map(identity))].sort(),
     })
     for (const dependency of dependencies) visit(dependency)

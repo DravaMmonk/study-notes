@@ -12,13 +12,13 @@ import { tagName } from './tag-identity.js'
 //   obj(fields)                     an object with these fields and no others; opt(schema) marks a field optional
 //   either(...schemas)              any one of them
 //   by(field, cases)                an object whose `field` names its shape: cases[value] (a level by its mode)
-//   ref(kind)                       the name of an item of that kind in the vocabulary (a world, a part)
+//   ref(kind)                       the name of an item of that kind in the vocabulary (a named resource)
 //   call(kind)                      an item of that kind with its parameters: { item: params }, or just 'item' for an
 //                                   item whose parameters may all be left out
 //   level                           the id of a level of this game (renaming or removing a level follows these)
 //   name(kind)                      the name of something the content itself defines (an encyclopedia entry or group;
 //                                   what a domain's `names(content)` gives, such as the logic domain's lemmas)
-//   board                           a board as blueprint text (../circuit/text.js), one string a line
+//   board                           a line-oriented work, one string per line
 //   syntax(lang)                    a string in one of the domain's small languages (a formula, a proof term),
 //                                   named in its vocabulary's `languages`; given the domain's readers (`languages`),
 //                                   what one cannot read is reported here
@@ -29,7 +29,7 @@ import { tagName } from './tag-identity.js'
 //   view: 'grid'    a list of lists of numbers is a matrix; so is a list of numbers, read row by row, `cols` to a row
 //                   (without cols, a square: a 3 × 3 kernel as nine numbers)
 //   view: 'ticks'   a list of values one a tick, or a string of 0s and 1s, is a waveform; a map of them, one row each
-//   view: 'expr'    a part's expression (parts/expr.js); view: 'icon' a name in the kernel's icon table
+//   view: 'expr'    an expression; view: 'icon' a name in the kernel's icon table
 //   view: 'board'   a list of blueprint lines that is a board (a naive answer, a work): operations find it as one
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape

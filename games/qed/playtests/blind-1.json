@@ -1403,9 +1403,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "always",
@@ -1414,9 +1416,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "onerow",
@@ -1425,9 +1429,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "g-not",
@@ -1436,10 +1442,12 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gNot"
-   ],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": [
+     "gNot"
+    ]
+   }
   },
   {
    "level": "g-and",
@@ -1448,11 +1456,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gNot"
-   ],
-   "seconds": 15
+   "seconds": 15,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gNot"
+    ]
+   }
   },
   {
    "level": "g-tree",
@@ -1461,11 +1471,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gNot"
-   ],
-   "seconds": 15
+   "seconds": 15,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gNot"
+    ]
+   }
   },
   {
    "level": "g-or",
@@ -1474,11 +1486,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gNot"
-   ],
-   "seconds": 19
+   "seconds": 19,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gNot"
+    ]
+   }
   },
   {
    "level": "g-imp",
@@ -1487,11 +1501,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gNot",
-    "gOr"
-   ],
-   "seconds": 18
+   "seconds": 18,
+   "usage": {
+    "parts": [
+     "gNot",
+     "gOr"
+    ]
+   }
   },
   {
    "level": "g-xor",
@@ -1500,12 +1516,14 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gNot",
-    "gOr"
-   ],
-   "seconds": 18
+   "seconds": 18,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gNot",
+     "gOr"
+    ]
+   }
   },
   {
    "level": "g-always",
@@ -1514,11 +1532,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gImp",
-    "gOr"
-   ],
-   "seconds": 14
+   "seconds": 14,
+   "usage": {
+    "parts": [
+     "gImp",
+     "gOr"
+    ]
+   }
   },
   {
    "level": "g-always",
@@ -1527,12 +1547,14 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gImp",
-    "gNot"
-   ],
-   "seconds": 18
+   "seconds": 18,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gImp",
+     "gNot"
+    ]
+   }
   },
   {
    "level": "g-iff",
@@ -1541,11 +1563,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gImp"
-   ],
-   "seconds": 14
+   "seconds": 14,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gImp"
+    ]
+   }
   },
   {
    "level": "e-words",
@@ -1554,11 +1578,13 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gNot"
-   ],
-   "seconds": 10
+   "seconds": 10,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gNot"
+    ]
+   }
   },
   {
    "level": "e-says",
@@ -1567,10 +1593,12 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gIff"
-   ],
-   "seconds": 11
+   "seconds": 11,
+   "usage": {
+    "parts": [
+     "gIff"
+    ]
+   }
   },
   {
    "level": "e-one",
@@ -1579,12 +1607,14 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gIff",
-    "gNot",
-    "gOr"
-   ],
-   "seconds": 11
+   "seconds": 11,
+   "usage": {
+    "parts": [
+     "gIff",
+     "gNot",
+     "gOr"
+    ]
+   }
   },
   {
    "level": "e-two",
@@ -1593,12 +1623,14 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "gAnd",
-    "gIff",
-    "gNot"
-   ],
-   "seconds": 10
+   "seconds": 10,
+   "usage": {
+    "parts": [
+     "gAnd",
+     "gIff",
+     "gNot"
+    ]
+   }
   }
  ],
  "attempts": [

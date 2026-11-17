@@ -1,3 +1,4 @@
+import { circuitPlaySchema } from '../../../../packages/circuit/core/index.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { definePlays } from '../../engine/plays.js'
@@ -11,10 +12,10 @@ const gates = { gNot: { ...defineParts({ parts: { gNot } }, {}).PARTS.gNot, name
 
 test('the circuit template requires an explicit target column policy', () => {
   const circuit = { editor: 'circuit', judge: 'cases', resources: 'logic:gates' }
-  assert.throws(() => definePlays({ circuit }), /is missing/)
-  assert.throws(() => definePlays({ circuit: { ...circuit, target: 'sometimes' } }), /expected one of/)
+  assert.throws(() => definePlays({ circuit }, circuitPlaySchema), /is missing/)
+  assert.throws(() => definePlays({ circuit: { ...circuit, target: 'sometimes' } }, circuitPlaySchema), /expected one of/)
   for (const target of ['shown', 'hidden']) {
-    assert.equal(definePlays({ circuit: { ...circuit, target } }).circuit.target, target)
+    assert.equal(definePlays({ circuit: { ...circuit, target } }, circuitPlaySchema).circuit.target, target)
   }
 })
 

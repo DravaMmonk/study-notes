@@ -11,8 +11,8 @@ export function reportRuns(runs, { score, constraint } = {}) {
 
 const caseOptions = (options, at) => at >= (options?.traceCount ?? Infinity) ? { ...options, traced: false } : options
 
-export const runTests = (runTest) => (task, work, parts, options) =>
-  reportRuns(task.tests.map((test, at) => runTest(task, work, test, parts, caseOptions(options, at))))
+export const runTests = (runTest) => (task, work, resources, options) =>
+  reportRuns(task.tests.map((test, at) => runTest(task, work, test, resources, caseOptions(options, at))))
 
 export function runOutputTests(domain, task, work, options) {
   const runs = task.tests.map((test, at) => {

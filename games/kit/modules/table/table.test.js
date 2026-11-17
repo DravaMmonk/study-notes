@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 // stages moves to its tasks.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { plainBoard } from '../../engine/contract.js';
+import { plainBoard } from '../../../../packages/circuit/core/index.js';
 import { readStarter } from '../../engine/resolver.js';
 import { textPrint as print, read, readLines } from '../../../../packages/circuit/core/index.js'
 import { workshopView } from '../../../../packages/circuit/core/index.js'

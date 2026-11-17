@@ -1123,9 +1123,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "lastStep",
@@ -1134,9 +1136,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "city",
@@ -1145,9 +1149,11 @@
    "required": true,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "copy",
@@ -1156,8 +1162,10 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "confluence",
@@ -1166,10 +1174,12 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "msum"
-   ],
-   "seconds": 18
+   "seconds": 18,
+   "usage": {
+    "parts": [
+     "msum"
+    ]
+   }
   },
   {
    "level": "stamp",
@@ -1178,12 +1188,14 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "const",
-    "msum",
-    "pass"
-   ],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": [
+     "const",
+     "msum",
+     "pass"
+    ]
+   }
   },
   {
    "level": "rocks",
@@ -1192,11 +1204,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "block",
-    "counter"
-   ],
-   "seconds": 20
+   "seconds": 20,
+   "usage": {
+    "parts": [
+     "block",
+     "counter"
+    ]
+   }
   },
   {
    "level": "reach",
@@ -1205,11 +1219,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "block",
-    "many"
-   ],
-   "seconds": 16
+   "seconds": 16,
+   "usage": {
+    "parts": [
+     "block",
+     "many"
+    ]
+   }
   },
   {
    "level": "cheapest",
@@ -1218,11 +1234,13 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "mmin",
-    "msum"
-   ],
-   "seconds": 14
+   "seconds": 14,
+   "usage": {
+    "parts": [
+     "mmin",
+     "msum"
+    ]
+   }
   },
   {
    "level": "slantcost",
@@ -1231,13 +1249,15 @@
    "required": true,
    "attempts": 3,
    "hints": 0,
-   "parts": [
-    "add",
-    "const",
-    "mmin",
-    "pass"
-   ],
-   "seconds": 45
+   "seconds": 45,
+   "usage": {
+    "parts": [
+     "add",
+     "const",
+     "mmin",
+     "pass"
+    ]
+   }
   },
   {
    "level": "seamline",
@@ -1246,10 +1266,12 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "msum"
-   ],
-   "seconds": 11
+   "seconds": 11,
+   "usage": {
+    "parts": [
+     "msum"
+    ]
+   }
   },
   {
    "level": "seamslant",
@@ -1258,11 +1280,13 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "mmin",
-    "msum"
-   ],
-   "seconds": 12
+   "seconds": 12,
+   "usage": {
+    "parts": [
+     "mmin",
+     "msum"
+    ]
+   }
   },
   {
    "level": "seam",
@@ -1271,11 +1295,13 @@
    "required": false,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "mmin",
-    "msum"
-   ],
-   "seconds": 11
+   "seconds": 11,
+   "usage": {
+    "parts": [
+     "mmin",
+     "msum"
+    ]
+   }
   },
   {
    "level": "carve",
@@ -1284,9 +1310,11 @@
    "required": false,
    "attempts": 0,
    "hints": 0,
-   "parts": [],
    "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
-   "seconds": 0
+   "seconds": 0,
+   "usage": {
+    "parts": []
+   }
   },
   {
    "level": "slant",
@@ -1295,10 +1323,12 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "counter"
-   ],
-   "seconds": 13
+   "seconds": 13,
+   "usage": {
+    "parts": [
+     "counter"
+    ]
+   }
   },
   {
    "level": "pascal",
@@ -1307,10 +1337,12 @@
    "required": true,
    "attempts": 1,
    "hints": 0,
-   "parts": [
-    "counter"
-   ],
-   "seconds": 10
+   "seconds": 10,
+   "usage": {
+    "parts": [
+     "counter"
+    ]
+   }
   }
  ],
  "attempts": [

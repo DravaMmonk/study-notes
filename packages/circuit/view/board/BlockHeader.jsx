@@ -6,7 +6,7 @@ import { PHONE, useMedia } from 'kernel/view'
 import { EyeOff, GripVertical, LayoutGrid, Waypoints, X } from 'lucide-react'
 import { L, tr } from 'kernel/view'
 
-import { WORDS } from 'kernel/view'
+import { WORDS } from '../words.js'
 
 
 const VIEWS = [['full',LayoutGrid,WORDS.blockFull],['ports',Waypoints,WORDS.blockPorts],['hidden',EyeOff,WORDS.blockHidden]]

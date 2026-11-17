@@ -21,14 +21,14 @@ export function FigureHost({ mount, name, theme, bare = false }) {
 }
 
 /** The shell draws an introduction's illustration or input-to-output diagram. */
-export default function IntroFigure({ art, inputs, outputs, part, caption }) {
+export default function IntroFigure({ art, inputs, outputs, operation, caption }) {
   return (
     <figure className={`intro-figure${art ? ' is-art' : ''}`}>
       {art || (
         <div className="intro-flow">
           {inputs.length > 0 && <Values items={inputs} />}
-          {part ? (
-            <span className="intro-part">{inputs.length > 0 && <ArrowRight size={16} />}<b>{L(part)}</b><ArrowRight size={16} /></span>
+          {operation ? (
+            <span className="intro-operation">{inputs.length > 0 && <ArrowRight size={16} />}<b>{L(operation)}</b><ArrowRight size={16} /></span>
           ) : <ArrowRight size={18} className="intro-arrow" />}
           <Values items={outputs} />
         </div>

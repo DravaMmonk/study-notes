@@ -1,15 +1,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { assemble } from './content.js'
+import { assembleCircuitFixture as assemble } from './ops/fixture.js'
 import { COURSE_FIELDS } from './course-schema.js'
 import { OPEN } from './vocabulary.js'
 import { S, validate } from './schema.js'
 import { createRegistries, expandNames, fullName } from './names.js'
 import { isTextKey } from './i18n.js'
-import { NAME } from '../../../packages/circuit/core/index.js'
+import { contentMeanings, NAME } from '../../../packages/circuit/core/index.js'
 import { mapBlueprintNames, textParse as parse } from '../../../packages/circuit/core/index.js'
 
 const schemas = {
+  meanings: contentMeanings,
   kinds: { part: { given: {} } },
   game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part', { reference: 'circuit/part' })) }),
   level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), part: S.ref('part', { reference: 'circuit/part' }), carry: S.level(), solution: S.board() })) }),
@@ -26,7 +27,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
     sections: [['entries-calc', { title: 'Numbers', values: ['#entries-calc'] }]],
     tags: [['calc', { kind: 'level', title: 'Group', values: ['calc'] }], ['entries-calc', { kind: 'entry', title: 'Numbers', values: ['calc'] }]],
   }
-  const before = structuredClone(source)
+  const before = structuredClone({ ...source, schemas: undefined })
   const content = assemble(source)
   assert.equal(content.title.$key, '@demo/heading')
   assert.equal(content.levels[0].title.$key, 'library/heading')
@@ -43,7 +44,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   for (const kind of ['level', 'circuit/part', 'entry']) assert.ok(content.registries[kind]['library/calc'])
   assert.ok(content.registries.tag['level:library/calc'])
   for (const kind of ['relation']) assert.deepEqual(Object.keys(content.registries[kind]), [])
-  assert.deepEqual(source, before)
+  assert.deepEqual({ ...source, schemas: undefined }, before)
   assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate circuit\/part library\/calc/)
   assert.throws(() => createRegistries({ level: [['lib/a', {}], ['lib/a', {}]] }), /duplicate level/)
 })
@@ -79,14 +80,14 @@ test('blueprint tokens accept full names and rewriting preserves quoted formulas
 })
 
 test('item references and audit identities retain the game namespace', () => {
-  const expanded = expandNames({ opens: ['calc.how=minus'], withholds: ['calc'], gives: ['@demo/pin.value'] }, 'library', { parts: new Set(['calc']) })
+  const expanded = expandNames({ opens: ['calc.how=minus'], withholds: ['calc'], gives: ['@demo/pin.value'] }, 'library', { vocabulary: schemas, parts: new Set(['calc']) })
   assert.deepEqual(expanded, { opens: ['library/calc.how=minus'], withholds: ['library/calc'], gives: ['@demo/pin.value'] })
   assert.deepEqual(validate(OPEN, { audit: ['@demo/pin@@demo/start'] }), [])
 })
 
 test('bench stage controls remain local when a task has item availability fields', () => {
   const schema = S.obj({ tasks: S.list(S.obj({ id: S.str(), opens: S.list(S.str()), bench: S.obj({ stages: S.list(S.obj({ opens: S.list(S.str()) })) }) })) })
-  const content = expandNames({ tasks: [{ id: 'work', opens: ['calc.how=minus'], bench: { stages: [{ opens: ['calc'] }] } }] }, 'library', { schema, parts: new Set(['calc']) })
+  const content = expandNames({ tasks: [{ id: 'work', opens: ['calc.how=minus'], bench: { stages: [{ opens: ['calc'] }] } }] }, 'library', { schema, vocabulary: schemas, parts: new Set(['calc']) })
   assert.deepEqual(content.tasks[0].opens, ['library/calc.how=minus'])
   assert.deepEqual(content.tasks[0].bench.stages[0].opens, ['calc'])
 })

@@ -1,6 +1,6 @@
 // The game's own page as the studio's editor (games/DESIGN.md 6.7): while the studio edits the game it plays
 // (../studio/play.jsx), the shell marks each part of a level's screen that is a field of its content — the title, the
-// brief, each hint, each intro page, each task's name, each test, the parts the level brings — and a click on it picks
+// brief, each hint, each intro page, each task's name, each test, its declared resources — and a click on it picks
 // that field for the studio's side panel instead of playing. A small + where a list is (a hint, a page, a test, a
 // task) adds an item there (EditMarks.jsx). Outside the studio nothing here shows: every mark is empty.
 //

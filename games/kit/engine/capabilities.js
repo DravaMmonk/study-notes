@@ -1,15 +1,16 @@
+import { registerMeaning } from './kind-meanings.js'
 // Modules contribute closed, qualified capabilities. Packages only refer to these names.
 export const CAPABILITY_KINDS = ['valueType', 'operation', 'primitive', 'board', 'task', 'content', 'display', 'language', 'contentKind']
 
-export const capabilityName = (id, kind, name) => {
+export const capabilityName = (id, kind, name, { bare = false } = {}) => {
   if (name.includes(':')) return name
-  const local = ['op', 'part', 'kind', 'mode', 'language'].includes(kind) ? name : `${kind}-${name}`
+  const local = bare || ['op', 'kind', 'mode', 'language'].includes(kind) ? name : `${kind}-${name}`
   return `${id}:${local}`
 }
-export const qualifyItems = (id, kind, items) => Object.fromEntries(Object.entries(items).map(([name, value]) => [capabilityName(id, kind, name), value]))
+export const qualifyItems = (id, kind, items, options) => Object.fromEntries(Object.entries(items).map(([name, value]) => [capabilityName(id, kind, name, options), value]))
 
 /** Qualify the names declared by a module, including typed schema references and discriminators. */
-export function qualifyVocabulary(id, raw) {
+export function qualifyVocabulary(id, raw, { bareKinds = [], categories = {} } = {}) {
   const discriminators = { kind: 'kind', mode: 'mode', scene: 'scene', world: 'world', want: 'want' }
   const declared = (kind, name) => Boolean(raw.kinds[kind]?.[name])
   const schema = (value, field) => {
@@ -24,10 +25,10 @@ export function qualifyVocabulary(id, raw) {
     if (out.type === 'oneOf' && discriminators[field]) out.values = out.values.map((v) => declared(discriminators[field], v) ? capabilityName(id, discriminators[field], v) : v)
     return out
   }
-  return { ...raw, version: 1, kinds: Object.fromEntries(Object.entries(raw.kinds).map(([kind, items]) => [kind, qualifyItems(id, kind, Object.fromEntries(Object.entries(items).map(([name, item]) => [name, schema(item)])))])), game: schema(raw.game), level: schema(raw.level), languages: qualifyItems(id, 'language', raw.languages ?? {}) }
+  return { ...raw, categories, version: 1, kinds: Object.fromEntries(Object.entries(raw.kinds).map(([kind, items]) => [kind, qualifyItems(id, kind, Object.fromEntries(Object.entries(items).map(([name, item]) => [name, schema(item)])), { bare: bareKinds.includes(kind) })])), game: schema(raw.game), level: schema(raw.level), languages: qualifyItems(id, 'language', raw.languages ?? {}) }
 }
 
-const categoryOf = (kind) => ({ op: 'operation', part: 'primitive', kind: 'task', mode: 'task', want: 'task', widget: 'display', display: 'display', view: 'display', family: 'display', mark: 'display' })[kind] ?? 'content'
+const categoryOf = (kind) => ({ op: 'operation', kind: 'task', mode: 'task', want: 'task', widget: 'display', display: 'display', view: 'display', family: 'display', mark: 'display' })[kind] ?? 'content'
 
 /** A registry is assembled once, and rejects ambiguous capability declarations. */
 export function createCapabilityRegistry() {
@@ -38,7 +39,8 @@ export function createCapabilityRegistry() {
   const operations = Object.create(null)
   const displayLoaders = Object.create(null)
   return {
-    tables, kinds, schemas, languages, operations, displayLoaders,
+    tables, kinds, schemas, languages, operations, displayLoaders, meanings: [],
+    kind(_name, meaning) { registerMeaning(meaning); this.meanings.push(meaning) },
     add(kind, name, value) {
       if (!tables[kind]) throw new Error(`unknown capability kind ${kind}`)
       if (!/^[a-z][a-z0-9-]*:[A-Za-z_][A-Za-z0-9_.-]*$/.test(name)) throw new Error(`invalid capability name ${name}`)
@@ -72,7 +74,7 @@ export function createCapabilityRegistry() {
         for (const [name, item] of Object.entries(items)) {
           if (Object.hasOwn(target, name)) throw new Error(`duplicate ${kind} ${name}`)
           target[name] = item
-          this.add(categoryOf(kind), name, { kind, ...item })
+          this.add(vocabulary.categories?.[kind] ?? categoryOf(kind), name, { kind, ...item })
         }
       }
       for (const [name, item] of Object.entries(vocabulary.languages ?? {})) {

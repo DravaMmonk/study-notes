@@ -1,3 +1,4 @@
+import { meaningsOf } from '../kind-meanings.js'
 import { tagKey } from '../tag-identity.js'
 import { kindSchemas } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
@@ -21,16 +22,14 @@ import { parsePath } from './edit.js'
 import { assertStableIds } from './identity.js'
 import { shapeAt, validate } from '../schema.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
-import { PART, PARTS_FILE } from '../../../../packages/circuit/core/index.js'
 import { tasksSchema } from '../tasks.js'
 
 import { ENTRY, checkContent } from '../vocabulary.js'
-import { withParts } from '../../../../packages/circuit/core/index.js'
 import { checkGame } from '../checks.js'
 import { runtimeOf } from '../resolver.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
-import { OPERATIONS, opScope } from './operations.js'
+import { operationsFor, opScope } from './operations.js'
 import { hubCount } from './workspace.js'
 import { append, hashOf, headOf, readLog, withLock } from './log.js'
 
@@ -54,17 +53,18 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     return { ok: false, says, problems, failed: op, lines: [], diff: '', files: [], changes: [], content: null, inverse: null }
   }
   for (const [k, { op: name, ...supplied }] of (changeset.ops ?? []).entries()) {
-    const op = OPERATIONS[name]
+    const operations = operationsFor(domain.vocabulary)
+    const op = operations[name]
     const where = `op ${k + 1} (${name})`
-    if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)
+    if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(operations).join(', ')}`], k)
     let args
     try {
       args = sourceArguments(ws, name, supplied, domain.vocabulary)
     } catch (error) {
       return fail([`${where}: ${error.en ?? error.message}`], k)
     }
-    // A domain that defines its parts as data names them by the game's parts/<name>.json as each operation finds it.
-    const vocabulary = withParts(domain.vocabulary, ws.partDefs)
+    // Operations resolve references against the workspace vocabulary.
+    const vocabulary = meaningsOf(domain.vocabulary).reduce((vocabulary, meaning) => meaning.validationVocabulary?.({ vocabulary, workspace: ws }) ?? vocabulary, domain.vocabulary)
     if (args.layer && args.layer !== ws.layer) return fail([`${where}: open layer ${args.layer} to edit its objects`], k)
     if (ws.scope && opScope({ op: name, ...args }) !== ws.scope) return fail([`${where}: this is the ${opScope({ op: name, ...args })} workspace's to change, not the ${ws.scope} workspace's`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
@@ -88,7 +88,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
         }
         for (const [kind, definition] of Object.entries(ws.schemas.objectKinds)) if (!definition.extends) { ws.kindFolders[kind] = definition.folder; ws.contentObjects[kind] ??= new Map() }
       }
-      ws.normalize(withParts(domain.vocabulary, ws.partDefs), previous)
+      ws.normalize(meaningsOf(domain.vocabulary).reduce((vocabulary, meaning) => meaning.validationVocabulary?.({ vocabulary, workspace: ws }) ?? vocabulary, domain.vocabulary), previous)
       says.push(done.says)
       inverse.unshift(...done.inverse)
     } catch (error) {
@@ -110,32 +110,28 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const local = (value) => typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = [...Object.keys(contentKindSchemas), 'level', 'part', 'entry', 'tag', 'relation', 'section', 'task', 'to', 'after']
+  const selectors = [...Object.keys(contentKindSchemas), ...meaningsOf(vocabulary).flatMap(meaning => meaning.selectors ?? []), 'level', 'entry', 'tag', 'relation', 'section', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
-  const source = (value, schema) => expandNames(value, ws.packageId, { parts: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
-  const args = source(selected, OPERATIONS[operation].params)
+  const source = (value, schema) => expandNames(value, ws.packageId, { objects: Object.fromEntries(Object.entries(ws.contentObjects ?? {}).map(([kind, values]) => [kind, Object.fromEntries(values)])), schema, vocabulary, resolve: local })
+  const args = source(selected, operationsFor(vocabulary)[operation].params)
   if (operation.startsWith('kind.')) args.kind = local(args.kind)
   if (operation.startsWith('object.')) args.name = local(args.name)
   if (args.entry !== undefined) args.entry = local(args.entry)
   if (args.tag !== undefined) args.tag = local(args.tag)
-  if (args.path !== undefined && (operation.startsWith('parts.') || args.in === 'parts')) {
-    const path = parsePath(args.path)
-    if (path[0] === 'parts' && path.length > 1) args.path = [path[0], local(path[1]), ...path.slice(2)]
-  }
+  for (const meaning of meaningsOf(vocabulary)) meaning.sourceArguments?.({ args, operation, local })
   const targets = {
     ...Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, [schema, ws.contentObjects[kind].get(args[kind])]])),
     level: [vocabulary.level, ws.levels.get(args.level)],
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],
     game: [undefined, ws.game],
-    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(kind === 'tag' ? tagKey(args.member, args.tag) : args[kind])]])),
-    part: [PART, ws.partDefs?.parts?.[args.part]],
-    parts: [PARTS_FILE, ws.partDefs],
+    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(kind === 'tag' ? tagKey(args.member, args.tag) : args[kind])]])),
+    ...Object.assign({}, ...meaningsOf(vocabulary).map(meaning => meaning.operationTargets?.({ workspace: ws, args, vocabulary }))),
   }
   const [schema, base] = operation.startsWith('object.') ? [kindSchemas(vocabulary)[args.kind], ws.contentObjects[args.kind]?.get(args.name)] : targets[operation.split('.')[0]] ?? []
   if (operation.startsWith('game.') && args.value !== undefined && args.path !== undefined) {
     const gameSchema = shapeAt(vocabulary.game, ws.game, parsePath(args.path), { vocabulary })
-    args.value = expandNames(supplied.value, ws.packaged ? ws.packageId : `@${ws.id}`, { parts: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema: gameSchema, vocabulary, textKeys: false })
+    args.value = expandNames(supplied.value, ws.packaged ? ws.packageId : `@${ws.id}`, { objects: Object.fromEntries(Object.entries(ws.contentObjects ?? {}).map(([kind, values]) => [kind, Object.fromEntries(values)])), schema: gameSchema, vocabulary, textKeys: false })
   }
   if (schema) {
     if (args.data) {

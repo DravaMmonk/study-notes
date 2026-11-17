@@ -4,7 +4,7 @@ import { Group, EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-rea
 import { blockRows, rowMembers } from "../../core/board/blocks.js"
 import { foldedPartsOf } from "../../core/board/folding.js"
 import BlockHeader from "./BlockHeader.jsx"
-import { WORDS } from 'kernel/view'
+import { WORDS } from '../words.js'
 
 import { useSetting } from 'kernel/view'
 

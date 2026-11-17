@@ -1,4 +1,4 @@
-// A task's saved circuits: the player may keep several boards for one task (a level's, for a level of one) and switch
+// A task's saved works: the player may keep several boards for one task (a level's, for a level of one) and switch
 // between them. `id` is the task's key (progress.js taskKey). The one being played is its data (progress.data[id]), as
 // always; the others wait in progress.slots[id]:
 //

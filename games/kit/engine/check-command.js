@@ -1,7 +1,7 @@
 /* global process */
 // npm run check [-- <game or package>…] checks games and unplayed packages by default.
 // --package and --game disambiguate shared names. GAMES_ROOT selects an isolated content project.
-// --mutants adds, for each task of a circuit game, how many mutants of its answer the tests tell from it (mutate.js).
+// --mutants adds, for each supported task, how many mutants of its answer the tests tell from it (mutate.js).
 // The domain's checks of a level that has not changed are read from the game's kept checks (check-cache.js); --fresh
 // runs them all.
 import { firstText } from './i18n.js'

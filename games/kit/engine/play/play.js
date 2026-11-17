@@ -3,10 +3,9 @@
 // (`npm run play`, ./cli.mjs) and the JSON tool an agent drives (./tool.mjs).
 //
 // The level comes from the game as the shell gets it (defineGame: its levels in play order, their brief, hints and
-// introduction, the components box, the encyclopedia); the progress and the flags a level is played with follow the
-// shell's own rules (../../shell/progress.js). Everything the level screen adds — the board, the tray, the tests, how
-// a run is judged — comes from the domain's play hook (its domain.js `play`: { open(ctx), attempt(ctx, text) }; a
-// circuit domain makes it with ./circuit.js). A level whose play the hook does not cover (open returns
+// introduction, the reference panels, the encyclopedia); the progress and the flags a level is played with follow the
+// shell's own rules (../../shell/progress.js). Everything the level screen adds — the work, the tools, the tests, how
+// a run is judged — comes from the play hook (`play`: { open(ctx), attempt(ctx, text) }). A level whose play the hook does not cover (open returns
 // { covered: false, why }) is skipped: it counts as passed so the course goes on, and the record says so.
 //
 // Nothing a player could not see is shown: no reference or naive answers, no hidden tests (only how many fail), no
@@ -36,7 +35,8 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
   const required = (id) => !course.plan?.place.get(id)?.optional
   const names = (kind, id) => {
     if (kind === 'level') return game.byId[id] ? `${game.levelLabel(game.byId[id])} ${side(game.byId[id].title, lang)}` : null
-    if (kind === 'part') return side(game.parts?.all.find((p) => p.key === id)?.name, lang) || null
+    const supplied = game.referenceName?.(kind, id, lang)
+    if (supplied) return supplied
     return side(game.glossary?.entries.find((e) => e.id === id)?.title, lang) || null
   }
   const say = (v) => plain(v, lang, names)
@@ -128,30 +128,15 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     return `## ${lang === 'en' ? 'Encyclopedia (linked above)' : '百科（上文链接的词条）'}\n${entries.map((e) => `- ${say(e.title)}: ${say(e.body)}`).join('\n')}`
   }
 
-  /** What the domain's screen shows: the board's given nodes, the tray, the tests, how to write a board. */
+  /** What the domain's screen shows: the initial work, the available tools, the tests and the work format. */
   function domainView(o) {
     const en = lang === 'en'
     const out = []
     if (o.given) out.push(`## ${en ? 'On the screen' : '屏幕上'}\n${say(o.given)}`)
-    if (o.nodes?.length) {
-      out.push(`## ${en ? 'Nodes the level gives (wire to and from them by name)' : '关卡给的节点（按名字接线）'}\n${o.nodes.map((n) => {
-        const ins = n.inputs.length ? `${en ? 'inputs' : '输入口'}: ${n.inputs.join(', ')}` : ''
-        const outs = n.outputs.length ? `${en ? 'outputs' : '输出'}: ${n.outputs.map((k) => `${n.id}.${k}`).join(', ')}` : ''
-        const sets = n.sets.length ? `${en ? 'settable' : '可设置'}: ${n.sets.join(', ')}` : ''
-        return `- ${n.id} (${n.role})${[ins, outs, sets].filter(Boolean).map((s) => `; ${s}`).join('')}`
-      }).join('\n')}`)
-    }
-    if (o.palette) {
-      out.push(`## ${en ? 'Parts in the tray' : '托盘里的元件'}\n${o.palette.length ? o.palette.map((p) => {
-        const port = (x) => (x.label && say(x.label) !== x.key ? `${x.key} “${say(x.label)}”` : x.key)
-        const io = `${p.type}(${p.inputs.map(port).join(', ')})${p.outputs.length ? ` → ${p.outputs.map(port).join(', ')}` : ''}`
-        const sets = p.settings.length ? `\n    ${en ? 'settings' : '设置'}: ${p.settings.map((s) => `${s.key}${s.values ? `=${s.values.join('|')}` : ''}${s.about ? ` (${say(s.about)})` : ''}`).join('; ')}` : ''
-        return `- ${io}  “${say(p.name)}”: ${say(p.desc)}${sets}`
-      }).join('\n') : en ? '(none)' : '（没有）'}`)
-    }
+    out.push(...game.describeObservation?.(o, { phase: 'tools', lang, say }) ?? [])
     if (o.sections) for (const s of o.sections) out.push(`## ${say(s.title)}\n${say(s.text)}`)
     if (o.tests?.length) out.push(`## ${en ? 'Tests' : '测试'}\n${o.tests.map((t) => `### ${say(t.label)}\n${say(t.text)}`).join('\n\n')}${o.notes?.length ? `\n\n${o.notes.map(say).join('\n')}` : ''}`)
-    if (o.start) out.push(`## ${en ? 'The board as it opens (blueprint)' : '打开时的电路（蓝图）'}\n${o.start}`)
+    out.push(...game.describeObservation?.(o, { phase: 'work', lang, say }) ?? [])
     if (o.write) out.push(`## ${en ? 'How to write your answer' : '怎样写答案'}\n${say(o.write)}`)
     return out
   }
@@ -173,7 +158,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     const lines = []
     const state = (t) => (t.pass === null ? (en ? 'not run' : '未运行') : t.pass ? (en ? 'pass' : '通过') : `${en ? 'FAIL' : '未通过'}${t.says ? ` — ${say(t.says)}` : ''}`)
     for (const t of r.tests ?? []) lines.push(`- ${say(t.label)}: ${state(t)}`)
-    // Like the circuit screen, show hidden counts after both the visible cases and the board constraint pass.
+    // Show hidden counts after both the visible cases and the board constraint pass.
     if (r.hidden?.count && !r.constraint && (r.tests ?? []).every((t) => t.pass)) lines.push(r.hidden.failed ? say(r.hidden.says) : en ? `- ${r.hidden.count} hidden test(s): pass` : `- ${r.hidden.count} 条隐藏测试：通过`)
     for (const s of r.says ?? []) lines.push(say(s))
     return lines.join('\n')
@@ -185,7 +170,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     if (!at) return { text: lang === 'en' ? 'The session is over.' : '这一局结束了。', pass: false }
     const r = hook.attempt(ctx, text)
     entry.attempts += 1
-    entry.parts = r.parts ?? []
+    entry.usage = r.usage ?? {}
     const says = feedback(r)
     record.attempts.push({ level: at.level.id, task: at.task, at: now().toISOString(), text, pass: Boolean(r.pass), says })
     const en = lang === 'en'
@@ -232,4 +217,3 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
 
   return { view, hint, attempt, explain, giveUp, status }
 }
-

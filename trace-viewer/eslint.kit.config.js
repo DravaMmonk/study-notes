@@ -40,8 +40,12 @@ export default defineConfig([
   },
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
-    ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/circuit-bridge.js'],
+    ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/circuit-bridge.js', '**/engine/content-kinds.js'],
     rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/resolver.js).'),
+  },
+  {
+    files: [`${KIT}/engine/content-kinds.js`],
+    rules: { 'no-restricted-imports': ['error', { patterns: [{ regex: '(^|/)modules/(?!logic/content\\.js$|image/content\\.js$)', message: 'The native schema registry imports declarations only.' }] }] },
   },
   {
     files: ['packages/*/{core,view}/**/*.{js,jsx,mjs}'],
