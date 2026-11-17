@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "kernel": "^2.0.0",
+  "version": "0.0.0",
+  "kernel": "^0.0.0",
   "uses": {
-    "circuit": "^1.0.0"
+    "circuit": "^0.0.0"
   }
 }

@@ -128,9 +128,9 @@ test('a data game is read from its folder', () => {
   const dir = mkdtempSync(join(tmpdir(), 'games-'))
   mkdirSync(join(dir, 'games', 'toy'), { recursive: true })
   mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ kernel: '^2.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Toy' }))
+  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ kernel: '^0.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Toy' }))
   writeFileSync(join(dir, 'games', 'toy', 'course.json'), '{}')
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^2.0.0', uses: {} }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^0.0.0', uses: {} }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
   assert.equal(isDataGame('toy', dir), true)
   assert.equal(isDataGame('none', dir), false)
@@ -141,7 +141,7 @@ test('a data game is read from its folder', () => {
 
   // Another game on the same package must still find what its course names.
   mkdirSync(join(dir, 'games', 'draft'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ kernel: '^2.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Draft' }))
+  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ kernel: '^0.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Draft' }))
   writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ chapters: [{ id: 'main', levels: ['shared-toy/one'] }] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
   assert.ok(dependencyProblemsInProject({ ...content, levels: [] }, dir).some(problem => problem.rule === 'exists' && problem.layer === '@draft' && problem.target === 'shared-toy/one'))

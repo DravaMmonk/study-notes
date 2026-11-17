@@ -2,16 +2,16 @@
   "target": "@comp90086",
   "dependencies": {
     "kernel": {
-      "version": "2.0.0",
-      "hash": "68d73627ea8db4ca28349ef8d734cbd1e0a987ae9711f46b680181f17997d305"
+      "version": "0.0.0",
+      "hash": "a8bf3763025da68461e2a10dbafd7244842e5eb3003d363221c0a3407767c74c"
     },
     "circuit": {
-      "version": "1.0.0",
-      "hash": "05b43c733ba02b2565e0b4dff378bf98efd5f75923a10ce36cf7c0a256ed481f"
+      "version": "0.0.0",
+      "hash": "90d553b7cc1be5af5eb153b3ca78e308119ff1aad345ed9863a52bfeb47a8fda"
     },
     "comp90086": {
-      "version": "1.0.0",
-      "hash": "aaf14f76c537fd6b8c94ffef2ec403cd70c16733ec9e92eef9dde5103c1ade7c"
+      "version": "0.0.0",
+      "hash": "52de08d8dab79ed626257e1a956eaa674bb91294b2747a61e41c370687923d41"
     }
   }
 }

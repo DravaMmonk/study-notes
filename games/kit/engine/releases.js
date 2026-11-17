@@ -17,7 +17,7 @@ export function lockTarget(target, root = contentRoot(), { pins } = {}) {
   const result = resolveLayers({ ...(target.kind === 'game' ? { game: target.id } : { package: target.id, closure: true }), root, unlocked: true, pins })
   for (const [id, pinned] of Object.entries(pins?.dependencies ?? {})) {
     const actual = result.identities[id]
-    if (actual && (actual.version !== pinned.version || actual.hash !== pinned.hash)) throw new Error(`retained lock changed: ${id}; upgrade it explicitly`)
+    if (actual && result.layers.find(layer => layer.id === id)?.source === 'archive' && (actual.version !== pinned.version || actual.hash !== pinned.hash)) throw new Error(`retained lock changed: ${id}; upgrade it explicitly`)
   }
   const missing = result.layers.filter(layer => layer.missing)
   if (missing.length || !result.lockStatus.valid) throw new Error(JSON.stringify([...missing.map(layer => ({ target: layer.id, reason: 'missing package' })), ...result.lockStatus.problems]))
@@ -74,7 +74,11 @@ export function platformManifest() {
   const values = { vocabulary: data, objects: OBJECT_SCHEMAS, layout: { package: ['version', 'kernel', 'uses', 'lock.json'], game: ['kernel', 'packages', 'lock.json'], firstPackage: 'primary', range: ['exact', '^', '~'] }, operations: Object.fromEntries(Object.entries(OPERATIONS).map(([id, operation]) => [id, operation.params])), exports: { core: exportedNames(resolve(kitDirectory, 'engine/index.js')), view: exportedNames(resolve(kitDirectory, 'app/view.jsx')) } }
   return { id: 'kernel', version: readJSON(resolve(kitDirectory, 'platform.json')).version, surface: Object.fromEntries(Object.entries(values).map(([name, value]) => [name, { value, hash: hash(stableJSON(value)) }])) }
 }
-export function publishPlatform(root = contentRoot()) {
+function requireLaunch(launch) {
+  if (!launch) throw new Error('Publication is disabled before launch. Use publish -- <package|kernel> --launch for the first 1.0.0 release.')
+}
+export function publishPlatform(root = contentRoot(), { launch = false } = {}) {
+  requireLaunch(launch)
   const dir = releaseDirectory(root)
   mkdirSync(dir, { recursive: true })
   const index = releaseIndex(root), versions = index.kernel ?? {}
@@ -94,9 +98,10 @@ export function packageCompatibility(id, root = contentRoot()) {
   const before = last ? readJSON(resolve(releaseSource(id, { ...versions[last], version: last }, root), 'manifest.json')) : null
   const layer = resolveLayers({ package: id, closure: true, root }).layers.find(layer => layer.id === id)
   const result = compatibility(before, layer.manifest)
-  return { ...result, previous: last ?? null, next: nextVersion(last, result), behaviorStatus: 'pending-publication', affected: affectedTargets(id, root) }
+  return { ...result, previous: last ?? null, next: null, proposed: nextVersion(last, result), behaviorStatus: 'pending-publication', affected: affectedTargets(id, root) }
 }
-export function publishPackage(id, root = contentRoot()) {
+export function publishPackage(id, root = contentRoot(), { launch = false } = {}) {
+  requireLaunch(launch)
   const dir = packageDirectory(id, root), configFile = resolve(dir, 'package.json')
   const config = readJSON(configFile), index = releaseIndex(root), versions = index.packages[id] ?? {}
   const last = Object.keys(versions).sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).at(-1)
@@ -149,5 +154,5 @@ export function publishPackage(id, root = contentRoot()) {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const [id] = process.argv.slice(2)
-  console.log(JSON.stringify(id === 'kernel' ? publishPlatform() : publishPackage(id), null, 2))
+  console.log(JSON.stringify(id === 'kernel' ? publishPlatform(undefined, { launch: process.argv.includes('--launch') }) : publishPackage(id, undefined, { launch: process.argv.includes('--launch') }), null, 2))
 }

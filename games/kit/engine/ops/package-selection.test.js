@@ -9,7 +9,7 @@ import { proofsRoot } from './fixture.js'
 test('CLI lists and applies game package operations through the shared registry', () => {
   const { root, id } = proofsRoot()
   mkdirSync(join(root, 'packages/library'), { recursive: true })
-  writeFileSync(join(root, 'packages/library/package.json'), JSON.stringify({ version: '1.0.0', kernel: '^2.0.0', uses: {} }))
+  writeFileSync(join(root, 'packages/library/package.json'), JSON.stringify({ version: '1.0.0', kernel: '^0.0.0', uses: {} }))
   const cli = (...args) => execFileSync(process.execPath, [join(import.meta.dirname, 'cli.js'), ...args], { env: { ...process.env, GAMES_ROOT: root }, encoding: 'utf8' })
   const operations = cli('list')
   assert.match(operations, /game\.package\.add/)

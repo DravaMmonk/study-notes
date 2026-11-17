@@ -2,8 +2,8 @@
   "target": "circuit",
   "dependencies": {
     "kernel": {
-      "version": "2.0.0",
-      "hash": "68d73627ea8db4ca28349ef8d734cbd1e0a987ae9711f46b680181f17997d305"
+      "version": "0.0.0",
+      "hash": "a8bf3763025da68461e2a10dbafd7244842e5eb3003d363221c0a3407767c74c"
     }
   }
 }

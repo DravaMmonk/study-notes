@@ -138,9 +138,9 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kind === 'trays' ? JSON.parse(readFileSync(new URL('../../../../packages/circuit/kinds/tray.json', import.meta.url))).schema : OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
-  put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^1.0.0', circuit: '^1.0.0' }, ...sourceValue(shell) })
+  put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^0.0.0', circuit: '^0.0.0' }, ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
-  put(join(pkg, 'package.json'), { version: '1.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^1.0.0' } })
+  put(join(pkg, 'package.json'), { version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^0.0.0' } })
   mkdirSync(join(pkg, 'entries'), { recursive: true })
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
@@ -183,14 +183,14 @@ export function lockFixture(root) {
     const config = JSON.parse(readFileSync(file))
     const dir = join(root, 'packages', id)
     const legacy = ['parts', 'trays'].some(folder => existsSync(join(dir, folder))) || objectFiles(dir, 'levels').some(([, file]) => JSON.parse(readFileSync(file)).tasks?.some(task => !task.play))
-    if (legacy) { config.uses = { ...config.uses, circuit: '^1.0.0' }; writeFileSync(file, JSON.stringify(config, null, 2) + '\n') }
+    if (legacy) { config.uses = { ...config.uses, circuit: '^0.0.0' }; writeFileSync(file, JSON.stringify(config, null, 2) + '\n') }
   }
   const games = join(root, 'games')
   for (const id of existsSync(games) ? readdirSync(games) : []) {
     const file = join(games, id, 'game.json')
     if (!existsSync(file)) continue
     const game = JSON.parse(readFileSync(file))
-    game.packages = { ...game.packages, circuit: '^1.0.0' }; game.kernel = `^${kernelIdentity().version}`
+    game.packages = { ...game.packages, circuit: '^0.0.0' }; game.kernel = `^${kernelIdentity().version}`
     writeFileSync(file, JSON.stringify(game, null, 2) + '\n')
   }
   for (const id of packageIds(root)) {
@@ -208,7 +208,7 @@ export function installCircuitFixture(root) {
   if (existsSync(join(dir, 'package.json'))) return
   mkdirSync(dir, { recursive: true })
   for (const folder of ['kinds', 'i18n']) cpSync(new URL(`../../../../packages/circuit/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ version: '1.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null, 2) + '\n')
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null, 2) + '\n')
 }
 
 export const circuitFixtureKinds = {

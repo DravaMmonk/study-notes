@@ -120,7 +120,7 @@ test('MCP exposes game package operations and writes selection through modify', 
   const vocabulary = (await call('vocabulary', { game: GAME })).data
   for (const name of ['game.package.add', 'game.package.remove']) assert.ok(vocabulary.operations[name].params.fields.package)
   mkdirSync(join(root, 'packages', 'library'), { recursive: true })
-  writeFileSync(join(root, 'packages', 'library', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^2.0.0', uses: {} }))
+  writeFileSync(join(root, 'packages', 'library', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^0.0.0', uses: {} }))
   lockFixture(root)
   const original = readFileSync(join(root, 'games', GAME, 'game.json'), 'utf8')
   const added = (await call('modify', { game: GAME, changeset: { why: 'Select test library', ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }] } })).data

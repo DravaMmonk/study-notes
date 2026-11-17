@@ -25,7 +25,7 @@ const arithmetic = Object.fromEntries([
   inputs: ['a', 'b'].map(name => ({ name, type: 'circuit:number' })),
   outputType: 'circuit:number', op: `circuit:${operation}`,
 }]))
-const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { version: '1.0.0', kernel: '^2.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
+const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { version: '1.0.0', kernel: '^0.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 
 test('content prototypes qualify, merge, replace, reject undeclared dependencies and retain provenance', () => {
   const base = layer('base', [{ kind: 'wordset', name: 'words', value: { A: 'alpha', B: 'beta' } }])
@@ -72,7 +72,7 @@ test('a numeric library works in packages using image and table boards, with no 
         }],
       } },
     }, vocabularyFor('table'))
-    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^1.0.0' }, version: '1.0.0', kernel: '^2.0.0' })
+    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^0.0.0' }, version: '1.0.0', kernel: '^0.0.0' })
     for (const id of ['arithmetic', 'picture', 'cells']) rmSync(resolve(root, 'games', id), { recursive: true })
     lockFixture(root)
     for (const id of ['arithmetic', 'picture', 'cells']) {

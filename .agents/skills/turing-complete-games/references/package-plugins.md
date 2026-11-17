@@ -32,7 +32,7 @@
 - Package core contracts run in Node and check their own examples and blind-play agents. View contracts run
   through Vite, including assembly with another package. Kernel tests use synthetic content. Run `npm test`,
   `npm run lint:kit`, `npm run words -- --check`, builds, and `baseline -- compare` for migration work.
-  Never save over the locked migration corpus. Refresh affected target locks explicitly after source changes. Publication computes semantic versions from manifests and dependent check observations; vocabulary has no separate version line. See DESIGN.md 6.1.1 for release metadata and Studio data sources.
+  Never save over the locked migration corpus. Workspace source changes do not invalidate locks. Refresh locks to record current snapshots. Archive dependencies retain strict version/hash pins. Publication requires `publish -- <package|kernel> --launch`; compatibility previews expose a proposed version without writing it. Versions remain `0.0.0` and ranges `^0.0.0` before launch. Publication computes semantic versions from manifests and dependent check observations; vocabulary has no separate version line. See DESIGN.md 6.1.1 for release metadata and Studio data sources.
 - Installed layers enter through `engine/resolver.js:resolveLayers`; content roots and source/code locations belong
   to that resolver. Game consumers use resolved public data. The workspace existence projection is
   `engine/existence.js:publicSurfaces`, to be replaced by manifests in step 4. The same check covers schema refs,

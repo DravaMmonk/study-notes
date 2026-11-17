@@ -270,32 +270,32 @@ All commands run in `trace-viewer/`.
 npm run deps -- lock --package arithmetic
 npm run deps -- lock --game qed
 npm run deps -- upgrade --game qed [package]
-npm run publish -- arithmetic
-npm run publish -- kernel
+npm run publish -- arithmetic --launch
+npm run publish -- kernel --launch
 ```
 
-Packages declare `{ "version": "1.0.0", "kernel": "^1.0.0", "uses": {} }`.
+Before launch, packages declare `{ "version": "0.0.0", "kernel": "^0.0.0", "uses": {} }`. All dependency ranges remain `^0.0.0`. Publication is disabled unless `--launch` is explicitly supplied.
 Games declare `kernel` and an ordered `packages` range map. The first key is the primary package.
 Ranges accept full `x.y.z`, `^x.y.z`, and `~x.y.z` only, with SemVer zero-major caret boundaries.
 `lock.json` belongs to each target and pins the entire selected dependency graph plus `kernel` to
-`{ "version": "1.0.0", "hash": "<sha256>" }`. Package locks exclude the package itself.
+`{ "version": "0.0.0", "hash": "<sha256>" }`. Package locks exclude the package itself.
 The target lock is authoritative for that assembly. Package locks govern independent package checks.
-A range mismatch, missing/extra lock entry or changed dependency hash is a structured `dependency`
+A range mismatch, missing/extra lock entry or changed archive dependency hash is a structured `dependency`
 problem with `layer`, `kind`, `target`, `reason`, `object`, `path`, `at` and `says`. Export/build refuses
 these problems. Lock updates are explicit. `upgrade` updates selections and runs the target check.
-A named upgrade retains the other exact archive pins and refuses changed retained source pins.
+A named upgrade retains the other exact archive pins. Workspace source changes do not invalidate retained pins.
 Package selection operations take a required `range`; adding/removing a selection updates the game lock.
 
 `resolveLayers` is the only content loading entry. It prefers a workspace source directory, treated as
 the unpublished next revision, and computes its manifest. Otherwise it validates the indexed zip hash,
 extracts the selected locked release and uses the same layer reader. Archive packages are read-only.
 Existence checking consumes manifest identities, including typed tags and code registrations.
-Pending author edits use their recalculated public surface. Source hashes must still match target locks.
+Pending author edits use their recalculated public surface. Workspace source and local platform hash drift does not invalidate locks.
 
 The local release store is `releases/` at the resolved workspace root, overridable with
 `GAMES_RELEASES`. `index.json` indexes exact versions and archive/content SHA-256 hashes.
-The first release of every package and platform is `1.0.0`. Releases are committed in this repository
-for reproducible offline checks. Keeping the store in Git remains a project decision for confirmation.
+The first release of every package and platform is `1.0.0`, enabled explicitly with `--launch`.
+The release store is outside Git.
 Remote URL stores and platform installation belong to the later repository split.
 
 Publication checks the package in an isolated package workspace and runs its `test/*.test.js`
@@ -316,8 +316,8 @@ breaking/behavior changes. These check observations are finite evidence. Platfor
 pending; its current publication compares structure only.
 
 Studio consumes `packages` and `games` tool metadata for ranges and lock status. Package records include
-`manifest` and `compatibility` (`type`, `changes`, `added`, `previous`, `next`, `affected`,
-`behaviorStatus`). Preview is structural and marks behavior `pending-publication`; published manifests
+`manifest` and `compatibility` (`type`, `changes`, `added`, `previous`, `next`, `proposed`, `affected`,
+`behaviorStatus`). Before launch, `next` is null and `proposed` is informational. Preview is structural and marks behavior `pending-publication`; published manifests
 store completed comparison results. Direct Node consumers may use `packageCompatibility` and
 `resolveLayers().lockStatus`. Version/status/compatibility presentation remains Studio work.
 
@@ -328,7 +328,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 - **值类型决定能不能接。** 运算声明输入、输出、可选输入、区域的类型和参数；元件的端口与调用须匹配。数、图像、公式、表等类型由模块注册；当前一个运算全名只登记一个实现，重复注册拒绝，不按值类型自动挑同名实现。实现可声明联合类型或动态值。`arithmetic` 的四则元件使用数值运算；跨模块共享不表示同一元件可直接处理图像，仍看运算和板的类型契约。
 - **schema 是数据。** `engine/schema.js` 的 `S.text()`、`S.obj()`、`S.ref()`、`S.call()`、`S.level()`、`S.task()`、`S.board()`、`S.syntax()` 描述字段、引用、蓝图和小语言。提示 `view`、`step`、`section` 只帮助编辑器选通用控件。语言由模块注册读法，不把函数塞进内容。
 - **文字只带内核标记。** `engine/markup.js` 校验强调和引用等允许的标记，外壳绘制，不把内容当 HTML 插入；自画 SVG 的模块仍须转义。
-- **Platform and package versions.** `kit/platform.json` owns the platform semantic version. Vocabulary declarations remain the schema/capability API, with no separate version number or historical vocabulary snapshots. Release manifests record the public surface. `npm run publish -- kernel` compares platform structure and computes its next version. Package publication also compares dependent check observations.
+- **Platform and package versions.** `kit/platform.json` owns the platform semantic version. Vocabulary declarations remain the schema/capability API, with no separate version number or historical vocabulary snapshots. Release manifests record the public surface. `npm run publish -- kernel --launch` explicitly enables publication, compares platform structure and computes its version. Before launch all versions stay at `0.0.0`. Package publication also compares dependent check observations.
 - 内容只选择能力、填参数和组织对象。新机制经包的 `core/`、`view/` 代码提交和契约测试提供，不通过内容表达式绕过协议。旧模块词汇表在迁出期间保留。
 
 ### 6.3 模块契约与一个课程模型
@@ -1079,3 +1079,9 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 - **检查问的是要推理的东西**：答案要从核心思想推出来，最好是直觉会答错的情形（只许挪孔板时暗箱的像怎样放大一倍、拆不开的拉普拉斯能不能由一维核算出、两道波只差哪一个数）。看一眼就知道的事（图里有没有红箱子）、照着题面就能答的不算。
 - **按笔记词条设计互动**：每个互动围绕所在词条的核心思想设计。
 - **布局自己说话**：交互里只有一句先预测的问题，不加标题和说明；它是什么、在讲什么，由上下文的正文说。
+
+### 上线前的版本与发布
+
+包与平台的版本统一为 `0.0.0`，包、游戏和起步内容中的依赖范围统一为 `^0.0.0`。工作区源目录是当前实现的唯一版本。解析器检查依赖集合和范围，源目录及本地平台的锁定哈希变化不阻止检查、组装或构建。从发布库解析的归档继续检查锁定的版本与内容哈希，归档本身继续校验归档哈希。`deps -- lock` 显式刷新锁定快照。
+
+`publish` 默认拒绝执行，首发时显式使用 `npm run publish -- <包|kernel> --launch`。这个开关启用已有的检查、契约验证和发布流程，第一次发布自动选择 `1.0.0`。兼容性预览继续返回改动级别、受影响的包和游戏及候选版本 `proposed`，`next` 为 `null`，预览不写版本。

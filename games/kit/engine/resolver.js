@@ -274,7 +274,7 @@ export function resolveLayers({ game, package: packageId, packages, closure = fa
       if (lock.target !== owner) problems.push(dependencyProblem(owner, owner, 'lock target mismatch'))
       for (const id of new Set([...Object.keys(identities), ...Object.keys(lock.dependencies ?? {})])) {
         const actual = identities[id], pinned = lock.dependencies?.[id]
-        if (!actual || !pinned || actual.version !== pinned.version || actual.hash !== pinned.hash) problems.push(dependencyProblem(owner, id, 'lock version or content hash mismatch'))
+        if (!actual || !pinned || (id !== 'kernel' && layers.find(layer => layer.id === id)?.source === 'archive' && (actual.version !== pinned.version || actual.hash !== pinned.hash))) problems.push(dependencyProblem(owner, id, 'lock version or content hash mismatch'))
       }
     }
   }

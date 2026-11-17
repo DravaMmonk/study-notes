@@ -99,7 +99,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   game/package correctness belongs to `npm run check -- <game>` and `npm run check -- --package <package>`.
   All commands here run in `trace-viewer/`. Kernel changes require `npm test`, `npm run lint:kit`, and
   `npm run words -- --check`. Use `deps -- lock <target>` to update dependency hashes, `deps -- upgrade <target> [package]` for explicit upgrades,
-  and `publish -- <package>` for checked, automatically versioned releases in `releases/`. Platform structure uses
+  and `publish -- <package> --launch` only for the explicit first launch and later checked releases in `releases/`. Before launch, package/platform versions stay at `0.0.0` and dependency ranges at `^0.0.0`; publication without `--launch` is rejected. Platform structure uses
   `publish -- kernel`; platform behavior probing remains pending. Do not hand-edit versions or recreate vocabulary snapshots. For behavior refactors, capture affected game
   check output before the change and compare afterwards, reporting only explicitly authorized differences.
 - For bounded copy, UI or local behavior changes, select checks from handbook §7.0; inspect desktop and phone

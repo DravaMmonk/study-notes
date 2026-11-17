@@ -11,12 +11,12 @@ const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {},
 })
 schemas.objectKinds = { ...circuitFixtureKinds, 'lib/scene': { folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
 const object = (kind, name, value = {}) => ({ kind, name, value })
-const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^2.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
+const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^0.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 const lib = () => ({ ...layer('lib', [object('kind', 'scene', schemas.objectKinds['lib/scene']), object('lib/scene', 'start')]), codeObjects: [object('lib/scene', 'lib/registered') ] })
 
 const assembleLayers = (id, layers, schemas, options) => {
   const circuit = layer('circuit', Object.entries(circuitFixtureKinds).map(([name, value]) => object('kind', name.split('/')[1], value)))
-  return assembleContentLayers(id, [circuit, ...layers.map(item => ({ ...item, config: { ...item.config, uses: { ...item.config.uses, circuit: '^1.0.0' } } }))], schemas, options)
+  return assembleContentLayers(id, [circuit, ...layers.map(item => ({ ...item, config: { ...item.config, uses: { ...item.config.uses, circuit: '^0.0.0' } } }))], schemas, options)
 }
 
 test('one structured check covers schema references, overrides, tag contributions, endpoints, grants and dependencies', () => {
@@ -66,7 +66,7 @@ test('typed tags, registered readers, unknown member types and ambiguous unconst
   assert.ok(!content.objectProblems.some(problem => problem.target === 'lib/reader'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'tag' && problem.member === 'missing-kind'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'kind' && problem.target === 'missing-kind'))
-  const refs = [{ id: '@game', config: { kernel: '^2.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
+  const refs = [{ id: '@game', config: { kernel: '^0.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
   const problems = existenceProblems(refs, schemas, publicSurfaces(contentLayers(owner), schemas))
   assert.equal(problems.find(problem => problem.target === 'lib/same')?.reason, 'ambiguous')
 })
@@ -101,7 +101,7 @@ test('locations identify nested level fields, override targets and dependency se
   assert.deepEqual(location('lib/no-override'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: '' }])
   assert.deepEqual(location('lib/missing'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: 'next' }])
   assert.deepEqual(location('absent'), [{ object: { kind: 'package', name: 'consumer' }, path: 'uses.absent' }])
-  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { kernel: '^2.0.0', packages: { 'absent': '^1.0.0' } } })), schemas)
+  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { kernel: '^0.0.0', packages: { 'absent': '^1.0.0' } } })), schemas)
   assert.deepEqual(selection.object, { kind: 'package', name: '@game' })
   assert.equal(selection.path, 'packages.absent')
 })
