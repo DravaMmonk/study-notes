@@ -57,7 +57,7 @@ import StageChain from './StageChain.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
 import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, headingParam, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
-import { BUILT_IN_LISTS, TOOL_LISTS, isTypeList, leftLists, objectTypes, objectsOfType, ownTemplatesTag, templatesOf, typeOfList } from './object-types.js'
+import { BUILT_IN_LISTS, TOOL_LISTS, isTypeList, leftLists, objectTypes, objectsOfType, typeOfList } from './object-types.js'
 import LeftTypes, { typeName } from './LeftTypes.jsx'
 import ObjectSummary from './ObjectSummary.jsx'
 import { iconOf } from '../shell/parts/icons.js'
@@ -559,42 +559,16 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const newLevelContext = { vocabulary: vocab?.vocabulary, levels: playOrder, lang }
   const firstTaskSchema = vocab && tasksSchema(vocab.vocabulary)
   const levelChoices = vocab ? creationChoices(firstTaskSchema ?? vocab.vocabulary.level, newLevelContext) : []
-  // Templates (games/MODULES.md 5.4): any object is one once it is in its type's `templates` tag; a new object can start
-  // as a copy of one from this package or a package it uses.
   const declaredType = (type) => (content?.objectKinds?.[type] && !content.objectKinds[type].extends ? content.objectKinds[type] : null)
-  const templateOptions = (type, label) => {
-    const templates = templatesOf(content, type)
-    return templates.length ? [{ value: 'templates', label: tr('从模板新建', 'From template'), children: templates.map((full) => ({ value: `template:${full}`, label: label(full) })) }] : []
-  }
-  const isTemplate = (type, full) => templatesOf(content, type).includes(full)
-  const templateToggle = (type, full) => (isTemplate(type, full)
-    ? { value: `untemplate:${full}`, label: tr('移出模板', 'Remove from templates') }
-    : { value: `template-save:${full}`, label: tr('存为模板', 'Save as template') })
-  /** The operation that puts `full` into (or takes it out of) this package's templates tag of `type`. */
-  const templateOp = (type, full, keep) => {
-    const tag = ownTemplatesTag(content, type, namespace)
-    const values = content.registries.tag[tag]?.values ?? []
-    if (!tag) return keep ? { op: 'tag.put', tag: 'templates', data: { kind: type, values: ownObjectData(namespace, [full]) } } : null
-    const next = keep ? [...values.filter((v) => v !== full), full] : values.filter((v) => v !== full)
-    return { op: 'tag.set', tag: tag.slice(tag.indexOf('/') + 1), path: ['values'], value: ownObjectData(namespace, next) }
-  }
-  /** A template action of a list's add menu, done; false when `action` is not one. */
-  const templateAction = (type, action) => {
-    const [verb, full] = [action.slice(0, action.indexOf(':')), action.slice(action.indexOf(':') + 1)]
-    if (verb !== 'template-save' && verb !== 'untemplate') return false
-    const op = templateOp(type, full, verb === 'template-save')
-    if (op) edit(op)
-    return true
-  }
-  /** The add menu of a list of another type: a blank object, one from a template, the one open saved as a template. */
+  // A new object starts blank or as a copy of any object open, this package's or one it uses (games/MODULES.md 5.5).
+  /** The add menu of a list of another type: a blank object, a copy of the one open. */
   const addObjectOptions = (type) => [
     { value: 'blank', label: tr('空白对象', 'Blank object') },
-    ...templateOptions(type, (full) => L(content.registries?.[type]?.[full]?.title ?? content.registries?.[type]?.[full]?.name) || shownName(namespace, full)),
-    ...(heading?.kind === type && namespaceOf(heading.full) === namespace ? [templateToggle(type, heading.full)] : []),
+    ...(heading?.kind === type ? [{ value: 'copy', label: tr('复制所选对象', 'Duplicate selected object') }] : []),
   ]
   const addObject = (type, action) => {
-    if (saving || templateAction(type, action)) return
-    const source = action.startsWith('template:') ? action.slice('template:'.length) : null
+    if (saving) return
+    const source = action === 'copy' ? heading?.full : null
     const base = source ? source.slice(source.indexOf('/') + 1) : type.split('/').pop()
     const name = freeObjectName(ownNames(content, type, namespace), base)
     const declared = declaredType(type)
@@ -603,13 +577,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     openHeading({ kind: type, full: `${namespace}/${name}` })
   }
   const addLevel = (action) => {
-    if (templateAction('level', action)) return
     const taken = new Set([...Object.keys(content.tags), ...content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)])])
-    const template = action.startsWith('template:') ? action.slice('template:'.length) : null
-    const source = content.levels.find((entry) => entry.id === (template ?? at?.level))
-    const level = freeName([...taken].map((id) => id.slice(id.indexOf('/') + 1)), template ? template.slice(template.indexOf('/') + 1) : 'level')
+    const source = content.levels.find((entry) => entry.id === at?.level)
+    const level = freeName([...taken].map((id) => id.slice(id.indexOf('/') + 1)), action === 'copy' ? source.id.slice(source.id.indexOf('/') + 1) : 'level')
     const make = levelChoices[action]?.make
-    const draft = action === 'copy' || template ? source : {
+    const draft = action === 'copy' ? source : {
       ...(firstTaskSchema ? { ...blank(vocab.vocabulary.level, newLevelContext), tasks: [make()] } : make()),
       title: T('新关卡', 'New level'),
     }
@@ -814,9 +786,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                       label: tr('空白关卡', 'Blank level'),
                       ...(levelChoices.length > 1 && { children: levelChoices }),
                     }] : []),
-                    ...templateOptions('level', (full) => L(content.registries?.level?.[full]?.title) || shownName(namespace, full)),
                     ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
-                    ...(at?.level && content.levels.some((level) => level.id === at.level) ? [templateToggle('level', at.level)] : []),
                   ]} onAdd={addLevel} /> }
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />

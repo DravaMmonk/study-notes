@@ -2,7 +2,7 @@
 // parts, symbols, entries and the content kinds it still carries) and every type a package declares in kinds/. Which
 // are listed by default comes from the packages' `studio-left` tags (members: object types); each author can choose
 // their own on top (kept in the browser, never in a package). The tool lists — capabilities, overrides, search — come
-// after them, search last. Templates are the members of a type's `templates` tag: any object can be one.
+// after them, search last.
 import { contentKindSchemas } from '../engine/content-kinds.js'
 import { tagMembers } from './objects-edit.js'
 
@@ -81,8 +81,3 @@ export function leftLists(content, chosen = null) {
   return [...types.map(listOfType), ...TOOL_LISTS]
 }
 
-/** The templates of a type: the members of its `templates` tags in the loaded layers, the deepest dependency's first. */
-export const templatesOf = (content, type) => conventionMembers(content, type, 'templates')
-
-/** The `templates` tag of a type in `namespace`'s own package (its full name), or null when it has none yet. */
-export const ownTemplatesTag = (content, type, namespace) => conventionTags(content, type, 'templates').find((full) => full.startsWith(`${namespace}/`)) ?? null

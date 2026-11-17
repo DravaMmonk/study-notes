@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { defaultTypes, leftLists, listOfType, objectTypes, ownTemplatesTag, studioLeft, templatesOf, typeOfList } from './object-types.js'
+import { defaultTypes, leftLists, listOfType, objectTypes, studioLeft, typeOfList } from './object-types.js'
 import { objectFileName, objectOp, objectSchema } from './object-file.js'
 import { headingParam, listOfHeading, readHeading } from './left-lists.js'
 
@@ -32,17 +32,6 @@ test('the left column lists object types: the packages’ studio-left, else what
   assert.deepEqual(leftLists(said, ['quote']), ['type:quote', 'kernel', 'overrides', 'search'])
   assert.equal(typeOfList(listOfType('story/scene')), 'story/scene')
   assert.equal(typeOfList('tree'), 'level')
-})
-
-test('templates are the members of a type’s templates tags, a dependency’s first', () => {
-  const c = content({
-    'story/templates': { kind: 'level', values: ['story/b'] },
-    'base/templates': { kind: 'level', values: ['story/a'] },
-  })
-  assert.deepEqual(templatesOf(c, 'level'), ['story/a', 'story/b'])
-  assert.deepEqual(templatesOf(c, 'story/scene'), [])
-  assert.equal(ownTemplatesTag(c, 'level', 'story'), 'story/templates')
-  assert.equal(ownTemplatesTag(c, 'story/scene', 'story'), null)
 })
 
 test('a declared type’s object is edited through the object operations, in its own folder', () => {
