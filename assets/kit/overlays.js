@@ -17,9 +17,9 @@ export function topOverlay() {
   return top
 }
 
-function route(event) {
+function routeKey(event) {
   if (event.defaultPrevented || event.isComposing) return
-  const keys = overlays.get(topOverlay())?.keys()
+  const keys = overlays.get(topOverlay())?.controls()
   if (!keys) return
   if (event.key !== 'Escape' && !keys.onKey?.(event)) return
   event.preventDefault()
@@ -27,12 +27,26 @@ function route(event) {
   if (event.key === 'Escape' && !event.repeat) keys.onClose?.()
 }
 
-/** Register an overlay with the layer of its own element or of the container that positions it. */
-export function registerOverlay(node, keys, layer = node) {
-  if (!overlays.size) window.addEventListener('keydown', route)
-  overlays.set(node, { keys, layer })
+function routePress(event) {
+  const top = topOverlay()
+  const controls = overlays.get(top)?.controls()
+  if (!controls?.onOutside) return
+  const path = event.composedPath()
+  if (!path.includes(top) && !path.includes(controls.anchor?.())) controls.onOutside()
+}
+
+/** Register an overlay at its own layer or the layer of the container that positions it. */
+export function registerOverlay(node, controls, layer = node) {
+  if (!overlays.size) {
+    window.addEventListener('keydown', routeKey)
+    window.addEventListener('pointerdown', routePress, true)
+  }
+  overlays.set(node, { controls, layer })
   return () => {
     overlays.delete(node)
-    if (!overlays.size) window.removeEventListener('keydown', route)
+    if (!overlays.size) {
+      window.removeEventListener('keydown', routeKey)
+      window.removeEventListener('pointerdown', routePress, true)
+    }
   }
 }

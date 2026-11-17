@@ -43,7 +43,7 @@
   --gap-group: var(--sp-5);
   --gap-section: var(--sp-7);
 
-  /* Corners by role: marks in text and the notes' engraved blocks, small pieces, controls and part cards, panels and
+  /* Corners by role: marks in text and the notes' engraved blocks, small parts, controls and part cards, panels and
      sheets, dots and pills. A nested corner is its container's less the space between them. */
   --r-xs: 2px;
   --r-sm: 6px;

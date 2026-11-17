@@ -36,7 +36,7 @@
 :is(.kit-prose, .md-typeset) summary { color: var(--muted); font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .06em; cursor: pointer; }
 :is(.kit-prose, .md-typeset) .katex-display { margin: 1.2em 0; padding: var(--sp-2) 0; overflow-x: auto; overflow-y: hidden; }
 
-/* Pages built from ui.css pieces inside a note (the home page's hero and cards) keep the pieces' own spacing. */
+/* Pages built from ui.css parts inside a note (the home page's hero and cards) keep the parts' own spacing. */
 :is(.kit-prose, .md-typeset) .kit-hero { padding: var(--sp-4) 0 var(--sp-6); }
 :is(.kit-prose, .md-typeset) h1.kit-title { margin: 0; font-size: var(--fs-title); }
 :is(.kit-prose, .md-typeset) .kit-kicker { margin: 0 0 var(--sp-5); }
