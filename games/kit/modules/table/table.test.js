@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from '../../engine/contract.js';
-import { readStarter } from '../../engine/content-node.js';
+import { readStarter } from '../../engine/resolver.js';
 import { print, read, readLines } from '../../circuit/text.js';
 import { workshopView } from '../../circuit/workshop-view.js';
 import { tableWorks } from './work.js';

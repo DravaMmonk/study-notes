@@ -1,3 +1,4 @@
+import { packageDirectory, packageConfig } from './resolver.js'
 // Import policy is shared by ESLint and the headless content checker.
 import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
 import { dirname, extname, relative, resolve, sep } from 'node:path'
@@ -10,19 +11,19 @@ export function exportPath(specifier, root) {
   if (publicEntries[specifier]) return publicEntries[specifier]
   if (!/^[a-z][a-z0-9-]*(?:\/view)?$/.test(specifier)) return null
   const [id, view] = specifier.split('/')
-  const path = resolve(root, 'packages', id, view ? 'view/index.jsx' : 'core/index.js')
+  const path = resolve(packageDirectory(id, root), view ? 'view/index.jsx' : 'core/index.js')
   return existsSync(path) ? path : null
 }
 export function importProblem(specifier, file, root, uses) {
-  const parts = relative(resolve(root, 'packages'), file).split(sep)
+  const parts = relative(packageDirectory('', root), file).split(sep)
   const [id, side] = parts
   if (!['core', 'view'].includes(side)) return null
   if (typeof specifier !== 'string') return 'computed imports are not allowed in package code'
   if (specifier.startsWith('.')) {
     const target = resolve(dirname(file), specifier)
-    if (!target.startsWith(resolve(root, 'packages', id) + sep)) return 'packages may only import public kernel and dependency exports'
+    if (!target.startsWith(packageDirectory(id, root) + sep)) return 'packages may only import public kernel and dependency exports'
     const actual = existsSync(target) ? realpathSync(target) : target
-    const allowed = [resolve(root, 'packages', id, side) + sep, ...(side === 'view' ? [resolve(root, 'packages', id, 'core') + sep] : [])]
+    const allowed = [resolve(packageDirectory(id, root), side) + sep, ...(side === 'view' ? [resolve(packageDirectory(id, root), 'core') + sep] : [])]
     if (!allowed.some(path => actual.startsWith(path))) return `${side} cannot import ${specifier}`
     if (side === 'core' && !['.js', '.mjs', '.json'].includes(extname(target))) return 'core cannot import JSX, CSS or view assets'
     return null
@@ -34,8 +35,8 @@ export function importProblem(specifier, file, root, uses) {
 }
 const walkFiles = dir => !existsSync(dir) ? [] : readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walkFiles(resolve(dir, entry.name)) : [resolve(dir, entry.name)])
 export function packageCodeProblems(id, root) {
-  const dir = resolve(root, 'packages', id)
-  const uses = JSON.parse(readFileSync(resolve(dir, 'package.json'))).uses ?? []
+  const dir = packageDirectory(id, root)
+  const uses = packageConfig(id, root).uses ?? []
   const require = createRequire(resolve(KIT, '../../trace-viewer/package.json'))
   const { parse } = require('espree')
   const problems = []

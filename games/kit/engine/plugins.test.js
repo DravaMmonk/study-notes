@@ -7,7 +7,7 @@ import { createPluginKernel, registerPlugins } from './plugins.js'
 import { importProblem, packageCodeProblems } from './plugin-boundaries.js'
 import { withKindDeclarations } from './plugin-kinds.js'
 import { vocabularyFor } from './kernel.js'
-import { readPackage } from './content-node.js'
+import { readPackage } from './resolver.js'
 import { checkContent } from './vocabulary.js'
 import { openPackage } from './ops/workspace.js'
 import { runChangeset } from './ops/changeset.js'
@@ -112,7 +112,7 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
     assert.deepEqual(content.layerOrder, ['alpha', 'beta'])
     put('packages/gamma/package.json', { uses: ['beta'], vocabulary: 12 })
     put('packages/gamma/levels/private.json', { title: 'Private', tasks: [{ id: 'private', play: 'alpha:answer', brief: 'Answer' }] })
-    assert.throws(() => readPackage('gamma', root), /undeclared play dependency/)
+    assert.ok(readPackage('gamma', root).objectProblems.some(problem => problem.reason === 'undeclared dependency' && problem.kind === 'play'))
 
     const { runtimeOf } = await import('./runtime.js')
     const runtime = await runtimeOf(content)
@@ -129,7 +129,7 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
       const game = await gameOf(scope, { view: true })
       assert.deepEqual(game.levels[0].tasks.map(task => task.kind), ['alpha:answer', 'beta:answer'])
       assert.equal(typeof game.kinds['beta:answer'].Screen, 'function')
-      const { readStarter } = await import('./content-node.js')
+      const { readStarter } = await import('./resolver.js')
       const { contentSchemas } = await import('./content.js')
       const starter = readStarter(resolve(import.meta.dirname, '../templates/rows'))
       const mixed = { ...content, levels: [{ ...content.levels[0], tasks: [...content.levels[0].tasks, { ...starter.levels[0].tasks[0], id: 'beta/legacy' }] }] }

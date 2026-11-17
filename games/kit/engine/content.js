@@ -1,3 +1,4 @@
+import { existenceProblems } from './existence.js'
 import { tagKey, tagName } from './tag-identity.js'
 import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { encyclopedia } from './encyclopedia.js'
@@ -45,7 +46,7 @@ export const courseLevelCount = (configuration, total, tags = configuration.tags
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
-export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], sections = [], trays = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, provenance = {}, packageTarget = null, objectKinds = schemas?.objectKinds }) {
+export function assemble({ id, packageId = id, schemas, contentObjects = {}, courseNamespace = `@${id}`, game, levels, tags = [], relations = [], sections = [], trays = [], declarationProblems = [], glossary, partDefs, blueprint, overridden = {}, fromDisk = false, qualified = false, existenceChecked = false, provenance = {}, packageTarget = null, objectKinds = schemas?.objectKinds }) {
   game = { ...game }
   delete game.uses
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
@@ -94,9 +95,23 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   for (const [kind, entries] of Object.entries({ tags, relations, sections, trays })) for (const [name, , namespace = packageId] of entries) {
     if (namespace.startsWith('@') || name.startsWith('@')) objectProblems.push({ at: `${kind}/${name}`, says: 'games cannot declare objects; declare them in a package' })
   }
+  if (!existenceChecked) {
+    const layers = new Map()
+    for (const [kind, values] of Object.entries(registries)) for (const [key, value] of Object.entries(values)) {
+      const name = kind === 'tag' ? tagName(key) : key
+      const namespace = name.includes('/') ? name.split('/')[0] : 'kernel'
+      if (!layers.has(namespace)) layers.set(namespace, { id: namespace, config: {}, objects: [], catalogs: {} })
+      layers.get(namespace).objects.push({ kind, name, value })
+    }
+    const selected = [...layers.keys()]
+    for (const layer of layers.values()) layer.config.uses = selected.filter(id => id !== layer.id)
+    layers.set(courseNamespace, { ...(layers.get(courseNamespace) ?? { id: courseNamespace, objects: [] }), config: { ...game, packages: selected } })
+    // Source-free callers already carry resolved text; only source layers define catalog identities.
+    const unkey = value => Array.isArray(value) ? value.map(unkey) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== '$key').map(([key, child]) => [key, unkey(child)])) : value
+    objectProblems.push(...existenceProblems([...layers.values()].map(layer => ({ ...layer, objects: layer.objects.map(object => ({ ...object, value: unkey(object.value) })), config: unkey(layer.config) })), schemas))
+  }
   const resolve = referenceResolver(registries, objectProblems)
   for (const [name, tag] of Object.entries(tagMap)) {
-    if (!(tag.kind in registries)) objectProblems.push({ at: `tags/${name}`, says: `unknown tag member kind ${tag.kind}` })
     resolve(`#${tagName(name)}`, tag.kind, `tags/${name}`)
   }
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)

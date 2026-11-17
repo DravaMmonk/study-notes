@@ -1,3 +1,4 @@
+import { contentExistenceProblems } from './existence.js'
 import { shapeAt } from './schema.js'
 import { kindSchemas } from './plugin-kinds.js'
 // A domain's vocabulary: everything content may name (games/DESIGN.md 6.2). Content is data made of the vocabulary's
@@ -143,7 +144,8 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
   const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
-  out.push(...objectProblems)
+  out.push(...objectProblems.filter(problem => problem.rule !== 'exists'), ...contentExistenceProblems(content, vocabulary))
+  if (out.some(problem => problem.rule === 'exists')) return out
   const courseKeys = new Map(), packageKeys = new Map()
   if (hasCatalogSource(content)) {
     for (const [file, value] of Object.entries(configurationFiles(game))) {

@@ -12,8 +12,9 @@ export function createPluginKernel() {
   }
   // These names are consumed by Studio, including in headless author checks.
   for (const [key, reader] of kernelTags) add('tag', key, reader)
+  const objects = []
   return {
-    tables,
+    tables, objects,
     forPackage(id, side) {
       const api = Object.fromEntries((side === 'core' ? CORE : VIEW).map(type => [type, (name, value) => {
         if (!name.startsWith(`${id}:`) || !/^[a-z][a-z0-9-]*:[A-Za-z][A-Za-z0-9_-]*$/.test(name)) throw new Error(`${id}: invalid ${type} name ${name}`)
@@ -23,11 +24,17 @@ export function createPluginKernel() {
         if (['check', 'state'].includes(type) && typeof value !== 'function') throw new Error(`${name}: ${type} needs a function`)
         add(type === 'play' && side === 'view' ? 'playView' : type, name, value)
       }]))
+      api.object = (kind, name, value = {}) => {
+        if (side !== 'core' || !name.startsWith(`${id}/`)) throw new Error(`${id}: objects register their own full name in core`)
+        if (objects.some(object => object.kind === kind && object.name === name && object.value.kind === value.kind)) throw new Error(`duplicate ${kind} ${name}`)
+        objects.push({ kind, name, value })
+      }
       api.tag = (name, member) => {
         if (side !== 'core') throw new Error('tag readers register in core')
         if (!name.startsWith(`${id}/`) || !/^[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*$/.test(name)) throw new Error(`${id}: tag reader needs its own full name`)
         if (typeof member !== 'string' || !member) throw new Error(`${name}: tag reader needs a member type`)
         add('tag', tagKey(member, name), { name, member, reader: id })
+        api.object('tag', name, { kind: member, values: [] })
       }
       return Object.freeze(api)
     },

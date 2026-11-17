@@ -10,7 +10,7 @@ import { S, find, holdsLevels, sectionOf } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { runtimeOf, readStarter } from '../engine/content-node.js'
+import { runtimeOf, readStarter } from '../engine/resolver.js'
 import {
   blank, boardPaths, cellText, cellValue, creationChoices, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,

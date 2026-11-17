@@ -19,7 +19,7 @@ import { openGame, openPackage } from './workspace.js'
 import { adopt, readLog, runChangeset, undo } from './changeset.js'
 import { authorship, driftOf } from './log.js'
 import { checkCache } from '../check-cache.js'
-import { PROJECT_DIR } from '../content-node.js'
+import { workspaceCheckCache, contentRoot } from '../resolver.js'
 import { closeGames } from '../games.mjs'
 
 const USAGE = 'npm run op -- (<game> | --package <package>) (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--fresh] [--why "…"] [--json]  ·  npm run op -- list'
@@ -43,7 +43,7 @@ if (words[0] === 'list') {
 const packageId = option('--package')
 const game = packageId ?? words[0]
 if (!game) throw new Error(`usage: ${USAGE}`)
-const ws = (packageId ? openPackage : openGame)(game, process.env.GAMES_ROOT ?? PROJECT_DIR, { layer: option('--layer') })
+const ws = (packageId ? openPackage : openGame)(game, contentRoot(), { layer: option('--layer') })
 const [what, ...rest] = words.slice(packageId ? 0 : 1)
 if (what === 'log') {
   for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.by ? ` ${e.by}` : ''}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
@@ -70,7 +70,7 @@ if (option('--why') && changeset) changeset.why = option('--why')
 // Who: --by, or what the caller's environment says (an agent's ./op, ../../pipeline/pipeline.mjs), or this command line.
 if (changeset && !changeset.by) changeset.by = option('--by') ?? process.env.GAMES_BY ?? 'cli'
 // The repository's games keep their checks between runs (../check-cache.js); --fresh, or a copy (GAMES_ROOT), checks afresh.
-const options = { write: !flag('--dry-run'), cache: flag('--fresh') || process.env.GAMES_ROOT || ws.packaged ? null : checkCache(game) }
+const options = { write: !flag('--dry-run'), cache: flag('--fresh') || !workspaceCheckCache() || ws.packaged ? null : checkCache(game) }
 const result = what === 'undo' ? await undo(ws, options) : await runChangeset(ws, changeset, options)
 await closeGames()
 

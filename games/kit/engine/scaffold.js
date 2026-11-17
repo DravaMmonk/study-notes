@@ -1,9 +1,10 @@
+import { packageDirectory } from './resolver.js'
 /* global process */
 // Create a game from an installed module starter, or arrange an existing package.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { PROJECT_DIR, gameDirectory, readContent, readPackage, contentVocabulary } from './content-node.js'
+import { contentRoot, gameDirectory, readContent, readPackage, contentVocabulary } from './resolver.js'
 import { vocabulary } from './kernel.js'
 import { runtimeIds } from './runtime.js'
 import { expandNames } from './names.js'
@@ -14,7 +15,7 @@ import { writeJson } from './ops/json.js'
 const TEMPLATES = (root) => resolve(root, 'games/kit/templates')
 
 /** The mechanisms the scaffold has a template for (games/DESIGN.md 6.5 says what each suits). */
-export const templates = (root = PROJECT_DIR) => readdirSync(TEMPLATES(root)).filter(name => existsSync(resolve(TEMPLATES(root), name, 'starter/package.json')))
+export const templates = (root = contentRoot()) => readdirSync(TEMPLATES(root)).filter(name => existsSync(resolve(TEMPLATES(root), name, 'starter/package.json')))
 
 const fail = (text) => {
   throw new Error(text)
@@ -63,28 +64,28 @@ function gameRefused(root, id) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) return `a game id is lowercase letters, digits and dashes: ${id}`
   const dir = gameDirectory(id, root)
   if (existsSync(dir) && readdirSync(dir).some((name) => !isDocs(name))) return `games/${id} is there already`
-  if (existsSync(resolve(root, 'packages', id))) return `packages/${id} is there already`
+  if (existsSync(packageDirectory(id, root))) return `packages/${id} is there already`
   if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
   return null
 }
 
 /** Copy a template into an independent package. Templates are never dependencies. */
-export function newPackage({ root = PROJECT_DIR, id, template, from, empty = false, title = id }) {
+export function newPackage({ root = contentRoot(), id, template, from, empty = false, title = id }) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a package id is lowercase letters, digits and dashes: ${id}`)
-  const target = resolve(root, 'packages', id)
+  const target = packageDirectory(id, root)
   if (empty || from) {
     if (existsSync(target)) fail(`packages/${id} is there already`)
     if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ uses: [], vocabulary: vocabulary.version }, null)) }
     else {
-      if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(root, 'packages', from, 'package.json'))) fail(`no package ${from}`)
+      if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(packageDirectory(from, root), 'package.json'))) fail(`no package ${from}`)
       mkdirSync(target, { recursive: true })
-      for (const name of readdirSync(resolve(root, 'packages', from)).filter(name => !['changes.jsonl', 'changes.lock', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(root, 'packages', from, name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
+      for (const name of readdirSync(packageDirectory(from, root)).filter(name => !['changes.jsonl', 'changes.lock', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(packageDirectory(from, root), name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
     }
     return target
   }
   if (!templates(root).includes(template)) fail(`no template ${template} in kit/templates`)
   const starter = resolve(TEMPLATES(root), template, 'starter')
-  const packageDir = resolve(root, 'packages', id)
+  const packageDir = packageDirectory(id, root)
   if (existsSync(packageDir)) fail(`packages/${id} is there already`)
   mkdirSync(packageDir, { recursive: true })
   const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
@@ -95,7 +96,7 @@ export function newPackage({ root = PROJECT_DIR, id, template, from, empty = fal
 }
 
 /** Create a game and its independent package from the same template. */
-export function newGame({ root = PROJECT_DIR, id, template, title = id }) {
+export function newGame({ root = contentRoot(), id, template, title = id }) {
   const refused = gameRefused(root, id)
   if (refused) fail(refused)
   newPackage({ root, id, template, title })
@@ -130,7 +131,7 @@ const refs = (value, out = new Set()) => {
  * which keeps the course settings of `from` (a game on the same package) and starts with one empty chapter shaped
  * like its first; registered on the hub as hidden and in development. Returns the folder.
  */
-export function gameOnPackage({ root = PROJECT_DIR, id, from, title }) {
+export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a game id is lowercase letters, digits and dashes: ${id}`)
   const dir = gameDirectory(id, root)
   if (existsSync(resolve(dir, 'game.json'))) fail(`games/${id} is there already`)
@@ -166,9 +167,9 @@ function cli([what, name, ...rest]) {
     return k >= 0 ? rest[k + 1] : undefined
   }
   if (what === 'game') {
-    console.log(`made ${newGame({ root: process.env.GAMES_ROOT ?? PROJECT_DIR, id: name, template: opt('template'), title: opt('title') ?? name })}\nnext: npm run check -- ${name}`)
+    console.log(`made ${newGame({ root: contentRoot(), id: name, template: opt('template'), title: opt('title') ?? name })}\nnext: npm run check -- ${name}`)
   } else if (what === 'package') {
-    console.log(`made ${newPackage({ root: process.env.GAMES_ROOT ?? PROJECT_DIR, id: name, template: opt('template'), from: opt('from'), empty: rest.includes('--empty') })}\nnext: npm run check -- --package ${name}`)
+    console.log(`made ${newPackage({ root: contentRoot(), id: name, template: opt('template'), from: opt('from'), empty: rest.includes('--empty') })}\nnext: npm run check -- --package ${name}`)
   } else fail('usage: scaffold.js <game|package> <id> --template <name>')
 }
 

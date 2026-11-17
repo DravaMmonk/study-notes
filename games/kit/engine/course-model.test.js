@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { contentCourse, publicationEvents, readWorkSet } from './course-model.js'
 import { holds, met, offer } from '../course.js'
-import { readStarter } from './content-node.js'
+import { readStarter } from './resolver.js'
 import { runtimeOf } from './runtime.js'
 
 const sample = () => ({

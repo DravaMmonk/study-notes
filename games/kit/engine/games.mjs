@@ -1,3 +1,4 @@
+import { contentRoot } from './resolver.js'
 import { contentRoots, contentSchemas } from './content.js'
 import { packageApp } from '../app/package-vite.js'
 // A game's whole definition (the shell's levels, parts box and encyclopedia), made under node for the checks from its
@@ -36,7 +37,7 @@ export async function loadModule(file) {
 /** The game made from `content` as the shell gets it (its domain's game.js over it). */
 export async function gameOf(content, { view = false } = {}) {
   await serve()
-  const root = contentRoots.get(content) ?? process.env.GAMES_ROOT ?? resolve(KIT_DIR, '../..')
+  const root = contentRoots.get(content) ?? contentRoot()
   const plugins = (await import('./plugin-node.js')).loadPlugins
   const kernel = await plugins(content, root, file => server.ssrLoadModule(file), view)
   const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
@@ -55,7 +56,7 @@ async function serve() {
     const { createServer } = await import(pathToFileURL(from.resolve('vite')).href)
     const react = (await import(pathToFileURL(from.resolve('@vitejs/plugin-react')).href)).default
     server = await createServer({
-      root: ROOT, configFile: false, plugins: [react(), packageApp(process.env.GAMES_ROOT ?? resolve(KIT_DIR, '../..'))], appType: 'custom', logLevel: 'error',
+      root: ROOT, configFile: false, plugins: [react(), packageApp(contentRoot())], appType: 'custom', logLevel: 'error',
       server: { middlewareMode: true, hmr: false, ws: false, fs: { allow: ['..'] } },
       resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] }, ssr: { noExternal: ['lucide-react', 'katex'] }, optimizeDeps: { noDiscovery: true, include: [] },
     })

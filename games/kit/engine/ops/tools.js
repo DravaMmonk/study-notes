@@ -1,11 +1,10 @@
 import { tagName } from '../tag-identity.js'
 import { packageLevel, packageLevelOrder } from '../package-play.js'
 import { runtimeIds } from '../runtime.js'
-/* global process */
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
 import { find, shapeAt } from '../schema.js'
@@ -14,7 +13,7 @@ import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
 import { visibleOverrides } from '../layers.js'
-import { PROJECT_DIR, runtimeOf, isDataGame, readContent, readPackage, packageIds, readGameConfig } from '../content-node.js'
+import { workspaceCheckCache, contentRoot, runtimeOf, isDataGame, readContent, readPackage, packageIds, readGameConfig, resolveLayers, contentTargets, gameDirectory } from '../resolver.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
 import { partFlow } from '../flow.js'
@@ -37,13 +36,13 @@ export const lacking = (tool, args) => [
 ]
 
 // The tools use the repository layout, or a copy with games/ and packages/ under GAMES_ROOT.
-const ROOT = process.env.GAMES_ROOT ?? PROJECT_DIR
-const listed = (id) => typeof id === 'object' ? null : hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
+const ROOT = contentRoot()
+const listed = (id) => typeof id === 'object' ? null : hubCount(readFileSync(resolve(gameDirectory('', ROOT), 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
-const kept = (id) => (process.env.GAMES_ROOT || typeof id === 'object' ? null : checkCache(id))
+const kept = (id) => (!workspaceCheckCache() || typeof id === 'object' ? null : checkCache(id))
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 // A game the studio's game workspace makes is known at once: it is read off the folder, not off the list loaded at start.
-const dataGames = () => (existsSync(resolve(ROOT, 'games')) ? readdirSync(resolve(ROOT, 'games')) : []).filter((id) => isDataGame(id, ROOT)).sort()
+const dataGames = () => contentTargets([], ROOT, { game: true }).map(target => target.id)
 const known = (game) => {
   if (typeof game === 'object' && game.package) {
     if (!packageIds(ROOT).includes(game.package)) throw new Error(`no package ${game.package}`)
@@ -128,7 +127,7 @@ const tools = {
     params: {},
     async run() {
       return packageIds(ROOT).map((id) => {
-        const config = JSON.parse(readFileSync(resolve(ROOT, 'packages', id, 'package.json'), 'utf8'))
+        const config = resolveLayers({ package: id, root: ROOT }).layers.find(layer => layer.id === id).config
         return { id, uses: config.uses ?? [] }
       })
     },

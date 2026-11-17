@@ -1,3 +1,4 @@
+import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 // Content names are resolved at the file boundary. Ports, settings keys, variant ids and domain resources stay local.
 import { CONTENT_KINDS } from './content-kinds.js'
 import { mapBlueprintNames } from '../circuit/text.js'
@@ -50,6 +51,7 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
     return mapBlueprintNames(lines, (type) => type.includes('/') || parts.has(type) ? name(type) : type, rule)
   }
   const ref = (kind, v) => {
+    if (kind === 'kind' && BUILTIN_KIND_NAMES.includes(v)) return v
     if (kind === 'part') return part(v)
     return ['entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }

@@ -8,7 +8,7 @@ import { S, callOf, find, validate } from './schema.js'
 import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
 import { assemble } from './content.js'
-import { isDataGame, readContent } from './content-node.js'
+import { isDataGame, readContent } from './resolver.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
 
 const VOCAB = defineVocabulary({
@@ -116,10 +116,11 @@ test('content is checked file by file', () => {
     glossary: { groups: [], entries: [{ id: 'e', title: 'E', body: [] }] },
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['toy/a', 'toy/b'])
-  assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [
+  assert.ok(checkContent({ vocabulary: VOCAB }, content).some(problem => problem.rule === 'exists' && problem.kind === 'world' && problem.target === 'nowhere'))
+  const shapeOnly = { ...content, objectProblems: [], levels: [{ id: 'toy/a', mode: 'run', world: 'line' }] }
+  assert.deepEqual(checkContent({ vocabulary: VOCAB }, shapeOnly).map((p) => `${p.at}: ${p.says}`), [
     "game.json.vocabulary: written for version 3; the kernel vocabulary has versions 1 to 2",
     'game.json.extra: is not a field here',
-    'levels/toy/a.json.world: "nowhere" is no world of the vocabulary',
   ])
 })
 
@@ -142,10 +143,7 @@ test('a data game is read from its folder', () => {
   writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ packages: ['shared-toy'], title: 'Draft' }))
   writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ chapters: [{ id: 'main', levels: ['shared-toy/one'] }] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
-  assert.deepEqual(dependencyProblemsInProject({ ...content, levels: [] }, dir), [{
-    at: 'games/draft/course.json',
-    says: 'the course places the level shared-toy/one, which is missing from its package',
-  }])
+  assert.ok(dependencyProblemsInProject({ ...content, levels: [] }, dir).some(problem => problem.rule === 'exists' && problem.layer === '@draft' && problem.target === 'shared-toy/one'))
 
   for (const kind of ['tags', 'relations', 'sections']) mkdirSync(join(dir, 'games', 'toy', kind))
   const forbidden = readContent('toy', dir, { vocabulary: VOCAB })

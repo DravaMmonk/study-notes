@@ -1,3 +1,4 @@
+import { gameDirectory } from '../games/kit/engine/resolver.js'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
 import { defineConfig } from 'vite'
@@ -10,7 +11,7 @@ import { studioApp } from '../games/kit/app/studio.js'
 // games/, with its kit), each game at /game/<id>/index.html (game.html, every game's page, which picks the game from
 // the address: games/kit/app/vite.js). /game.html leads to the first game, so every link works the same locally as
 // on the site.
-const GAMES_DIR = resolve(import.meta.dirname, '../games')
+const GAMES_DIR = gameDirectory()
 const IDS = new Set(GAMES.map((game) => game.id))
 const localPaths = (studio) => ({
   name: 'local-paths',

@@ -4,7 +4,7 @@
 
 - `core/index.js` and `view/index.jsx` each export `register(kernel)`. Check, baseline and blind play load
   only core; Vite game and Studio loaders load both in `uses` order. Never import view code from core.
-- Core registers `play`, `kind`, `state`, `check`, `agent`, and named tag readers with `tag(fullName, member)`; tag names use `<package>/<name>`, with one member type.
+- Core registers `play`, `kind`, `state`, `check`, `agent`, arbitrary typed objects with `object(kind, fullName, value = {})`, and named tag readers with `tag(fullName, member)`; tag names use `<package>/<name>`, with one member type.
   View registers paired `play`, `editor`, `display`. Other protocol names are `<package>:<name>`; duplicate entries fail.
   Play core owns `initial/read/write/normalize/run/judge`; view owns `component/preview/modes`.
 - Public imports are `kernel` and `kernel/view`; direct dependency exports are `<package>` and
@@ -33,5 +33,11 @@
   through Vite, including assembly with another package. Kernel tests use synthetic content. Run `npm test`,
   `npm run lint:kit`, `npm run words -- --check`, builds, and `baseline -- compare` for migration work.
   Never save over the locked migration corpus. Bump vocabulary and keep a snapshot when its public data changes.
-- Until steps 3–7, package projections and internal modules share the existing course reader and dispatch.
+- Installed layers enter through `engine/resolver.js:resolveLayers`; content roots and source/code locations belong
+  to that resolver. Game consumers use resolved public data. The workspace existence projection is
+  `engine/existence.js:publicSurfaces`, to be replaced by manifests in step 4. The same check covers schema refs,
+  overrides, tag contributions, relation endpoints, trays/grants and package selections; code registrations count
+  for every object type. Preserve `{ rule: "exists", at, layer, kind, target, member?, reason, says }` in reports.
+  Missing targets are diagnostics, not separate loader exceptions. Tag copy uses `@tag.<name>.title/desc`.
+- Until steps 5–9, package projections and internal modules share the existing course reader and dispatch.
   Do not add another implementation or permanent fallback. Move circuit first and remove its internal registration.

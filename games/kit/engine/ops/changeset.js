@@ -26,7 +26,7 @@ import { tasksSchema } from '../tasks.js'
 import { ENTRY, checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
-import { runtimeOf } from '../content-node.js'
+import { runtimeOf } from '../resolver.js'
 import { courseLevelCount } from '../content.js'
 import { dependencyProblemsInProject } from '../project-dependencies.js'
 import { OPERATIONS, opScope } from './operations.js'
@@ -78,7 +78,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
       if (name.startsWith('kind.')) {
         const layers = ws.packageLayers.map(layer => layer.id !== ws.packageId ? layer : { ...layer, objects: [...layer.objects.filter(o => o.kind !== 'kind'), ...[...ws.contentObjects.kind].map(([name, value]) => ({ kind: 'kind', name, value }))] })
         // Rebuild from the unextended layer vocabulary, so replacing a declaration is a hard switch.
-        const { layerVocabulary } = await import('../content-node.js')
+        const { layerVocabulary } = await import('../resolver.js')
         ws.schemas = layerVocabulary(layers)
         domain = { ...domain, vocabulary: ws.schemas }
         for (const kind of Object.keys(ws.contentObjects)) if (!kindSchemas(ws.schemas)[kind]) {
@@ -160,7 +160,7 @@ async function settle({ ws, changeset, domain, start, says, inverse, write, chec
   else {
     const wrong = checkContent(domain, content)
     if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, ws.root))
-    lines = wrong.map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+    lines = wrong.map(problem => ({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(problem.rule === 'exists' && { problem }) }))
   }
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()

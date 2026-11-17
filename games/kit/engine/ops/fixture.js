@@ -1,6 +1,6 @@
 import { folders } from '../layers.js'
 import { contentKindSchemas } from '../content-kinds.js'
-import { objectFiles } from '../content-node.js'
+import { objectFiles } from '../resolver.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
 // real game (games/DESIGN.md: unit tests never read a real game's levels). Each call writes a fresh folder.
@@ -20,7 +20,7 @@ import { OBJECT_SCHEMAS } from '../objects.js'
 import { PARTS_FILE } from '../parts/schema.js'
 import { withParts } from '../parts/define.js'
 import { expandNames } from '../names.js'
-import { readCatalogs, contentVocabulary } from '../content-node.js'
+import { readCatalogs, contentVocabulary } from '../resolver.js'
 
 const T = (en) => ({ en })
 

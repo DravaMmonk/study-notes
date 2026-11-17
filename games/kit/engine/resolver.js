@@ -1,10 +1,11 @@
+import { existenceProblems, publicSurfaces } from './existence.js'
 import { createRequire } from 'node:module'
 import { installPackageImports } from './plugin-boundaries.js'
 import { createPluginKernel } from './plugins.js'
 import { tagName } from './tag-identity.js'
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { assemble, combineConfiguration, contentRoots } from './content.js'
 import { ENTRY } from './vocabulary.js'
 import { PARTS_FILE } from './parts/schema.js'
@@ -15,19 +16,27 @@ import { catalogReader } from './catalogs.js'
 import { runtimeIds } from './runtime.js'
 import { contentKindSchemas } from './content-kinds.js'
 import { withKindDeclarations, kindSchemas } from './plugin-kinds.js'
-import { vocabularyFor } from './kernel.js'
+import { vocabularyFor, modules } from './kernel.js'
 
-export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
-export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
+/** Content locations belong exclusively to the workspace resolver. */
+export function contentRoot(root) {
+  if (root) return resolve(root)
+  if (process.env.GAMES_ROOT) return resolve(process.env.GAMES_ROOT)
+  let dir = process.cwd()
+  if (dir.endsWith('/trace-viewer')) dir = dirname(dir)
+  return dir
+}
+export const packageDirectory = (id = '', root) => resolve(contentRoot(root), 'packages', id)
+export const gameDirectory = (id = '', root) => resolve(contentRoot(root), 'games', id)
 
 export const contentVocabulary = (modules) => vocabularyFor(modules)
 export const layerVocabulary = (layers) => {
   const levels = layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === 'level').map(o => o.value))
   const legacy = levels.flatMap(level => (level.tasks ?? []).filter(task => !task.play || !layers.some(layer => layer.hasCore && task.play.startsWith(`${layer.id}:`))).map(task => ({ ...level, tasks: [task] })))
-  const entries = kind => Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === kind).map(o => [`${layer.id}/${o.name}`, o.value])))
+  const entries = kind => Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === kind).map(o => [o.name.includes('/') ? o.name : `${layer.id}/${o.name}`, o.value])))
   const ids = runtimeIds({ levels: legacy, registries: { symbol: entries('symbol') }, partDefs: { parts: entries('part') } })
-  const legacyModules = ids.filter(id => !layers.some(layer => layer.id === id && layer.hasCore))
-  const packageCode = layers.some(layer => layer.hasCore)
+  const legacyModules = ids.filter(id => modules.some(module => module.id === id) && !layers.some(layer => layer.id === id && layer.hasCore))
+  const packageCode = layers.some(layer => layer.hasCore) || levels.some(level => level.tasks?.some(task => task.play))
   return { ...withKindDeclarations(vocabularyFor(legacyModules), layers, packageCode), legacyModules, packageCode }
 }
 
@@ -39,10 +48,9 @@ const json = (file) => {
   }
 }
 
-export const gameDirectory = (id, root = PROJECT_DIR) => resolve(root, 'games', id)
 
 /** Whether a game has its own course configuration. */
-export const isDataGame = (id, root = PROJECT_DIR) => existsSync(resolve(gameDirectory(id, root), 'game.json'))
+export const isDataGame = (id, root = contentRoot()) => existsSync(resolve(gameDirectory(id, root), 'game.json'))
 
 const selector = (id, label) => {
   if (typeof id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(id)) {
@@ -52,11 +60,11 @@ const selector = (id, label) => {
 }
 
 /** Keep the package selector separate from the game's presentation. */
-export function splitGameConfig({ packages, ...game }, root = PROJECT_DIR) {
+export function splitGameConfig({ packages, ...game }, root = contentRoot()) {
   if (!Array.isArray(packages) || !packages.length) throw new Error('game.json needs a nonempty packages array')
   packages.forEach((id) => selector(id, 'package'))
   const packageId = packages[0]
-  const packageDir = resolve(root, 'packages', selector(packageId, 'package'))
+  const packageDir = packageDirectory(selector(packageId, 'package'), root)
   return { packageId, packageDir, packageIds: packages, game }
 }
 
@@ -70,10 +78,10 @@ function configuration(paths) {
   return Object.fromEntries(Object.entries(paths).map(([file, path]) => [file, json(path)]))
 }
 
-export function readGameConfig(id, root = PROJECT_DIR) {
+export function readGameConfig(id, root = contentRoot()) {
   const gameDir = gameDirectory(id, root)
   const { game: meta, ...location } = splitGameConfig(json(resolve(gameDir, 'game.json')), root)
-  const files = { 'game.json': meta, ...configuration(configPaths(gameDir, location.packageDir)) }
+  const files = { 'game.json': meta, 'course.json': json(resolve(gameDir, 'course.json')) }
   return { ...location, files, game: combineConfiguration(files) }
 }
 
@@ -103,8 +111,8 @@ export function entryValue(name, value) {
 }
 
 /** Games arrange package objects and cannot declare objects of their own. */
-export function gameDeclarationProblems(gameDir) {
-  return ['levels', 'parts', 'parts.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas).map(kind => folders[kind])]
+export function gameDeclarationProblems(gameDir, schemas) {
+  return [...new Set(['kinds', 'symbols', 'core', 'view', ...Object.values(schemas?.objectKinds ?? {}).filter(d => !d.extends).map(d => d.folder), 'levels', 'parts', 'parts.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas).map(kind => folders[kind])])]
     .filter((name) => existsSync(resolve(gameDir, name)))
     .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
 }
@@ -124,7 +132,7 @@ export function catalogFiles(dir) {
 export const readCatalogs = (dir) => Object.fromEntries(catalogFiles(dir).map(([lang, path]) => [lang, json(path)]))
 
 /** The blind sessions played on a course. */
-export function readPlaytests(id, dir = GAMES_DIR) {
+export function readPlaytests(id, dir = gameDirectory()) {
   const folder = resolve(dir, id, 'playtests')
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
@@ -155,15 +163,16 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
 }
 
 /** Read a layer in file shape; workspaces can replace this layer before assembling. */
-export function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declarations = {}) {
+function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declarations = {}) {
   if (id === 'kernel') throw new Error('kernel is a reserved namespace')
   if (existsSync(resolve(dir, 'settings')) || existsSync(resolve(dir, 'settings.json'))) throw new Error(`${dir}: settings belong inside parts/`)
   if (existsSync(resolve(dir, 'glossary.json'))) throw new Error(`${dir}: glossary.json has been replaced by entries/ and tags/entry/`)
   const tagReaders = []
+  const kernel = createPluginKernel()
   const core = resolve(dir, 'core/index.js')
-  if (existsSync(core)) {
+  if (!id.startsWith('@') && existsSync(core)) {
     installPackageImports()
-    const api = createPluginKernel().forPackage(id, 'core')
+    const api = kernel.forPackage(id, 'core')
     const registration = createRequire(import.meta.url)(core)
     const result = registration.register({ ...api, tag(name, member) {
       api.tag(name, member)
@@ -185,21 +194,40 @@ export function readLayer(id, dir, config = json(resolve(dir, 'package.json')), 
     for (const [kind, folder] of Object.entries({ ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(declarations).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) })) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/').at(-1) : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, tagReaders, objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
+  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, codeObjects: [...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
-export function readPackageLayers(packageIds, root = PROJECT_DIR) {
-  const layers = orderPackages(packageIds.map((id) => readLayer(id, resolve(root, 'packages', id))))
-  const definitions = layerVocabulary(layers).objectKinds
-  return layers.map(layer => readLayer(layer.id, resolve(root, 'packages', layer.id), layer.config, definitions))
+/** Resolve source layers once. All consumers, including editable workspaces, enter here. */
+export function resolveLayers({ game, package: packageId, packages, closure = false, root = contentRoot() }) {
+  const selected = game ? readGameConfig(game, root) : null
+  const ids = selected?.packageIds ?? packages ?? [packageId]
+  const found = new Map()
+  const visit = id => {
+    selector(id, 'package')
+    if (found.has(id)) return
+    const dir = packageDirectory(id, root)
+    const layer = existsSync(resolve(dir, 'package.json')) ? readLayer(id, dir) : { id, missing: true, entryPaths: {}, config: {}, objects: [], overrides: [], catalogs: {} }
+    found.set(id, layer)
+    if (closure) for (const dep of layer.config.uses ?? []) visit(dep)
+  }
+  ids.forEach(visit)
+  const initial = orderPackages([...found.values()])
+  const definitions = layerVocabulary(initial).objectKinds
+  const layers = initial.map(layer => layer.missing ? layer : readLayer(layer.id, packageDirectory(layer.id, root), layer.config, definitions))
+  if (game) layers.push(readLayer(`@${game}`, gameDirectory(game, root), { ...selected.files['game.json'], ...selected.files['course.json'], packages: ids }, definitions))
+  return { layers, ...(selected ?? {}) }
 }
+
+export const readPackageLayers = (packages, root) => resolveLayers({ packages, root }).layers
 
 /** Assemble qualified layers once, after every override has been composed. */
 export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
+  declarationProblems = [...declarationProblems, ...existenceProblems(result.qualifiedLayers, schemas)]
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
   const game = Object.assign({}, ...configurations)
   delete game.uses
+  delete game.packages
   const packageFields = Object.keys(game).filter((key) => key !== 'vocabulary')
   const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [kind === 'tag' ? tagName(name) : name, value, (kind === 'tag' ? tagName(name) : name).split('/')[0]])
   const overridden = {}
@@ -208,51 +236,40 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
     const values = overridden[key] ??= {}
     values[lang] = event.before
   }
-  return assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
+  const content = assemble({ id, schemas, packageId: packageId ?? layers[0].id, game, qualified: true,
     levels: entries('level'), tags: entries('tag'), relations: entries('relation'), sections: entries('section'), trays: entries('tray'),
     contentObjects: Object.fromEntries(Object.keys(kindSchemas(schemas)).map(kind => [kind, r[kind]])), partDefs: { parts: r.part }, glossary: { groups: [], entries: Object.entries(r.entry).map(([id, value]) => ({ id, ...value })) },
-    blueprint, declarationProblems, overridden, fromDisk: true, objectKinds: schemas.objectKinds, ...(packageId && { packageTarget: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
+    blueprint, declarationProblems, existenceChecked: true, overridden, fromDisk: true, objectKinds: schemas.objectKinds, ...(packageId && { packageTarget: { id: packageId, fields: packageFields } }), provenance: { sources, overrideHistory, layerOrder, layerUses },
   })
+  Object.defineProperty(content, 'resolvedDependencies', { value: { layers: result.qualifiedLayers, surfaces: publicSurfaces(result.qualifiedLayers, schemas) } })
+  return content
 }
 
-export function readContent(id, root = PROJECT_DIR, { overrides = true, vocabulary } = {}) {
-  const { packageIds, files } = readGameConfig(id, root)
-  const layers = readPackageLayers(packageIds, root)
+export function readContent(id, root = contentRoot(), { overrides = true, vocabulary } = {}) {
+  const { layers: resolved } = resolveLayers({ game: id, root })
+  const own = resolved.at(-1), layers = resolved.slice(0, -1)
   const gameDir = gameDirectory(id, root)
-  const own = readLayer(`@${id}`, gameDir, { ...files['game.json'], ...files['course.json'] })
   if (!overrides) { own.overrides = []; own.textOverrides = [] }
   own.objects = []
   const schemas = vocabulary ?? layerVocabulary(layers)
   const blueprintPath = resolve(gameDir, 'blueprint.json')
   const blueprint = existsSync(blueprintPath) ? catalogReader(own.catalogs)(json(blueprintPath), blueprintPath, BLUEPRINT, schemas) : undefined
-  const content = assembleLayers(id, [...layers, own], schemas, { blueprint, declarationProblems: gameDeclarationProblems(gameDir) })
+  const content = assembleLayers(id, [...layers, own], schemas, { blueprint, declarationProblems: gameDeclarationProblems(gameDir, schemas) })
   contentRoots.set(content, root)
   return content
 }
 
 /** Installed packages, including libraries with no game. */
-export function packageIds(root = PROJECT_DIR) {
-  const dir = resolve(root, 'packages')
+export function packageIds(root = contentRoot()) {
+  const dir = packageDirectory('', root)
   return existsSync(dir) ? readdirSync(dir).filter((id) => existsSync(resolve(dir, id, 'package.json'))).sort() : []
 }
 
 /** Open a package with its complete dependency closure, without requiring a game. */
-export function packageLayers(id, root = PROJECT_DIR) {
-  selector(id, 'package')
-  const layers = new Map()
-  const visit = (name) => {
-    if (layers.has(name)) return
-    selector(name, 'package')
-    const layer = readLayer(name, resolve(root, 'packages', name))
-    layers.set(name, layer)
-    for (const dependency of layer.config.uses ?? []) visit(dependency)
-  }
-  visit(id)
-  return readPackageLayers([...layers.keys()], root)
-}
+export const packageLayers = (id, root) => resolveLayers({ package: id, closure: true, root }).layers
 
 /** Bare names retain game precedence. Explicit package selection disambiguates a shared name. */
-export function contentTargets(ids = [], root = PROJECT_DIR, { package: asPackage = false, game: asGame = false } = {}) {
+export function contentTargets(ids = [], root = contentRoot(), { package: asPackage = false, game: asGame = false } = {}) {
   if (asPackage && asGame) throw new Error('choose --package or --game')
   const dir = resolve(root, 'games')
   const games = existsSync(dir) ? readdirSync(dir).filter((id) => isDataGame(id, root)).sort() : []
@@ -268,7 +285,7 @@ export function contentTargets(ids = [], root = PROJECT_DIR, { package: asPackag
   return [...games.map((id) => ({ id, kind: 'game' })), ...(asGame ? [] : packages.filter((id) => !played.has(id)).map((id) => ({ id, kind: 'package' })))]
 }
 
-export function readPackage(id, root = PROJECT_DIR, { vocabulary } = {}) {
+export function readPackage(id, root = contentRoot(), { vocabulary } = {}) {
   const layers = packageLayers(id, root)
   const schemas = vocabulary ?? layerVocabulary(layers)
   const content = assembleLayers(id, layers, schemas, { packageId: id })
@@ -284,3 +301,21 @@ export function readStarter(templateDir) {
 }
 
 export { runtimeOf } from './runtime.js'
+
+/** File-shaped public data for authoring. Consumers never open a dependency directory. */
+export function publicLayerFiles(layer, schemas) {
+  const paths = { ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(schemas.objectKinds ?? {}).filter(([, d]) => !d.extends).map(([kind, d]) => [kind, d.folder])) }
+  const objectPath = object => `${paths[object.kind]}/${object.kind === 'tag' ? `${object.value.kind}/` : ''}${object.name.split('/').at(-1)}.json`
+  const files = new Map([['package.json', JSON.stringify(layer.config)]])
+  for (const object of layer.objects) files.set(objectPath(object), JSON.stringify(object.kind === 'tag' ? Object.fromEntries(Object.entries(object.value).filter(([key]) => key !== 'kind')) : object.value))
+  for (const [lang, entries] of Object.entries(layer.catalogs ?? {})) files.set(`i18n/${lang}.json`, JSON.stringify(entries))
+  for (const object of layer.overrides ?? []) files.set(`overrides/${object.name.split('/')[0]}/${objectPath(object)}`, JSON.stringify(object.kind === 'tag' ? Object.fromEntries(Object.entries(object.value).filter(([key]) => key !== 'kind')) : object.value))
+  for (const { namespace, lang, entries } of layer.textOverrides ?? []) files.set(`overrides/${namespace}/i18n/${lang}.json`, JSON.stringify(entries))
+  return files
+}
+
+export const packageConfig = (id, root) => json(resolve(packageDirectory(id, root), 'package.json'))
+
+export const workspaceCheckCache = () => !process.env.GAMES_ROOT
+
+export const contentLayers = content => content.resolvedDependencies?.layers ?? []

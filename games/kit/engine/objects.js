@@ -37,7 +37,7 @@ export function referenceResolver(registries, problems = []) {
   const findTag = (name, kind, at) => {
     const matches = Object.entries(registries.tag ?? {}).filter(([key, tag]) => tagName(key) === name && (kind === 'any' || kind === 'grant' && grants.types.has(tag.kind) || tag.kind === kind))
     if (matches.length !== 1) {
-      report(at, matches.length ? `ambiguous tag ${name}: ${matches.map(([, tag]) => tag.kind).join(', ')}` : `unknown tag ${name}; expected ${kind}`)
+      if (matches.length) report(at, `ambiguous tag ${name}: ${matches.map(([, tag]) => tag.kind).join(', ')}`)
       return null
     }
     return matches[0]
@@ -54,8 +54,7 @@ export function referenceResolver(registries, problems = []) {
         if (kind === 'any') {
           const matches = Object.keys(registries).filter(type => type !== 'tag' && has(type, id))
           if (matches.length > 1) report(at, `ambiguous object ${id}: ${matches.join(', ')}`)
-          if (!matches.length) report(at, `unknown object ${id}`)
-        } else if (!has(kind, id)) report(at, `unknown ${kind} ${id}`)
+        }
         return [id]
       }
       const found = findTag(id.slice(1), kind, at)
@@ -102,6 +101,7 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
   if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind] || schema?.kind?.includes('/')) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
   if (typeof value === 'string' && value.startsWith('#') && referenceKind(schema)) {
     const ids = expand(value, referenceKind(schema), at)
+    if (ids.length === 0) return value
     if (ids.length !== 1) throw new Error(`${at}: a scalar reference needs exactly one member, got ${ids.length}`)
     return ids[0]
   }

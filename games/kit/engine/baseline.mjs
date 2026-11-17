@@ -1,16 +1,17 @@
+import { packageDirectory } from './resolver.js'
 // Save/compare a migration corpus. Kept data belongs in output/, never in content or git.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { PROJECT_DIR, readContent, readPackage, runtimeOf, contentTargets, packageIds } from './content-node.js'
+import { contentRoot, readContent, readPackage, runtimeOf, contentTargets, packageIds } from './resolver.js'
 import { packageLevel } from './package-play.js'
 import { closeGames } from './games.mjs'
-import { baselineValue, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, existenceBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
 import { usable, offer, holds } from '../course.js'
 
-const root = process.env.GAMES_ROOT ?? PROJECT_DIR
+const root = contentRoot()
 const folder = resolve(root, 'output/modules-baseline')
 const preview = value => value && typeof value === 'object' ? (Array.isArray(value) ? `[${value.length} items]` : `{${Object.keys(value).slice(0, 4).join(', ')}}`) : JSON.stringify(value)
 const [action, ...args] = process.argv.slice(2)
@@ -25,7 +26,7 @@ try {
   for (const target of targets) {
     const { id, kind } = target
     const packaged = kind === 'package'
-    if (action === 'compare' && packaged && !existsSync(resolve(folder, `${kind}-${id}.json`)) && existsSync(resolve(root, 'packages', id, 'core/index.js'))) {
+    if (action === 'compare' && packaged && !existsSync(resolve(folder, `${kind}-${id}.json`)) && existsSync(resolve(packageDirectory(id, root), 'core/index.js'))) {
       console.log(`compare package ${id}: new plugin outside the locked corpus (covered by package contracts)`)
       continue
     }
@@ -36,7 +37,7 @@ try {
     for (const registry of Object.values(runtime.vocabulary.kinds)) for (const name of Object.keys(registry)) names.add(name)
     for (const level of content.levels) for (const task of level.tasks) names.add(task.id)
     const checked = spawnSync(process.execPath, [fileURLToPath(new URL('./check.js', import.meta.url)), ...(packaged ? ['--package'] : ['--game']), id, '--fresh'], {
-      cwd: resolve(PROJECT_DIR, 'trace-viewer'), env: { ...process.env, GAMES_ROOT: root, NODE_OPTIONS: '--no-warnings' }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+      cwd: resolve(import.meta.dirname, '../../../trace-viewer'), env: { ...process.env, GAMES_ROOT: root, NODE_OPTIONS: '--no-warnings' }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
     })
     if (checked.error || checked.signal || checked.status === null) throw checked.error ?? new Error(`check interrupted: ${id}`)
     const records = []
@@ -81,7 +82,7 @@ try {
       const normalizeBefore = nameNormalizer(before.names), normalizeAfter = nameNormalizer(snapshot.names)
       // The inventory itself describes migration locations, not behaviour.
       const { names: _old, ...oldData } = before, { names: _new, ...newData } = snapshot
-      const changes = differences(normalizeBefore(oldData), normalizeAfter(newData))
+      const changes = differences(existenceBaseline(normalizeBefore(oldData)), existenceBaseline(normalizeAfter(newData)))
       changeCount = changes.length
       total += changeCount
       writeFileSync(resolve(folder, `${kind}-${id}.diff.json`), JSON.stringify(packBaseline(changes)) + '\n')

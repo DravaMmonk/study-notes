@@ -9,7 +9,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { proofsRoot } from '../engine/ops/fixture.js'
-import { readContent } from '../engine/content-node.js'
+import { readContent } from '../engine/resolver.js'
 
 const { root, id: GAME } = proofsRoot()
 let server

@@ -3,7 +3,7 @@
 // (games/<game>/playtests/<session>.json, ./session.js). Run from trace-viewer, as npm run play does.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { GAMES_DIR, readContent } from '../content-node.js'
+import { gameDirectory, readContent } from '../resolver.js'
 import { gameOf, loadModule } from '../games.mjs'
 import { createPlay } from './play.js'
 import { fresh } from '../../shell/progress.js'
@@ -12,7 +12,7 @@ import { checkPlaytest, newSession } from './session.js'
 const KIT = resolve(import.meta.dirname, '../..')
 
 /** Where a session's record lives. */
-export const recordFile = (game, session, dir = GAMES_DIR) => resolve(dir, game, 'playtests', `${session}.json`)
+export const recordFile = (game, session, dir = gameDirectory()) => resolve(dir, game, 'playtests', `${session}.json`)
 
 let loadedLang = null
 

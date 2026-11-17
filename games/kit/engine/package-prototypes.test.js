@@ -1,9 +1,10 @@
+import { existenceProblems } from './existence.js'
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
-import { readPackage, runtimeOf } from './content-node.js'
+import { readPackage, runtimeOf } from './resolver.js'
 import { checkGame } from './checks.js'
 import { closeGames } from './games.mjs'
 import { composeLayers } from './layers.js'
@@ -35,9 +36,9 @@ test('content prototypes qualify, merge, replace, reject undeclared dependencies
   extra.overrides[0].value = { C: 'charlie' }
   assert.deepEqual(composeLayers([base, extra], vocabulary).registries.wordset['base/words'], { C: 'charlie' })
   extra.config.uses = []
-  assert.throws(() => composeLayers([base, extra], vocabulary), /undeclared dependency/)
+  assert.ok(existenceProblems(composeLayers([base, extra], vocabulary).qualifiedLayers, vocabulary).some(p => p.reason === 'undeclared dependency'))
   const badReference = layer('extra', [{ kind: 'level', name: 'one', value: { words: ['base/words'] } }])
-  assert.throws(() => composeLayers([base, badReference], vocabularyFor('logic')), /undeclared dependency/)
+  assert.ok(existenceProblems(composeLayers([base, badReference], vocabularyFor('logic')).qualifiedLayers, vocabularyFor('logic')).some(p => p.reason === 'undeclared dependency'))
 })
 
 test('every dependency checks its own minimum vocabulary version and package fields', () => {

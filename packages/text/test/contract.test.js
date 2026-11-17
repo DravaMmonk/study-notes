@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readPackage, runtimeOf } from '../../../games/kit/engine/content-node.js'
+import { readPackage, runtimeOf } from '../../../games/kit/engine/resolver.js'
 import { packageLevel } from '../../../games/kit/engine/package-play.js'
 import { checkGame } from '../../../games/kit/engine/checks.js'
 import { gameOf, closeGames } from '../../../games/kit/engine/games.mjs'

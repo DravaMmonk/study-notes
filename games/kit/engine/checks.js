@@ -23,20 +23,13 @@ import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
 import { noMemo } from './check-cache.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
-import { referenceResolver } from './objects.js'
 import { packageLevel } from './package-play.js'
 
 /** Packages check objects and implementations once, then each level independently of any learning route. */
 export async function checkPackage(content, { domain, root, mutants = false }) {
   const wrong = checkContent(domain, content)
   if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
-  const expand = referenceResolver(content.registries, wrong)
-  for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
-    const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
-    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'awards', 'without']) if (entry[field]) expand(entry[field], 'grant', `${at}.${field}`)
-    if (entry.tray) expand(entry.tray, 'tray', `${at}.tray`)
-  }
-  const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
+  const lines = wrong.map(problem => ({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(problem.rule === 'exists' && { problem }) }))
   if (wrong.length) return lines
   const names = Object.fromEntries(['level', 'part', 'entry'].map(kind => [kind === 'part' ? 'part' : kind === 'entry' ? 'wiki' : kind,
     new Map(Object.entries(content.registries[kind]).map(([id, object]) => [id, String(firstText(object.title ?? object.name ?? id))])),
@@ -66,7 +59,7 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
- * `domain`: its domain module (content-node.js runtimeOf). Content that does not fit the vocabulary is not built into a course: what
+ * `domain`: its domain module (resolver.js runtimeOf). Content that does not fit the vocabulary is not built into a course: what
  * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task. `cache`: the game's
  * kept checks (check-cache.js), which the domain's checks of an unchanged level are read from; never with `mutants`.
  */
@@ -76,7 +69,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
   if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
-  for (const p of wrong) fail(`content: ${p.at}: ${p.says}`)
+  for (const problem of wrong) lines.push({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(problem.rule === 'exists' && { problem }) })
   if (wrong.length) return lines
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)
   const spec = domain.spec(content)

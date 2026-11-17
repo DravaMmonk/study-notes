@@ -1,21 +1,19 @@
-import { pluginRuntime, tagReaderProblems } from './plugin-runtime.js'
+import { pluginRuntime } from './plugin-runtime.js'
 import { contentRoots, contentSchemas } from './content.js'
 // Server-side capability implementations are loaded only for checks and textual play.
-import { vocabularyFor } from './kernel.js'
+import { vocabularyFor, modules } from './kernel.js'
 import { runtimeIds, taskModule, runtimeSpec } from './runtime-model.js'
 export { runtimeIds, taskModule, runtimeWorks, runtimeSpec } from './runtime-model.js'
 
 /** Resolve module runtimes using capability ownership. The vocabulary tables remain shared. */
 export async function runtimeOf(content, root) {
   const { loadPlugins } = await import('./plugin-node.js')
-  const { PROJECT_DIR } = await import('./content-node.js')
-  root ??= contentRoots.get(content) ?? process.env.GAMES_ROOT ?? PROJECT_DIR
+  const { contentRoot } = await import('./resolver.js')
+  root ??= contentRoots.get(content) ?? contentRoot()
   const plugins = await loadPlugins(content, root)
   const pluginIds = new Set([...plugins.tables.play.keys()].map(name => name.split(':')[0]))
-  const tagProblems = tagReaderProblems(content, plugins)
-  if (tagProblems.length) throw new Error(JSON.stringify(tagProblems))
   const vocabulary = contentSchemas.get(content) ?? vocabularyFor(runtimeIds(content).filter(id => !pluginIds.has(id)))
-  const runtimes = await Promise.all(runtimeIds(content).map(async (id) => ({ id, runtime: pluginIds.has(id) ? pluginRuntime(id, plugins, vocabulary) : (await import(`../modules/${id}/runtime.js`)).default })))
+  const runtimes = await Promise.all(runtimeIds(content).filter(id => pluginIds.has(id) || modules.some(module => module.id === id)).map(async (id) => ({ id, runtime: pluginIds.has(id) ? pluginRuntime(id, plugins, vocabulary) : (await import(`../modules/${id}/runtime.js`)).default })))
   const complete = runtime => ({ ...runtime, validate: async spec => [...await runtime.validate(spec), ...await plugins.checks({ content, levels: spec.levels, excludePackages: runtimes.map(({ id }) => id) })] })
   if (runtimes.length === 1) return complete({ ...runtimes[0].runtime, vocabulary })
   const byId = new Map(runtimes.map(({ id, runtime }) => [id, runtime]))

@@ -99,3 +99,14 @@ test('typed tag inventory aliases and only the five retired QED grant edges norm
   assert.equal(now(unrelated).structure.relations.order[0].of, undefined)
   assert.notEqual(nameNormalizer(['qed/proof', 'level:other/proof'])('qed/proof'), 'proof')
 })
+
+test('step 3 normalization is limited to tag copy keys and missing-target diagnostic wording', async () => {
+  const { existenceBaseline, differences } = await import('./baseline-value.js')
+  const before = { title: { en: 'Same', $key: 'sample/glossary.groups.basics.title' }, tray: { $key: 'sample/tray.basics.title' }, check: { status: 1, stdout: '  FAIL content: tags/sample/all: unknown level sample/missing\n' } }
+  const after = { ...before, title: { en: 'Same', $key: 'sample/tag.basics.title' }, check: { status: 1, stdout: '  FAIL content: tags/sample/all: missing target level sample/missing\n' } }
+  assert.deepEqual(differences(existenceBaseline(before), existenceBaseline(after)), [])
+  assert.equal(existenceBaseline(before).tray.$key, 'sample/tray.basics.title')
+  assert.ok(differences(existenceBaseline(before), existenceBaseline({ ...after, title: { en: 'Changed', $key: 'sample/tag.basics.title' } })).length)
+  assert.equal(existenceBaseline({ prose: 'unknown level sample/missing', $key: 'sample/group.basics.other' }).prose, 'unknown level sample/missing')
+  assert.equal(existenceBaseline({ $key: 'sample/group.basics.other' }).$key, 'sample/group.basics.other')
+})

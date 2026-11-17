@@ -14,9 +14,9 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 13,
-  removes: [{ at: 'plugins.version', why: 'Tag readers now register a member type and their own full name; templates and short-name conventions are removed.' }],
-  plugins: { version: 2, tags: { key: '<member>:<namespace>/<name>', register: 'tag(fullName, member)', reserved: ['kernel'], readers: [{ name: 'kernel/studio-left', member: 'kind' }] }, core: ['play', 'kind', 'state', 'check', 'agent', 'tag'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
+  version: 14,
+  removes: [],
+  plugins: { version: 2, tags: { key: '<member>:<namespace>/<name>', register: 'tag(fullName, member)', reserved: ['kernel'], readers: [{ name: 'kernel/studio-left', member: 'kind' }] }, core: ['play', 'kind', 'state', 'check', 'agent', 'tag', 'object'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,
@@ -29,7 +29,7 @@ export const vocabulary = {
 export function vocabularyFor(course) {
   const ids = Array.isArray(course) ? course : [course]
   const choices = ids.map((id) => selectModuleVocabulary(vocabulary, id))
-  const selected = choices.length === 1 ? choices[0] : {
+  const selected = !choices.length ? { ...vocabulary, game: S.obj({}), level: null } : choices.length === 1 ? choices[0] : {
     ...vocabulary,
     game: S.obj(Object.fromEntries([...new Set(choices.flatMap(choice => Object.keys(choice.game.fields)))].map(key => {
       const schemas = choices.map(choice => choice.game.fields[key]).filter(Boolean)

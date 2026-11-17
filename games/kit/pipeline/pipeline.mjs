@@ -25,14 +25,14 @@ import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { closeGames } from '../engine/games.mjs'
-import { runtimeOf, readContent } from '../engine/content-node.js'
+import { runtimeOf, readContent, gameDirectory, contentRoot } from '../engine/resolver.js'
 import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { describe } from '../engine/vocabulary.js'
 import { OPERATIONS } from '../engine/ops/operations.js'
 import { knownGames } from '../engine/cli-args.js'
 import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
-import { GAMES_DIR, STEPS, briefOf, pedagogyOf, stepOf, terminologyOf } from './steps.js'
+import { STEPS, briefOf, pedagogyOf, stepOf, terminologyOf } from './steps.js'
 
 const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] [--scope <scope>] | gate <step> [--scope <scope>] | eras | lint | pedagogy | terminology [--json] | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
@@ -40,8 +40,8 @@ const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : u
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
 const [game] = knownGames(words.slice(0, 1), USAGE)
 const [command, arg] = words.slice(1)
-const VIEWER = resolve(GAMES_DIR, '../trace-viewer')
-const dir = resolve(GAMES_DIR, game)
+const VIEWER = resolve(import.meta.dirname, '../../../trace-viewer')
+const dir = gameDirectory(game)
 const STATE = resolve(dir, 'pipeline.json')
 
 const readState = () => (existsSync(STATE) ? JSON.parse(readFileSync(STATE, 'utf8')) : { game, steps: {} })
@@ -83,13 +83,13 @@ function inputs(step, state, scope) {
   const last = state.steps[step.id]?.gates?.at(-1)
   const lines = [
     `- Game: ${game} (its folder: ${dir}; modules: ${runtimeIds(content).join(', ')})`,
-    `- Repository root: ${resolve(GAMES_DIR, '..')} (games/DESIGN.md is ${resolve(GAMES_DIR, 'DESIGN.md')})`,
+    `- Repository root: ${contentRoot()} (games/DESIGN.md is ${resolve(import.meta.dirname, '../../DESIGN.md')})`,
     `- Course material: ${['DESIGN.md', 'CURRICULUM.md'].map((f) => resolve(dir, f)).filter(existsSync).join(', ') || '(none)'}`,
     // The sources the blueprint teaches from, each said to be there or not (the agent reads them; a missing one is a gap).
-    ...(content.blueprint?.sources?.length ? [`- The blueprint's sources: ${content.blueprint.sources.map((f) => `${resolve(GAMES_DIR, '..', f)}${existsSync(resolve(GAMES_DIR, '..', f)) ? '' : ' (missing)'}`).join(', ')}`] : []),
+    ...(content.blueprint?.sources?.length ? [`- The blueprint's sources: ${content.blueprint.sources.map((f) => `${resolve(contentRoot(), f)}${existsSync(resolve(contentRoot(), f)) ? '' : ' (missing)'}`).join(', ')}`] : []),
     `- Blueprint: ${content.blueprint ? resolve(dir, 'blueprint.json') : '(none yet)'}`,
     `- Vocabulary: ./vocabulary.json (the domain's items and schemas, and the operations)`,
-    `- Module code: ${runtimeIds(content).map(module => resolve(GAMES_DIR, 'kit/modules', module)).join(', ')}`,
+    `- Module code: ${runtimeIds(content).map(module => resolve(import.meta.dirname, '../modules', module)).join(', ')}`,
     ...(scope ? [`- Scope of this run: ${scope}`] : []),
   ]
   const out = [`## Inputs\n\n${lines.join('\n')}`]

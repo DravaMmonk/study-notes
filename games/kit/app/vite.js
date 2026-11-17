@@ -1,5 +1,5 @@
 import { pluginSource, packageApp } from './package-vite.js'
-import { readPackageLayers } from '../engine/content-node.js'
+import { contentLayers } from '../engine/resolver.js'
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. A game's page is code
 // only — its domain (`virtual:game/<id>`: the domain's game.js and vocabulary) — and reads the game's content when
@@ -9,7 +9,7 @@ import { readPackageLayers } from '../engine/content-node.js'
 // come from the hub's list (../../games.js).
 import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
-import { isDataGame, readContent } from '../engine/content-node.js'
+import { isDataGame, readContent } from '../engine/resolver.js'
 import { gameModule as domainEntry } from '../engine/game-module.js'
 import { runtimeIds } from '../engine/runtime.js'
 import { CONTENT_FILE, contentAssets } from './content-assets.js'
@@ -22,7 +22,7 @@ const q = JSON.stringify
 /** The module that is game `id`'s domain as the page takes it: { define (its game.js), vocabulary }. */
 function gameModule(id) {
   const content = readContent(id)
-  const layers = readPackageLayers(content.layerOrder.filter(id => !id.startsWith('@')))
+  const layers = contentLayers(content).filter(layer => !layer.id.startsWith('@'))
   const hasCode = layers.some(layer => layer.hasCore || layer.hasView)
   const pluginIds = runtimeIds(content).filter(id => layers.some(layer => layer.id === id && layer.hasCore))
   const modules = runtimeIds(content).filter(id => !pluginIds.includes(id))

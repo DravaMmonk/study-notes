@@ -2,11 +2,11 @@
 import { resolve } from 'node:path'
 import { exportPath } from '../engine/plugin-boundaries.js'
 import { packageEntries } from '../engine/plugin-node.js'
-import { layerVocabulary, PROJECT_DIR } from '../engine/content-node.js'
+import { layerVocabulary, contentRoot } from '../engine/resolver.js'
 
 const KIT = resolve(import.meta.dirname, '..')
 const q = JSON.stringify
-export function pluginSource(layers, root = PROJECT_DIR) {
+export function pluginSource(layers, root = contentRoot()) {
   const entries = packageEntries(layers, root)
   const schemas = layerVocabulary(layers)
   return [
@@ -18,7 +18,7 @@ export function pluginSource(layers, root = PROJECT_DIR) {
     `const vocabulary = { ...vocabularyFor(${q(schemas.legacyModules)}), legacyModules: ${q(schemas.legacyModules)}, packageCode: ${q(schemas.packageCode)} }`,
   ].join('\n')
 }
-export function packageApp(root = PROJECT_DIR) {
+export function packageApp(root = contentRoot()) {
   return { name: 'package-code',
     resolveId(id, importer) {
       const index = importer?.lastIndexOf('/packages/') ?? -1

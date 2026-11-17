@@ -6,7 +6,7 @@
 // --dot; --levels draws the levels as well, each wired from the parts its reference uses and to the parts it brings.
 import { pathToFileURL } from 'node:url'
 import { introductions } from '../course.js'
-import { runtimeOf, readContent } from './content-node.js'
+import { runtimeOf, readContent } from './resolver.js'
 import { knownGames } from './cli-args.js'
 
 /**

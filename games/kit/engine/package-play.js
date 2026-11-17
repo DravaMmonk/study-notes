@@ -18,6 +18,7 @@ export function packageLevel(content, level) {
       return name ? [[kind, name]] : []
     })),
   }
+  if (content.resolvedDependencies) Object.defineProperty(shell, 'resolvedDependencies', { value: content.resolvedDependencies })
   if (contentRoots.has(content)) contentRoots.set(shell, contentRoots.get(content))
   if (contentSchemas.has(content)) contentSchemas.set(shell, contentSchemas.get(content))
   return shell

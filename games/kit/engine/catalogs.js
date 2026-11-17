@@ -29,7 +29,7 @@ export const resolveReferences = (value, resolveKey) => mapTree(value, (child) =
 export const copyWithoutTextKeys = (value) => mapTree(value, (child) => textKey(child) && isText(child) ? Object.fromEntries(textEntries(child)) : child)
 
 /** Compile one scope's flat locale files into a reader for its configuration values. */
-export function catalogReader(catalogs, scope = 'i18n') {
+export function catalogReader(catalogs, scope = 'i18n', { allowMissing = false } = {}) {
   const byKey = new Map()
   for (const [lang, entries] of Object.entries(catalogs)) {
     if (!isLanguageCode(lang) || !entries || typeof entries !== 'object' || Array.isArray(entries)) {
@@ -44,6 +44,7 @@ export function catalogReader(catalogs, scope = 'i18n') {
   return (value, file = scope, schema = null, vocabulary) => {
     const resolve = (key) => {
       const text = byKey.get(key)
+      if (!text && allowMissing) return withTextKey({ en: '' }, key)
       if (!text) throw new Error(`${file}: ${textReference(key)} has no entry in ${scope}`)
       return withTextKey(text, key)
     }

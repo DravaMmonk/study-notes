@@ -81,6 +81,15 @@ existing formula-symbol ownership projection (`part`) and stable affected-edge o
 untyped edge, endpoint, relation ownership, member sequence or runtime result is rewritten.
 Snapshots remain unchanged; this rule accepts no arbitrary edge rename or reordering.
 
+Step 3 adds two narrow comparison rules in `existenceBaseline`: only `$key` values matching
+`[namespace/]group.<name>.title|desc` or `[namespace/]glossary.groups.<name>.title|desc` become
+`[namespace/]tag.<name>.title|desc`. Ordinary prose, other glossary keys, tray keys, translations, identities
+and membership remain compared. Only complete `FAIL content:` stdout lines ending in an old
+`unknown <object-type> <target>[; expected <member>]` diagnostic normalize to the new
+`missing target <object-type> <target> [(member <member>)]` wording. The source location, target, type,
+member, check status and every other output line remain compared. Loader stack traces and unrelated failures
+are not removed or broadly rewritten. Snapshots are unchanged; never run `save` for this migration.
+
 ## Current evidence boundaries
 
 - This is a finite reference/naive corpus, not equivalence for every possible player work. No browser,

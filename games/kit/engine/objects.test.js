@@ -44,8 +44,7 @@ test('the generic resolver expands every typed list, checks kind and cycles, and
   })
   expand('#loop', 'level'); expand('#mixed', 'level'); expand('#wrong', 'level')
   assert.ok(problems.some((p) => /circular tags/.test(p.says)))
-  assert.ok(problems.some((p) => /expected level/.test(p.says)))
-  assert.ok(problems.some((p) => /unknown level p/.test(p.says)))
+  assert.ok(problems.every(p => !/unknown|missing target/.test(p.says)))
 })
 
 test('checks reject separate relation cycles, duplicate chapter membership, invalid layout rows and inverted prerequisites', () => {
@@ -75,7 +74,7 @@ test('reference maps and item containers use the same typed resolver and loaded 
     list: ['p/b', 'p/a'], keyed: { 'p/a': 'same', 'p/b': 'same' }, tray: '#items',
   })
   expandReferences({ tray: '#levels' }, schema, expand)
-  assert.ok(problems.some((p) => /expected part/.test(p.says)))
+  assert.deepEqual(problems, [])
 })
 
 test('cross-game prerequisites keep their source game and need no local source declaration', () => {
@@ -161,8 +160,8 @@ test('item tags distinguish setting definitions from a part setting and its valu
   input.partDefs = { parts: { knob: { settings: { 'mode': { control: 'select', options: [{ value: 'on' }] } }, stages: [{ id: 'knob-on' }] } } }
   input.tags.push(['settings', { kind: 'part', values: ['mode'] }], ['knob', { kind: 'part', values: ['knob', 'knob-on'] }])
   const content = assemble(input)
-  assert.ok(content.objectProblems.some((p) => /unknown part toy\/mode/.test(p.says)))
-  assert.ok(!content.objectProblems.some((p) => /unknown part toy\/knob/.test(p.says)))
+  assert.ok(content.objectProblems.some((p) => /missing target part toy\/mode/.test(p.says)))
+  assert.ok(!content.objectProblems.some((p) => /missing target part toy\/knob/.test(p.says)))
 })
 
 test('settings have neither a registry nor a tag kind', () => {
@@ -170,7 +169,7 @@ test('settings have neither a registry nor a tag kind', () => {
   input.tags.push(['obsolete', { kind: 'setting', values: [] }])
   const content = assemble(input)
   assert.equal(Object.hasOwn(content.registries, 'setting'), false)
-  assert.ok(checkContent({ vocabulary }, content).some((problem) => /tags\/setting:toy\/obsolete/.test(problem.at)))
+  assert.ok(checkContent({ vocabulary }, content).some((problem) => problem.rule === 'exists' && problem.kind === 'kind' && problem.target === 'setting'))
 })
 
 
@@ -200,7 +199,7 @@ test('tag orders validate tag endpoints and detect cycles across relations indep
   expandRelations({ a: { kind: 'order', of: 'tag', member: 'level', sequence: ['#a', '#b'] }, b: { kind: 'order', of: 'tag', member: 'level', edges: [{ from: '#b', to: '#a' }] } }, expand, new Set(), problems)
   assert.ok(problems.some((p) => /circular order/.test(p.says)))
   expandRelations({ wrong: { kind: 'order', of: 'tag', member: 'level', sequence: ['#missing', 'a'] } }, expand, new Set(), problems)
-  assert.ok(problems.some((p) => /unknown tag missing/.test(p.says)))
+  assert.ok(!problems.some(p => /unknown tag/.test(p.says)))
   assert.ok(problems.some((p) => /expected a tag reference/.test(p.says)))
 })
 

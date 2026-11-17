@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 // new-game copies) passes its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readStarter } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/resolver.js'
 import { defineParts, partProblems } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { vocabulary } from './vocabulary.js'

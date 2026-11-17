@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkGame } from '../engine/checks.js'
-import { runtimeOf, readContent } from '../engine/content-node.js'
+import { runtimeOf, readContent, gameDirectory } from '../engine/resolver.js'
 import { moduleProblems, specProblems, validateProblems } from '../engine/contract.js'
 import { capabilities, modules } from '../engine/kernel.js'
 import { hubCount } from '../engine/ops/workspace.js'
@@ -28,14 +28,14 @@ import { checkContent } from '../engine/vocabulary.js'
 import { withParts } from '../engine/parts/define.js'
 import { isLanguageCode } from '../engine/i18n.js'
 
-export const GAMES_DIR = resolve(import.meta.dirname, '../..')
+const KIT_DIR = resolve(import.meta.dirname, '..')
 const finding = (rule, at, says) => ({ rule, at, says })
 
 /** npm run check's lines for a game, as findings (rule: check). The hub's level count is read afresh: an operation in
  *  the same run may have just changed it. */
 async function checks(id) {
   const content = readContent(id)
-  const listed = hubCount(readFileSync(resolve(GAMES_DIR, 'games.js'), 'utf8'), id)
+  const listed = hubCount(readFileSync(resolve(gameDirectory(), 'games.js'), 'utf8'), id)
   const lines = await checkGame(content, { domain: await runtimeOf(content), listed })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
@@ -93,7 +93,7 @@ export const STEPS = [
       const contract = [...modules.flatMap((module) => moduleProblems(module, capabilities)), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', runtimeIds(content).join(', '), p))
       const tests = []
       for (const module of runtimeIds(content)) {
-        const test = resolve(GAMES_DIR, 'kit/modules', module, `${module}.test.js`)
+        const test = resolve(KIT_DIR, 'modules', module, `${module}.test.js`)
         if (!existsSync(test)) continue
         try {
           const { NODE_TEST_CONTEXT: _, ...env } = process.env

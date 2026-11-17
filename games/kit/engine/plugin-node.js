@@ -1,13 +1,14 @@
+import { registrationProblems } from './existence.js'
+import { resolveLayers } from './resolver.js'
 import { installPackageImports, packageCodeProblems } from './plugin-boundaries.js'
 // Node loads core entries only. Bare exports resolve through the same package map as Vite.
-import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { registerPlugins } from './plugins.js'
 
-export const packageEntries = (layers, root) => layers.filter(layer => !layer.id.startsWith('@')).map(({ id }) => ({ id,
-  core: resolve(root, 'packages', id, 'core/index.js'), view: resolve(root, 'packages', id, 'view/index.jsx'),
-})).map(entry => Object.fromEntries(Object.entries(entry).filter(([key, path]) => key === 'id' || existsSync(path))))
+export const packageEntries = (layers, root) => {
+  const resolved = layers.every(layer => layer.entryPaths) ? layers : resolveLayers({ packages: layers.filter(layer => !layer.id.startsWith('@')).map(layer => layer.id), root }).layers
+  return resolved.filter(layer => !layer.id.startsWith('@')).map(layer => ({ id: layer.id, ...layer.entryPaths }))
+}
 
 export async function loadPlugins(content, root, load = file => import(pathToFileURL(file).href), view = false) {
   const entries = packageEntries((content.layerOrder ?? []).map(id => ({ id })), root)
@@ -18,7 +19,10 @@ export async function loadPlugins(content, root, load = file => import(pathToFil
   }
   const loaded = []
   for (const entry of entries) loaded.push({ id: entry.id, core: entry.core && await load(entry.core), view: view && entry.view && await load(entry.view) })
-  const kernel = await registerPlugins(loaded, { view, tasks: content.levels.flatMap(level => level.tasks ?? []) })
-  for (const type of ['kind', 'editor']) for (const [name, value] of kernel.tables[type]) if (!content.registries.kind?.[value.type]) throw new Error(`${name}: unknown object type ${value.type}`)
+  const kernel = await registerPlugins(loaded, { view, tasks: view ? content.levels.flatMap(level => level.tasks ?? []) : [] })
+  if (view) {
+    const problems = registrationProblems(content, kernel)
+    if (problems.length) throw new Error(JSON.stringify(problems))
+  }
   return kernel
 }

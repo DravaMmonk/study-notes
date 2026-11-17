@@ -7,7 +7,7 @@ import process from 'node:process'
 import { GAMES } from '../../games.js'
 import { checkGame } from '../engine/checks.js'
 import { closeGames } from '../engine/games.mjs'
-import { runtimeOf, readContent } from '../engine/content-node.js'
+import { runtimeOf, readContent } from '../engine/resolver.js'
 import { ALL_GAMES, knownGames } from '../engine/cli-args.js'
 import { contentAssets } from './content-assets.js'
 

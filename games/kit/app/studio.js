@@ -1,6 +1,6 @@
 import { packageEntries } from '../engine/plugin-node.js'
 import { packageApp } from './package-vite.js'
-import { packageIds } from '../engine/content-node.js'
+import { packageIds } from '../engine/resolver.js'
 // The studio's server side (games/DESIGN.md 6.7), a Vite plugin for the dev server (npm run studio): the tools the
 // MCP server offers (../engine/ops/tools.js) as HTTP endpoints, and the module that gives the studio's page every
 // domain's game.js. Like the MCP server it has no logic of its own: every change is a changeset run by the operation
@@ -21,10 +21,9 @@ import { packageIds } from '../engine/content-node.js'
 import { readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
-import { pathToFileURL } from 'node:url'
 import { gameModule } from '../engine/game-module.js'
 import { eraLevels } from '../course.js'
-import { PROJECT_DIR, isDataGame, readContent } from '../engine/content-node.js'
+import { contentRoot, contentTargets, readContent } from '../engine/resolver.js'
 
 const PREFIX = '/studio/api/'
 const DOMAINS = resolve(import.meta.dirname, '../modules')
@@ -34,9 +33,8 @@ const courseCatalog = {
   about: 'List placed levels in other games for cross-game prerequisite links.',
   params: { game: 'string' },
   async run({ game }) {
-    const root = process.env.GAMES_ROOT ?? PROJECT_DIR
-    const { GAMES } = await import(pathToFileURL(resolve(root, 'games', 'games.js')).href)
-    return GAMES.filter(({ id }) => id !== game && isDataGame(id, root)).map(({ id }) => {
+    const root = contentRoot()
+    return contentTargets([], root, { game: true }).filter(({ id }) => id !== game).map(({ id }) => {
       const content = readContent(id, root)
       const placed = new Set((content.eras ?? []).flatMap(eraLevels))
       return { game: id, title: content.title, levels: content.levels.filter(({ id }) => placed.has(id)).map(({ id, title }) => ({ id, title })) }
@@ -122,7 +120,7 @@ export function bridge(tools, lacking, aside = null) {
 
 /** The plugin: the bridge on the dev server, and `virtual:studio-domains` ({ domain: () => import(its game.js) }). */
 export function studioApp() {
-  const root = process.env.GAMES_ROOT ?? PROJECT_DIR
+  const root = contentRoot()
   const packages = packageApp(root)
   return {
     name: 'studio',

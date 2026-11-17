@@ -1,3 +1,4 @@
+import { existenceProblems } from './existence.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
@@ -6,7 +7,7 @@ import { resolve, dirname } from 'node:path'
 import { S } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
 import { applyOverride, composeLayers, orderPackages, visibleOverrides } from './layers.js'
-import { readContent, readPackage, assembleLayers } from './content-node.js'
+import { readContent, readPackage, assembleLayers } from './resolver.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
@@ -17,20 +18,21 @@ const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S
 const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { vocabulary: 1, uses }, objects, overrides, catalogs: {} })
 const obj = (kind, name, value) => ({ kind, name, value })
 const base = () => layer('base', [], [obj('level', 'a', { title: 'A', options: { x: 1, y: 2 } }), obj('level', 'b', { title: 'B' }), obj('tag', 'all', { kind: 'level', values: ['a'] }), obj('relation', 'path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }] }), obj('section', 'map', { title: 'Map', values: [] })])
+const problems = layers => existenceProblems(composeLayers(layers, schemas).qualifiedLayers, schemas).map(problem => problem.says).join('\n')
 const game = (overrides = []) => ({ id: '@demo', config: { chapters: [{ id: 'one', levels: ['base/a', 'base/b'] }] }, objects: [], catalogs: {}, overrides })
 
 test('dependencies are complete, direct, acyclic and deterministically ordered', () => {
   const a = base(), b = layer('b', ['base']), c = layer('c', ['b'])
   assert.deepEqual(orderPackages([c, b, a, layer('aa')]).map((p) => p.id), ['aa', 'base', 'b', 'c'])
-  assert.throws(() => orderPackages([b]), /missing dependency base/)
+  assert.match(problems([b]), /missing target package base/)
   assert.throws(() => orderPackages([layer('a', ['b']), layer('b', ['a'])]), /circular/)
   assert.throws(() => orderPackages([a, a]), /duplicate/)
   b.objects = [obj('level', 'child', { from: 'base/a' })]
   assert.equal(composeLayers([a, b], schemas).registries.level['b/child'].from, 'base/a')
   c.objects = [obj('level', 'bad', { from: 'base/a' })]
-  assert.throws(() => composeLayers([a, b, c], schemas), /undeclared dependency/)
+  assert.match(problems([a, b, c]), /undeclared dependency/)
   c.objects = [obj('tag', 'bad', { kind: 'level', values: ['base/a'] })]
-  assert.throws(() => composeLayers([a, b, c], schemas), /undeclared dependency/)
+  assert.match(problems([a, b, c]), /undeclared dependency/)
 })
 
 test('whole replacements, recursive merge patches and additive collections retain provenance', () => {
@@ -60,7 +62,7 @@ test('independent overrides conflict; an explicit dependency resolves the ambigu
   c.config.uses.push('b')
   assert.equal(composeLayers([base(), b, c], schemas).sources.level['base/a'].overrides.length, 2)
   c.config.uses = ['b']
-  assert.throws(() => composeLayers([base(), b, c], schemas), /undeclared dependency/)
+  assert.match(problems([base(), b, c]), /undeclared dependency/)
 })
 
 test('game overrides are limited to level relations', () => {
@@ -72,7 +74,7 @@ test('game overrides are limited to level relations', () => {
   assert.doesNotThrow(() => composeLayers([base(), game([obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
   const a = base(); a.objects.push(obj('part', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'part', edges: [{ from: 'p', to: 'p' }] }))
   assert.throws(() => composeLayers([a, game([obj('relation', 'base/items', { replace: true, edges: [] })])], schemas), /games cannot override/)
-  assert.throws(() => composeLayers([base(), game([obj('section', 'base/missing', {})])], schemas), /unknown section/)
+  assert.match(problems([base(), game([obj('section', 'base/missing', {})])]), /missing target section base\/missing/)
 })
 
 test('wording merges by key, adds translations and records before and after values', () => {
@@ -85,7 +87,7 @@ test('wording merges by key, adds translations and records before and after valu
   assert.deepEqual(visibleOverrides(content, 'b').map((e) => [e.before, e.after]), [['Original', 'Package']])
   assert.equal(composeLayers([a, b, g], schemas).catalogs.en['base/other'], 'Kept')
   b.config.uses = []
-  assert.throws(() => composeLayers([a, b], schemas), /undeclared dependency/)
+  assert.match(problems([a, b]), /undeclared dependency/)
 })
 
 function fixture() {
@@ -117,7 +119,7 @@ test('disk reader and operations share layer composition, write ownership and in
   assert.equal(result.ok, false)
   assert.match(result.problems.join('\n'), /games cannot override/)
   put('games/demo/game.json', { packages: ['extra'] })
-  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /missing dependency/)
+  assert.match(readContent('demo', root, { vocabulary: schemas }).objectProblems.map(p => p.says).join('\n'), /missing target package/)
 })
 
 
@@ -131,7 +133,7 @@ test('cross-package wording references retain ownership and override links resol
   assert.equal(ws.content().levels.find((l) => l.id === 'extra/b').title.en, content.levels[0].title.en)
   assert.equal(ws.changes().some((c) => c.file === 'packages/extra/i18n/en.json'), false)
   put('packages/extra/package.json', { vocabulary: 1, uses: [] })
-  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /undeclared dependency/)
+  assert.match(readContent('demo', root, { vocabulary: schemas }).objectProblems.map(p => p.says).join('\n'), /undeclared dependency/)
 })
 
 
@@ -144,7 +146,8 @@ test('multi-package sibling courses validate shared levels without rejecting the
   put('packages/third/tags/level/all.json', { values: ['c'] })
   const content = readContent('demo', root, { vocabulary: schemas })
   assert.deepEqual(dependencyProblemsInProject(content, root), [])
-  assert.deepEqual(dependencyProblemsInProject({ ...content, levels: content.levels.filter((l) => l.id !== 'base/a') }, root), [{ at: 'games/peer/course.json', says: 'the course places the level base/a, which is missing from its package' }])
+  const problems = dependencyProblemsInProject({ ...content, levels: content.levels.filter((l) => l.id !== 'base/a') }, root)
+  assert.ok(problems.some(problem => problem.rule === 'exists' && problem.layer === '@peer' && problem.target === 'base/a'))
 })
 
 test('the published frontend restores composed multi-package registries', async () => {
@@ -220,7 +223,7 @@ test('source files reject retired glossary and tag formats and tag overrides can
   const { root, put } = fixture()
   put('packages/base/tags/entry/words.json', { values: [] })
   put('packages/extra/overrides/base/tags/level/words.json', { values: [] })
-  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /unknown tag/)
+  assert.match(readContent('demo', root, { vocabulary: schemas }).objectProblems.map(p => p.says).join('\n'), /missing target tag/)
   put('packages/base/tags/entry/words.json', { kind: 'entry', values: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /kind belongs in the path/)
   put('packages/base/glossary.json', { groups: [], entries: [] })
@@ -276,7 +279,7 @@ test('package selection refuses missing dependencies, duplicate selection and re
   const ws = openGame('demo', root, { vocabulary: schemas })
   const options = { check: false, domain: { vocabulary: schemas } }
   for (const [op, id, pattern] of [
-    ['add', 'child', /missing dependency library/], ['add', 'base', /already selected/],
+    ['add', 'child', /missing target package library/], ['add', 'base', /already selected/],
     ['add', 'missing', /missing/], ['remove', 'missing', /not selected/],
     ['remove', 'base', /course still places base\/a.*chapter main.*extra/],
   ]) {
@@ -323,13 +326,13 @@ test('typed tags merge independent contributions and keep exact member provenanc
 
 test('tag contributions require the exact typed declaration or reader; kernel is reserved', () => {
   const a = base(), b = layer('b', ['base'], [], [obj('tag', 'base/all', { kind: 'entry', values: [] })])
-  assert.throws(() => composeLayers([a, b], schemas), /unknown tag base\/all/)
+  assert.match(problems([a, b]), /missing target tag base\/all/)
   a.tagReaders = [{ name: 'base/all', member: 'entry', reader: 'base' }]
   assert.deepEqual(composeLayers([a, b], schemas).registries.tag['entry:base/all'].values, [])
   b.overrides = [obj('tag', 'kernel/studio-left', { kind: 'kind', values: ['level'] })]
   assert.deepEqual(composeLayers([a, b], schemas).sources.tag['kind:kernel/studio-left'].members, { level: ['b'] })
   b.overrides = [obj('tag', 'kernel/studio-left', { kind: 'level', values: [] })]
-  assert.throws(() => composeLayers([a, b], schemas), /unknown tag kernel\/studio-left/)
+  assert.match(problems([a, b]), /missing target tag kernel\/studio-left/)
   assert.throws(() => orderPackages([layer('kernel')]), /reserved namespace/)
 })
 

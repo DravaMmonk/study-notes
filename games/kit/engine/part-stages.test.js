@@ -72,7 +72,7 @@ test('part tags expand stages while replaces accepts only distinct base parts', 
   const resolve = referenceResolver({ part: { scale: { stages: [{ id: 'advanced' }] } }, tag: { tray: { kind: 'part', values: ['scale', 'advanced'] } } }, problems)
   assert.deepEqual(resolve('#tray', 'part'), ['advanced', 'scale'])
   resolve('scale.gain', 'part')
-  assert.match(problems[0].says, /unknown part/)
+  assert.deepEqual(problems, [])
   expandRelations({ upgrade: { kind: 'replaces', edges: [{ from: 'advanced', to: 'scale' }] } }, resolve, new Set(), problems)
   assert.ok(problems.some(problem => /only links different base parts/.test(problem.says)))
 })

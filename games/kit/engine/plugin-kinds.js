@@ -26,9 +26,9 @@ const extend = (schema, fields) => {
 export function withKindDeclarations(vocabulary, layers, plugin = false) {
   const definitions = {}, raw = {}
   for (const layer of layers) {
-    for (const object of layer.objects.filter(o => o.kind === 'kind')) raw[`${layer.id}/${object.name}`] = object.value
+    for (const object of layer.objects.filter(o => o.kind === 'kind')) raw[object.name.includes('/') ? object.name : `${layer.id}/${object.name}`] = object.value
     for (const object of (layer.overrides ?? []).filter(o => o.kind === 'kind')) {
-      if (!raw[object.name]) throw new Error(`cannot override unknown kind ${object.name}`)
+      if (!raw[object.name]) continue
       const { $merge, ...value } = object.value
       raw[object.name] = $merge ? mergePatch(raw[object.name], value) : value
     }
@@ -61,7 +61,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
   }
   let level = vocabulary.level
   if (plugin) {
-    const task = S.obj({ id: S.task(), step: S.opt(S.text()), brief: S.text(), play: S.str(), after: S.opt(S.text()) })
+    const task = S.obj({ id: S.task(), step: S.opt(S.text()), brief: S.text(), play: S.str({ reference: 'play' }), after: S.opt(S.text()) })
     const generic = S.obj({ title: S.text(), intro: S.opt(S.list(S.obj({ t: S.text() }))), after: S.opt(S.text()), requires: S.opt(S.list(S.level())), tasks: S.list(task, { min: 1 }) })
     if (!level) level = generic
     else level = S.obj({ ...Object.fromEntries(Object.entries(level.fields).map(([key, field]) => [key, S.opt(field)])), ...generic.fields, tasks: S.list(S.either(level.fields.tasks.of, task), { min: 1 }) })

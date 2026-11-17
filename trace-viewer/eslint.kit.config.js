@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 // Lint for the games kit (../games/kit), run from the repository root: npm run lint:kit. Two things only: plain
 // mistakes (undefined names, unused ones) and the layering (games/DIRECTION.md, decision 17) — a domain imports no
-// other domain, and the kernel imports no domain (it loads one by name: engine/content-node.js).
+// other domain, and the kernel imports no domain (it loads one by name: engine/resolver.js).
 import { readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import js from '@eslint/js'
@@ -41,7 +41,7 @@ export default defineConfig([
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
     ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/grants.js'],
-    rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/content-node.js).'),
+    rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/resolver.js).'),
   },
   {
     files: ['packages/*/{core,view}/**/*.{js,jsx,mjs}'],

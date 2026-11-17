@@ -33,7 +33,7 @@ test('grant resolution rejects unknown types and cross-type base or stage collis
   assert.throws(() => grantIndex({ part: { 'sample/wide': {} }, symbol: { 'sample/and': structuredClone(symbol) } }), /ambiguous grant sample\/wide/)
   const problems = []
   referenceResolver({ quote: { 'sample/text': {} } }, problems)('sample/text', 'grant')
-  assert.match(problems[0].says, /unknown grant/)
+  assert.deepEqual(problems, [])
   assert.deepEqual(validate(SYMBOL, { ...symbol, editor: 'strip' }, { vocabulary: { kinds: { mark: { 'logic:mark-formulaAnd': {} } } } }).map(problem => problem.at), ['.editor'])
 })
 

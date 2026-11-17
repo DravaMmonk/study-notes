@@ -23,12 +23,19 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 ## Implementation contracts
 
-- During `games/MODULES.md` step 2, packages may provide `core/index.js` and `view/index.jsx`, both exporting
+- After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
   the six existing `kit/modules/` implementations remain only until their scheduled migration.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
+- Load installed game/package layers only through `engine/resolver.js:resolveLayers`. The resolver owns content
+  roots, `GAMES_ROOT`, source directories and code-entry locations; the default is the current content workspace.
+  Game consumers, builds and arrange workspaces consume resolved public data, never dependency files.
+  `engine/existence.js` collects schema references, override/contribution targets, relation endpoints, grants and
+  dependency selections, then checks `publicSurfaces` and code identities. Never add another missing-target guard
+  to loading, collection expansion or an object-specific checker. Keep `{ rule: "exists", at, layer, kind, target,
+  member?, reason, says }` intact for consumers; manifests will replace only the public-surface provider in step 4.
 - There is one capability vocabulary and version line (`kit/engine/kernel.js`, snapshots in `engine/versions/`),
   and one course model (`engine/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
   typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
@@ -46,7 +53,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `symbols/`, `entries/`,
   `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
   Objects replace by default (`$merge` opts into merge patch); collections append (`replace` and `remove`
-  control membership). Independent tag contributions union in dependency order; each member retains its contributors in `sources.tag[key].members`. Other independent overrides of one object require a dependency. A tag contribution requires its exact typed owner declaration or reader registration. Core registers `kernel/studio-left` (`kind`); `kernel` is reserved as a package namespace. Package readers register `kernel.tag("<own-package>/<name>", "<member-type>")`. Never merge conventions by short name or register `templates`.
+  control membership). Independent tag contributions union in dependency order; each member retains its contributors in `sources.tag[key].members`. Other independent overrides of one object require a dependency. Every foreign target requires its owner declaration or code registration, for every object type; a tag contribution additionally matches its member type. Core registers `kernel/studio-left` (`kind`); `kernel` is reserved as a package namespace. Package readers register `kernel.tag("<own-package>/<name>", "<member-type>")`. Never merge conventions by short name or register `templates`.
   Preserve source and override history; never edit a dependency's declaration from the current workspace.
 - A game only arranges content: `course.json` has `chapters`, each with an ordered list of full level names
   in `levels`, and map `rows` (up to three positions per row). The order must respect `requires`. Optional and
@@ -72,6 +79,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   plays may explicitly choose reference works. Keep the selected variant and its dependency closure intact.
 - Ids never change after creation, including task, stage and chapter ids. Rename visible text, not identity.
   There is no rename operation. New identity requires explicit creation and deletion. Task moves preserve ids.
+- Tag title/description keys use `@tag.<name>.title` and `@tag.<name>.desc`; tray keys retain `@tray.`.
 - Copy fields reference stable `@key` values. Each layer owns `i18n/<lang>.json`; overrides use
   `overrides/<namespace>/i18n/<lang>.json`. Edit with `text.set` or the applicable override operation,
   using object selectors and field paths. Text keys and blueprints accept qualified names.

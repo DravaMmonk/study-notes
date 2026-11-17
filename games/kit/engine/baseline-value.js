@@ -189,3 +189,21 @@ export function differences(before, after) {
   }
   return diff(before, after, '$')
 }
+
+/** Only copy-key spellings and existence diagnostic wording are migration metadata. */
+export function existenceBaseline(input) {
+  const memo = new WeakMap()
+  const walk = (value, key = '') => {
+    if (typeof value === 'string') {
+      if (key === '$key') return value.replace(/^(?:(@?[a-z][a-z0-9-]*\/)?)((?:glossary\.groups|group)\.)([A-Za-z0-9_-]+\.(?:title|desc))$/, '$1tag.$3')
+      if (key === 'stdout') return value.replace(/^(  FAIL content: [^\n]+: )unknown (tag|level|part|entry|tray|section|relation|kind|grant|[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*) ([#@A-Za-z0-9_/:.-]+)(?:; expected ([A-Za-z0-9_/-]+))?$/gm, (_, head, kind, target, member) => `${head}missing target ${kind} ${target}${member ? ` (member ${member})` : ''}`)
+      return value
+    }
+    if (!value || typeof value !== 'object') return value
+    if (memo.has(value)) return memo.get(value)
+    const out = Array.isArray(value) ? value.map(child => walk(child)) : Object.fromEntries(Object.entries(value).map(([key, child]) => [key, walk(child, key)]))
+    memo.set(value, out)
+    return out
+  }
+  return walk(input)
+}

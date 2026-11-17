@@ -4,12 +4,12 @@ import assert from 'node:assert/strict'
 import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { GAMES_DIR, readContent, runtimeOf } from './content-node.js'
+import { gameDirectory, readContent, runtimeOf } from './resolver.js'
 import { templates, newGame, newPackage } from './scaffold.js'
 import { checkContent } from './vocabulary.js'
 import { closeGames } from './games.mjs'
 import { checkGame } from './checks.js'
-import { readPackage } from './content-node.js'
+import { readPackage } from './resolver.js'
 import { audit } from '../course.js'
 
 after(closeGames)
@@ -17,7 +17,7 @@ after(closeGames)
 for (const mechanism of templates()) test(`${mechanism}: the installed module starter creates a working game`, async () => {
   const root = mkdtempSync(join(tmpdir(), 'module-starter-'))
   try {
-    cpSync(join(GAMES_DIR, 'kit'), join(root, 'games/kit'), { recursive: true })
+    cpSync(join(gameDirectory(), 'kit'), join(root, 'games/kit'), { recursive: true })
     writeFileSync(join(root, 'games/games.js'), 'export const GAMES = [\n];\n')
     newPackage({ root, id: 'library', template: mechanism })
     const library = readPackage('library', root)

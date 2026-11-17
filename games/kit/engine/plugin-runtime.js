@@ -35,15 +35,4 @@ export function evaluatePlay(kernel, task, work, context = {}) {
   return { work: play.write(normalized, ctx), report, verdict: play.judge(report, ctx) }
 }
 
-export function tagReaderProblems(content, kernel) {
-  const problems = []
-  for (const [key, source] of Object.entries(content.sources?.tag ?? {})) {
-    if (!source.declaration && !kernel.tables.tag.has(key)) problems.push({ at: `tags/${key}`, says: 'tag has no declaration or registered reader' })
-  }
-  for (const [key, reader] of kernel.tables.tag) {
-    if (!content.registries.kind?.[reader.member]) problems.push({ at: `tags/${key}`, says: `unknown tag member type ${reader.member}` })
-  }
-  return problems
-}
-
 export const describeTask = task => ({ title: firstText(task.title), brief: firstText(task.brief) })

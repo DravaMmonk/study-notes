@@ -3,7 +3,7 @@
 // each level played (in play order) with its sessions, pass rate, attempts to pass, hints, difficulty and time, then the
 // difficulty-spike findings. Reads games/<game>/playtests/; plays nothing.
 import { GAMES } from '../../../games.js'
-import { isDataGame, readContent, readPlaytests, runtimeOf } from '../content-node.js'
+import { isDataGame, readContent, readPlaytests, runtimeOf } from '../resolver.js'
 import { SPIKE, perLevel, spikes } from './stats.js'
 
 const asked = process.argv.slice(2)
