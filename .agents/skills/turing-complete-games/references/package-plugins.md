@@ -117,3 +117,11 @@ without repeating common graph fields in every declaration.
 State-graph also selects image explicitly to preserve its historical standalone package palette,
 which exposed the global image primitive inventory before extraction. This dependency preserves
 the locked package observations. The corresponding game selects the complete closure.
+
+
+Kind-declaration discriminator schemas may provide shared `fields` beside `cases`.
+Registration expands them into every object branch and rejects collisions. Bench declarations
+share their layout, knob and goal schemas this way. Source declarations retain their compact form.
+Resolved layers are reused when listing games and loading package code. Unchanged source files
+reuse parsed import metadata while dependency authority is checked on every call. Quick previews
+reuse their computed changes when rendering a diff and preserve unchanged JSON containers directly.

@@ -3,39 +3,16 @@
   "schema": {
     "type": "obj",
     "fields": {
-      "sample": {
-        "type": "level"
-      },
-      "inLevel": {
-        "type": "map",
-        "of": {
-          "type": "level"
-        },
-        "key": {
-          "type": "ref",
-          "kind": "unlock"
-        }
-      },
+      "sample": { "type": "level" },
+      "inLevel": { "type": "map", "of": { "type": "level" }, "key": { "type": "ref", "kind": "unlock" } },
       "boards": {
         "type": "map",
-        "of": {
-          "type": "board"
-        },
-        "key": {
-          "type": "ref",
-          "kind": "unlock"
-        },
+        "of": { "type": "board" },
+        "key": { "type": "ref", "kind": "unlock" },
         "optional": true
       }
     }
   },
   "declares": "package",
-  "overrides": {
-    "package": [
-      "*"
-    ],
-    "game": [
-      "$text"
-    ]
-  }
+  "overrides": { "package": ["*"], "game": ["$text"] }
 }

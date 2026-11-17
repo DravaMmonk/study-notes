@@ -1,6 +1,4 @@
-// The wave benches of 视觉完备 chapter 2, on rows of N points: one wave tuned by its four numbers (wave), sine waves
-// stacked up (sum), a probe that multiplies the row by a wave and averages (probe), and sampling (alias). Each is a
-// bench model (image/core/bench.js): what it computes from the knobs, for the bench's displays and its goal.
+// A shared row-of-pixels wave bench, judged by the same parameter-bench runner as its view.
 import { S } from 'kernel'
 import { benchRun, openKnobs, startValues } from '../bench.js'
 import { piText } from '../engine/pi.js'
@@ -50,4 +48,3 @@ export const wave = {
     return ''
   },
 }
-

@@ -2,25 +2,8 @@
   "folder": "vision-complete-power",
   "schema": {
     "type": "obj",
-    "fields": {
-      "title": {
-        "type": "text"
-      },
-      "lines": {
-        "type": "list",
-        "of": {
-          "type": "text"
-        }
-      }
-    }
+    "fields": { "title": { "type": "text" }, "lines": { "type": "list", "of": { "type": "text" } } }
   },
   "declares": "package",
-  "overrides": {
-    "package": [
-      "*"
-    ],
-    "game": [
-      "$text"
-    ]
-  }
+  "overrides": { "package": ["*"], "game": ["$text"] }
 }

@@ -51,4 +51,3 @@ export function imageContract(owner) {
     } finally { await closeGames(); fixture.cleanup() }
   })
 }
-

@@ -172,3 +172,28 @@ Shared bench display names move from `circuit:display-*` to `image:display-*` th
 registered-name alias inventory. The shared image kind meaning supplies graph, probe and bench
 reports from `packages/image/core/baseline.js`, including immutable stage/action observations.
 Snapshots remain unchanged. Use `compare` only.
+
+
+## Step 8 Studio measurements
+
+Measurements use the local Vite Studio bridge on 127.0.0.1:5178, with sequential HTTP reads.
+All measured requests return HTTP 200. Times are wall-clock seconds and stay outside snapshots.
+
+| Request | Before extraction | After extraction |
+|---|---:|---:|
+| packages | 0.697 | 0.967 |
+| games | 1.620 | 1.065 |
+| vision-complete vocabulary | 0.703 | 0.489 |
+| vision-complete preview, check false | 5.061 | 4.852 |
+
+After extraction, comp90086 vocabulary/quick preview take 0.096/2.926 seconds,
+qed 0.325/4.136 seconds, and state-graph 0.206/3.465 seconds.
+Shared discriminator fields reduce source declaration duplication. Name-indexed existence checks,
+resolved-layer reuse, parsed-import reuse and unchanged-JSON/diff reuse retain validation results.
+
+Browser acceptance still reaches the 20-second deadline with the main loading indicator visible
+for vision-complete, comp90086, qed and state-graph. Initial navigation issues repeated packages,
+games and preview requests. Studio's loading orchestration requires its owner's follow-up.
+The untouched Studio starter-control test fails at studio.test.js:352 with `some field is chips`.
+Its traversal covers the remaining native starters. Package-provided controls require the Studio
+owner's test adaptation. Core/view contracts, independent checks and behaviour comparisons pass.

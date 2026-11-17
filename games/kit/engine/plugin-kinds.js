@@ -28,6 +28,21 @@ const extend = (schema, fields) => {
   for (const key of Object.keys(fields)) if (schema.fields[key]) throw new Error(`field extension cannot redefine ${key}`)
   return { ...schema, fields: { ...schema.fields, ...fields } }
 }
+/** Expand shared fields in declaration discriminator trees once, before consumers read their schemas. */
+function declarationSchema(source) {
+  const schema = { ...source }
+  if (schema.fields) schema.fields = Object.fromEntries(Object.entries(schema.fields).map(([key, field]) => [key, declarationSchema(field)]))
+  if (schema.of) schema.of = Array.isArray(schema.of) ? schema.of.map(declarationSchema) : declarationSchema(schema.of)
+  if (schema.key) schema.key = declarationSchema(schema.key)
+  if (schema.cases) schema.cases = Object.fromEntries(Object.entries(schema.cases).map(([key, branch]) => [key, declarationSchema(branch)]))
+  if (schema.type === 'by' && schema.fields) {
+    const fields = schema.fields
+    delete schema.fields
+    schema.cases = Object.fromEntries(Object.entries(schema.cases).map(([key, branch]) => [key, extend(branch, fields)]))
+  }
+  return schema
+}
+
 export function withKindDeclarations(vocabulary, layers, plugin = false) {
   const definitions = {}, raw = {}
   for (const layer of layers) {
@@ -52,7 +67,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     const inspect = schema => {
       const types = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'set', 'edges', 'map', 'obj', 'either', 'by', 'ref', 'name', 'level', 'task', 'board', 'syntax', 'call']
       if (!schema || !types.includes(schema.type)) throw new Error(`${name}: invalid field schema`)
-      if (schema.type === 'obj') Object.values(schema.fields ?? {}).forEach(inspect)
+      if (schema.type === 'obj' || schema.type === 'by') Object.values(schema.fields ?? {}).forEach(inspect)
       if (['list', 'set', 'edges', 'map'].includes(schema.type)) inspect(schema.of)
       if (schema.type === 'either') schema.of.forEach(inspect)
       if (schema.type === 'by') Object.values(schema.cases).forEach(inspect)
@@ -60,6 +75,8 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     if (d.extends) { Object.values(d.fields).forEach(inspect); if (d.schema) inspect(d.schema) }
     else inspect(d.schema)
     const definition = structuredClone(d)
+    if (definition.schema) definition.schema = declarationSchema(definition.schema)
+    if (definition.fields) definition.fields = Object.fromEntries(Object.entries(definition.fields).map(([key, field]) => [key, declarationSchema(field)]))
     for (const path of d.text ?? []) {
       let field = definition.schema
       for (const key of path.split('.')) field = key === '*' ? field?.of : field?.fields?.[key]

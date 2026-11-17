@@ -232,8 +232,8 @@ without redefining native fields. Keep required fields required on that branch.
 ## Image extraction (MODULES step 8)
 
 `image` depends on `circuit` and owns image operations, graph/probe/bench works, judges, blind-play
-adapters, scoped task declarations, parameter benches, displays and previews. The kernel has no
-image registration or image-only workshop dispatch. Consumers select `image` directly.
+adapters, scoped task declarations, parameter benches, displays and previews. Image registration and workshop dispatch load through
+package entries. Consumers select `image` directly.
 `vision-complete` owns its scenes and dedicated bench models/displays. Only the filter scene,
 obscura/wave models and obscura displays are shared by vision-complete and comp90086.
 Both content packages declare their own namespaced power/box kinds and folders.

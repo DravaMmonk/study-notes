@@ -5,7 +5,7 @@ import { tidyImageBoard } from '../../core/engine/board.js'
 export function imagePreview(image, box, entry) {
   if (!box) return null
   const { kit, levelById } = image
-  const type = entry.key === 'edge-filter' ? 'box3' : entry.part
+  const type = entry.part
   const spec = kit.types[type]
   if (!spec) return null
   const home = entry.at?.[0]
@@ -15,7 +15,7 @@ export function imagePreview(image, box, entry) {
   const make = (task) => {
     const tests = task.tests.slice(0, 3)
     const names = Object.keys(tests[0].inputs)
-    const params = { ...kit.defaultParams(type), ...(entry.key === 'edge-filter' && { border: 'edge' }) }
+    const params = kit.defaultParams(type)
     const authored = box.boards?.[entry.key]
     const needsOwn = box.inLevel[entry.key] || (spec.inputs.length !== names.length && task.solution?.nodes.some((node) => node.type === type))
     const board = authored ? kit.fromText(authored, task) : needsOwn ? task.solution : around(type, spec, names, params)
