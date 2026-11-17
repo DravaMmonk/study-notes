@@ -1,7 +1,8 @@
+import { kernelIdentity } from '../release-data.js'
 import { lockTarget } from '../releases.js'
 import { folders } from '../layers.js'
 import { contentKindSchemas } from '../content-kinds.js'
-import { objectFiles, packageIds, contentTargets } from '../resolver.js'
+import { objectFiles, packageIds, contentTargets, resolveLayers } from '../resolver.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
 // real game (games/DESIGN.md: unit tests never read a real game's levels). Each call writes a fresh folder.
@@ -10,7 +11,7 @@ import { objectFiles, packageIds, contentTargets } from '../resolver.js'
 //
 // The game: `given` (the given is the goal), `apply` (two Applies in a row), `suppose` (an assumption box around them);
 // every brief and hint in everyday words, the English side naming “Saturday” and “Assume” for search and replace.
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, cpSync, existsSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { catalogsOf, normalizeText } from '../content-text.js'
@@ -18,8 +19,8 @@ import { catalogReader, sourceValue } from '../catalogs.js'
 import { configurationFiles } from '../content.js'
 import { GLOSSARY as GLOSSARY_SCHEMA } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
-import { PARTS_FILE } from '../parts/schema.js'
-import { withParts } from '../parts/define.js'
+import { PARTS_FILE } from '../../../../packages/circuit/core/index.js'
+import { withParts } from '../../../../packages/circuit/core/index.js'
 import { expandNames } from '../names.js'
 import { readCatalogs, contentVocabulary } from '../resolver.js'
 
@@ -128,6 +129,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
     mkdirSync(join(dir, 'i18n'), { recursive: true })
     for (const [lang, entries] of Object.entries(catalogsOf(dir, ...values))) put(join(dir, 'i18n', `${lang}.json`), entries)
   }
+  if (id !== 'circuit') installCircuitFixture(root)
   const vocabulary = withParts(domainVocabulary, partDefs)
   const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
   const gameText = normalize(game, vocabulary.game, 'course')
@@ -135,10 +137,10 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
-  const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
-  put(join(course, 'game.json'), { kernel: '^1.0.0', packages: { [id]: '^1.0.0' }, ...sourceValue(shell) })
+  const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kind === 'trays' ? JSON.parse(readFileSync(new URL('../../../../packages/circuit/kinds/tray.json', import.meta.url))).schema : OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
+  put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^1.0.0', circuit: '^1.0.0' }, ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
-  put(join(pkg, 'package.json'), { version: '1.0.0', kernel: '^1.0.0', uses: {} })
+  put(join(pkg, 'package.json'), { version: '1.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^1.0.0' } })
   mkdirSync(join(pkg, 'entries'), { recursive: true })
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
@@ -175,6 +177,47 @@ export function starterParts(domainDir) {
 
 /** Seal the dependencies of a completed synthetic project before invoking production readers. */
 export function lockFixture(root) {
-  for (const id of packageIds(root)) lockTarget({ kind: 'package', id }, root)
+  installCircuitFixture(root)
+  for (const id of packageIds(root).filter(id => id !== 'circuit')) {
+    const file = join(root, 'packages', id, 'package.json')
+    const config = JSON.parse(readFileSync(file))
+    const dir = join(root, 'packages', id)
+    const legacy = ['parts', 'trays'].some(folder => existsSync(join(dir, folder))) || objectFiles(dir, 'levels').some(([, file]) => JSON.parse(readFileSync(file)).tasks?.some(task => !task.play))
+    if (legacy) { config.uses = { ...config.uses, circuit: '^1.0.0' }; writeFileSync(file, JSON.stringify(config, null, 2) + '\n') }
+  }
+  const games = join(root, 'games')
+  for (const id of existsSync(games) ? readdirSync(games) : []) {
+    const file = join(games, id, 'game.json')
+    if (!existsSync(file)) continue
+    const game = JSON.parse(readFileSync(file))
+    game.packages = { ...game.packages, circuit: '^1.0.0' }; game.kernel = `^${kernelIdentity().version}`
+    writeFileSync(file, JSON.stringify(game, null, 2) + '\n')
+  }
+  for (const id of packageIds(root)) {
+    const file = join(root, 'packages', id, 'package.json')
+    const config = JSON.parse(readFileSync(file)); config.kernel = `^${kernelIdentity().version}`
+    writeFileSync(file, JSON.stringify(config, null, 2) + '\n')
+  }
+  for (const id of resolveLayers({ packages: packageIds(root), closure: true, root, unlocked: true }).layers.map(layer => layer.id)) lockTarget({ kind: 'package', id }, root)
   for (const target of contentTargets([], root, { game: true })) lockTarget(target, root)
 }
+
+// Synthetic projects reuse mechanism declarations, without authored course content.
+export function installCircuitFixture(root) {
+  const dir = join(root, 'packages', 'circuit')
+  if (existsSync(join(dir, 'package.json'))) return
+  mkdirSync(dir, { recursive: true })
+  for (const folder of ['kinds', 'i18n']) cpSync(new URL(`../../../../packages/circuit/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ version: '1.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null, 2) + '\n')
+}
+
+export const circuitFixtureKinds = {
+  'circuit/part': { folder: 'parts', schema: { type: 'any' } },
+  'circuit/tray': { folder: 'trays', schema: { type: 'obj', fields: {
+    title: { type: 'text', optional: true }, values: { type: 'list', of: { type: 'str', reference: 'grant' } },
+    menus: { type: 'list', optional: true, of: { type: 'obj', fields: {
+      id: { type: 'str', reference: 'menu' }, title: { type: 'text', optional: true }, values: { type: 'list', of: { type: 'str', reference: 'grant' } },
+    } } },
+  } }, override: 'append' },
+}
+export const circuitFixtureSchema = schemas => ({ ...schemas, objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })

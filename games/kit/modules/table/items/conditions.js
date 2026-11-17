@@ -2,7 +2,7 @@ import { qualifyItems } from '../../../engine/capabilities.js';
 // The conditions content writes about a board (vocabulary.js condition): a task's step-by-step guide and its
 // diagnosis of a failure are lists of them with what to say.
 
-import { srcNode } from '../../../engine/wire-source.js';
+import { srcNode } from '../../../../../packages/circuit/core/index.js'
 import { callOf } from '../../../engine/schema.js';
 import { isGiven } from '../model/parts.js';
 import { partsOfType, readsOf, usesSensor } from '../model/board.js';

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { defineCourse, holds, usable } from '../course.js'
+import { defineCourse, holds, usable } from '../../../packages/circuit/core/index.js'
 import { courseDependencies, courseLayout, projectDependencyProblems } from './course-dependencies.js'
 
 const parts = { shift: { settings: { border: { control: 'select', options: [{ value: 'edge' }] } }, stages: [{ id: 'shift-wrap', settings: { border: { options: [{ value: 'edge' }, { value: 'wrap' }] } } }] }, adder: { stages: [{ id: 'adder-wide' }] } }

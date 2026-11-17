@@ -14,7 +14,7 @@ import { loadDisplays } from '../../engine/displays.js'
 //                 and boards as text (npm test)
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Activity } from 'lucide-react'
-import { definedGame } from '../../shell/circuit-game.js'
+import { definedGame } from '../../../../packages/circuit/view/index.jsx'
 import { tickBusWorks } from './work.js'
 
 const ui = await loadDisplays(['tick-bus:screen', 'tick-bus:catalog'])

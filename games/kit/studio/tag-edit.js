@@ -1,11 +1,11 @@
 // Pure edits of a tag for the tag editor (games/DESIGN.md 6.1): an unordered set of one kind of object, members by
 // full name, nested tags as `#<full name>`. Registries hold full names; a layer writes its own by their short names.
-import { partStages } from '../engine/part-stages.js'
+import { partStages } from '../../../packages/circuit/core/index.js'
 import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
 import { freeObjectName, localName, ownNames, tagByRef, tagKey, tagName, tagTarget } from './objects-edit.js'
 
-export const TAG_KINDS = ['level', 'part', 'symbol', 'entry']
+export const TAG_KINDS = ['level', 'circuit/part', 'symbol', 'entry']
 
 /** How `namespace` writes a full name (or `#` tag reference): short when it is its own, full otherwise. */
 export const writtenName = (namespace, full) => localName(namespace, full) ?? full
@@ -13,7 +13,7 @@ export const writtenName = (namespace, full) => localName(namespace, full) ?? fu
 /** The registry an object of a tag's kind is in, and its id there (an item's part for `part.key=value`). */
 const objectOf = (content, kind, id) => {
   const registries = content?.registries ?? {}
-  if (['part', 'symbol'].includes(kind)) return partStages(registries[kind]).get(id)?.definition
+  if (['circuit/part', 'symbol'].includes(kind)) return partStages(registries[kind]).get(id)?.definition
   return registries[kind]?.[id]
 }
 
@@ -24,7 +24,7 @@ export const memberKnown = (content, kind, member) => member.startsWith('#') ? B
 export function memberTitle(content, kind, member) {
   if (member.startsWith('#')) return tagByRef(content, kind, member)?.title ?? null
   const object = objectOf(content, kind, member)
-  return (['part', 'symbol'].includes(kind) ? object?.name : object?.title) ?? null
+  return (['circuit/part', 'symbol'].includes(kind) ? object?.name : object?.title) ?? null
 }
 
 /** Would `member` (a `#` reference) inside the tag `full` close a ring of tags? Asked of the kernel's resolver. */

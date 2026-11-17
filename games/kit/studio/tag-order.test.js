@@ -13,7 +13,7 @@ test('moving in a list, by a drop or a key', () => {
 
 const tag = (values, extra = {}) => ({ kind: 'level', values, ...extra })
 const content = (relations = {}, more = {}, order = []) => {
-  const tags = { 'level:demo/one': tag(['demo/a', 'demo/b']), 'level:demo/two': tag(['demo/c']), 'level:base/far': tag(['base/x', 'base/y']), 'part:demo/items': { kind: 'part', values: [] }, ...more }
+  const tags = { 'level:demo/one': tag(['demo/a', 'demo/b']), 'level:demo/two': tag(['demo/c']), 'level:base/far': tag(['base/x', 'base/y']), 'circuit/part:demo/items': { kind: 'circuit/part', values: [] }, ...more }
   return {
     tags,
     registries: { tag: tags, relation: relations, level: Object.fromEntries(['demo/a', 'demo/b', 'demo/c', 'base/x', 'base/y'].map((id) => [id, {}])) },
@@ -97,9 +97,9 @@ test('a group’s members reordered inside an order relation that already lists 
   assert.deepEqual(subsetOrderOps(c, 'demo', 'demo/sec-order', ['demo/a', 'demo/y'], ['demo/y', 'demo/a'], 'entry'),
     [{ op: 'relation.put', relation: 'sec-order', data: { kind: 'order', of: 'entry', sequence: ['y', 'a'] } }])
   // A relation of edges between them gives way to a chain in the new order.
-  const e = { registries: { relation: { 'demo/more': { kind: 'order', of: 'part', edges: [{ from: 'demo/a', to: 'demo/b' }, { from: 'demo/b', to: 'demo/z' }] } } }, sources: { relation: {} } }
-  assert.deepEqual(subsetOrderOps(e, 'demo', 'demo/tray-order', ['demo/a', 'demo/b'], ['demo/b', 'demo/a'], 'part'),
-    [{ op: 'relation.put', relation: 'more', data: { kind: 'order', of: 'part', edges: [{ from: 'b', to: 'z' }, { from: 'b', to: 'a' }] } }])
+  const e = { registries: { relation: { 'demo/more': { kind: 'order', of: 'circuit/part', edges: [{ from: 'demo/a', to: 'demo/b' }, { from: 'demo/b', to: 'demo/z' }] } } }, sources: { relation: {} } }
+  assert.deepEqual(subsetOrderOps(e, 'demo', 'demo/tray-order', ['demo/a', 'demo/b'], ['demo/b', 'demo/a'], 'circuit/part'),
+    [{ op: 'relation.put', relation: 'more', data: { kind: 'order', of: 'circuit/part', edges: [{ from: 'b', to: 'z' }, { from: 'b', to: 'a' }] } }])
   // A relation listing some of them is brought into line too, so the two do not contradict each other.
   assert.deepEqual(subsetOrderOps(c, 'demo', 'demo/sec-order', ['demo/a', 'demo/b', 'demo/y'], ['demo/b', 'demo/y', 'demo/a'], 'entry'), [
     { op: 'relation.put', relation: 'entries', data: { kind: 'order', of: 'entry', sequence: ['b', 'x', 'a'] } },

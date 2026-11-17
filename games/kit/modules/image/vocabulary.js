@@ -8,8 +8,9 @@ import { qualifyVocabulary } from '../../engine/capabilities.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js'
-import { TRAY } from '../../engine/trays.js'
+import { taskLevel } from '../../engine/tasks.js'
+import { ITEM_REFERENCE } from '../../../../packages/circuit/core/index.js'
+import { TRAY } from '../../../../packages/circuit/core/index.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { IMAGE_OPS } from './engine/definitions.js'
@@ -55,7 +56,7 @@ const CHECK = S.obj({ tolerance: S.opt(S.num()), mismatches: S.opt(S.int({ min: 
 const SOURCE = S.either(S.oneOf(['test']), S.call('picture'))
 const FIGURE = S.either(
   S.obj({ test: S.int({ min: 0 }), task: S.opt(S.int({ min: 0 })), view: S.opt(VIEW), caption: S.opt(TEXT) }),
-  S.obj({ part: S.ref('part'), params: S.opt(S.map(S.any())), input: S.opt(SOURCE), inputs: S.opt(S.list(SOURCE)), view: S.opt(VIEW), caption: S.opt(TEXT) }),
+  S.obj({ part: S.ref('part', { reference: 'circuit/part' }), params: S.opt(S.map(S.any())), input: S.opt(SOURCE), inputs: S.opt(S.list(SOURCE)), view: S.opt(VIEW), caption: S.opt(TEXT) }),
   S.obj({ figure: S.str({ pattern: '^[a-z0-9-]+$', about: t('笔记插图的名字（trace-viewer/src/figures 登记的 id，检查时核对）') }), caption: S.opt(TEXT) }),
 )
 const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图') })
@@ -107,7 +108,7 @@ const GRAPH = S.by('scene', Object.fromEntries(Object.entries(SCENES).map(([name
 const PROBE = S.obj({
   kind: S.oneOf(['probe']),
   ...TASK,
-  part: S.ref('part', { about: t('台上的黑箱') }),
+  part: S.ref('part', { reference: 'circuit/part', about: t('台上的黑箱') }),
   question: TEXT,
   answers: S.list(S.str()),
   answer: S.str(),
@@ -129,7 +130,7 @@ const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
   power: S.opt(S.name('power')),
-  primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件') }),
+  primitives: S.list(S.ref('part', { reference: 'circuit/part' }), { about: t('没有电路能搭出的元件') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,

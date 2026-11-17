@@ -31,11 +31,11 @@
 // o: the task's settings (course.js): dirs, scan, filter (the sweeping arm's filter), rounds (scan again and again
 //   until the table stops changing), remember (the keys a maze's layers keep), and its world's other parameters.
 
-import { tableAt } from '../../../engine/machine.js';
+import { tableAt } from '../../../../../packages/circuit/core/index.js';
 import { E } from './scene.js';
 import { T } from '../lang.js';
 import { signal } from './format.js';
-import { sensor } from '../../../circuit/sensors.js';
+import { sensor } from '../../../../../packages/circuit/core/index.js'
 
 /** A board cell near the robot (off = [dr, dc]), a number or yes / no about its own cell, a whole segment, a category. */
 export const cell = (label, short, off, type = 'circuit:number') => ({ label, short, type, off });

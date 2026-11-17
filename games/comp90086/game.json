@@ -1,7 +1,8 @@
 {
-  "kernel": "^1.0.0",
+  "kernel": "^2.0.0",
   "packages": {
-    "comp90086": "^1.0.0"
+    "comp90086": "^1.0.0",
+    "circuit": "^1.0.0"
   },
   "title": "@course.title",
   "kicker": "@course.kicker",

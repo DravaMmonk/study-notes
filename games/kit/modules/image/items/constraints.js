@@ -4,7 +4,7 @@ import { qualifyItems } from '../../../engine/capabilities.js'
 // constraint (../../../engine/tests.js).
 import { S, callOf } from '../../../engine/schema.js'
 import { dependencyOrder, indexEdges, reaches } from '../../../graph.js'
-import { wireEdges } from '../../../engine/wire-source.js'
+import { wireEdges } from '../../../../../packages/circuit/core/index.js'
 import { T as t } from '../../../shell/i18n.js'
 
 

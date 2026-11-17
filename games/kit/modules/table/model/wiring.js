@@ -5,10 +5,10 @@
 // model: the course's board model (run.js modelOf); u = { sensors, outs, offers? } of the world the board runs in
 // (offers: what each card may read on this task, { view: [sensor], facts: [sensor] }).
 
-import { portsOf } from '../../../engine/circuit.js';
-import { paramsOf } from '../../../engine/forms.js';
-import { printLines, readLines } from '../../../circuit/text.js';
-import { boardFits, isCircuitBoard } from '../../../circuit/model.js';
+import { portsOf } from '../../../../../packages/circuit/core/index.js'
+import { paramsOf } from '../../../../../packages/circuit/core/index.js'
+import { printLines, readLines } from '../../../../../packages/circuit/core/index.js'
+import { boardFits, isCircuitBoard } from '../../../../../packages/circuit/core/index.js'
 import { WORLDS } from './worlds.js';
 import { isCard } from './parts.js';
 import { blank, fitted, picksOf, roleOf } from './board.js';

@@ -15,7 +15,7 @@
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
 
-import { splitSource, srcNode } from '../engine/wire-source.js'
+import { splitSource, srcNode } from '../../../packages/circuit/core/index.js'
 import { firstText, isText } from '../engine/i18n.js'
 
 export const PEDAGOGY_RULES = {

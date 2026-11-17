@@ -9,7 +9,7 @@ import { setRefs } from './refs.js'
 import { SettingsContext } from './useSetting.js'
 import { EmbedContext } from './embed.js'
 import { settings } from './settings.js'
-import { useLevelRuns } from './useLevelRuns.js'
+import { useLevelRuns } from '../../../packages/circuit/view/index.jsx'
 
 const THEME_KEY = 'fieldnotes.theme'
 const HEIGHT = 'kit-embed-height'

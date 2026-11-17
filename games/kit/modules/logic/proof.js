@@ -1,4 +1,4 @@
-import { workshopNodes } from '../../engine/workshop.js'
+import { workshopNodes } from '../../../../packages/circuit/core/index.js'
 // Proofs as circuits (《证明完毕》). A wire carries a proved judgment:
 //
 //   { formula, hyps: Map(hypothesis id → formula) }   the formula, proved from the hypotheses still open
@@ -12,12 +12,12 @@ import { workshopNodes } from '../../engine/workshop.js'
 // hypotheses open but the premises: which region a card sits in is how the editor keeps it tidy, while the hypotheses
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
-import { MISSING, PartError } from '../../engine/circuit.js'
-import { formOf, formed } from '../../engine/forms.js'
-import { runBoard } from '../../engine/boards.js'
+import { MISSING, PartError } from '../../../../packages/circuit/core/index.js'
+import { formOf, formed } from '../../../../packages/circuit/core/index.js'
+import { runBoard } from '../../../../packages/circuit/core/index.js'
 import { runOutputTests } from '../../engine/test-run.js'
-import { circuitBoard } from '../../engine/board-cards.js'
-import { frameTree, regionAddress } from '../../circuit/regions.js'
+import { circuitBoard } from '../../../../packages/circuit/core/index.js'
+import { frameTree, regionAddress } from '../../../../packages/circuit/core/index.js'
 import { BOT, FORMULA_TEXT, all, allVars, and, asAnd, asImp, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'

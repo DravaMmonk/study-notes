@@ -6,13 +6,13 @@ import { OPEN } from './vocabulary.js'
 import { S, validate } from './schema.js'
 import { createRegistries, expandNames, fullName } from './names.js'
 import { isTextKey } from './i18n.js'
-import { NAME } from './parts/schema.js'
-import { mapBlueprintNames, parse } from '../circuit/text.js'
+import { NAME } from '../../../packages/circuit/core/index.js'
+import { mapBlueprintNames, textParse as parse } from '../../../packages/circuit/core/index.js'
 
 const schemas = {
   kinds: { part: { given: {} } },
-  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part')) }),
-  level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), part: S.ref('part'), carry: S.level(), solution: S.board() })) }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.list(S.ref('part', { reference: 'circuit/part' })) }),
+  level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), part: S.ref('part', { reference: 'circuit/part' }), carry: S.level(), solution: S.board() })) }),
 }
 const t = (key, en) => ({ $key: key, en })
 
@@ -40,16 +40,16 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.equal(content.glossary.entries[0].at, 'library/calc')
   assert.equal(content.glossary.entries[0].group, 'library/entries-calc')
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
-  for (const kind of ['level', 'part', 'entry']) assert.ok(content.registries[kind]['library/calc'])
+  for (const kind of ['level', 'circuit/part', 'entry']) assert.ok(content.registries[kind]['library/calc'])
   assert.ok(content.registries.tag['level:library/calc'])
   for (const kind of ['relation']) assert.deepEqual(Object.keys(content.registries[kind]), [])
   assert.deepEqual(source, before)
-  assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate part library\/calc/)
+  assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate circuit\/part library\/calc/)
   assert.throws(() => createRegistries({ level: [['lib/a', {}], ['lib/a', {}]] }), /duplicate level/)
 })
 
 test('typed references preserve cross-namespace and game-owned objects', () => {
-  const schema = S.obj({ levels: S.list(S.level()), parts: S.map(S.ref('part'), { key: S.ref('part') }), entry: S.name('entry'), title: S.text(), world: S.ref('world') })
+  const schema = S.obj({ levels: S.list(S.level()), parts: S.map(S.ref('part', { reference: 'circuit/part' }), { key: S.ref('part', { reference: 'circuit/part' }) }), entry: S.name('entry'), title: S.text(), world: S.ref('world') })
   const value = expandNames({
     levels: ['start', 'other/start', '@demo/start'], parts: { calc: '@demo/pin', 'other/calc': 'given' }, entry: 'term',
     title: t('other/heading', '<level-ref to="start"></level-ref> <part-ref to="part:calc"></part-ref>'), world: 'grid',

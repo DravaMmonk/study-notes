@@ -125,3 +125,11 @@ The `kind` registry describes object types, not work-instance identities. Its na
 instance-name alias inventory so a new built-in type cannot make an existing instance name ambiguous.
 New code packages outside the locked corpus are reported explicitly during `compare`; existing missing
 snapshots still fail. Their Node and Vite contracts validate the new package independently.
+
+Step 5 treats only the declared `circuit/tray` object-type spelling and
+`tags/circuit/tray/` directory spelling as their former `tray` equivalents.
+The already declared `circuit/part` alias also covers `tags/circuit/part/`.
+Version metadata accepts platform range `^2.0.0` for this breaking extraction,
+and removes the new explicit `circuit: ^1.0.0` dependency from package/game
+selection metadata, where that dependency was previously native. Object values,
+ordered members, reference works, verdicts and traces still compare normally.

@@ -2,7 +2,7 @@ import { dependencyIds } from './semver.js'
 // One existence check over public identities, independent of source files or future manifests.
 import { textKey } from './i18n.js'
 import { shapeAt } from './schema.js'
-import { grants } from './grants.js'
+import { grants } from '../../../packages/circuit/core/index.js'
 import { tagKey, tagName, kernelTags } from './tag-identity.js'
 import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { schemaForKind } from './layers.js'
@@ -21,11 +21,11 @@ export function publicSurfaces(layers, schemas) {
     surface.set(identity(kind, name, value.kind), { kind, name, member: value.kind })
     for (const task of kind === 'level' ? value.tasks ?? [] : []) add(owner, 'task', task.id, task)
     for (const stage of grants.types.has(kind) ? value.stages ?? [] : []) add(owner, kind, stage.id, stage)
-    for (const menu of kind === 'tray' ? value.menus ?? [] : []) add(owner, 'menu', menu.id, menu)
+    for (const menu of kind === 'circuit/tray' ? value.menus ?? [] : []) add(owner, 'menu', menu.id, menu)
   }
   for (const name of BUILTIN_KIND_NAMES) add('kernel', 'kind', name)
   for (const [key, reader] of kernelTags) { void key; add('kernel', 'tag', reader.name, { kind: reader.member }) }
-  for (const [kind, values] of Object.entries(schemas.kinds ?? {})) for (const name of Object.keys(values)) add(ownerOf(name), kind, name)
+  for (const [kind, values] of Object.entries(schemas.kinds ?? {})) for (const name of Object.keys(values)) add(ownerOf(name), kind === 'part' ? 'circuit/part' : kind, name)
   for (const layer of layers) {
     if (layer.missing) continue
     if (layer.manifest) {
@@ -90,8 +90,8 @@ export function existenceProblems(layers, schemas, surfaces = publicSurfaces(lay
       }
       if (kind === 'relation') {
         const definition = Object.values(schemas.objectKinds ?? {}).map(d => d.relations?.[value.kind]).find(Boolean)
-        const endpointKind = value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'part' : value.of ?? 'any'
-        const endpoint = (ref, path, side) => emit(value.kind === 'order' && ['part', 'any'].includes(endpointKind) && [...surfaces.values()].some(surface => surface.has(identity('menu', ref))) ? 'menu' : definition?.[side] ?? endpointKind, ref, path, value.member)
+        const endpointKind = value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'circuit/part' : value.of ?? 'any'
+        const endpoint = (ref, path, side) => emit(value.kind === 'order' && ['circuit/part', 'any'].includes(endpointKind) && [...surfaces.values()].some(surface => surface.has(identity('menu', ref))) ? 'menu' : definition?.[side] ?? endpointKind, ref, path, value.member)
         for (const field of ['edges', 'remove']) for (const [i, edge] of (value[field] ?? []).entries()) {
           if (!edge.game) endpoint(edge.from, `${field}[${i}].from`, 'from')
           endpoint(edge.to, `${field}[${i}].to`, 'to')
@@ -141,7 +141,7 @@ export function contentExistenceProblems(content, schemas) {
   const pending = existenceProblems(current, schemas, surfaces).filter(problem => problem.reason !== 'undeclared dependency' && !authored.some(other =>
     other.object.kind === problem.object.kind && other.object.name === problem.object.name && other.object.member === problem.object.member &&
     other.kind === problem.kind && other.target === problem.target && other.member === problem.member &&
-    (other.path === problem.path || ['tag', 'relation', 'tray', 'section'].includes(problem.object.kind))))
+    (other.path === problem.path || ['tag', 'relation', 'circuit/tray', 'section'].includes(problem.object.kind))))
   return uniqueProblems([...authored, ...pending])
 }
 

@@ -1,1 +1,9 @@
-{ "title": "@course.title", "kicker": "@course.kicker", "lede": "@course.lede" }
+{
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
+  "kernel": "^2.0.0",
+  "packages": {
+    "circuit": "^1.0.0"
+  }
+}

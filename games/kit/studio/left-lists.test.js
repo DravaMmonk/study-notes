@@ -20,10 +20,10 @@ test('the address keeps what is open: an object list’s object, or a group’s 
   assert.deepEqual(readOpen(new URLSearchParams('tab=page')), { list: null, open: {} })
   // A workspace without the list ignores its parameter.
   assert.deepEqual(readOpen(new URLSearchParams('capability=x&override=x'), GAME_LISTS), { list: 'overrides', open: { override: 'x' } })
-  assert.deepEqual(readHeading(new URLSearchParams('tray=demo/main&level=demo/a')), { kind: 'tray', full: 'demo/main' })
+  assert.deepEqual(readHeading(new URLSearchParams('tray=demo/main&level=demo/a')), { kind: 'circuit/tray', full: 'demo/main' })
   assert.equal(readHeading(new URLSearchParams('level=demo/a')), null)
-  assert.deepEqual(['tag', 'relation', 'tray', 'section'].map((k) => listOfHeading(k)), ['tree', 'tree', 'parts', 'entries'])
-  assert.equal(listOfHeading('tag', 'part'), 'parts')
+  assert.deepEqual(['tag', 'relation', 'circuit/tray', 'section'].map((k) => listOfHeading(k)), ['tree', 'tree', 'parts', 'entries'])
+  assert.equal(listOfHeading('tag', 'circuit/part'), 'parts')
   assert.equal(listOfHeading('tag', 'symbol'), 'symbols')
 })
 
@@ -88,8 +88,8 @@ test('an override’s file is what the override operation writes: a patch of a t
 
 test('override audit paths mirror each object declaration folder', () => {
   const event = { layer: 'extra', name: 'base/item' }
-  assert.equal(overrideFileName({ ...event, kind: 'part' }), 'extra/overrides/base/parts/item.json')
+  assert.equal(overrideFileName({ ...event, kind: 'circuit/part' }), 'extra/overrides/base/parts/item.json')
   assert.equal(overrideFileName({ ...event, kind: 'level' }), 'extra/overrides/base/levels/item.json')
-  assert.equal(overrideFileName({ ...event, kind: 'tag', after: { kind: 'part' } }), 'extra/overrides/base/tags/part/item.json')
+  assert.equal(overrideFileName({ ...event, kind: 'tag', after: { kind: 'circuit/part' } }), 'extra/overrides/base/tags/circuit/part/item.json')
   assert.equal(overrideFileName({ ...event, kind: 'tag', after: { kind: 'entry' } }), 'extra/overrides/base/tags/entry/item.json')
 })

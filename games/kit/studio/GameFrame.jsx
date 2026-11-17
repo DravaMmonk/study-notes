@@ -51,7 +51,7 @@ export default function GameFrame({ visible, content, play, part, stage = null, 
     if (part !== undefined) {
       const shownPart = stage ? `${part} ${stage}` : part
       if (opened.current.part === shownPart) return
-      send({ type: 'part', content: now.current.content, part, stage, theme, lang })
+      send({ type: 'circuit/part', content: now.current.content, part, stage, theme, lang })
       opened.current = { play: undefined, part: shownPart, content: now.current.content }
       return
     }

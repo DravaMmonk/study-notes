@@ -14,8 +14,8 @@
 //   k = keep[reg=A](line)
 //   bit <- r
 //   say <- r
-import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
-import { drive, hearing } from '../../engine/ticks.js'
+import { INPUTS, OUTPUTS, circuitBoard } from '../../../../packages/circuit/core/index.js'
+import { drive, hearing } from '../../../../packages/circuit/core/index.js'
 
 export const board = circuitBoard({
   ticks: true,

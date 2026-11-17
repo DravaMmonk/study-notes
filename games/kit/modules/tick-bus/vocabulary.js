@@ -8,7 +8,7 @@
 import { S } from '../../engine/schema.js'
 import { qualifyVocabulary } from '../../engine/capabilities.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, levelSchema } from '../../../../packages/circuit/core/index.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })

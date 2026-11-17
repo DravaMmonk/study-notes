@@ -5,14 +5,13 @@ import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { qualifyObject, OBJECT_SCHEMAS } from './objects.js'
-import { PARTS_FILE } from './parts/schema.js'
 import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', part: 'parts', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, CONTENT_KINDS[kind].folder ?? kind])) }
+export const folders = { level: 'levels', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, CONTENT_KINDS[kind].folder ?? kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: PARTS_FILE.fields.parts.of, entry: ENTRY, ...kindSchemas(schemas), ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, entry: ENTRY, ...kindSchemas(schemas), ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
@@ -37,14 +36,14 @@ const same = (a, b) => typeof a === 'string' ? a === b : Object.keys(a).length =
 /** Apply the override rules without retaining patch control fields in objects. */
 export function applyOverride(kind, before, patch) {
   const { $merge, replace, remove = [], ...data } = patch
-  if (!['tag', 'relation', 'tray', 'section'].includes(kind)) return $merge ? mergePatch(before, data) : data
+  if (!['tag', 'relation', 'circuit/tray', 'section'].includes(kind)) return $merge ? mergePatch(before, data) : data
   before ??= {}
   if (kind === 'tag' && before.kind && data.kind && data.kind !== before.kind) throw new Error('a tag override cannot change its member kind')
   const field = kind === 'relation' ? 'edges' : 'values'
   const values = kind === 'relation' ? edges : (v) => v.values ?? []
   const result = [...(replace ? [] : values(before)).filter((v) => !remove.some((r) => kind !== 'relation' ? r === v : Object.entries(r).every(([key, value]) => v[key] === value))), ...values(data)]
   const { sequence: _sequence, ...merged } = { ...before, ...data }
-  if (kind === 'tray') {
+  if (kind === 'circuit/tray') {
     const menus = new Map((replace ? [] : before.menus ?? []).filter(menu => !remove.includes(menu.id)).map(menu => [menu.id, menu]))
     for (const menu of data.menus ?? []) {
       const old = menus.get(menu.id)
@@ -66,8 +65,8 @@ export function visibleOverrides(content, layer = content.layerOrder?.at(-1)) {
 
 function contextFor(layer, layers, schemas) {
   const name = v => fullName(layer.id, v)
-  const parts = new Set(layer.objects.filter((o) => o.kind === 'part').map((o) => o.name))
-  const partRules = new Set(layer.objects.filter((o) => o.kind === 'part' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
+  const parts = new Set(layer.objects.filter((o) => o.kind === 'circuit/part').map((o) => o.name))
+  const partRules = new Set(layer.objects.filter((o) => o.kind === 'circuit/part' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
   const qualify = (value, schema, context = '') => expandNames(value, layer.id, { parts, partRules, schema, vocabulary: schemas, context, resolve: name })
   return { name, parts, qualify }
 }
@@ -149,9 +148,9 @@ export function composeLayers(layers, schemas) {
       ].filter(tag => !expectedMember || tag.kind === expectedMember) : []
       const endpointKinds = [...new Set(endpointTags.map(tag => tag.kind))]
       const endpointTag = endpointKinds.length === 1 ? endpointTags[0] : null
-      const item = kind === 'tag' && value.kind === 'part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'part' || endpointTag?.kind === 'part' || schemas.kinds?.part?.[endpoint]))
+      const item = kind === 'tag' && value.kind === 'circuit/part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'circuit/part' || endpointTag?.kind === 'circuit/part' || schemas.kinds?.part?.[endpoint]))
       const objectName = (v) => kind === 'tag' && value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
-      if (['tag', 'relation', 'section', 'tray'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
+      if (['tag', 'relation', 'section'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
     if (!layer.id.startsWith('@') && !layer.missing) {

@@ -4,7 +4,7 @@ import { imageHero, imageIntroduction } from './intro.js'
 import { imageCircuit } from './circuit.js'
 import { rangeOf } from './display.js'
 import { familyOf, iconOf } from './catalog.js'
-import WeightGrid from '../../../shell/parts/WeightGrid.jsx'
+import { WeightGrid } from '../../../../../packages/circuit/view/index.jsx'
 
 export const displays = {
   'image:hero': imageHero,

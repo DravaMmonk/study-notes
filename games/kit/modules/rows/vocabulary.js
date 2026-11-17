@@ -1,6 +1,7 @@
 import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { taskLevel } from '../../engine/tasks.js'
+
 import { qualifyVocabulary } from '../../engine/capabilities.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 

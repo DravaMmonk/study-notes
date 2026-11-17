@@ -1,4 +1,4 @@
-import { sourceOf } from '../../../engine/wire-source.js'
+import { sourceOf } from '../../../../../packages/circuit/core/index.js'
 import { tidyImageBoard } from './board.js'
 
 // Select the images and reference wiring the course names for a part on the shared sample circuit.

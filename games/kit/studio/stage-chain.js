@@ -1,8 +1,8 @@
 // A part's stages as the studio shows them (games/DESIGN.md 6.8): the part itself, then each stage with what it
 // changes over the one before; at each step every setting with what the operation declares, what the part (or its
 // stages so far) narrows, and what holds there.
-import { stagePatch } from '../engine/part-stages.js'
-import { parameterSetting, resolveSettings, settingParameters } from '../engine/parts/settings.js'
+import { stagePatch } from '../../../packages/circuit/core/index.js'
+import { parameterSetting, settingsResolveSettings as resolveSettings, settingParameters } from '../../../packages/circuit/core/index.js'
 
 /** A stage's full id: a short stage id in the part's namespace. */
 export const stageId = (part, id) => (id.includes('/') || !part.includes('/') ? id : `${part.slice(0, part.indexOf('/'))}/${id}`)

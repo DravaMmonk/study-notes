@@ -1,6 +1,6 @@
 {
   "kind": "order",
-  "of": "part",
+  "of": "circuit/part",
   "edges": [
     {
       "from": "gNot",

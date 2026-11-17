@@ -2,7 +2,7 @@ import { existenceProblems } from './existence.js'
 import { tagKey, tagName } from './tag-identity.js'
 import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { encyclopedia } from './encyclopedia.js'
-import { PARTS_FILE } from './parts/schema.js'
+import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { GLOSSARY } from './vocabulary.js'
 import { createRegistries, expandNames, fullName, registryOf } from './names.js'
 import { referenceName, qualifyObject, referenceResolver, expandReferences, expandRelations, assembleChapters, relationOrder } from './objects.js'
@@ -63,7 +63,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   levels = levels.map(([name, value]) => [fullName(packageId, name), expand(value, packageId, schemas?.level)])
   glossary = expand(glossary, packageId, GLOSSARY)
   if (partDefs) partDefs = Object.fromEntries(Object.entries(partDefs).map(([kind, values]) => [kind,
-    registryOf('part', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
+    registryOf('circuit/part', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
   ]))
   blueprint = expand(blueprint, `@${id}`)
   overridden = Object.fromEntries(Object.entries(overridden).map(([key, value]) => [fullName(packageId, key), value]))
@@ -75,9 +75,9 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     const taggedKinds = endpoint?.startsWith('#') ? [...new Set(tags.filter(([id, tag, ns = packageId]) => fullName(ns, id) === endpointName.slice(1) && (!value.of || tag.kind === (value.member ?? value.of))).map(([, tag]) => tag.kind))] : []
     const taggedKind = taggedKinds.length === 1 ? taggedKinds[0] : undefined
     const objectKind = levels.some(([id]) => id === endpointName) ? 'level'
-      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'part'
+      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'circuit/part'
     const relationKind = value.of ?? (taggedKind || objectKind)
-    const item = kind === 'tags' ? value.kind === 'part' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'part')
+    const item = kind === 'tags' ? value.kind === 'circuit/part' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'circuit/part')
     const ref = (ns, v) => value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : referenceName(ns, v)
     return [kind === 'tags' ? tagKey(value.kind, fullName(namespace, name)) : fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
   }))
@@ -86,11 +86,11 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const sectionMap = objects('sections', sections)
   const relationMap = objects('relations', relations)
   const registries = createRegistries({
-    level: levels, part: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
+    level: levels, 'circuit/part': Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
     entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
-    ...Object.fromEntries(Object.entries(contentObjects).filter(([kind]) => kind !== 'kind').map(([kind, values]) => [kind, Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, kindSchemas(schemas)[kind])])])),
+    ...Object.fromEntries(Object.entries(contentObjects).filter(([kind]) => !['kind', 'circuit/part', 'circuit/tray'].includes(kind)).map(([kind, values]) => [kind, Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, kindSchemas(schemas)[kind])])])),
     kind: [...new Set([...BUILTIN_KIND_NAMES, ...Object.keys(objectKinds ?? {})])].map(name => [name, contentObjects.kind?.[name] ?? objectKinds?.[name] ?? {}]),
-    tag: Object.entries(tagMap), relation: Object.entries(relationMap), section: Object.entries(sectionMap), tray: Object.entries(trayMap),
+    tag: Object.entries(tagMap), relation: Object.entries(relationMap), section: Object.entries(sectionMap), 'circuit/tray': Object.entries(trayMap),
   })
   const objectProblems = [...declarationProblems]
   for (const [kind, entries] of Object.entries({ tags, relations, sections, trays })) for (const [name, , namespace = packageId] of entries) {
@@ -174,8 +174,8 @@ export function assemblySource(content) {
   const { objectKinds: _objectKinds, id, levels, glossary: _glossary, partDefs, blueprint, overridden, registries: _registries, objectProblems: _problems, relationEdges: _edges, eras: _eras, sourceChapters, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, tags = {}, relations = {}, sections = {}, trays: _trays, replaces: _replaces, ...game } = content
   if (sourceChapters) game.chapters = sourceChapters
   return {
-    id, game, contentObjects: Object.fromEntries(Object.keys(kindSchemas({ objectKinds: _objectKinds })).map(kind => [kind, kind === 'kind' ? Object.fromEntries(Object.entries(_registries?.kind ?? {}).filter(([name]) => _objectKinds?.[name])) : _registries?.[kind] ?? {}])), glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
+    id, game, contentObjects: Object.fromEntries(Object.keys(kindSchemas({ objectKinds: _objectKinds })).filter(kind => !['circuit/part', 'circuit/tray'].includes(kind)).map(kind => [kind, kind === 'kind' ? Object.fromEntries(Object.entries(_registries?.kind ?? {}).filter(([name]) => _objectKinds?.[name])) : _registries?.[kind] ?? {}])), glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
     levels: levels.map(({ id, ...level }) => [id, level]),
-    ...Object.fromEntries(Object.entries({ tags, relations, sections, trays: _registries?.tray ?? {} }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [kind === 'tags' ? tagName(name) : name, object, (kind === 'tags' ? tagName(name) : name).split('/')[0]])])),
+    ...Object.fromEntries(Object.entries({ tags, relations, sections, trays: _registries?.['circuit/tray'] ?? {} }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [kind === 'tags' ? tagName(name) : name, object, (kind === 'tags' ? tagName(name) : name).split('/')[0]])])),
   }
 }

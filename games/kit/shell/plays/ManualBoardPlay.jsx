@@ -1,13 +1,13 @@
 import { Fragment, useRef } from 'react'
 import { Trash2 } from 'lucide-react'
-import { CheckIcon, Dock, SkipIcon } from '../BoardControls.jsx'
+import { CheckIcon, Dock, SkipIcon } from '../../../../packages/circuit/view/index.jsx'
 import TestTabs from '../TestTabs.jsx'
 import InteractiveDrawing from '../InteractiveDrawing.jsx'
 import { Brief, PhonePage, TaskNavigation } from '../Layout.jsx'
 import { Markup } from '../Markup.jsx'
-import Workbench from '../Workbench.jsx'
+import { Workbench } from '../../../../packages/circuit/view/index.jsx'
 import { L } from '../i18n.js'
-import { useToast } from '../useBoardInteraction.jsx'
+import { useToast } from '../../../../packages/circuit/view/index.jsx'
 
 const icons = { check: CheckIcon, skip: SkipIcon, trash: Trash2 }
 

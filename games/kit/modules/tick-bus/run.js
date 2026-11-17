@@ -10,8 +10,8 @@
 //   parts too); `error` a board that says what it hears in the same tick
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the line and the
 //   inputs, what the board says and each output against what is wanted, tick by tick
-import { boardNode, runTicks } from '../../engine/ticks.js'
-import { tickJudge, tickReport } from '../../engine/circuit-run.js'
+import { boardNode, runTicks } from '../../../../packages/circuit/core/index.js'
+import { tickJudge, tickReport } from '../../../../packages/circuit/core/index.js'
 import { runTests } from '../../engine/test-run.js'
 import { LINE, lineOf, sayer } from './line.js'
 import { T } from '../../shell/i18n.js'

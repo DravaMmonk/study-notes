@@ -5,8 +5,8 @@ import { vocabulary } from './vocabulary.js'
 import { imageWorks, prepareImageWorks } from './work.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
-import { partNames } from '../../engine/trays.js'
-import { builtParts } from '../../engine/parts.js'
+import { partNames } from '../../../../packages/circuit/core/index.js'
+import { builtParts } from '../../../../packages/circuit/core/index.js'
 
 /** An image game's part names, for its trays: its built parts. */
 const names = (content) => partNames(Object.keys(builtParts(content.partDefs)))

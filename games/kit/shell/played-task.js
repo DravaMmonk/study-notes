@@ -1,12 +1,13 @@
-import { flagsIn, recordPass, skipOptionalTask, taskKey, taskOpen, taskPassed } from './progress.js'
+import { recordPass, skipOptionalTask, taskKey, taskOpen, taskPassed } from './progress.js'
 import { saveSlot, slotsOf } from './slots.js'
 
 /** The task, work and unlocks seen by browser screens and by text play. */
 export function taskContext(game, progress, level, at, fails = 0) {
+  progress = game.progress?.normalize?.(progress) ?? progress
   return {
     game, progress, task: at, fails,
     level: { ...level, ...level.tasks[at] },
-    flags: flagsIn(game, progress, level, at),
+    flags: game.progress?.context?.(progress, level, at) ?? new Set(),
     saved: progress.data[taskKey(level, at)],
     solved: taskPassed(game, progress, level.id, at),
   }

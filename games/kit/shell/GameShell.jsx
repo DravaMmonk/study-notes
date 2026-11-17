@@ -1,5 +1,5 @@
 import { playId } from '../engine/plays.js'
-import { workshopTrayNames } from '../engine/trays.js'
+import { workshopTrayNames } from '../../../packages/circuit/core/index.js'
 import { createElement, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
@@ -8,20 +8,20 @@ import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 import { Dialog, FailDialog, SolvedDialog, TaskDoneDialog } from './Dialogs.jsx'
 import Encyclopedia, { useWiki } from './Encyclopedia.jsx'
-import PartsBook, { levelOf, useParts } from './PartsBook.jsx'
+import { PartsBook, levelOf, useParts } from '../../../packages/circuit/view/index.jsx'
 import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { completionUnlocks, firstTask as openTask, nextRequiredTask, taskOpen } from './progress.js'
+import { firstTask as openTask, nextRequiredTask, taskOpen } from './progress.js'
 import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
-import { SlotsContext } from '../circuit/SaveSlots.jsx'
+import { SlotsContext } from '../../../packages/circuit/view/index.jsx'
 import { isTextField, playFrame } from './viewport.js'
 import { SheetHost } from './Sheet.jsx'
 import { EditContext, same } from './edit.js'
 import { SettingsContext } from './useSetting.js'
-import { useLevelRuns } from './useLevelRuns.js'
+import { useLevelRuns } from '../../../packages/circuit/view/index.jsx'
 import TopBar from './TopBar.jsx'
 import { settings } from './settings.js'
 
@@ -190,7 +190,7 @@ export default function GameShell({ game, store, author = null }) {
     const done = task.screen.solve(score, work)
     if (!done) return
     setFailure(null)
-    if (done.solved.includes(level.id)) setWon({ id: level.id, ...completionUnlocks(game, level, before, done) })
+    if (done.solved.includes(level.id)) setWon({ id: level.id, ...(game.progress?.rewards?.(level, before, done) ?? { parts: [], levels: [] }) })
     else setTaskWon({ index: taskAt, next: nextRequiredTask(game, done, level.id, taskAt) })
   }
   const fail = (info) => {

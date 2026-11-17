@@ -1,4 +1,4 @@
-import { workshopNodes } from '../../engine/workshop.js'
+import { workshopNodes } from '../../../../packages/circuit/core/index.js'
 // The machine board (《证明完毕》 chapter 8 on): a circuit whose wires carry equations, proof states, formulas or
 // clause sets instead of proved judgments. Its sources (`in` cards, one per input the level names) give the test's
 // inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
@@ -39,8 +39,8 @@ import { workshopNodes } from '../../engine/workshop.js'
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
 // of them in turn (tactics.js).
 import { sameJson } from '../../engine/json-value.js'
-import { PartError } from '../../engine/circuit.js'
-import { packed, runBoard } from '../../engine/boards.js'
+import { PartError } from '../../../../packages/circuit/core/index.js'
+import { packed, runBoard } from '../../../../packages/circuit/core/index.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { FORMULA_TEXT, all, fn, subst, tvar } from './formula.js'
 import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, rule, startState } from './tactics.js'
@@ -50,7 +50,7 @@ import { datatypesRules } from './datatype.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue } from './elimgen.js'
 import { L, T } from '../../shell/i18n.js'
-import { circuitBoard } from '../../engine/board-cards.js'
+import { circuitBoard } from '../../../../packages/circuit/core/index.js'
 import { say } from './notation.js'
 
 const fail = (zh, en) => new PartError({ zh, en })

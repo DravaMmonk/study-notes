@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Monitor, PanelRight, Plus, Smartphone } from 'lucide-react'
 import { L, T, tr } from '../shell/i18n.js'
-import { picker } from '../shell/parts/PartSheet.jsx'
-import { SCENES, editorFor } from '../shell/parts/previews.js'
+import { picker } from '../../../packages/circuit/view/index.jsx'
+import { SCENES, editorFor } from '../../../packages/circuit/view/index.jsx'
 import { partAtStage } from './stage-chain.js'
 
 // A part on the studio's part page (games/DESIGN.md 6.7): the scenes its editor draws (../shell/parts/previews.js),

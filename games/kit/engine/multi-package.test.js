@@ -26,14 +26,14 @@ test('three packages compose across logic, image and rows, retain layered text a
     mkdirSync(dirname(path), { recursive: true })
     writeFileSync(path, JSON.stringify(value))
   }
-  put('packages/z-pictures/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
+  put('packages/z-pictures/package.json', { version: '1.0.0', kernel: '^2.0.0', uses: {} })
   put('packages/z-pictures/i18n/en.json', { title: 'Same picture', brief: 'Pass the image through.', caption: 'The original image.' })
   put('packages/z-pictures/levels/same.json', {
     title: '@title', after: 'The output equals the input.', intro: [{ t: 'Compare the image.', fig: { part: 'image:mystery', input: 'image:picture-square', caption: '@caption' } }],
     tasks: [{ id: 'same', kind: 'image:graph', brief: '@brief', scene: 'image:scene-filter', setup: { target: 'image:target-same' },
       tests: [{ label: 'Square', in: 'image:picture-square' }], hidden: [{ label: 'Disk', in: 'image:picture-disk' }], solution: ['out <- in'] }],
   })
-  put('packages/sums/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: { 'z-pictures': '^1.0.0' } })
+  put('packages/sums/package.json', { version: '1.0.0', kernel: '^2.0.0', uses: { 'z-pictures': '^1.0.0' } })
   put('packages/sums/i18n/en.json', { title: 'A sum', brief: 'Complete the sum.' })
   put('packages/sums/overrides/z-pictures/i18n/en.json', { brief: 'Keep every pixel.' })
   put('packages/sums/levels/add.json', { title: '@title', tasks: [{ id: 'add', kind: 'rows:equation', brief: '@brief', rows: [{ total: 5, chips: [0, 2, 3], reference: '2 + 3', naive: '0 + 3' }] }] })

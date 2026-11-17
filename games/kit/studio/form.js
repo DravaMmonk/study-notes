@@ -29,8 +29,9 @@ import { getLang, L, tr } from '../shell/i18n.js'
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
-import { PARTS_FILE } from '../engine/parts/schema.js'
+import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { newTaskId } from '../engine/tasks.js'
+
 import { objectOp, objectSchema, objectValue } from './object-file.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)

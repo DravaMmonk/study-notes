@@ -4,7 +4,7 @@
 // starts that task afresh and keeps the rest (../shell/progress.js). Wording, answers, ids and the course's order are
 // no part of a stamp, so editing them, or moving a task, keeps every save.
 import { find, sectionOf, shapeAt } from './schema.js'
-import { PARTS_FILE } from './parts/schema.js'
+import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { isText } from './i18n.js'
 import { canonicalJson } from './json-value.js'
 

@@ -3,7 +3,7 @@
 // them); the order they show them in is an order relation (`<tray>-order`, `<section>-order`; a menu's
 // `<tray>-<menu>-order`, or an order relation of the layer that already lists them all), dragged or moved with Alt+↑/↓. Another package's tray or section is read only until it is
 // overridden here; its order then goes as an override of its order relation.
-import { grantObjects, grants } from '../engine/grants.js'
+import { grantObjects, grants } from '../../../packages/circuit/core/index.js'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2, X } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
@@ -88,13 +88,13 @@ function Head({ kind, full, value, own, overriding, setOverriding, content, name
 
 /** The tray `full`: its members and menus, and the order the tray shows them in. */
 export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit, onOps, onPick }) {
-  const value = content?.registries?.tray?.[full]
-  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'tray', full))
+  const value = content?.registries?.['circuit/tray']?.[full]
+  const [overriding, setOverriding] = useState(() => overridesIt(content, namespace, 'circuit/tray', full))
   if (!value) return <article className="arrange" />
   const own = namespaceOf(full) === namespace
   const editable = own || overriding
   const locked = pending || !editable
-  const write = writer({ kind: 'tray', full, namespace, own, value: withoutId(value), content, onEdit, onOps })
+  const write = writer({ kind: 'circuit/tray', full, namespace, own, value: withoutId(value), content, onEdit, onOps })
   const parts = grantObjects(content)
   const owners = stageOwners(content)
   const titleOf = (ref) => {
@@ -128,7 +128,7 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   }
   return (
     <article className="arrange gather-editor">
-      <Head kind="tray" full={full} value={value} own={own} overriding={overriding} setOverriding={setOverriding} content={content} namespace={namespace} pending={pending} write={write} onRemove={remove} onPick={onPick}>
+      <Head kind="circuit/tray" full={full} value={value} own={own} overriding={overriding} setOverriding={setOverriding} content={content} namespace={namespace} pending={pending} write={write} onRemove={remove} onPick={onPick}>
         <label className="object-flag">
           <input type="checkbox" className="field-check" checked={value.workshop ?? true} disabled={locked} onChange={(e) => write.set('workshop', e.target.checked)} />
           {tr('工坊', 'Workshop')}

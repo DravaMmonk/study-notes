@@ -1,0 +1,117 @@
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { Check, Copy, Download, FileUp } from 'lucide-react'
+import { useOverlay } from 'kernel/view'
+
+import { tr } from 'kernel/view'
+
+import { headOf, print, read } from "../../core/board/text.js"
+
+/**
+ * A board as text (text.js), its blueprint: shown to copy or save as a file, and read back from a paste or a file
+ * (written in any notepad). Reading replaces the board on screen, which undo brings back.
+ *
+ * board  { graph, parts, change(graph), types }   the editor's board and the parts this level offers
+ * head   { game, level }                          what the text's first line says it is
+ * mode   'show' (the board's text, ready to copy) | 'read' (an empty box to paste into)
+ */
+export default function BlueprintDialog({ board, head, mode, onClose }) {
+  const shown = print(board.graph, board.parts, head)
+  const [text, setText] = useState(mode === 'show' ? shown : '')
+  const [errors, setErrors] = useState([])
+  const [copied, setCopied] = useState(false)
+  const file = useRef(null)
+  const box = useRef(null)
+  const overlay = useOverlay(onClose)
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // No clipboard here (an older browser, a page not served over https): the text is selected to copy by hand.
+      box.current?.select()
+      document.execCommand?.('copy')
+    }
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1600)
+  }
+  const save = () => {
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
+    const a = Object.assign(document.createElement('a'), { href: url, download: `${[head.game, head.level].filter(Boolean).join('-') || 'board'}.txt` })
+    document.body.append(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+  const open = (event) => {
+    const picked = event.target.files?.[0]
+    event.target.value = ''
+    if (!picked) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setText(String(reader.result))
+      setErrors([])
+    }
+    reader.readAsText(picked)
+  }
+  const apply = () => {
+    const said = headOf(text)
+    if (said?.game && head.game && said.game !== head.game) {
+      setErrors([{ zh: `这是《${said.game}》的电路，不是这款游戏的。`, en: `This board is from “${said.game}”, not this game.` }])
+      return
+    }
+    const result = read(text, board.graph, board.parts, board.types)
+    if (result.errors) {
+      setErrors(result.errors)
+      return
+    }
+    board.change(result.graph)
+    onClose()
+  }
+  const changed = text !== shown
+
+  return createPortal(
+    <div ref={overlay} className="dialog-scrim" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路文本')}>
+        <h2>{mode === 'show' ? tr('电路文本') : tr('从文本导入')}</h2>
+        <p className="blueprint-note">
+          {mode === 'show'
+            ? tr('这是这块电路的蓝图：可以复制或存为文件，在任意文本编辑器中修改后再导入。')
+            : tr('粘贴蓝图，或打开 .txt 文件。导入将替换这块板上的电路，此操作可以撤销。')}
+        </p>
+        <textarea
+          ref={box}
+          className="blueprint-text"
+          value={text}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          wrap="off"
+          placeholder={'# blueprint 1\nn = gNot(Wind)\nout <- n'}
+          aria-label={tr('蓝图')}
+          onChange={(e) => {
+            setText(e.target.value)
+            setErrors([])
+          }}
+        />
+        {errors.length > 0 && (
+          <ul className="blueprint-errors" role="alert">
+            {errors.slice(0, 6).map((e, k) => <li key={k}>{tr(e.zh, e.en)}</li>)}
+            {errors.length > 6 && <li>{tr(`另有 ${errors.length - 6} 处`, `${errors.length - 6} more`)}</li>}
+          </ul>
+        )}
+        <input ref={file} type="file" accept=".txt,text/plain" hidden onChange={open} />
+        <div className="blueprint-tools">
+          <button type="button" onClick={copy}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? tr('已复制') : tr('复制', 'Copy')}</button>
+          <button type="button" onClick={save}><Download size={14} />{tr('存为文件')}</button>
+          <button type="button" onClick={() => file.current?.click()}><FileUp size={14} />{tr('打开文件')}</button>
+        </div>
+        <div className="dialog-actions">
+          <button type="button" onClick={onClose}>{tr('关闭')}</button>
+          {board.types && <button type="button" className="is-primary" disabled={!text.trim() || (mode === 'show' && !changed)} onClick={apply}>{tr('导入到这块板')}</button>}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}

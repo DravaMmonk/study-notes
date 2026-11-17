@@ -2,11 +2,11 @@
 // whole test (the shared machine walk, ../../../engine/machine.js), and the signal types that say which wire fits.
 // All of it is over a course's parts (parts.js partsOf): modelOf(parts) is the course's board model.
 
-import { splitSource } from '../../../engine/wire-source.js';
-import { Halt, evaluate as engineEvaluate } from '../../../engine/circuit.js';
-import { sink } from '../../../engine/boards.js';
-import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from '../../../engine/workshop-terminals.js';
-import { MAX_ROUNDS, walk } from '../../../engine/machine.js';
+import { splitSource } from '../../../../../packages/circuit/core/index.js'
+import { Halt, evaluate as engineEvaluate } from '../../../../../packages/circuit/core/index.js'
+import { sink } from '../../../../../packages/circuit/core/index.js'
+import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from '../../../../../packages/circuit/core/index.js'
+import { MAX_ROUNDS, walk } from '../../../../../packages/circuit/core/index.js';
 import { tr } from '../lang.js';
 import { isCard } from './parts.js';
 import { picksOf } from './board.js';

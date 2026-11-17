@@ -5,7 +5,7 @@ import { Markup } from './Markup.jsx'
 import { RunResults } from './RunDock.jsx'
 import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
-import Workbench from './Workbench.jsx'
+import { Workbench } from '../../../packages/circuit/view/index.jsx'
 import { useEmbed } from './embed.js'
 import { TASK_BOARD_SECTIONS } from '../engine/plays.js'
 

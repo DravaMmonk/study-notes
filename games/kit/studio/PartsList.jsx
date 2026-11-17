@@ -1,14 +1,14 @@
 // The package's parts in the build workspace's left column. The kernel supplies creation options.
 import { L, tr } from '../shell/i18n.js'
-import { iconOf } from '../shell/parts/icons.js'
+import { iconOf } from '../../../packages/circuit/view/index.jsx'
 import GroupedList from './GroupedList.jsx'
 import { GROUPINGS } from './list-groups.js'
 import { shownName } from './objects-edit.js'
 import { taskOptionsOf } from './form.js'
 import { partGroups } from './parts.js'
-import { builtPart, partCreationOptions } from '../engine/parts/schema.js'
+import { builtPart, partCreationOptions } from '../../../packages/circuit/core/index.js'
 import { findTask } from '../engine/tasks.js'
-import { partReference } from '../engine/parts.js'
+import { partReference } from '../../../packages/circuit/core/index.js'
 
 /** A name for a new part not taken yet. */
 export const freeName = (taken, stem) => {
@@ -30,7 +30,7 @@ export default function PartsList({ content, vocabulary, namespace, game, levelO
     ...(option.value === 'task' && { children: tasks.map((task) => ({ ...task, value: `task:${task.value}` })) }),
   }))
   const create = (value) => {
-    const type = freeName(parts.map(([id]) => id), 'part')
+    const type = freeName(parts.map(([id]) => id), 'circuit/part')
     if (value.startsWith('task:')) {
       const option = tasks.find((task) => task.value === value.slice('task:'.length))
       const found = findTask(content.levels, option.value)
@@ -64,8 +64,8 @@ export default function PartsList({ content, vocabulary, namespace, game, levelO
     )
   }
   return (
-    <GroupedList kind="part" content={content} namespace={namespace} game={game} items={items} label={(id) => L(file.parts[id]?.name)} row={row}
-      groupings={GROUPINGS.part} by={by} onBy={onBy} heading={heading} onHeading={onHeading} newOptions={newOptions} onNew={onNew}
+    <GroupedList kind="circuit/part" content={content} namespace={namespace} game={game} items={items} label={(id) => L(file.parts[id]?.name)} row={row}
+      groupings={GROUPINGS['circuit/part']} by={by} onBy={onBy} heading={heading} onHeading={onHeading} newOptions={newOptions} onNew={onNew}
       addOptions={choices} addLabel={tr('新的元件', 'New part')} onAdd={create} />
   )
 }

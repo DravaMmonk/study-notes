@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { definePlays } from '../../engine/plays.js'
-import { defineParts } from '../../engine/parts/define.js'
+import { defineParts } from '../../../../packages/circuit/core/index.js'
 import { gateCourse } from './gates.js'
 import { play } from './play.js'
 

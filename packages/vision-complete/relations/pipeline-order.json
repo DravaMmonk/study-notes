@@ -44,5 +44,5 @@
     "attention",
     "embed"
   ],
-  "of": "part"
+  "of": "circuit/part"
 }

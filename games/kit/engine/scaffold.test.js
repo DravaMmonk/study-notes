@@ -1,3 +1,4 @@
+import { installCircuitFixture } from './ops/fixture.js'
 // Installed mechanism starters remain usable through the game creation entry point.
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -10,7 +11,7 @@ import { checkContent } from './vocabulary.js'
 import { closeGames } from './games.mjs'
 import { checkGame } from './checks.js'
 import { readPackage } from './resolver.js'
-import { audit } from '../course.js'
+import { audit } from '../../../packages/circuit/core/index.js'
 
 after(closeGames)
 
@@ -19,6 +20,7 @@ for (const mechanism of templates()) test(`${mechanism}: the installed module st
   try {
     cpSync(join(gameDirectory(), 'kit'), join(root, 'games/kit'), { recursive: true })
     writeFileSync(join(root, 'games/games.js'), 'export const GAMES = [\n];\n')
+    installCircuitFixture(root)
     newPackage({ root, id: 'library', template: mechanism })
     const library = readPackage('library', root)
     assert.deepEqual((await checkGame(library, { domain: await runtimeOf(library), root })).filter(line => line.fail), [])

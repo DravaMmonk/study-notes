@@ -30,7 +30,7 @@ export default function GroupedList({ kind, name = null, content, namespace, gam
   const keys = [...groups.map((group) => group.full), LEFT]
   const titleOf = (group) => L(content.registries?.[group.kind]?.[group.full]?.title) || shownName(namespace, group.full)
   return (
-    <nav className="parts-list" aria-label={tr(...(name ?? { level: ['关卡', 'Levels'], part: ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind] ?? [kind, kind]))}>
+    <nav className="parts-list" aria-label={tr(...(name ?? { level: ['关卡', 'Levels'], 'circuit/part': ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind] ?? [kind, kind]))}>
       <SidebarListTools addOptions={addOptions} addLabel={addLabel} onAdd={onAdd} query={query} onQuery={setQuery} />
       <GroupingBar groupings={groupings} by={by} onBy={onBy} newOptions={newOptions} onNew={onNew}
         folded={keys.every((key) => folded.has(key))} onFoldAll={(fold) => setAll(keys, fold)} />

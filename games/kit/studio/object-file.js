@@ -13,7 +13,7 @@ import { localName, namespaceOf, splitTagKey, tagTarget } from './objects-edit.j
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays', section: 'sections', symbol: 'symbols' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', 'circuit/tray': 'trays', 'circuit/part': 'parts', section: 'sections', symbol: 'symbols' }
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
@@ -101,7 +101,7 @@ export function overrideFileOf(event) {
 /** Where an override's file is, in the layer that made it. */
 export function overrideFileName(event) {
   const [namespace, name] = [namespaceOf(event.name) ?? '', event.name.slice(event.name.indexOf('/') + 1)]
-  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : folders[event.kind] ?? event.kind
+  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : OBJECT_KINDS[event.kind] ?? folders[event.kind] ?? event.kind
   return `${event.layer}/overrides/${namespace}/${folder}/${name}.json`
 }
 

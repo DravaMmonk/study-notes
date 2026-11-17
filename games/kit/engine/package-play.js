@@ -1,7 +1,6 @@
 // A single-level runtime shell. It is never authored, persisted or checked as a course.
 import { contentRoots, contentSchemas } from './content.js'
 import { layout } from '../course.js'
-import { grantIndex, grantObjects } from './grants.js'
 import { relationOrder } from './objects.js'
 
 /** Open one qualified level from assembled package content, retaining declarations as read-only support. */
@@ -11,7 +10,7 @@ export function packageLevel(content, level) {
   if (!selected) throw new Error(`${content.id} has no level ${level}`)
   const shell = {
     ...content, title: selected.title, levels: [selected], libraryLevels: content.levels,
-    standalone: { level }, eras: [], primitives: Object.keys(grantObjects(content)),
+    standalone: { level }, eras: [],
     words: Object.keys(content.registries.wordset ?? {}),
     ...Object.fromEntries(['power', 'box'].flatMap(kind => {
       const name = Object.keys(content.registries[kind] ?? {}).sort()[0]
@@ -35,17 +34,6 @@ export function standalonePlan(content) {
   }
   return plan
 }
-
-/** Omitted trays mean all parts, even when the package happens to declare only one tray. */
-export function standaloneItems(content, at) {
-  const level = content.levels.find(({ id }) => id === at.id)
-  const named = level?.tasks?.[at.task]?.tray ?? level?.tray
-  if (!named) return [...grantIndex(content.registries).keys()]
-  return [...new Set([named].flat().flatMap(name => (content.trays[name]?.items ?? [])
-    .flatMap(item => typeof item === 'string' ? [item] : item.items)))]
-}
-
-export const standaloneParts = (content, at) => [...new Set(standaloneItems(content, at).map(item => grantIndex(content.registries).get(item)?.part ?? item))]
 
 /** Authoring order uses relations directly; it does not construct a route or unlock graph. */
 export function packageLevelOrder(content) {

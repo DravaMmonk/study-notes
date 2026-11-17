@@ -10,7 +10,7 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a part of parts/<name>.json shown: the scenes its editor draws and its
+//                  { type: 'circuit/part', content, part } a part of parts/<name>.json shown: the scenes its editor draws and its
 //                  fields (PartView.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
@@ -20,10 +20,10 @@
 //                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
 //                  (file 'glossary', in the encyclopedia; an entry by its id) picked;
 //                  { type: 'task-go', task } a step of a built part's upgrade chain clicked: go to that task
-import '../wires.css'
+import {  } from '../../../packages/circuit/view/index.jsx'
 import '../shell/shell.css'
 import '../views/views.css'
-import '../circuit/circuit.css'
+import {  } from '../../../packages/circuit/view/index.jsx'
 import { Component, useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang, tr } from '../shell/index.js'
 import { useLang } from '../shell/useLang.js'
@@ -99,7 +99,7 @@ export default function Play() {
         setPart((p) => (p ? { ...p, game } : p))
         return setShown((s) => (s ? { ...s, game } : s))
       }
-      if (m?.type === 'part') {
+      if (m?.type === 'circuit/part') {
         look(m)
         const game = await gameOf(m.content, ++stamp)
         return setPart({ game, type: m.part, stage: m.stage ?? null })

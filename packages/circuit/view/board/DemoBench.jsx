@@ -1,0 +1,46 @@
+import { useState } from 'react'
+import { Play, RotateCcw } from 'lucide-react'
+import { TestTabs } from 'kernel/view'
+
+import { L, tr } from 'kernel/view'
+
+
+// A small bench for trying one part, the same in every game (the parts box, games/kit/shell/PartsBook.jsx): a row of
+// tests to feed it, a Run button and what happened, over a board the game draws (`children`) with the part at its
+// centre. Settings and inputs change on the board; the results there are the last run's until Run is pressed again.
+//
+// tests: [{ label }]   test / onTest(k): the one fed in   onRun(): run it   state: 'idle' | 'ran' | 'stale'
+// onReset(): back to the part's own settings   note: one line on what to try
+// panel: under the board, the controls of the block tapped on a phone   height: 'auto' lets a phone board run long
+
+/** Retain the last result when inputs change, and mark it stale until the next run. */
+export function useExampleRun() {
+  const [test, select] = useState(0)
+  const [last, setLast] = useState(null)
+  return {
+    test,
+    select,
+    report: last?.report ?? null,
+    status: last ? last.stale ? 'stale' : 'ran' : 'idle',
+    complete: (report) => setLast({ report, stale: false }),
+    invalidate: () => setLast((run) => run && !run.stale ? { ...run, stale: true } : run),
+    clear: () => setLast(null),
+  }
+}
+
+export default function DemoBench({ tests = [], test = 0, onTest, onRun, onReset, state = 'idle', note, height = 340, panel, children }) {
+  return (
+    <section className={`demo-bench is-${state}`} aria-label={tr('试一试')}>
+      <header className="demo-bar">
+        <span className="panel-label">{tr('试一试')}</span>
+        {tests.length > 1 && <TestTabs tests={tests} index={test} onSelect={onTest} inline authored={false} />}
+        <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('已修改，请重新运行查看结果') : state === 'ran' ? tr('运行完成') : tr('还没运行')}</span>
+        {onReset && <button type="button" className="demo-reset" onClick={onReset} aria-label={tr('恢复默认', 'Reset')} title={tr('恢复默认', 'Reset')}><RotateCcw size={14} /></button>}
+        <button type="button" className="demo-run" onClick={onRun}><Play size={14} /><span>{tr('运行')}</span></button>
+      </header>
+      <div className={`demo-board ${height === 'auto' ? 'is-auto' : ''}`} style={height === 'auto' ? undefined : { height }}>{children}</div>
+      {panel && <div className="demo-panel">{panel}</div>}
+      {note && <p className="demo-note">{L(note)}</p>}
+    </section>
+  )
+}

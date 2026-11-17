@@ -14,17 +14,6 @@ export const TASK_ID = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 /** A task's id, which every task has (a domain writing its own task schema puts this in it). */
 export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）') })
 
-const FEATURED_PARTS = S.opt(S.list(S.ref('part'), {
-  section: 'course', about: t('默认展开的可用元件，参考解所用的件会自动展开。', 'Available parts to show alongside those used by the reference answer.'),
-}))
-
-const PUBLISHES = S.opt(S.list(S.obj({ part: S.ref('part'), variant: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }) }), {
-  section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named part variant.'),
-}))
-
-export const ITEM_REFERENCE = S.str({ reference: 'grant' })
-export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens', 'awards'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
-
 const OWN = {
   id: TASK_ID_FIELD,
   step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）') })),
@@ -40,11 +29,9 @@ const owned = (s, fields) => (s.type === 'by' ? { ...s, cases: Object.fromEntrie
  * `task` may instead be a by-schema (S.by('kind', { … })), tasks of several shapes, each case an object of its fields
  * (or itself a by- or either-schema of such objects).
  */
-export const taskLevel = (once, task, { parts = false } = {}) => {
-  const keys = { ...OWN, ...TASK_ITEMS, ...(parts ? { publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : {}) }
+export const taskLevel = (once, task) => {
+  const keys = OWN
   return S.obj({
-    ...TASK_ITEMS,
-    ...(parts ? { featuredParts: FEATURED_PARTS } : {}),
     ...once,
     requires: S.opt(S.list(S.level(), { section: 'course', about: t('这关固有的知识前置', 'Knowledge prerequisites for this level') })),
     tasks: S.list(task.type === 'by' ? owned(task, keys) : S.obj({ ...keys, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关') }),

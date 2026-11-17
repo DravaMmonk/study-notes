@@ -57,7 +57,7 @@ export function layerManifest(layer, layers, schemas, dir) {
   for (const object of layer.objects) {
     for (const task of object.kind === 'level' ? object.value.tasks ?? [] : []) values.set(`task:${task.id}`, task)
     for (const stage of object.value.stages ?? []) values.set(`${object.kind}:${stage.id}`, stage)
-    for (const menu of object.kind === 'tray' ? object.value.menus ?? [] : []) values.set(`menu:${menu.id}`, menu)
+    for (const menu of object.kind === 'circuit/tray' ? object.value.menus ?? [] : []) values.set(`menu:${menu.id}`, menu)
   }
   for (const [lang, entries] of Object.entries(layer.catalogs ?? {})) for (const [name, value] of Object.entries(entries)) {
     const key = `i18n:${name.includes('/') ? name : `${layer.id}/${name}`}`

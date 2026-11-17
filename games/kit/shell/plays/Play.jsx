@@ -1,7 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react'
 import { defineGame } from '../index.js'
 import { tr } from '../i18n.js'
-import { circuitScreen } from '../CircuitScreen.jsx'
+import { circuitScreen } from '../../../../packages/circuit/view/index.jsx'
 import WorkshopPlay from './WorkshopPlay.jsx'
 
 const ManualBoardPlay = lazy(() => import('./ManualBoardPlay.jsx'))

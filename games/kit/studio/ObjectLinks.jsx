@@ -20,7 +20,7 @@ export default function ObjectLinks({ content, kind, full, namespace, onOpen }) 
       {chain.length > 1 && <span className="source-mark"><Layers size={12} aria-hidden="true" /> {chain.join(' ← ')}</span>}
       {tags.map((name) => chip('tag', name, Tag))}
       {relations.map((name) => chip('relation', name, Spline))}
-      {trays.map((name) => chip('tray', name, Inbox))}
+      {trays.map((name) => chip('circuit/tray', name, Inbox))}
       {sections.map((name) => chip('section', name, BookMarked))}
     </nav>
   )

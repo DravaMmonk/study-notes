@@ -6,7 +6,7 @@ import { vocabulary } from './vocabulary.js';
 import { tableWorks, prepareTableWorks } from './work.js';
 import { validate } from './validate.js';
 import { play } from './play.js';
-import { builtParts } from '../../engine/parts.js';
+import { builtParts } from '../../../../packages/circuit/core/index.js'
 
 /** A table game's spec, as the checks read one (../../engine/checks.js). */
 // What a tray may list (vocabulary.js): the parts and ideas parts.json names.

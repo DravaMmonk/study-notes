@@ -101,6 +101,8 @@ export function nameNormalizer(names) {
     .replace(/\bpieces(?=\/|\.json\b)/g, 'parts')
     .replace(/\bpiece\//g, 'parts/')
     .replace(/\bcircuit\/part\b/g, 'part')
+    .replace(/\btags\/circuit\/tray\//g, 'tags/tray/')
+    .replace(/\bcircuit\/tray\b/g, 'tray')
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
   names = [...new Set([...names].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
@@ -217,10 +219,10 @@ export function versionMetadataBaseline(input) {
     let entries = Object.entries(value)
     if (file === 'package.json') {
       const old = Number.isInteger(value.vocabulary) && Object.keys(value).every(key => ['vocabulary', 'uses'].includes(key))
-      const current = value.version === '1.0.0' && value.kernel === '^1.0.0' && value.uses && !Array.isArray(value.uses) && Object.keys(value).every(key => ['version', 'kernel', 'uses'].includes(key)) && Object.values(value.uses).every(range => range === '^1.0.0')
-      if (old || current) entries = [['uses', old ? value.uses ?? [] : Object.keys(value.uses)]]
+      const current = value.version === '1.0.0' && ['^1.0.0', '^2.0.0'].includes(value.kernel) && value.uses && !Array.isArray(value.uses) && Object.keys(value).every(key => ['version', 'kernel', 'uses'].includes(key)) && Object.values(value.uses).every(range => range === '^1.0.0')
+      if (old || current) entries = [['uses', old ? value.uses ?? [] : Object.keys(value.uses).filter(id => id !== 'circuit')]]
     }
-    if (file === 'game.json' && value.kernel === '^1.0.0' && value.packages && !Array.isArray(value.packages) && Object.values(value.packages).every(range => range === '^1.0.0')) entries = entries.filter(([key]) => key !== 'kernel').map(([key, child]) => [key, key === 'packages' ? Object.keys(child) : child])
+    if (file === 'game.json' && ['^1.0.0', '^2.0.0'].includes(value.kernel) && value.packages && !Array.isArray(value.packages) && Object.values(value.packages).every(range => range === '^1.0.0')) entries = entries.filter(([key]) => key !== 'kernel').map(([key, child]) => [key, key === 'packages' ? Object.keys(child).filter(id => id !== 'circuit') : child])
     const out = Array.isArray(value) ? value.map(child => walk(child)) : Object.fromEntries(entries.map(([key, child]) => [key, walk(child, key)]))
     memo.set(value, out)
     return out

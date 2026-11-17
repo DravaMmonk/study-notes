@@ -22,11 +22,11 @@ import { find, shapeAt } from '../engine/schema.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { blank, copyLevelData, creationChoices, placesOf, referenceFor } from './form.js'
-import { PARTS_FILE } from '../engine/parts/schema.js'
+import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { findTask, tasksSchema } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
-import { withParts } from '../engine/parts/define.js'
-import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
+import { withParts } from '../../../packages/circuit/core/index.js'
+import { DEFAULT_VIEWS } from '../../../packages/circuit/view/index.jsx'
 import PartsList, { freeName } from './PartsList.jsx'
 import { itemOf, problemPlace } from './worklist.js'
 import { paletteIndex } from './palette.js'
@@ -60,7 +60,7 @@ import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, headingParam
 import { BUILT_IN_LISTS, TOOL_LISTS, isTypeList, leftLists, objectTypes, objectsOfType, typeOfList } from './object-types.js'
 import LeftTypes, { typeName } from './LeftTypes.jsx'
 import ObjectSummary from './ObjectSummary.jsx'
-import { iconOf } from '../shell/parts/icons.js'
+import { iconOf } from '../../../packages/circuit/view/index.jsx'
 import { freeObjectName, namespaceOf, ownNames, shownName } from './objects-edit.js'
 import { newTag } from './tag-edit.js'
 import { objectFileName, objectSchema, objectValue, ownObjectData } from './object-file.js'
@@ -81,8 +81,8 @@ const LISTS = {
   kernel: [Cpu, '能力', 'Capabilities'], overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
 }
 // The kind of object each build list holds, and the relations a new group of it can be.
-const LIST_KIND = { tree: 'level', parts: 'part', symbols: 'symbol', entries: 'entry' }
-const RELATION_KINDS = { symbol: [['order', '顺序', 'Order']], level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], part: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
+const LIST_KIND = { tree: 'level', parts: 'circuit/part', symbols: 'symbol', entries: 'entry' }
+const RELATION_KINDS = { symbol: [['order', '顺序', 'Order']], level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], 'circuit/part': [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
 const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
@@ -95,12 +95,12 @@ const remember = (pkg, at, field, playLevel, task, opened, heading) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', 'build')
-  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', 'object', ...Object.values(OBJECT_LISTS), ...HEADING_KINDS]) url.searchParams.delete(k)
+  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'circuit/part', 'glossary', 'object', ...Object.values(OBJECT_LISTS), ...HEADING_KINDS]) url.searchParams.delete(k)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   if (heading && at?.group === undefined) url.searchParams.set(...headingParam(heading))
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
-  if (at?.part !== undefined) url.searchParams.set('part', at.part)
+  if (at?.part !== undefined) url.searchParams.set('circuit/part', at.part)
   if (at?.glossary) url.searchParams.set('glossary', '1')
   url.searchParams.delete('tab')
   const inspector = field?.path ? { path: field.path, ...(field.trail && { trail: field.trail }) } : field?.missing ? { missing: field.missing } : null
@@ -129,7 +129,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [objectField, setObjectField] = useState(null) // the field of the object open shown on the right: { of, path }
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
   const [rawNames, setRawNames] = useState(null)
-  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
+  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('group') ? { group: QUERY.get('group') } : QUERY.get('circuit/part') ? { part: QUERY.get('circuit/part') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
   const [picked, setPicked] = useState(() => new Set(at?.level ? [at.level] : []))
   const [drawerTab, setDrawerTab] = usePref('drawer-tab', 'audit') // the fold bar's tab (Drawer.jsx)
   const [play, setPlay] = useState(() => {
@@ -149,7 +149,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [resize, setResize] = useState(null)
   const [savedSide, setSide] = usePref('side', 'tree')
   // The list the address names wins over the one last shown.
-  useLayoutEffect(() => { if (HEADING && !['tag', 'relation', 'tray', 'section'].includes(HEADING.kind)) setSide(listOfHeading(HEADING.kind)); else if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { if (HEADING && !['tag', 'relation', 'circuit/tray', 'section'].includes(HEADING.kind)) setSide(listOfHeading(HEADING.kind)); else if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => setPartStage(null), [at?.part])
   const side = PACKAGE_LISTS.includes(savedSide) || isTypeList(savedSide) ? savedSide : 'tree'
   // The object types the left column lists: the author's own choice, else what the packages' studio-left tags say.
@@ -304,7 +304,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const relationOf = (full) => {
     const relation = content?.registries?.relation?.[full]
-    return relation?.kind === 'replaces' ? 'part' : relation?.of === 'entry' ? 'entry' : relation?.of === 'part' ? 'part' : 'level'
+    return relation?.kind === 'replaces' ? 'circuit/part' : relation?.of === 'entry' ? 'entry' : relation?.of === 'circuit/part' ? 'circuit/part' : 'level'
   }
   /** A new group's object for a build list of `kind` grouped `by` (a relation of `option`'s kind), opened. */
   const newSymbol = () => {
@@ -321,7 +321,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     }
     const name = freeObjectName(ownNames(content, by, namespace), by === 'relation' ? `${option}` : `new-${by}`)
     const data = by === 'relation' ? { kind: option, ...(option === 'order' && { of: kind }), edges: [] }
-      : by === 'tray' ? { values: [] } : { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
+      : by === 'circuit/tray' ? { values: [] } : { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
     edit({ op: `${by}.put`, [by]: name, data })
     return openHeading({ kind: by, full: `${namespace}/${name}` })
   }
@@ -392,7 +392,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     const named = problemPlace(item.problem)
     if (named && !named.override) {
       if (named.kind === 'level') return jump(named.full, named.path || null)
-      if (named.kind === 'part') return select({ part: named.full })
+      if (named.kind === 'circuit/part') return select({ part: named.full })
       if (named.kind === 'entry') return jump(null, `entries[${named.full}]`, 'glossary')
       if (content.registries?.[named.kind]?.[named.full]) return openNamed(named.kind, named.full)
     }
@@ -722,7 +722,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     onOpen: (next) => openNamed(...Object.entries(next)[0]),
     onSelect: (full) => (full ? openHeading({ kind: heading.kind, full }) : select(null)),
   }
-  const GroupEditor = heading && ({ tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind] ?? ObjectSummary)
+  const GroupEditor = heading && ({ tag: TagEditor, relation: RelationBoard, 'circuit/tray': TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind] ?? ObjectSummary)
   // The middle: an object list's object (above), several levels picked at once, a group's own object, or the page.
   const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : heading ? 'group' : 'page'
   // The right column: a group's own object's file, the capability's description, the override's file.
@@ -766,7 +766,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 heading={heading} onHeading={(next) => openHeading(next)} {...grouping('entry', entriesBy, setEntriesBy)} onOpen={(k) => jump(null, `entries[${k}]`, 'glossary')} />
               : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} namespace={namespace} game={game} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length}
-                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('part', partsBy, setPartsBy)} onSelect={select} onOps={addOps} />
+                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('circuit/part', partsBy, setPartsBy)} onSelect={select} onOps={addOps} />
               : side === 'symbols' ? <GroupedList kind="symbol" content={content} namespace={namespace} game={game}
                 items={Object.keys(content.registries.symbol ?? {})} label={id => L(content.registries.symbol[id].name)}
                 heading={heading} onHeading={openHeading} {...grouping('symbol', partsBy, setPartsBy)}

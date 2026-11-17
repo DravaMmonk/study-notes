@@ -30,6 +30,7 @@ const EXPLAIN = {
 }
 
 export function createPlay({ game, course, hook, record, now = () => new Date() }) {
+  record.progress = game.progress?.normalize?.(record.progress) ?? record.progress
   const lang = record.lang
   const solved = () => new Set(record.progress.solved)
   const required = (id) => !course.plan?.place.get(id)?.optional

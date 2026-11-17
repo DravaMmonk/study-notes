@@ -1,6 +1,6 @@
-import { packed } from '../../../engine/boards.js'
-import { workshopNodes } from '../../../engine/workshop.js'
-import { workshopOf } from '../../../circuit/workshop-view.js'
+import { packed } from '../../../../../packages/circuit/core/index.js'
+import { workshopNodes } from '../../../../../packages/circuit/core/index.js'
+import { workshopOf } from '../../../../../packages/circuit/core/index.js'
 
 // A circuit the player has solved, used again as a part of its own, as in Turing Complete: the task's inputs are
 // its ports and the task's output is what it gives (the shared engine's packed part). A built part of parts.json

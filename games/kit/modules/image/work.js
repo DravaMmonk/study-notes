@@ -3,14 +3,16 @@
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
 // the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture
 // it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { eraLevels, holds, offer, reach } from '../../course.js'
+import { eraLevels } from '../../course.js'
+import { holds, offer, reach } from '../../../../packages/circuit/core/index.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
-import { keptBoards } from '../../engine/kept-boards.js'
-import { fitsCircuit } from '../../engine/board-view.js'
-import { workshopOf } from '../../circuit/workshop-view.js'
-import { builtParts, publications } from '../../engine/parts.js'
-import { readWorks, publicationEvents } from '../../engine/course-model.js'
+
+import { keptBoards } from '../../../../packages/circuit/core/index.js'
+import { fitsCircuit } from '../../../../packages/circuit/core/index.js'
+import { workshopOf } from '../../../../packages/circuit/core/index.js'
+import { builtParts, publications } from '../../../../packages/circuit/core/index.js'
+import { readWorks, publicationEvents } from '../../../../packages/circuit/core/index.js'
 import { gridProbe } from '../../engine/grid-probe.js'
 import { imageDefinitions } from './engine/definitions.js'
 import { ownPart } from './engine/own.js'

@@ -11,6 +11,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import { createRequire } from 'node:module'
+import { packageIds, packageDirectory } from './resolver.js'
 
 const KIT = resolve(import.meta.dirname, '..')
 // The parser comes with the page's build tools (trace-viewer/node_modules, as ./games.mjs finds vite).
@@ -39,7 +40,7 @@ function callsIn(file, text) {
       if (callee.type !== 'Identifier') return
       const binding = path.scope.getBinding(callee.name)
       const from = binding?.path.parent
-      if (binding?.kind !== 'module' || from?.type !== 'ImportDeclaration' || resolve(file, '..', from.source.value) !== I18N) return
+      if (binding?.kind !== 'module' || from?.type !== 'ImportDeclaration' || !(['kernel', 'kernel/view'].includes(from.source.value) || resolve(file, '..', from.source.value) === I18N)) return
       if (!['T', 'tr'].includes(binding.path.node.imported?.name)) return
       const zh = plain(args[0])
       if (zh === null) return
@@ -50,7 +51,11 @@ function callsIn(file, text) {
   return out
 }
 
-const files = sources(KIT).map((file) => ({ file, text: readFileSync(file, 'utf8') })).map((f) => ({ ...f, calls: callsIn(f.file, f.text) }))
+const packageSources = packageIds().flatMap(id => ['core', 'view'].flatMap(folder => {
+  const dir = resolve(packageDirectory(id), folder)
+  try { return sources(dir) } catch (error) { if (error.code === 'ENOENT') return []; throw error }
+}))
+const files = [...sources(KIT), ...packageSources].map((file) => ({ file, text: readFileSync(file, 'utf8') })).map((f) => ({ ...f, calls: callsIn(f.file, f.text) }))
 const catalog = (await import(CATALOG)).default
 const check = process.argv.includes('--check')
 

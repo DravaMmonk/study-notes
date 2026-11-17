@@ -9,7 +9,7 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, Hammer, Layers, ListTree, Minus, Package, Plus, Settings2, Trash2 } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
-import { withParts } from '../engine/parts/define.js'
+import { withParts } from '../../../packages/circuit/core/index.js'
 import { parsePath } from '../engine/ops/edit.js'
 import { isText, textEntries } from '../engine/i18n.js'
 import { call } from './api.js'
@@ -43,7 +43,7 @@ const remember = (game, at, opened) => {
   url.searchParams.set('game', game)
   url.searchParams.set('space', 'arrange')
   url.searchParams.delete('tab')
-  for (const k of ['package', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const k of ['package', 'scope', 'file', 'level', 'group', 'era', 'circuit/part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   window.history.replaceState(null, '', url)
@@ -315,7 +315,7 @@ function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
       {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <dl className="package-facts">
         {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
-        {used.includes(id) && [['level', '关卡', 'Levels'], ['part', '元件', 'Parts'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
+        {used.includes(id) && [['level', '关卡', 'Levels'], ['circuit/part', '元件', 'Parts'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['circuit/tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
           <Fragment key={kind}><dt>{tr(zh, en)}</dt><dd>{count(kind)}</dd></Fragment>
         ))}
       </dl>

@@ -41,5 +41,5 @@
     "apMeter",
     "occlusion"
   ],
-  "of": "part"
+  "of": "circuit/part"
 }

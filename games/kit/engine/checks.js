@@ -1,4 +1,4 @@
-import { unavailableGrants } from './grants.js'
+import { unavailableGrants } from '../../../packages/circuit/core/index.js'
 // The rules every game follows, over one game's content (content.js): its content against its domain's vocabulary
 // (./vocabulary.js), the course audit (../course.js), the level count on the hub (../../games.js), unique level ids
 // that require only real levels, its links, and then its domain's own
@@ -13,13 +13,13 @@ import { unavailableGrants } from './grants.js'
 // entry is a link, ../shell/refs.js);
 // `audit` adds the game's own course problems to the shared audit's. game.json may leave findings open (`open`, the
 // work list in its design doc): they are listed, not failed, and one met since fails until it is dropped.
-import { RULE_TEXT, againstOpen, audit } from '../course.js'
+import { RULE_TEXT, againstOpen, audit } from '../../../packages/circuit/core/index.js'
 import { REF, refProblems } from './text.js'
 import { gameOf } from './games.mjs'
 import { GLOSSARY, checkContent } from './vocabulary.js'
 import { firstText, textEntries } from './i18n.js'
 import { find } from './schema.js'
-import { withParts } from './parts/define.js'
+import { withParts } from '../../../packages/circuit/core/index.js'
 import { termRegistry } from './terminology.js'
 import { noMemo } from './check-cache.js'
 import { dependencyProblemsInProject } from './project-dependencies.js'
@@ -31,10 +31,10 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
   if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
   const lines = wrong.map(problem => ({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(['exists', 'dependency'].includes(problem.rule) && { problem }) }))
   if (wrong.length) return lines
-  const names = Object.fromEntries(['level', 'part', 'entry'].map(kind => [kind === 'part' ? 'part' : kind === 'entry' ? 'wiki' : kind,
+  const names = Object.fromEntries(['level', 'circuit/part', 'entry'].map(kind => [kind === 'circuit/part' ? 'part' : kind === 'entry' ? 'wiki' : kind,
     new Map(Object.entries(content.registries[kind]).map(([id, object]) => [id, String(firstText(object.title ?? object.name ?? id))])),
   ]))
-  for (const id of Object.keys(content.registries.part)) {
+  for (const id of Object.keys(content.registries['circuit/part'])) {
     names.part.set(`part:${id}`, '')
     names.part.set(`lemma:${id}`, '')
   }

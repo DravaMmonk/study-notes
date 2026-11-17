@@ -10,7 +10,7 @@ import { SYMBOL } from '../content-kinds.js'
 //
 //   query: { find, regex?, caseSensitive?, word?, kinds?: ['text', 'board', 'id'] }
 //   a hit: { file, level?, in?, path, kind, side?, line?, text (the string searched), at: [[start, end]…] }
-import { PARTS_FILE } from '../parts/schema.js'
+import { PARTS_FILE } from '../../../../packages/circuit/core/index.js'
 import { find } from '../schema.js'
 import { textEntries } from '../i18n.js'
 import { ENTRY } from '../vocabulary.js'

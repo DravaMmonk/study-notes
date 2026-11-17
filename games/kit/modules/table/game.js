@@ -3,9 +3,10 @@ import { loadDisplays } from '../../engine/displays.js'
 // becomes the shell's game description, with the table domain's screen (every level played through its mode), its
 // parts box by robot, and its intro pictures.
 import { Cable, Grid3x3 } from 'lucide-react'
-import { defineGame } from '../../shell/index.js'
+import { defineGame } from '../../../../packages/circuit/view/index.jsx'
 import { taskOpen } from '../../shell/progress.js'
-import { eraLevels, introductions, isCore } from '../../course.js'
+import { eraLevels } from '../../course.js'
+import { introductions, isCore } from '../../../../packages/circuit/core/index.js'
 import { plays } from './plays.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { robotCircuits } from './ui/circuitCourse.js'

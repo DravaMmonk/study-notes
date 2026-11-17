@@ -1,10 +1,11 @@
 // node --test games/kit/engine — the engine on small circuits of plain numbers.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { Halt, MISSING, PartError, evaluate } from './circuit.js'
-import { packed, runBoard, sink, source } from './boards.js'
-import { tableAt, walk } from './machine.js'
-import { insideAt, paceOf, viewAt } from './trace.js'
+import { Halt, MISSING, PartError, evaluate } from '../../../packages/circuit/core/index.js'
+import { packed, runBoard, sink, source } from '../../../packages/circuit/core/index.js'
+import { tableAt, walk } from '../../../packages/circuit/core/index.js'
+import { paceOf } from './playback-pace.js'
+import { insideAt, viewAt } from '../../../packages/circuit/core/index.js'
 import { reportRuns, runOutputTests } from './test-run.js'
 import { withHidden } from './tests.js'
 

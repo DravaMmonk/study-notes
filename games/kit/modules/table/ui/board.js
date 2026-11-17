@@ -2,10 +2,10 @@
 // the editor's shape (../model/board.js). Its desktop anchors start the canvas layout, and the parts description
 // adds names and colours to the shared wiring rules.
 
-import { sourceOf, srcNode } from '../../../engine/wire-source.js';
+import { sourceOf, srcNode } from '../../../../../packages/circuit/core/index.js'
 import { CARDS, isCard, isGiven } from '../model/parts.js';
 import { roleOf } from '../model/board.js';
-import { placement } from '../../../circuit/model.js';
+import { placement } from '../../../../../packages/circuit/core/index.js'
 import { robotTerms, wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';

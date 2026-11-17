@@ -1,20 +1,5 @@
-// Saved progress for a game on the shared shell. It lives in this browser only, under saveKey(<game id>):
-//
-//   { stamps: { [task key]: stamp }, solved: [level id], flags: [flag], passed: [task key],
-//     data: { [task key]: what its screen keeps }, slots: { [task key]: its other saved boards (slots.js) },
-//     built: { [task key]: the board a part runs }, solutions: { [task key]: the passed work and its reference closure }, best: { [level id]: score },
-//     introSeen: { [level id | task key]: true }, seenPower, all }
-//
-// What a level is (solved, its best score) is kept by its id; what a puzzle is — its board, its other boards, whether
-// it is passed, the board a part runs — by its task's key (taskKey: the task's id, ../engine/tasks.js keyOf), so a
-// task moved within its level or to another, or levels made one, keeps it all. `stamps` says which puzzle each task's
-// save was made on (../engine/stamp.js): a task whose puzzle has changed since loses what was kept of it, and its
-// level is no longer solved; every other task keeps its save. A board that reads a part whose own level changed is
-// its screen's to judge when it opens (a domain's `open`), as any board that no longer fits.
-
-import { openPackedPart, packedWorkReferences } from '../circuit/packed-boards.js'
-import { openWorkshopPart } from '../circuit/workshop-view.js'
-import { solutionStamp } from '../engine/stamp.js'
+// Browser-local task and level progress. Package-owned data is restored and invalidated
+// through the callbacks supplied to createProgress. Task keys survive route changes.
 
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v3`
@@ -38,33 +23,31 @@ export function solvedCount(id) {
   }
 }
 
-const blank = () => ({ stamps: {}, solved: [], flags: [], passed: [], skippedTasks: [], data: {}, slots: {}, built: {}, solutions: {}, best: {}, seenPower: false, introSeen: {}, all: false })
+const blank = () => ({ stamps: {}, solved: [], passed: [], skippedTasks: [], data: {}, slots: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
 const without = (kept, gone) => Object.fromEntries(Object.entries(kept ?? {}).filter(([key]) => !gone.has(key)))
 
 /** `stored` less what it kept of the tasks whose puzzle is no longer the one `tasks` names ({ [key]: { level, stamp } }). */
-export function current(stored, tasks) {
+export function current(stored, tasks, invalidate = value => value) {
   const gone = new Set(Object.keys(stored.stamps).filter((key) => tasks[key]?.stamp !== stored.stamps[key]))
   if (!gone.size) return stored
   const levels = new Set([...gone].map((key) => tasks[key]?.level))
-  return {
+  return invalidate({
     ...stored,
     solved: stored.solved.filter((id) => !levels.has(id)),
     passed: stored.passed.filter((key) => !gone.has(key)),
     skippedTasks: (stored.skippedTasks ?? []).filter((key) => !gone.has(key)),
     data: without(stored.data, gone),
     slots: without(stored.slots, gone),
-    built: without(stored.built, gone),
-    solutions: without(stored.solutions, gone),
     best: without(stored.best, levels),
-  }
+  }, gone)
 }
 
 /** A game's progress in this browser, kept under `id`. `tasks`: its tasks' stamps today (../engine/stamp.js taskStamps). */
-export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built, persist = true }) {
+export function createProgress({ id, tasks = {}, initial = () => ({}), restore = value => value, invalidate, persist = true }) {
   const key = saveKey(id)
   const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
-  const empty = () => ({ ...blank(), stamps })
+  const empty = () => ({ ...blank(), ...initial(), stamps })
   const listeners = new Set()
   let raw
   let snapshot = empty()
@@ -82,8 +65,8 @@ export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built
     try {
       const stored = JSON.parse(raw)
       if (!stored?.stamps) return (snapshot = empty())
-      const progress = { ...current({ ...blank(), ...stored }, tasks), stamps }
-      snapshot = { ...progress, built: restoreBuilt(progress.built) }
+      const progress = { ...current({ ...blank(), ...initial(), ...stored }, tasks, invalidate), stamps }
+      snapshot = restore(progress)
     } catch {
       snapshot = empty()
     }
@@ -134,7 +117,7 @@ export const fresh = () => ({ ...blank(), seenPower: true })
 /** Task k's key: the task's id (the shell level's task `key`). */
 export const taskKey = (level, k = 0) => level.tasks[k].key
 
-const completedTask = (p, id, key, optional) => p.passed.includes(key) || (!p.all && !optional && p.solved.includes(id))
+export const completedTask = (p, id, key, optional) => p.passed.includes(key) || (!p.all && !optional && p.solved.includes(id))
 
 /** Whether task k passed individually or is a required task in a normally completed level. */
 export const taskPassed = (game, p, id, k) => {
@@ -163,28 +146,6 @@ export function nextRequiredTask(game, p, id, current) {
   return -1
 }
 
-/** The work kept from a prerequisite's pass. */
-export function passedWork(progress, task) {
-  if (!task) return undefined
-  const key = task.key ?? task.taskId
-  const completed = completedTask(progress, task.source?.id ?? task.id, key, task.optional ?? task.source?.optional)
-  return completed ? progress.built?.[key] : undefined
-}
-
-/** A prerequisite's last passed board, or its reference when all content is open. */
-export function inheritedBoard(progress, task) {
-  if (!task) return undefined
-  const saved = passedWork(progress, task)
-  const board = saved?.nodes ? saved : progress.all ? (task.source?.solution ?? task.solution) : undefined
-  return board?.nodes ? structuredClone(board) : undefined
-}
-
-function isCarried(game, level, at) {
-  if (level.tasks[at + 1]?.carries) return true
-  if (at !== level.tasks.length - 1) return false
-  return Object.values(game.byId).some((other) => other.carry === level.id || other.tasks.some((task) => (task.carry ?? task.source?.carry) === level.id))
-}
-
 /** Progress with level `id` opened at task k: the tasks before it passed, it and the level not. */
 export function openAt(game, p, id, k) {
   const level = game.byId[id]
@@ -204,58 +165,6 @@ export function skipOptionalTask(progress, level, at) {
   return { ...progress, skippedTasks: [...skippedTasks, key] }
 }
 
-/** The boards kept for the parts that run them, once `level` passes at `taskAt` (`keeps`, by default a level that
- *  unlocks something). */
-function kept(game, p, level, taskAt, board) {
-  const key = taskKey(level, taskAt)
-  if ((!((level.keeps ?? level.unlocks?.length)) && !isCarried(game, level, taskAt)) || !board) return p.built
-  return { ...p.built, [key]: board }
-}
-
-/** Level rewards from an optional task require that task to have actually been passed. */
-export function earnedUnlocks(level, progress) {
-  return (level.unlocks ?? []).filter((flag) => {
-    if (level.levelUnlocks?.includes(flag)) return true
-    const owners = level.tasks.filter((task) => (task.opens ?? []).includes(flag))
-    return !owners.length || owners.some((task) => !task.optional || progress.passed.includes(task.key))
-  })
-}
-
-/** The course rewards made available by this completion, in course order. */
-export function completionUnlocks(game, level, before, after) {
-  const wasSolved = new Set(before.solved)
-  const solved = new Set(after.solved)
-  const known = new Set(game.earnedParts({ ...before, all: false }).map(({ part }) => part))
-  const parts = new Map()
-  if (!wasSolved.has(level.id)) {
-    for (const part of game.unlocked({ ...level, unlocks: earnedUnlocks(level, after) })) {
-      if (part.part) parts.set(part.part, part)
-    }
-  }
-  for (const part of game.earnedParts({ ...after, all: false })) {
-    if (!known.has(part.part)) parts.set(part.part, { ...part, label: part.name })
-  }
-  const levels = game.levels.filter((next) => !solved.has(next.id) && !game.isOpen(next, wasSolved) && game.isOpen(next, solved))
-  return { parts: [...parts.values()], levels }
-}
-
-/** The work and the exact dependencies the game selected when the task passed. */
-export function recordSolution(game, p, level, taskAt, work) {
-  const task = level.tasks[taskAt]
-  const stamped = (entry) => ({ ...entry, puzzle: p.stamps?.[entry.key] })
-  const synced = new Set()
-  return solutionStamp(stamped({ key: task.key, task: task.source, work }), (entry) => {
-    const at = entry.at ?? { level: entry.task, circuit: entry.work }
-    const view = at.level && Array.isArray(at.circuit?.nodes) && game.circuit?.forTask(at.level)
-    if (view && !synced.has(view.syncOwn)) {
-      view.syncOwn(p.built)
-      synced.add(view.syncOwn)
-    }
-    const packed = view ? packedWorkReferences(at, (node, parent) => openWorkshopPart(node, parent) ?? openPackedPart(view, node)) : []
-    return [...packed, ...(game.workReferences?.(entry) ?? [])].map(stamped)
-  })
-}
-
 /** Save the judged draft and record its pass. */
 export function passed(game, progress, level, taskAt, score = null, passingWork) {
   const p = passingWork === undefined ? progress : saved(progress, level, taskAt, passingWork)
@@ -265,30 +174,14 @@ export function passed(game, progress, level, taskAt, score = null, passingWork)
 /** Record the exact work judged on this pass and finish the level when its required tasks have passed. */
 export function recordPass(game, p, level, taskAt, score, work) {
   const key = taskKey(level, taskAt)
-  const board = work == null ? work : game.bindPassingBoard?.(key, work) ?? work
-  const built = kept(game, p, level, taskAt, board)
+  p = game.progress?.beforePass?.(p, level, taskAt, work) ?? p
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best
-  const solutions = board == null ? p.solutions : { ...p.solutions, [key]: recordSolution(game, p, level, taskAt, board) }
-  const taskRewards = level.tasks[taskAt].optional ? level.tasks[taskAt].opens ?? [] : []
-  const now = { ...p, built, best, solutions, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, key])], skippedTasks: (p.skippedTasks ?? []).filter((skipped) => skipped !== key) }
+  const now = { ...p, best, passed: [...new Set([...p.passed, key])], skippedTasks: (p.skippedTasks ?? []).filter(skipped => skipped !== key) }
   const required = level.tasks.map((task, k) => task.optional ? null : k).filter((k) => k !== null)
   const allRequiredPassed = (required.length ? required : level.tasks.map((_, k) => k)).every((k) => taskPassed(game, now, level.id, k))
   const mayFinish = p.all && !level.tasks[taskAt].optional ? nextRequiredTask(game, now, level.id, taskAt) === -1 : allRequiredPassed
-  if (!mayFinish) return now
-  return {
-    ...now,
-    solved: [...new Set([...p.solved, level.id])],
-    flags: [...new Set([...now.flags, ...earnedUnlocks(level, now)])],
-  }
-}
-
-/**
- * The flags a level is played with at task `taskAt`: what progress has unlocked and what the tasks before it opened
- * (with every level open, everything before it too). What a task holds by them, and what it gives or withholds for
- * itself, is the course's to say (../course.js holds).
- */
-export function flagsIn(game, p, level, taskAt) {
-  const opened = level.tasks.slice(0, taskAt).flatMap((t, k) => p.all || taskPassed(game, p, level.id, k) ? t.opens ?? [] : [])
-  return new Set([...game.flagsOf(p), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
+  if (!mayFinish) return game.progress?.afterPass?.(now, level) ?? now
+  const completed = { ...now, solved: [...new Set([...p.solved, level.id])] }
+  return game.progress?.afterPass?.(completed, level) ?? completed
 }

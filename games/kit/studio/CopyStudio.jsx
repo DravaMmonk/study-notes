@@ -7,7 +7,7 @@ import './studio.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, FileText, ListTree, Search as SearchIcon } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
-import { withParts } from '../engine/parts/define.js'
+import { withParts } from '../../../packages/circuit/core/index.js'
 import { parsePath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { placesOf } from './form.js'
@@ -36,7 +36,7 @@ const LISTS = { objects: [ListTree, '按对象', 'By object'], files: [FileText,
 const remember = (opened, scope, file) => {
   const url = new URL(window.location.href)
   url.searchParams.set('space', 'copy')
-  for (const k of ['package', 'game', 'scope', 'file', 'tab', 'level', 'group', 'era', 'part', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['package', 'game', 'scope', 'file', 'tab', 'level', 'group', 'era', 'circuit/part', 'glossary']) url.searchParams.delete(k)
   url.searchParams.set(opened.game ? 'game' : 'package', opened.game ?? opened.package)
   if (file !== null) url.searchParams.set('file', file)
   else url.searchParams.set('scope', String(scope))

@@ -1,4 +1,4 @@
-import { partStages } from '../../engine/part-stages.js'
+import { partStages } from '../../../../packages/circuit/core/index.js'
 import { symbolFor } from './symbols.js'
 import { unasciiOf } from './formula.js'
 

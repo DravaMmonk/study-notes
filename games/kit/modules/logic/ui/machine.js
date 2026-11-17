@@ -5,7 +5,7 @@
 // the results show the test's inputs, what it wants and what reaches the result. Values (equations, proof states,
 // clause sets, rules) read as lines of text.
 import { T } from '../../../shell/i18n.js'
-import { withPreset } from '../../../circuit/presets.js'
+import { withPreset } from '../../../../../packages/circuit/core/index.js'
 import { runMachine } from '../machine.js'
 import { presetFor } from '../work.js'
 import { machineReadout, machineTextOf, machineTermOf } from '../circuit-readouts.js'

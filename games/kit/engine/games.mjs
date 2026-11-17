@@ -42,10 +42,10 @@ export async function gameOf(content, { view = false } = {}) {
   const kernel = await plugins(content, root, file => server.ssrLoadModule(file), view)
   const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
   const vocabulary = contentSchemas.get(content)
-  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))
+  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]).filter(id => id !== 'circuit'))
   const modules = await Promise.all(runtimeIds(content).map(async id => pluginIds.has(id) ? pluginGame(id, kernel, vocabulary, { view }) : ({
     id, define: (await server.ssrLoadModule(gameModule(DOMAINS, id))).default,
-    runtime: (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
+    runtime: id === 'circuit' ? (await server.ssrLoadModule(resolve(DOMAINS, '../../../../packages/circuit/core/index.js'))).runtime : (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
   })))
   const { composeGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/compose-game.js'))
   return composeGame(content, modules)

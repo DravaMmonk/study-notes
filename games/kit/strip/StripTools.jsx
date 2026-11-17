@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { Redo2, Undo2 } from 'lucide-react'
-import ClearButton from '../circuit/ClearButton.jsx'
+import { ClearButton } from '../../../packages/circuit/view/index.jsx'
 import { tr } from '../shell/i18n.js'
 import { historyKey } from '../shell/useHistory.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'

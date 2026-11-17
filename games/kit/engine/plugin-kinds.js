@@ -1,9 +1,10 @@
+import { catalogReader, sourceValue } from './catalogs.js'
 // Data declarations extend an assembly, never process-wide content registries.
 import { S, validate } from './schema.js'
 import { mergePatch } from './ops/edit.js'
 import { contentKindSchemas } from './content-kinds.js'
 
-export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', 'part', 'tray', ...Object.keys(contentKindSchemas)]
+export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', ...Object.keys(contentKindSchemas)]
 
 export const KIND_DECLARATION = S.obj({
   folder: S.opt(S.str({ pattern: '^[a-z][a-z0-9-]*$' })),
@@ -26,10 +27,15 @@ const extend = (schema, fields) => {
 export function withKindDeclarations(vocabulary, layers, plugin = false) {
   const definitions = {}, raw = {}
   for (const layer of layers) {
-    for (const object of layer.objects.filter(o => o.kind === 'kind')) raw[object.name.includes('/') ? object.name : `${layer.id}/${object.name}`] = object.value
+    const catalogs = Object.fromEntries(Object.entries(layer.catalogs ?? {}).map(([lang, entries]) => [lang, {
+      ...Object.fromEntries(Object.entries(entries).map(([key, text]) => [key.includes('/') ? key : `${layer.id}/${key}`, text])), ...entries,
+    }]))
+    const reader = catalogReader(catalogs)
+    const read = object => layer.resolved ? object.value : reader(sourceValue(object.value), `kinds/${object.name}.json`, KIND_DECLARATION, vocabulary)
+    for (const object of layer.objects.filter(o => o.kind === 'kind')) raw[object.name.includes('/') ? object.name : `${layer.id}/${object.name}`] = read(object)
     for (const object of (layer.overrides ?? []).filter(o => o.kind === 'kind')) {
       if (!raw[object.name]) continue
-      const { $merge, ...value } = object.value
+      const { $merge, ...value } = read(object)
       raw[object.name] = $merge ? mergePatch(raw[object.name], value) : value
     }
   }
@@ -38,7 +44,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     if (errors.length) throw new Error(`${name}: ${JSON.stringify(errors)}`)
     if (d.extends ? !d.fields || d.schema || d.folder : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
     if (!d.extends && Object.values(definitions).some(other => other.folder === d.folder)) throw new Error(`${name}: duplicate object folder ${d.folder}`)
-    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'kinds', 'parts', 'symbols', 'trays', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
+    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
     if (d.override === 'append' && d.schema?.fields?.values?.type !== 'list') throw new Error(`${name}: append overrides require a values list`)
     const inspect = schema => {
       const types = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'map', 'obj', 'either', 'by', 'ref', 'name', 'level', 'task', 'board', 'syntax', 'call']
@@ -64,12 +70,12 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     const task = S.obj({ id: S.task(), step: S.opt(S.text()), brief: S.text(), play: S.str({ reference: 'play' }), after: S.opt(S.text()) })
     const generic = S.obj({ title: S.text(), intro: S.opt(S.list(S.obj({ t: S.text() }))), after: S.opt(S.text()), requires: S.opt(S.list(S.level())), tasks: S.list(task, { min: 1 }) })
     if (!level) level = generic
-    else level = S.obj({ ...Object.fromEntries(Object.entries(level.fields).map(([key, field]) => [key, S.opt(field)])), ...generic.fields, tasks: S.list(S.either(level.fields.tasks.of, task), { min: 1 }) })
+    else level = S.obj({ ...generic.fields, ...level.fields, tasks: S.list(S.either(level.fields.tasks.of, task), { min: 1 }) })
   }
   for (const d of Object.values(definitions).filter(d => d.extends)) {
     if (d.extends === 'level') level = extend(level, d.fields)
     else {
-      const tasks = s => s.type === 'either' ? { ...s, of: s.of.map(tasks) } : { ...s, fields: { ...s.fields, tasks: { ...s.fields.tasks, of: extend(s.fields.tasks.of, d.fields) } } }
+      const tasks = s => s.type === 'either' ? { ...s, of: s.of.map(tasks) } : !s.fields.tasks ? s : { ...s, fields: { ...s.fields, tasks: { ...s.fields.tasks, of: extend(s.fields.tasks.of, d.fields) } } }
       level = tasks(level)
     }
   }

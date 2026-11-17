@@ -4,6 +4,6 @@
     "clausify",
     "replay"
   ],
-  "of": "part",
+  "of": "circuit/part",
   "edges": []
 }

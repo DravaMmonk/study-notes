@@ -24,13 +24,13 @@ function gameModule(id) {
   const content = readContent(id)
   const layers = contentLayers(content).filter(layer => !layer.id.startsWith('@'))
   const hasCode = layers.some(layer => layer.hasCore || layer.hasView)
-  const pluginIds = runtimeIds(content).filter(id => layers.some(layer => layer.id === id && layer.hasCore))
+  const pluginIds = runtimeIds(content).filter(id => id !== 'circuit' && layers.some(layer => layer.id === id && layer.hasCore))
   const modules = runtimeIds(content).filter(id => !pluginIds.includes(id))
   return [
     ...(hasCode ? [pluginSource(layers)] : []),
     ...modules.flatMap((id, index) => [
       `import define${index} from ${q(domainEntry(resolve(KIT, 'modules'), id))}`,
-      `import { ${({ logic: 'prepareLogicWorks', image: 'prepareImageWorks', table: 'prepareTableWorks', rows: 'prepare' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, id === 'rows' ? 'runtime.js' : 'work.js'))}`,
+      `import { ${({ logic: 'prepareLogicWorks', image: 'prepareImageWorks', table: 'prepareTableWorks', rows: 'prepare' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(id === 'circuit' ? resolve(KIT, '../../packages/circuit/core/index.js') : resolve(KIT, 'modules', id, id === 'rows' ? 'runtime.js' : 'work.js'))}`,
     ]),
     `import { composeGame } from ${q(resolve(KIT, 'app/compose-game.js'))}`,
     `const define = content => composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}${modules.length && pluginIds.length ? ',' : ''}${pluginIds.map(id => `pluginGame(${q(id)}, kernel, vocabulary)`).join(', ')}])`,

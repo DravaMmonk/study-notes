@@ -1,3 +1,4 @@
+import { kernelIdentity } from './release-data.js'
 import { packageDirectory } from './resolver.js'
 /* global process */
 // Create a game from an installed module starter, or arrange an existing package.
@@ -75,7 +76,7 @@ export function newPackage({ root = contentRoot(), id, template, from, empty = f
   const target = packageDirectory(id, root)
   if (empty || from) {
     if (existsSync(target)) fail(`packages/${id} is there already`)
-    if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ version: '1.0.0', kernel: '^1.0.0', uses: {} }, null)) }
+    if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ version: '1.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null)) }
     else {
       if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(packageDirectory(from, root), 'package.json'))) fail(`no package ${from}`)
       mkdirSync(target, { recursive: true })
@@ -116,7 +117,7 @@ export function newGame({ root = contentRoot(), id, template, title = id }) {
   const course = expandNames(source, id, { parts, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   if (existsSync(resolve(starter, 'i18n/course'))) fill(resolve(starter, 'i18n/course'), resolve(dir, 'i18n'), words)
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ ...game, kernel: '^1.0.0', packages: { [id]: '^1.0.0' } }, null))
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ ...game, kernel: `^${kernelIdentity().version}`, packages: { [id]: '^1.0.0', ...Object.fromEntries(resolveLayers({ package: id, closure: true, root, unlocked: true }).layers.filter(layer => layer.id !== id).map(layer => [layer.id, `^${layer.config.version}`])) } }, null))
   lockTarget({ kind: 'game', id }, root)
   const content = readContent(id, root)
   register(root, id, { title: content.title, lede: content.lede, levels: courseLevelCount(content, content.levels.length) })

@@ -1,5 +1,5 @@
 import { L, T } from '../../shell/i18n.js'
-import { passedWork } from '../../shell/progress.js'
+import { passedWork } from '../../../../packages/circuit/core/index.js'
 import { AUDIT_CASE_LIMIT, blankCase, restoreAuditCases, runAudit } from './audit-cases.js'
 import { sentenceOf } from './iso.js'
 import { say } from './notation.js'

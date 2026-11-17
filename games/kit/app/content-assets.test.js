@@ -34,3 +34,16 @@ test('the page loads independent course and package catalogs, and a translation 
   const duplicate = { ...content, levels: [...content.levels, { ...content.levels[0], id: 'second' }] }
   assert.throws(() => contentAssets(duplicate), /package: text key toy\/heading is used by multiple fields/)
 })
+
+test('browser assembly resolves kind metadata from the published package catalogs', async () => {
+  const declaration = { folder: 'pictures', schema: { type: 'obj', fields: {} }, studio: { name: '@sample/kind.picture.name', icon: 'Image' } }
+  const manifest = {
+    id: 'sample', game: {}, levels: [], glossary: { groups: [], entries: [] },
+    contentObjects: { kind: { 'sample/picture': declaration }, 'sample/picture': {} },
+    locales: { course: {}, package: { en: 'i18n/package/en.json' } },
+  }
+  const content = await pageContent(manifest, 'https://example.test/sample/',
+    () => new Response(JSON.stringify({ 'sample/kind.picture.name': 'Picture' })),
+    { legacyModules: [], packageCode: true })
+  assert.equal(content.objectKinds['sample/picture'].studio.name.en, 'Picture')
+})

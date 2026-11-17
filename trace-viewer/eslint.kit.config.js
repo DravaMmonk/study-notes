@@ -40,7 +40,7 @@ export default defineConfig([
   },
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
-    ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/grants.js'],
+    ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/circuit-bridge.js'],
     rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/resolver.js).'),
   },
   {

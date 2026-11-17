@@ -1,5 +1,5 @@
 // Categorise and filter check results for the Studio audit panel.
-import { RULE_TEXT } from '../course.js'
+import { RULE_TEXT } from '../../../packages/circuit/core/index.js'
 
 export const SEVERITIES = ['fail', 'open', 'report', 'pass']
 

@@ -44,5 +44,5 @@
     "cross",
     "epiline"
   ],
-  "of": "part"
+  "of": "circuit/part"
 }

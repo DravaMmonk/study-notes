@@ -15,7 +15,7 @@
 //   rule    { fixes: [variable], premises: [premise], conclusion } (schematic.js premises)
 //   test    { it: sentence text, ways: [rule text], elim: [premise text] }   the elimination rule's premises; it
 //           concludes ?R. A level with `single` hands its one way in as a rule, not a list.
-import { PartError } from '../../engine/circuit.js'
+import { PartError } from '../../../../packages/circuit/core/index.js'
 import { meta } from './formula.js'
 import { parseS, premiseOf } from './schematic.js'
 import { T } from '../../shell/i18n.js'

@@ -1,15 +1,16 @@
-import { stageDefinition } from '../../engine/part-stages.js'
+import { stageDefinition } from '../../../../packages/circuit/core/index.js'
 import { loadDisplays, benchDisplays } from '../../engine/displays.js'
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's play resources, its
 // parts box and its intro figures.
 import { FlaskConical, Workflow } from 'lucide-react'
-import { defineGame } from '../../shell/index.js'
-import { introductions, isCore, levelLabels } from '../../course.js'
+import { defineGame } from '../../../../packages/circuit/view/index.jsx'
+import { levelLabels } from '../../course.js'
+import { introductions, isCore } from '../../../../packages/circuit/core/index.js'
 import { imageWorks } from './work.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
 import { plays } from './plays.js'
-import { partsFor } from '../../circuit/board-parts.js'
+import { partsFor } from '../../../../packages/circuit/view/index.jsx'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
 import { descriptionOf } from './words.js'

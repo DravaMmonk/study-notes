@@ -10,8 +10,9 @@ import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js';
 import { S } from '../../engine/schema.js';
 import { qualifyVocabulary } from '../../engine/capabilities.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
-import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js';
-import { TRAY } from '../../engine/trays.js';
+import { taskLevel } from '../../engine/tasks.js'
+import { ITEM_REFERENCE } from '../../../../packages/circuit/core/index.js';
+import { TRAY } from '../../../../packages/circuit/core/index.js'
 import { PRIMITIVES } from './model/parts.js';
 import { T as t } from '../../shell/i18n.js';
 
@@ -98,12 +99,12 @@ const FIGURES = {
   window: item(t('机器人 3×3 的视野：每格的值，亮起的是读的格子'), S.obj({ vals: S.map(S.either(S.num(), S.text())), on: ids })),
 };
 
-const has = S.either(S.ref('part'), S.obj({ part: S.ref('part'), value: S.opt(S.num()) }));
+const has = S.either(S.ref('part', { reference: 'circuit/part' }), S.obj({ part: S.ref('part', { reference: 'circuit/part' }), value: S.opt(S.num()) }));
 const CONDITIONS = {
   reads: item(t('输入元件上点了这个传感器'), S.str()),
   uses: item(t('这个传感器读了，还接出了线'), S.str()),
   has: item(t('板上有这种元件（可以再说它的数值）'), has),
-  feeds: item(t('一种元件直接接进另一种元件'), S.obj({ from: S.ref('part'), to: S.ref('part') })),
+  feeds: item(t('一种元件直接接进另一种元件'), S.obj({ from: S.ref('part', { reference: 'circuit/part' }), to: S.ref('part', { reference: 'circuit/part' }) })),
   placed: item(t('板上放了元件')),
   wired: item(t('板上接了线')),
   wiredOut: item(t('输出接上了线')),

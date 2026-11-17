@@ -1,14 +1,17 @@
+import { circuitFixtureSchema } from './ops/fixture.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { assemble } from './content.js'
+import { assemble as assembleContent } from './content.js'
 import { S, validate } from './schema.js'
 import { checkContent, defineVocabulary } from './vocabulary.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from './course-schema.js'
 import { referenceResolver, expandReferences, expandRelations, relationOrder, orderedTags, importLevelOrder } from './objects.js'
 
+const assemble = options => assembleContent({ ...options, schemas: circuitFixtureSchema(options.schemas) })
+
 const vocabulary = defineVocabulary({ module: 'toy', version: 1, kinds: {},
-  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part'))), ...COURSE_OPTIONS }),
-  level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part'))) }),
+  game: S.obj({ title: S.text(), chapters: S.list(S.obj({ id: S.str(), ...COURSE_FIELDS })), primitives: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), ...COURSE_OPTIONS }),
+  level: S.obj({ title: S.text(), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))) }),
 })
 const source = () => ({ id: 'toy', schemas: vocabulary,
   game: { vocabulary: 1, title: 'Toy', chapters: [{ id: 'main', levels: ['toy/start', 'toy/a', 'toy/b', 'toy/c', 'toy/end'], rows: [['toy/a'], ['toy/b', 'toy/c']] }], optional: ['#toy/extras'] },
@@ -34,11 +37,11 @@ test('the generic resolver expands every typed list, checks kind and cycles, and
   const problems = []
   const registry = { tag: {
     all: { kind: 'level', values: ['a', '#nested', 'b'] }, nested: { kind: 'level', values: ['b'] },
-    parts: { kind: 'part', values: ['p'] }, words: { kind: 'entry', values: ['e'] },
+    parts: { kind: 'circuit/part', values: ['p'] }, words: { kind: 'entry', values: ['e'] },
     loop: { kind: 'level', values: ['#loop'] }, wrong: { kind: 'level', values: ['p'] }, mixed: { kind: 'level', values: ['#parts'] },
   }, level: { a: {}, b: {} }, part: { p: {} }, setting: {}, entry: { e: {} } }
   const expand = referenceResolver(registry, problems)
-  const schema = S.obj({ levels: S.list(S.level()), optional: S.list(S.level()), arbitrary: S.obj({ entries: S.list(S.name('entry')), items: S.list(S.ref('part')) }) })
+  const schema = S.obj({ levels: S.list(S.level()), optional: S.list(S.level()), arbitrary: S.obj({ entries: S.list(S.name('entry')), items: S.list(S.ref('part', { reference: 'circuit/part' })) }) })
   assert.deepEqual(expandReferences({ levels: ['#all'], optional: ['#nested'], arbitrary: { entries: ['#words'], items: ['#parts'] } }, schema, expand), {
     levels: ['a', 'b'], optional: ['b'], arbitrary: { entries: ['e'], items: ['p'] },
   })
@@ -66,10 +69,10 @@ test('partial courses restrict both ends of loaded level relations', () => {
 })
 
 test('reference maps and item containers use the same typed resolver and loaded ordering', () => {
-  const registry = { tag: { items: { kind: 'part', values: ['p/b', 'p/a'] }, levels: { kind: 'level', values: ['p/one'] } }, level: { 'p/one': {} }, part: { 'p/a': {}, 'p/b': {} }, setting: {}, entry: {} }
+  const registry = { tag: { items: { kind: 'circuit/part', values: ['p/b', 'p/a'] }, levels: { kind: 'level', values: ['p/one'] } }, level: { 'p/one': {} }, part: { 'p/a': {}, 'p/b': {} }, setting: {}, entry: {} }
   const problems = [], expand = referenceResolver(registry, problems)
-  expand.order = [{ from: 'p/b', to: 'p/a', of: 'part' }]
-  const schema = S.obj({ list: S.list(S.ref('part')), keyed: S.map(S.str(), { key: S.ref('part') }), tray: S.name('tag', { members: 'part' }) })
+  expand.order = [{ from: 'p/b', to: 'p/a', of: 'circuit/part' }]
+  const schema = S.obj({ list: S.list(S.ref('part', { reference: 'circuit/part' })), keyed: S.map(S.str(), { key: S.ref('part', { reference: 'circuit/part' }) }), tray: S.name('tag', { members: 'circuit/part' }) })
   assert.deepEqual(expandReferences({ list: ['#items'], keyed: { '#items': 'same' }, tray: '#items' }, schema, expand), {
     list: ['p/b', 'p/a'], keyed: { 'p/a': 'same', 'p/b': 'same' }, tray: '#items',
   })
@@ -121,11 +124,11 @@ test('game namespaces cannot declare tags, relations or sections', () => {
 
 test('explicit trays produce ordered menus, expand task items and apply replacements on load', () => {
   const input = source()
-  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('tray'), adds: S.list(S.ref('part')), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'part' })) })) }) }
+  input.schemas = { ...vocabulary, level: S.obj({ title: S.text(), tray: S.name('circuit/tray'), adds: S.list(S.ref('part', { reference: 'circuit/part' })), tasks: S.list(S.obj({ gives: S.list(S.str({ reference: 'circuit/part' })) })) }) }
   input.partDefs = { parts: { one: {}, two: {}, three: {} } }
-  input.tags.push(['menu', { kind: 'part', title: 'Menu', values: ['one', 'two'] }], ['tray', { kind: 'part', title: 'Tray', values: ['three', '#menu'] }])
+  input.tags.push(['menu', { kind: 'circuit/part', title: 'Menu', values: ['one', 'two'] }], ['tray', { kind: 'circuit/part', title: 'Tray', values: ['three', '#menu'] }])
   input.trays = [['tray', { title: 'Tray', values: ['three'], menus: [{ id: 'menu', title: 'Menu', values: ['#menu'] }] }]]
-  input.relations.push(['menu-order', { kind: 'order', of: 'part', sequence: ['menu', 'three'] }])
+  input.relations.push(['menu-order', { kind: 'order', of: 'circuit/part', sequence: ['menu', 'three'] }])
   input.relations.push(['items', { kind: 'order', sequence: ['two', 'one', 'three'] }], ['upgrade', { kind: 'replaces', edges: [{ from: 'three', to: 'one' }] }])
   input.levels[0][1] = { title: 'Start', tray: 'tray', adds: ['#menu'], tasks: [{ gives: ['#tray'] }] }
   const content = assemble(input)
@@ -158,9 +161,9 @@ test('order qualification follows the referenced kind when a level shares a nati
 test('item tags distinguish setting definitions from a part setting and its values', () => {
   const input = source()
   input.partDefs = { parts: { knob: { settings: { 'mode': { control: 'select', options: [{ value: 'on' }] } }, stages: [{ id: 'knob-on' }] } } }
-  input.tags.push(['settings', { kind: 'part', values: ['mode'] }], ['knob', { kind: 'part', values: ['knob', 'knob-on'] }])
+  input.tags.push(['settings', { kind: 'circuit/part', values: ['mode'] }], ['knob', { kind: 'circuit/part', values: ['knob', 'knob-on'] }])
   const content = assemble(input)
-  assert.ok(content.objectProblems.some((p) => /missing target part toy\/mode/.test(p.says)))
+  assert.ok(content.objectProblems.some((p) => /missing target circuit\/part toy\/mode/.test(p.says)))
   assert.ok(!content.objectProblems.some((p) => /missing target part toy\/knob/.test(p.says)))
 })
 
@@ -175,7 +178,7 @@ test('settings have neither a registry nor a tag kind', () => {
 
 test('tags reject teaching metadata and never implicitly declare trays', () => {
   const input = source()
-  input.tags.push(['idea', { kind: 'part', concept: true, values: [] }])
+  input.tags.push(['idea', { kind: 'circuit/part', concept: true, values: [] }])
   const content = assemble(input)
   assert.deepEqual(content.trays, {})
   assert.ok(checkContent({ vocabulary }, content).some(problem => /concept/.test(problem.at)))
@@ -207,7 +210,7 @@ test('tag sorting uses explicit tag order before member prerequisites, then full
   const registries = { tag: {
     'p/a': { kind: 'level', values: ['p/last'] }, 'p/b': { kind: 'level', values: ['#p/c'] },
     'p/c': { kind: 'level', values: ['p/first'] }, 'p/d': { kind: 'level', values: [] },
-    'p/items': { kind: 'part', values: [] },
+    'p/items': { kind: 'circuit/part', values: [] },
   }, level: { 'p/first': {}, 'p/last': {} } }
   const content = { registries, relationEdges: { requires: [{ from: 'p/first', to: 'p/last' }], order: [] } }
   assert.deepEqual(orderedTags(content, 'level'), ['p/b', 'p/c', 'p/a', 'p/d'])
@@ -285,5 +288,5 @@ test('schema tag names validate against the expected member type and reject unty
   assert.deepEqual(validate(S.name('tag', { members: 'level' }), 'p/all', { names }), [])
   assert.deepEqual(validate(S.name('tag', { members: 'entry' }), '#p/all', { names }), [])
   assert.match(validate(S.name('tag'), 'p/all', { names })[0].says, /ambiguous tag/)
-  assert.match(validate(S.name('tag', { members: 'part' }), 'p/all', { names })[0].says, /member type part/)
+  assert.match(validate(S.name('tag', { members: 'circuit/part' }), 'p/all', { names })[0].says, /member type circuit\/part/)
 })

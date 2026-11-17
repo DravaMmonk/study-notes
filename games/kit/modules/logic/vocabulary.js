@@ -13,8 +13,9 @@ import { symbolFor } from './symbols.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { ITEM_REFERENCE, taskLevel } from '../../engine/tasks.js'
-import { TRAY } from '../../engine/trays.js'
+import { taskLevel } from '../../engine/tasks.js'
+import { ITEM_REFERENCE } from '../../../../packages/circuit/core/index.js'
+import { TRAY } from '../../../../packages/circuit/core/index.js'
 import { RULES } from './proof.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
@@ -34,7 +35,7 @@ const SIDE = S.syntax('side')
 const SIDES = S.list(SIDE)
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串') })
-const PART = S.name('part', { about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式') })
+const PART = S.ref('part', { reference: 'circuit/part', about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式') })
 const PARTS = S.list(PART)
 const WORDS = S.list(S.either(S.name('wordset'), S.map(S.text())), { about: t('用哪几套词（game.json wordSets 的名字，或直接写出），按顺序合并') })
 

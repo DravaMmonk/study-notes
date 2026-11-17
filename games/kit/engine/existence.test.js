@@ -1,22 +1,28 @@
+import { circuitFixtureKinds } from './ops/fixture.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
-import { assembleLayers } from './resolver.js'
+import { assembleLayers as assembleContentLayers } from './resolver.js'
 import { existenceProblems, contentExistenceProblems, publicSurfaces, collectReferences } from './existence.js'
 
 const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {},
   game: S.obj({}), level: S.obj({ nested: S.opt(S.list(S.obj({ arbitrary: S.ref('lib/scene') }))), grants: S.opt(S.list(S.str({ reference: 'grant' }))) }),
 })
-schemas.objectKinds = { 'lib/scene': { folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
+schemas.objectKinds = { ...circuitFixtureKinds, 'lib/scene': { folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
 const object = (kind, name, value = {}) => ({ kind, name, value })
-const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^1.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
+const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^2.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 const lib = () => ({ ...layer('lib', [object('kind', 'scene', schemas.objectKinds['lib/scene']), object('lib/scene', 'start')]), codeObjects: [object('lib/scene', 'lib/registered') ] })
+
+const assembleLayers = (id, layers, schemas, options) => {
+  const circuit = layer('circuit', Object.entries(circuitFixtureKinds).map(([name, value]) => object('kind', name.split('/')[1], value)))
+  return assembleContentLayers(id, [circuit, ...layers.map(item => ({ ...item, config: { ...item.config, uses: { ...item.config.uses, circuit: '^1.0.0' } } }))], schemas, options)
+}
 
 test('one structured check covers schema references, overrides, tag contributions, endpoints, grants and dependencies', () => {
   const consumer = layer('consumer', [
     object('level', 'one', { nested: [{ arbitrary: 'lib/missing' }], grants: ['lib/no-grant'] }),
-    object('tray', 'tray', { values: ['lib/no-tray-member'], menus: [{ id: 'menu', title: 'Menu', values: ['lib/no-menu-member'] }] }),
+    object('circuit/tray', 'tray', { values: ['lib/no-tray-member'], menus: [{ id: 'menu', title: 'Menu', values: ['lib/no-menu-member'] }] }),
     object('relation', 'order', { kind: 'order', of: 'lib/scene', sequence: ['lib/start', 'lib/no-endpoint'] }),
   ], [object('lib/scene', 'lib/no-override', {}), object('tag', 'lib/no-tag', { kind: 'lib/scene', values: ['lib/no-member'], remove: ['lib/no-remove'] })], ['lib', 'absent'])
   const content = assembleLayers('consumer', [lib(), consumer], schemas, { packageId: 'consumer' })
@@ -60,7 +66,7 @@ test('typed tags, registered readers, unknown member types and ambiguous unconst
   assert.ok(!content.objectProblems.some(problem => problem.target === 'lib/reader'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'tag' && problem.member === 'missing-kind'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'kind' && problem.target === 'missing-kind'))
-  const refs = [{ id: '@game', config: { kernel: '^1.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
+  const refs = [{ id: '@game', config: { kernel: '^2.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
   const problems = existenceProblems(refs, schemas, publicSurfaces(contentLayers(owner), schemas))
   assert.equal(problems.find(problem => problem.target === 'lib/same')?.reason, 'ambiguous')
 })
@@ -95,7 +101,7 @@ test('locations identify nested level fields, override targets and dependency se
   assert.deepEqual(location('lib/no-override'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: '' }])
   assert.deepEqual(location('lib/missing'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: 'next' }])
   assert.deepEqual(location('absent'), [{ object: { kind: 'package', name: 'consumer' }, path: 'uses.absent' }])
-  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { kernel: '^1.0.0', packages: { 'absent': '^1.0.0' } } })), schemas)
+  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { kernel: '^2.0.0', packages: { 'absent': '^1.0.0' } } })), schemas)
   assert.deepEqual(selection.object, { kind: 'package', name: '@game' })
   assert.equal(selection.path, 'packages.absent')
 })

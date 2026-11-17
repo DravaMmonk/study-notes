@@ -5,7 +5,7 @@ import { signatures } from './signatures.js'
 import { qualifyItems } from '../../engine/capabilities.js'
 import { LEMMA, OPTIONS, RULES, lemmaParts } from './proof.js'
 import { MACHINE_PARTS, RULE_CHOICES } from './machine.js'
-import { compileParts, defineParts } from '../../engine/parts/define.js'
+import { compileParts, defineParts } from '../../../../packages/circuit/core/index.js'
 
 /** The resources by name: { about, args, run(args, named, ctx) }. */
 const choiceResources = Object.fromEntries(Object.entries(signatures({ ...OPTIONS, ruleChoices: RULE_CHOICES }, 'logic:options')).map(([name, item]) => [name, {

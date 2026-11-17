@@ -1,5 +1,5 @@
 import { T } from '../../shell/i18n.js'
-import { registerParts } from '../../engine/parts.js'
+import { registerParts } from '../../../../packages/circuit/core/index.js'
 import { parse, show } from './formula.js'
 import { say } from './notation.js'
 import { methodText, methodsOf, namesOf, regionsOf, scriptJudge, sentencesOf } from './script.js'

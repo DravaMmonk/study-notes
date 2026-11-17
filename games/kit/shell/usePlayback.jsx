@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Pause, Play, StepForward } from 'lucide-react'
-import { paceOf } from '../engine/trace.js'
+import { paceOf } from '../engine/playback-pace.js'
 import { tr } from './i18n.js'
 import { useSetting } from './useSetting.js'
 import { reduced } from './useMedia.js'

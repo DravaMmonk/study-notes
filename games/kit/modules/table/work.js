@@ -4,19 +4,21 @@
 // board), the parts its levels build (each running the board it was built from: a packed part, ../../engine/boards.js),
 // and the course audit's view of it. Everything it works out is a new object: the content it reads is never written.
 
-import { splitSource } from '../../engine/wire-source.js';
-import { packed } from '../../engine/boards.js';
-import { previousCircuitTask } from '../../engine/board-view.js';
-import { keptBoards } from '../../engine/kept-boards.js';
-import { workshopOf } from '../../circuit/workshop-view.js';
-import { inheritedBoard } from '../../shell/progress.js';
+import { splitSource } from '../../../../packages/circuit/core/index.js'
+import { packed } from '../../../../packages/circuit/core/index.js'
+import { previousCircuitTask } from '../../../../packages/circuit/core/index.js'
+import { keptBoards } from '../../../../packages/circuit/core/index.js'
+import { workshopOf } from '../../../../packages/circuit/core/index.js'
+import { inheritedBoard } from '../../../../packages/circuit/core/index.js';
 import { deepFreeze } from '../../engine/content.js';
-import { taskLevels } from '../../engine/tasks.js';
-import { readWorks, publicationEvents } from '../../engine/course-model.js';
-import { eraLevels, levelLabels, offer, reach } from '../../course.js';
+import { taskLevels } from '../../engine/tasks.js'
+;
+import { readWorks, publicationEvents } from '../../../../packages/circuit/core/index.js'
+import { eraLevels, levelLabels } from '../../course.js'
+import { offer, reach } from '../../../../packages/circuit/core/index.js'
 import { courseLayout } from '../../engine/course-dependencies.js';
 import { T, hydrate, lazy, tr } from './lang.js';
-import { builtParts, publications, settingsOf } from '../../engine/parts.js';
+import { builtParts, publications, settingsOf } from '../../../../packages/circuit/core/index.js'
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
 import { blank, fitted, portsProblem } from './model/board.js';
 import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';

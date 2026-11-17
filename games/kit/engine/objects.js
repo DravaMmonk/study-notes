@@ -1,5 +1,5 @@
 import { tagKey, tagName } from './tag-identity.js'
-import { grantIndex, grants } from './grants.js'
+import { grantIndex, grants } from '../../../packages/circuit/core/index.js'
 import { contentKindSchemas } from './content-kinds.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
 import { S, shapeAt } from './schema.js'
@@ -12,8 +12,7 @@ export const TAG = S.obj({ kind: S.str(), title: S.opt(S.text()), desc: S.opt(S.
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
 export const RELATION = S.obj({ kind: S.str(), of: S.opt(S.str()), member: S.opt(S.str()), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
-export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'grant' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'grant' }) }))) })
-export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION, trays: TRAY_OBJECT }
+export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
 
 /** Qualify each object at its declaring layer, including relation patches. */
@@ -65,7 +64,7 @@ export function referenceResolver(registries, problems = []) {
     })
     return [...new Set(out)].sort()
   }
-  expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
+  expand.menu = id => Object.values(registries['circuit/tray'] ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
   expand.partOf = id => granted.get(id)?.part ?? id
   expand.kindOf = (id) => {
     if (id.startsWith('#')) return findTag(id.slice(1), 'any', 'reference')?.[1].kind
@@ -76,7 +75,7 @@ export function referenceResolver(registries, problems = []) {
   return expand
 }
 
-export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? (schema.kind?.includes('/') ? schema.kind : { part: 'part', unlock: 'part', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
+export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? (schema.kind?.includes('/') ? schema.kind : { part: 'circuit/part', unlock: 'circuit/part', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
 
 /** Expand tags structurally, using schema types rather than a list of field names. */
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
@@ -122,14 +121,14 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     const declaration = definitions[relation.kind]
     const endpointKinds = !relation.of && relation.kind === 'order' ? [...new Set(edgesOf(relation).flatMap(edge => [edge.from, edge.to]).map(id => expand.kindOf?.(id)))] : []
     const inferredKind = endpointKinds.length === 1 ? endpointKinds[0] : undefined
-    const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'part' : relation.of ?? inferredKind ?? 'any'
+    const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'circuit/part' : relation.of ?? inferredKind ?? 'any'
     if (relation.of === 'grant') problems.push({ at: `relations/${name}`, says: 'order endpoints use registered object types; omit of for mixed types' })
     if (kind === 'tag' && !relation.member) problems.push({ at: `relations/${name}`, says: 'tag order needs a member type' })
     if (kind !== 'tag' && relation.member) problems.push({ at: `relations/${name}`, says: 'member belongs to tag order relations' })
-    const ends = (id, external = false, side = 'from') => ((external || relation.kind === 'order' && ['part', 'any'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`, [], relation.member)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const ends = (id, external = false, side = 'from') => ((external || relation.kind === 'order' && ['circuit/part', 'any'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`, [], relation.member)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
-      if (expand(endpoint, 'part').some(id => expand.partOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' })
+      if (expand(endpoint, 'circuit/part').some(id => expand.partOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' })
       if (edge.from === edge.to) problems.push({ at: `relations/${name}`, says: 'a part cannot replace itself' })
     }
     if (relation.of === 'tag' && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations can order tags' })

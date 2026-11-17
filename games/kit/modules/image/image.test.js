@@ -6,10 +6,10 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
 import { readStarter } from '../../engine/resolver.js'
-import { captureWorkshop, publishWorkshop, workshopIdentity } from '../../engine/workshop.js'
-import { packedBoards } from '../../circuit/packed-boards.js'
-import { courseWorkshop } from '../../circuit/workshop-view.js'
-import { fresh } from '../../shell/progress.js'
+import { captureWorkshop, publishWorkshop, workshopIdentity } from '../../../../packages/circuit/core/index.js'
+import { packedBoards } from '../../../../packages/circuit/core/index.js'
+import { courseWorkshop } from '../../../../packages/circuit/core/index.js'
+import { progress as circuitProgress } from '../../../../packages/circuit/core/index.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
 import { ransacLine, robustHomography } from './engine/match.js'
@@ -162,7 +162,7 @@ test('image text play opens on the same valid inherited board as the editor', ()
   const circuit = imageBoards(image)
   const context = (board) => ({
     game: { image, circuit }, level: { ...task, source: task }, flags: new Set(['shift']),
-    progress: { ...fresh(), passed: [previous.key], built: { [previous.key]: board } },
+    progress: { ...circuitProgress.fresh(), passed: [previous.key], built: { [previous.key]: board } },
   })
   assert.match(play.open(context(previous.solution)).start, /shift/)
   const corrupt = { ...previous.solution, wires: previous.solution.wires.map((wire) => wire.from === 'in' ? { ...wire, from: 'in#r' } : wire) }
@@ -175,7 +175,7 @@ test('image text play preserves the three channels of each pixel', () => {
   const output = { w: 1, h: 1, c: 3, data: [0, 0.5, 1] }
   const source = { ...task, tests: [{ label: 'colour', inputs: { in: rgb }, expected: { out: output } }] }
   const opened = play.open({
-    game: { image, circuit: imageBoards(image) }, level: { ...source, source }, flags: new Set(), progress: fresh(),
+    game: { image, circuit: imageBoards(image) }, level: { ...source, source }, flags: new Set(), progress: circuitProgress.fresh(),
   })
   assert.equal(opened.tests[0].text, 'in:\n2×1 · RGB\n(0.13,0.25,0.5) (1,0,0.75)\nout (target):\n1×1 · RGB\n(0,0.5,1)')
 })

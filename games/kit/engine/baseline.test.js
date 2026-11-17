@@ -119,3 +119,9 @@ test('version metadata normalizes only initial named configurations and preserve
   assert.notDeepEqual(versionMetadataBaseline(before), versionMetadataBaseline(after))
   assert.deepEqual(versionMetadataBaseline({ payload: after['package.json'] }), { payload: after['package.json'] })
 })
+
+test('circuit tray relocation preserves authored data differences', () => {
+  const normalize = nameNormalizer([])
+  assert.deepEqual(normalize({ kind: 'circuit/tray', path: 'tags/circuit/tray/basics.json', values: ['x'] }), normalize({ kind: 'tray', path: 'tags/tray/basics.json', values: ['x'] }))
+  assert.ok(differences(normalize({ kind: 'circuit/tray', values: ['x'] }), normalize({ kind: 'tray', values: ['y'] })).length)
+})

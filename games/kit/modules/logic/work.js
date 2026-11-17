@@ -7,29 +7,31 @@
 import { symbolFor } from './symbols.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
-import { builtParts, cardOf, partReferences, publications, settingsOf } from '../../engine/parts.js'
-import { eraLevels, holds, levelLabels, met, offer } from '../../course.js'
+import { builtParts, cardOf, partReferences, publications, settingsOf } from '../../../../packages/circuit/core/index.js'
+import { eraLevels, levelLabels } from '../../course.js'
+import { holds, met, offer } from '../../../../packages/circuit/core/index.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
+
 import { keyOf } from '../../shell/i18n.js'
-import { readWorks } from '../../engine/course-model.js'
+import { readWorks } from '../../../../packages/circuit/core/index.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { MACHINE_BOARD, RULE_DEFINITION, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, ruleParts, startMachine } from './machine.js'
-import { operationsOf } from '../../engine/parts/operation.js'
-import { compileParts } from '../../engine/parts/define.js'
-import { presetCardIds, presetOf, withPreset } from '../../circuit/presets.js'
+import { operationsOf } from '../../../../packages/circuit/core/index.js'
+import { compileParts } from '../../../../packages/circuit/core/index.js'
+import { presetCardIds, presetOf, withPreset } from '../../../../packages/circuit/core/index.js'
 import { T } from '../../shell/i18n.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
 import { lemmaReference, PROOF_BOARD } from './proof.js'
 import { OPS, partsOf } from './ops.js'
-import { primitivesOnly } from '../../engine/board-cards.js'
-import { boardView, fitsCircuit } from '../../engine/board-view.js'
-import { keptBoards } from '../../engine/kept-boards.js'
-import { workView } from '../../circuit/workshop-view.js'
+import { primitivesOnly } from '../../../../packages/circuit/core/index.js'
+import { boardView, fitsCircuit } from '../../../../packages/circuit/core/index.js'
+import { keptBoards } from '../../../../packages/circuit/core/index.js'
+import { workView } from '../../../../packages/circuit/core/index.js'
 import { GATE_BOARD, builtGates, gateCourse, gateTests } from './gates.js'
 import { lettersOf } from './truth.js'
 
@@ -473,7 +475,7 @@ export function* prepareLogicWorks(content) {
       // A task has what the tasks before it in its level proved.
       const before = references.prior('fact', one).filter(({ task }) => task.id === one.id).map(({ type }) => type)
       one.ruleParts = partsForResource
-      one.holds = content.standalone ? Object.keys(content.registries.part) : met(course, { id: level.id, task: one.task })
+      one.holds = content.standalone ? Object.keys(content.registries['circuit/part']) : met(course, { id: level.id, task: one.task })
       one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       const has = holds(course, { id: level.id, task: one.task }, new Set())
       one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, l.forms.map((f) => f.key).filter((key) => content.standalone || has(type, 'form', key))]))
@@ -538,11 +540,11 @@ export function* prepareLogicWorks(content) {
     return [type, { name, desc, icon: 'CircuitBoard', family: 'logic:family-built', inputs: p.inputs.map((port) => ({ name: port, type: p.inputTypes?.[port] ?? 'logic:machine-value', ...(port === 'rules' ? { label: T('规则', 'Rules') } : {}) })), settings, outputType: p.outputType ?? 'logic:machine-value', op: 'circuit:zero' }]
   }))
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
-  course.registerObjects('part', Object.fromEntries(TASKS.filter(task => task.kind === 'logic:machine').flatMap(task => [...ruleTypes(task).keys()].map(type => [type, RULE_DEFINITION]))))
+  course.registerObjects('circuit/part', Object.fromEntries(TASKS.filter(task => task.kind === 'logic:machine').flatMap(task => [...ruleTypes(task).keys()].map(type => [type, RULE_DEFINITION]))))
   const offerIn = (task, flags) => {
     const { shown, folded, types } = offer(course, at(task), flags)
     const state = course.state(at(task), flags)
-    const circuit = (type) => Object.hasOwn(state.part, type) && (task.kind !== 'logic:gates' || Object.hasOwn(task.gates, type))
+    const circuit = (type) => Object.hasOwn(state['circuit/part'], type) && (task.kind !== 'logic:gates' || Object.hasOwn(task.gates, type))
     return { shown: shown.filter(circuit), folded: folded.filter(circuit), types: types.filter(circuit) }
   }
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */

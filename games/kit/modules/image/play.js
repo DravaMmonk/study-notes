@@ -4,7 +4,7 @@
 // it: every test, then the level's budget (its constraint), the hidden tests with it.
 //
 // Pictures are written as rows of grey numbers or RGB triples. Probes and parameter benches do not take boards.
-import { circuitPlay } from '../../engine/play/circuit.js'
+import { circuitPlay } from '../../../../packages/circuit/core/index.js'
 import { gridText } from '../../engine/grid.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'

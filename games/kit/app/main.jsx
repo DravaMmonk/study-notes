@@ -7,41 +7,32 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../tokens.css'
 import '../ui.css'
-import '../wires.css'
 import '../shell/shell.css'
 import '../views/views.css'
-import '../circuit/circuit.css'
 import { GameShell } from '../shell/index.js'
 import EmbedShell from '../shell/EmbedShell.jsx'
 import { createProgress } from '../shell/progress.js'
 import { taskStamps } from '../engine/stamp.js'
 import { checkContent } from '../engine/vocabulary.js'
-import { loadWorkshop } from '../engine/workshop.js'
-import { courseWorkshop } from '../circuit/workshop-view.js'
-import { deepFreeze } from '../engine/content.js'
+import { contentSchemas, deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
 import { assetSignature, cleanRefreshURL, recoveryURL } from './release.js'
 import { ReleaseWatch, Unreadable } from './ReleaseWatch.jsx'
 import { pageContent } from './page-content.js'
 
 async function open() {
-  const [{ define, vocabulary }, response] = await Promise.all([loadDomain(), fetch(new URL('content.json', window.location.href), { cache: 'no-store' })])
+  const [{ define, vocabulary: sourceVocabulary }, response] = await Promise.all([loadDomain(), fetch(new URL('content.json', window.location.href), { cache: 'no-store' })])
   if (!response.ok) return { page: <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />, content: null }
   // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
   const contentText = await response.text()
-  const parsed = await pageContent(JSON.parse(contentText), window.location.href, fetch, vocabulary)
+  const parsed = await pageContent(JSON.parse(contentText), window.location.href, fetch, sourceVocabulary)
+  const vocabulary = contentSchemas.get(parsed)
   const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
   const game = define(content)
-  game.partDefs = content.partDefs
-  game.workshop = {
-    replaces: content.replaces ?? {},
-    publications: Object.fromEntries(content.levels.flatMap((level) => level.tasks.map((task) => [task.id, task.publishes ?? []]))),
-  }
-  const workshop = courseWorkshop(game, () => loadWorkshop(window.localStorage))
-  game.bindPassingBoard = workshop.bind
-  const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content, game.stampOptions), restoreBuilt: workshop.restore })
+  const options = { content, tasks: taskStamps(vocabulary, content, game.stampOptions) }
+  const store = game.openProgress?.(options) ?? createProgress({ id: content.id, tasks: options.tasks })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams
   if (asked.has('embed')) {

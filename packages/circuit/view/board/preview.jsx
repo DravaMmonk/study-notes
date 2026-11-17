@@ -1,0 +1,132 @@
+import { lazy, Suspense, useMemo } from 'react'
+import { EditableCanvas } from "./CanvasEditor.jsx"
+import SlotBoard from "./SlotBoard.jsx"
+import { L, tr } from 'kernel/view'
+
+import { circuitBoard, primitivesOnly } from "../../core/board-cards.js"
+import { definitionPorts, evalSettings } from "../../core/parts/define.js"
+import PartFace from "../parts/PartFace.jsx"
+import { nextParams } from "../parts/faces.jsx"
+import { withPartLabels } from "./board-parts.js"
+import PartSheet, { Implementations, Ports, Settings, marker } from "../parts/PartSheet.jsx"
+
+// The circuit editor's parts drawn (games/DESIGN.md 6.7, 6.8). A primitive's scenes are its three faces — the desktop
+// card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
+// (game.defined), so its icons, colours and controls are the player's; its settings move as a player would move them
+// (rules followed, readouts and actions live) and the three scenes share them (`state`); nothing is wired to it, so
+// its value shows as a placeholder. The parts box and Studio previews take the same example circuits, simulations
+// and inside boards from game.parts.preview; the editor decides how to present them.
+// The Sheet is the fields no scene draws: a primitive's revisions, ports, every setting, what it computes and its
+// interaction as parts.json writes them; a built part's own fields (../shell/parts/PartSheet.jsx).
+//
+//   preview(part, { game, scene, edit?, state?, entry?, phone?, progress? })   part: parts.json's entry with its `type`;
+//     state [params, set] the settings the scenes share; entry the parts box's entry it is shown in
+
+const SampleCircuit = lazy(() => import('./SampleCircuit.jsx'))
+const PartExperiment = lazy(() => import('./PartExperiment.jsx'))
+const BuiltBoard = lazy(() => import('./BuiltBoard.jsx'))
+
+const NONE = { values: new Map(), errors: new Map() }
+const at = (path) => JSON.stringify(path)
+const previewBoard = circuitBoard({ cards: [] })
+
+function Code({ path, label, text, picked, ok = null }) {
+  return (
+    <div className={`pp-code ${picked === at(path) ? 'is-picked' : ''}`} data-pf={at(path)}>
+      {label && <span className="pp-code-label">{label}</span>}
+      <code>{text}</code>
+      {ok !== null && <i className={`pp-code-now ${ok ? 'is-ok' : 'is-no'}`} aria-label={ok ? tr('此刻成立') : tr('此刻不成立')} />}
+    </div>
+  )
+}
+
+/** A part's settings as the scenes share them: its defaults until one is moved. */
+const paramsOf = (type, defined, [params]) => params ?? defined.defaults(type)
+
+function Face({ part, game, scene, edit, state }) {
+  const { type } = part
+  const defined = game.defined
+  const def = defined.of(type)
+  const params = paramsOf(type, defined, state)
+  const setParams = state[1]
+  const parts = useMemo(() => {
+    const circuit = primitivesOnly(previewBoard, { [type]: definitionPorts(def, defined.ops) })
+    return withPartLabels(previewBoard.wiring(null, circuit), defined.of)
+  }, [type, def, defined])
+  const node = { id: 'p', type, params, x: 40, y: 30 }
+  const graph = { nodes: [node], wires: [] }
+  const set = (patch, changed) => setParams((p) => nextParams(def, { params: p ?? defined.defaults(type) }, patch, changed, defined.ops))
+  const ctx = { view: NONE, board: { circuit: graph, parts }, path: [], readOnly: false }
+  const value = () => <span className="pp-value">{tr('值', 'value')}</span>
+  const shown = { ...defined, value }
+  const { mark } = marker(edit)
+  const face = (name, extra = {}) => <PartFace def={def} face={name} node={node} ctx={ctx} set={set} defined={shown} mark={mark} {...extra} />
+  const tile = (pick) => (d) => (d.views?.tile ? d.views.tile.map((b, k) => [b, ['views', 'tile', k]]) : [[{ show: 'value' }, null], [{ show: 'summary' }, null]]).filter(([b]) => pick(b.show === 'value'))
+  if (scene === 'card') {
+    return (
+      <div className="pp-canvas">
+        <EditableCanvas graph={graph} parts={parts} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
+      </div>
+    )
+  }
+  if (scene === 'tile') {
+    return (
+      <div className="pp-slots">
+        <SlotBoard fixed graph={graph} parts={parts} nameOf={() => L(def.name)} thumb={() => face('tile', { blocks: tile((v) => v)(def) })} tileExtra={() => face('tile', { blocks: tile((v) => !v)(def) })} onPort={() => {}} onSlot={() => {}} onNode={() => {}} />
+      </div>
+    )
+  }
+  return (
+    <div className="pp-detail">
+      <h3 {...mark(['name'])}>{L(def.name)}</h3>
+      {face('detail', { roomy: true })}
+    </div>
+  )
+}
+
+// A part the game defines (its primitives, and in some games built parts with a card of their own) has faces; any
+// other built part shows the board it runs.
+const faced = (part, game) => Boolean(game.defined?.of(part.type))
+
+export function preview(part, { game, scene, edit = null, state = [undefined, () => {}], entry = null, phone = false, progress = {} }) {
+  if (!entry && faced(part, game)) return <Face part={part} game={game} scene={scene} edit={edit} state={state} />
+  // In the parts box (`entry`), and for a built part without faces, the detail is what the game draws to try the
+  // part on: a built part's board, a bench.
+  if (scene !== 'detail' || (!entry && !part.inside)) return null
+  const shown = entry ?? game.parts?.all.find((p) => p.part === part.type) ?? { key: part.type, part: part.type }
+  const { sample, experiment, inside } = game.parts?.preview?.(shown, { progress }) ?? {}
+  if (sample || experiment || inside) return <Suspense key={shown.key} fallback={<div className="board-loading">{tr('载入中…')}</div>}>
+    {sample && <SampleCircuit example={sample} defined={game.defined} phone={phone} />}
+    {experiment && <PartExperiment spec={experiment} phone={phone} />}
+    {inside && <BuiltBoard type={shown.part} defined={game.defined} {...inside} />}
+  </Suspense>
+  return faced(part, game) ? <Face part={part} game={game} scene={scene} edit={edit} state={state} /> : null
+}
+
+/** The fields no scene draws: a faced part's rows of fields and what it computes, or a built part's sheet. */
+export function Sheet({ part, game, edit, state = [undefined, () => {}] }) {
+  if (!faced(part, game)) return <PartSheet def={part} edit={edit} />
+  const defined = game.defined
+  const def = defined.of(part.type)
+  const params = paramsOf(part.type, defined, state)
+  // What it computes, one expression an output; a part that keeps an input computes nothing.
+  const operations = typeof def.op === 'string' ? [['', def.op]] : Object.entries(def.op ?? {})
+  return (
+    <div className="pp-logic">
+      {part.inside ? <Implementations def={part} edit={edit} /> : <Ports def={part} edit={edit} />}
+      <Settings def={part} edit={edit} />
+      {operations.map(([o, text]) => <Code key={o || 'out'} path={['op', ...(o ? [o] : [])]} label={o || null} text={text} picked={edit?.picked} />)}
+      {def.keeps && <Code path={['keeps']} label="keeps" text={`${def.keeps.input} → $${def.keeps.register}`} picked={edit?.picked} />}
+      {(def.rules ?? []).map((r, k) => <Code key={`r${k}`} path={['rules', k]} label={r.on ? `on ${r.on}` : 'on *'} picked={edit?.picked} text={`${r.when ? `when ${r.when} → ` : ''}${Object.entries(r.set).map(([key, text]) => `${key} = ${text}`).join('; ')}`} />)}
+      {(def.checks ?? []).map((c, k) => <Code key={`c${k}`} path={['checks', k]} label="check" picked={edit?.picked} text={c.holds} ok={Boolean(evalSettings(c.holds, def, params, defined.ops))} />)}
+      {edit && (
+        <div className="pp-adds">
+          <button type="button" onClick={() => edit.add(['rules'])}>+ rule</button>
+          <button type="button" onClick={() => edit.add(['checks'])}>+ check</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default { preview, Sheet }

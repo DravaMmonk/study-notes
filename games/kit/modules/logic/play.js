@@ -1,5 +1,5 @@
 // Circuit tasks as editable blueprints with the cases and verdicts the screen shows.
-import { circuitPlay, definedSettings, untilFail } from '../../engine/play/circuit.js'
+import { circuitPlay, definedSettings, untilFail } from '../../../../packages/circuit/core/index.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { reportedFailure } from '../../engine/failure-text.js'
 import { failureOf } from '../../engine/test-run.js'

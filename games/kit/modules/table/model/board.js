@@ -10,7 +10,7 @@
 // wire runs from a source ('view#up', 'facts#start', a part's id) into a port: '0', '1', … of a part, 'in' of an output.
 // x, y (the desktop board) and slot (the phone's grid) are layout only and never reach the engine.
 
-import { sourceOf, splitSource } from '../../../engine/wire-source.js';
+import { sourceOf, splitSource } from '../../../../../packages/circuit/core/index.js'
 import { isCard, isGiven } from './parts.js';
 import { tr } from '../lang.js';
 

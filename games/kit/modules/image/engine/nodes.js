@@ -1,4 +1,4 @@
-import { MISSING, PartError } from '../../../engine/circuit.js'
+import { MISSING, PartError } from '../../../../../packages/circuit/core/index.js'
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
 import { boxBlur3, boxKernel, gradientMagnitude, harrisResponse, horizontalDifference, sobelX, sobelY } from './filters.js'
 import { FREQUENCY } from './parts/frequency.js'

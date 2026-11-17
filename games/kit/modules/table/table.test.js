@@ -6,8 +6,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from '../../engine/contract.js';
 import { readStarter } from '../../engine/resolver.js';
-import { print, read, readLines } from '../../circuit/text.js';
-import { workshopView } from '../../circuit/workshop-view.js';
+import { textPrint as print, read, readLines } from '../../../../packages/circuit/core/index.js'
+import { workshopView } from '../../../../packages/circuit/core/index.js'
 import { tableWorks } from './work.js';
 import { fitted, portsProblem } from './model/board.js';
 import { modelOf } from './model/run.js';

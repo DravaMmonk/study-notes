@@ -1,4 +1,4 @@
-import { readWorks } from '../../engine/course-model.js'
+import { readWorks } from '../../../../packages/circuit/core/index.js'
 // A tick-bus game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): the play order and level tree from its eras (../../course.js layout); each level's tasks
 // (../../engine/tasks.js), each read with its tests on the line its world says and what its outputs must be
@@ -11,7 +11,7 @@ import { readWorks } from '../../engine/course-model.js'
 // blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, an output with nothing wanted).
-import { preparePartsWorks } from '../../engine/board-works.js'
+import { preparePartsWorks } from '../../../../packages/circuit/core/index.js'
 import { bitsOf } from './line.js'
 import { board } from './board.js'
 import { wantOf } from './wants.js'

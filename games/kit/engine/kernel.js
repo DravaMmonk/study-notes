@@ -1,15 +1,17 @@
+import { registerCircuitConsumers } from './circuit-bridge.js'
 import { S } from './schema.js'
 import { createCapabilityRegistry, registeredOperations, registeredValueTypes, selectModuleVocabulary } from './capabilities.js'
 import image from '../modules/image/module.js'
 import logic from '../modules/logic/module.js'
 import table from '../modules/table/module.js'
-import circuit from '../modules/circuit/module.js'
+import { module as circuit } from '../../../packages/circuit/core/index.js'
 import rows from '../modules/rows/module.js'
 import tickBus from '../modules/tick-bus/module.js'
 
 export const modules = [circuit, rows, tickBus, image, logic, table]
 export const capabilities = createCapabilityRegistry()
 for (const module of modules) module.register(capabilities)
+registerCircuitConsumers()
 Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 

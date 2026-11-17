@@ -1,0 +1,85 @@
+{
+  "extends": "task",
+  "fields": {
+    "adds": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "local": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "gives": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "withholds": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "opens": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "awards": {
+      "type": "list",
+      "of": {
+        "type": "str",
+        "reference": "grant"
+      },
+      "optional": true
+    },
+    "tray": {
+      "type": "name",
+      "kind": "circuit/tray",
+      "optional": true
+    },
+    "featuredParts": {
+      "type": "list",
+      "of": {
+        "type": "ref",
+        "kind": "part",
+        "reference": "circuit/part"
+      },
+      "optional": true
+    },
+    "publishes": {
+      "type": "list",
+      "of": {
+        "type": "obj",
+        "fields": {
+          "part": {
+            "type": "ref",
+            "kind": "part",
+            "reference": "circuit/part"
+          },
+          "variant": {
+            "type": "str",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          }
+        }
+      },
+      "optional": true
+    }
+  }
+}

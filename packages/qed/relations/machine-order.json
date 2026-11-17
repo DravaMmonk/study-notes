@@ -39,7 +39,7 @@
     "replay",
     "metis"
   ],
-  "of": "part",
+  "of": "circuit/part",
   "edges": [
     {
       "from": "machine-rule-building",

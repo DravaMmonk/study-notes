@@ -7,7 +7,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readStarter, runtimeOf } from './resolver.js'
-import { audit } from '../course.js'
+import { audit } from '../../../packages/circuit/core/index.js'
 import { checkContent } from './vocabulary.js'
 import { moduleProblems, gameProblems, specProblems, validateProblems } from './contract.js'
 import { closeGames, gameOf } from './games.mjs'
@@ -15,7 +15,7 @@ import { modules, capabilities } from './kernel.js'
 
 const DOMAINS = resolve(import.meta.dirname, '../modules')
 const names = readdirSync(DOMAINS).filter((name) => existsSync(resolve(DOMAINS, name, 'module.js')))
-const load = async (name) => (await import(`../modules/${name}/runtime.js`)).default
+const load = async (name) => name === 'circuit' ? (await import('../../../packages/circuit/core/index.js')).runtime : (await import(`../modules/${name}/runtime.js`)).default
 
 after(() => closeGames())
 

@@ -7,7 +7,7 @@ import { L as text } from '../../../../shell/i18n.js'
 import { tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
 import { reduced } from '../../../../shell/useMedia.js'
-import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { buzz, useLater, useVerdict } from '../../../../../../packages/circuit/view/index.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 

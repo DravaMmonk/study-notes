@@ -2,7 +2,7 @@ import { tagName } from '../tag-identity.js'
 // Where a game's content names a level: every field its domain's schema types as a level (schema.js S.level, the
 // chapters and typed object members included), every <level-ref> link inside a text, and the audit findings game.json leaves open
 // ('part@level').
-import { PARTS_FILE } from '../parts/schema.js'
+import { PARTS_FILE } from '../../../../packages/circuit/core/index.js'
 import { S, find } from '../schema.js'
 import { ENTRY } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
@@ -27,11 +27,11 @@ function objectReferenceSchema(ws, kind, value, schema) {
   const local = (id) => id?.replace(`#${ws.packageId}/`, '').replace(`${ws.packageId}/`, '').replace(/^#/, '')
   const endpoints = [...(value.edges ?? []).flatMap(({ from, to }) => [from, to]), ...(value.sequence ?? [])]
   const first = endpoints.find((id) => id.startsWith('#')) ?? endpoints[0]
-  const of = value.of ?? (first?.startsWith('#') ? [...ws.tags].filter(([key]) => tagName(key) === local(first)).map(([, tag]) => tag.kind).filter(type => !value.member || type === value.member)[0] : ws.levels.has(local(first)) ? 'level' : 'part')
-  const reference = (type) => type === 'level' ? S.level() : type === 'part' ? S.ref('part') : S.str()
+  const of = value.of ?? (first?.startsWith('#') ? [...ws.tags].filter(([key]) => tagName(key) === local(first)).map(([, tag]) => tag.kind).filter(type => !value.member || type === value.member)[0] : ws.levels.has(local(first)) ? 'level' : 'circuit/part')
+  const reference = (type) => type === 'level' ? S.level() : type === 'circuit/part' ? S.ref('part', { reference: 'circuit/part' }) : S.str()
   if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.list(reference(value.kind)) } }
   if (kind === 'relations') {
-    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'part' : of)
+    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'circuit/part' : of)
     const edge = S.obj({ from: ref, to: ref })
     return { ...schema, fields: { ...schema.fields, edges: S.list(edge), sequence: S.list(ref) } }
   }
@@ -61,14 +61,14 @@ const placing = (type) => new RegExp(`(=\\s*)${escape(type)}(?=\\s*[[(])`, 'g')
 /** Typed item fields include references to a part's settings and individual values. */
 const itemHits = (schema, value, vocabulary) => [
   ...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary }),
-  ...find(schema, value, 'str', { vocabulary }).filter((hit) => ['part', 'grant'].includes(hit.schema.reference)),
-].filter((hit) => hit.schema.kind === 'part' || ['part', 'grant'].includes(hit.schema.reference))
+  ...find(schema, value, 'str', { vocabulary }).filter((hit) => ['circuit/part', 'grant'].includes(hit.schema.reference)),
+].filter((hit) => hit.schema.kind === 'circuit/part' || ['circuit/part', 'grant'].includes(hit.schema.reference))
 
 const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].some((base) => value === base)
 
 /**
  * Every place naming part `type` (parts/<name>.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
- * a field (or a map's key) its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board
+ * a field (or a map's key) its domain's schema types as a part (S.ref('part', { reference: 'circuit/part' })), a <part-ref> link in a text, a board
  * placing it, an audit finding game.json leaves open ('part@level').
  */
 export function partRefs(ws, vocabulary, type) {

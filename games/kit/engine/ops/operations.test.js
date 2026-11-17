@@ -15,8 +15,9 @@ import { OPERATIONS } from './operations.js'
 import { openGame as openWorkspace, openPackage } from './workspace.js'
 import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
-import { withParts } from '../parts/define.js'
+import { withParts } from '../../../../packages/circuit/core/index.js'
 import { taskLevel } from '../tasks.js'
+
 import { textKey } from '../i18n.js'
 import { writeContentFixture } from './fixture.js'
 
@@ -29,7 +30,7 @@ const VOCAB = defineVocabulary({
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
   game: S.obj({ title: S.text(), chapters: S.list(ERA), ...COURSE_OPTIONS, views: S.opt(S.map(S.level())) }),
   // What a toy level says once is its whole puzzle; its one task is only its id.
-  level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
+  level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
 })
 // The toy's course: the main path in order, every level requiring the one before.
 const DOMAIN = {
@@ -410,8 +411,8 @@ const PVOCAB = defineVocabulary({
   module: 'ptoy',
   version: 1,
   kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
-  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), chapters: S.list(ERA), ...COURSE_OPTIONS }),
-  level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part') })) }),
+  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part', { reference: 'circuit/part' })), chapters: S.list(ERA), ...COURSE_OPTIONS }),
+  level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part', { reference: 'circuit/part' }) })) }),
 })
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], op: 'add' }
 function partsToy() {
@@ -489,7 +490,7 @@ test('assembled part selectors and registry paths address layer-local source obj
   assert.ok(result.changes.some(({ file }) => file.endsWith('/parts/sum.json')))
   assert.ok(result.changes.some(({ file }) => file.endsWith('/parts/other.json')))
   assert.equal(result.content.partDefs.parts['ptoy/sum'].inputs[0].label.en, 'First input')
-  assert.ok(result.content.registries.part['ptoy/other'])
+  assert.ok(result.content.registries['circuit/part']['ptoy/other'])
 })
 
 test('package tags, relations and sections persist and reopen with full names', async () => {
@@ -539,7 +540,7 @@ test('package operations write collection tags and local items on levels and tas
   const { root } = toy()
   const ws = openPackage('toy', root, { vocabulary: VOCAB })
   const result = await runChangeset(ws, { why: 'Declare package-owned progression.', ops: [
-    { op: 'tag.put', tag: 'numbers', member: 'part', data: { values: ['a', 'b'] } },
+    { op: 'tag.put', tag: 'numbers', member: 'circuit/part', data: { values: ['a', 'b'] } },
     { op: 'level.set', level: 'a1', path: 'adds', value: ['a'] },
     { op: 'level.set', level: 'a1', path: 'local', value: ['#numbers'] },
     { op: 'level.set', level: 'a1', path: 'tasks[0].adds', value: ['b'] },
@@ -547,7 +548,7 @@ test('package operations write collection tags and local items on levels and tas
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(result.ok, true, result.problems.join('\n'))
   const reopened = openPackage('toy', root, { vocabulary: VOCAB }).content()
-  assert.deepEqual(reopened.tags['part:toy/numbers'].values, ['a', 'b'])
+  assert.deepEqual(reopened.tags['circuit/part:toy/numbers'].values, ['a', 'b'])
   assert.deepEqual(reopened.levels.find((level) => level.id === 'toy/a1').local, ['a', 'b'])
   assert.deepEqual(reopened.levels.find((level) => level.id === 'toy/a1').tasks[0].local, ['b'])
   const game = openWorkspace('toy', root, { vocabulary: VOCAB })

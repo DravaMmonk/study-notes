@@ -3,8 +3,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Tape, backward } from './tape.js'
-import { defineParts } from './parts/define.js'
-import { packed, runBoard, sink, source } from './boards.js'
+import { defineParts } from '../../../packages/circuit/core/index.js'
+import { packed, runBoard, sink, source } from '../../../packages/circuit/core/index.js'
 
 const OPS = {
   mul: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => a * b },

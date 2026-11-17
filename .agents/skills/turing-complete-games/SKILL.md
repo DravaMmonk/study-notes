@@ -25,7 +25,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 - After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  the six existing `kit/modules/` implementations remain only until their scheduled migration.
+  the five remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
@@ -37,7 +37,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   to loading, collection expansion or an object-specific checker. Keep `{ rule: "exists", at, layer, kind, target,
   member?, reason, says }` intact for consumers; manifest identities now provide the public surface in step 4.
 - There is one capability vocabulary (`kit/engine/kernel.js`) and one platform version (`kit/platform.json`),
-  and one course model (`engine/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
+  and one course model (`packages/circuit/core/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
   typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
 - Content is data. `packages/<package>/package.json` declares its semantic `version`, a `kernel` range, and a direct `uses` range map.
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
@@ -69,10 +69,10 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   applies after passing. `gives`/`withholds` adjust only this task; `local` stays with its introducing level/task.
 - Symbols in `symbols/<name>.json` have `mark`, `name`, `desc`, `icon` and optional `stages`, with
   `@symbol.<name>.*` copy keys and `tags/symbol/` membership. Formula connectives use symbols.
-  `engine/grants.js` centralizes registered grantable types and name/stage resolution. Circuit and logic own
-  their `part` and `symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
+  `packages/circuit/core/grants.js` centralizes registered grantable types and name/stage resolution. Circuit and logic own
+  their `circuit/part` and `symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
   names across registered types, rejecting ambiguous names and unregistered types. `course.state(at, flags)`
-  returns separate `part` and `symbol` maps. Stages apply to every registered type, while workshops and
+  returns separate `circuit/part` and `symbol` maps. Stages apply to every registered type, while workshops and
   `replaces` remain part-only. Studio lists symbols separately and shares tray and stage editing.
 - Built parts use `inside` variants and reference works; tasks `publish` through the `publishes` list and
   explicitly award stages. They normally run the player's passing work, using a reference if unavailable;
@@ -172,14 +172,14 @@ Before calling a change done (`games/DESIGN.md` §7.0):
    only when shared UI is affected. Pure model changes need browser review only if their displayed behaviour changes.
    To watch a run, write the reference solution into the save, then step and run.
 4. New package plays register core `agent`, `check` and paired view `play` hooks (handbook §6.3.1).
-   Existing unmigrated modules give their `play` hook in `runtime.js` (circuit play through `kit/engine/play/circuit.js`): the
+   Existing unmigrated modules give their `play` hook in `runtime.js` (circuit play through `packages/circuit/core/play.js`): the
    level in words and an attempt judged, which `run_tests` uses; its play tests run in `npm test`. Blind play is
    paused (`games/DESIGN.md` §6.6).
 5. Report what was checked and what was not.
 
 ## Interaction
 
-The shared editors are in `games/kit/circuit/`:
+The shared editors are in `packages/circuit/view/board/`:
 
 - Desktop: free canvas of cards, wires dragged from an output port (dropping on a card wires its first free
   input); clicking a wired input takes its wire off and leaves it in hand on its output, to click onto another
@@ -189,8 +189,23 @@ The shared editors are in `games/kit/circuit/`:
 - Both edit the same graph; illegal wires are refused at connection time with a reason
   (`parts.refuse`); wire colour follows its source.
 
-- Frames (`kit/circuit/frames.js`, first used by 《证明完毕》's assumption box) are shared: a module makes a frame
+- Frames (`packages/circuit/core/board/frames.js`, first used by 《证明完毕》's assumption box) are shared: a module makes a frame
   part with `framePart(own, regions)` and evaluates each region's value by `key`; the editors, scoping and save
   checks (`regionsFit`) come from the kit. Dragging a card over a region it can go into lights that region up.
 
 Keep a change to either editor working for every game that uses the kit.
+
+## Circuit extraction checkpoint
+
+- `packages/circuit/core/index.js` and `view/index.jsx` are the public circuit entries. Core owns grants,
+  stages, trays, evaluation, text blueprints, workshop works and circuit progress. View owns the editors,
+  circuit screens, part book, readouts, training controls and styles. Use canonical `circuit/part` and
+  `circuit/tray` identities and `tags/circuit/part/`; file folders and `@part.*` / `@tray.*` keys stay stable.
+- Node command/test processes preload `engine/package-imports.mjs` before linking package dependencies.
+  The direct `check.js` entry establishes that import environment itself.
+- The remaining native modules use circuit public exports. `engine/circuit-bridge.js` temporarily registers
+  the logic symbol provider. Move that call into the logic package at step 9.
+- Native capability/reader dispatch and content/authoring projections still need the remaining step-5
+  boundary cleanup. Do not describe this checkpoint as zero circuit knowledge in the kernel.
+- Studio's dedicated editors still live in Studio until step 10. Type names, grouping keys and paths must
+  stay canonical while preserving its current editing workflow.

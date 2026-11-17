@@ -1,4 +1,4 @@
-import { defineParts } from '../../../engine/parts/define.js';
+import { defineParts } from '../../../../../packages/circuit/core/index.js'
 import { qualifyItems } from '../../../engine/capabilities.js';
 // The parts of a table board (games/DESIGN.md 3): the primitives every course starts from, the input cards the level
 // gives, and the parts the player builds (registered by course.js, each running the board it was built from).

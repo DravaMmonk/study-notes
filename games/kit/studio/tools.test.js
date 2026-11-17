@@ -1,3 +1,4 @@
+import { installCircuitFixture, lockFixture } from '../engine/ops/fixture.js'
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
 // palette's index and ranking (palette.js), the check's lines as a worklist (worklist.js), the copy
 // table's rows (copy.js); and on every domain's starter game (kit/modules/<d>/starter, copied to a temp folder), that
@@ -24,7 +25,7 @@ const VOCAB = defineVocabulary({
   kinds: { part: { add: { about: 'adds' }, sub: { about: 'subtracts' } } },
   game: S.obj({ title: S.text(), eras: S.list(S.any()) }),
   level: S.by('kind', {
-    board: S.obj({ kind: S.oneOf(['board', 'hand']), title: S.text(), note: S.opt(S.text()), n: S.opt(S.int()), adds: S.opt(S.list(S.ref('part'))), tests: S.list(S.int(), { section: 'tests' }), hidden: S.opt(S.list(S.int(), { section: 'tests' })), solution: S.board() }),
+    board: S.obj({ kind: S.oneOf(['board', 'hand']), title: S.text(), note: S.opt(S.text()), n: S.opt(S.int()), adds: S.opt(S.list(S.ref('part', { reference: 'circuit/part' }))), tests: S.list(S.int(), { section: 'tests' }), hidden: S.opt(S.list(S.int(), { section: 'tests' })), solution: S.board() }),
     hand: S.obj({ kind: S.oneOf(['board', 'hand']), title: S.text(), moves: S.list(S.str()) }),
   }),
 })
@@ -57,22 +58,25 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
 const DOMAINS = resolve(import.meta.dirname, '../templates')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readStarter(resolve(DOMAINS, d))
-function openStarter(d) {
+function openStarter(template) {
+  const d = `sample-${template}`
   const root = mkdtempSync(join(tmpdir(), 'studio-tools-'))
   const dir = join(root, 'games', d)
   const pkg = join(root, 'packages', d)
   mkdirSync(dir, { recursive: true })
-  const source = resolve(DOMAINS, d, 'starter')
+  const source = resolve(DOMAINS, template, 'starter')
   cpSync(source, pkg, { recursive: true, filter: (file) => !['game.json', 'course.json', 'i18n'].map((name) => resolve(source, name)).includes(file) })
   cpSync(resolve(source, 'course.json'), join(dir, 'course.json'))
   cpSync(resolve(source, 'i18n/course'), resolve(dir, 'i18n'), { recursive: true })
   cpSync(resolve(source, 'i18n/package'), resolve(pkg, 'i18n'), { recursive: true })
   const game = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
-  writeFileSync(join(dir, 'game.json'), JSON.stringify({ kernel: '^1.0.0', packages: { [d]: '^1.0.0' }, ...game }))
+  writeFileSync(join(dir, 'game.json'), JSON.stringify({ kernel: '^2.0.0', packages: { [d]: '^1.0.0' }, ...game }))
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(pkg, 'levels')).length} }]\n`)
   for (const folder of [dir, pkg]) {
     const rename = (folder) => { for (const entry of readdirSync(folder, { withFileTypes: true })) { const file = join(folder, entry.name); if (entry.isDirectory()) rename(file); else if (file.endsWith('.json')) writeFileSync(file, readFileSync(file, 'utf8').replaceAll('starter/', `${d}/`)) } }; rename(folder)
   }
+  installCircuitFixture(root)
+  lockFixture(root)
   return openPackage(d, root)
 }
 
@@ -90,7 +94,7 @@ test('on every starter: a bulk edit of its package levels runs as a changeset, a
     const grouped = [{ op: 'tag.put', tag: 'first', member: 'level', data: { title: { en: 'First' }, values: ids } }]
     const r = await runChangeset(ws, { ops: [...ops, ...grouped] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
-    assert.deepEqual(r.content.tags[`level:${d}/first`].values, ids, d)
+    assert.deepEqual(r.content.tags[`level:${ws.id}/first`].values, ids, d)
     assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === '同一个标题'), d)
   }
 })

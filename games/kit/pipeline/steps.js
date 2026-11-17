@@ -25,7 +25,7 @@ import { lintPedagogy } from './pedagogy.js'
 import { reviewTerminology } from './terminology.js'
 import { searchable } from '../engine/ops/search.js'
 import { checkContent } from '../engine/vocabulary.js'
-import { withParts } from '../engine/parts/define.js'
+import { withParts } from '../../../packages/circuit/core/index.js'
 import { isLanguageCode } from '../engine/i18n.js'
 
 const KIT_DIR = resolve(import.meta.dirname, '..')

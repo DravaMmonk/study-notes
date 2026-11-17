@@ -9,7 +9,7 @@ import { ROBOTS } from '../../model/robots.js'
 import { T, tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
 import { reduced } from '../../../../shell/useMedia.js'
-import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { buzz, useLater, useVerdict } from '../../../../../../packages/circuit/view/index.jsx'
 
 const LABEL = { gold: T('宝藏', 'treasure'), trap: T('陷阱', 'trap') }
 

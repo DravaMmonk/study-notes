@@ -1,0 +1,363 @@
+import { grantIndex } from "./grants.js"
+// A circuit game's course read from its content (games/DESIGN.md 6.3): its tasks with their tests and boards, the play
+// order and level tree from its eras, and its built parts (parts.json, ./parts.js builtParts), each running inside
+// their package reference board or the passed work supplied by a publishing task, and
+// game.json's `replaces` says which built parts supersede which. A domain says how its own fields and tests read:
+//
+//   circuitWorks(content, { board, parts, read?, test?, kinds?, holds?, unwanted? }) → { LEVELS, played, builtBy,
+//     CHAPTERS, course, partOf, BUILT, parts, types, blueprints, wrong, offerIn, introductions, carried, opening,
+//     syncOwn }
+//       board  its circuitBoard (./board-cards.js)
+//       parts  { type: part } the game's primitives; read(task, say) → the task's own fields read (what it wants…),
+//              test(test, task, say) → each of its tests and hidden tests read (its values…), each after checking what
+//              its schema cannot say; holds: a built part keeps its own registers; a task that says what its board's
+//              right must give (`want`) names each port there once, but those unwanted(task) names
+//       kinds  { kind: read(task, say) → the task read } the tasks that are no board (a grid to fill in, a choice), by
+//              their `kind`: the domain reads them and plays them on screens of its own; every other task is a board
+//       parts { type: part } the built parts, as parts.json names and describes them
+//     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
+//     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
+//   partsWorks(content, ops, options) → circuitWorks's, with { defs, defaultsOf }: the course of a domain whose games
+//     define their parts as data (parts.json) over its engine resources `ops`, circuitWorks's options beside
+//   definedWorks(content, { board, ops, read? }) → partsWorks's: the course of a domain
+//     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
+//     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
+//     a value as content writes it made a value on the wires
+//
+// The boards the player passed the building levels with live in the course read (syncOwn), one per content: two games
+// of a domain in one process never share them.
+import { builtParts, partReferences, publications } from "./parts.js"
+import { packed } from "./boards.js"
+import { defineParts } from "./parts/define.js"
+import { formed } from './forms.js'
+
+
+import { taskLevels } from 'kernel'
+
+
+import { fitsCircuit, previousCircuitTask } from "./board-view.js"
+import { keptBoards } from "./kept-boards.js"
+import { workView } from "./board/workshop-view.js"
+import { readWorks, publicationEvents } from "./course-model.js"
+import { eraLevels } from 'kernel'
+
+import { holds as holding, offer } from './course.js'
+import { courseLayout } from 'kernel'
+
+
+import { T as t } from 'kernel'
+
+
+import { inheritedBoard } from './progress.js'
+
+
+
+export const circuitWorks = (content, options) => readWorks(content, (scope) => prepareCircuitWorks(scope, options))
+
+export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
+  const { eras, primitives, levels } = content
+  const wrong = []
+  const say = (where, text) => wrong.push(`${where}: ${text}`)
+  const plan = courseLayout(content)
+  const given = new Map(levels.map((l) => [l.id, l]))
+  const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
+  // The boards the player passed the building levels with (the shell's progress.built), by task id: this content's.
+  const tasksByWork = new Map()
+  const own = keptBoards((key, board) => fits(board, tasksByWork.get(key), (task) => workView(board, forTask(task))))
+  const BUILT = {}
+  const revisions = []
+  const readBuilders = new Map()
+  const readForms = new Map()
+  const combine = (variants) => {
+    const forms = [...variants].map(([key, { part }]) => ({ ...part, key }))
+    const first = forms[0]
+    const pick = (params) => forms.find(f => f.key === params?.form) ?? first
+    const option = { control: 'select', key: 'form', label: t('形态'), options: forms.map(f => ({ value: f.key, label: f.key })) }
+    return {
+      ...first, ...formed(forms),
+      opens: (params) => pick(params).opens(params),
+      outputs: (node) => pick(node.params).outputs?.(node),
+      reads: forms.some(form => form.reads) ? (node, key, ctx) => pick(node.params).reads?.(node, key, ctx) : undefined,
+      fields: [option, ...first.fields ?? []],
+      defaults: { ...first.defaults, form: first.key },
+      settings: { ...first.settings, form: forms.map(f => f.key) },
+    }
+  }
+  const readBuilder = (type, params) => {
+    const variants = readForms.get(type)
+    return (variants?.get(params?.form) ?? variants?.values().next().value)?.task ?? readBuilders.get(type) ?? null
+  }
+  const primitive = (type) => board.isFixed(type) ? board.FIXED_PARTS[type] : Object.hasOwn(parts, type) ? parts[type] : undefined
+  const partOf = (type) => primitive(type) ?? (Object.hasOwn(BUILT, type) ? BUILT[type] : undefined)
+  const blueprints = []
+  const played = new Map()
+  const builtDefinitions = builtParts(content.partDefs)
+  const implementations = publications(levels, builtDefinitions)
+  const published = new Map()
+  for (const p of implementations) if (p.task && plan.place.has(p.level)) {
+    published.set(p.task, [...(published.get(p.task) ?? []), p])
+  }
+  const circuit = { BUILT, partOf, types: () => [...Object.keys(parts), ...Object.keys(BUILT)].filter((t) => !board.isFixed(t)), builtBy: readBuilder }
+
+  const placeOf = (id, task) => ({ id, era: eraOf.get(id)?.id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [] })
+  const readTask = (id, task, where) => {
+    if (kinds[task.kind]) return { ...kinds[task.kind](task, (text) => say(where, text)), ...placeOf(id, task) }
+    const names = [...board.portsIn(task), ...board.portsOut(task)].map((p) => p.name)
+    for (const name of new Set(names)) if (names.indexOf(name) !== names.lastIndexOf(name)) say(where, `two of its cards are called ${name}`)
+    if (!board.portsOut(task).length) say(where, 'it has nothing on the right: nothing is checked')
+    if (task.want) {
+      const outs = board.portsOut(task).map((p) => p.name)
+      for (const name of outs) if (!task.want[name] && !unwanted(task).includes(name)) say(where, `nothing is wanted of ${name}`)
+      for (const name of Object.keys(task.want)) if (!outs.includes(name)) say(where, `wants ${name}, which is nothing on the board’s right`)
+    }
+    const sayHere = (text) => say(where, text)
+    const read = readOwn(task, sayHere)
+    const test = (t) => readTest(t, read, sayHere)
+    const out = { ...read, ...placeOf(id, task), tests: task.tests.map(test), hidden: (task.hidden ?? []).map(test) }
+    const boardOf = (lines, what, naive = false) => {
+      try {
+        const b = board.fromText(lines, out, circuit)
+        blueprints.push({ level: id, task: task.task, key: task.taskId, board: b, write: (x) => board.toText(x, out, forTask(out)), read: (text) => board.fromText(text, out, forTask(out)), ...(naive ? { naive } : {}) })
+        return b
+      } catch (e) {
+        say(where, `${what}: ${e.en ?? String(e)}`)
+        return { nodes: [], wires: [] }
+      }
+    }
+    out.solution = boardOf(task.solution, 'the answer')
+    if (task.starter) out.starter = boardOf(task.starter, 'the starter')
+    if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
+    for (const field of ['withholds', 'gives', 'opens']) for (const item of task[field] ?? []) {
+      const problem = itemProblem(item)
+      if (problem) say(where, `${field} names ${item}: ${problem}`)
+    }
+    for (const item of task.withholds ?? []) if (out.solution.nodes.some((n) => n.type === item)) say(where, `its answer uses ${item}, which it withholds`)
+    return out
+  }
+  // Why an item (../course.js: a part, one of its settings, one value of a setting) is none of this game's, or ''.
+  const itemProblem = (item) => {
+    return grantIndex({ ...content.registries, 'circuit/part': { ...parts, ...builtDefinitions, ...content.partDefs?.parts } }).has(item) ? '' : `${item} is no grantable object or stage`
+  }
+  const isBoard = (task) => !kinds[task.kind]
+
+  const readArtifacts = []
+  const register = ({ type, variant, form, reference }, task) => {
+    const context = task ?? { ...reference, id: null, taskId: JSON.stringify([type, variant]) }
+    const artifact = { ...context, ...reference }
+    let referenceBoard
+    const read = () => {
+      if (!referenceBoard) {
+        try { referenceBoard = board.fromText(reference.solution, artifact, circuit) }
+        catch (error) {
+          say(`parts.json ${type}.${variant}`, error.en ?? String(error))
+          referenceBoard = { nodes: [], wires: [] }
+        }
+      }
+      return referenceBoard
+    }
+    const running = () => own.board(context.taskId) ?? read()
+    const part = packed({
+      circuit: running,
+      inputs: board.portsIn(artifact).map((p) => p.name),
+      outputs: board.portsOut(artifact).map((p) => p.name),
+      parts: partOf,
+      ...(holds ? { holds: true } : {}),
+      opens: (params) => ({ circuit: part.board(params), level: context }),
+    })
+    readArtifacts.push(read)
+    revisions.push({ type, variant, form, task: context, part })
+    if (form) {
+      if (!readForms.has(type)) readForms.set(type, new Map())
+      const variants = readForms.get(type)
+      variants.set(form, { task: context, part })
+      BUILT[type] = combine(variants)
+    } else {
+      BUILT[type] = part
+      readBuilders.set(type, context)
+    }
+  }
+  // References without a local publisher can be used as fixed implementations.
+  for (const entry of implementations) if (!published.has(entry.task)) register(entry, null)
+
+  const LEVELS = plan.order.filter((id) => {
+    if (!given.has(id)) say(id, 'an era names a level that does not exist')
+    return given.has(id)
+  }).map((id) => {
+    const level = given.get(id)
+    // A task holds what the level adds and what its tasks up to it add; it brings in (`fresh`) its own, the first the level's too.
+    const tasks = taskLevels(level, content.taskPositions).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0, k + 1).flatMap((T) => T.adds ?? [])])], opened: [...new Set(level.tasks.slice(0, k + 1).flatMap((T) => T.opens ?? []))], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
+    // The parts its tasks publish, each at the task it refers to (a later task of the level then holds it).
+    const builds = []
+    const read = tasks.map((task, k) => {
+      const where = tasks.length > 1 ? `${id} task ${task.taskId}` : id
+      const last = readTask(id, task, where)
+      const publishes = published.get(task.taskId) ?? []
+      if (publishes.length && !isBoard(last)) say(where, `parts.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
+      if (!publishes.length || !isBoard(last)) return last
+      for (const entry of publishes) {
+        register(entry, last)
+        builds.push({ type: entry.type, form: entry.form, at: task.task })
+      }
+      return last
+    })
+    played.set(id, read)
+    return { ...level, id, era: eraOf.get(id)?.id, requires: plan.requires.get(id) ?? [], adds: tasks.at(-1).adds, opened: tasks.at(-1).opened, builds, unlocks: [...new Set(builds.map((b) => b.type))] }
+  })
+  for (const read of readArtifacts) read()
+  const artifactOrder = new Map(implementations.map(({ type, variant }, index) => [JSON.stringify([type, variant]), index]))
+  const orderOf = ({ type, variant }) => artifactOrder.get(JSON.stringify([type, variant]))
+  revisions.sort((a, b) => orderOf(a) - orderOf(b))
+  for (const { task } of revisions) tasksByWork.set(task.taskId, task)
+  const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
+  const byId = new Map(LEVELS.map((L) => [L.id, L]))
+  // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
+  const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.find(task => task.task === level.task) ?? null)
+  const solutions = (level) => (taskOf(level) ? [taskOf(level)] : played.get(level.id)).filter(isBoard).map((T) => T.solution)
+  const course = yield {
+    levels: LEVELS, plan,
+    publications: publicationEvents(levels, implementations, content.taskPositions),
+    boards: solutions,
+    needed: (level) => {
+      const boards = solutions(level)
+      if (!boards.length) return null
+      return [...new Set(boards.flatMap((b) => b.nodes).map((n) => n.type)
+        .filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))]
+    },
+    carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
+    references: partReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
+  }
+  const { references } = course
+  wrong.push(...references.problems())
+  const scopes = new Map()
+  const formsFor = (type, task) => {
+    const forms = task ? holding(course, task, new Set()).forms(type) : references.forms(type)
+    return forms.length ? forms : references.forms(type).slice(0, 1)
+  }
+  const inside = (task, type, form) => task
+    ? holding(course, task, new Set()).inside(type, form)
+    : references.resolve(type, form)
+  const builderFor = (type, params, task) => {
+    const forms = formsFor(type, task)
+    const source = inside(task, type, forms.includes(params?.form) ? params.form : forms[0] ?? null)?.task
+    return source?.id ? source : null
+  }
+  const refresh = (target, task) => {
+    for (const type of Object.keys(BUILT)) {
+      const forms = formsFor(type, task)
+      target[type] = forms.length
+        ? combine(new Map(forms.map(form => [form, inside(task, type, form)])))
+        : inside(task, type, null).part
+    }
+  }
+  circuit.builtBy = builderFor
+  const forTask = (task) => {
+    if (!scopes.has(task.taskId)) {
+      const built = {}
+      refresh(built, task)
+      // A part the task withholds is no part on its boards: written in their text, it is refused like an unknown one.
+      const withheld = new Set(course.withholds({ id: task.id, task: task.task }))
+      const partOf = (type) => {
+        if (!board.isFixed(type) && withheld.has(type)) return undefined
+        return primitive(type) ?? (Object.hasOwn(built, type) ? built[type] : undefined)
+      }
+      scopes.set(task.taskId, { task, view: { ...result, BUILT: built, partOf, builtBy: (type, params) => builderFor(type, params, task) } })
+    }
+    return scopes.get(task.taskId).view
+  }
+  const fits = (saved, task, viewOf = forTask) => Boolean(task && fitsCircuit(saved, task, viewOf(task)))
+  const passedBoard = (task, built, viewOf) => {
+    const saved = built[task?.taskId]
+    return fits(saved, task, viewOf) ? saved : task?.solution
+  }
+  const activeViews = (project) => project ? (task) => project(forTask(task)) : forTask
+  const result = {
+    LEVELS,
+    played,
+    builtBy: circuit.builtBy,
+    forTask,
+    CHAPTERS,
+    course,
+    partOf,
+    BUILT,
+    parts: builtDefinitions,
+    types: circuit.types,
+    board,
+    blueprints,
+    wrong,
+    // What a task's tray holds and shows: by its own parts and its own answer (../course.js usable, offer).
+    offerIn: (task, flags) => offer(course, { id: task.id, task: task.task }, new Set(flags)),
+    // Whether a task holds an item, of any grain (../course.js holds): has(part), has(part, key), has(part, key, value).
+    holdsIn: (task, flags) => holding(course, { id: task.id, task: task.task }, new Set(flags)),
+    // The tasks of level `id` that bring in part `type`.
+    introductions: (type, id) => (played.get(id) ?? []).filter((T) => T.fresh.includes(type)).map((T) => T.taskId),
+    // The levels a task carries on from: passing them keeps the board (progress.built).
+    carried: new Set(LEVELS.flatMap((L) => played.get(L.id).map((T) => T.carry)).filter(Boolean)),
+    // The board a task opens on: the board of the level it carries on from (the player's, else its last task's
+    // reference), or its fixed cards alone.
+    opening: (task, progress, project) => {
+      const viewOf = activeViews(project)
+      const from = previousCircuitTask(task, (id) => played.get(id))
+      const kept = progress && inheritedBoard(progress, from)
+      const b = fits(kept, from, viewOf) ? kept : passedBoard(from, progress?.built ?? {}, viewOf)
+      if (!b) return board.startBoard(task)
+      const view = viewOf(task)
+      const carried = board.carriedOnto(task, b, view.board.wiring(task, view))
+      const ids = new Set(carried.nodes.map((n) => n.id))
+      const added = task.starter?.nodes.filter((n) => !board.isFixed(n.type) && !ids.has(n.id)) ?? []
+      const addedIds = new Set(added.map((n) => n.id))
+      const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
+      const opening = { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
+      return fits(opening, task, viewOf) ? opening : board.startBoard(task)
+    },
+    // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
+    stageChain: (task, built = {}, project) => {
+      const viewOf = activeViews(project)
+      const chain = []
+      const seen = new Set([task.taskId])
+      const visit = (current) => {
+        const previous = previousCircuitTask(current, (id) => played.get(id))
+        if (!previous || seen.has(previous.taskId)) return
+        seen.add(previous.taskId)
+        visit(previous)
+        const b = passedBoard(previous, built, viewOf)
+        if (b?.nodes) chain.push({ id: previous.taskId, label: previous.stage ?? byId.get(previous.id).title, board: b })
+      }
+      visit(task)
+      return chain
+    },
+    views: content.views ?? null,
+    // The shell keeps boards by task (../shell/progress.js), including the task each form publishes.
+    syncOwn: (built) => {
+      own.sync(built, tasksByWork.keys())
+      refresh(BUILT)
+      for (const { task, view } of scopes.values()) refresh(view.BUILT, task)
+    },
+  }
+  return result
+}
+
+/**
+ * The course of a domain whose games define their own parts (content.partDefs: parts.json) over its engine resources,
+ * its tests giving a value on every input and expecting one of every output.
+ */
+export function* prepareDefinedWorks(content, { board, ops, parts, read: readValue = (v) => v }) {
+  const test = (t, task, say) => {
+    for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
+    for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
+    const values = (given) => Object.fromEntries(Object.entries(given).map(([name, v]) => [name, readValue(v, name, say)]))
+    return { ...t, inputs: values(t.inputs), expect: values(t.expect) }
+  }
+  return yield* preparePartsWorks(content, ops, { board, parts, test })
+}
+
+/**
+ * The course of a domain whose games define their parts (content.partDefs: parts.json) over its engine resources `ops`
+ * (code parts `parts` beside them): circuitWorks's, its parts those, with { defs, defaultsOf }.
+ */
+export function* preparePartsWorks(content, ops, { parts, ...options }) {
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops, parts)
+  return { ...(yield* prepareCircuitWorks(content, { ...options, parts: PARTS })), defs, defaultsOf }
+}
+
+export const definedWorks = (content, options) => readWorks(content, (scope) => prepareDefinedWorks(scope, options))
+export const partsWorks = (content, ops, options) => readWorks(content, (scope) => preparePartsWorks(scope, ops, options))

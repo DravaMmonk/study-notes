@@ -10,7 +10,7 @@
 // link, pack, policy, breach) are not covered: each is a screen of its own the player works by tapping cells.
 //
 // Text here is in the shell's language (lang.js tr), which a blind session chooses before the game loads.
-import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
+import { circuitPlay, untilFail } from '../../../../packages/circuit/core/index.js'
 import { WORLDS } from './model/worlds.js'
 import { missingRobotOutput, robotHint, robotReport, robotTestName, tutorialFailure } from './model/verdict.js'
 import { guideAt } from './items/conditions.js'

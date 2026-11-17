@@ -1,4 +1,4 @@
-import { holds } from '../../../course.js'
+import { holds } from '../../../../../packages/circuit/core/index.js'
 import { blank, fitted, picksOf } from '../model/board.js'
 import { CARDS, isGiven } from '../model/parts.js'
 import { WORLDS } from '../model/worlds.js'

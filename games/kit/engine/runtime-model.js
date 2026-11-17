@@ -1,6 +1,6 @@
 // Runtime selection follows declared task capabilities, never the package's historical domain field.
 import { courseLayout } from './course-dependencies.js'
-import { readWorkSet } from './course-model.js'
+import { readWorkSet } from '../../../packages/circuit/core/index.js'
 
 const namedOwner = (value) => {
   if (typeof value === 'string') return ownerOf(value)

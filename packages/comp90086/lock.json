@@ -2,8 +2,12 @@
   "target": "comp90086",
   "dependencies": {
     "kernel": {
+      "version": "2.0.0",
+      "hash": "68d73627ea8db4ca28349ef8d734cbd1e0a987ae9711f46b680181f17997d305"
+    },
+    "circuit": {
       "version": "1.0.0",
-      "hash": "6faf2676431292e18311bb041d2e7d1f2ecbe6c9e60ad25fe8671a873b7a1d7c"
+      "hash": "05b43c733ba02b2565e0b4dff378bf98efd5f75923a10ce36cf7c0a256ed481f"
     }
   }
 }

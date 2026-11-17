@@ -11,13 +11,14 @@ import { contentKindSchemas } from '../content-kinds.js'
 // levels made one, or one split) by stable id. No operation looks after players' saves: while the games are in
 // development a save made on other puzzles is not read (../stamp.js).
 import { S, shapeAt } from '../schema.js'
-import { parse } from '../../circuit/text.js'
+import { textParse as parse } from '../../../../packages/circuit/core/index.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { assertStableIds, mergePatch, setAt, unsetAt } from './identity.js'
 import { levelRefs, partRefs } from './refs.js'
 import { ENTRY } from '../vocabulary.js'
-import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
-import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
+import { NAME as PART_NAME, PARTS_FILE } from '../../../../packages/circuit/core/index.js'
+import { TASK_ID, findTask, newTaskId } from '../tasks.js'
+import { ITEM_REFERENCE } from '../../../../packages/circuit/core/index.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
 import { contentFileFor } from '../content.js'
@@ -277,7 +278,7 @@ export const OPERATIONS = {
     apply(ws, { level, entry, symbol, tag, member, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
       if ([level, entry, symbol, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, symbol, tag, tray, section, or in: game or parts')
       if (where === 'parts' && ws.partDefs === undefined) fail('the content has no parts')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), vocabulary.objectKinds?.['circuit/tray']?.schema] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
       if (shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
@@ -411,7 +412,7 @@ export const OPERATIONS = {
 
 /** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
 function packageText(ws, { level, entry, symbol, tag, member, tray, section, in: where }, keys, vocabulary) {
-  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), vocabulary.objectKinds?.['circuit/tray']?.schema] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
   if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
   if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
   const text = getAt(value, keys)
@@ -469,7 +470,7 @@ for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation'
   Object.assign(OPERATIONS, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), values: S.opt(OBJECT_SCHEMAS.tags.fields.values), replace: S.opt(S.bool()), remove: S.opt(OBJECT_SCHEMAS.tags.fields.values) }) : OBJECT_SCHEMAS[plural]) }),
+      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), values: S.opt(OBJECT_SCHEMAS.tags.fields.values), replace: S.opt(S.bool()), remove: S.opt(OBJECT_SCHEMAS.tags.fields.values) }) : OBJECT_SCHEMAS[plural] ?? S.any()) }),
       apply(ws, args) {
         const name = target(ws, args[kind], args.member), old = objects(ws).get(name)
         if (kind === 'tag' && args.data.kind !== undefined) fail('tag member belongs in the member selector')

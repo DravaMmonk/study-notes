@@ -25,7 +25,7 @@ export function pluginGame(id, kernel, vocabulary, { view = true } = {}) {
         else fail?.({ body: tr('再试一次', 'Try again') })
       }
       const pass = Boolean(result?.pass)
-      const stage = <div className="plugin-stage">{createElement(view.component, { task, work, onChange: change, onSubmit: check, state: kernel.state(context) })}</div>
+      const stage = <div className="plugin-stage">{createElement(view.component, { task, work, onChange: change, onSubmit: check, state: kernel.state(context), context, phone })}</div>
       const results = result && <Verdict pass={pass} compact>{pass ? tr('通过', 'Passed') : tr('还不对，再试一次', 'Not yet. Try again')}</Verdict>
       return <Level phone={phone} brief={<Brief game={game} level={level} hint={task.hint} />} taskNav={<TaskNavigation level={level} />}
         stage={stage} results={results} dock={<RunDock go={checkAction(check, pass)} />} />

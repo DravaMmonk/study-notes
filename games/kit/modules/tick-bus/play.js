@@ -2,7 +2,7 @@
 // screen (ui/screen.js) shows it, in words — the line and the level's inputs down the left, what it says and its
 // outputs down the right, the parts it holds, every test as the waveform draws it (the line, the inputs and what each
 // output should be, tick by tick) — and an attempt judged as a run judges it.
-import { tickPlay } from '../../engine/play/circuit.js'
+import { tickPlay } from '../../../../packages/circuit/core/index.js'
 import { checked, runLevel } from './run.js'
 import { T } from '../../shell/i18n.js'
 

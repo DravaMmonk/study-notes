@@ -7,9 +7,9 @@
 // each with its id and params.name the level's name for it ('in', 'out', 'scene'); every other node is a part, its
 // settings in params. A wire runs from a node into one of the ports of another.
 import { sameJson } from '../../../engine/json-value.js'
-import { boardFits, wirePortRefusal } from '../../../circuit/model.js'
-import { fixedCardsFit } from '../../../engine/board-cards.js'
-import { printLines, readLines } from '../../../circuit/text.js'
+import { boardFits, wirePortRefusal } from '../../../../../packages/circuit/core/index.js'
+import { fixedCardsFit } from '../../../../../packages/circuit/core/index.js'
+import { printLines, readLines } from '../../../../../packages/circuit/core/index.js'
 import { parsePi, piText } from './pi.js'
 
 /** Use the symbolic spelling only if reading it recovers the original value. */

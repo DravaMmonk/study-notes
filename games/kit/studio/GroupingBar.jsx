@@ -4,8 +4,8 @@ import { ChevronsDownUp, ChevronsUpDown, Plus } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
 import { AddMenu } from './Picker.jsx'
 
-export const GROUP_WORDS = { tag: ['标签', 'Tags'], relation: ['关系', 'Relations'], tray: ['托盘', 'Trays'], section: ['分组', 'Sections'] }
-const NEW_WORDS = { tag: ['新的标签', 'New tag'], relation: ['新的关系', 'New relation'], tray: ['新的托盘', 'New tray'], section: ['新的分组', 'New section'] }
+export const GROUP_WORDS = { tag: ['标签', 'Tags'], relation: ['关系', 'Relations'], 'circuit/tray': ['托盘', 'Trays'], section: ['分组', 'Sections'] }
+const NEW_WORDS = { tag: ['新的标签', 'New tag'], relation: ['新的关系', 'New relation'], 'circuit/tray': ['新的托盘', 'New tray'], section: ['新的分组', 'New section'] }
 
 /**
  * `groupings`: what the list can be grouped by; `by` the one shown; `newOptions`: the kinds a new group can be (a

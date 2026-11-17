@@ -1,8 +1,9 @@
-import { readWorks } from '../../engine/course-model.js'
+import { readWorks } from '../../../../packages/circuit/core/index.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { judgeWorks } from '../../engine/authoring.js'
 import { judgeFor, playFor } from '../../engine/plays.js'
 import { taskLevels } from '../../engine/tasks.js'
+
 import { plays } from './plays.js'
 import { judgeSums, readSum } from './sums.js'
 import { vocabulary } from './vocabulary.js'

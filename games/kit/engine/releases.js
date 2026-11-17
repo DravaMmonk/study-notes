@@ -37,7 +37,7 @@ export function upgradeTarget(target, dependency, root = contentRoot()) {
   return lock
 }
 function checkObservation(target, root, probe = false) {
-  const result = spawnSync(process.execPath, [resolve(kitDirectory, 'engine/check.js'), `--${target.kind}`, target.id, '--fresh'], { cwd: resolve(kitDirectory, '../../trace-viewer'), env: { ...process.env, GAMES_ROOT: root, NODE_OPTIONS: '--no-warnings', GAMES_DEPENDENCY_PROBE: probe ? '1' : '0' }, encoding: 'utf8', maxBuffer: 64 << 20 })
+  const result = spawnSync(process.execPath, [resolve(kitDirectory, 'engine/check.js'), `--${target.kind}`, target.id, '--fresh'], { cwd: resolve(kitDirectory, '../../trace-viewer'), env: { ...process.env, GAMES_ROOT: root, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --no-warnings`, GAMES_DEPENDENCY_PROBE: probe ? '1' : '0' }, encoding: 'utf8', maxBuffer: 64 << 20 })
   if (result.error || result.signal || result.status === null) throw result.error ?? new Error('check interrupted')
   return { status: result.status, stdout: result.stdout.replaceAll(root, '<project>'), stderr: result.stderr.replaceAll(root, '<project>') }
 }
@@ -112,7 +112,7 @@ export function publishPackage(id, root = contentRoot()) {
     const tests = resolve(dir, 'test')
     contracts = existsSync(tests) ? readdirSync(tests).filter(name => name.endsWith('.test.js')).map(name => resolve(tests, name)) : []
     if (existsSync(resolve(dir, 'core/index.js')) && !contracts.length) throw new Error(`${id}: code packages require contract tests`)
-    if (contracts.length) execFileSync(process.execPath, ['--test', ...contracts], { cwd: resolve(kitDirectory, '../../trace-viewer'), env: { ...process.env, GAMES_ROOT: validation, NODE_OPTIONS: '--no-warnings' }, stdio: 'pipe' })
+    if (contracts.length) execFileSync(process.execPath, ['--test', ...contracts], { cwd: resolve(kitDirectory, '../../trace-viewer'), env: { ...process.env, GAMES_ROOT: validation, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --no-warnings` }, stdio: 'pipe' })
   } finally { rmSync(validation, { recursive: true, force: true }) }
   const targets = affectedTargets(id, root)
   const result = resolveLayers({ package: id, closure: true, root })

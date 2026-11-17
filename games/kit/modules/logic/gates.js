@@ -6,10 +6,10 @@
 // gates }. Its `gates` are every gate its board may hold, by type: the game's primitive gates (parts.json, run as the
 // kernel's defined parts) and the ones its levels build (game.json gates, each { name, desc, ports }), which run the
 // board of the level that builds them (builtGates).
-import { packed, runBoard } from '../../engine/boards.js'
-import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
-import { boardView } from '../../engine/board-view.js'
-import { workshopNodes } from '../../engine/workshop.js'
+import { packed, runBoard } from '../../../../packages/circuit/core/index.js'
+import { OUTPUTS, circuitBoard } from '../../../../packages/circuit/core/index.js'
+import { boardView } from '../../../../packages/circuit/core/index.js'
+import { workshopNodes } from '../../../../packages/circuit/core/index.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { FORMULA_TEXT, parse } from './formula.js'
 import { say } from './notation.js'

@@ -10,7 +10,7 @@ const files = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry)
 
 test('shared renderers import no module UI or module styles', () => {
   const root = resolve(import.meta.dirname, '..')
-  for (const directory of ['shell', 'views', 'circuit']) for (const file of files(resolve(root, directory))) {
+  for (const directory of ['shell', 'views']) for (const file of files(resolve(root, directory))) {
     const source = readFileSync(file, 'utf8')
     assert.doesNotMatch(source, /(?:from\s*|import\s*|@import\s*)['"][^'"]*\/modules\//, file)
   }

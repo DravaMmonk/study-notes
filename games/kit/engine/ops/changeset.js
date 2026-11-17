@@ -21,10 +21,11 @@ import { parsePath } from './edit.js'
 import { assertStableIds } from './identity.js'
 import { shapeAt, validate } from '../schema.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
-import { PART, PARTS_FILE } from '../parts/schema.js'
+import { PART, PARTS_FILE } from '../../../../packages/circuit/core/index.js'
 import { tasksSchema } from '../tasks.js'
+
 import { ENTRY, checkContent } from '../vocabulary.js'
-import { withParts } from '../parts/define.js'
+import { withParts } from '../../../../packages/circuit/core/index.js'
 import { checkGame } from '../checks.js'
 import { runtimeOf } from '../resolver.js'
 import { courseLevelCount } from '../content.js'
@@ -43,7 +44,7 @@ export { LOG, readLog } from './log.js'
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
-  let domain = given ?? (await runtimeOf(ws.content(), ws.root))
+  let domain = given ? { ...given, vocabulary: ws.schemas } : (await runtimeOf(ws.content(), ws.root))
   ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []

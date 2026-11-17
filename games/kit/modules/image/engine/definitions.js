@@ -1,7 +1,7 @@
 import { S } from '../../../engine/schema.js'
 // Keep the image operations, scoring and course unlocks. Studio owns the parts' data and expressions.
-import { operationsOf } from '../../../engine/parts/operation.js'
-import { applyRules, defineParts, shows } from '../../../engine/parts/define.js'
+import { operationsOf } from '../../../../../packages/circuit/core/index.js'
+import { applyRules, defineParts, shows } from '../../../../../packages/circuit/core/index.js'
 import { NODE_TYPES } from './nodes.js'
 
 const native = Object.entries(NODE_TYPES).filter(([, spec]) => !spec.fixed)

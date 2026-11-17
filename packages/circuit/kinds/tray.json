@@ -1,0 +1,58 @@
+{
+  "folder": "trays",
+  "schema": {
+    "type": "obj",
+    "fields": {
+      "title": {
+        "type": "text",
+        "optional": true
+      },
+      "desc": {
+        "type": "text",
+        "optional": true
+      },
+      "workshop": {
+        "type": "bool",
+        "optional": true
+      },
+      "values": {
+        "type": "list",
+        "of": {
+          "type": "str",
+          "pattern": "^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "reference": "grant"
+        }
+      },
+      "menus": {
+        "type": "list",
+        "of": {
+          "type": "obj",
+          "fields": {
+            "id": {
+              "type": "str",
+              "pattern": "^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "reference": "menu"
+            },
+            "title": {
+              "type": "text"
+            },
+            "values": {
+              "type": "list",
+              "of": {
+                "type": "str",
+                "pattern": "^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "reference": "grant"
+              }
+            }
+          }
+        },
+        "optional": true
+      }
+    }
+  },
+  "override": "append",
+  "studio": {
+    "name": "@kind.tray.name",
+    "icon": "LayoutGrid"
+  }
+}

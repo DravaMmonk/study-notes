@@ -16,7 +16,7 @@ const put = (root, name, data) => {
   writeFileSync(file, typeof data === 'string' ? data : JSON.stringify(data, null, 2) + '\n')
 }
 const project = () => mkdtempSync(resolve(tmpdir(), 'versions-contract-'))
-const config = (uses = {}) => ({ version: '1.0.0', kernel: '^1.0.0', uses })
+const config = (uses = {}) => ({ version: '1.0.0', kernel: '^2.0.0', uses })
 const entry = value => ({ hash: hash(JSON.stringify(value)), value })
 
 test('ranges use exact, tilde and caret semantics including zero-major boundaries', () => {
@@ -91,7 +91,7 @@ test('checked archives and workspace sources use the same reader, manifests and 
     const archive = resolveLayers({ package: 'library', closure: true, root }).layers[0]
     for (const field of ['config', 'objects', 'overrides', 'catalogs', 'manifest']) assert.deepEqual(archive[field], source[field], field)
     assert.equal(archive.source, 'archive')
-    put(root, 'games/demo/game.json', { kernel: '^1.0.0', packages: { library: '^1.0.0' } })
+    put(root, 'games/demo/game.json', { kernel: '^2.0.0', packages: { library: '^1.0.0' } })
     put(root, 'games/demo/course.json', {})
     lockTarget({ id: 'demo', kind: 'game' }, root)
     const workspace = openGame('demo', root)

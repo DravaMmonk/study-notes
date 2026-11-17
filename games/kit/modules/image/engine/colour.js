@@ -1,5 +1,5 @@
 // RGB values use interleaved channels; greyscale images remain single-channel.
-import { PartError } from '../../../engine/circuit.js'
+import { PartError } from '../../../../../packages/circuit/core/index.js'
 import { image } from './image.js'
 
 export const channelsOf = (value) => value?.c ?? 1

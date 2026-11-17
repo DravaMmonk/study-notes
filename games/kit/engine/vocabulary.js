@@ -16,7 +16,7 @@ import { kindSchemas } from './plugin-kinds.js'
 // })
 //
 // A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
-// has a parts/<name>.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
+// has a parts/<name>.json (parts/schema.js), and content's S.ref('part', { reference: 'circuit/part' }) names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
@@ -24,38 +24,17 @@ import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { courseDependencies } from './course-dependencies.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
-import { partProblems, withParts } from './parts/define.js'
-import { implementationProblems } from './parts/dependencies.js'
-import { makesParts, PARTS_FILE } from './parts/schema.js'
+
+import { partProblems, withParts } from '../../../packages/circuit/core/index.js'
+import { implementationProblems } from '../../../packages/circuit/core/index.js'
+import { makesParts, PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { configurationFiles, contentFileFor, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
 import { OBJECT_SCHEMAS, referenceResolver, expandReferences } from './objects.js'
 
 /** Authored entries have identity in their filename and membership in entry tags. */
-export const ENTRY = S.obj({ title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })
-
-/** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
-export const GLOSSARY = S.obj({
-  englishNamesInChinese: S.opt(S.bool()),
-  groupByChapter: S.opt(S.bool()),
-  groups: S.list(S.obj({ id: S.str(), title: S.text(), values: S.opt(S.list(S.name('entry'))) })),
-  entries: S.list(S.obj({ id: S.str(), group: S.opt(S.name('group')), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })),
-})
-
-/**
- * The audit findings a game.json leaves open (`open`): { rule: ['part@level'] }, the findings of the course audit
- * (../course.js) its curriculum has not met yet, each on the work list in the game's design doc. npm run check lists them
- * without failing, and fails on any other finding and on one listed that is gone.
- */
-export const OPEN = S.map(S.list(S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*/)?[^@]*@(?:@?[a-z][a-z0-9-]*/)?[^@]+$' })))
-
-
-export function defineVocabulary({ module, kinds, game, level, languages = {} }) {
-  return { module, kinds, game, level, languages }
-}
-
-/** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
-export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary.description ?? vocabulary))
+export { ENTRY, GLOSSARY, OPEN, defineVocabulary, describe } from './content-schemas.js'
+import { ENTRY, GLOSSARY, OPEN } from './content-schemas.js'
 
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
@@ -87,9 +66,9 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { ...Object.fromEntries(Object.keys(kindSchemas(domainVocabulary)).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.tray ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
-  for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
-    if (kind === 'kind' && !content.objectKinds?.[name]) continue
+  const names = { ...Object.fromEntries(Object.keys(kindSchemas(domainVocabulary)).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.['circuit/tray'] ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary)).filter(([kind]) => !['circuit/part', 'circuit/tray'].includes(kind))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
+    if (kind === 'kind' && !content.objectKinds?.[name] || name.includes(':')) continue
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
@@ -111,7 +90,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     for (const task of level.tasks ?? []) inspectReferences(vocabulary.level.fields?.tasks?.of, task, 'task', task.id)
   }
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
-  for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) {
+  for (const [kind, objects] of Object.entries({ tags, relations, sections })) for (const [name, object] of Object.entries(objects)) {
     add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (kind !== 'tags' && hasCatalogSource(content)) out.push(...catalogTextProblems(object, OBJECT_SCHEMAS[kind], `${kind}/${name}.json`, vocabulary, packageKeys))
   }

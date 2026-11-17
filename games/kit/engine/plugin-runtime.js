@@ -1,7 +1,8 @@
 // One thin projection lets package plays share the existing course and task dispatch.
-import { readWorks } from './course-model.js'
+import { readWorks } from '../../../packages/circuit/core/index.js'
 import { courseLayout } from './course-dependencies.js'
 import { taskLevels } from './tasks.js'
+
 import { firstText } from './i18n.js'
 
 export function pluginRuntime(id, kernel, vocabulary) {

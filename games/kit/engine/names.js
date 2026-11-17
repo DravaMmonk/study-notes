@@ -1,13 +1,14 @@
 import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 // Content names are resolved at the file boundary. Ports, settings keys, variant ids and domain resources stay local.
 import { CONTENT_KINDS } from './content-kinds.js'
-import { mapBlueprintNames } from '../circuit/text.js'
+import { mapBlueprintNames } from '../../../packages/circuit/core/index.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 import { shapeAt } from './schema.js'
 
-export const OBJECT_KINDS = ['level', 'part', 'entry', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS)]
+export const OBJECT_KINDS = ['level', 'circuit/part', 'entry', 'tag', 'relation', 'section', 'circuit/tray', ...Object.keys(CONTENT_KINDS)]
 
-export const fullName = (namespace, name) => typeof name === 'string' && !name.includes('/') && !name.includes(':') ? `${namespace}/${name}` : name
+export { fullName } from './object-name.js'
+import { fullName } from './object-name.js'
 
 /** Duplicate declarations are checked after qualification, within a single kind. */
 export function registryOf(kind, declarations) {
@@ -52,8 +53,8 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
   }
   const ref = (kind, v) => {
     if (kind === 'kind' && BUILTIN_KIND_NAMES.includes(v)) return v
-    if (kind === 'part') return part(v)
-    return ['entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
+    if (kind === 'circuit/part') return part(v)
+    return ['entry', 'group', 'tag', 'relation', 'section', 'circuit/tray', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v
@@ -66,7 +67,7 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
       return textKey(v) ? withTextKey(translated, textKeys ? name(textKey(v)) : textKey(v)) : translated
     }
-    if (s?.reference) return ['part', 'grant'].includes(s.reference) ? part(v) : name(v)
+    if (s?.reference) return ['circuit/part', 'grant'].includes(s.reference) ? part(v) : name(v)
     if (s?.type === 'level' || s?.type === 'task') return name(v)
     if (s?.type === 'ref' || s?.type === 'name') return ref(s.kind, v)
     if (s?.type === 'board' || s?.view === 'board') return board(v)
@@ -80,7 +81,7 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
     if (!s && textKey(v)) return walk(v, { type: 'text' }, path)
     return Object.fromEntries(Object.entries(v).map(([key, child]) => {
       let field = s?.type === 'map' ? s.of : s?.fields?.[key]
-      let target = s?.key ? ref(s.key.kind, key) : key
+      let target = s?.key ? ref(s.key.reference ?? s.key.kind, key) : key
       const parent = path.at(-1)
       if (key === 'id' && path.length === 2 && ['tasks', 'entries', 'groups', 'stages'].includes(path[0])) return [key, name(child)]
       if (['rules', 'using', 'simp'].includes(key) && Array.isArray(child)) return [key, child.map(rule)]

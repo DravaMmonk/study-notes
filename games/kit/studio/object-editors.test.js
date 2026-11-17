@@ -9,13 +9,13 @@ import { addPlace, addRow, clearLevel, layoutRefusal, placeLevel, placeOf, remov
 const CONTENT = {
   registries: {
     level: { 'p/a': { title: { en: 'A' } }, 'p/b': { title: { en: 'B' } }, 'p/c': {}, 'o/d': { title: { en: 'D' } } },
-    part: { 'p/and': { name: { en: 'And' } }, not: {} },
+    'circuit/part': { 'p/and': { name: { en: 'And' } }, not: {} },
     entry: { 'p/e': { title: { en: 'E' } } },
     tag: {
       'level:p/first': { kind: 'level', values: ['p/a', '#p/second'] },
       'level:p/second': { kind: 'level', values: ['p/b', '#p/third'] },
       'level:p/third': { kind: 'level', values: ['p/c'] },
-      'part:p/gates': { kind: 'part', values: ['p/and'] },
+      'circuit/part:p/gates': { kind: 'circuit/part', values: ['p/and'] },
       'level:o/more': { kind: 'level', values: ['o/d', '#p/first'] },
     },
   },
@@ -33,7 +33,7 @@ test('a member is written short for the layer’s own, full for another namespac
 test('members show their object’s title, a part its name', () => {
   assert.deepEqual(memberTitle(CONTENT, 'level', 'p/a'), { en: 'A' })
   assert.equal(memberTitle(CONTENT, 'level', 'p/c'), null)
-  assert.deepEqual(memberTitle(CONTENT, 'part', 'p/and'), { en: 'And' })
+  assert.deepEqual(memberTitle(CONTENT, 'circuit/part', 'p/and'), { en: 'And' })
   assert.deepEqual(memberTitle(CONTENT, 'entry', 'p/e'), { en: 'E' })
 })
 
@@ -54,9 +54,9 @@ test('a text keeps its other languages and its message key, the layer’s own ke
 })
 
 test('a tag is written back whole in the layer’s own short names, concept set or taken out', () => {
-  const tag = { kind: 'part', title: { en: 'Gates', $key: 'p/tag.gates.title' }, values: ['p/and', 'not', '#o/x'] }
-  assert.deepEqual(ownTagData('p', tag), { kind: 'part', title: { en: 'Gates', $key: 'tag.gates.title' }, values: ['and', 'not', '#o/x'] })
-  assert.equal(memberKnown(CONTENT, 'part', 'p/and'), true)
+  const tag = { kind: 'circuit/part', title: { en: 'Gates', $key: 'p/tag.gates.title' }, values: ['p/and', 'not', '#o/x'] }
+  assert.deepEqual(ownTagData('p', tag), { kind: 'circuit/part', title: { en: 'Gates', $key: 'tag.gates.title' }, values: ['and', 'not', '#o/x'] })
+  assert.equal(memberKnown(CONTENT, 'circuit/part', 'p/and'), true)
   assert.equal(memberKnown(CONTENT, 'level', 'p/zz'), false)
   assert.equal(memberKnown(CONTENT, 'level', '#p/third'), true)
 })

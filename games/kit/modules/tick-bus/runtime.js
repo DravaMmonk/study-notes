@@ -2,7 +2,7 @@
 // vocabulary, its course and its runs, each run tick by tick on its line (run.js; a reference board that says in a tick what it hears
 // in that tick has a loop, and fails), and its play hook for blind sessions (play.js). Nothing here draws: the page's
 // side is game.js.
-import { circuitRuntime } from '../../engine/circuit-preset.js'
+import { circuitRuntime } from '../../../../packages/circuit/core/index.js'
 import { vocabulary } from './vocabulary.js'
 import { tickBusWorks, prepareWorks } from './work.js'
 import { entries, runLevel } from './run.js'

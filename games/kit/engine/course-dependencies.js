@@ -1,8 +1,8 @@
 // The authored, knowledge and reference edges used to open a course. Only authored links live in the course file.
 import { dependencyCycle, eraLevels, layout } from '../course.js'
-import { partStages, requiredStage } from './part-stages.js'
+import { partStages, requiredStage } from '../../../packages/circuit/core/index.js'
 import { standalonePlan } from './package-play.js'
-import { parse } from '../circuit/text.js'
+import { textParse as parse } from '../../../packages/circuit/core/index.js'
 
 const idOf = (game, level) => `${game}:${level}`
 const refOf = (level) => `levels/${level}.json`

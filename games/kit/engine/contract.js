@@ -1,5 +1,5 @@
 import { contentKindSchemas } from './content-kinds.js'
-import { trayMembers } from './trays.js'
+import { trayMembers } from '../../../packages/circuit/core/index.js'
 import { sameJson } from './json-value.js'
 import { playId } from './plays.js'
 // The module runtime contract: what a module gives the kernel, checked mechanically. A module that
@@ -18,11 +18,12 @@ import { playId } from './plays.js'
 //   gameProblems(content, spec, game)       game.js's game (the shell's description) plays the same levels
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
-import { RULE_TEXT, audit } from '../course.js'
+import { RULE_TEXT, audit } from '../../../packages/circuit/core/index.js'
 import { HINTS, S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
 import { taskShapes, tasksSchema } from './tasks.js'
-import { makesParts } from './parts/schema.js'
+
+import { makesParts } from '../../../packages/circuit/core/index.js'
 
 /** Required runtime entries and optional tool extensions. */
 export const ENTRIES = ['vocabulary', 'prepare', 'spec', 'validate', 'play']
@@ -102,7 +103,7 @@ export function vocabularyProblems(name, v) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
       // Parts come from the domain and the game’s content.
       if (s.type === 'syntax' && !v.languages?.[s.lang]) say(`${at}: names the language ${s.lang}, which the vocabulary has not`)
-      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && makesParts(v))) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
+      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'circuit/part' && makesParts(v))) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
       for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
     }
   }
@@ -169,7 +170,7 @@ export function specProblems(domain, content, spec) {
   const say = (text) => out.push(`spec: ${text}`)
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
   // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's and the level groups' by the kernel, the rest by names(content).
-  const given = new Set([...Object.keys(contentKindSchemas), 'entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(domain.names?.(content) ?? {})])
+  const given = new Set([...Object.keys(contentKindSchemas), 'entry', 'group', 'tag', 'relation', 'section', 'circuit/tray', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
   for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor runtime.js names(content) gives`)
   if (!sameJson(spec.title, content.title)) say('its title is not the content’s')
@@ -347,7 +348,7 @@ export function moduleProblems(module, registry, runtime = null) {
     if (kind === 'display' && (item.role || ['display', 'widget'].includes(item.kind))) {
       const entry = registry.displayLoaders[name]
       if (!entry) out.push(`${name}: no display implementation`)
-      else if (!entry.startsWith(`../modules/${module.id}/ui/`)) out.push(`${name}: display implementation is outside its module UI`)
+      else if (!entry.startsWith(`../modules/${module.id}/ui/`) && entry !== `${module.id}/view`) out.push(`${name}: display implementation is outside its module UI`)
     }
     if (kind === 'operation' && !registry.operations[name]) out.push(`${name}: no runtime implementation`)
     if (kind === 'operation' && item.signatures && !item.signatures.length) out.push(`${name}: no signatures`)

@@ -41,3 +41,10 @@
   Missing targets are diagnostics, not separate loader exceptions. Tag copy uses `@tag.<name>.title/desc`.
 - Until steps 5–9, package projections and internal modules share the existing course reader and dispatch.
   Do not add another implementation or permanent fallback. Move circuit first and remove its internal registration.
+
+
+Circuit uses the same paired `play`, `kind`, `state`, `check` and `agent` registrations. Its public grant
+registry is `grants.register({ type, used })`. A view receives `context` and `phone` alongside task/work state.
+The native module readers still consume the circuit package through public exports during steps 5–9.
+Keep the step-5 content and authoring projection cleanup explicit until it is finished. Circuit-specific
+progress callbacks live in `circuit/core/progress.js`; kernel progress only performs task/level transitions.

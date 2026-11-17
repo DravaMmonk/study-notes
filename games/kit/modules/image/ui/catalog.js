@@ -1,5 +1,5 @@
 import { qualifyItems } from '../../../engine/capabilities.js'
-import { iconOf as definedIcon } from '../../../shell/parts/icons.js'
+import { iconOf as definedIcon } from '../../../../../packages/circuit/view/index.jsx'
 import { ArrowRightFromLine, ArrowRightToLine, AudioWaveform, Box, Calculator, Grid3x3, Minimize2, Network, Package, Search, Sparkles } from 'lucide-react'
 
 // How each part looks on the board and in the parts list: a family (colour and icon); families group parts by what they
