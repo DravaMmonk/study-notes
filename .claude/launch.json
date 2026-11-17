@@ -64,7 +64,7 @@
       "runtimeExecutable": "sh",
       "runtimeArgs": [
         "-c",
-        "cd trace-viewer && exec node_modules/.bin/vite --mode studio --port 5190 --strictPort --force"
+        "cd trace-viewer && exec node --import ../games/kit/engine/package-imports.mjs node_modules/vite/bin/vite.js --mode studio --port 5190 --strictPort --force"
       ],
       "port": 5190,
       "url": "http://localhost:5190"
