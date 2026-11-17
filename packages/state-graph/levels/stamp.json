@@ -5,7 +5,7 @@
     {
       "t": "@level.stamp.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 4,
           "cells": {
@@ -24,7 +24,7 @@
     {
       "t": "@level.stamp.intro.2.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "s",
@@ -73,7 +73,7 @@
     "goal": "@level.stamp.mission.goal",
     "how": "@level.stamp.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:const",
     "table:pass"
@@ -91,22 +91,22 @@
   "tasks": [
     {
       "id": "stamp",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 1,
             "sensor": "up"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 2,
             "sensor": "left"
           }
         },
         {
-          "table:port-start": {
+          "state-graph:port-start": {
             "sensor": "start"
           }
         }
@@ -114,13 +114,13 @@
       "guide": [
         {
           "until": {
-            "table:condition-reads": "start"
+            "state-graph:condition-reads": "start"
           },
           "say": "@level.stamp.tasks.stamp.guide.0.say"
         },
         {
           "until": {
-            "table:condition-has": "table:pass"
+            "state-graph:condition-has": "table:pass"
           },
           "say": "@level.stamp.tasks.stamp.guide.1.say"
         }
@@ -128,21 +128,21 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-uses": "right"
+                "state-graph:condition-uses": "right"
               },
               {
-                "table:condition-uses": "down"
+                "state-graph:condition-uses": "down"
               },
               {
-                "table:condition-uses": "ur"
+                "state-graph:condition-uses": "ur"
               },
               {
-                "table:condition-uses": "dl"
+                "state-graph:condition-uses": "dl"
               },
               {
-                "table:condition-uses": "dr"
+                "state-graph:condition-uses": "dr"
               }
             ]
           },
@@ -150,7 +150,7 @@
         },
         {
           "when": {
-            "table:condition-feeds": {
+            "state-graph:condition-feeds": {
               "from": "table:const",
               "to": "table:msum"
             }
@@ -162,7 +162,7 @@
         "@level.stamp.tasks.stamp.hints.0",
         "@level.stamp.tasks.stamp.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start"
       ],

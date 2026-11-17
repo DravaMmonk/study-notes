@@ -11,7 +11,7 @@
     {
       "t": "@level.stones.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -105,7 +105,7 @@
     "goal": "@level.stones.mission.goal",
     "how": "@level.stones.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.stones.debrief.title",
     "body": [
@@ -117,16 +117,16 @@
   "tasks": [
     {
       "id": "stones",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-reads": "segL"
+          "state-graph:port-reads": "segL"
         },
         {
-          "table:port-reads": "segR"
+          "state-graph:port-reads": "segR"
         },
         {
-          "table:port-reads": "weight"
+          "state-graph:port-reads": "weight"
         }
       ],
       "boardOpt": {
@@ -137,7 +137,7 @@
         "@level.stones.tasks.stones.hints.0",
         "@level.stones.tasks.stones.hints.1"
       ],
-      "world": "table:world-interval",
+      "world": "state-graph:world-interval",
       "facts": [
         "weight"
       ],

@@ -13,7 +13,7 @@
     "goal": "@level.safefrog.mission.goal",
     "how": "@level.safefrog.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "adds": [
     "table:mul"
   ],
@@ -26,12 +26,12 @@
   "tasks": [
     {
       "id": "safefrog",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-has": "table:mul"
+            "state-graph:condition-not": {
+              "state-graph:condition-has": "table:mul"
             }
           },
           "say": "@level.safefrog.tasks.safefrog.diagnose.0.say"
@@ -41,7 +41,7 @@
         "@level.safefrog.tasks.safefrog.hints.0",
         "@level.safefrog.tasks.safefrog.hints.1"
       ],
-      "world": "table:world-river",
+      "world": "state-graph:world-river",
       "facts": [
         "bank",
         "hold"

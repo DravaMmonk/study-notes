@@ -19,7 +19,7 @@
     "goal": "@level.slip.mission.goal",
     "how": "@level.slip.mission.how"
   },
-  "robot": "table:robot-loop",
+  "robot": "state-graph:robot-loop",
   "debrief": {
     "title": "@level.slip.debrief.title",
     "body": [
@@ -31,7 +31,7 @@
   "tasks": [
     {
       "id": "slip",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "a = table:mmax(view.up, view.down, view.left)",
         "k = table:const[value=0.9]()",
@@ -57,7 +57,7 @@
         "@level.slip.tasks.slip.hints.1",
         "@level.slip.tasks.slip.hints.2"
       ],
-      "world": "table:world-vgrid",
+      "world": "state-graph:world-vgrid",
       "facts": [
         "slip",
         "grip"

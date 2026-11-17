@@ -5,7 +5,7 @@
     {
       "t": "@level.lastStep.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -172,7 +172,7 @@
     {
       "t": "@level.lastStep.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -192,7 +192,7 @@
     {
       "t": "@level.lastStep.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "A",
@@ -245,7 +245,7 @@
     {
       "t": "@level.lastStep.intro.3.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "A",
@@ -317,7 +317,7 @@
   "tasks": [
     {
       "id": "lastStep",
-      "mode": "table:fill",
+      "play": "state-graph:fill",
       "cells": [
         {
           "id": "H",

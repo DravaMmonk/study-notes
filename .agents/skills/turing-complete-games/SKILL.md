@@ -25,7 +25,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 - After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  the two remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
+  the remaining `kit/modules/logic` implementation retains explicit public circuit dependencies until its scheduled migration.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
@@ -224,7 +224,7 @@ Keep a change to either editor working for every game that uses the kit.
 Step 7: `rows` and `tick-bus` are package plugins, each with core/view/kinds and Node/Vite contracts.
 Their starter objects live in the packages; copy with `new-package --from rows|tick-bus`. Neither package
 has a course. Both use circuit's public exports at `^0.0.0`; bus-only ticking and textual tick play live in
-`tick-bus`, not circuit. Native imports remain only for image/table/logic and the symbol bridge.
+`tick-bus`, not circuit. Native imports remain only for logic and the symbol bridge.
 Task declarations can scope `extends: task` fields with `play`; this creates a separate schema branch
 without redefining native fields. Keep required fields required on that branch.
 
@@ -238,3 +238,10 @@ package entries. Consumers select `image` directly.
 obscura/wave models and obscura displays are shared by vision-complete and comp90086.
 Both content packages declare their own namespaced power/box kinds and folders.
 Keep Studio source and tests with its owner when the user assigns that boundary.
+
+
+After MODULES step 9, table is a reusable model and scene renderer in `packages/table`; concrete worlds,
+robots and all eight course plays are owned by `packages/state-graph`. Use `play: state-graph:<name>`;
+task demonstration panels use `panel`, not the shell's `after` copy. Packed references also use `play`.
+Only logic retains a native implementation/starter and the symbol grant bridge. Table/state-graph
+contracts use synthetic data; do not restore the removed native table starter or dispatch paths.

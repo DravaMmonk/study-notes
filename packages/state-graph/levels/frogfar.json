@@ -10,7 +10,7 @@
     "goal": "@level.frogfar.mission.goal",
     "how": "@level.frogfar.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.frogfar.debrief.title",
     "body": [
@@ -20,20 +20,20 @@
   "tasks": [
     {
       "id": "frogfar",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "m1"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "m1"
             }
           },
           "say": "@level.frogfar.tasks.frogfar.diagnose.0.say"
         },
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "back"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "back"
             }
           },
           "say": "@level.frogfar.tasks.frogfar.diagnose.1.say"
@@ -43,7 +43,7 @@
         "@level.frogfar.tasks.frogfar.hints.0",
         "@level.frogfar.tasks.frogfar.hints.1"
       ],
-      "world": "table:world-river",
+      "world": "state-graph:world-river",
       "facts": [
         "bank"
       ],

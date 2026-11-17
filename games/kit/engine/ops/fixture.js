@@ -242,8 +242,21 @@ export function assembleCircuitFixture({ partDefs, trays = [], ...options }) {
 export function installImageFixture(root) {
   installCircuitFixture(root)
   cpSync(new URL('../../../../packages/circuit/view', import.meta.url), join(root, 'packages/circuit/view'), { recursive: true })
-  const dir = join(root, 'packages', 'image')
-  mkdirSync(dir, { recursive: true })
-  for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/image/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
-  cpSync(new URL('../../../../packages/image/package.json', import.meta.url), join(dir, 'package.json'))
+  for (const id of ['image', 'table']) {
+    const dir = join(root, 'packages', id)
+    mkdirSync(dir, { recursive: true })
+    for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/${id}/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+    cpSync(new URL(`../../../../packages/${id}/package.json`, import.meta.url), join(dir, 'package.json'))
+  }
+}
+
+/** Install table and its course-specific consumer without real authored objects. */
+export function installTableFixture(root) {
+  installImageFixture(root)
+  for (const id of ['state-graph']) {
+    const dir = join(root, 'packages', id)
+    mkdirSync(dir, { recursive: true })
+    for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/${id}/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+    cpSync(new URL(`../../../../packages/${id}/package.json`, import.meta.url), join(dir, 'package.json'))
+  }
 }

@@ -8,7 +8,7 @@
     {
       "t": "@level.prefix.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -73,7 +73,7 @@
     "goal": "@level.prefix.mission.goal",
     "how": "@level.prefix.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.prefix.debrief.title",
     "body": [
@@ -85,7 +85,7 @@
   "tasks": [
     {
       "id": "prefix",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "@level.prefix.tasks.prefix.testLabel",
       "tests": [
         {
@@ -108,7 +108,7 @@
           ]
         }
       ],
-      "world": "table:world-prefix",
+      "world": "state-graph:world-prefix",
       "facts": [
         "money"
       ],
@@ -136,7 +136,7 @@
     },
     {
       "id": "prefix_2",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "@level.prefix.tasks.prefix_2.testLabel",
       "tests": [
         {
@@ -159,7 +159,7 @@
           ]
         }
       ],
-      "world": "table:world-prefix",
+      "world": "state-graph:world-prefix",
       "facts": [
         "money"
       ],

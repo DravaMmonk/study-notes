@@ -8,7 +8,7 @@
     {
       "t": "@level.value.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "v0",
@@ -64,7 +64,7 @@
     {
       "t": "@level.value.intro.2.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "m",
@@ -115,7 +115,7 @@
     "goal": "@level.value.mission.goal",
     "how": "@level.value.mission.how"
   },
-  "robot": "table:robot-loop",
+  "robot": "state-graph:robot-loop",
   "debrief": {
     "title": "@level.value.debrief.title",
     "body": [
@@ -127,28 +127,28 @@
   "tasks": [
     {
       "id": "value",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 1,
             "sensor": "up"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 2,
             "sensor": "down"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 3,
             "sensor": "left"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 4,
             "sensor": "right"
           }
@@ -157,8 +157,8 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-has": "table:mul"
+            "state-graph:condition-not": {
+              "state-graph:condition-has": "table:mul"
             }
           },
           "say": "@level.value.tasks.value.diagnose.0.say"
@@ -179,7 +179,7 @@
         "@level.value.tasks.value.hints.0",
         "@level.value.tasks.value.hints.1"
       ],
-      "world": "table:world-vgrid",
+      "world": "state-graph:world-vgrid",
       "tests": [
         {
           "R": 5,

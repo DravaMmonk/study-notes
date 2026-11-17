@@ -13,7 +13,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 const KIT = 'games/kit'
 const domains = readdirSync(fileURLToPath(new URL(`../${KIT}/modules`, import.meta.url)), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
-const no = (patterns, message) => ({ 'no-restricted-imports': ['error', { patterns: [{ group: patterns, message }] }] })
+const no = (patterns, message) => !patterns.length ? {} : ({ 'no-restricted-imports': ['error', { patterns: [{ group: patterns, message }] }] })
 
 export default defineConfig([
   globalIgnores(['**/node_modules', '**/versions']),

@@ -1,0 +1,78 @@
+{
+  "extends": "task",
+  "play": "state-graph:policy",
+  "fields": {},
+  "schema": {
+    "type": "obj",
+    "fields": {
+      "hints": {
+        "type": "list",
+        "of": {
+          "type": "text"
+        },
+        "optional": true
+      },
+      "map": {
+        "type": "obj",
+        "fields": {
+          "R": {
+            "type": "int",
+            "min": 1
+          },
+          "C": {
+            "type": "int",
+            "min": 1
+          },
+          "gold": {
+            "type": "list",
+            "of": {
+              "type": "int"
+            },
+            "min": 2
+          },
+          "traps": {
+            "type": "list",
+            "of": {
+              "type": "list",
+              "of": {
+                "type": "int"
+              },
+              "min": 2
+            },
+            "optional": true
+          },
+          "walls": {
+            "type": "list",
+            "of": {
+              "type": "list",
+              "of": {
+                "type": "int"
+              },
+              "min": 2
+            },
+            "optional": true
+          }
+        }
+      },
+      "starts": {
+        "type": "list",
+        "of": {
+          "type": "list",
+          "of": {
+            "type": "int"
+          },
+          "min": 2
+        }
+      }
+    }
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
+  }
+}

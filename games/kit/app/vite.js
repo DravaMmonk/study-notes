@@ -30,7 +30,7 @@ function gameModule(id) {
     ...(hasCode ? [pluginSource(layers)] : []),
     ...modules.flatMap((id, index) => [
       `import define${index} from ${q(domainEntry(resolve(KIT, 'modules'), id))}`,
-      `import { ${({ logic: 'prepareLogicWorks', table: 'prepareTableWorks' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, 'work.js'))}`,
+      `import { ${({ logic: 'prepareLogicWorks' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, 'work.js'))}`,
     ]),
     `import { composeGame } from ${q(resolve(KIT, 'app/compose-game.js'))}`,
     `const define = content => { const game = composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}${modules.length && pluginIds.length ? ',' : ''}${pluginIds.map(id => `pluginGame(${q(id)}, kernel, vocabulary)`).join(', ')}]); ${hasCode ? 'game.pluginKernel = kernel;' : ''} return game }`,

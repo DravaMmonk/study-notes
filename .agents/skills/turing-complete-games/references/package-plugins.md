@@ -59,7 +59,7 @@ supplies shell panels/actions, settings, map rewards, reference display metadata
 A view receives `context` and `phone` alongside task/work state. Studio's current editors remain usable through
 the same schemas and operation metadata; moving the specialized editors into the package is step 11.
 
-Only `engine/circuit-bridge.js` (logic symbol grants) and the two remaining native modules' public circuit
+Only `engine/circuit-bridge.js` (logic symbol grants) and the remaining logic module's public circuit
 imports are temporary bridges. Remove them as their consumers move in steps 7–10. Synthetic kernel tests
 install explicit circuit fixtures. Baseline observers are provided by kind meanings and compare full reports.
 
@@ -84,7 +84,7 @@ The shell reads section member lists directly so list order reaches the displaye
 
 `rows` and `tick-bus` register their plays through package core/view entries. Their ordinary sample levels
 and bus parts live at package root, with no chapters or course. Both declare `uses.circuit: ^0.0.0`.
-Only table and logic retain native circuit import bridges.
+Only logic retains native circuit import bridges.
 
 `kinds/*.json` task extensions can include `play: <package>:<play>`. Scoped fields form their own generic
 play-task branch after common extensions; unscoped fields retain strict no-redefinition behavior.
@@ -101,7 +101,7 @@ as their third argument so bench layouts use the assembled display registry.
 Vision-specific scenes, bench models and displays register through vision-complete's core/view
 entries. Its catalog is an assembly-derived value, never a process-global extension of image.
 Comp90086 and vision-complete own independent power/box kinds and namespaced folders.
-Native templates now remain only for logic/table. Image contracts use synthetic package levels.
+Native templates now remain only for logic. Image contracts use synthetic package levels.
 
 The vocabulary tool sends object declarations once in `objectKinds`, policy fields in `kindPolicies`,
 and the projected vocabulary separately. Schema alternatives try matching literal discriminators
@@ -125,3 +125,11 @@ share their layout, knob and goal schemas this way. Source declarations retain t
 Resolved layers are reused when listing games and loading package code. Unchanged source files
 reuse parsed import metadata while dependency authority is checked on every call. Quick previews
 reuse their computed changes when rendering a diff and preserve unchanged JSON containers directly.
+
+
+Step 9 moves the table model and injected scene renderer to table, and all concrete worlds, robots,
+course/manual plays and observers to state-graph. Both import only public circuit/kernel exports.
+State-graph task schemas select registered `play` names and use `panel` for demonstrations. The
+core circuit adapter accepts explicit wiring/placement functions, shared by Node agents and the view.
+Nested schema alternatives are flattened before selecting the generic task fields for scoped declarations.
+Table provides no course-specific play or extra object kind; its tests run a synthetic world directly.

@@ -8,7 +8,7 @@
     {
       "t": "@level.piles.intro.1.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 3,
           "arrows": false,
@@ -33,7 +33,7 @@
     "goal": "@level.piles.mission.goal",
     "how": "@level.piles.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.piles.debrief.title",
     "body": [
@@ -45,7 +45,7 @@
   "tasks": [
     {
       "id": "piles",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "m = table:many(view.up, view.left, view.ul)",
         "cell <- m"
@@ -59,7 +59,7 @@
         "@level.piles.tasks.piles.hints.0",
         "@level.piles.tasks.piles.hints.1"
       ],
-      "world": "table:world-piles",
+      "world": "state-graph:world-piles",
       "tests": [
         {
           "R": 4,

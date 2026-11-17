@@ -1,0 +1,14 @@
+{
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
+  "kernel": "^0.0.0",
+  "packages": {
+    "circuit": "^0.0.0",
+    "state-graph": "^0.0.0",
+    "table": "^0.0.0"
+  },
+  "chapters": [
+    "@starter/scout"
+  ]
+}

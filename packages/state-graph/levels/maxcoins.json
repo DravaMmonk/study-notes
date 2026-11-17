@@ -10,7 +10,7 @@
     "goal": "@level.maxcoins.mission.goal",
     "how": "@level.maxcoins.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "debrief": {
     "title": "@level.maxcoins.debrief.title",
     "body": [
@@ -20,17 +20,17 @@
   "tasks": [
     {
       "id": "maxcoins",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-all": [
+            "state-graph:condition-all": [
               {
-                "table:condition-has": "table:mmin"
+                "state-graph:condition-has": "table:mmin"
               },
               {
-                "table:condition-not": {
-                  "table:condition-has": "table:mmax"
+                "state-graph:condition-not": {
+                  "state-graph:condition-has": "table:mmax"
                 }
               }
             ]
@@ -42,7 +42,7 @@
         "@level.maxcoins.tasks.maxcoins.hints.0",
         "@level.maxcoins.tasks.maxcoins.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "coin"

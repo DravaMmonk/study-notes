@@ -10,7 +10,7 @@
     "goal": "@level.brokenstairs.mission.goal",
     "how": "@level.brokenstairs.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.brokenstairs.debrief.title",
     "body": [
@@ -21,12 +21,12 @@
   "tasks": [
     {
       "id": "brokenstairs",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "broken"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "broken"
             }
           },
           "say": "@level.brokenstairs.tasks.brokenstairs.diagnose.0.say"
@@ -36,7 +36,7 @@
         "@level.brokenstairs.tasks.brokenstairs.hints.0",
         "@level.brokenstairs.tasks.brokenstairs.hints.1"
       ],
-      "world": "table:world-strip",
+      "world": "state-graph:world-strip",
       "facts": [
         "ground",
         "broken"

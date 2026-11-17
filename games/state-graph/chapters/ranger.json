@@ -1,5 +1,5 @@
 {
-  "machine": "table:robot-ranger",
+  "machine": "state-graph:robot-ranger",
   "chapter": {
     "title": "@course.eras.ranger.chapter.title",
     "desc": "@course.eras.ranger.chapter.desc"

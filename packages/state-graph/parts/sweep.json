@@ -5,11 +5,16 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
-        "solution": ["a = table:add(view.prev, facts.money)", "cell <- a"],
-        "world": "table:world-prefix",
-        "robot": "table:robot-broom",
-        "facts": ["money"]
+        "play": "state-graph:circuit",
+        "solution": [
+          "a = table:add(view.prev, facts.money)",
+          "cell <- a"
+        ],
+        "world": "state-graph:world-prefix",
+        "robot": "state-graph:robot-broom",
+        "facts": [
+          "money"
+        ]
       }
     }
   ]

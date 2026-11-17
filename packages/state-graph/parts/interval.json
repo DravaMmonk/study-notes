@@ -5,28 +5,45 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "a = table:add(view.segL, view.segR)",
           "m = table:mmin(a)",
           "b = table:add(m, facts.weight)",
           "cell <- b"
         ],
-        "world": "table:world-interval",
-        "robot": "table:robot-broom",
+        "world": "state-graph:world-interval",
+        "robot": "state-graph:robot-broom",
         "ports": [
-          { "table:port-reads": "segL" },
-          { "table:port-reads": "segR" },
-          { "table:port-reads": "weight" }
+          {
+            "state-graph:port-reads": "segL"
+          },
+          {
+            "state-graph:port-reads": "segR"
+          },
+          {
+            "state-graph:port-reads": "weight"
+          }
         ],
-        "facts": ["weight"]
+        "facts": [
+          "weight"
+        ]
       }
     }
   ],
   "inputs": [
-    { "name": "segL", "type": "table:number-input" },
-    { "name": "segR", "type": "table:number-input" },
-    { "name": "weight", "type": "circuit:number" }
+    {
+      "name": "segL",
+      "type": "table:number-input"
+    },
+    {
+      "name": "segR",
+      "type": "table:number-input"
+    },
+    {
+      "name": "weight",
+      "type": "circuit:number"
+    }
   ],
   "outputType": "circuit:number"
 }

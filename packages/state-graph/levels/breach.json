@@ -5,7 +5,7 @@
     {
       "t": "@level.breach.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 4,
           "cells": {
@@ -33,7 +33,7 @@
     {
       "t": "@level.breach.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "a",
@@ -149,7 +149,7 @@
   "tasks": [
     {
       "id": "breach",
-      "mode": "table:breach",
+      "play": "state-graph:breach",
       "maze": {
         "R": 4,
         "C": 5,

@@ -5,12 +5,21 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
-        "solution": ["a = table:add(view.src, facts.value)", "m = table:mmax(view.old, a)", "cell <- m"],
-        "world": "table:world-roll",
-        "robot": "table:robot-reach",
-        "facts": ["value"],
-        "dirs": { "01": "desc", "inf": "asc" }
+        "play": "state-graph:circuit",
+        "solution": [
+          "a = table:add(view.src, facts.value)",
+          "m = table:mmax(view.old, a)",
+          "cell <- m"
+        ],
+        "world": "state-graph:world-roll",
+        "robot": "state-graph:robot-reach",
+        "facts": [
+          "value"
+        ],
+        "dirs": {
+          "01": "desc",
+          "inf": "asc"
+        }
       }
     }
   ]

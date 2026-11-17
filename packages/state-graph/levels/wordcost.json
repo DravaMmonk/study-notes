@@ -13,7 +13,7 @@
     "goal": "@level.wordcost.mission.goal",
     "how": "@level.wordcost.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.wordcost.debrief.title",
     "body": [
@@ -23,13 +23,12 @@
   "tasks": [
     {
       "id": "wordcost",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "{s}",
-      "after": "table:panel-dictionary",
       "hints": [
         "@level.wordcost.tasks.wordcost.hints.0"
       ],
-      "world": "table:world-parts",
+      "world": "state-graph:world-parts",
       "facts": [
         "ground"
       ],
@@ -75,7 +74,8 @@
         "g = table:pass(facts.ground, z)",
         "m = table:mmin(a, g)",
         "cell <- m"
-      ]
+      ],
+      "panel": "state-graph:panel-dictionary"
     }
   ]
 }

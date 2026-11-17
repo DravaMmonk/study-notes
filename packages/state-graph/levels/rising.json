@@ -5,7 +5,7 @@
     {
       "t": "@level.rising.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -106,7 +106,7 @@
     "goal": "@level.rising.mission.goal",
     "how": "@level.rising.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.rising.debrief.title",
     "body": [
@@ -118,13 +118,13 @@
   "tasks": [
     {
       "id": "rising",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "checkAll": true,
       "hints": [
         "@level.rising.tasks.rising.hints.0",
         "@level.rising.tasks.rising.hints.1"
       ],
-      "world": "table:world-heights",
+      "world": "state-graph:world-heights",
       "facts": [
         "money"
       ],

@@ -13,7 +13,7 @@
     "goal": "@level.frog.mission.goal",
     "how": "@level.frog.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.frog.debrief.title",
     "body": [
@@ -23,12 +23,12 @@
   "tasks": [
     {
       "id": "frog",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "back"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "back"
             }
           },
           "say": "@level.frog.tasks.frog.diagnose.0.say"
@@ -38,7 +38,7 @@
         "@level.frog.tasks.frog.hints.0",
         "@level.frog.tasks.frog.hints.1"
       ],
-      "world": "table:world-river",
+      "world": "state-graph:world-river",
       "facts": [
         "bank"
       ],

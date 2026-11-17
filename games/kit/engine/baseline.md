@@ -197,3 +197,36 @@ games and preview requests. Studio's loading orchestration requires its owner's 
 The untouched Studio starter-control test fails at studio.test.js:352 with `some field is chips`.
 Its traversal covers the remaining native starters. Package-provided controls require the Studio
 owner's test adaptation. Core/view contracts, independent checks and behaviour comparisons pass.
+
+
+## Step 9 table extraction
+
+State-graph provides its own execution observer; the kernel no longer dispatches table reports.
+`tableFieldsBaseline` accepts only the eight exact table/state-graph play identities (`circuit`,
+`fill`, `trace`, `link`, `pack`, `breach`, `policy`, `seam`). For these task/reference objects,
+`play` projects back to `mode`; their demonstration `panel` projects back to `after` only when
+that old field is absent. Other fields, verdicts, traces, numeric results and arbitrary play names
+are unchanged. The exact migrated world/robot/port/figure/condition/trace/panel/explain and play
+names listed in `nameNormalizer` map from state-graph ownership to historical table ownership
+before building the alias inventory. Unknown names and suffixed names are not rewritten.
+
+Exactly `table:not`, `table:robot-loop` and `table:circuit` retain their historical alias collisions
+when a consumer does not install the course-specific vocabulary. Package primitive palettes are
+preserved by explicit table dependencies in comp90086, qed, state-graph and vision-complete, not
+by suppressing missing entries. Snapshots are unchanged; only `compare` is used.
+
+Studio HTTP timings (sequential requests, seconds, HTTP 200): packages 0.909 -> 1.010;
+games 1.048 -> 1.110; state-graph vocabulary 0.196 -> 0.239 and quick preview (`check:false`)
+3.681 -> 4.209. After extraction, vision-complete vocabulary/quick preview are 0.482/4.809,
+comp90086 0.082/3.005, and qed 0.332/5.352. The measured state-graph requests remain below twice
+their pre-extraction durations. Browser acceptance and Studio-owned failures are reported separately.
+
+
+Browser package navigation on the same Studio server reaches the level list in 9.096 s (state-graph),
+13.530 s (vision-complete), 9.428 s (comp90086) and 10.746 s (qed), all within 20 seconds.
+An earlier run under simultaneous verification reached the deadline for comp90086/qed; both passed
+on repeat. Browser requests include bridge queue time: comp90086 packages/games/quick preview/
+vocabulary took 2.005/1.111/3.230/6.784 s; qed 1.958/1.089/4.536/4.880 s. These queued browser times
+are distinct from the sequential HTTP service measurements above. No Studio implementation was edited.
+The remaining Studio-owned failure is studio/studio.test.js:353, `some field is choice`: its native
+starter traversal no longer includes the extracted table controls.

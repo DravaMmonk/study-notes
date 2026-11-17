@@ -1,0 +1,41 @@
+{
+  "extends": "task",
+  "play": "state-graph:link",
+  "fields": {},
+  "schema": {
+    "type": "obj",
+    "fields": {
+      "hints": {
+        "type": "list",
+        "of": {
+          "type": "text"
+        },
+        "optional": true
+      },
+      "tests": {
+        "type": "list",
+        "of": {
+          "type": "obj",
+          "fields": {
+            "a": {
+              "type": "str"
+            },
+            "b": {
+              "type": "str"
+            }
+          }
+        },
+        "section": "tests"
+      }
+    }
+  },
+  "declares": "package",
+  "overrides": {
+    "package": [
+      "*"
+    ],
+    "game": [
+      "$text"
+    ]
+  }
+}

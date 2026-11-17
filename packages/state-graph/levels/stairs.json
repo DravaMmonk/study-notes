@@ -8,7 +8,7 @@
     {
       "t": "@level.stairs.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "s0",
@@ -66,7 +66,7 @@
     {
       "t": "@level.stairs.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "s0",
@@ -151,7 +151,7 @@
     "goal": "@level.stairs.mission.goal",
     "how": "@level.stairs.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.stairs.debrief.title",
     "body": [
@@ -163,13 +163,13 @@
   "tasks": [
     {
       "id": "stairs",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "hints": [
         "@level.stairs.tasks.stairs.hints.0",
         "@level.stairs.tasks.stairs.hints.1",
         "@level.stairs.tasks.stairs.hints.2"
       ],
-      "world": "table:world-strip",
+      "world": "state-graph:world-strip",
       "facts": [
         "ground"
       ],

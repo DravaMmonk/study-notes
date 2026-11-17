@@ -1,5 +1,5 @@
 {
-  "machine": "table:robot-loop",
+  "machine": "state-graph:robot-loop",
   "chapter": {
     "title": "@course.eras.settle.chapter.title",
     "desc": "@course.eras.settle.chapter.desc"

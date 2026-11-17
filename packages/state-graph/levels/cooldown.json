@@ -13,7 +13,7 @@
     "goal": "@level.cooldown.mission.goal",
     "how": "@level.cooldown.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.cooldown.debrief.title",
     "body": [
@@ -24,11 +24,11 @@
   "tasks": [
     {
       "id": "cooldown",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "hints": [
         "@level.cooldown.tasks.cooldown.hints.0"
       ],
-      "world": "table:world-stock",
+      "world": "state-graph:world-stock",
       "facts": [
         "gain"
       ],

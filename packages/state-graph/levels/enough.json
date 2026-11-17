@@ -10,7 +10,7 @@
     "goal": "@level.enough.mission.goal",
     "how": "@level.enough.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.enough.debrief.title",
     "body": [
@@ -20,9 +20,9 @@
   "tasks": [
     {
       "id": "enough",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "noTrace": true,
-      "world": "table:world-keys",
+      "world": "state-graph:world-keys",
       "facts": [
         "start",
         "gain",

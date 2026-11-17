@@ -13,7 +13,7 @@
     "goal": "@level.seamline.mission.goal",
     "how": "@level.seamline.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "debrief": {
     "title": "@level.seamline.debrief.title",
     "body": [
@@ -23,13 +23,13 @@
   "tasks": [
     {
       "id": "seamline",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "checkAll": true,
       "hints": [
         "@level.seamline.tasks.seamline.hints.0",
         "@level.seamline.tasks.seamline.hints.1"
       ],
-      "world": "table:world-pic",
+      "world": "state-graph:world-pic",
       "facts": [
         "energy",
         "top"

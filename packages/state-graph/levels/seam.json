@@ -5,7 +5,7 @@
     {
       "t": "@level.seam.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "0,0",
@@ -1998,7 +1998,7 @@
     {
       "t": "@level.seam.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "0,0",
@@ -3993,7 +3993,7 @@
     "goal": "@level.seam.mission.goal",
     "how": "@level.seam.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "debrief": {
     "title": "@level.seam.debrief.title",
     "body": [
@@ -4005,22 +4005,22 @@
   "tasks": [
     {
       "id": "seam",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-all": [
+            "state-graph:condition-all": [
               {
-                "table:condition-uses": "up"
+                "state-graph:condition-uses": "up"
               },
               {
-                "table:condition-not": {
-                  "table:condition-uses": "ul"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "ul"
                 }
               },
               {
-                "table:condition-not": {
-                  "table:condition-uses": "ur"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "ur"
                 }
               }
             ]
@@ -4028,7 +4028,7 @@
           "say": "@level.seam.tasks.seam.diagnose.0.say"
         }
       ],
-      "trace": "table:trace-seam",
+      "trace": "state-graph:trace-seam",
       "boardOpt": {
         "minScale": 0.5,
         "maxScale": 1.05
@@ -4038,7 +4038,7 @@
         "@level.seam.tasks.seam.hints.0",
         "@level.seam.tasks.seam.hints.1"
       ],
-      "world": "table:world-pic",
+      "world": "state-graph:world-pic",
       "facts": [
         "energy",
         "top"

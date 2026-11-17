@@ -2,7 +2,8 @@
   "kernel": "^0.0.0",
   "packages": {
     "qed": "^0.0.0",
-    "circuit": "^0.0.0"
+    "circuit": "^0.0.0",
+    "table": "^0.0.0"
   },
   "title": "@course.title",
   "kicker": "@course.kicker",

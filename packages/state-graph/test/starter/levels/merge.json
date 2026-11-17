@@ -1,0 +1,57 @@
+{
+  "title": "@level.merge.title",
+  "short": "@level.merge.short",
+  "intro": [
+    {
+      "t": "@level.merge.intro.0.t"
+    }
+  ],
+  "mission": {
+    "goal": "@level.merge.mission.goal",
+    "how": "@level.merge.mission.how"
+  },
+  "robot": "state-graph:robot-scout",
+  "adds": [
+    "table:msum"
+  ],
+  "debrief": {
+    "title": "@level.merge.debrief.title",
+    "body": [
+      "@level.merge.debrief.body.0"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "merge",
+      "play": "state-graph:circuit",
+      "hints": [
+        "@level.merge.tasks.merge.hints.0"
+      ],
+      "world": "state-graph:world-grid",
+      "tests": [
+        {
+          "R": 3,
+          "C": 4,
+          "given": {
+            "0,0": 1
+          }
+        },
+        {
+          "R": 4,
+          "C": 5,
+          "given": {
+            "0,0": 1
+          }
+        }
+      ],
+      "expected": [
+        10,
+        35
+      ],
+      "solution": [
+        "m = table:msum(view.up, view.left)",
+        "cell <- m"
+      ]
+    }
+  ]
+}

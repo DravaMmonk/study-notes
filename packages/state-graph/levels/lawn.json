@@ -13,7 +13,7 @@
     "goal": "@level.lawn.mission.goal",
     "how": "@level.lawn.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "debrief": {
     "title": "@level.lawn.debrief.title",
     "body": [
@@ -25,7 +25,7 @@
   "tasks": [
     {
       "id": "lawn",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "m = table:mmax(view.up, view.left)",
         "k = table:const[value=1]()",
@@ -39,7 +39,7 @@
         "@level.lawn.tasks.lawn.hints.0",
         "@level.lawn.tasks.lawn.hints.1"
       ],
-      "world": "table:world-lawn",
+      "world": "state-graph:world-lawn",
       "facts": [
         "open"
       ],

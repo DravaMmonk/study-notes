@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { baselineValue, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, tableFieldsBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { tableReports } from '../../../packages/state-graph/core/baseline.js'
 import { imageReports } from '../../../packages/image/core/baseline.js'
 import { taskReports } from './baseline-reports.js'
 
@@ -30,8 +31,8 @@ test('migration names normalize without erasing real differences or ambiguous id
   assert.throws(() => before({ 'old/task': 1, task: 2 }), /collision/)
 })
 test('task observations retain passing/failed hand steps and hidden image traces', async () => {
-  const hand = { id: 'tiny', taskId: 'hand', mode: 'table:fill', cells: [{ id: 's' }, { id: 'e' }], edges: [['s', 'e']], start: 's', end: 'e' }
-  const [observed] = await taskReports({ levels: [{ id: 'tiny' }], table: { played: new Map([['tiny', [hand]]]) } })
+  const hand = { id: 'tiny', taskId: 'hand', play: 'state-graph:fill', cells: [{ id: 's' }, { id: 'e' }], edges: [['s', 'e']], start: 's', end: 'e' }
+  const [observed] = await taskReports({ levels: [{ id: 'tiny' }], table: { played: new Map([['tiny', [hand]]]) } }, [{ baselineReports: tableReports }])
   assert.equal(observed.report.reference.report.pass, true)
   assert.equal(observed.report.naive.report.pass, false)
   assert.equal(observed.report.reference.report.steps.length, 2)
@@ -133,4 +134,15 @@ test('extracting bus families retains only their former alias collisions', () =>
   assert.deepEqual(before({ family: 'circuit:family-value' }), after({ family: 'circuit:family-value' }))
   assert.notDeepEqual(after({ family: 'circuit:family-value' }), after({ family: 'circuit:family-memory' }))
   assert.notDeepEqual(after({ family: 'circuit:family-value' }), after({ family: 'value' }))
+})
+
+test('table extraction normalizes only its declared play fields and migrated capability identities', () => {
+ const old = { mode: 'table:circuit', after: { 'table:panel-spell': { candidates: ['a'] } }, pass: true }
+ const current = { play: 'state-graph:circuit', panel: { 'state-graph:panel-spell': { candidates: ['a'] } }, pass: true }
+ const normalize = nameNormalizer(['table:circuit', 'table:panel-spell'])
+ assert.deepEqual(normalize(tableFieldsBaseline(current)), normalize(tableFieldsBaseline(old)))
+ assert.notDeepEqual(normalize(tableFieldsBaseline({ ...current, pass: false })), normalize(tableFieldsBaseline(old)))
+ assert.deepEqual(tableFieldsBaseline({ play: 'other:circuit', panel: 7 }), { play: 'other:circuit', panel: 7 })
+ assert.equal(normalize('state-graph:world-new'), 'state-graph:world-new')
+ assert.equal(normalize('state-graph:circuit-extra'), 'state-graph:circuit-extra')
 })

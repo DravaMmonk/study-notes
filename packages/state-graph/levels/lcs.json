@@ -5,7 +5,7 @@
     {
       "t": "@level.lcs.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -162,7 +162,7 @@
     {
       "t": "@level.lcs.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -343,7 +343,7 @@
     {
       "t": "@level.lcs.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -512,7 +512,7 @@
     {
       "t": "@level.lcs.intro.3.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -671,7 +671,7 @@
     {
       "t": "@level.lcs.intro.4.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -841,7 +841,7 @@
     "goal": "@level.lcs.mission.goal",
     "how": "@level.lcs.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.lcs.debrief.title",
     "body": [
@@ -853,9 +853,8 @@
   "tasks": [
     {
       "id": "lcs",
-      "mode": "table:circuit",
-      "trace": "table:trace-lcs",
-      "after": "table:panel-lcs",
+      "play": "state-graph:circuit",
+      "trace": "state-graph:trace-lcs",
       "boardOpt": {
         "minScale": 0.66,
         "maxScale": 1.2
@@ -865,7 +864,7 @@
         "@level.lcs.tasks.lcs.hints.1",
         "@level.lcs.tasks.lcs.hints.2"
       ],
-      "world": "table:world-align",
+      "world": "state-graph:world-align",
       "facts": [
         "same"
       ],
@@ -901,7 +900,8 @@
           "part": "align",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-lcs"
     }
   ]
 }

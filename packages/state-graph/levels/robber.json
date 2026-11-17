@@ -5,7 +5,7 @@
     {
       "t": "@level.robber.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -65,7 +65,7 @@
     {
       "t": "@level.robber.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "h0",
@@ -125,7 +125,7 @@
     {
       "t": "@level.robber.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "f0",
@@ -198,7 +198,7 @@
     "goal": "@level.robber.mission.goal",
     "how": "@level.robber.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.robber.debrief.title",
     "body": [
@@ -211,7 +211,7 @@
   "tasks": [
     {
       "id": "robber",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "tests": [
         {
           "a": [
@@ -241,7 +241,7 @@
           ]
         }
       ],
-      "world": "table:world-rob1",
+      "world": "state-graph:world-rob1",
       "facts": [
         "money"
       ],
@@ -253,13 +253,13 @@
       "onFail": {
         "head": "@level.robber.tasks.robber.onFail.head",
         "body": "@level.robber.tasks.robber.onFail.body",
-        "show": "table:panel-robConflict",
+        "show": "state-graph:panel-robConflict",
         "next": "@level.robber.tasks.robber.onFail.next"
       }
     },
     {
       "id": "robber_2",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "tests": [
         {
           "a": [
@@ -289,7 +289,7 @@
           ]
         }
       ],
-      "world": "table:world-rob2",
+      "world": "state-graph:world-rob2",
       "facts": [
         "money"
       ],

@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "m = table:mmin(view.left, view.ul, way3)",
           "k = table:const[value=0]()",
@@ -14,25 +14,68 @@
           "a = table:add(s, facts.cost)",
           "cell <- a"
         ],
-        "world": "table:world-grid",
-        "robot": "table:robot-scout",
+        "world": "state-graph:world-grid",
+        "robot": "state-graph:robot-scout",
         "ports": [
-          { "table:port-way": { "n": 1, "sensor": "left" } },
-          { "table:port-way": { "n": 2, "sensor": "ul" } },
-          { "table:port-start": { "sensor": "start" } },
-          { "table:port-named": { "label": "cost", "short": "cost", "sensor": "cost" } },
-          { "table:port-way": { "n": 3, "input": "way3" } }
+          {
+            "state-graph:port-way": {
+              "n": 1,
+              "sensor": "left"
+            }
+          },
+          {
+            "state-graph:port-way": {
+              "n": 2,
+              "sensor": "ul"
+            }
+          },
+          {
+            "state-graph:port-start": {
+              "sensor": "start"
+            }
+          },
+          {
+            "state-graph:port-named": {
+              "label": "cost",
+              "short": "cost",
+              "sensor": "cost"
+            }
+          },
+          {
+            "state-graph:port-way": {
+              "n": 3,
+              "input": "way3"
+            }
+          }
         ],
-        "facts": ["start", "cost"]
+        "facts": [
+          "start",
+          "cost"
+        ]
       }
     }
   ],
   "inputs": [
-    { "name": "left", "type": "circuit:number" },
-    { "name": "ul", "type": "circuit:number" },
-    { "name": "start", "type": "circuit:boolean" },
-    { "name": "cost", "type": "circuit:number" },
-    { "name": "way3", "type": "circuit:number" }
+    {
+      "name": "left",
+      "type": "circuit:number"
+    },
+    {
+      "name": "ul",
+      "type": "circuit:number"
+    },
+    {
+      "name": "start",
+      "type": "circuit:boolean"
+    },
+    {
+      "name": "cost",
+      "type": "circuit:number"
+    },
+    {
+      "name": "way3",
+      "type": "circuit:number"
+    }
   ],
   "outputType": "circuit:number"
 }

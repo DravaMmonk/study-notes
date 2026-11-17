@@ -11,7 +11,7 @@
     {
       "t": "@level.tagging.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "w0",
@@ -173,7 +173,7 @@
     "goal": "@level.tagging.mission.goal",
     "how": "@level.tagging.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.tagging.debrief.title",
     "body": [
@@ -185,9 +185,8 @@
   "tasks": [
     {
       "id": "tagging",
-      "mode": "table:circuit",
-      "trace": "table:trace-tags",
-      "after": "table:panel-tags",
+      "play": "state-graph:circuit",
+      "trace": "state-graph:trace-tags",
       "boardOpt": {
         "minScale": 0.62,
         "maxScale": 1.15
@@ -196,7 +195,7 @@
         "@level.tagging.tasks.tagging.hints.0",
         "@level.tagging.tasks.tagging.hints.1"
       ],
-      "world": "table:world-tags",
+      "world": "state-graph:world-tags",
       "facts": [
         "tN",
         "tV",
@@ -353,7 +352,8 @@
           "part": "viterbi",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-tags"
     }
   ]
 }

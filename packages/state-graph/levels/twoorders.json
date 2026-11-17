@@ -16,7 +16,7 @@
     "goal": "@level.twoorders.mission.goal",
     "how": "@level.twoorders.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.twoorders.debrief.title",
     "body": [
@@ -28,7 +28,7 @@
   "tasks": [
     {
       "id": "twoorders",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "tests": [
         {
           "w": [
@@ -50,7 +50,7 @@
           ]
         }
       ],
-      "world": "table:world-interval",
+      "world": "state-graph:world-interval",
       "facts": [
         "weight"
       ],
@@ -78,7 +78,7 @@
     },
     {
       "id": "twoorders_2",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "tests": [
         {
           "w": [
@@ -100,7 +100,7 @@
           ]
         }
       ],
-      "world": "table:world-interval",
+      "world": "state-graph:world-interval",
       "facts": [
         "weight"
       ],

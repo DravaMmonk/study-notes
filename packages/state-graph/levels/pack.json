@@ -27,7 +27,7 @@
   "tasks": [
     {
       "id": "pack",
-      "mode": "table:pack",
+      "play": "state-graph:pack",
       "tests": [
         {
           "W": 5,

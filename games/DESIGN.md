@@ -107,14 +107,14 @@
 | 元素 | 含义 | 在引擎里 |
 |---|---|---|
 | 传感器 | 关卡给电路的一个有名字的值：一张测试图、机器人看到的一格、脚下格子的一条信息 | `packages/circuit/core/board/sensors.js` 的统一形状 `{ id, label, short?, type, family?, named? }` |
-| 输入元件 | 电路板上固定的输入，按传感器的种类分（《状态之图》：视野、本格信息），不能放也不能删。元件一开始没有输出口；学习者点一个传感器（在元件上，或在输入窗口里），元件就多一个读它的输出口，再点一下就去掉 | `modules/table/model/parts.js` 的输入元件（读到的传感器存在 `params.picks`）；kit 的 `parts.outputs` 支持一个元件多个输出 |
+| 输入元件 | 电路板上固定的输入，按传感器的种类分（《状态之图》：视野、本格信息），不能放也不能删。元件一开始没有输出口；学习者点一个传感器（在元件上，或在输入窗口里），元件就多一个读它的输出口，再点一下就去掉 | `packages/table/core/model/parts.js` 的输入元件（读到的传感器存在 `params.picks`）；kit 的 `parts.outputs` 支持一个元件多个输出 |
 | 原始元件 | 课程起点，内部不在本专题关心的范围 | 课程声明的 `primitives`（`games/kit/course.js`） |
 | 中层元件 / 封装元件 | 学习者搭出、解锁后当一个元件用，打开能看里面 | `parts/<名>.json` 的 `inside` 存自带参考作品的版本，任务通过 `publishes` 声明它发布的元件版本（课程钩子 `needs` / `builds`）；`packages/circuit/core/boards.js` 的 `packed` 把通关时记下的电路当一个元件跑 |
 | 规格 | 传感器、输出、测试、隐藏测试 | 各游戏的关卡数据（数据游戏：`levels/<id>.json`，字段由内核词汇表给出 schema） |
 | 参考解 / naive 解 | 证明规格可解 / 证明直觉解法不够 | 数据游戏写成蓝图文本；`npm run check` 运行它们（各模块的 `validate`） |
 | 反例 | 失败时具体的那组输入、期望、实际，以及第一处偏离 | 各游戏的失败面板（《状态之图》能定位到第一格算错） |
 | 代价 | 元件数、求值步数、读取次数、表的大小 | `kit/engine/test-run.js` 的 `score` 钩子；《视觉完备》算计算量 |
-| 世界 | 机体工作的地方：一张图、一张表、一排房子 | `modules/table/model/worlds/`；《视觉完备》测试数据 |
+| 世界 | 机体工作的地方：一张图、一张表、一排房子 | `packages/state-graph/core/model/worlds/`；《视觉完备》测试数据 |
 | 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | `kit/engine/kernel.js` 汇总 `modules/<模块>/vocabulary.js` 的能力声明 |
 
 ---
@@ -207,7 +207,7 @@
 | 位置 | 职责 |
 |---|---|
 | `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
-| `kit/modules/<模块>/` | 尚未迁出的 logic、table |
+| `kit/modules/<模块>/` | 尚未迁出的 logic |
 | `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
 | `packages/rows/`、`packages/tick-bus/` | 等式行、逐拍总线的核心、视图、字段声明和普通起步对象 |
 | `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
@@ -377,7 +377,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 - 外壳通过游戏的 `shell`、`settings`、`mapBadges`、`referenceName`、`describeObservation`、`composeModules` 接口挂载包行为，引用显示器由 `display` 登记元数据定义。元件册、工坊、元件奖励、连接标签设置和元件样式归包。`Workbench`、`Library`、运行控件、存档上下文和输入交互是共享布局部件。
 - 基线观察由含义对象的 `baselineCourse`、`baselineStructure`、`baselineRecords`、`baselineReports` 提供，继续比较完整作品、顺序、结果和轨迹。引擎工具保存通用快照与差异算法。
 
-临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/{image,table,logic}` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
+临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/logic` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
 包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
 
 ### 6.4 参数台
@@ -439,7 +439,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 7. 要练的是不是判断别人的东西对不对？是：用纠错玩法，在给定的几块板上运行自己写的检验。
 8. 机器出现之前，玩家是不是该先自己当一回机器？是：手动关，放在机器那一章之前。
 
-以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有原生模板为 `logic`、`table`，其他机制复用包。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
+以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有原生模板仅为 `logic`，其他机制复用包。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
 
 ### 6.6 play 钩子（盲玩暂停）
 
@@ -1148,3 +1148,26 @@ share their layout, knob and goal schemas this way. Source declarations retain t
 Resolved layers are reused when listing games and loading package code. Unchanged source files
 reuse parsed import metadata while dependency authority is checked on every call. Quick previews
 reuse their computed changes when rendering a diff and preserve unchanged JSON containers directly.
+
+
+### Table extraction (MODULES step 9)
+
+`packages/table/core/` owns table signals and primitives, cell readers, the world protocol, board works,
+blueprint wiring and deterministic cell-by-cell evaluation. `table/view` exports a scene-renderer factory;
+its trusted robot/icon catalogs are passed by the consumer. Table reuses `circuit/part` and the kernel
+level/task kinds, so it declares no extra object identity. `kinds/README.md` records this ownership.
+
+`packages/state-graph/core/` owns concrete worlds, robot models, course preparation, manual-play judges,
+checks, blind play and baseline observers. Its `view/` owns the existing screens, robot presentation,
+figures and mascot; `kinds/` declares its eight task schemas. Tasks select `state-graph:*` with `play`;
+the former task `after` panel is now `panel`, while generic pass copy retains `after`. Packed circuit
+references use the same `play` discriminator. State-graph directly uses table, circuit and image;
+the game explicitly selects their full closure. Only logic remains native in `kit/modules/`.
+
+The retired table starter is now synthetic package test material. Reuse the state-graph package through
+`new-package --from state-graph`; no table template or native dispatch remains. Core and view contracts
+exercise synthetic data, including a headless circuit adapter shared with the UI through explicit
+wiring and placement functions. Studio files remain owned by its maintainer; package-specific editor
+integration and the starter-control coverage assertion are handled there.
+
+The comp90086, qed and vision-complete packages also directly select table to preserve their locked standalone primitive palettes; all four games select that dependency explicitly.

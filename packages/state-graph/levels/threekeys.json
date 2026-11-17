@@ -10,7 +10,7 @@
     "goal": "@level.threekeys.mission.goal",
     "how": "@level.threekeys.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.threekeys.debrief.title",
     "body": [
@@ -20,9 +20,9 @@
   "tasks": [
     {
       "id": "threekeys",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "noTrace": true,
-      "world": "table:world-keys",
+      "world": "state-graph:world-keys",
       "facts": [
         "start",
         "gain",

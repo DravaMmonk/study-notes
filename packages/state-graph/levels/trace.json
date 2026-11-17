@@ -5,7 +5,7 @@
     {
       "t": "@level.trace.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -83,7 +83,7 @@
     {
       "t": "@level.trace.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "H",
@@ -180,7 +180,7 @@
   "tasks": [
     {
       "id": "trace",
-      "mode": "table:trace",
+      "play": "state-graph:trace",
       "cells": [
         {
           "id": "H",

@@ -5,11 +5,16 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
-        "solution": ["c = interval(view.segL, view.segR, facts.weight)", "cell <- c"],
-        "world": "table:world-interval",
-        "robot": "table:robot-broom",
-        "facts": ["weight"]
+        "play": "state-graph:circuit",
+        "solution": [
+          "c = interval(view.segL, view.segR, facts.weight)",
+          "cell <- c"
+        ],
+        "world": "state-graph:world-interval",
+        "robot": "state-graph:robot-broom",
+        "facts": [
+          "weight"
+        ]
       }
     }
   ]

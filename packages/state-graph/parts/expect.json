@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "k8 = table:const[value=0.8]()",
           "k2 = table:const[value=0.2]()",
@@ -20,9 +20,12 @@
           "x = table:mul(m, k9)",
           "cell <- x"
         ],
-        "world": "table:world-vgrid",
-        "robot": "table:robot-loop",
-        "facts": ["slip", "grip"]
+        "world": "state-graph:world-vgrid",
+        "robot": "state-graph:robot-loop",
+        "facts": [
+          "slip",
+          "grip"
+        ]
       }
     }
   ]

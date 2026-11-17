@@ -13,7 +13,7 @@
     "goal": "@level.twokeys.mission.goal",
     "how": "@level.twokeys.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.twokeys.debrief.title",
     "body": [
@@ -23,12 +23,12 @@
   "tasks": [
     {
       "id": "twokeys",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "noTrace": true,
       "hints": [
         "@level.twokeys.tasks.twokeys.hints.0"
       ],
-      "world": "table:world-keys",
+      "world": "state-graph:world-keys",
       "facts": [
         "start",
         "gain",

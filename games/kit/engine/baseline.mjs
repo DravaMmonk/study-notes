@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { contentRoot, readContent, readPackage, runtimeOf, contentTargets, packageIds } from './resolver.js'
 import { packageLevel } from './package-play.js'
 import { closeGames } from './games.mjs'
-import { baselineValue, imageFieldsBaseline, collectionFieldsBaseline, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, tableFieldsBaseline, imageFieldsBaseline, collectionFieldsBaseline, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
 import { contentSchemas } from './content.js'
 import { meaningsOf } from './kind-meanings.js'
@@ -67,7 +67,7 @@ try {
       const normalizeBefore = nameNormalizer(before.names), normalizeAfter = nameNormalizer(snapshot.names)
       // The inventory itself describes migration locations, not behaviour.
       const { names: _old, ...oldData } = before, { names: _new, ...newData } = snapshot
-      const changes = differences(collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeBefore(imageFieldsBaseline(oldData))))), collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeAfter(imageFieldsBaseline(newData))))))
+      const changes = differences(collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeBefore(imageFieldsBaseline(tableFieldsBaseline(oldData)))))), collectionFieldsBaseline(versionMetadataBaseline(existenceBaseline(normalizeAfter(imageFieldsBaseline(tableFieldsBaseline(newData)))))))
       changeCount = changes.length
       total += changeCount
       writeFileSync(resolve(folder, `${kind}-${id}.diff.json`), JSON.stringify(packBaseline(changes)) + '\n')

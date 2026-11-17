@@ -19,7 +19,7 @@
     "goal": "@level.loop.mission.goal",
     "how": "@level.loop.mission.how"
   },
-  "robot": "table:robot-loop",
+  "robot": "state-graph:robot-loop",
   "debrief": {
     "title": "@level.loop.debrief.title",
     "body": [
@@ -31,12 +31,12 @@
   "tasks": [
     {
       "id": "loop",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "hints": [
         "@level.loop.tasks.loop.hints.0",
         "@level.loop.tasks.loop.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "cost"

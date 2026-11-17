@@ -13,7 +13,7 @@
     "goal": "@level.ice.mission.goal",
     "how": "@level.ice.mission.how"
   },
-  "robot": "table:robot-loop",
+  "robot": "state-graph:robot-loop",
   "debrief": {
     "title": "@level.ice.debrief.title",
     "body": [
@@ -24,19 +24,19 @@
   "tasks": [
     {
       "id": "ice",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-not": {
-                  "table:condition-uses": "slip"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "slip"
                 }
               },
               {
-                "table:condition-not": {
-                  "table:condition-uses": "grip"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "grip"
                 }
               }
             ]
@@ -45,8 +45,8 @@
         },
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-has": "table:mul"
+            "state-graph:condition-not": {
+              "state-graph:condition-has": "table:mul"
             }
           },
           "say": "@level.ice.tasks.ice.diagnose.1.say"
@@ -62,7 +62,7 @@
       "hints": [
         "@level.ice.tasks.ice.hints.0"
       ],
-      "world": "table:world-vgrid",
+      "world": "state-graph:world-vgrid",
       "facts": [
         "slip",
         "grip"

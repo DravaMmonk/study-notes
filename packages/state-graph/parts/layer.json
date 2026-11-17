@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "n = table:mmax(view.pn, view.pr)",
           "a = table:add(view.pn, facts.money)",
@@ -14,9 +14,11 @@
           "yes <- a",
           "best <- b"
         ],
-        "world": "table:world-rob2",
-        "robot": "table:robot-stack",
-        "facts": ["money"]
+        "world": "state-graph:world-rob2",
+        "robot": "state-graph:robot-stack",
+        "facts": [
+          "money"
+        ]
       }
     }
   ]

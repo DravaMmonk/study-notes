@@ -93,7 +93,9 @@ export function formulaSymbolBaseline(input) {
 /** Only registered names are aliases; prose, formulas and arbitrary slashes stay meaningful. */
 export function nameNormalizer(names) {
   // MODULES.md §10.3 explicitly makes these kind/path/key spellings equivalent.
+  const tableNames = new Set(["world-grid", "world-gridYes", "world-piles", "world-tri", "world-lawn", "world-strip", "world-pile", "world-coins", "world-parts", "world-rob1", "world-rob2", "world-ring", "world-prefix", "world-heights", "world-gains", "world-keys", "world-river", "world-stock", "world-align", "world-local", "world-knap", "world-roll", "world-interval", "world-vgrid", "world-tags", "world-pic", "robot-scout", "robot-ranger", "robot-reach", "robot-broom", "robot-stack", "robot-loop", "circuit", "fill", "trace", "link", "pack", "breach", "policy", "seam", "figure-scene", "figure-grid", "figure-circuit", "figure-window", "condition-reads", "condition-uses", "condition-has", "condition-feeds", "condition-placed", "condition-wired", "condition-wiredOut", "condition-all", "condition-any", "condition-not", "trace-lcs", "trace-edit", "trace-local", "trace-knap", "trace-seam", "trace-tags", "panel-lcs", "panel-edit", "panel-spell", "panel-local", "panel-tags", "panel-knap", "panel-roll", "panel-dictionary", "panel-robConflict", "explain-roll", "port-reads", "port-way", "port-start", "port-named"])
   const kindNames = text => text
+    .replace(/(?<![\w/-])state-graph:([A-Za-z][A-Za-z0-9_-]*)(?![\w-])/g, (name, local) => tableNames.has(local) ? `table:${local}` : name)
     .replace(/(overrides\/[^/\s]+\/)tag\//g, '$1tags/')
     .replace(/\bpieced it together\b/g, 'assembled it')
     .replace(/\bpieced\b/g, 'assembled')
@@ -106,7 +108,7 @@ export function nameNormalizer(names) {
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
   // Preserve the exact retired bus and image collisions in the frozen native vocabulary inventory.
-  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory', 'image:add', 'image:board', 'image:const', 'image:family-search', 'image:merge', 'image:mul', 'image:sub'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
+  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory', 'image:add', 'image:board', 'image:const', 'image:family-search', 'image:merge', 'image:mul', 'image:sub', 'table:not', 'table:robot-loop', 'table:circuit'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {
@@ -263,4 +265,20 @@ export function imageFieldsBaseline(value) {
       return { ...fields, kind: play }
     }),
   })) } }
+}
+
+/** Only former table tasks/references use the renamed play and panel fields. */
+export function tableFieldsBaseline(value) {
+ const plays = new Set(['circuit', 'fill', 'trace', 'link', 'pack', 'breach', 'policy', 'seam'].flatMap(name => [`table:${name}`, `state-graph:${name}`]))
+ const memo = new WeakMap()
+ const walk = input => {
+  if (!input || typeof input !== 'object') return input
+  if (memo.has(input)) return memo.get(input)
+  if (Array.isArray(input)) { const result = []; memo.set(input, result); result.push(...input.map(walk)); return result }
+  const result = Object.fromEntries(Object.entries(input).map(([key, child]) => [key, walk(child)]))
+  memo.set(input, result)
+  if (result.mode === undefined && plays.has(result.play)) { result.mode = result.play; delete result.play; if (result.panel !== undefined && result.after === undefined) { result.after = result.panel; delete result.panel } }
+  return result
+ }
+ return walk(value)
 }

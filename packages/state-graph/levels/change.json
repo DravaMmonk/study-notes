@@ -5,7 +5,7 @@
     {
       "t": "@level.change.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "r0",
@@ -91,7 +91,7 @@
     "goal": "@level.change.mission.goal",
     "how": "@level.change.mission.how"
   },
-  "robot": "table:robot-broom",
+  "robot": "state-graph:robot-broom",
   "debrief": {
     "title": "@level.change.debrief.title",
     "body": [
@@ -103,7 +103,7 @@
   "tasks": [
     {
       "id": "change",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "@level.change.tasks.change.testLabel",
       "tests": [
         {
@@ -130,7 +130,7 @@
           ]
         }
       ],
-      "world": "table:world-coins",
+      "world": "state-graph:world-coins",
       "facts": [
         "ground"
       ],
@@ -162,7 +162,7 @@
     },
     {
       "id": "change_2",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "@level.change.tasks.change_2.testLabel",
       "tests": [
         {
@@ -189,7 +189,7 @@
           ]
         }
       ],
-      "world": "table:world-coins",
+      "world": "state-graph:world-coins",
       "facts": [
         "ground"
       ],

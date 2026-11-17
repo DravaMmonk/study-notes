@@ -8,7 +8,7 @@
     {
       "t": "@level.knapmany.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -193,7 +193,7 @@
     "goal": "@level.knapmany.mission.goal",
     "how": "@level.knapmany.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.knapmany.debrief.title",
     "body": [
@@ -204,17 +204,17 @@
   "tasks": [
     {
       "id": "knapmany",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-all": [
+            "state-graph:condition-all": [
               {
-                "table:condition-uses": "upk"
+                "state-graph:condition-uses": "upk"
               },
               {
-                "table:condition-not": {
-                  "table:condition-uses": "rowk"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "rowk"
                 }
               }
             ]
@@ -230,7 +230,7 @@
         "@level.knapmany.tasks.knapmany.hints.0",
         "@level.knapmany.tasks.knapmany.hints.1"
       ],
-      "world": "table:world-knap",
+      "world": "state-graph:world-knap",
       "facts": [
         "value"
       ],

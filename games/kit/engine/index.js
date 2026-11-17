@@ -93,3 +93,11 @@ export { seedOf } from './seed.js'
 export { createCapabilityRegistry } from './capabilities.js'
 
 export { runtimeWorks } from './runtime-model.js'
+
+export { getLang } from '../shell/i18n.js'
+
+export { isText } from './i18n.js'
+
+export { levelLabels } from '../course.js'
+
+export { reportRuns } from './test-run.js'

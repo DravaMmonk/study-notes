@@ -19,7 +19,7 @@
     "goal": "@level.forward.mission.goal",
     "how": "@level.forward.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "adds": [
     "table:mul"
   ],
@@ -34,16 +34,16 @@
   "tasks": [
     {
       "id": "forward",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-has": "table:mmin"
+                "state-graph:condition-has": "table:mmin"
               },
               {
-                "table:condition-has": "table:mmax"
+                "state-graph:condition-has": "table:mmax"
               }
             ]
           },
@@ -58,7 +58,7 @@
         "@level.forward.tasks.forward.hints.0",
         "@level.forward.tasks.forward.hints.1"
       ],
-      "world": "table:world-tags",
+      "world": "state-graph:world-tags",
       "facts": [
         "tN",
         "tV",

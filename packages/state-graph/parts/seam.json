@@ -1,5 +1,12 @@
 {
   "name": "@part.seam.name",
   "desc": "@part.seam.desc",
-  "inside": [{ "id": "base", "reference": { "mode": "table:seam" } }]
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "play": "state-graph:seam"
+      }
+    }
+  ]
 }

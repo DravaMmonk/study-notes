@@ -14,7 +14,7 @@ rg -n -i 'circuit|part|tray|stage|workshop|grant' games/kit/engine games/kit/app
 |---|---|---|
 | `games/kit/app/plugin-game.jsx` | 2, 33, 36 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/app/studio.test.js` | 154, 155, 163, 165 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/baseline-reports.js` | 66, 73 | Native table and logic observation dispatch. Image observations are supplied by the image kind meaning. |
+| `games/kit/engine/baseline-reports.js` | 66, 73 | Native logic observation dispatch. Image and state-graph supply their own observation meanings. |
 | `games/kit/engine/baseline-value.js` | 43, 45, 46, 58, 59, 65, 68, 69, 70, 72, 74, 75, 77, 80, 82, 87, 89, 100, 101, 102, 103, 104, 105, 106, 107, 202, 224, 226 | Frozen-corpus identity/path/copy-key and diagnostic spelling normalization, documented in engine/baseline.md. No execution results are dropped. |
 | `games/kit/engine/baseline.test.js` | 61, 63, 64, 65, 71, 72, 73, 80, 81, 86, 87, 88, 91, 94, 106, 109, 124, 126, 127, 131, 132, 133, 134, 135 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/capabilities.test.js` | 6, 8, 24, 36, 37, 38, 39, 43, 44, 46, 47, 63, 64, 65, 66, 68, 71, 72, 74, 75, 76, 78 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
@@ -101,24 +101,6 @@ The remaining native modules consume circuit through its public core/view export
 
 | Consumer | Import lines | Removal |
 |---|---|---|
-| `games/kit/modules/table/plays.js` | 1 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/items/conditions.js` | 5 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/work.js` | 7, 8, 9, 10, 11, 12, 16, 18, 21 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/vocabulary.js` | 14, 15 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/model/parts.js` | 1 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/model/wiring.js` | 8, 9, 10, 11 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/model/run.js` | 5, 6, 7, 8, 9 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/model/world.js` | 34, 38 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/model/board.js` | 13 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/table.test.js` | 7, 9, 10 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/module.js` | 1 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/runtime.js` | 9 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/play.js` | 13 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/game.js` | 1, 7, 10 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/ui/useRobotWorld.js` | 1, 2 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/ui/board.js` | 5, 8 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/ui/partDemo.js` | 1, 2, 3, 4, 6 | Move with `table`; import only public package exports. |
-| `games/kit/modules/table/ui/circuitCourse.js` | 1 | Move with `table`; import only public package exports. |
 | `games/kit/modules/logic/play.test.js` | 1, 5 | Move with `logic`; import only public package exports. |
 | `games/kit/modules/logic/gates.js` | 9, 10, 11, 12 | Move with `logic`; import only public package exports. |
 | `games/kit/modules/logic/logic.test.js` | 16 | Move with `logic`; import only public package exports. |
@@ -172,7 +154,7 @@ Vite dispatch are removed. Package code consumes only `kernel`, `kernel/view`, `
 The bus-only tick runner, reports, textual tick-play adapter and tick tests moved from circuit to tick-bus.
 The former native starter objects moved to the owning packages, with no package course or chapter.
 
-Remaining temporary bridges are exactly the table/logic public circuit imports listed above, plus
+Remaining temporary bridges are exactly the logic public circuit imports listed above, plus
 `engine/circuit-bridge.js` for logic symbol grants. These leave in their respective extraction steps.
 
 
@@ -185,6 +167,20 @@ Circuit no longer registers bench displays. Shared layouts use image display nam
 Vision-complete owns its dedicated catalog and presentation. Each image content package owns
 its power/box kinds. Package imports use only public exports.
 
-Remaining temporary bridges are the table and logic public circuit imports in the table above,
+Remaining temporary bridges are the logic public circuit imports in the table above,
 and `engine/circuit-bridge.js` for logic symbol grants. Studio editors remain with their owner
 until step 11. No image bridge remains.
+
+
+## Step 9 removal
+
+All table public-export bridges listed in the previous audit have been removed from the kernel.
+`kit/modules/table`, its vocabulary registration, native game/Studio prepare dispatch and native
+baseline observation branch are gone. Generic code now lives under `packages/table/core` and `view`;
+concrete worlds/robots and their task declarations live under `packages/state-graph/core`, `view`
+and `kinds`. Scene rendering receives trusted consumer catalogs explicitly. Circuit packed references
+use `play` rather than the table-only `mode` field. No table fallback or old import path remains.
+
+The remaining production bridges are exactly the listed `kit/modules/logic` public circuit imports
+and `engine/circuit-bridge.js` for logic symbol grants, invoked by kernel/resolver. They leave in step 10.
+`games/kit/studio/**` is untouched; its editor migration remains step 11 and belongs to Claude.

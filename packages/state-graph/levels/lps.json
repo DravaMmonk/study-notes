@@ -13,7 +13,7 @@
     "goal": "@level.lps.mission.goal",
     "how": "@level.lps.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.lps.debrief.title",
     "body": [
@@ -24,18 +24,18 @@
   "tasks": [
     {
       "id": "lps",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-all": [
+            "state-graph:condition-all": [
               {
-                "table:condition-not": {
-                  "table:condition-uses": "dl"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "dl"
                 }
               },
               {
-                "table:condition-uses": "same"
+                "state-graph:condition-uses": "same"
               }
             ]
           },
@@ -46,7 +46,7 @@
         "@level.lps.tasks.lps.hints.0",
         "@level.lps.tasks.lps.hints.1"
       ],
-      "world": "table:world-interval",
+      "world": "state-graph:world-interval",
       "facts": [
         "same"
       ],

@@ -5,7 +5,7 @@
     {
       "t": "@level.reach.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 3,
           "cells": {
@@ -51,7 +51,7 @@
     {
       "t": "@level.reach.intro.1.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "u",
@@ -105,7 +105,7 @@
     "goal": "@level.reach.mission.goal",
     "how": "@level.reach.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:many"
   ],
@@ -120,7 +120,7 @@
   "tasks": [
     {
       "id": "reach",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "@level.reach.tasks.reach.testLabel",
       "checkAll": true,
       "hints": [
@@ -128,7 +128,7 @@
         "@level.reach.tasks.reach.hints.1",
         "@level.reach.tasks.reach.hints.2"
       ],
-      "world": "table:world-gridYes",
+      "world": "state-graph:world-gridYes",
       "facts": [
         "start",
         "rock"

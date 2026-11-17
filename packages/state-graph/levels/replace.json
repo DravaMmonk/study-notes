@@ -13,7 +13,7 @@
     "goal": "@level.replace.mission.goal",
     "how": "@level.replace.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.replace.debrief.title",
     "body": [
@@ -23,16 +23,16 @@
   "tasks": [
     {
       "id": "replace",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-uses": "up"
+                "state-graph:condition-uses": "up"
               },
               {
-                "table:condition-uses": "left"
+                "state-graph:condition-uses": "left"
               }
             ]
           },
@@ -43,7 +43,7 @@
         "@level.replace.tasks.replace.hints.0",
         "@level.replace.tasks.replace.hints.1"
       ],
-      "world": "table:world-align",
+      "world": "state-graph:world-align",
       "facts": [
         "same",
         "start"

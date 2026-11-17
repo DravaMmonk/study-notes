@@ -5,7 +5,7 @@
     {
       "t": "@level.cheapest.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 3,
           "cells": {
@@ -46,7 +46,7 @@
     {
       "t": "@level.cheapest.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "u",
@@ -103,7 +103,7 @@
     "goal": "@level.cheapest.mission.goal",
     "how": "@level.cheapest.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:mmin",
     "table:mmax"
@@ -119,12 +119,12 @@
   "tasks": [
     {
       "id": "cheapest",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-has": "table:mmin"
+            "state-graph:condition-not": {
+              "state-graph:condition-has": "table:mmin"
             }
           },
           "say": "@level.cheapest.tasks.cheapest.diagnose.0.say"
@@ -134,7 +134,7 @@
         "@level.cheapest.tasks.cheapest.hints.0",
         "@level.cheapest.tasks.cheapest.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "cost"

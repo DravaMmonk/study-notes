@@ -177,3 +177,15 @@ test('play-scoped task fields preserve native schemas and enforce required packa
   assert.ok(validate(schemas.level, level([{ id: 'new', brief: 'Package', play: 'sample:answer' }])).length)
   assert.ok(validate(schemas.level, level([{ id: 'new', brief: 'Package', play: 'sample:answer', rows: 'wrong' }])).length)
 })
+
+test('scoped task declarations retain common fields from nested schema alternatives', async () => {
+ const { withKindDeclarations } = await import('./plugin-kinds.js')
+ const { S } = await import('./schema.js')
+ const task = S.obj({ id: S.task(), play: S.str(), brief: S.opt(S.text()) })
+ const schema = { level: S.obj({ title: S.text(), tasks: S.list(S.either(S.either(task))) }), game: S.obj({}) }
+ const layer = { id: 'sample', resolved: true, objects: [{ kind: 'kind', name: 'task', value: { extends: 'task', play: 'sample:answer', fields: { answer: S.str() }, declares: 'package', overrides: { package: ['*'] } } }] }
+ const projected = withKindDeclarations(schema, [layer], true)
+ const branch = projected.level.fields.tasks.of.of.find(shape => shape.fields?.play?.values?.[0] === 'sample:answer')
+ assert.equal(branch.fields.brief.optional, true)
+ assert.equal(branch.fields.answer.type, 'str')
+})

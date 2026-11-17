@@ -116,3 +116,5 @@ export { linePath, plotY } from '../views/plots/coordinates.js'
 export { callOf } from '../engine/schema.js'
 
 export { refParts } from '../shell/refs.js'
+
+export { reduced } from '../shell/useMedia.js'

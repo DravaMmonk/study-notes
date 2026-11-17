@@ -5,7 +5,7 @@
     {
       "t": "@level.roll.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -200,7 +200,7 @@
     {
       "t": "@level.roll.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "d0",
@@ -274,7 +274,7 @@
     "goal": "@level.roll.mission.goal",
     "how": "@level.roll.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.roll.debrief.title",
     "body": [
@@ -287,7 +287,7 @@
   "tasks": [
     {
       "id": "roll",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "a = table:add(view.src, facts.value)",
         "cell <- a"
@@ -295,16 +295,16 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-all": [
+            "state-graph:condition-not": {
+              "state-graph:condition-all": [
                 {
-                  "table:condition-uses": "old"
+                  "state-graph:condition-uses": "old"
                 },
                 {
-                  "table:condition-uses": "src"
+                  "state-graph:condition-uses": "src"
                 },
                 {
-                  "table:condition-uses": "value"
+                  "state-graph:condition-uses": "value"
                 }
               ]
             }
@@ -312,14 +312,13 @@
           "say": "@level.roll.tasks.roll.diagnose.0.say"
         }
       ],
-      "after": "table:panel-roll",
-      "explain": "table:explain-roll",
+      "explain": "state-graph:explain-roll",
       "boardOpt": {
         "minScale": 0.66,
         "maxScale": 1.15
       },
       "noTrace": true,
-      "world": "table:world-roll",
+      "world": "state-graph:world-roll",
       "facts": [
         "value"
       ],
@@ -424,7 +423,8 @@
           "part": "roll",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-roll"
     }
   ]
 }

@@ -8,7 +8,7 @@
     {
       "t": "@level.nim.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "p0",
@@ -71,7 +71,7 @@
     {
       "t": "@level.nim.intro.3.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "a",
@@ -112,7 +112,7 @@
     "goal": "@level.nim.mission.goal",
     "how": "@level.nim.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "adds": [
     "table:not"
   ],
@@ -127,12 +127,12 @@
   "tasks": [
     {
       "id": "nim",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-has": "table:not"
+            "state-graph:condition-not": {
+              "state-graph:condition-has": "table:not"
             }
           },
           "say": "@level.nim.tasks.nim.diagnose.0.say"
@@ -143,7 +143,7 @@
         "@level.nim.tasks.nim.hints.0",
         "@level.nim.tasks.nim.hints.1"
       ],
-      "world": "table:world-pile",
+      "world": "state-graph:world-pile",
       "facts": [
         "ground"
       ],

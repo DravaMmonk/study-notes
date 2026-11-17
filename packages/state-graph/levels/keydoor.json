@@ -19,7 +19,7 @@
     "goal": "@level.keydoor.mission.goal",
     "how": "@level.keydoor.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.keydoor.debrief.title",
     "body": [
@@ -30,7 +30,7 @@
   "tasks": [
     {
       "id": "keydoor",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "boardOpt": {
         "minScale": 0.62,
         "maxScale": 1.15
@@ -40,7 +40,7 @@
         "@level.keydoor.tasks.keydoor.hints.0",
         "@level.keydoor.tasks.keydoor.hints.1"
       ],
-      "world": "table:world-keys",
+      "world": "state-graph:world-keys",
       "facts": [
         "start",
         "gain",

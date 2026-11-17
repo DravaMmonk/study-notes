@@ -5,7 +5,7 @@
     {
       "t": "@level.slantcost.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 4,
           "moves": [
@@ -68,7 +68,7 @@
     {
       "t": "@level.slantcost.intro.3.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "a",
@@ -115,7 +115,7 @@
     "goal": "@level.slantcost.mission.goal",
     "how": "@level.slantcost.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:add"
   ],
@@ -130,34 +130,34 @@
   "tasks": [
     {
       "id": "slantcost",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 1,
             "sensor": "left"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 2,
             "sensor": "ul"
           }
         },
         {
-          "table:port-start": {
+          "state-graph:port-start": {
             "sensor": "start"
           }
         },
         {
-          "table:port-named": {
+          "state-graph:port-named": {
             "label": "@level.slantcost.tasks.slantcost.ports.3.named.label",
             "short": "@level.slantcost.tasks.slantcost.ports.3.named.short",
             "sensor": "cost"
           }
         },
         {
-          "table:port-way": {
+          "state-graph:port-way": {
             "n": 3,
             "input": "way3"
           }
@@ -166,7 +166,7 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-uses": "up"
+            "state-graph:condition-uses": "up"
           },
           "say": "@level.slantcost.tasks.slantcost.diagnose.0.say"
         }
@@ -177,7 +177,7 @@
         "@level.slantcost.tasks.slantcost.hints.2",
         "@level.slantcost.tasks.slantcost.hints.3"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "cost"

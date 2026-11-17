@@ -1,0 +1,2 @@
+{"seq":1,"at":"2026-11-17T14:36:47.480Z","why":"MODULES step 9: extract table and state-graph mechanisms into packages","adopt":true,"files":[{"file":"packages/table/package.json","after":"a092e4618ef030e3"}]}
+{"seq":2,"at":"2026-11-17T14:40:53.493Z","why":"MODULES step 9: extract table; preserve standalone primitive palettes","adopt":true,"files":[{"file":"packages/table/package.json","after":"a092e4618ef030e3"}]}

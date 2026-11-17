@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "a = table:not(view.up)",
           "b = table:not(view.left)",
@@ -13,8 +13,8 @@
           "m = table:many(a, b, c)",
           "cell <- m"
         ],
-        "world": "table:world-piles",
-        "robot": "table:robot-ranger"
+        "world": "state-graph:world-piles",
+        "robot": "state-graph:robot-ranger"
       }
     }
   ]

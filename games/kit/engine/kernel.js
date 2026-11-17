@@ -3,9 +3,8 @@ import { registerCircuitConsumers } from './circuit-bridge.js'
 import { S } from './schema.js'
 import { createCapabilityRegistry, registeredOperations, registeredValueTypes, selectModuleVocabulary } from './capabilities.js'
 import logic from '../modules/logic/module.js'
-import table from '../modules/table/module.js'
 
-export const modules = [logic, table]
+export const modules = [logic]
 export const capabilities = createCapabilityRegistry()
 for (const module of modules) module.register(capabilities)
 registerCircuitConsumers()

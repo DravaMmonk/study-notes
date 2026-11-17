@@ -5,7 +5,7 @@
     {
       "t": "@level.rocks.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 3,
           "C": 3,
           "cells": {
@@ -19,7 +19,7 @@
     {
       "t": "@level.rocks.intro.1.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "u",
@@ -73,7 +73,7 @@
     {
       "t": "@level.rocks.intro.2.t",
       "fig": {
-        "table:figure-circuit": {
+        "state-graph:figure-circuit": {
           "taps": [
             {
               "id": "c",
@@ -124,7 +124,7 @@
     "goal": "@level.rocks.mission.goal",
     "how": "@level.rocks.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:block"
   ],
@@ -139,12 +139,12 @@
   "tasks": [
     {
       "id": "rocks",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "hints": [
         "@level.rocks.tasks.rocks.hints.0",
         "@level.rocks.tasks.rocks.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "rock"

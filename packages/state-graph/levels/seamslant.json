@@ -10,7 +10,7 @@
     "goal": "@level.seamslant.mission.goal",
     "how": "@level.seamslant.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "adds": [
     "table:block"
   ],
@@ -23,19 +23,19 @@
   "tasks": [
     {
       "id": "seamslant",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-not": {
-                  "table:condition-uses": "ul"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "ul"
                 }
               },
               {
-                "table:condition-not": {
-                  "table:condition-uses": "ur"
+                "state-graph:condition-not": {
+                  "state-graph:condition-uses": "ur"
                 }
               }
             ]
@@ -48,7 +48,7 @@
         "@level.seamslant.tasks.seamslant.hints.0",
         "@level.seamslant.tasks.seamslant.hints.1"
       ],
-      "world": "table:world-pic",
+      "world": "state-graph:world-pic",
       "facts": [
         "energy",
         "top"

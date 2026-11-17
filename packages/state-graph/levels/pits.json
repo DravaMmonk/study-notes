@@ -10,7 +10,7 @@
     "goal": "@level.pits.mission.goal",
     "how": "@level.pits.mission.how"
   },
-  "robot": "table:robot-scout",
+  "robot": "state-graph:robot-scout",
   "debrief": {
     "title": "@level.pits.debrief.title",
     "body": [
@@ -21,12 +21,12 @@
   "tasks": [
     {
       "id": "pits",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "rock"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "rock"
             }
           },
           "say": "@level.pits.tasks.pits.diagnose.0.say"
@@ -36,7 +36,7 @@
         "@level.pits.tasks.pits.hints.0",
         "@level.pits.tasks.pits.hints.1"
       ],
-      "world": "table:world-grid",
+      "world": "state-graph:world-grid",
       "facts": [
         "start",
         "cost",

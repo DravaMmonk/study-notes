@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "a = table:add(view.pN, facts.tN)",
           "b = table:add(view.pV, facts.tV)",
@@ -14,9 +14,14 @@
           "e = table:add(m, facts.emit)",
           "cell <- e"
         ],
-        "world": "table:world-tags",
-        "robot": "table:robot-reach",
-        "facts": ["tN", "tV", "tA", "emit"]
+        "world": "state-graph:world-tags",
+        "robot": "state-graph:robot-reach",
+        "facts": [
+          "tN",
+          "tV",
+          "tA",
+          "emit"
+        ]
       }
     }
   ]

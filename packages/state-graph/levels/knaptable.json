@@ -5,7 +5,7 @@
     {
       "t": "@level.knaptable.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -185,7 +185,7 @@
     {
       "t": "@level.knaptable.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -349,7 +349,7 @@
     {
       "t": "@level.knaptable.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -526,7 +526,7 @@
     {
       "t": "@level.knaptable.intro.3.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ax0",
@@ -699,7 +699,7 @@
     "goal": "@level.knaptable.mission.goal",
     "how": "@level.knaptable.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.knaptable.debrief.title",
     "body": [
@@ -712,24 +712,24 @@
   "tasks": [
     {
       "id": "knaptable",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-named": {
+          "state-graph:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.0.named.label",
             "short": "a",
             "sensor": "up"
           }
         },
         {
-          "table:port-named": {
+          "state-graph:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.1.named.label",
             "short": "b",
             "sensor": "upk"
           }
         },
         {
-          "table:port-named": {
+          "state-graph:port-named": {
             "label": "@level.knaptable.tasks.knaptable.ports.2.named.label",
             "short": "+",
             "sensor": "value"
@@ -739,13 +739,12 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-uses": "rowk"
+            "state-graph:condition-uses": "rowk"
           },
           "say": "@level.knaptable.tasks.knaptable.diagnose.0.say"
         }
       ],
-      "trace": "table:trace-knap",
-      "after": "table:panel-knap",
+      "trace": "state-graph:trace-knap",
       "boardOpt": {
         "minScale": 0.68,
         "maxScale": 1.15
@@ -754,7 +753,7 @@
         "@level.knaptable.tasks.knaptable.hints.0",
         "@level.knaptable.tasks.knaptable.hints.1"
       ],
-      "world": "table:world-knap",
+      "world": "state-graph:world-knap",
       "facts": [
         "value"
       ],
@@ -850,7 +849,8 @@
           "part": "choose",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-knap"
     }
   ]
 }

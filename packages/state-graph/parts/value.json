@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "a = table:mmax(view.up, view.down, view.left)",
           "k = table:const[value=0.9]()",
@@ -13,23 +13,60 @@
           "x = table:mul(b, k)",
           "cell <- x"
         ],
-        "world": "table:world-vgrid",
-        "robot": "table:robot-loop",
+        "world": "state-graph:world-vgrid",
+        "robot": "state-graph:robot-loop",
         "ports": [
-          { "table:port-way": { "n": 1, "sensor": "up" } },
-          { "table:port-way": { "n": 2, "sensor": "down" } },
-          { "table:port-way": { "n": 3, "sensor": "left" } },
-          { "table:port-way": { "n": 4, "sensor": "right" } }
+          {
+            "state-graph:port-way": {
+              "n": 1,
+              "sensor": "up"
+            }
+          },
+          {
+            "state-graph:port-way": {
+              "n": 2,
+              "sensor": "down"
+            }
+          },
+          {
+            "state-graph:port-way": {
+              "n": 3,
+              "sensor": "left"
+            }
+          },
+          {
+            "state-graph:port-way": {
+              "n": 4,
+              "sensor": "right"
+            }
+          }
         ]
       }
     }
   ],
-  "settings": { "value": { "control": "number", "default": 0.9 } },
+  "settings": {
+    "value": {
+      "control": "number",
+      "default": 0.9
+    }
+  },
   "inputs": [
-    { "name": "up", "type": "circuit:number" },
-    { "name": "down", "type": "circuit:number" },
-    { "name": "left", "type": "circuit:number" },
-    { "name": "right", "type": "circuit:number" }
+    {
+      "name": "up",
+      "type": "circuit:number"
+    },
+    {
+      "name": "down",
+      "type": "circuit:number"
+    },
+    {
+      "name": "left",
+      "type": "circuit:number"
+    },
+    {
+      "name": "right",
+      "type": "circuit:number"
+    }
   ],
   "outputType": "circuit:number"
 }

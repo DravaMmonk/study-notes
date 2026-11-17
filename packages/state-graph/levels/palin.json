@@ -8,7 +8,7 @@
     {
       "t": "@level.palin.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "t0",
@@ -144,7 +144,7 @@
     "goal": "@level.palin.mission.goal",
     "how": "@level.palin.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.palin.debrief.title",
     "body": [
@@ -156,7 +156,7 @@
   "tasks": [
     {
       "id": "palin",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "boardOpt": {
         "minScale": 0.6,
         "maxScale": 1.15
@@ -166,7 +166,7 @@
         "@level.palin.tasks.palin.hints.1",
         "@level.palin.tasks.palin.hints.2"
       ],
-      "world": "table:world-interval",
+      "world": "state-graph:world-interval",
       "facts": [
         "same"
       ],

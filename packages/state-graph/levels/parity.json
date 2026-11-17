@@ -13,7 +13,7 @@
     "goal": "@level.parity.mission.goal",
     "how": "@level.parity.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.parity.debrief.title",
     "body": [
@@ -24,7 +24,7 @@
   "tasks": [
     {
       "id": "parity",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "m = table:many(view.up, view.left, facts.start)",
         "cell <- m"
@@ -34,7 +34,7 @@
         "@level.parity.tasks.parity.hints.0",
         "@level.parity.tasks.parity.hints.1"
       ],
-      "world": "table:world-gridYes",
+      "world": "state-graph:world-gridYes",
       "facts": [
         "start"
       ],

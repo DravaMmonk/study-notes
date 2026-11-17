@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "k = table:const[value=1]()",
           "n = table:mmin(view.up, view.left, view.ul)",
@@ -16,25 +16,53 @@
           "m = table:mmin(a, g1, g0)",
           "cell <- m"
         ],
-        "world": "table:world-align",
-        "robot": "table:robot-ranger",
+        "world": "state-graph:world-align",
+        "robot": "state-graph:robot-ranger",
         "ports": [
-          { "table:port-reads": "ul" },
-          { "table:port-reads": "up" },
-          { "table:port-reads": "left" },
-          { "table:port-reads": "same" },
-          { "table:port-reads": "start" }
+          {
+            "state-graph:port-reads": "ul"
+          },
+          {
+            "state-graph:port-reads": "up"
+          },
+          {
+            "state-graph:port-reads": "left"
+          },
+          {
+            "state-graph:port-reads": "same"
+          },
+          {
+            "state-graph:port-reads": "start"
+          }
         ],
-        "facts": ["same", "start"]
+        "facts": [
+          "same",
+          "start"
+        ]
       }
     }
   ],
   "inputs": [
-    { "name": "ul", "type": "circuit:number" },
-    { "name": "up", "type": "circuit:number" },
-    { "name": "left", "type": "circuit:number" },
-    { "name": "same", "type": "circuit:boolean" },
-    { "name": "start", "type": "circuit:boolean" }
+    {
+      "name": "ul",
+      "type": "circuit:number"
+    },
+    {
+      "name": "up",
+      "type": "circuit:number"
+    },
+    {
+      "name": "left",
+      "type": "circuit:number"
+    },
+    {
+      "name": "same",
+      "type": "circuit:boolean"
+    },
+    {
+      "name": "start",
+      "type": "circuit:boolean"
+    }
   ],
   "outputType": "circuit:number"
 }

@@ -5,7 +5,7 @@
     {
       "t": "@level.city.intro.0.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 2,
           "C": 3,
           "cells": {
@@ -20,7 +20,7 @@
     {
       "t": "@level.city.intro.1.t",
       "fig": {
-        "table:figure-grid": {
+        "state-graph:figure-grid": {
           "R": 2,
           "C": 3,
           "cells": {
@@ -56,7 +56,7 @@
   "tasks": [
     {
       "id": "city",
-      "mode": "table:fill",
+      "play": "state-graph:fill",
       "grid": {
         "R": 3,
         "C": 4

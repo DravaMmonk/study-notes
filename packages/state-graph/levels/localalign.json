@@ -19,7 +19,7 @@
     "goal": "@level.localalign.mission.goal",
     "how": "@level.localalign.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.localalign.debrief.title",
     "body": [
@@ -31,7 +31,7 @@
   "tasks": [
     {
       "id": "localalign",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "a = table:add(view.ul, facts.score)",
         "k = table:const[value=-1]()",
@@ -43,25 +43,24 @@
       "diagnose": [
         {
           "when": {
-            "table:condition-all": [
+            "state-graph:condition-all": [
               {
-                "table:condition-not": {
-                  "table:condition-has": {
+                "state-graph:condition-not": {
+                  "state-graph:condition-has": {
                     "part": "table:const",
                     "value": 0
                   }
                 }
               },
               {
-                "table:condition-uses": "score"
+                "state-graph:condition-uses": "score"
               }
             ]
           },
           "say": "@level.localalign.tasks.localalign.diagnose.0.say"
         }
       ],
-      "trace": "table:trace-local",
-      "after": "table:panel-local",
+      "trace": "state-graph:trace-local",
       "boardOpt": {
         "minScale": 0.62,
         "maxScale": 1.15
@@ -77,7 +76,7 @@
         "@level.localalign.tasks.localalign.hints.0",
         "@level.localalign.tasks.localalign.hints.1"
       ],
-      "world": "table:world-local",
+      "world": "state-graph:world-local",
       "facts": [
         "score"
       ],
@@ -111,7 +110,8 @@
           "part": "local",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-local"
     }
   ]
 }

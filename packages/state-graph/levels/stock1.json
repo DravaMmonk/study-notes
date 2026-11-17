@@ -16,7 +16,7 @@
     "goal": "@level.stock1.mission.goal",
     "how": "@level.stock1.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.stock1.debrief.title",
     "body": [
@@ -26,12 +26,12 @@
   "tasks": [
     {
       "id": "stock1",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "leftPrev"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "leftPrev"
             }
           },
           "say": "@level.stock1.tasks.stock1.diagnose.0.say"
@@ -41,7 +41,7 @@
         "@level.stock1.tasks.stock1.hints.0",
         "@level.stock1.tasks.stock1.hints.1"
       ],
-      "world": "table:world-stock",
+      "world": "state-graph:world-stock",
       "facts": [
         "gain"
       ],

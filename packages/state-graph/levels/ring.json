@@ -13,7 +13,7 @@
     "goal": "@level.ring.mission.goal",
     "how": "@level.ring.mission.how"
   },
-  "robot": "table:robot-stack",
+  "robot": "state-graph:robot-stack",
   "debrief": {
     "title": "@level.ring.debrief.title",
     "body": [
@@ -24,7 +24,7 @@
   "tasks": [
     {
       "id": "ring",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "n = table:mmax(view.pn, view.pr)",
         "a = table:add(view.pn, facts.money)",
@@ -35,7 +35,7 @@
         "@level.ring.tasks.ring.hints.0",
         "@level.ring.tasks.ring.hints.1"
       ],
-      "world": "table:world-ring",
+      "world": "state-graph:world-ring",
       "facts": [
         "money",
         "first",

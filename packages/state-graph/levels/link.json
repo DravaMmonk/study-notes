@@ -5,7 +5,7 @@
     {
       "t": "@level.link.intro.0.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "a0",
@@ -112,7 +112,7 @@
     {
       "t": "@level.link.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "a0",
@@ -225,7 +225,7 @@
   "tasks": [
     {
       "id": "link",
-      "mode": "table:link",
+      "play": "state-graph:link",
       "tests": [
         {
           "a": "CABD",

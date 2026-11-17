@@ -13,7 +13,7 @@
     "goal": "@level.treasure.mission.goal",
     "how": "@level.treasure.mission.how"
   },
-  "robot": "table:robot-loop",
+  "robot": "state-graph:robot-loop",
   "debrief": {
     "title": "@level.treasure.debrief.title",
     "body": [
@@ -23,16 +23,16 @@
   "tasks": [
     {
       "id": "treasure",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-any": [
+            "state-graph:condition-any": [
               {
-                "table:condition-uses": "up"
+                "state-graph:condition-uses": "up"
               },
               {
-                "table:condition-uses": "left"
+                "state-graph:condition-uses": "left"
               }
             ]
           },
@@ -49,7 +49,7 @@
       "hints": [
         "@level.treasure.tasks.treasure.hints.0"
       ],
-      "world": "table:world-vgrid",
+      "world": "state-graph:world-vgrid",
       "tests": [
         {
           "R": 5,

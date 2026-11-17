@@ -5,23 +5,56 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
-        "solution": ["a = table:add(view.upk, facts.value)", "m = table:mmax(view.up, a)", "cell <- m"],
-        "world": "table:world-knap",
-        "robot": "table:robot-reach",
-        "ports": [
-          { "table:port-named": { "label": "up", "short": "up", "sensor": "up" } },
-          { "table:port-named": { "label": "upk", "short": "upk", "sensor": "upk" } },
-          { "table:port-named": { "label": "value", "short": "value", "sensor": "value" } }
+        "play": "state-graph:circuit",
+        "solution": [
+          "a = table:add(view.upk, facts.value)",
+          "m = table:mmax(view.up, a)",
+          "cell <- m"
         ],
-        "facts": ["value"]
+        "world": "state-graph:world-knap",
+        "robot": "state-graph:robot-reach",
+        "ports": [
+          {
+            "state-graph:port-named": {
+              "label": "up",
+              "short": "up",
+              "sensor": "up"
+            }
+          },
+          {
+            "state-graph:port-named": {
+              "label": "upk",
+              "short": "upk",
+              "sensor": "upk"
+            }
+          },
+          {
+            "state-graph:port-named": {
+              "label": "value",
+              "short": "value",
+              "sensor": "value"
+            }
+          }
+        ],
+        "facts": [
+          "value"
+        ]
       }
     }
   ],
   "inputs": [
-    { "name": "up", "type": "circuit:number" },
-    { "name": "upk", "type": "circuit:number" },
-    { "name": "value", "type": "circuit:number" }
+    {
+      "name": "up",
+      "type": "circuit:number"
+    },
+    {
+      "name": "upk",
+      "type": "circuit:number"
+    },
+    {
+      "name": "value",
+      "type": "circuit:number"
+    }
   ],
   "outputType": "circuit:number"
 }

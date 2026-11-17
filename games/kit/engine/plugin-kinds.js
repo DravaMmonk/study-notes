@@ -106,7 +106,8 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
       if (s.type === 'either') return { ...s, of: s.of.map(tasks) }
       if (!s.fields.tasks) return s
       const shape = s.fields.tasks.of
-      const branches = shape.type === 'either' ? shape.of : [shape]
+      const alternatives = schema => schema.type === 'either' ? schema.of.flatMap(alternatives) : [schema]
+      const branches = alternatives(shape)
       const generic = branches.find(branch => branch.fields?.play?.type === 'str')
       if (!generic) throw new Error(`${d.play}: task extension needs a generic play task`)
       const base = { ...generic.fields, play: S.oneOf([d.play], { reference: 'play' }) }

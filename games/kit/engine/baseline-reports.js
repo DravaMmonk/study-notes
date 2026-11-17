@@ -1,8 +1,6 @@
 // Migration observations call the production runners and judges, never a second implementation.
 import { withHidden } from './tests.js'
 import { baselineValue } from './baseline-value.js'
-const { handExamples, judgeHand } = await import('../modules/table/model/hand-verdict.js')
-const { robotReport } = await import('../modules/table/model/verdict.js')
 const { runProof } = await import('../modules/logic/proof.js')
 const { runMachine } = await import('../modules/logic/machine.js')
 const { runGates, gateTests } = await import('../modules/logic/gates.js')
@@ -57,17 +55,13 @@ export async function taskReports(spec, providers = []) {
     const records = provider.baselineReports?.({ spec, value: baselineValue })
     if (records) return records.map(baselineValue)
   }
-  const works = spec.table ?? spec.logic ?? {}
+  const works = spec.logic ?? {}
   const tasks = spec.levels.flatMap(level => (works.played?.get(level.id) ?? level.tasks).map(task => ({ level: level.id, task })))
   const records = []
   for (const { level, task } of tasks) {
     const kind = task.mode ?? task.kind
     let report
-    if (spec.table) report = kind === 'table:circuit' ? examples(task, work => robotReport(works.model.runCircuit, task, work, { traced: true })) : (() => {
-      const sample = handExamples(task)
-      return examples(task, work => judgeHand(task, work), sample.reference, sample.naive)
-    })()
-    else if (spec.logic) report = logicReport(task)
+    if (spec.logic) report = logicReport(task)
     else {
       const { runLevel } = await import(`../modules/${kind?.split(':')[0]}/run.js`)
       report = examples(task, work => runLevel(withHidden(task), work, works.forTask(task).partOf, { traced: true }))

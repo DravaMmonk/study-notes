@@ -14,7 +14,7 @@ import { openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
-import { lockFixture, writeContentFixture, installImageFixture } from './ops/fixture.js'
+import { lockFixture, writeContentFixture, installTableFixture } from './ops/fixture.js'
 
 after(closeGames)
 const text = en => ({ en })
@@ -54,7 +54,7 @@ test('a numeric library works in packages using image and table boards, with no 
   const root = mkdtempSync(resolve(tmpdir(), 'package-prototypes-'))
   const put = (path, value) => { const file = resolve(root, path); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, JSON.stringify(value)) }
   try {
-    installImageFixture(root)
+    installTableFixture(root)
     const imageVocabulary = layerVocabulary(resolveLayers({ package: 'image', closure: true, root, unlocked: true }).layers)
     writeContentFixture(root, 'arithmetic', { game: { vocabulary: 1 }, glossary: { groups: [], entries: [] }, partDefs: { parts: arithmetic }, levels: {} }, vocabularyFor('circuit'))
     const common = { title: text('Sample'), vocabulary: 1, primitives: ['arithmetic/add'] }
@@ -69,12 +69,12 @@ test('a numeric library works in packages using image and table boards, with no 
     writeContentFixture(root, 'cells', {
       game: common, glossary: { groups: [], entries: [] }, levels: { copy: {
         title: text('Copy'), short: text('Copy'), intro: [], mission: { goal: text('Copy cells.'), how: text('Read the previous cell.') },
-        robot: 'table:robot-scout', debrief: { title: text('Copied'), body: [] }, tasks: [{ id: 'copy', mode: 'table:circuit',
-          hints: [text('Read the previous cell.')], world: 'table:world-grid', tests: [{ R: 1, C: 2, given: { '0,0': 7 } }], expected: [14], solution: ['sum = arithmetic/add(view.left, view.left)', 'cell <- sum'],
+        robot: 'state-graph:robot-scout', debrief: { title: text('Copied'), body: [] }, tasks: [{ id: 'copy', play: 'state-graph:circuit',
+          hints: [text('Read the previous cell.')], world: 'state-graph:world-grid', tests: [{ R: 1, C: 2, given: { '0,0': 7 } }], expected: [14], solution: ['sum = arithmetic/add(view.left, view.left)', 'cell <- sum'],
         }],
       } },
-    }, vocabularyFor('table'))
-    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^0.0.0', ...(id === 'picture' ? { image: '^0.0.0' } : {}) }, version: '1.0.0', kernel: '^0.0.0' })
+    }, layerVocabulary(resolveLayers({ package: 'state-graph', closure: true, root, unlocked: true }).layers))
+    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^0.0.0', ...(id === 'picture' ? { image: '^0.0.0' } : { 'state-graph': '^0.0.0', table: '^0.0.0' }) }, version: '1.0.0', kernel: '^0.0.0' })
     for (const id of ['arithmetic', 'picture', 'cells']) rmSync(resolve(root, 'games', id), { recursive: true })
     lockFixture(root)
     for (const id of ['arithmetic', 'picture', 'cells']) {

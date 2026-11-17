@@ -16,7 +16,7 @@
     "goal": "@level.spell.mission.goal",
     "how": "@level.spell.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.spell.debrief.title",
     "body": [
@@ -28,21 +28,12 @@
   "tasks": [
     {
       "id": "spell",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "testLabel": "{left} → {top}",
-      "after": {
-        "table:panel-spell": {
-          "candidates": [
-            "ACROSS",
-            "CROSS",
-            "MACRO"
-          ]
-        }
-      },
       "hints": [
         "@level.spell.tasks.spell.hints.0"
       ],
-      "world": "table:world-align",
+      "world": "state-graph:world-align",
       "facts": [
         "same",
         "start"
@@ -70,7 +61,16 @@
         "e = cost(view.ul, view.up, view.left, facts.same, facts.start)",
         "cell <- e"
       ],
-      "border0": false
+      "border0": false,
+      "panel": {
+        "state-graph:panel-spell": {
+          "candidates": [
+            "ACROSS",
+            "CROSS",
+            "MACRO"
+          ]
+        }
+      }
     }
   ]
 }

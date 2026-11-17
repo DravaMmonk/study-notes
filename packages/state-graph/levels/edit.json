@@ -8,7 +8,7 @@
     {
       "t": "@level.edit.intro.1.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "a0",
@@ -94,7 +94,7 @@
     {
       "t": "@level.edit.intro.2.t",
       "fig": {
-        "table:figure-scene": {
+        "state-graph:figure-scene": {
           "cells": [
             {
               "id": "ul",
@@ -170,7 +170,7 @@
     "goal": "@level.edit.mission.goal",
     "how": "@level.edit.mission.how"
   },
-  "robot": "table:robot-ranger",
+  "robot": "state-graph:robot-ranger",
   "debrief": {
     "title": "@level.edit.debrief.title",
     "body": [
@@ -182,27 +182,26 @@
   "tasks": [
     {
       "id": "edit",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "ports": [
         {
-          "table:port-reads": "ul"
+          "state-graph:port-reads": "ul"
         },
         {
-          "table:port-reads": "up"
+          "state-graph:port-reads": "up"
         },
         {
-          "table:port-reads": "left"
+          "state-graph:port-reads": "left"
         },
         {
-          "table:port-reads": "same"
+          "state-graph:port-reads": "same"
         },
         {
-          "table:port-reads": "start"
+          "state-graph:port-reads": "start"
         }
       ],
       "testLabel": "{left} → {top}",
-      "trace": "table:trace-edit",
-      "after": "table:panel-edit",
+      "trace": "state-graph:trace-edit",
       "boardOpt": {
         "minScale": 0.66,
         "maxScale": 1.2
@@ -212,7 +211,7 @@
         "@level.edit.tasks.edit.hints.1",
         "@level.edit.tasks.edit.hints.2"
       ],
-      "world": "table:world-align",
+      "world": "state-graph:world-align",
       "facts": [
         "same",
         "start"
@@ -252,7 +251,8 @@
           "part": "cost",
           "variant": "base"
         }
-      ]
+      ],
+      "panel": "state-graph:panel-edit"
     }
   ]
 }

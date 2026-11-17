@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "k = table:const[value=1]()",
           "a = table:add(view.ul, k)",
@@ -13,9 +13,11 @@
           "m = table:mmax(view.up, view.left, g)",
           "cell <- m"
         ],
-        "world": "table:world-align",
-        "robot": "table:robot-ranger",
-        "facts": ["same"]
+        "world": "state-graph:world-align",
+        "robot": "state-graph:robot-ranger",
+        "facts": [
+          "same"
+        ]
       }
     }
   ]

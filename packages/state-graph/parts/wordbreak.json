@@ -5,7 +5,7 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
+        "play": "state-graph:circuit",
         "solution": [
           "a = table:add(view.seg, view.cost)",
           "z = table:const[value=0]()",
@@ -13,9 +13,11 @@
           "m = table:mmin(a, g)",
           "cell <- m"
         ],
-        "world": "table:world-parts",
-        "robot": "table:robot-broom",
-        "facts": ["ground"]
+        "world": "state-graph:world-parts",
+        "robot": "state-graph:robot-broom",
+        "facts": [
+          "ground"
+        ]
       }
     }
   ]

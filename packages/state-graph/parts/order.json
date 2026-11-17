@@ -5,11 +5,17 @@
     {
       "id": "base",
       "reference": {
-        "mode": "table:circuit",
-        "solution": ["c = counter(view.right, view.down, facts.end)", "cell <- c"],
-        "world": "table:world-grid",
-        "robot": "table:robot-ranger",
-        "facts": ["start", "end"]
+        "play": "state-graph:circuit",
+        "solution": [
+          "c = counter(view.right, view.down, facts.end)",
+          "cell <- c"
+        ],
+        "world": "state-graph:world-grid",
+        "robot": "state-graph:robot-ranger",
+        "facts": [
+          "start",
+          "end"
+        ]
       }
     }
   ]

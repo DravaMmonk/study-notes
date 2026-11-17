@@ -13,7 +13,7 @@
     "goal": "@level.knapmix.mission.goal",
     "how": "@level.knapmix.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.knapmix.debrief.title",
     "body": [
@@ -24,12 +24,12 @@
   "tasks": [
     {
       "id": "knapmix",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "diagnose": [
         {
           "when": {
-            "table:condition-not": {
-              "table:condition-uses": "many"
+            "state-graph:condition-not": {
+              "state-graph:condition-uses": "many"
             }
           },
           "say": "@level.knapmix.tasks.knapmix.diagnose.0.say"
@@ -43,7 +43,7 @@
         "@level.knapmix.tasks.knapmix.hints.0",
         "@level.knapmix.tasks.knapmix.hints.1"
       ],
-      "world": "table:world-knap",
+      "world": "state-graph:world-knap",
       "facts": [
         "value",
         "many"

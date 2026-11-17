@@ -13,7 +13,7 @@
     "goal": "@level.coinways.mission.goal",
     "how": "@level.coinways.mission.how"
   },
-  "robot": "table:robot-reach",
+  "robot": "state-graph:robot-reach",
   "debrief": {
     "title": "@level.coinways.debrief.title",
     "body": [
@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "coinways",
-      "mode": "table:circuit",
+      "play": "state-graph:circuit",
       "naive": [
         "m = table:msum(view.up, view.upk)",
         "cell <- m"
@@ -32,7 +32,7 @@
         "@level.coinways.tasks.coinways.hints.0",
         "@level.coinways.tasks.coinways.hints.1"
       ],
-      "world": "table:world-knap",
+      "world": "state-graph:world-knap",
       "tests": [
         {
           "W": 5,
