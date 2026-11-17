@@ -86,7 +86,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     window.setTimeout(() => body.current?.querySelector('input, textarea, [contenteditable="true"], select, button:not(.insp-crumb)')?.focus({ preventScroll: true }))
   }, [field])
 
-  if (at?.capability || at?.override) return <RawFile at={at} tabsRow={tabsRow} onOps={onOps} />
+  if (at?.capability || at?.override) return <RawFile content={content} at={at} tabsRow={tabsRow} onOps={onOps} />
   if (!field) {
     return (
       <div className="insp is-empty">
@@ -216,11 +216,11 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
  * A file shown as raw JSON alone: a capability of the kernel (read only), or an override, which its own layer edits
  * here (the operation writes the file whole).
  */
-function RawFile({ at, tabsRow, onOps }) {
+function RawFile({ content, at, tabsRow, onOps }) {
   const event = at.override?.event
   const readOnly = !event || event.layer !== at.override.layer
   const value = event ? overrideFileOf(event) : at.capability.it
-  const name = event ? overrideFileName(event) : `${at.capability.kind} · ${at.capability.name}`
+  const name = event ? overrideFileName(event, content) : `${at.capability.kind} · ${at.capability.name}`
   return (
     <div className="insp">
       <div className="insp-bar">

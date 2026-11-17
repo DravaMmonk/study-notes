@@ -10,8 +10,7 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'circuit/part', content, part } a part of parts/<name>.json shown: the scenes its editor draws and its
-//                  fields (PartView.jsx)
+//                  { type: 'object', content, kind, full, stage } an object rendered by its registered preview
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
@@ -97,10 +96,10 @@ export default function Play() {
         setPart((p) => (p ? { ...p, game } : p))
         return setShown((s) => (s ? { ...s, game } : s))
       }
-      if (m?.type === 'circuit/part') {
+      if (m?.type === 'object') {
         look(m)
         const game = await gameOf(m.content, ++stamp)
-        return setPart({ game, type: m.part, stage: m.stage ?? null })
+        return setPart({ game, type: m.full, kind: m.kind, stage: m.stage ?? null })
       }
       if (m?.type !== 'load') return
       const { content, level, task = 0, seed = null, take = null } = m
@@ -137,19 +136,8 @@ export default function Play() {
     go,
   }), [level, take, editing, go])
   if (part) {
-    const which = { part: part.type }
-    // A stage previewed is read only: its fields are the part's over the stages before it.
-    const parts = edit.on && !part.stage ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
-    const toTask = (task) => say({ type: 'task-go', task })
-    // A task as the map numbers it: its level's label, and which task of the level when it has several.
-    const taskLabel = (task) => {
-      const level = part.game.levels.find((l) => l.id === task || l.tasks?.some((t) => (t.key ?? t.id) === task))
-      if (!level) return task
-      const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
-      return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
-    }
-    const PartView = editorForType('circuit/part').preview
-    return <PartView game={part.game} type={part.type} stage={part.stage} edit={parts} onTask={toTask} label={taskLabel} />
+    const Preview = editorForType(part.kind).preview
+    return <Preview game={part.game} type={part.type} stage={part.stage} editing={edit} say={say} />
   }
   if (!shown) return null
   return <DraftPreview key={shown.no} stamp={shown.game.stamp}>

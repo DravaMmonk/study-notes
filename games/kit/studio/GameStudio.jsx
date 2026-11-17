@@ -1,3 +1,5 @@
+import { objectTypes } from './object-types.js'
+import { typeName } from './LeftTypes.jsx'
 // The game workspace of the studio (games/DESIGN.md 6.7): where a course designer makes a game on a package and
 // arranges its learning route. On the left a list (left-lists.js GAME_LISTS): the game's settings and its chapters, or
 // the overrides it sees; in the middle what is picked: a chapter's fields and its board (ChapterBoard.jsx: whole level
@@ -43,7 +45,7 @@ const remember = (game, at, opened) => {
   url.searchParams.set('game', game)
   url.searchParams.set('space', 'arrange')
   url.searchParams.delete('tab')
-  for (const k of ['package', 'scope', 'file', 'level', 'group', 'era', 'circuit/part', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
+  for (const k of ['package', 'scope', 'file', 'level', 'group', 'era', 'glossary', ...Object.values(OBJECT_LISTS)]) url.searchParams.delete(k)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
   for (const [k, v] of opened) url.searchParams.set(k, v)
   window.history.replaceState(null, '', url)
@@ -319,7 +321,7 @@ function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
       {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <dl className="package-facts">
         {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
-        {used.includes(id) && [['level', '关卡', 'Levels'], ['circuit/part', '元件', 'Parts'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['circuit/tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
+        {used.includes(id) && objectTypes(content).map(info => [info.type, ...typeName(info)]).map(([kind, zh, en]) => (
           <Fragment key={kind}><dt>{tr(zh, en)}</dt><dd>{count(kind)}</dd></Fragment>
         ))}
       </dl>

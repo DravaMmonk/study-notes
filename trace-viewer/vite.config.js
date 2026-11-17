@@ -52,6 +52,7 @@ const localPaths = (studio) => ({
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  cacheDir: mode === 'studio' ? 'node_modules/.vite-studio' : 'node_modules/.vite',
   // The shared game shell lives outside this project (games/kit/shell); resolve its React from here.
   resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] },
   plugins: [react(), localPaths(mode === 'studio'), gameApp(), studioApp()],

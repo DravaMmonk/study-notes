@@ -25,7 +25,7 @@ test('the copy workspace lists texts by the file they are in', async () => {
   const rows = [
     { file: { level: 'demo/one' }, path: ['title'] },
     { file: { level: 'demo/one' }, path: ['tasks', 0, 'brief'] },
-    { file: { parts: true }, path: ['parts', 'demo/and', 'name'] },
+    { file: { object: { kind: 'demo/item', name: 'demo/and', folder: 'parts' } }, path: ['name'] },
     { file: { glossary: true, target: { entry: 'demo/proof', path: ['title'] } }, path: ['entries', 0, 'title'] },
     { file: { glossary: true, target: { tag: 'demo/basics', path: ['title'] } }, path: ['groups', 0, 'title'] },
   ]
@@ -33,6 +33,29 @@ test('the copy workspace lists texts by the file they are in', async () => {
   assert.deepEqual(copyFiles(rows), [['levels/one.json', 2], ['parts/and.json', 1], ['entries/proof.json', 1], ['tags/entry/basics.json', 1]])
   // A row goes to its field in the side panel.
   assert.deepEqual(copyFieldOf(rows[1]), { at: { level: 'demo/one' }, path: ['tasks', 0, 'brief'] })
-  assert.deepEqual(copyFieldOf(rows[2]), { at: { parts: true, root: ['parts', 'demo/and'] }, path: ['parts', 'demo/and', 'name'] })
+  assert.deepEqual(copyFieldOf(rows[2]), { at: { object: { kind: 'demo/item', name: 'demo/and', folder: 'parts', full: 'demo/and', namespace: 'demo', own: true } }, path: ['name'] })
   assert.deepEqual(copyFieldOf({ file: { game: true }, path: ['title'] }), { at: { game: true }, path: ['title'] })
+})
+
+
+test('declared object copy uses its schema, directory and generic text target', async () => {
+  const { S } = await import('../engine/schema.js')
+  const { operationsFor } = await import('../engine/ops/operations.js')
+  const { copyFileOf, copyFieldOf } = await import('./copy.js')
+  const declaration = { folder: 'scenes', schema: S.obj({ title: S.text() }) }
+  const original = { title: { en: 'First', zh: '第一', $key: 'demo/scene.first.title' } }
+  const vocabulary = { game: S.obj({}), level: S.obj({}), objectKinds: { 'demo/scene': declaration } }
+  const content = { levels: [], objectKinds: vocabulary.objectKinds, registries: { 'demo/scene': { 'demo/first': original } }, glossary: { entries: [], groups: [] } }
+  const rows = allCopyRows(content, vocabulary, [])
+  assert.equal(rows.length, 1)
+  assert.equal(copyFileOf(rows[0]), 'scenes/first.json')
+  assert.equal(copyFieldOf(rows[0]).at.object.kind, 'demo/scene')
+  const op = copyEdit(rows[0], 'zh', '开始')
+  assert.deepEqual(op, { op: 'text.set', kind: 'demo/scene', name: 'demo/first', path: ['title'], lang: 'zh', value: '开始' })
+  const objects = new Map([['demo/first', original]])
+  const ws = { contentObjects: { 'demo/scene': objects }, entries: new Map(), tags: new Map(), sections: new Map() }
+  const { inverse } = operationsFor(vocabulary)['text.set'].apply(ws, op, { vocabulary })
+  assert.deepEqual(objects.get('demo/first').title, { ...original.title, zh: '开始' })
+  operationsFor(vocabulary)['text.set'].apply(ws, inverse[0], { vocabulary })
+  assert.deepEqual(objects.get('demo/first'), original)
 })

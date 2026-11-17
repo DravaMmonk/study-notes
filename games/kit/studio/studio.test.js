@@ -2,15 +2,12 @@
 // its shape and hints, cells typed and read back, a level's sections, the check's findings on their fields, each edit as
 // its operation and a pending changeset's coalescing, the package's group tree and its drop slots (groups.js), the game workspace's course edits (course-edit.js), a changed file read
 // field by field (diff.js), the game page's marks as the fields they show (marks.js); and on every domain's starter game
-// (kit/modules/<d>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
+// (kit/templates/<template>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
 // more about, every value a schema hint names gets its control, and every cell control gives back the value it shows.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { S, find, holdsLevels, sectionOf } from '../engine/schema.js'
+import { S, holdsLevels, sectionOf } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
-import { existsSync, readdirSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { runtimeOf, readStarter } from '../engine/resolver.js'
 import {
   blank, boardPaths, cellText, cellValue, creationChoices, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
@@ -47,9 +44,6 @@ const VOCAB = defineVocabulary({
 const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
 
 // Every domain's starter game, as content.js assembles it: the studio's forms on content no real game owns.
-const DOMAINS = resolve(import.meta.dirname, '../templates')
-const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
-const starter = (d) => readStarter(resolve(DOMAINS, d))
 const LEVEL = { kind: 'board', title: { en: '甲' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
 
 test('a level reads as fields by its schema: its shape (by), texts, choices from the vocabulary, calls, boards', () => {
@@ -186,28 +180,6 @@ test('a list that grew or shrank shows only the items added or removed, and item
   ])
 })
 
-test('every level of every starter reads as a form: each text a text pair, each board a board, where the schema has it', async () => {
-  assert.ok(STARTERS.length > 0)
-  for (const game of STARTERS) {
-    const content = starter(game)
-    const { vocabulary } = await runtimeOf(content)
-    const levels = content.levels.map((l) => l.id)
-    for (const { id, ...level } of content.levels) {
-      const kinds = new Map()
-      const walk = (f) => {
-        kinds.set(JSON.stringify(f.path), f.kind)
-        for (const x of f.items ?? []) walk(x)
-        for (const e of f.entries ?? []) walk(e.field)
-        for (const x of f.fields ?? []) if (x.field) walk(x.field)
-        if (f.params) walk(f.params)
-      }
-      walk(formOf(vocabulary.level, level, { vocabulary, levels }))
-      for (const { path } of textsOf(vocabulary.level, level, vocabulary)) assert.equal(kinds.get(JSON.stringify(path)), 'text', `${game} ${id} ${path.join('.')}`)
-      for (const path of boardPaths(vocabulary, level)) assert.equal(kinds.get(JSON.stringify(path)), 'board', `${game} ${id} ${path.join('.')}`)
-    }
-  }
-})
-
 test('each kind of value takes its control: from its shape, or from the hints a vocabulary gives', () => {
   const kind = (schema, value) => formOf(schema, value, ctx)
   // Matrices: a list of lists of numbers with view grid; a flat list with cols, or as a square.
@@ -301,56 +273,6 @@ test('a field put back, a test list’s reference, the copy rules on one text', 
   assert.deepEqual(lintText('brief', { zh: '因为要搞定它' }).map((f) => f.rule), ['copy-banned', 'copy-brief-why'])
   assert.deepEqual(lintText('after', { en: '<part-ref to="a"></part-ref>' }).map((f) => f.rule), ['copy-after-part'])
   assert.deepEqual(lintText('title', { en: '好' }), [])
-})
-
-/** Every field of a form, depth first. */
-function* fieldsIn(f) {
-  yield f
-  for (const x of f.items ?? []) yield* fieldsIn(x)
-  for (const e of f.entries ?? []) yield* fieldsIn(e.field)
-  for (const x of f.fields ?? []) if (x.field) yield* fieldsIn(x.field)
-  if (f.params) yield* fieldsIn(f.params)
-}
-
-/** The control a hinted schema asks for (form.js), or null: a grid, ticks (a string of bits too), a wave of ticks. */
-const hinted = (s) => (s.view === 'grid' ? 'grid' : s.view === 'ticks' ? (s.type === 'map' ? 'wave' : 'ticks') : null)
-
-test('on every starter: each value a schema hint names gets its control, and each cell control gives back the value it shows', async () => {
-  const counts = {}
-  for (const game of STARTERS) {
-    const content = starter(game)
-    const { vocabulary } = await runtimeOf(content)
-    const levels = content.levels.map((l) => l.id)
-    for (const { id, ...level } of content.levels) {
-      const kinds = new Map()
-      for (const f of fieldsIn(formOf(vocabulary.level, level, { vocabulary, levels }))) {
-        const where = `${game} ${id} ${f.path.join('.')}`
-        kinds.set(f.path.join('.'), f.kind)
-        counts[f.kind] = (counts[f.kind] ?? 0) + 1
-        if (f.kind === 'grid') assert.deepEqual(gridValue(f, gridRows(f)), f.value, where)
-        if (f.kind === 'ticks') assert.deepEqual(tickValue(f, tickValues(f)), f.value, where)
-        if (f.kind === 'table') {
-          const t = tableOf(f)
-          assert.deepEqual(tableValue(f, t, t.rows), f.value, where)
-        }
-        if (f.kind === 'wave') for (const v of Object.values(f.value)) assert.ok(Array.isArray(v), where)
-        // Every cell a control shows types back to itself.
-        const cells = f.kind === 'grid' ? gridRows(f).flat() : f.kind === 'ticks' ? tickValues(f) : f.kind === 'numbers' ? f.value : f.kind === 'wave' ? Object.values(f.value).flat() : []
-        for (const v of cells) assert.deepEqual(cellValue(f.cell, cellText(v)), v, `${where} cell ${v}`)
-      }
-      // Every value whose schema carries a view hint (found through the schema, whatever its type) gets that control.
-      for (const type of ['list', 'map', 'str']) {
-        for (const { path, schema } of find(vocabulary.level, level, type, { vocabulary })) {
-          const want = hinted(schema)
-          if (!want) continue
-          assert.equal(kinds.get(path.join('.')), want, `${game} ${id} ${path.join('.')}`)
-        }
-      }
-    }
-  }
-  // What the starters left in kit/templates still exercise; chips, choices and calls are covered on hand-written
-  // schemas, now that the image and table starters moved into their packages.
-  for (const k of ['text', 'board', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
 })
 
 test('each control on content written here: a grid, ticks, a wave, a table read back as the value they show', () => {

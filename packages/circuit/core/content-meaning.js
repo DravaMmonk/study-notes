@@ -86,7 +86,7 @@ export const partMeaning = {
   renderWork: ({ text, title }) => boardSvg(text, { title }),
   renderFields: ({ value }) => value.adds ? [`brings in: ${value.adds.join(', ')}`] : [],
   namesForTool({ content, game }) {
-    return { parts: game ? (game.parts?.all ?? []).map(part => ({ key: part.key, name: part.name, part: part.part ?? (part.key.startsWith('part:') ? part.key.slice(5) : part.key), at: part.at?.[0] ?? game.levels.find(level => (level.unlocks ?? []).includes(part.key))?.id ?? null })) : Object.entries(content.partDefs?.parts ?? {}).map(([key, part]) => ({ key, name: part.name, part: key, at: null })) }
+    return { parts: game ? (game.parts?.all ?? []).map(part => ({ key: part.key, name: part.name, part: part.part ?? (part.key.startsWith('part:') ? part.key.slice(5) : part.key), at: part.at?.[0] ?? game.levels.find(level => (level.unlocks ?? []).includes(part.key))?.id ?? null })) : Object.entries(content.partDefs?.parts ?? {}).map(([key, part]) => ({ key: `part:${key}`, name: part.name, part: key, at: null })) }
   },
   contract: { spec: specProblems, validate: validateProblems },
   operations: circuitOperations,

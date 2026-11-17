@@ -5,8 +5,6 @@ import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
 import { freeObjectName, localName, ownNames, tagByRef, tagKey, tagName, tagTarget } from './objects-edit.js'
 
-export const TAG_KINDS = ['level', 'circuit/part', 'symbol', 'entry']
-
 /** How `namespace` writes a full name (or `#` tag reference): short when it is its own, full otherwise. */
 export const writtenName = (namespace, full) => localName(namespace, full) ?? full
 

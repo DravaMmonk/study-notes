@@ -1,23 +1,21 @@
 // The object types the build workspace's left column lists (games/MODULES.md 5.3, 5.4): the kernel's own (levels,
-// symbols, entries and the content kinds it still carries) and every type a package declares in kinds/. Which
+// entries) and every type a package declares in kinds/. Which
 // are listed by default comes from the tag `kernel/studio-left` (members: object types), which packages add to; each author can choose
 // their own on top (kept in the browser, never in a package). The tool lists — capabilities, overrides, search — come
 // after them, search last.
-import { contentKindSchemas } from '../engine/content-kinds.js'
+import { editorForType, registeredEditors } from './editors.js'
 import { tagKey, tagMembers } from './objects-edit.js'
 
 /** The lists the kernel's own types have always had (their keys stay, so saved choices and addresses keep working). */
-export const BUILT_IN_LISTS = { level: 'tree', 'circuit/part': 'parts', symbol: 'symbols', entry: 'entries' }
+export const BUILT_IN_LISTS = { level: 'tree', entry: 'entries' }
 /** The lists that are not one object type's, after the type lists; search always last. */
 export const TOOL_LISTS = ['kernel', 'overrides', 'search']
 
-// The kernel's content kinds still waiting to move into their packages, by the names they show.
-const CONTENT_NAMES = { wordset: ['词组', 'Word sets'], quote: ['引语', 'Quotes'], power: ['开机画面', 'Power-on'], box: ['实验盒', 'Boxes'] }
-const BUILT_IN_NAMES = { level: ['关卡', 'Levels'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }
+const BUILT_IN_NAMES = { level: ['关卡', 'Levels'], entry: ['词条', 'Entries'] }
 
 /** The list an object type is shown in, and back. */
-export const listOfType = (type) => BUILT_IN_LISTS[type] ?? `type:${type}`
-export const typeOfList = (list) => Object.keys(BUILT_IN_LISTS).find((type) => BUILT_IN_LISTS[type] === list) ?? (list?.startsWith('type:') ? list.slice(5) : null)
+export const listOfType = (type) => BUILT_IN_LISTS[type] ?? editorForType(type)?.listKey ?? `type:${type}`
+export const typeOfList = (list) => Object.keys(BUILT_IN_LISTS).find((type) => BUILT_IN_LISTS[type] === list) ?? registeredEditors().find(editor => editor.listKey && editor.listKey === list)?.type ?? (list?.startsWith('type:') ? list.slice(5) : null)
 export const isTypeList = (list) => typeOfList(list) !== null
 
 /** A package's declared object type (not a field extension), or null. */
@@ -32,11 +30,9 @@ const declared = (content, type) => {
  */
 export function objectTypes(content) {
   const own = Object.keys(BUILT_IN_NAMES).map((type) => ({ type, name: BUILT_IN_NAMES[type] }))
-  const kinds = Object.keys(contentKindSchemas).filter((type) => !BUILT_IN_NAMES[type])
-    .map((type) => ({ type, name: CONTENT_NAMES[type] ?? [type, type] }))
   const packages = Object.keys(content?.objectKinds ?? {}).filter((type) => declared(content, type)).sort()
-    .map((type) => ({ type, name: declared(content, type).studio?.name ?? [type, type], icon: declared(content, type).studio?.icon }))
-  return [...own, ...kinds, ...packages]
+    .map((type) => ({ type, name: editorForType(type)?.name ?? declared(content, type).studio?.name ?? [type, type], icon: declared(content, type).studio?.icon }))
+  return [...own, ...packages]
 }
 
 /** The objects of a type, by full name. */
@@ -45,7 +41,6 @@ export const objectsOfType = (content, type) => Object.keys(content?.registries?
 /** Whether a type has anything to list in this content (what is listed when no package says). */
 export function hasObjects(content, type) {
   if (type === 'level') return true
-  if (type === 'circuit/part') return Boolean(content?.partDefs)
   if (type === 'entry') return Boolean(content?.glossary?.entries?.length)
   return objectsOfType(content, type).length > 0
 }

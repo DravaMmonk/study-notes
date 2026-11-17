@@ -44,6 +44,15 @@ named imports for values used during module initialization because view entries
 can participate in ESM cycles. Package editors may import their own `core/` and
 `view/` files; existing package boundary checks still apply.
 
-The remaining `StageChain.jsx` in this directory only mounts the registered stage
-component for the unchanged symbol editor. Symbol routing and its dedicated
-editor remain pending the logic package migration.
+Logic registers the symbol editor under `logic/symbol`. Its stage chain uses circuit's
+public view export. Declared types use the generic object route (`object=<type> <name>`),
+and may register a `listKey`; only level and entry have built-in lists. An isolated
+page route can register `{ type, selector, file, root }` and its preview component;
+the shell transports an object message without interpreting the object's type.
+
+Copy rows for every declared type come from its schema and folder. They use the
+kernel's `{ kind, name }` text selector, so neither copy scopes nor text operations
+need a provider-specific branch. Override file paths also use the declaration.
+
+Provider name exports keep the same reference keys in package and game workspaces,
+so text chips and their reference checks resolve identically.

@@ -1,6 +1,8 @@
 // The Studio shell consumes a registration owned by its current browser assembly.
 let plugins = null
 export function installStudioPlugins(kernel) { plugins = kernel }
+export const registeredEditors = () => [...(plugins?.tables.editor.values() ?? [])]
+export const editorRoute = (selection = null) => registeredEditors().find(editor => editor.route && (!selection || selection[editor.route.selector] !== undefined))?.route
 export const editorForType = type => [...(plugins?.tables.editor.values() ?? [])].find(editor => editor.type === type)
 export const registeredMeanings = () => [...(plugins?.tables.kind.values() ?? [])]
 export const fieldEditor = kind => [...(plugins?.tables.editor.values() ?? [])].map(editor => editor.fields?.[kind]).find(Boolean)

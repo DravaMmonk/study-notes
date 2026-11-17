@@ -1,5 +1,6 @@
 // Pure edits of a relation's edges for the relation board (games/DESIGN.md 6.1). A relation is written either as
 // `edges` or, for order, as a `sequence`; the board always writes `edges`.
+import { relationType } from './editors.js'
 import { linkKey } from './arrangement.js'
 import { localName } from './objects-edit.js'
 
@@ -36,7 +37,7 @@ export const withRequired = (edges, key, required) => edges.map((edge) => {
 export const withoutEndpoint = (edges, endpoint) => edges.filter(({ from, to }) => from !== endpoint && to !== endpoint)
 
 /** What a relation's endpoints are: levels for requires, parts for replaces, the relation's `of` (or levels) for order. */
-export const endpointKind = (relation) => relation?.kind === 'replaces' ? 'circuit/part' : relation?.kind === 'requires' ? 'level' : relation?.of ?? 'level'
+export const endpointKind = (relation) => relationType(relation?.kind) ?? (relation?.kind === 'requires' ? 'level' : relation?.of ?? 'level')
 
 /** The ops writing `edges` back into the relation `name` (a short name) of `namespace`: the layer's own endpoints
  * by their short names, edges replacing a sequence. */

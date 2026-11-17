@@ -7,6 +7,8 @@ import './studio.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, FileText, ListTree, Search as SearchIcon } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
+import { objectTypes, listOfType } from './object-types.js'
+import { typeName } from './LeftTypes.jsx'
 import { contentVocabulary } from './editors.js'
 import { parsePath } from '../engine/ops/edit.js'
 import { call } from './api.js'
@@ -36,7 +38,7 @@ const LISTS = { objects: [ListTree, '按对象', 'By object'], files: [FileText,
 const remember = (opened, scope, file) => {
   const url = new URL(window.location.href)
   url.searchParams.set('space', 'copy')
-  for (const k of ['package', 'game', 'scope', 'file', 'tab', 'level', 'group', 'era', 'circuit/part', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['package', 'game', 'scope', 'file', 'tab', 'level', 'group', 'era', 'glossary']) url.searchParams.delete(k)
   url.searchParams.set(opened.game ? 'game' : 'package', opened.game ?? opened.package)
   if (file !== null) url.searchParams.set('file', file)
   else url.searchParams.set('scope', String(scope))
@@ -121,8 +123,7 @@ export default function CopyStudio({ opened, packages, games, onOpen, space }) {
       ? (content.eras ?? []).map((era, k) => [k, `${era.id} ${L(era.title ?? era.chapter?.title) ?? ''}`.trim()])
       : groupTree(content, order).sections.filter((s) => s.group !== null).map((s) => [`group:${s.group}`, L(content.tags?.[s.group]?.title) || s.group])),
     ['glossary', tr('百科')],
-    ...(content.partDefs ? [['parts', tr('元件', 'Parts')]] : []),
-    ...(Object.keys(content.registries?.symbol ?? {}).length ? [['symbols', tr('符号', 'Symbols')]] : []),
+    ...objectTypes(content).filter(({ type }) => content.objectKinds?.[type] && Object.keys(content.registries?.[type] ?? {}).length).map(info => [listOfType(info.type), tr(...typeName(info))]),
   ]
   const matches = sidebarSearch(query)
   const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPart: () => {} }

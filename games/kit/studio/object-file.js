@@ -4,7 +4,7 @@
 // `<kind>.set` for a field, `<kind>.put` for the whole object (and for a field taken out). Another layer's object is
 // read here only: it is overridden from the middle (SourceMark.jsx). An override picked has its file here too, as the
 // override operation writes it.
-import { contentKindSchemas } from '../engine/content-kinds.js'
+import { collectionProvider } from './editors.js'
 import { folders } from '../engine/layers.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
 import { CHAPTER } from '../engine/course-schema.js'
@@ -15,7 +15,7 @@ import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 import { objectOverride } from './collection-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', 'circuit/tray': 'trays', 'circuit/part': 'parts', section: 'sections', symbol: 'symbols', chapter: 'chapters' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', section: 'sections', chapter: 'chapters' }
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
@@ -24,10 +24,10 @@ const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.
  * declares in kinds/ its own.
  */
 export const objectSchema = (kind, object = null) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags)
-  : kind === 'chapter' ? CHAPTER : object?.declared?.schema ?? contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+  : kind === 'chapter' ? CHAPTER : object?.declared?.schema ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
 
 /** The folder an object kind's files are in: a declared type's own (`declared.folder`), a content kind's its name. */
-const folderOf = (kind, declared) => declared?.folder ?? OBJECT_KINDS[kind] ?? (contentKindSchemas[kind] ? kind : null)
+const folderOf = (kind, declared) => declared?.folder ?? OBJECT_KINDS[kind] ?? null
 
 /** An object as the registry holds it, for its file: without the id the registry adds (and a tag without its kind). */
 export function objectValue(content, kind, full) {
@@ -99,14 +99,14 @@ export function overrideFileOf(event) {
   if (event.kind === 'tag') return { ...changed(event.before, event.after, ['kind', 'values']), ...tagPatch(event.before, event.after?.values ?? []) }
   if (event.kind === 'relation') return { ...changed(event.before, event.after, ['edges', 'sequence']), ...relationPatch(event.before, edgesOf(event.after)) }
   // A gathering object's lists go as patches too (games/MODULES.md 5.3.1); anything else whole.
-  if (event.kind === 'section' || event.kind === 'circuit/tray') return objectOverride(withoutIds(event.before), withoutIds(event.after), { values: 'list', menus: 'list' }) ?? {}
+  if (event.kind === 'section' || collectionProvider(event.kind)) return objectOverride(withoutIds(event.before), withoutIds(event.after), { values: 'list', menus: 'list' }) ?? {}
   return event.after ?? {}
 }
 
 /** Where an override's file is, in the layer that made it. */
-export function overrideFileName(event) {
+export function overrideFileName(event, content = null) {
   const [namespace, name] = [namespaceOf(event.name) ?? '', event.name.slice(event.name.indexOf('/') + 1)]
-  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : OBJECT_KINDS[event.kind] ?? folders[event.kind] ?? event.kind
+  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : content?.objectKinds?.[event.kind]?.folder ?? OBJECT_KINDS[event.kind] ?? folders[event.kind] ?? event.kind
   return `${event.layer}/overrides/${namespace}/${folder}/${name}.json`
 }
 

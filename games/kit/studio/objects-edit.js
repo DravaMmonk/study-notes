@@ -1,5 +1,6 @@
 // Names and lists for the studio's object editors (games/DESIGN.md 6.1, 6.7): the registries hold full names
 // (`<namespace>/<name>`), the operations write a layer's own objects by their short names.
+import { collectionProvider } from './editors.js'
 import { orderedMembers, referenceResolver } from '../engine/objects.js'
 import { tagKey, tagName } from '../engine/tag-identity.js'
 import { edgesOf } from './override-edit.js'
@@ -84,7 +85,7 @@ export function objectPlaces(content, kind, full) {
   const named = new Set([full, ...tags.map((name) => `#${tagName(name)}`)])
   const relations = Object.entries(registries.relation ?? {}).filter(([, relation]) => edgesOf(relation).some(({ from, to }) => named.has(from) || named.has(to))).map(([name]) => name)
   const gathers = (value) => [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])].some((ref) => named.has(ref))
-  const trays = kind === 'circuit/part' ? Object.entries(registries['circuit/tray'] ?? {}).filter(([, tray]) => gathers(tray)).map(([name]) => name) : []
+  const trays = Object.keys(registries).flatMap(type => collectionProvider(type)?.accepts(kind) ? Object.entries(registries[type]).filter(([, value]) => gathers(value)).map(([name]) => ({ kind: type, name })) : [])
   const sections = kind === 'entry' ? Object.entries(registries.section ?? {}).filter(([, section]) => gathers(section)).map(([name]) => name) : []
   return { tags, relations, trays, sections }
 }

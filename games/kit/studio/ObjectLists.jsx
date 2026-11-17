@@ -1,14 +1,15 @@
 // The encyclopedia's entries in the build workspace's left column (games/DESIGN.md 6.7), grouped by their tags, the
 // sections or the relations that gather them (GroupedList.jsx); an entry opens on the right. The words the tag editor
 // names kinds with.
+import { editorForType } from './editors.js'
 import { BookOpen } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { shownName } from './objects-edit.js'
 import GroupedList from './GroupedList.jsx'
 import { GROUPINGS } from './list-groups.js'
 
-export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], 'circuit/part': ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }
-export const tagKindWord = (kind) => (TAG_KIND_WORDS[kind] ? tr(...TAG_KIND_WORDS[kind]) : kind)
+export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], entry: ['词条', 'Entries'] }
+export const tagKindWord = kind => tr(...(editorForType(kind)?.name ?? TAG_KIND_WORDS[kind] ?? [kind, kind]))
 
 /** One row of a list: its icon, what it is called, its name. */
 function Row({ icon: Icon, on, title, name, onClick }) {

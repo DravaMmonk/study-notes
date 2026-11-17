@@ -1,4 +1,4 @@
-import { SYMBOL } from '../engine/content-kinds.js'
+import { objectTypes, listOfType } from './object-types.js'
 import { glossaryTarget } from './form.js'
 // The copy table's rows (CopyTable.jsx): every text of a scope — an era (its own texts, then its levels'), a level group
 // (its name, then its levels'), the whole game or package (the configuration's texts, then every level's), the
@@ -6,7 +6,6 @@ import { glossaryTarget } from './form.js'
 // field it is) and whose it is (`own`: the package's, or the game's own). A workspace (`side`) sees its own: the package
 // workspace the package's texts; the game workspace the game's and the package's, which it puts its own wording over.
 import { languagesOf } from '../engine/i18n.js'
-import { fileSchema } from './editors.js'
 import { find } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { showPath } from '../engine/ops/edit.js'
@@ -32,14 +31,12 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
     if (side === 'package' && own === 'game') return
     rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value, own, field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
   }
-  if (scope === 'symbols') {
-    for (const [symbol, value] of Object.entries(content.registries?.symbol ?? {})) {
-      find(SYMBOL, value, 'text', { vocabulary }).forEach(add({ symbol }, symbol, 'symbol'))
+  const declared = Object.entries(content.objectKinds ?? {}).find(([type, declaration]) => !declaration.extends && listOfType(type) === scope)
+  if (declared) {
+    const [kind, declaration] = declared
+    for (const [name, value] of Object.entries(content.registries?.[kind] ?? {})) {
+      find(declaration.schema, value, 'text', { vocabulary }).forEach(add({ object: { kind, name, folder: declaration.folder, declared: declaration } }, name, kind))
     }
-    return rows
-  }
-  if (scope === 'parts') {
-    find(fileSchema(vocabulary, 'partDefs'), content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'parts.json', 'parts'))
     return rows
   }
   if (scope === 'glossary') {
@@ -69,12 +66,12 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
 }
 
 
-export const allCopyRows = (content, vocabulary, order, side = 'package') => ['all', 'glossary', 'parts', 'symbols']
+export const allCopyRows = (content, vocabulary, order, side = 'package') => ['all', 'glossary', ...objectTypes(content).filter(({ type }) => content.objectKinds?.[type]).map(({ type }) => listOfType(type))]
   .flatMap((scope) => copyRows(content, vocabulary, scope, order, side))
 
 export const copyLanguages = (rows) => [...new Set(['en', 'zh', ...languagesOf(rows.map((row) => row.value))])].sort()
 
-const fileOf = (row) => row.file.symbol ? { symbol: row.file.symbol } : row.file.target ?? (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'parts' : 'game' })
+const fileOf = (row) => row.file.object ? { kind: row.file.object.kind, name: row.file.object.name } : row.file.target ?? (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : 'game' })
 
 /** The edit of a row's text in `lang`: in the game workspace, a package text gets the game's own wording (text.override). */
 export function copyEdit(row, lang, value, side = 'package') {
@@ -93,9 +90,8 @@ const shortName = (full) => String(full).slice(String(full).indexOf('/') + 1)
 
 /** The file a row's text is written in, as the layer keeps it (the copy workspace lists texts by file). */
 export function copyFileOf(row) {
-  if (row.file.symbol !== undefined) return `symbols/${shortName(row.file.symbol)}.json`
+  if (row.file.object) return `${row.file.object.folder}/${shortName(row.file.object.name)}.json`
   if (row.file.level !== undefined) return `levels/${shortName(row.file.level)}.json`
-  if (row.file.parts) return row.path[0] === 'parts' && row.path[1] !== undefined ? `parts/${shortName(row.path[1])}.json` : 'parts/'
   if (row.file.glossary) {
     const target = row.file.target ?? {}
     return target.entry ? `entries/${shortName(target.entry)}.json` : target.tag ? `tags/entry/${shortName(target.tag)}.json` : 'entries/'
@@ -115,9 +111,8 @@ export function copyFiles(rows) {
 
 /** The field a row goes to in the side panel: { at: the file (as Inspector.jsx takes it), path }. */
 export function copyFieldOf(row) {
-  if (row.file.symbol !== undefined) return { at: { object: { kind: 'symbol', full: row.file.symbol, namespace: row.file.symbol.split('/')[0], own: true } }, path: row.path }
+  if (row.file.object) return { at: { object: { ...row.file.object, full: row.file.object.name, namespace: row.file.object.name.split('/')[0], own: true } }, path: row.path }
   if (row.file.level !== undefined) return { at: { level: row.file.level }, path: row.path }
-  if (row.file.parts) return { at: { parts: true, ...(row.path[0] === 'parts' && { root: row.path.slice(0, 2) }) }, path: row.path }
   if (row.file.glossary) return { at: { glossary: true }, path: row.path }
   return { at: { game: true }, path: row.path }
 }

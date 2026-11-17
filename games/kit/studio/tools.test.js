@@ -2,7 +2,7 @@ import { itemOf } from './worklist.js'
 import { installCircuitFixture, lockFixture } from '../engine/ops/fixture.js'
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
 // palette's index and ranking (palette.js), the check's lines as a worklist (worklist.js), the copy
-// table's rows (copy.js); and on every domain's starter game (kit/modules/<d>/starter, copied to a temp folder), that
+// table's rows (copy.js); and on every domain's starter game (kit/templates/<template>/starter, copied to a temp folder), that
 // bulk operations, the palette's index and the copy rows hold up.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'

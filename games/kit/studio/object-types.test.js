@@ -49,7 +49,7 @@ test('an object of any type is kept in the address', () => {
   assert.deepEqual(readHeading(new URLSearchParams({ [param]: value })), heading)
   assert.deepEqual(headingParam({ kind: 'tag', full: 'story/t' }), ['tag', 'story/t'])
   assert.equal(listOfHeading('story/scene'), 'type:story/scene')
-  assert.equal(listOfHeading('circuit/tray'), 'parts')
+  assert.equal(listOfHeading('sample/collection'), 'type:sample/collection')
 })
 
 test('a structured problem points at the object and field that name the missing target', async () => {
@@ -62,8 +62,15 @@ test('a structured problem points at the object and field that name the missing 
   assert.equal(problemPlace({ object: { kind: 'package', name: 'qed' }, path: 'uses[0]' }), null)
 })
 
-test('circuit parts retain their specialized Studio list under the canonical package type', () => {
-  assert.equal(listOfType('circuit/part'), 'parts')
-  assert.equal(typeOfList('parts'), 'circuit/part')
-  assert.equal(objectTypes(content()).some(({ type }) => type === 'part'), false)
+test('package lists use registration and otherwise the full declared type', async () => {
+  const { installStudioPlugins } = await import('./editors.js')
+  const { registerPlugins } = await import('../engine/plugins.js')
+  assert.equal(listOfType('sample/item'), 'type:sample/item')
+  const kernel = await registerPlugins([{ id: 'sample', view: { register(k) {
+    k.editor('sample:item', { type: 'sample/item', component() {}, listKey: 'items' })
+  } } }], { view: true })
+  installStudioPlugins(kernel)
+  assert.equal(listOfType('sample/item'), 'items')
+  assert.equal(typeOfList('items'), 'sample/item')
+  installStudioPlugins(null)
 })

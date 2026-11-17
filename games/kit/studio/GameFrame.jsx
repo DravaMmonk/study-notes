@@ -5,16 +5,14 @@
 // the game alone. While a board of the level is edited there (`take`), the game's 「用作 …」 sends the board back.
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
-//   part: a part of parts.json shown instead (the scenes its editor draws and its fields, PartView.jsx;
-//         settings/<name>, a setting definition, the control it draws); picked is then the path picked in it;
-//         stage: one of its stages previewed instead (read only)
+//   object: { kind, full } shown by its registered preview instead of a level; stage: an optional preview revision
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
 //         does not draw too;  footer: what goes under the page (a part's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'
 import { CirclePlay, MousePointerClick, Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'
 
-export default function GameFrame({ visible, content, play, part, stage = null, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference, footer = null }) {
+export default function GameFrame({ visible, content, play, object, stage = null, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference, footer = null }) {
   const frame = useRef(null)
   const [ready, setReady] = useState(false)
   const said = useRef(onMessage)
@@ -45,20 +43,20 @@ export default function GameFrame({ visible, content, play, part, stage = null, 
   useEffect(() => {
     now.current = { content, task }
   })
-  const opened = useRef({ play: undefined, part: undefined, content: null })
+  const opened = useRef({ play: undefined, object: undefined, content: null })
   useEffect(() => {
     if (!ready || !visible) return
-    if (part !== undefined) {
-      const shownPart = stage ? `${part} ${stage}` : part
-      if (opened.current.part === shownPart) return
-      send({ type: 'circuit/part', content: now.current.content, part, stage, theme, lang })
-      opened.current = { play: undefined, part: shownPart, content: now.current.content }
+    if (object !== undefined) {
+      const shownObject = stage ? `${object.kind} ${object.full} ${stage}` : `${object.kind} ${object.full}`
+      if (opened.current.object === shownObject) return
+      send({ type: 'object', content: now.current.content, ...object, stage, theme, lang })
+      opened.current = { play: undefined, object: shownObject, content: now.current.content }
       return
     }
-    if (opened.current.play === play && opened.current.part === undefined) return
+    if (opened.current.play === play && opened.current.object === undefined) return
     send({ type: 'load', content: now.current.content, level: play?.level ?? null, task: now.current.task, seed: play?.seed ?? null, take: play?.take ?? null, theme, lang })
-    opened.current = { play, part: undefined, content: now.current.content }
-  }, [ready, visible, play, part, stage]) // eslint-disable-line react-hooks/exhaustive-deps
+    opened.current = { play, object: undefined, content: now.current.content }
+  }, [ready, visible, play, object, stage]) // eslint-disable-line react-hooks/exhaustive-deps
   // An edit: the new content, the level staying open.
   useEffect(() => {
     if (!ready || !visible || opened.current.content === content) return
@@ -71,7 +69,7 @@ export default function GameFrame({ visible, content, play, part, stage = null, 
   }, [ready, theme, lang])
   useEffect(() => {
     if (ready) send({ type: 'edit', on: edit, picked })
-  }, [ready, edit, picked, play, part])
+  }, [ready, edit, picked, play, object])
   useEffect(() => {
     if (ready && go) send({ type: 'go', task: go.task })
   }, [ready, go])
@@ -82,10 +80,10 @@ export default function GameFrame({ visible, content, play, part, stage = null, 
           <button type="button" role="radio" aria-checked={edit} className={edit ? 'is-on' : ''} onClick={() => onEdit(true)} title={tr('点画面上的字段在侧栏里改')}><MousePointerClick size={13} aria-hidden="true" />{tr('编辑', 'Edit')}</button>
           <button type="button" role="radio" aria-checked={!edit} className={!edit ? 'is-on' : ''} onClick={() => onEdit(false)}><Play size={13} aria-hidden="true" />{tr('试玩')}</button>
         </span>
-        <button type="button" className="play-root" disabled={!edit} onClick={onRoot} title={tr('全部字段')}>{part !== undefined ? part : play?.level ?? content?.id}</button>
+        <button type="button" className="play-root" disabled={!edit} onClick={onRoot} title={tr('全部字段')}>{object !== undefined ? object.full : play?.level ?? content?.id}</button>
         {play?.take && <code>{play.take.label}</code>}
         <span className="kit-spacer" />
-        {part === undefined && play?.level && reference && !play.take && (
+        {object === undefined && play?.level && reference && !play.take && (
           <button type="button" className="kit-btn is-label" onClick={() => onReference(play.level, reference)}>
             <CirclePlay size={14} aria-hidden="true" />{tr('载入参考解')}
           </button>

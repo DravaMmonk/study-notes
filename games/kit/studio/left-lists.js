@@ -6,7 +6,9 @@
 // to it.
 
 /** The package workspace's lists, by the kind of what they list; search always last. */
-export const PACKAGE_LISTS = ['tree', 'parts', 'symbols', 'entries', 'kernel', 'overrides', 'search']
+import { listOfType } from './object-types.js'
+import { editorForType } from './editors.js'
+export const PACKAGE_LISTS = ['tree', 'entries', 'kernel', 'overrides', 'search']
 /** The game workspace's lists. */
 export const GAME_LISTS = ['packages', 'chapters', 'overrides']
 
@@ -15,22 +17,22 @@ export const OBJECT_LISTS = { kernel: 'capability', overrides: 'override' }
 export const isObjectList = (list) => Object.hasOwn(OBJECT_LISTS, list)
 
 /** The objects a group heading opens, each its own address parameter. */
-export const HEADING_KINDS = ['tag', 'relation', 'circuit/tray', 'section', 'symbol']
+export const HEADING_KINDS = ['tag', 'relation', 'section']
 
 /** The heading the address opens: { kind, full }, or null. An object of any other type is `object=<type> <full>`. */
 export function readHeading(query) {
-  const kind = HEADING_KINDS.find((k) => query.get(k === 'circuit/tray' ? 'tray' : k) !== null)
-  if (kind) return { kind, full: query.get(kind === 'circuit/tray' ? 'tray' : kind) }
+  const kind = HEADING_KINDS.find((k) => query.get(k) !== null)
+  if (kind) return { kind, full: query.get(kind) }
   const object = query.get('object')
   const at = object?.indexOf(' ') ?? -1
   return at > 0 ? { kind: object.slice(0, at), full: object.slice(at + 1) } : null
 }
 
 /** The address parameter a heading is kept in: [param, value]. */
-export const headingParam = (heading) => (HEADING_KINDS.includes(heading.kind) ? [heading.kind === 'circuit/tray' ? 'tray' : heading.kind, heading.full] : ['object', `${heading.kind} ${heading.full}`])
+export const headingParam = (heading) => (HEADING_KINDS.includes(heading.kind) ? [heading.kind, heading.full] : ['object', `${heading.kind} ${heading.full}`])
 
 /** The build list a heading of `kind` (of an object of list kind `of`) is in. */
-export const listOfHeading = (kind, of = 'level') => (!HEADING_KINDS.includes(kind) ? `type:${kind}` : kind === 'symbol' ? 'symbols' : kind === 'circuit/tray' ? 'parts' : kind === 'section' ? 'entries' : of === 'symbol' ? 'symbols' : of === 'circuit/part' ? 'parts' : of === 'entry' ? 'entries' : 'tree')
+export const listOfHeading = (kind, of = 'level') => listOfType(editorForType(kind)?.group?.listType ?? (['tag', 'relation'].includes(kind) ? of ?? 'level' : kind === 'section' ? 'entry' : kind))
 
 // The old top-bar tabs that only switched to one of these lists.
 const OLD_TABS = { overrides: 'overrides', kernel: 'kernel' }

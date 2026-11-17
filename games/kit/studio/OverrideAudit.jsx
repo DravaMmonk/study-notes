@@ -2,6 +2,7 @@
 // loads on — listed in the left column, one row each: what was overridden and by which layer. The one picked is in the
 // middle with the fields before and after, a way to the object it overrides and, for the layer's own, a way to take it
 // back; its file is on the right (Inspector.jsx).
+import { editorForType } from './editors.js'
 import { useMemo, useState } from 'react'
 import { ArrowUpRight, Filter, Layers, RotateCcw } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
@@ -12,8 +13,8 @@ import { overrideKey } from './left-lists.js'
 import { sidebarSearch } from './sidebar-list.js'
 import SidebarListTools from './SidebarListTools.jsx'
 
-const KINDS = { level: ['关卡', 'Level'], 'circuit/part': ['元件', 'Part'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
-const kindWord = (kind) => tr(...KINDS[kind] ?? [kind, kind])
+const KINDS = { level: ['关卡', 'Level'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
+const kindWord = (kind) => tr(...(editorForType(kind)?.name ?? KINDS[kind] ?? [kind, kind]))
 const FILTERS = [['all', '全部', 'All'], ['own', '本层', 'This layer'], ['below', '依赖的包', 'Dependencies']]
 
 /** The overrides visible from `layer`, in load order: its own and those of every layer it loads on. */

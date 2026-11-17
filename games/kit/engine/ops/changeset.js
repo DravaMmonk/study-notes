@@ -118,7 +118,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   const source = (value, schema) => expandNames(value, gameObject ? ws.layer : ws.packageId, { objects: Object.fromEntries(Object.entries(ws.contentObjects ?? {}).map(([kind, values]) => [kind, Object.fromEntries(values)])), schema, vocabulary, resolve: gameObject ? gameLocal : local })
   const args = source(selected, operationsFor(vocabulary)[operation].params)
   if (operation.startsWith('kind.')) args.kind = local(args.kind)
-  if (operation.startsWith('object.')) args.name = local(args.name)
+  if (operation.startsWith('object.') || operation.startsWith('text.') && args.kind !== undefined) args.name = local(args.name)
   if (args.entry !== undefined) args.entry = local(args.entry)
   if (args.tag !== undefined) args.tag = local(args.tag)
   for (const meaning of meaningsOf(vocabulary)) meaning.sourceArguments?.({ args, operation, local })

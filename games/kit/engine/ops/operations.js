@@ -486,6 +486,18 @@ function textTarget(ws, args, vocabulary) {
     ...mapTarget('tag', ws.tags, OBJECT_SCHEMAS.tags, tagKey(args.member, args.tag)),
     ...mapTarget('section', ws.sections, OBJECT_SCHEMAS.sections),
     ...(args.in !== 'game' ? [] : [{ id: 'game', value: ws.game, schema: vocabulary.game, selector: { in: 'game' }, operation: 'game', set: value => { ws.game = value } }]),
+    ...(args.kind === undefined ? [] : (() => {
+      const objects = ws.contentObjects[args.kind]
+      const schema = vocabulary.objectKinds?.[args.kind]?.schema
+      if (!objects || !schema || args.name === undefined) fail('name a declared kind and object')
+      const own = objects.has(args.name)
+      const value = own ? objects.get(args.name) : ws.content().registries?.[args.kind]?.[args.name]
+      if (!value) fail(`no ${args.kind} ${args.name}`)
+      return [{ id: args.name, value, schema, selector: { kind: args.kind, name: args.name }, set: value => {
+        if (!own) fail('edit foreign text through an override')
+        objects.set(args.name, value)
+      } }]
+    })()),
     ...meaningsOf(vocabulary).flatMap(meaning => meaning.textTarget?.({ workspace: ws, args, vocabulary }) ?? []),
   ]
   if (choices.length !== 1) fail('name exactly one text target')
@@ -496,6 +508,6 @@ function textTarget(ws, args, vocabulary) {
 export function operationsFor(vocabulary) {
   const meanings = meaningsOf(vocabulary)
   const extra = Object.assign({}, ...meanings.map(meaning => meaning.operations), ...meanings.filter(meaning => meaning.selector && vocabulary.objectKinds?.[meaning.type]).map(meaning => objectOperations(meaning.selector, undefined, meaning.type, vocabulary)))
-  const fields = Object.assign({ chapter: S.opt(S.str()) }, ...meanings.map(meaning => meaning.textParameters))
+  const fields = Object.assign({ chapter: S.opt(S.str()), kind: S.opt(S.str()), name: S.opt(S.str()) }, ...meanings.map(meaning => meaning.textParameters))
   return { ...OPERATIONS, ...extra, ...Object.fromEntries(['text.set', 'text.override'].map(name => [name, { ...OPERATIONS[name], params: { ...OPERATIONS[name].params, fields: { ...OPERATIONS[name].params.fields, ...fields } } }])) }
 }
