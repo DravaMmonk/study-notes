@@ -15,7 +15,6 @@
     "check": "node ../games/kit/engine/check.js",
     "deps": "node ../games/kit/engine/deps.js",
     "styles": "node ../games/kit/engine/styles.js",
-    "versions": "node ../games/kit/engine/versions.js",
     "new-game": "node ../games/kit/engine/scaffold.js game",
     "op": "node ../games/kit/engine/ops/cli.js",
     "mcp": "node ../games/kit/engine/ops/mcp.js",
@@ -25,7 +24,8 @@
     "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/engine/parts/*.test.js ../games/kit/shell/parts/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/views/*.test.js ../games/kit/modules/*/*.test.js ../games/kit/pipeline/*.test.js ../packages/*/test/*.test.js",
     "pipeline": "node ../games/kit/pipeline/pipeline.mjs",
     "new-package": "node ../games/kit/engine/scaffold.js package",
-    "baseline": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ../games/kit/engine/baseline.mjs"
+    "baseline": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ../games/kit/engine/baseline.mjs",
+    "publish": "node ../games/kit/engine/releases.js"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

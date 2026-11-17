@@ -100,6 +100,15 @@ export async function drawDeps(content, { dot: asDot = false, levels = false } =
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2)
-  const [game] = knownGames(args.filter((a) => !a.startsWith('--')).slice(0, 1), 'npm run deps -- <game> [--dot] [--levels]')
-  console.log(await drawDeps(readContent(game), { dot: args.includes('--dot'), levels: args.includes('--levels') }))
+  if (['lock', 'upgrade'].includes(args[0])) {
+    const { lockTarget, upgradeTarget } = await import('./releases.js')
+    const { contentTargets, contentRoot } = await import('./resolver.js')
+    const [action, ...selectors] = args
+    const positional = selectors.filter(arg => !arg.startsWith('--'))
+    const [target] = contentTargets([positional[0]], contentRoot(), { package: selectors.includes('--package'), game: selectors.includes('--game') })
+    console.log(JSON.stringify(action === 'lock' ? lockTarget(target) : upgradeTarget(target, positional[1]), null, 2))
+  } else {
+    const [game] = knownGames(args.filter((a) => !a.startsWith('--')).slice(0, 1), 'npm run deps -- <game> [--dot] [--levels]')
+    console.log(await drawDeps(readContent(game), { dot: args.includes('--dot'), levels: args.includes('--levels') }))
+  }
 }

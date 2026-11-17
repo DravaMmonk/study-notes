@@ -48,7 +48,7 @@ export default defineConfig([
     plugins: { packages: { rules: { boundary: { create(context) {
       const file = context.filename, root = file.slice(0, file.lastIndexOf('/packages/'))
       const id = file.slice(root.length + 10).split('/')[0]
-      const uses = JSON.parse(readFileSync(resolve(root, 'packages', id, 'package.json'))).uses ?? []
+      const uses = Object.keys(JSON.parse(readFileSync(resolve(root, 'packages', id, 'package.json'))).uses ?? {})
       const check = node => {
         const source = node.source ?? node.arguments?.[0]
         const message = importProblem(source?.type === 'Literal' ? source.value : null, file, root, uses)

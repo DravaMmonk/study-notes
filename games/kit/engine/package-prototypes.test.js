@@ -14,7 +14,7 @@ import { openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
-import { writeContentFixture } from './ops/fixture.js'
+import { lockFixture, writeContentFixture } from './ops/fixture.js'
 
 after(closeGames)
 const text = en => ({ en })
@@ -25,7 +25,7 @@ const arithmetic = Object.fromEntries([
   inputs: ['a', 'b'].map(name => ({ name, type: 'circuit:number' })),
   outputType: 'circuit:number', op: `circuit:${operation}`,
 }]))
-const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { uses, vocabulary: 1 }, objects, overrides, catalogs: {} })
+const layer = (id, objects = [], uses = [], overrides = []) => ({ id, config: { version: '1.0.0', kernel: '^1.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 
 test('content prototypes qualify, merge, replace, reject undeclared dependencies and retain provenance', () => {
   const base = layer('base', [{ kind: 'wordset', name: 'words', value: { A: 'alpha', B: 'beta' } }])
@@ -35,19 +35,19 @@ test('content prototypes qualify, merge, replace, reject undeclared dependencies
   assert.deepEqual(composed.sources.wordset['base/words'], { declaration: 'base', overrides: ['extra'] })
   extra.overrides[0].value = { C: 'charlie' }
   assert.deepEqual(composeLayers([base, extra], vocabulary).registries.wordset['base/words'], { C: 'charlie' })
-  extra.config.uses = []
+  extra.config.uses = {}
   assert.ok(existenceProblems(composeLayers([base, extra], vocabulary).qualifiedLayers, vocabulary).some(p => p.reason === 'undeclared dependency'))
   const badReference = layer('extra', [{ kind: 'level', name: 'one', value: { words: ['base/words'] } }])
   assert.ok(existenceProblems(composeLayers([base, badReference], vocabularyFor('logic')).qualifiedLayers, vocabularyFor('logic')).some(p => p.reason === 'undeclared dependency'))
 })
 
-test('every dependency checks its own minimum vocabulary version and package fields', () => {
-  const base = layer('base'), extra = layer('extra', [], ['base'])
-  base.config.vocabulary = vocabulary.version + 1
-  assert.throws(() => composeLayers([base, extra], vocabulary), /base\/package.json: vocabulary/)
+test('packages reject the retired vocabulary field and invalid ranges', () => {
+  const base = layer('base')
   base.config.vocabulary = 1
-  base.config.domain = 'logic'
-  assert.throws(() => composeLayers([base], vocabulary), /unknown field domain/)
+  assert.throws(() => composeLayers([base], vocabulary), /unknown field vocabulary/)
+  delete base.config.vocabulary
+  base.config.kernel = 'latest'
+  assert.throws(() => composeLayers([base], vocabulary), /invalid range/)
 })
 
 test('a numeric library works in packages using image and table boards, with no library levels', async () => {
@@ -72,8 +72,9 @@ test('a numeric library works in packages using image and table boards, with no 
         }],
       } },
     }, vocabularyFor('table'))
-    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: ['arithmetic'], vocabulary: 1 })
+    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^1.0.0' }, version: '1.0.0', kernel: '^1.0.0' })
     for (const id of ['arithmetic', 'picture', 'cells']) rmSync(resolve(root, 'games', id), { recursive: true })
+    lockFixture(root)
     for (const id of ['arithmetic', 'picture', 'cells']) {
       const content = readPackage(id, root)
       assert.equal(Object.keys(content.registries.part).filter(name => name.startsWith('arithmetic/')).length, 4)

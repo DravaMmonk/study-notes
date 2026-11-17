@@ -7,7 +7,7 @@ import { resolve, dirname } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { contentRoot, readPackage, readContent } from './resolver.js'
 import { openGame } from './ops/workspace.js'
-import { proofsRoot } from './ops/fixture.js'
+import { proofsRoot, lockFixture } from './ops/fixture.js'
 
 const put = (root, name, value) => {
   const file = resolve(root, name)
@@ -19,7 +19,8 @@ test('a package without games and a game with only its selected packages check i
   const { root, id } = proofsRoot()
   const library = mkdtempSync(resolve(tmpdir(), 'independent-library-'))
   try {
-    put(library, 'packages/library/package.json', { vocabulary: 14 })
+    put(library, 'packages/library/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
+    lockFixture(library)
     for (const [project, args] of [[root, ['--game', id]], [root, ['--package', id]], [library, ['--package', 'library']]]) {
       const output = execFileSync(process.execPath, [resolve(import.meta.dirname, 'check.js'), ...args], { cwd: tmpdir(), env: { ...process.env, GAMES_ROOT: project, NODE_OPTIONS: '--no-warnings' }, encoding: 'utf8' })
       assert.match(output, /all games ok/)
@@ -47,10 +48,10 @@ test('game authoring consumes resolved public content and never opens dependency
 test('source core registers arbitrary typed objects; missing dependencies and wording reach the same checker', () => {
   const root = mkdtempSync(resolve(tmpdir(), 'registered-objects-'))
   try {
-    put(root, 'packages/library/package.json', { vocabulary: 14 })
+    put(root, 'packages/library/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
     put(root, 'packages/library/kinds/scene.json', { folder: 'scenes', schema: { type: 'obj', fields: {} } })
     put(root, 'packages/library/core/index.js', "export function register(k) { k.object('library/scene', 'library/registered') }")
-    put(root, 'packages/consumer/package.json', { vocabulary: 14, uses: ['library', 'absent'] })
+    put(root, 'packages/consumer/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: { 'library': '^1.0.0', 'absent': '^1.0.0' } })
     put(root, 'packages/consumer/overrides/library/scenes/registered.json', {})
     put(root, 'packages/consumer/overrides/library/scenes/missing.json', {})
     put(root, 'packages/consumer/sections/words.json', { title: '@library/missing', values: [] })
@@ -65,7 +66,7 @@ test('source core registers arbitrary typed objects; missing dependencies and wo
 test('an absent play is a structured existence diagnostic rather than an attempted module import', async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'missing-play-'))
   try {
-    put(root, 'packages/example/package.json', { vocabulary: 14 })
+    put(root, 'packages/example/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
     put(root, 'packages/example/levels/one.json', { title: '@title', tasks: [{ id: 'one', play: 'absent:answer', brief: '@brief' }] })
     put(root, 'packages/example/i18n/en.json', { title: 'One', brief: 'Answer' })
     const { runtimeOf } = await import('./runtime.js')

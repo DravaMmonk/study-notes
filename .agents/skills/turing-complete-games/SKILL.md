@@ -33,15 +33,15 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   roots, `GAMES_ROOT`, source directories and code-entry locations; the default is the current content workspace.
   Game consumers, builds and arrange workspaces consume resolved public data, never dependency files.
   `engine/existence.js` collects schema references, override/contribution targets, relation endpoints, grants and
-  dependency selections, then checks `publicSurfaces` and code identities. Never add another missing-target guard
+  dependency selections, then checks `publicSurfaces` and manifest code identities. Never add another missing-target guard
   to loading, collection expansion or an object-specific checker. Keep `{ rule: "exists", at, layer, kind, target,
-  member?, reason, says }` intact for consumers; manifests will replace only the public-surface provider in step 4.
-- There is one capability vocabulary and version line (`kit/engine/kernel.js`, snapshots in `engine/versions/`),
+  member?, reason, says }` intact for consumers; manifest identities now provide the public surface in step 4.
+- There is one capability vocabulary (`kit/engine/kernel.js`) and one platform version (`kit/platform.json`),
   and one course model (`engine/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
   typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
-- Content is data. `packages/<package>/package.json` declares direct `uses` and minimum `vocabulary` version.
+- Content is data. `packages/<package>/package.json` declares its semantic `version`, a `kernel` range, and a direct `uses` range map.
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
-  select the complete dependency closure in `game.json`'s `packages`; loading is topological, with the game last.
+  select the complete dependency closure in `game.json`'s ordered `packages` range map and declare `kernel`; the first key is primary; loading is topological, with the game last.
 - Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
   `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
   File names supply object ids; task, stage, menu and chapter ids remain inside their containing objects.
@@ -98,8 +98,9 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Tests use content written in the test or template `starter/`, never real game levels, ids or counts. Actual
   game/package correctness belongs to `npm run check -- <game>` and `npm run check -- --package <package>`.
   All commands here run in `trace-viewer/`. Kernel changes require `npm test`, `npm run lint:kit`, and
-  `npm run words -- --check`. Vocabulary changes require a version bump, declared `removes` for deletions or
-  changes, and `npm run versions`; snapshots are immutable. For behavior refactors, capture affected game
+  `npm run words -- --check`. Use `deps -- lock <target>` to update dependency hashes, `deps -- upgrade <target> [package]` for explicit upgrades,
+  and `publish -- <package>` for checked, automatically versioned releases in `releases/`. Platform structure uses
+  `publish -- kernel`; platform behavior probing remains pending. Do not hand-edit versions or recreate vocabulary snapshots. For behavior refactors, capture affected game
   check output before the change and compare afterwards, reporting only explicitly authorized differences.
 - For bounded copy, UI or local behavior changes, select checks from handbook §7.0; inspect desktop and phone
   when interaction changes. Passing tests or a build do not establish visual or teaching quality.

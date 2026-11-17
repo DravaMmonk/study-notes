@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { baselineValue, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
 
 test('stable serialization keeps nonfinite values, sets, maps and ordered trace steps', () => {
@@ -109,4 +109,13 @@ test('step 3 normalization is limited to tag copy keys and missing-target diagno
   assert.ok(differences(existenceBaseline(before), existenceBaseline({ ...after, title: { en: 'Changed', $key: 'sample/tag.basics.title' } })).length)
   assert.equal(existenceBaseline({ prose: 'unknown level sample/missing', $key: 'sample/group.basics.other' }).prose, 'unknown level sample/missing')
   assert.equal(existenceBaseline({ $key: 'sample/group.basics.other' }).$key, 'sample/group.basics.other')
+})
+
+test('version metadata normalizes only initial named configurations and preserves package order and other ranges', () => {
+  const before = { 'package.json': { vocabulary: 14, uses: ['library'] }, 'game.json': { packages: ['course', 'library'], title: 'Course' } }
+  const after = { 'package.json': { version: '1.0.0', kernel: '^1.0.0', uses: { library: '^1.0.0' } }, 'game.json': { kernel: '^1.0.0', packages: { course: '^1.0.0', library: '^1.0.0' }, title: 'Course' } }
+  assert.deepEqual(versionMetadataBaseline(before), versionMetadataBaseline(after))
+  after['game.json'].packages.library = '~1.0.0'
+  assert.notDeepEqual(versionMetadataBaseline(before), versionMetadataBaseline(after))
+  assert.deepEqual(versionMetadataBaseline({ payload: after['package.json'] }), { payload: after['package.json'] })
 })

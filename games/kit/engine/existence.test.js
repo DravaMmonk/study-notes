@@ -10,7 +10,7 @@ const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {},
 })
 schemas.objectKinds = { 'lib/scene': { folder: 'scenes', schema: S.obj({ next: S.opt(S.ref('lib/scene')) }) } }
 const object = (kind, name, value = {}) => ({ kind, name, value })
-const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { vocabulary: 1, uses }, objects, overrides, catalogs: {} })
+const layer = (id, objects = [], overrides = [], uses = []) => ({ id, config: { version: '1.0.0', kernel: '^1.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 const lib = () => ({ ...layer('lib', [object('kind', 'scene', schemas.objectKinds['lib/scene']), object('lib/scene', 'start')]), codeObjects: [object('lib/scene', 'lib/registered') ] })
 
 test('one structured check covers schema references, overrides, tag contributions, endpoints, grants and dependencies', () => {
@@ -39,7 +39,7 @@ test('code registrations satisfy every object type, while foreign overrides do n
   const content = assembleLayers('consumer', [lib(), consumer], schemas, { packageId: 'consumer' })
   assert.deepEqual(content.objectProblems, [])
   assert.ok(content.registries['lib/scene']['lib/registered'])
-  consumer.config.uses = []
+  consumer.config.uses = {}
   assert.ok(assembleLayers('consumer', [lib(), consumer], schemas).objectProblems.some(problem => problem.reason === 'undeclared dependency'))
 })
 
@@ -60,7 +60,7 @@ test('typed tags, registered readers, unknown member types and ambiguous unconst
   assert.ok(!content.objectProblems.some(problem => problem.target === 'lib/reader'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'tag' && problem.member === 'missing-kind'))
   assert.ok(content.objectProblems.some(problem => problem.kind === 'kind' && problem.target === 'missing-kind'))
-  const refs = [{ id: '@game', config: { packages: ['lib'] }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
+  const refs = [{ id: '@game', config: { kernel: '^1.0.0', packages: { 'lib': '^1.0.0' } }, objects: [object('relation', '@game/order', { kind: 'order', sequence: ['#lib/same'] })] }]
   const problems = existenceProblems(refs, schemas, publicSurfaces(contentLayers(owner), schemas))
   assert.equal(problems.find(problem => problem.target === 'lib/same')?.reason, 'ambiguous')
 })
@@ -94,10 +94,10 @@ test('locations identify nested level fields, override targets and dependency se
   assert.deepEqual(location('lib/gone'), [{ object: { kind: 'level', name: 'consumer/one' }, path: 'tasks[0].solution' }])
   assert.deepEqual(location('lib/no-override'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: '' }])
   assert.deepEqual(location('lib/missing'), [{ object: { kind: 'lib/scene', name: 'lib/no-override', override: true }, path: 'next' }])
-  assert.deepEqual(location('absent'), [{ object: { kind: 'package', name: 'consumer' }, path: 'uses[1]' }])
-  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { packages: ['absent'] } })), schemas)
+  assert.deepEqual(location('absent'), [{ object: { kind: 'package', name: 'consumer' }, path: 'uses.absent' }])
+  const [selection] = existenceProblems([layer('@game', [], [], [])].map(l => ({ ...l, config: { kernel: '^1.0.0', packages: { 'absent': '^1.0.0' } } })), schemas)
   assert.deepEqual(selection.object, { kind: 'package', name: '@game' })
-  assert.equal(selection.path, 'packages[0]')
+  assert.equal(selection.path, 'packages.absent')
 })
 
 test('collection overrides retain authored locations after assembly shifts indices and expands sequences', () => {

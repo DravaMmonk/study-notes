@@ -1,4 +1,5 @@
 // Dependency ordering, override composition and provenance shared by readers and author operations.
+import { dependencyIds, validateConfig } from './semver.js'
 import { tagKey, tagName, kernelTags } from './tag-identity.js'
 import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
@@ -19,11 +20,11 @@ export function orderPackages(packages) {
   const byId = new Map(packages.map((p) => [p.id, p]))
   if (byId.size !== packages.length) throw new Error('duplicate package selection')
   for (const p of packages) {
-    if (!Array.isArray(p.config.uses ?? [])) throw new Error(`${p.id}: uses must be an array`)
+    if (!p.missing) validateConfig(p.config)
   }
   const out = [], remaining = new Set(byId.keys())
   while (remaining.size) {
-    const next = [...remaining].sort().find((id) => (byId.get(id).config.uses ?? []).every((dep) => !remaining.has(dep)))
+    const next = [...remaining].sort().find((id) => dependencyIds(byId.get(id).config).every((dep) => !remaining.has(dep)))
     if (!next) throw new Error(`circular package dependencies: ${[...remaining].sort().join(', ')}`)
     remaining.delete(next); out.push(byId.get(next))
   }
@@ -90,7 +91,7 @@ export function composeLayers(layers, schemas) {
     sources.tag[key] = { declaration: null, reader: reader.reader, overrides: [], members: {} }
   }
   const identity = (kind, name, value) => kind === 'tag' ? tagKey(value.kind, name) : name
-  const dependencies = new Map(layers.map((layer) => [layer.id, layer.config?.uses ?? []]))
+  const dependencies = new Map(layers.map((layer) => [layer.id, dependencyIds(layer.config ?? {})]))
   const depends = (a, b, seen = new Set()) => {
     if (seen.has(a)) return false
     seen.add(a)
@@ -154,13 +155,12 @@ export function composeLayers(layers, schemas) {
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
     if (!layer.id.startsWith('@') && !layer.missing) {
-      for (const key of Object.keys(layer.config)) if (!['uses', 'vocabulary'].includes(key)) throw new Error(`${layer.id}/package.json: unknown field ${key}`)
-      const version = layer.config.vocabulary
-      if (!Number.isInteger(version) || version < 1 || version > schemas.version) throw new Error(`${layer.id}/package.json: vocabulary ${version} exceeds or falls outside kernel versions 1 to ${schemas.version}`)
+      for (const key of Object.keys(layer.config)) if (!['uses', 'kernel', 'version'].includes(key)) throw new Error(`${layer.id}/package.json: unknown field ${key}`)
+      validateConfig(layer.config)
     }
     const qualifiedLayer = { ...layer, config: texts(layer.config ?? {}, schemas.game, 'configuration'), objects: [], overrides: [] }
     qualifiedLayers.push(qualifiedLayer)
-    configurations.push(qualifiedLayer.config)
+    configurations.push(Object.fromEntries(Object.entries(qualifiedLayer.config).filter(([key]) => !['version', 'kernel', 'uses', 'packages'].includes(key))))
     for (const { kind, name: id, value } of layer.objects) {
       if (id.includes('/') && !id.startsWith(`${layer.id}/`)) throw new Error(`${layer.id}: declare foreign object ${id} in overrides`)
       const full = fullName(layer.id, id)
@@ -178,5 +178,5 @@ export function composeLayers(layers, schemas) {
       record(kind, id, after, layer, true, object(kind, value))
     }
   }
-  return { registries, qualifiedLayers, sources, overrideHistory: history, layerOrder: layers.map((l) => l.id), layerUses: Object.fromEntries(layers.map((l) => [l.id, l.id.startsWith('@') ? layers.filter((p) => !p.id.startsWith('@')).map((p) => p.id) : l.config.uses ?? []])), configurations, catalogs }
+  return { registries, qualifiedLayers, sources, overrideHistory: history, layerOrder: layers.map((l) => l.id), layerUses: Object.fromEntries(layers.map((l) => [l.id, l.id.startsWith('@') ? layers.filter((p) => !p.id.startsWith('@')).map((p) => p.id) : dependencyIds(l.config)])), configurations, catalogs }
 }

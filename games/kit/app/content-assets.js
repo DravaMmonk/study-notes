@@ -8,6 +8,8 @@ export const CONTENT_FILE = 'content.json'
 
 /** The content as the page plays it: its chapters as played, without what only authoring reads. */
 export function contentAssets(content) {
+  const dependencies = (content.objectProblems ?? []).filter(problem => problem.rule === 'dependency')
+  if (dependencies.length) throw new Error(JSON.stringify(dependencies))
   const source = assemblySource(content)
   const { levels, glossary, partDefs, blueprint, game, tags, relations, sections, trays, contentObjects } = source
   const objects = [...tags, ...relations, ...sections, ...trays]

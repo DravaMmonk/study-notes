@@ -17,7 +17,7 @@ test('each kind rejects duplicate names and permits a name shared across kinds',
   registry.add('operation', 'toy:number', { about: 'number' })
   assert.throws(() => registry.add('valueType', 'toy:number', {}), /duplicate/)
   assert.throws(() => registry.add('operation', 'plain', {}), /invalid capability name/)
-  assert.ok(vocabulary.version >= 1)
+  assert.equal(vocabulary.version, undefined)
 })
 
 test('qualified operation names round-trip beside match case delimiters', () => {

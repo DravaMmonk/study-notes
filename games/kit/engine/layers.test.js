@@ -1,3 +1,4 @@
+import { lockFixture } from './ops/fixture.js'
 import { existenceProblems } from './existence.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -15,7 +16,7 @@ import { openGame, openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 
 const schemas = defineVocabulary({ module: 'toy', version: 1, kinds: {}, game: S.obj({ title: S.opt(S.text()), chapters: S.opt(S.list(S.obj({ id: S.str(), levels: S.list(S.level()) }))) }), level: S.obj({ title: S.opt(S.text()), from: S.opt(S.level()), options: S.opt(S.map(S.any())) }) })
-const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { vocabulary: 1, uses }, objects, overrides, catalogs: {} })
+const layer = (id, uses = [], objects = [], overrides = []) => ({ id, config: { version: '1.0.0', kernel: '^1.0.0', uses: Object.fromEntries(uses.map(id => [id, '^1.0.0'])) }, objects, overrides, catalogs: {} })
 const obj = (kind, name, value) => ({ kind, name, value })
 const base = () => layer('base', [], [obj('level', 'a', { title: 'A', options: { x: 1, y: 2 } }), obj('level', 'b', { title: 'B' }), obj('tag', 'all', { kind: 'level', values: ['a'] }), obj('relation', 'path', { kind: 'requires', edges: [{ from: 'a', to: 'b' }] }), obj('section', 'map', { title: 'Map', values: [] })])
 const problems = layers => existenceProblems(composeLayers(layers, schemas).qualifiedLayers, schemas).map(problem => problem.says).join('\n')
@@ -59,9 +60,9 @@ test('independent overrides conflict; an explicit dependency resolves the ambigu
   const patch = [obj('level', 'base/a', { title: 'New' })]
   const b = layer('b', ['base'], [], patch), c = layer('c', ['base'], [], patch)
   assert.throws(() => composeLayers([base(), b, c], schemas), /conflicting overrides/)
-  c.config.uses.push('b')
+  c.config.uses['b'] = '^1.0.0'
   assert.equal(composeLayers([base(), b, c], schemas).sources.level['base/a'].overrides.length, 2)
-  c.config.uses = ['b']
+  c.config.uses = { 'b': '^1.0.0' }
   assert.match(problems([base(), b, c]), /undeclared dependency/)
 })
 
@@ -86,16 +87,17 @@ test('wording merges by key, adds translations and records before and after valu
   assert.equal(content.levels[0].title.zh, '游戏')
   assert.deepEqual(visibleOverrides(content, 'b').map((e) => [e.before, e.after]), [['Original', 'Package']])
   assert.equal(composeLayers([a, b, g], schemas).catalogs.en['base/other'], 'Kept')
-  b.config.uses = []
+  b.config.uses = {}
   assert.match(problems([a, b]), /undeclared dependency/)
 })
 
 function fixture() {
   const root = mkdtempSync(resolve(tmpdir(), 'layers-'))
   const put = (file, data) => { const path = resolve(root, file); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`) }
-  put('games/demo/game.json', { packages: ['extra', 'base'], title: 'Demo' }); put('games/demo/course.json', {})
-  put('packages/base/package.json', { vocabulary: 1 }); put('packages/base/levels/a.json', { title: '@title', options: { x: 1 } }); put('packages/base/i18n/en.json', { title: 'Original' })
-  put('packages/extra/package.json', { vocabulary: 1, uses: ['base'] }); put('packages/extra/levels/b.json', { from: 'base/a' })
+  put('games/demo/game.json', { kernel: '^1.0.0', packages: { 'extra': '^1.0.0', 'base': '^1.0.0' }, title: 'Demo' }); put('games/demo/course.json', {})
+  put('packages/base/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} }); put('packages/base/levels/a.json', { title: '@title', options: { x: 1 } }); put('packages/base/i18n/en.json', { title: 'Original' })
+  put('packages/extra/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: { 'base': '^1.0.0' } }); put('packages/extra/levels/b.json', { from: 'base/a' })
+  lockFixture(root)
   return { root, put }
 }
 
@@ -118,7 +120,7 @@ test('disk reader and operations share layer composition, write ownership and in
   result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: '@demo', kind: 'level', name: 'base/a', merge: true }] }, { check: false, domain })
   assert.equal(result.ok, false)
   assert.match(result.problems.join('\n'), /games cannot override/)
-  put('games/demo/game.json', { packages: ['extra'] })
+  put('games/demo/game.json', { kernel: '^1.0.0', packages: { 'extra': '^1.0.0' } })
   assert.match(readContent('demo', root, { vocabulary: schemas }).objectProblems.map(p => p.says).join('\n'), /missing target package/)
 })
 
@@ -132,16 +134,16 @@ test('cross-package wording references retain ownership and override links resol
   const ws = openGame('demo', root, { vocabulary: schemas, layer: 'extra' })
   assert.equal(ws.content().levels.find((l) => l.id === 'extra/b').title.en, content.levels[0].title.en)
   assert.equal(ws.changes().some((c) => c.file === 'packages/extra/i18n/en.json'), false)
-  put('packages/extra/package.json', { vocabulary: 1, uses: [] })
+  put('packages/extra/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {  } })
   assert.match(readContent('demo', root, { vocabulary: schemas }).objectProblems.map(p => p.says).join('\n'), /undeclared dependency/)
 })
 
 
 test('multi-package sibling courses validate shared levels without rejecting their other packages', () => {
   const { root, put } = fixture()
-  put('games/peer/game.json', { packages: ['base', 'third'] })
+  put('games/peer/game.json', { kernel: '^1.0.0', packages: { 'base': '^1.0.0', 'third': '^1.0.0' } })
   put('games/peer/course.json', { chapters: [{ id: 'one', levels: ['base/a', '#third/all'] }] })
-  put('packages/third/package.json', { vocabulary: 1 })
+  put('packages/third/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
   put('packages/third/levels/c.json', {})
   put('packages/third/tags/level/all.json', { values: ['c'] })
   const content = readContent('demo', root, { vocabulary: schemas })
@@ -195,7 +197,8 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   assert.deepEqual(content.registries.entry['base/z'].body, ['Changed'])
   assert.equal(content.registries.entry['base/z'].group, undefined)
   assert.deepEqual(content.sources.entry['base/z'], { declaration: 'base', overrides: ['extra'] })
-  const assets = contentAssets(content)
+  lockFixture(root)
+  const assets = contentAssets(readContent('demo', root, { vocabulary: schemas }))
   const restored = await pageContent(JSON.parse(assets.get(CONTENT_FILE)), 'https://example.test/', async (url) => ({ ok: true, json: async () => JSON.parse(assets.get(url.pathname.slice(1))) }), schemas)
   assert.deepEqual(restored.glossary, content.glossary)
   const domain = { vocabulary: schemas }
@@ -241,13 +244,13 @@ test('tag order overrides append, remove and replace edges without changing memb
 
 test('game package selection previews, writes, reopens and undoes without writing packages', async () => {
   const { root, put } = fixture()
-  put('packages/library/package.json', { vocabulary: 1 })
+  put('packages/library/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
   put('packages/library/levels/new.json', { title: 'New' })
   const ws = openGame('demo', root, { vocabulary: schemas })
   const before = ws.content()
   const original = readFileSync(resolve(root, 'games/demo/game.json'), 'utf8')
   const options = { check: false, domain: { vocabulary: schemas } }
-  const change = { ops: [{ op: 'game.package.add', package: 'library' }] }
+  const change = { ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }] }
   const preview = await runChangeset(ws, change, options)
   assert.equal(preview.ok, true, preview.problems.join('\n'))
   assert.ok(preview.content.registries.level['library/new'])
@@ -257,7 +260,7 @@ test('game package selection previews, writes, reopens and undoes without writin
   const written = await runChangeset(ws, change, { ...options, write: true })
   assert.equal(written.ok, true, written.problems.join('\n'))
   assert.deepEqual(written.files, ['games/demo/game.json'])
-  assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'games/demo/game.json'))).packages, ['extra', 'base', 'library'])
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(resolve(root, 'games/demo/game.json'))).packages), ['extra', 'base', 'library'])
   assert.ok(openGame('demo', root, { vocabulary: schemas }).content().registries.level['library/new'])
   assert.equal((await undo(openGame('demo', root, { vocabulary: schemas }), { ...options, write: true })).ok, true)
   assert.equal(readFileSync(resolve(root, 'games/demo/game.json'), 'utf8'), original)
@@ -272,10 +275,11 @@ test('game package selection previews, writes, reopens and undoes without writin
 
 test('package selection refuses missing dependencies, duplicate selection and removals still in use', async () => {
   const { root, put } = fixture()
-  put('packages/library/package.json', { vocabulary: 1 })
-  put('packages/child/package.json', { vocabulary: 1, uses: ['library'] })
+  put('packages/library/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
+  put('packages/child/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: { 'library': '^1.0.0' } })
   put('packages/base/tags/level/course.json', { values: ['a'] })
   put('games/demo/course.json', { chapters: [{ id: 'main', levels: ['base/a'] }] })
+  lockFixture(root)
   const ws = openGame('demo', root, { vocabulary: schemas })
   const options = { check: false, domain: { vocabulary: schemas } }
   for (const [op, id, pattern] of [
@@ -283,27 +287,27 @@ test('package selection refuses missing dependencies, duplicate selection and re
     ['add', 'missing', /missing/], ['remove', 'missing', /not selected/],
     ['remove', 'base', /course still places base\/a.*chapter main.*extra/],
   ]) {
-    const result = await runChangeset(ws, { ops: [{ op: `game.package.${op}`, package: id }] }, options)
+    const result = await runChangeset(ws, { ops: [{ op: `game.package.${op}`, package: id, ...(op === 'add' && { range: '^1.0.0' }) }] }, options)
     assert.equal(result.ok, false)
     assert.match(result.problems.join('\n'), pattern)
     assert.deepEqual(ws.packageIds, ['extra', 'base'])
   }
-  const result = await runChangeset(ws, { ops: [{ op: 'game.package.add', package: 'library' }, { op: 'game.package.add', package: 'child' }] }, options)
+  const result = await runChangeset(ws, { ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }, { op: 'game.package.add', package: 'child', range: '^1.0.0' }] }, options)
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(ws.packageIds, ['extra', 'base'])
-  const failed = await runChangeset(ws, { ops: [{ op: 'game.package.add', package: 'library' }, { op: 'game.package.add', package: 'base' }] }, options)
+  const failed = await runChangeset(ws, { ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }, { op: 'game.package.add', package: 'base', range: '^1.0.0' }] }, options)
   assert.equal(failed.ok, false)
   assert.deepEqual(ws.packageIds, ['extra', 'base'])
-  const packaged = await runChangeset(openPackage('base', root, { vocabulary: schemas }), { ops: [{ op: 'game.package.add', package: 'library' }] }, options)
+  const packaged = await runChangeset(openPackage('base', root, { vocabulary: schemas }), { ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }] }, options)
   assert.equal(packaged.ok, false)
   assert.match(packaged.problems.join('\n'), /game workspace/)
 })
 
 test('selection guards newly loaded package files against concurrent writes', async () => {
   const { root, put } = fixture()
-  put('packages/library/package.json', { vocabulary: 1 })
+  put('packages/library/package.json', { version: '1.0.0', kernel: '^1.0.0', uses: {} })
   const ws = openGame('demo', root, { vocabulary: schemas })
-  ws.selectPackages([...ws.packageIds, 'library'])
+  ws.selectPackages({ ...ws.packageRanges, library: '^1.0.0' })
   put('packages/library/levels/late.json', { title: 'Late' })
   assert.throws(() => ws.write(), /dependency changed on disk/)
 })

@@ -1,3 +1,4 @@
+import { lockFixture } from './ops/fixture.js'
 // node --test games/kit/engine — the content contract: schemas, vocabularies, data games assembled from their files.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -119,7 +120,6 @@ test('content is checked file by file', () => {
   assert.ok(checkContent({ vocabulary: VOCAB }, content).some(problem => problem.rule === 'exists' && problem.kind === 'world' && problem.target === 'nowhere'))
   const shapeOnly = { ...content, objectProblems: [], levels: [{ id: 'toy/a', mode: 'run', world: 'line' }] }
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, shapeOnly).map((p) => `${p.at}: ${p.says}`), [
-    "game.json.vocabulary: written for version 3; the kernel vocabulary has versions 1 to 2",
     'game.json.extra: is not a field here',
   ])
 })
@@ -128,19 +128,20 @@ test('a data game is read from its folder', () => {
   const dir = mkdtempSync(join(tmpdir(), 'games-'))
   mkdirSync(join(dir, 'games', 'toy'), { recursive: true })
   mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ packages: ['shared-toy'], title: 'Toy' }))
+  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ kernel: '^1.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Toy' }))
   writeFileSync(join(dir, 'games', 'toy', 'course.json'), '{}')
-  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ vocabulary: 1 }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^1.0.0', uses: {} }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
   assert.equal(isDataGame('toy', dir), true)
   assert.equal(isDataGame('none', dir), false)
+  lockFixture(dir)
   const content = readContent('toy', dir, { vocabulary: VOCAB })
   assert.deepEqual(content.levels, [{ id: 'shared-toy/one', mode: 'read', text: 'hello' }])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content), [])
 
   // Another game on the same package must still find what its course names.
   mkdirSync(join(dir, 'games', 'draft'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ packages: ['shared-toy'], title: 'Draft' }))
+  writeFileSync(join(dir, 'games', 'draft', 'game.json'), JSON.stringify({ kernel: '^1.0.0', packages: { 'shared-toy': '^1.0.0' }, title: 'Draft' }))
   writeFileSync(join(dir, 'games', 'draft', 'course.json'), JSON.stringify({ chapters: [{ id: 'main', levels: ['shared-toy/one'] }] }))
   assert.deepEqual(dependencyProblemsInProject(content, dir), [])
   assert.ok(dependencyProblemsInProject({ ...content, levels: [] }, dir).some(problem => problem.rule === 'exists' && problem.layer === '@draft' && problem.target === 'shared-toy/one'))

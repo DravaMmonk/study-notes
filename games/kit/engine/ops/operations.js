@@ -1,3 +1,4 @@
+import { satisfies, dependencyIds } from '../semver.js'
 import { tagKey, tagName } from '../tag-identity.js'
 import { KIND_DECLARATION } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
@@ -228,10 +229,11 @@ export const OPERATIONS = {
   },
   'game.package.add': {
     about: t('游戏选用一个包（须先选全它的依赖）', 'Select a package for the game; select its dependencies first'),
-    params: S.obj({ package: S.str({ pattern: '^[a-z][a-z0-9-]*$' }), at: S.opt(S.int({ min: 0 })) }),
-    apply(ws, { package: id, at = ws.packageIds.length }) {
+    params: S.obj({ package: S.str({ pattern: '^[a-z][a-z0-9-]*$' }), range: S.str(), at: S.opt(S.int({ min: 0 })) }),
+    apply(ws, { package: id, range, at = ws.packageIds.length }) {
       if (ws.packageIds.includes(id)) fail(`package ${id} is already selected`)
-      ws.selectPackages([...ws.packageIds.slice(0, at), id, ...ws.packageIds.slice(at)])
+      satisfies('1.0.0', range)
+      ws.selectPackages(Object.fromEntries([...Object.entries(ws.packageRanges).slice(0, at), [id, range], ...Object.entries(ws.packageRanges).slice(at)]))
       return { says: `game.json: selected package ${id}`, inverse: [{ op: 'game.package.remove', package: id }] }
     },
   },
@@ -241,12 +243,13 @@ export const OPERATIONS = {
     apply(ws, { package: id }) {
       const at = ws.packageIds.indexOf(id)
       if (at < 0) fail(`package ${id} is not selected`)
-      const dependents = ws.packageLayers.filter((layer) => layer.config.uses?.includes(id)).map((layer) => layer.id)
+      const dependents = ws.packageLayers.filter((layer) => dependencyIds(layer.config).includes(id)).map((layer) => layer.id)
       const placed = (ws.content().eras ?? []).flatMap((chapter) => chapter.levels.filter((level) => level.id.startsWith(`${id}/`)).map((level) => `${level.id} (chapter ${chapter.id})`))
       const reasons = [...(placed.length ? [`course still places ${placed.join(', ')}`] : []), ...(dependents.length ? [`selected packages depend on it: ${dependents.join(', ')}`] : [])]
       if (reasons.length) fail(`cannot remove package ${id}: ${reasons.join('; ')}`)
-      ws.selectPackages(ws.packageIds.filter((name) => name !== id))
-      return { says: `game.json: removed package ${id}`, inverse: [{ op: 'game.package.add', package: id, at }] }
+      const range = ws.packageRanges[id]
+      ws.selectPackages(Object.fromEntries(Object.entries(ws.packageRanges).filter(([name]) => name !== id)))
+      return { says: `game.json: removed package ${id}`, inverse: [{ op: 'game.package.add', package: id, range, at }] }
     },
   },
   'game.set': {

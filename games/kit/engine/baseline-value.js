@@ -207,3 +207,23 @@ export function existenceBaseline(input) {
   }
   return walk(input)
 }
+
+/** Normalize only the initial version-format migration inside named configuration files. */
+export function versionMetadataBaseline(input) {
+  const memo = new WeakMap()
+  const walk = (value, file) => {
+    if (!value || typeof value !== 'object') return value
+    if (memo.has(value)) return memo.get(value)
+    let entries = Object.entries(value)
+    if (file === 'package.json') {
+      const old = Number.isInteger(value.vocabulary) && Object.keys(value).every(key => ['vocabulary', 'uses'].includes(key))
+      const current = value.version === '1.0.0' && value.kernel === '^1.0.0' && value.uses && !Array.isArray(value.uses) && Object.keys(value).every(key => ['version', 'kernel', 'uses'].includes(key)) && Object.values(value.uses).every(range => range === '^1.0.0')
+      if (old || current) entries = [['uses', old ? value.uses ?? [] : Object.keys(value.uses)]]
+    }
+    if (file === 'game.json' && value.kernel === '^1.0.0' && value.packages && !Array.isArray(value.packages) && Object.values(value.packages).every(range => range === '^1.0.0')) entries = entries.filter(([key]) => key !== 'kernel').map(([key, child]) => [key, key === 'packages' ? Object.keys(child) : child])
+    const out = Array.isArray(value) ? value.map(child => walk(child)) : Object.fromEntries(entries.map(([key, child]) => [key, walk(child, key)]))
+    memo.set(value, out)
+    return out
+  }
+  return walk(input)
+}

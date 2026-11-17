@@ -68,7 +68,7 @@ Studio 不自带专题逻辑，控件来自内核，能力只读，依赖对象�
 
 ### 决策七：版本与迁移
 
-**决定**：内容声明它依赖的词汇表版本；词汇表只增不删，删改必须带迁移；kit 独立打包、语义化版本。包声明最低内核词汇表版本；开发阶段不做存档迁移，独立发布与兼容范围另定。删改的那一个版本在词汇表里写明去掉了什么、为什么（`removes: [{ at: 'level.builds', why }]`），`versions.js` 只放过写明的删改，官方游戏的内容在同一个提交里经操作集迁过去并升到这一版。
+**Implemented in MODULES.md step 4.** Packages declare semantic `version`, `kernel` and direct `uses` ranges. Games declare `kernel` and an ordered `packages` range map. Target locks pin exact dependency versions and content hashes. Publication compares manifest public surfaces and dependent check observations to choose the next semantic version. Platform structure uses the same comparison. See DESIGN.md 6.1.1.
 
 **理由**：开放给玩家后，一次引擎升级会打坏成千上万个自制关；没有版本，就没有开放。
 

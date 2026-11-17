@@ -295,7 +295,7 @@ function PackageList({ packages, used, current, onOpen }) {
 function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
   const [refusal, setRefusal] = useState(null)
   if (!id) return <article className="arrange" />
-  const uses = packages.find((p) => p.id === id)?.uses ?? []
+  const uses = Object.keys(packages.find((p) => p.id === id)?.uses ?? {})
   const missing = missingDependencies(packages, used, id)
   const run = async (ops) => setRefusal(await onOps(ops))
   const count = (kind) => Object.keys(content?.registries?.[kind] ?? {}).filter((name) => name.startsWith(`${id}/`)).length

@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { contentRoot, gameDirectory, isDataGame, resolveLayers, readContent, readPackage, contentVocabulary } from './resolver.js'
-import { vocabulary } from './kernel.js'
+import { lockTarget } from './releases.js'
 import { runtimeIds } from './runtime.js'
 import { expandNames } from './names.js'
 import { firstText } from './i18n.js'
@@ -75,12 +75,13 @@ export function newPackage({ root = contentRoot(), id, template, from, empty = f
   const target = packageDirectory(id, root)
   if (empty || from) {
     if (existsSync(target)) fail(`packages/${id} is there already`)
-    if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ uses: [], vocabulary: vocabulary.version }, null)) }
+    if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ version: '1.0.0', kernel: '^1.0.0', uses: {} }, null)) }
     else {
       if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(packageDirectory(from, root), 'package.json'))) fail(`no package ${from}`)
       mkdirSync(target, { recursive: true })
-      for (const name of readdirSync(packageDirectory(from, root)).filter(name => !['changes.jsonl', 'changes.lock', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(packageDirectory(from, root), name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
+      for (const name of readdirSync(packageDirectory(from, root)).filter(name => !['changes.jsonl', 'changes.lock', 'lock.json', 'manifest.json', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(packageDirectory(from, root), name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
     }
+    lockTarget({ kind: 'package', id }, root)
     return target
   }
   if (!templates().includes(template)) fail(`no template ${template} in kit/templates`)
@@ -92,6 +93,7 @@ export function newPackage({ root = contentRoot(), id, template, from, empty = f
   for (const name of readdirSync(starter)) if (!['game.json', 'course.json', 'i18n'].includes(name)) fill(resolve(starter, name), resolve(packageDir, name), words)
   const locales = resolve(starter, 'i18n/package')
   if (existsSync(locales)) fill(locales, resolve(packageDir, 'i18n'), words)
+  lockTarget({ kind: 'package', id }, root)
   return packageDir
 }
 
@@ -114,7 +116,8 @@ export function newGame({ root = contentRoot(), id, template, title = id }) {
   const course = expandNames(source, id, { parts, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   if (existsSync(resolve(starter, 'i18n/course'))) fill(resolve(starter, 'i18n/course'), resolve(dir, 'i18n'), words)
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ packages: [id], ...game }, null))
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ ...game, kernel: '^1.0.0', packages: { [id]: '^1.0.0' } }, null))
+  lockTarget({ kind: 'game', id }, root)
   const content = readContent(id, root)
   register(root, id, { title: content.title, lede: content.lede, levels: courseLevelCount(content, content.levels.length) })
   return dir
@@ -137,7 +140,7 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   if (existsSync(resolve(dir, 'game.json'))) fail(`games/${id} is there already`)
   if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
   if (!from || !isDataGame(from, root)) fail(`no game ${from} to take the course settings from`)
-  const { packageIds: packages, files, layers } = resolveLayers({ game: from, root })
+  const { packageRanges: packages, files, layers } = resolveLayers({ game: from, root })
   const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = files['course.json']
   const { levels: _, rows: __, ...chapter } = chapters[0] ?? { id: 1 }
   const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
@@ -152,8 +155,9 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
     own['game.lede'] = words[lang] ?? words.en
     writeFileSync(resolve(dir, 'i18n', `${lang}.json`), writeJson(Object.fromEntries(Object.entries(own).sort(([a], [b]) => (a < b ? -1 : 1))), null))
   }
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ packages, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
+  writeFileSync(resolve(dir, 'game.json'), writeJson({ kernel: files['game.json'].kernel, packages, title: '@game.title', kicker: '@game.kicker', lede: '@game.lede' }, null))
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
+  lockTarget({ kind: 'game', id }, root)
   register(root, id, { title: words, lede: words, levels: 0 })
   return dir
 }

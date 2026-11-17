@@ -90,6 +90,15 @@ and membership remain compared. Only complete `FAIL content:` stdout lines endin
 member, check status and every other output line remain compared. Loader stack traces and unrelated failures
 are not removed or broadly rewritten. Snapshots are unchanged; never run `save` for this migration.
 
+Step 4 adds `versionMetadataBaseline` for objects explicitly keyed `package.json` or `game.json`.
+Only the initial package shape (`vocabulary` integer plus optional ordered `uses` array) and the exact
+`version: "1.0.0"`, `kernel: "^1.0.0"`, `uses` map with every range `^1.0.0` normalize to the ordered
+uses list. Only game maps whose kernel and every selection are `^1.0.0` normalize to the old ordered
+packages list. The first package remains primary. Other ranges, versions, fields, object payloads and
+all runtime/check observations remain compared. The current runtime projection excludes these files,
+so this rule does not suppress diagnostics or log drift. Locks and release metadata never enter task
+reports. Preserve snapshots and use `compare` only.
+
 ## Current evidence boundaries
 
 - This is a finite reference/naive corpus, not equivalence for every possible player work. No browser,

@@ -1,3 +1,4 @@
+import { lockFixture } from './ops/fixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
@@ -43,7 +44,8 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
   const root = mkdtempSync(resolve(tmpdir(), 'package-kinds-'))
   const put = (path, value) => { const file = resolve(root, path); mkdirSync(resolve(file, '..'), { recursive: true }); writeFileSync(file, JSON.stringify(value)) }
   try {
-    put('packages/story/package.json', { uses: [], vocabulary: 12 })
+    put('packages/story/package.json', { uses: {  }, version: '1.0.0', kernel: '^1.0.0' })
+    lockFixture(root)
     let ws = openPackage('story', root)
     let result = await runChangeset(ws, { why: 'Declare a scene', ops: [{ op: 'kind.put', kind: 'scene', data: {
       folder: 'scenes', schema: { type: 'obj', fields: { title: { type: 'text' }, next: { type: 'name', kind: 'story/scene', optional: true } } },
@@ -59,13 +61,14 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
       { op: 'relation.put', relation: 'follows', data: { kind: 'story:follows', edges: [{ from: 'start', to: 'end' }] } },
     ] }, { write: true })
     assert.equal(result.ok, true, result.problems.join('\n') + JSON.stringify(result.lines))
+    lockFixture(root)
     const content = readPackage('story', root)
     assert.equal(content.registries['story/scene']['story/end'].next, 'story/start')
     assert.deepEqual(content.registries.tag['story/scene:story/starts'].values, ['story/start'])
     assert.equal(content.relationEdges['story:follows'][0].to, 'story/end')
     assert.equal(content.sources['story/scene']['story/start'].declaration, 'story')
     assert.deepEqual(checkContent({ vocabulary: ws.schemas }, content), [])
-    put('packages/edit/package.json', { uses: ['story'], vocabulary: 12 })
+    put('packages/edit/package.json', { uses: { 'story': '^1.0.0' }, version: '1.0.0', kernel: '^1.0.0' })
     put('packages/edit/overrides/story/scenes/start.json', { title: '@start.title' })
     put('packages/edit/i18n/en.json', { 'start.title': 'Edited' })
     put('packages/edit/i18n/zh.json', { 'start.title': '编辑后' })
@@ -91,8 +94,8 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
   const root = mkdtempSync(resolve(tmpdir(), 'package-code-'))
   const put = (path, value) => { const file = resolve(root, path); mkdirSync(resolve(file, '..'), { recursive: true }); writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value)) }
   try {
-    put('packages/alpha/package.json', { uses: [], vocabulary: 12 })
-    put('packages/beta/package.json', { uses: ['alpha'], vocabulary: 12 })
+    put('packages/alpha/package.json', { uses: {  }, version: '1.0.0', kernel: '^1.0.0' })
+    put('packages/beta/package.json', { uses: { 'alpha': '^1.0.0' }, version: '1.0.0', kernel: '^1.0.0' })
     put('packages/alpha/core/index.js', `
       export const answer = { initial: () => '', read: x => x, write: x => x, normalize: x => x, run: x => x, judge: x => ({ pass: x === 'ok' }) }
       export function register(k) { k.play('alpha:answer', answer); k.agent('alpha:answer', { observe: () => ({ brief: 'Answer' }), act: (_, x) => answer.judge(x) }) }
@@ -110,7 +113,7 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
     put('packages/beta/i18n/zh.json', { title: '组合', brief: '作答' })
     const content = readPackage('beta', root)
     assert.deepEqual(content.layerOrder, ['alpha', 'beta'])
-    put('packages/gamma/package.json', { uses: ['beta'], vocabulary: 12 })
+    put('packages/gamma/package.json', { uses: { 'beta': '^1.0.0' }, version: '1.0.0', kernel: '^1.0.0' })
     put('packages/gamma/levels/private.json', { title: 'Private', tasks: [{ id: 'private', play: 'alpha:answer', brief: 'Answer' }] })
     assert.ok(readPackage('gamma', root).objectProblems.some(problem => problem.reason === 'undeclared dependency' && problem.kind === 'play'))
 
@@ -166,9 +169,9 @@ test('Node assembly discovers code-owned tags before composing contributions', (
   const root = mkdtempSync(resolve(tmpdir(), 'tag-readers-'))
   const put = (path, value) => { const file = resolve(root, path); mkdirSync(resolve(file, '..'), { recursive: true }); writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value)) }
   try {
-    put('packages/reader/package.json', { uses: [], vocabulary: 13 })
+    put('packages/reader/package.json', { uses: {  }, version: '1.0.0', kernel: '^1.0.0' })
     put('packages/reader/core/index.js', "export function register(k) { k.tag('reader/picks', 'entry') }")
-    put('packages/writer/package.json', { uses: ['reader'], vocabulary: 13 })
+    put('packages/writer/package.json', { uses: { 'reader': '^1.0.0' }, version: '1.0.0', kernel: '^1.0.0' })
     put('packages/writer/entries/example.json', { title: 'Example', body: [] })
     put('packages/writer/overrides/reader/tags/entry/picks.json', { values: ['example'] })
     const content = readPackage('writer', root)

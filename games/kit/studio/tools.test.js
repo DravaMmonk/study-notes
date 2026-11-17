@@ -68,7 +68,7 @@ function openStarter(d) {
   cpSync(resolve(source, 'i18n/course'), resolve(dir, 'i18n'), { recursive: true })
   cpSync(resolve(source, 'i18n/package'), resolve(pkg, 'i18n'), { recursive: true })
   const game = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
-  writeFileSync(join(dir, 'game.json'), JSON.stringify({ packages: [d], ...game }))
+  writeFileSync(join(dir, 'game.json'), JSON.stringify({ kernel: '^1.0.0', packages: { [d]: '^1.0.0' }, ...game }))
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(pkg, 'levels')).length} }]\n`)
   for (const folder of [dir, pkg]) {
     const rename = (folder) => { for (const entry of readdirSync(folder, { withFileTypes: true })) { const file = join(folder, entry.name); if (entry.isDirectory()) rename(file); else if (file.endsWith('.json')) writeFileSync(file, readFileSync(file, 'utf8').replaceAll('starter/', `${d}/`)) } }; rename(folder)

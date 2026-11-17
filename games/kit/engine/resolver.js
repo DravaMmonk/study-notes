@@ -1,6 +1,9 @@
+import { validateConfig, kernelIdentity, readJSON, dependencyProblem, satisfies } from './release-data.js'
+import { layerManifest, viewRegistrations } from './manifests.js'
+import { chooseRelease, releaseSource, releaseIndex } from './release-store.js'
 import { existenceProblems, publicSurfaces } from './existence.js'
 import { createRequire } from 'node:module'
-import { installPackageImports } from './plugin-boundaries.js'
+import { installPackageImports, registerPackageLocation } from './plugin-boundaries.js'
 import { createPluginKernel } from './plugins.js'
 import { tagName } from './tag-identity.js'
 // Read the game configuration and its content package for the build and author tools.
@@ -61,11 +64,12 @@ const selector = (id, label) => {
 
 /** Keep the package selector separate from the game's presentation. */
 export function splitGameConfig({ packages, ...game }, root = contentRoot()) {
-  if (!Array.isArray(packages) || !packages.length) throw new Error('game.json needs a nonempty packages array')
-  packages.forEach((id) => selector(id, 'package'))
-  const packageId = packages[0]
+  validateConfig({ packages, ...game }, true)
+  const ids = Object.keys(packages)
+  ids.forEach((id) => selector(id, 'package'))
+  const packageId = ids[0]
   const packageDir = packageDirectory(selector(packageId, 'package'), root)
-  return { packageId, packageDir, packageIds: packages, game }
+  return { packageId, packageDir, packageIds: ids, packageRanges: packages, game }
 }
 
 /** Locations of the configuration, keyed by the logical filenames: the course in the game, the rest in its package. */
@@ -194,28 +198,89 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
     for (const [kind, folder] of Object.entries({ ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(declarations).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) })) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/').at(-1) : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, codeObjects: [...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
+  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, codeObjects: [...viewRegistrations(existsSync(resolve(dir, 'view/index.jsx')) ? resolve(dir, 'view/index.jsx') : null), ...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
-/** Resolve source layers once. All consumers, including editable workspaces, enter here. */
-export function resolveLayers({ game, package: packageId, packages, closure = false, root = contentRoot() }) {
+/** Resolve locked dependencies into a single layer representation for every consumer. */
+export function resolveLayers({ game, package: packageId, packages, closure = false, root = contentRoot(), unlocked = false, pins, versionChoices = {}, attempted = [] }) {
+  unlocked ||= process.env.GAMES_DEPENDENCY_PROBE === '1'
   const selected = game ? readGameConfig(game, root) : null
   const ids = selected?.packageIds ?? packages ?? [packageId]
-  const found = new Map()
+  const owner = game ? `@${game}` : packageId
+  const ownerDir = game ? gameDirectory(game, root) : packageId ? packageDirectory(packageId, root) : null
+  const lockFile = ownerDir && resolve(ownerDir, 'lock.json')
+  let lock = pins ?? (lockFile && existsSync(lockFile) ? readJSON(lockFile) : null)
+  const found = new Map(), locations = new Map(), ranges = new Map(), problems = []
+  const requireRange = (id, range, layer) => {
+    const requests = ranges.get(id) ?? []
+    requests.push({ range, layer }); ranges.set(id, requests)
+  }
+  if (game) for (const [id, range] of Object.entries(selected.packageRanges)) requireRange(id, range, owner)
   const visit = id => {
     selector(id, 'package')
     if (found.has(id)) return
-    const dir = packageDirectory(id, root)
-    const layer = existsSync(resolve(dir, 'package.json')) ? readLayer(id, dir) : { id, missing: true, entryPaths: {}, config: {}, objects: [], overrides: [], catalogs: {} }
+    let dir = packageDirectory(id, root), released = false
+    if (!existsSync(resolve(dir, 'package.json'))) {
+      const pinned = unlocked ? pins?.dependencies?.[id] : lock?.dependencies?.[id]
+      const entry = pinned ? chooseRelease(id, [], root, pinned) : versionChoices[id] ?? chooseRelease(id, (ranges.get(id) ?? []).map(request => request.range), root)
+      if (entry) { dir = releaseSource(id, entry, root); released = true }
+    }
+    locations.set(id, dir)
+    registerPackageLocation(id, dir, root)
+    const present = existsSync(resolve(dir, 'package.json'))
+    const config = present ? json(resolve(dir, 'package.json')) : {}
+    found.set(id, { id, config })
+    for (const [dep, range] of Object.entries(config.uses ?? {})) {
+      requireRange(dep, range, id)
+      if (closure || ids.includes(dep)) visit(dep)
+    }
+    const layer = present ? readLayer(id, dir, config) : { id, missing: true, entryPaths: {}, config, objects: [], overrides: [], catalogs: {} }
+    layer.source = released ? 'archive' : 'workspace'
     found.set(id, layer)
-    if (closure) for (const dep of layer.config.uses ?? []) visit(dep)
   }
   ids.forEach(visit)
+  const choices = { ...versionChoices }
+  let retry = false
+  for (const [id, requests] of ranges) {
+    const layer = found.get(id)
+    if (layer?.source !== 'archive' || (unlocked ? pins : lock)?.dependencies?.[id] || requests.every(request => satisfies(layer.config.version, request.range))) continue
+    const entry = chooseRelease(id, requests.map(request => request.range), root)
+    if (entry && entry.version !== layer.config.version) { choices[id] = entry; retry = true }
+  }
+  if (retry) {
+    const signature = JSON.stringify(choices)
+    if (attempted.includes(signature)) throw new Error('incompatible dependency version graph')
+    return resolveLayers({ game, package: packageId, packages, closure, root, unlocked, pins, versionChoices: choices, attempted: [...attempted, signature] })
+  }
+  if (!game && packageId && !lock && found.get(packageId)?.source === 'archive') lock = readJSON(resolve(locations.get(packageId), 'lock.json'))
   const initial = orderPackages([...found.values()])
   const definitions = layerVocabulary(initial).objectKinds
-  const layers = initial.map(layer => layer.missing ? layer : readLayer(layer.id, packageDirectory(layer.id, root), layer.config, definitions))
-  if (game) layers.push(readLayer(`@${game}`, gameDirectory(game, root), { ...selected.files['game.json'], ...selected.files['course.json'], packages: ids }, definitions))
-  return { layers, ...(selected ?? {}) }
+  const layers = initial.map(layer => layer.missing ? layer : { ...readLayer(layer.id, locations.get(layer.id), layer.config, definitions), source: layer.source })
+  const schemas = layerVocabulary(layers)
+  const qualified = composeLayers(layers, schemas).qualifiedLayers
+  for (const layer of layers) if (!layer.missing) layer.manifest = layerManifest(qualified.find(item => item.id === layer.id), qualified, schemas, locations.get(layer.id))
+  const platform = kernelIdentity()
+  const config = game ? { ...selected.files['game.json'], packages: selected.packageRanges } : found.get(packageId)?.config
+  for (const layer of layers) if (!layer.missing) requireRange('kernel', layer.config.kernel, layer.id)
+  if (game) requireRange('kernel', config.kernel, owner)
+  const identities = { kernel: platform, ...Object.fromEntries(layers.filter(layer => !layer.missing && layer.id !== packageId).map(layer => [layer.id, { version: layer.config.version, hash: layer.manifest.hash }])) }
+  for (const [id, requests] of ranges) {
+    const identity = id === 'kernel' ? platform : layers.find(layer => layer.id === id)?.manifest
+    if (identity) for (const { range, layer } of requests) if (!satisfies(identity.version, range)) problems.push(dependencyProblem(layer, id, `version ${identity.version} outside ${range}`, `${id === 'kernel' ? 'kernel' : 'dependencies'}.${id}`))
+  }
+  if (owner && !unlocked) {
+    if (!lock) problems.push(dependencyProblem(owner, owner, 'missing lock'))
+    else {
+      if (lock.target !== owner) problems.push(dependencyProblem(owner, owner, 'lock target mismatch'))
+      for (const id of new Set([...Object.keys(identities), ...Object.keys(lock.dependencies ?? {})])) {
+        const actual = identities[id], pinned = lock.dependencies?.[id]
+        if (!actual || !pinned || actual.version !== pinned.version || actual.hash !== pinned.hash) problems.push(dependencyProblem(owner, id, 'lock version or content hash mismatch'))
+      }
+    }
+  }
+  if (game) layers.push(readLayer(`@${game}`, gameDirectory(game, root), { ...config, ...selected.files['course.json'] }, definitions))
+  if (owner && problems.length && layers.length) layers.at(-1).dependencyProblems = problems
+  return { layers, lock, lockStatus: { valid: !problems.length, problems }, identities, ...(selected ?? {}) }
 }
 
 export const readPackageLayers = (packages, root) => resolveLayers({ packages, root }).layers
@@ -223,7 +288,7 @@ export const readPackageLayers = (packages, root) => resolveLayers({ packages, r
 /** Assemble qualified layers once, after every override has been composed. */
 export function assembleLayers(id, layers, schemas, { blueprint, declarationProblems = [], packageId = null } = {}) {
   const result = composeLayers(layers, schemas)
-  declarationProblems = [...declarationProblems, ...existenceProblems(result.qualifiedLayers, schemas)]
+  declarationProblems = [...declarationProblems, ...layers.flatMap(layer => layer.dependencyProblems ?? []), ...existenceProblems(result.qualifiedLayers, schemas)]
   const { registries: r, configurations, sources, overrideHistory, layerOrder, layerUses } = result
   const game = Object.assign({}, ...configurations)
   delete game.uses
@@ -262,7 +327,7 @@ export function readContent(id, root = contentRoot(), { overrides = true, vocabu
 /** Installed packages, including libraries with no game. */
 export function packageIds(root = contentRoot()) {
   const dir = packageDirectory('', root)
-  return existsSync(dir) ? readdirSync(dir).filter((id) => existsSync(resolve(dir, id, 'package.json'))).sort() : []
+  return [...new Set([...(existsSync(dir) ? readdirSync(dir).filter(id => existsSync(resolve(dir, id, 'package.json'))) : []), ...Object.keys(releaseIndex(root).packages)])].sort()
 }
 
 /** Open a package with its complete dependency closure, without requiring a game. */
@@ -314,7 +379,13 @@ export function publicLayerFiles(layer, schemas) {
   return files
 }
 
-export const packageConfig = (id, root) => json(resolve(packageDirectory(id, root), 'package.json'))
+export const packageConfig = (id, root) => {
+  const file = resolve(packageDirectory(id, root), 'package.json')
+  if (existsSync(file)) return json(file)
+  const release = chooseRelease(id, [], contentRoot(root))
+  if (!release) throw new Error(`no package ${id}`)
+  return json(resolve(releaseSource(id, release, contentRoot(root)), 'package.json'))
+}
 
 export const workspaceCheckCache = () => !process.env.GAMES_ROOT
 

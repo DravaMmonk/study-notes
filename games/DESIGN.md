@@ -240,7 +240,7 @@
 
 **关系加载即生效。** 关系写 `{ kind, of?, edges: [{ from, to, required?, game? }] }`；`order` 也可写 `sequence`，等同相邻边。标签端点连到集合的起点、从终点连出；`of: "tag"` 必须同时写 `member: "<成员类型>"`，保留 `#全名`，排标签本身，不展开成员。跨对象类型的 `order` 不写 `of`，直接用对象全名，在已登记的对象类型中查找，同名歧义报错；不再使用 `of: "grant"`。`requires`、`order` 各自无环；关卡的 `order` 只排 Studio，游戏顺序只读章的列表。元件和词条的 `order`、元件的 `replaces` 对所有加载者生效。无显式先后时按全名字典序；`orderedTags(content, kind)` 先满足标签显式顺序，再从成员的本地先修推断，最后按全名排。通常把成员顺序写成 `<标签名>-order`，标签间顺序写成 `<种类>-tags-order`。
 
-**依赖。** `package.json` 写 `uses` 和最低内核 `vocabulary` 版本。包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；选择列表的位置不改变加载顺序。
+**依赖。** `package.json` declares `version`, a `kernel` range, and direct `uses` as a range map. 包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；The first key in the ordered `packages` map selects the primary package. Selection order does not change topological loading.
 
 **解析和公开面。** `engine/resolver.js` 的 `resolveLayers` 是读取游戏、包和依赖的唯一入口，产出拓扑排序的层；检查、操作集、Studio 服务端、构建、单关试玩、基线和 MCP 共用。内容根目录由解析器解释：默认当前工作区（从 `trace-viewer/` 运行时取其父目录），可传 `root` 或用 `GAMES_ROOT` 覆盖。平台的安装位置不决定内容位置。游戏工作区只消费解析后的公开数据，依赖并发校验也重新解析层，不扫描包的内部文件。Vite 从已解析层取得代码入口。
 
@@ -260,14 +260,73 @@
 
 包和游戏各有 `i18n/<lang>.json`、`changes.jsonl`。游戏另有 `game.json`、`course.json`，可有作者侧 `blueprint.json`、`pipeline.json`。`resolver.js` 读盘，`content.js` 组装；页面加载构建出的 `content.json` 和语言文件，`publish:content` 检查后只发布内容。文件按职责放，开发按对象做：Studio 聚合对象的定义、文案、标签、关系和覆盖，不要求作者来回找文件。
 
+### 6.1.1 Versions, locks and releases
+
+All commands run in `trace-viewer/`.
+
+```sh
+npm run deps -- lock --package arithmetic
+npm run deps -- lock --game qed
+npm run deps -- upgrade --game qed [package]
+npm run publish -- arithmetic
+npm run publish -- kernel
+```
+
+Packages declare `{ "version": "1.0.0", "kernel": "^1.0.0", "uses": {} }`.
+Games declare `kernel` and an ordered `packages` range map. The first key is the primary package.
+Ranges accept full `x.y.z`, `^x.y.z`, and `~x.y.z` only, with SemVer zero-major caret boundaries.
+`lock.json` belongs to each target and pins the entire selected dependency graph plus `kernel` to
+`{ "version": "1.0.0", "hash": "<sha256>" }`. Package locks exclude the package itself.
+The target lock is authoritative for that assembly. Package locks govern independent package checks.
+A range mismatch, missing/extra lock entry or changed dependency hash is a structured `dependency`
+problem with `layer`, `kind`, `target`, `reason`, `object`, `path`, `at` and `says`. Export/build refuses
+these problems. Lock updates are explicit. `upgrade` updates selections and runs the target check.
+A named upgrade retains the other exact archive pins and refuses changed retained source pins.
+Package selection operations take a required `range`; adding/removing a selection updates the game lock.
+
+`resolveLayers` is the only content loading entry. It prefers a workspace source directory, treated as
+the unpublished next revision, and computes its manifest. Otherwise it validates the indexed zip hash,
+extracts the selected locked release and uses the same layer reader. Archive packages are read-only.
+Existence checking consumes manifest identities, including typed tags and code registrations.
+Pending author edits use their recalculated public surface. Source hashes must still match target locks.
+
+The local release store is `releases/` at the resolved workspace root, overridable with
+`GAMES_RELEASES`. `index.json` indexes exact versions and archive/content SHA-256 hashes.
+The first release of every package and platform is `1.0.0`. Releases are committed in this repository
+for reproducible offline checks. Keeping the store in Git remains a project decision for confirmation.
+Remote URL stores and platform installation belong to the later repository split.
+
+Publication checks the package in an isolated package workspace and runs its `test/*.test.js`
+contracts. Code packages require contracts. The manifest records qualified objects and hashes,
+object-type declarations, typed tags, code names, core/view exported interface names, file hashes,
+compatibility findings and affected dependents. All source files are archived except generated
+`manifest.json`, transient author locks, OS metadata and dependency/VCS directories. `lock.json`
+is included and hashed. Author history `changes.jsonl` is archived and file-verified, but excluded
+from content identity so adopting an unchanged authoring state does not invalidate dependency locks.
+
+Structural comparison permits new identities, optional schema fields and widening alternatives.
+Removal or narrowed contracts conservatively count as breaking, including unreferenced identities.
+Dependent package/game checks run against the previous archive and current source with lock freshness
+excluded only in those internal probes. Their exit status/stdout/stderr are compared. A break or changed
+observation increments major, additions increment minor, and unchanged public/observed behavior increments
+patch. First publication starts at `1.0.0`. Publication reports all installed transitive dependents on
+breaking/behavior changes. These check observations are finite evidence. Platform behavior probes remain
+pending; its current publication compares structure only.
+
+Studio consumes `packages` and `games` tool metadata for ranges and lock status. Package records include
+`manifest` and `compatibility` (`type`, `changes`, `added`, `previous`, `next`, `affected`,
+`behaviorStatus`). Preview is structural and marks behavior `pending-publication`; published manifests
+store completed comparison results. Direct Node consumers may use `packageCompatibility` and
+`resolveLayers().lockStatus`. Version/status/compatibility presentation remains Studio work.
+
 ### 6.2 一份词汇表与 schema
 
-模块向 `engine/capabilities.js` 注册能力，`engine/kernel.js` 拼成**一份词汇表、一条版本线**。能力按种类分表：值类型、运算、原始元件、板、任务、内容项、显示、语言、内容种类；名字为 `<模块>:<名>`，与内容对象的 `/` 区分。`describe` 打印完整声明，运行按内容所用能力选择模块和 schema 投影，不把包绑定到模块。
+模块向 `engine/capabilities.js` 注册能力，`engine/kernel.js` 拼成**一份词汇表**。能力按种类分表：值类型、运算、原始元件、板、任务、内容项、显示、语言、内容种类；名字为 `<模块>:<名>`，与内容对象的 `/` 区分。`describe` 打印完整声明，运行按内容所用能力选择模块和 schema 投影，不把包绑定到模块。
 
 - **值类型决定能不能接。** 运算声明输入、输出、可选输入、区域的类型和参数；元件的端口与调用须匹配。数、图像、公式、表等类型由模块注册；当前一个运算全名只登记一个实现，重复注册拒绝，不按值类型自动挑同名实现。实现可声明联合类型或动态值。`arithmetic` 的四则元件使用数值运算；跨模块共享不表示同一元件可直接处理图像，仍看运算和板的类型契约。
 - **schema 是数据。** `engine/schema.js` 的 `S.text()`、`S.obj()`、`S.ref()`、`S.call()`、`S.level()`、`S.task()`、`S.board()`、`S.syntax()` 描述字段、引用、蓝图和小语言。提示 `view`、`step`、`section` 只帮助编辑器选通用控件。语言由模块注册读法，不把函数塞进内容。
 - **文字只带内核标记。** `engine/markup.js` 校验强调和引用等允许的标记，外壳绘制，不把内容当 HTML 插入；自画 SVG 的模块仍须转义。
-- **版本声明归包。** `package.json` 的 `vocabulary` 是最低要求，不得高于当前版。快照在 `kit/engine/versions/<n>.json`，存下不改。词汇表变化先升内核版本，再 `npm run versions`；相邻版本只能增加，删改在该版 `removes: [{ at, why }]` 写明并同步迁移内容。版本测试检查遗漏和空写的 removes，不再维护各模块的版本线。
+- **Platform and package versions.** `kit/platform.json` owns the platform semantic version. Vocabulary declarations remain the schema/capability API, with no separate version number or historical vocabulary snapshots. Release manifests record the public surface. `npm run publish -- kernel` compares platform structure and computes its next version. Package publication also compares dependent check observations.
 - 内容只选择能力、填参数和组织对象。新机制经包的 `core/`、`view/` 代码提交和契约测试提供，不通过内容表达式绕过协议。旧模块词汇表在迁出期间保留。
 
 ### 6.3 模块契约与一个课程模型
@@ -280,7 +339,7 @@
 
 **技术层与规范层分开。** 内核只查 schema、引用、类型、答案和课程能否玩通。怎样引入新想法、何时复用、首次遭遇能否观察清楚、手机操作负担是否合理，由第 5.1 节的关卡开发规范评审。没有概念标签、`concept()` 或对应的教学元数据；技术检查通过不证明教学质量。作者流水线的蓝图与教学 lint 是另外的评审辅助，不恢复成课程模型的硬规则。
 
-**测试不认识真实游戏。** 单元测试用测试内的小内容或 `kit/templates/<模板>/starter/`，不读真实关卡、任务 id 或关卡数。真实内容由操作集和 `npm run check` 检查。改内核跑 `npm test`、`npm run lint:kit`、`npm run words -- --check`；词汇表变化另存版本。行为重构对比游戏的检查输出，只接受事先说明的差异。
+**测试不认识真实游戏。** 单元测试用测试内的小内容或 `kit/templates/<模板>/starter/`，不读真实关卡、任务 id 或关卡数。真实内容由操作集和 `npm run check` 检查。改内核跑 `npm test`、`npm run lint:kit`、`npm run words -- --check`；Public-surface changes are versioned automatically during publication.行为重构对比游戏的检查输出，只接受事先说明的差异。
 
 ### 6.3.1 包插件协议（第 2 步）
 

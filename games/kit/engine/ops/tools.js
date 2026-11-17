@@ -13,7 +13,7 @@ import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { catalogReader } from '../catalogs.js'
 import { visibleOverrides } from '../layers.js'
-import { workspaceCheckCache, contentRoot, runtimeOf, isDataGame, readContent, readPackage, packageIds, readGameConfig, resolveLayers, contentTargets, gameDirectory } from '../resolver.js'
+import { workspaceCheckCache, contentRoot, runtimeOf, isDataGame, readContent, readPackage, packageIds, resolveLayers, contentTargets, gameDirectory } from '../resolver.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
 import { partFlow } from '../flow.js'
@@ -126,10 +126,12 @@ const tools = {
     about: 'List installed packages and their direct dependencies, including libraries without games.',
     params: {},
     async run() {
-      return packageIds(ROOT).map((id) => {
-        const config = resolveLayers({ package: id, root: ROOT }).layers.find(layer => layer.id === id).config
-        return { id, uses: config.uses ?? [] }
-      })
+      return Promise.all(packageIds(ROOT).map(async (id) => {
+        const resolved = resolveLayers({ package: id, closure: true, root: ROOT })
+        const layer = resolved.layers.find(layer => layer.id === id)
+        const { packageCompatibility } = await import('../releases.js')
+        return { id, ...layer.config, manifest: layer.manifest, lock: resolved.lock, lockStatus: resolved.lockStatus, compatibility: packageCompatibility(id, ROOT) }
+      }))
     },
   },
   overrides: {
@@ -155,7 +157,8 @@ const tools = {
     async run() {
       return dataGames().map((id) => {
         const content = readContent(id, ROOT)
-        return { id, title: content.title, package: readGameConfig(id, ROOT).packageId }
+        const resolved = resolveLayers({ game: id, root: ROOT })
+        return { id, title: content.title, package: resolved.packageId, kernel: resolved.files['game.json'].kernel, packages: resolved.packageRanges, lock: resolved.lock, lockStatus: resolved.lockStatus }
       })
     },
   },

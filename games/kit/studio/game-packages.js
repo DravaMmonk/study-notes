@@ -4,7 +4,7 @@
 
 /** The packages `id` needs that `used` lacks, deepest first (`packages`: [{ id, uses }]). */
 export function missingDependencies(packages, used, id) {
-  const usesOf = new Map(packages.map((p) => [p.id, p.uses ?? []]))
+  const usesOf = new Map(packages.map((p) => [p.id, Object.keys(p.uses ?? {})]))
   const out = []
   const seen = new Set()
   const visit = (name) => {
@@ -18,7 +18,7 @@ export function missingDependencies(packages, used, id) {
 }
 
 /** The operations that add `id` to the game, with the dependencies it lacks before it. */
-export const packageAddOps = (packages, used, id) => [...missingDependencies(packages, used, id), id].map((name) => ({ op: 'game.package.add', package: name }))
+export const packageAddOps = (packages, used, id) => [...missingDependencies(packages, used, id), id].map((name) => ({ op: 'game.package.add', package: name, range: `^${packages.find(p => p.id === name).version}` }))
 
 /** The operation that takes `id` out of the game (the kernel refuses while the course or a package still uses it). */
 export const packageRemoveOps = (id) => [{ op: 'game.package.remove', package: id }]

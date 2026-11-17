@@ -1,0 +1,9 @@
+{
+  "target": "state-graph",
+  "dependencies": {
+    "kernel": {
+      "version": "1.0.0",
+      "hash": "6faf2676431292e18311bb041d2e7d1f2ecbe6c9e60ad25fe8671a873b7a1d7c"
+    }
+  }
+}

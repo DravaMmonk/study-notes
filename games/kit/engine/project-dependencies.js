@@ -33,8 +33,8 @@ function siblingCourseProblems(own, content, peers, root) {
       if (registries.tag[tagKey(patch.value.kind, patch.name)]) registries.tag[tagKey(patch.value.kind, patch.name)] = applyOverride('tag', registries.tag[tagKey(patch.value.kind, patch.name)], qualifyObject('tags', patch.value, layer.id))
     }
     const schemas = contentVocabularyFor(installed)
-    const surfaces = contentLayers(installed).map(layer => ({ ...layer, objects: [...layer.objects.filter(object => !['level', 'tag'].includes(object.kind)), ...Object.entries(registries).flatMap(([kind, values]) => Object.entries(values).filter(([key]) => (kind === 'tag' ? tagName(key) : key).startsWith(`${layer.id}/`)).map(([key, value]) => ({ kind, name: kind === 'tag' ? tagName(key) : key, value })))] }))
-    return existenceProblems([{ id: `@${id}`, config: expandNames({ chapters, packages: peer.packageIds }, `@${id}`, { schema: schemas.game, vocabulary: schemas }), objects: [] }], schemas, publicSurfaces(surfaces, schemas))
+    const surfaces = contentLayers(installed).map(layer => ({ ...layer, manifest: undefined, objects: [...layer.objects.filter(object => !['level', 'tag'].includes(object.kind)), ...Object.entries(registries).flatMap(([kind, values]) => Object.entries(values).filter(([key]) => (kind === 'tag' ? tagName(key) : key).startsWith(`${layer.id}/`)).map(([key, value]) => ({ kind, name: kind === 'tag' ? tagName(key) : key, value })))] }))
+    return existenceProblems([{ id: `@${id}`, config: expandNames({ chapters, packages: peer.packageRanges }, `@${id}`, { schema: schemas.game, vocabulary: schemas }), objects: [] }], schemas, publicSurfaces(surfaces, schemas))
   })
 }
 

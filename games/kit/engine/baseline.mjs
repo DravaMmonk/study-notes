@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { contentRoot, readContent, readPackage, runtimeOf, contentTargets, packageIds } from './resolver.js'
 import { packageLevel } from './package-play.js'
 import { closeGames } from './games.mjs'
-import { baselineValue, existenceBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
+import { baselineValue, existenceBaseline, versionMetadataBaseline, differences, nameNormalizer, packBaseline, unpackBaseline } from './baseline-value.js'
 import { taskReports } from './baseline-reports.js'
 import { usable, offer, holds } from '../course.js'
 
@@ -82,7 +82,7 @@ try {
       const normalizeBefore = nameNormalizer(before.names), normalizeAfter = nameNormalizer(snapshot.names)
       // The inventory itself describes migration locations, not behaviour.
       const { names: _old, ...oldData } = before, { names: _new, ...newData } = snapshot
-      const changes = differences(existenceBaseline(normalizeBefore(oldData)), existenceBaseline(normalizeAfter(newData)))
+      const changes = differences(versionMetadataBaseline(existenceBaseline(normalizeBefore(oldData))), versionMetadataBaseline(existenceBaseline(normalizeAfter(newData))))
       changeCount = changes.length
       total += changeCount
       writeFileSync(resolve(folder, `${kind}-${id}.diff.json`), JSON.stringify(packBaseline(changes)) + '\n')

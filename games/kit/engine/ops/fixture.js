@@ -1,6 +1,7 @@
+import { lockTarget } from '../releases.js'
 import { folders } from '../layers.js'
 import { contentKindSchemas } from '../content-kinds.js'
-import { objectFiles } from '../resolver.js'
+import { objectFiles, packageIds, contentTargets } from '../resolver.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
 // real game (games/DESIGN.md: unit tests never read a real game's levels). Each call writes a fresh folder.
@@ -130,14 +131,14 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const vocabulary = withParts(domainVocabulary, partDefs)
   const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
   const gameText = normalize(game, vocabulary.game, 'course')
-  const { 'game.json': shell, 'course.json': route, ...config } = configurationFiles(gameText)
+  const { 'game.json': shell, 'course.json': route } = configurationFiles(gameText)
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
-  put(join(course, 'game.json'), { packages: [id], ...sourceValue(shell) })
+  put(join(course, 'game.json'), { kernel: '^1.0.0', packages: { [id]: '^1.0.0' }, ...sourceValue(shell) })
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
-  for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
+  put(join(pkg, 'package.json'), { version: '1.0.0', kernel: '^1.0.0', uses: {} })
   mkdirSync(join(pkg, 'entries'), { recursive: true })
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
@@ -154,7 +155,9 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   putCatalogs(course, shell, route)
   const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
   for (const [kind, name, value] of extra) { mkdirSync(join(pkg, folders[kind]), { recursive: true }); put(join(pkg, folders[kind], `${name}.json`), sourceValue(value)) }
-  putCatalogs(pkg, ...extra.map(([, , value]) => value), ...Object.values(config), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
+  putCatalogs(pkg, ...extra.map(([, , value]) => value), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
+  lockTarget({ kind: 'package', id }, root)
+  lockTarget({ kind: 'game', id }, root)
 }
 
 export function proofsRoot() {
@@ -168,4 +171,10 @@ export function proofsRoot() {
 export function starterParts(domainDir) {
   const dir = join(domainDir, 'starter')
   return { parts: Object.fromEntries(objectFiles(dir, 'parts').map(([name, file]) => [name, catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(file, 'utf8')))])) }
+}
+
+/** Seal the dependencies of a completed synthetic project before invoking production readers. */
+export function lockFixture(root) {
+  for (const id of packageIds(root)) lockTarget({ kind: 'package', id }, root)
+  for (const target of contentTargets([], root, { game: true })) lockTarget(target, root)
 }

@@ -1,3 +1,4 @@
+import { dependencyIds } from './semver.js'
 // One existence check over public identities, independent of source files or future manifests.
 import { textKey } from './i18n.js'
 import { shapeAt } from './schema.js'
@@ -27,6 +28,10 @@ export function publicSurfaces(layers, schemas) {
   for (const [kind, values] of Object.entries(schemas.kinds ?? {})) for (const name of Object.keys(values)) add(ownerOf(name), kind, name)
   for (const layer of layers) {
     if (layer.missing) continue
+    if (layer.manifest) {
+      for (const entry of Object.values(layer.manifest.surface)) add(layer.id, entry.kind, entry.name, { kind: entry.member })
+      continue
+    }
     add(layer.id, 'package', layer.id)
     for (const object of [...layer.objects, ...(layer.codeObjects ?? [])]) add(layer.id, object.kind, object.name, object.value)
     for (const reader of layer.tagReaders ?? []) add(layer.id, 'tag', reader.name, { kind: reader.member })
@@ -68,7 +73,7 @@ export function existenceProblems(layers, schemas, surfaces = publicSurfaces(lay
     const emit = emitter({ kind: 'package', name: layer.id }, `${layer.id}/configuration`)
     const dependencies = layer.config.uses ? 'uses' : 'packages'
     const dependency = emitter({ kind: 'package', name: layer.id }, `${layer.id}/${layer.id.startsWith('@') ? 'game.json' : 'package.json'}`)
-    for (const [i, name] of (layer.config[dependencies] ?? []).entries()) dependency('package', name, `${dependencies}[${i}]`)
+    for (const name of dependencyIds(layer.config)) dependency('package', name, `${dependencies}.${name}`)
     for (const object of layer.codeObjects ?? []) if (object.value.type) emitter({ kind: object.kind, name: object.name }, `${layer.id}/code/${object.kind}/${object.name}`)('kind', object.value.type, 'type')
     collectReferences(layer.config, schemas.game, schemas, emit, '')
     for (const [override, objects] of [[false, layer.objects], [true, layer.overrides ?? []]]) for (const object of objects) {
@@ -108,7 +113,7 @@ export function existenceProblems(layers, schemas, surfaces = publicSurfaces(lay
     const owner = ownerOf(target)
     const author = layers.find(item => item.id === layer)
     const foreign = target.includes('/') || kind === 'package' || layers.some(item => item.id === owner)
-    const allowed = owner === layer || owner === 'kernel' || layer.startsWith('@') && (author.config.packages ?? layers.filter(item => !item.id.startsWith('@')).map(item => item.id)).includes(owner) || (author.config.uses ?? []).includes(owner)
+    const allowed = owner === layer || owner === 'kernel' || layer.startsWith('@') && dependencyIds(author.config).includes(owner) || dependencyIds(author.config).includes(owner)
     const reason = !matches.length ? 'missing' : matches.length > 1 && ['tag', 'grant', 'any'].includes(kind) ? 'ambiguous' : foreign && !allowed ? 'undeclared dependency' : null
     if (reason) problems.push({ at, object, path, says: `${reason} target ${kind} ${target}${member ? ` (member ${member})` : ''}`, rule: 'exists', layer, kind, target, ...(member && { member }), reason })
   }
@@ -142,6 +147,6 @@ export function contentExistenceProblems(content, schemas) {
 
 /** Core/view registration references use the same identity check as authored content. */
 export function registrationProblems(content, kernel) {
-  const layers = (content.layerOrder ?? []).filter(id => !id.startsWith('@')).map(id => ({ id, config: { uses: content.layerUses?.[id] ?? [] }, objects: Object.keys(content.registries.kind ?? {}).filter(name => name.startsWith(`${id}/`)).map(name => ({ kind: 'kind', name, value: {} })), codeObjects: ['kind', 'editor'].flatMap(kind => [...kernel.tables[kind]].filter(([name]) => name.startsWith(`${id}:`)).map(([name, value]) => ({ kind, name, value: { type: value.type } }))) }))
+  const layers = (content.layerOrder ?? []).filter(id => !id.startsWith('@')).map(id => ({ id, config: { uses: Object.fromEntries((content.layerUses?.[id] ?? []).map(name => [name, '^1.0.0'])) }, objects: Object.keys(content.registries.kind ?? {}).filter(name => name.startsWith(`${id}/`)).map(name => ({ kind: 'kind', name, value: {} })), codeObjects: ['kind', 'editor'].flatMap(kind => [...kernel.tables[kind]].filter(([name]) => name.startsWith(`${id}:`)).map(([name, value]) => ({ kind, name, value: { type: value.type } }))) }))
   return existenceProblems(layers, { kinds: {} })
 }

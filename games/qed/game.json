@@ -1,7 +1,8 @@
 {
-  "packages": [
-    "qed"
-  ],
+  "kernel": "^1.0.0",
+  "packages": {
+    "qed": "^1.0.0"
+  },
   "title": "@course.title",
   "kicker": "@course.kicker",
   "lede": "@course.lede"

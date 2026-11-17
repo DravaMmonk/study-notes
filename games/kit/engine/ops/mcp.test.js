@@ -1,3 +1,4 @@
+import { lockFixture } from './fixture.js'
 // node --test games/kit/engine/ops — the MCP server end to end: spawned as Claude Code would spawn it, spoken to over
 // stdio in JSON-RPC, working on a small game written for the test into a temp games folder (GAMES_ROOT, ./fixture.js)
 // so its writes land there.
@@ -119,11 +120,12 @@ test('MCP exposes game package operations and writes selection through modify', 
   const vocabulary = (await call('vocabulary', { game: GAME })).data
   for (const name of ['game.package.add', 'game.package.remove']) assert.ok(vocabulary.operations[name].params.fields.package)
   mkdirSync(join(root, 'packages', 'library'), { recursive: true })
-  writeFileSync(join(root, 'packages', 'library', 'package.json'), JSON.stringify({ vocabulary: 1 }))
+  writeFileSync(join(root, 'packages', 'library', 'package.json'), JSON.stringify({ version: '1.0.0', kernel: '^1.0.0', uses: {} }))
+  lockFixture(root)
   const original = readFileSync(join(root, 'games', GAME, 'game.json'), 'utf8')
-  const added = (await call('modify', { game: GAME, changeset: { why: 'Select test library', ops: [{ op: 'game.package.add', package: 'library' }] } })).data
+  const added = (await call('modify', { game: GAME, changeset: { why: 'Select test library', ops: [{ op: 'game.package.add', package: 'library', range: '^1.0.0' }] } })).data
   assert.equal(added.ok, true, JSON.stringify(added))
-  assert.ok(JSON.parse(readFileSync(join(root, 'games', GAME, 'game.json'))).packages.includes('library'))
+  assert.ok(Object.keys(JSON.parse(readFileSync(join(root, 'games', GAME, 'game.json'))).packages).includes('library'))
   const removed = (await call('modify', { game: GAME, changeset: { why: 'Remove test library', ops: [{ op: 'game.package.remove', package: 'library' }] } })).data
   assert.equal(removed.ok, true, JSON.stringify(removed))
   assert.equal(readFileSync(join(root, 'games', GAME, 'game.json'), 'utf8'), original)

@@ -1,0 +1,13 @@
+{
+  "target": "@qed",
+  "dependencies": {
+    "kernel": {
+      "version": "1.0.0",
+      "hash": "6faf2676431292e18311bb041d2e7d1f2ecbe6c9e60ad25fe8671a873b7a1d7c"
+    },
+    "qed": {
+      "version": "1.0.0",
+      "hash": "e4454caafd6d549853a9a174e107b90b74ed4df159c2804a774d8925e95c1172"
+    }
+  }
+}

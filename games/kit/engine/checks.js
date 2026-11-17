@@ -29,7 +29,7 @@ import { packageLevel } from './package-play.js'
 export async function checkPackage(content, { domain, root, mutants = false }) {
   const wrong = checkContent(domain, content)
   if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
-  const lines = wrong.map(problem => ({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(problem.rule === 'exists' && { problem }) }))
+  const lines = wrong.map(problem => ({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(['exists', 'dependency'].includes(problem.rule) && { problem }) }))
   if (wrong.length) return lines
   const names = Object.fromEntries(['level', 'part', 'entry'].map(kind => [kind === 'part' ? 'part' : kind === 'entry' ? 'wiki' : kind,
     new Map(Object.entries(content.registries[kind]).map(([id, object]) => [id, String(firstText(object.title ?? object.name ?? id))])),
@@ -69,7 +69,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
   if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
-  for (const problem of wrong) lines.push({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(problem.rule === 'exists' && { problem }) })
+  for (const problem of wrong) lines.push({ fail: true, text: `content: ${problem.at}: ${problem.says}`, ...(['exists', 'dependency'].includes(problem.rule) && { problem }) })
   if (wrong.length) return lines
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)
   const spec = domain.spec(content)
