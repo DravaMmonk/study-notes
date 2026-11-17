@@ -90,7 +90,8 @@ export function readGameConfig(id, root = contentRoot()) {
   const gameDir = gameDirectory(id, root)
   const { game: meta, ...location } = splitGameConfig(json(resolve(gameDir, 'game.json')), root)
   const files = { 'game.json': meta, 'course.json': json(resolve(gameDir, 'course.json')) }
-  return { ...location, files, game: combineConfiguration(files) }
+  // Package field ownership is available after loading the selected core entries.
+  return { ...location, files, game: { ...meta, ...files['course.json'] } }
 }
 
 /** Named objects declared by a package or game layer, [[name, path]]. */
@@ -276,6 +277,7 @@ export function resolveLayers({ game, package: packageId, packages, closure = fa
       }
     }
   }
+  if (game) selected.game = combineConfiguration(selected.files)
   if (game) layers.push(readLayer(`@${game}`, gameDirectory(game, root), { ...config, ...selected.files['course.json'] }, definitions))
   if (owner && problems.length && layers.length) layers.at(-1).dependencyProblems = problems
   return { layers, lock, lockStatus: { valid: !problems.length, problems }, identities, ...(selected ?? {}) }
@@ -308,8 +310,8 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
   return content
 }
 
-export function readContent(id, root = contentRoot(), { overrides = true, vocabulary } = {}) {
-  const { layers: resolved } = resolveLayers({ game: id, root })
+export function readContent(id, root = contentRoot(), { overrides = true, vocabulary, resolution } = {}) {
+  const { layers: resolved } = resolution ?? resolveLayers({ game: id, root })
   const own = resolved.at(-1), layers = resolved.slice(0, -1)
   const gameDir = gameDirectory(id, root)
   if (!overrides) { own.overrides = []; own.textOverrides = [] }

@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "4-17",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-17.tasks.4-17.brief",
       "hint": "@level.4-17.tasks.4-17.hint",
       "check": { "tolerance": 0.04 },

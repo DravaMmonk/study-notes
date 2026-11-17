@@ -18,11 +18,11 @@
     {
       "id": "5-1-experiment",
       "step": "@level.5-1.tasks.5-1-experiment.step",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.5-1.tasks.5-1-experiment.brief",
       "hint": "@level.5-1.tasks.5-1-experiment.hint",
       "bench": {
-        "model": "image:benchModel-attentionRoles",
+        "model": "vision-complete:benchModel-attentionRoles",
         "setup": { "role": "value" },
         "knobs": {
           "query": {
@@ -84,8 +84,8 @@
         "status": "@level.5-1.tasks.5-1-experiment.bench.status",
         "layout": {
           "main": [
-            "image:display-attentionRoles",
-            { "panel": ["circuit:display-knobs", "circuit:display-verdict"] }
+            "vision-complete:display-attentionRoles",
+            { "panel": ["image:display-knobs", "image:display-verdict"] }
           ]
         }
       },
@@ -93,7 +93,7 @@
     },
     {
       "id": "5-1",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-1.tasks.5-1.brief",
       "hint": "@level.5-1.tasks.5-1.hint",
       "after": "@level.5-1.tasks.5-1.after",
@@ -186,7 +186,7 @@
     {
       "id": "5-1-training",
       "step": "@level.5-1.tasks.5-1-training.step",
-      "kind": "image:graph",
+      "play": "image:graph",
       "carries": true,
       "brief": "@level.5-1.tasks.5-1-training.brief",
       "hint": "@level.5-1.tasks.5-1-training.hint",

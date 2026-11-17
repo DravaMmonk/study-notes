@@ -14,10 +14,10 @@
   "tasks": [
     {
       "id": "5-6",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-6.tasks.5-6.brief",
       "hint": "@level.5-6.tasks.5-6.hint",
-      "scene": "image:scene-brightest",
+      "scene": "vision-complete:scene-brightest",
       "tests": [
         {
           "label": "@level.5-6.tasks.5-6.tests.0.label",

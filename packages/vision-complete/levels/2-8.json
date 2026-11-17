@@ -25,11 +25,11 @@
   "tasks": [
     {
       "id": "2-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.2-8.tasks.2-8.brief",
       "hint": "@level.2-8.tasks.2-8.hint",
       "check": { "tolerance": 0.03, "mismatches": 8 },
-      "scene": "image:scene-grainy",
+      "scene": "vision-complete:scene-grainy",
       "tests": [
         {
           "label": "@level.2-8.tasks.2-8.tests.0.label",

@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "8-2",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-2.tasks.8-2.brief",
       "hint": "@level.8-2.tasks.8-2.hint",
       "inputs": ["a", "b", "t"],
@@ -24,7 +24,7 @@
         "t": "@level.8-2.tasks.8-2.inputLabels.t"
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
-      "scene": "image:scene-walk",
+      "scene": "vision-complete:scene-walk",
       "tests": [
         { "label": "@level.8-2.tasks.8-2.tests.0.label", "a": [4, 4], "b": [12, 10], "t": 0.5 },
         { "label": "@level.8-2.tasks.8-2.tests.1.label", "a": [11, 4], "b": [4, 11], "t": 0.25 },

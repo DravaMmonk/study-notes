@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "5-7",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.5-7.tasks.5-7.brief",
       "hint": "@level.5-7.tasks.5-7.hint",
       "bench": {
-        "model": "image:benchModel-contrast",
+        "model": "vision-complete:benchModel-contrast",
         "setup": {
           "names": ["T", "L", "X", "O", "F"],
           "base": [
@@ -72,21 +72,21 @@
         "layout": {
           "main": [
             {
-              "image:display-embedding": {
+              "vision-complete:display-embedding": {
                 "with": [
                   {
-                    "circuit:display-text": {
+                    "image:display-text": {
                       "text": "@level.5-7.tasks.5-7.bench.layout.main.0.embedding.with.0.text.text",
                       "look": "label"
                     }
                   },
-                  { "circuit:display-chips": { "of": "steps" } }
+                  { "image:display-chips": { "of": "steps" } }
                 ]
               }
             },
-            { "circuit:display-verdict": { "center": true } },
+            { "image:display-verdict": { "center": true } },
             {
-              "circuit:display-text": {
+              "image:display-text": {
                 "text": "@level.5-7.tasks.5-7.bench.layout.main.2.text.text",
                 "look": "legend"
               }
@@ -97,23 +97,23 @@
             {
               "panel": [
                 {
-                  "circuit:display-text": {
+                  "image:display-text": {
                     "text": "@level.5-7.tasks.5-7.bench.layout.side.0.panel.0.text.text",
                     "look": "label"
                   }
                 },
-                "circuit:display-goals"
+                "image:display-goals"
               ]
             },
             {
               "panel": [
-                { "circuit:display-text": { "of": "formula", "look": "serif" } },
-                "circuit:display-knobs",
-                "circuit:display-actions",
-                { "circuit:display-curve": { "of": "losses", "caption": "lossNote" } }
+                { "image:display-text": { "of": "formula", "look": "serif" } },
+                "image:display-knobs",
+                "image:display-actions",
+                { "image:display-curve": { "of": "losses", "caption": "lossNote" } }
               ]
             },
-            "image:display-choiceMatrix"
+            "vision-complete:display-choiceMatrix"
           ]
         }
       }

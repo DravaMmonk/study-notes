@@ -164,8 +164,8 @@ const tools = {
     params: {},
     async run() {
       return dataGames().map((id) => {
-        const content = readContent(id, ROOT)
         const resolved = resolveLayers({ game: id, root: ROOT })
+        const content = readContent(id, ROOT, { resolution: resolved })
         return { id, title: content.title, package: resolved.packageId, kernel: resolved.files['game.json'].kernel, packages: resolved.packageRanges, lock: resolved.lock, lockStatus: resolved.lockStatus }
       })
     },
@@ -435,15 +435,15 @@ const tools = {
     params: { game: 'string' },
     async run({ game }) {
       const content = readTarget(game)
-      const { vocabulary } = await runtimeOf(content)
+      const vocabulary = contentSchemas.get(content)
       return {
         modules: runtimeIds(content),
         // What the studio needs to rebuild the same vocabulary in the browser: the kernel's modules still in use and
         // the object types packages declare (kinds/).
         legacyModules: vocabulary.legacyModules ?? runtimeIds(content), packageCode: Boolean(vocabulary.packageCode),
         objectKinds: vocabulary.objectKinds ?? {},
-        kindPolicies: { ...BUILTIN_POLICIES, ...vocabulary.objectKinds },
-        vocabulary: describe(vocabulary),
+        kindPolicies: Object.fromEntries(Object.entries({ ...BUILTIN_POLICIES, ...vocabulary.objectKinds }).map(([name, { declares, overrides, variants }]) => [name, { declares, overrides, ...(variants && { variants }) }])),
+        vocabulary: describe({ ...vocabulary, objectKinds: undefined, kindPolicies: undefined }),
         operations: Object.fromEntries(Object.entries(operationsFor(vocabulary)).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }
     },

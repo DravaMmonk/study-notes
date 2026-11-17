@@ -21,12 +21,12 @@
   "tasks": [
     {
       "id": "1-7",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-7.tasks.1-7.brief",
       "hint": "@level.1-7.tasks.1-7.hint",
       "views": { "in": "image:view-slope", "out": "image:view-terrain", "mid": "image:view-terrain" },
       "check": { "tolerance": 0.5, "mismatches": 4 },
-      "scene": "image:scene-noisyStep",
+      "scene": "vision-complete:scene-noisyStep",
       "tests": [
         { "label": "@level.1-7.tasks.1-7.tests.0.label", "edge": 5, "seed": 1 },
         { "label": "@level.1-7.tasks.1-7.tests.1.label", "edge": 8, "seed": 2 },

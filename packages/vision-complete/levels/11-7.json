@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "11-7",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.11-7.tasks.11-7.brief",
       "hint": "@level.11-7.tasks.11-7.hint",
       "inputs": ["in", "w", "m"],
@@ -34,7 +34,7 @@
       },
       "views": { "in": "image:view-pixels", "mid": "image:view-terrain" },
       "check": { "tolerance": 0.02 },
-      "scene": "image:scene-classifier",
+      "scene": "vision-complete:scene-classifier",
       "setup": { "check": "checkup" },
       "tests": [
         { "label": "@level.11-7.tasks.11-7.tests.0.label", "street": { "cx": 5 }, "weights": "car" },

@@ -22,11 +22,11 @@
   "tasks": [
     {
       "id": "4-19",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.4-19.tasks.4-19.brief",
       "hint": "@level.4-19.tasks.4-19.hint",
       "bench": {
-        "model": "image:benchModel-stop",
+        "model": "vision-complete:benchModel-stop",
         "setup": { "degree": 10, "seed": 7, "wave": 2.2, "train": 10, "noise": 0.6, "valid": 40, "rate": 0.5 },
         "knobs": {
           "step": {
@@ -134,7 +134,7 @@
         "layout": {
           "main": [
             {
-              "circuit:display-plot": {
+              "image:display-plot": {
                 "of": "curve",
                 "title": "@level.4-19.tasks.4-19.bench.layout.main.0.plot.title",
                 "lo": -1.6,
@@ -146,7 +146,7 @@
               }
             },
             {
-              "circuit:display-plot": {
+              "image:display-plot": {
                 "of": "errors",
                 "title": { "of": "errorsTitle" },
                 "lo": -2.5,
@@ -160,7 +160,7 @@
               }
             },
             {
-              "circuit:display-stats": {
+              "image:display-stats": {
                 "of": [
                   {
                     "of": "train",
@@ -178,8 +178,8 @@
             }
           ],
           "side": [
-            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
-            "circuit:display-stages"
+            { "panel": ["image:display-step", "image:display-knobs", "image:display-verdict"] },
+            "image:display-stages"
           ]
         }
       }

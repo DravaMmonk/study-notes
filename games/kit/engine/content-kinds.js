@@ -1,8 +1,7 @@
 // Native modules declare their schemas; package schemas enter through kinds/.
 import { contentKinds as logic } from '../modules/logic/content.js'
-import { contentKinds as image } from '../modules/image/content.js'
 export { SYMBOL } from '../modules/logic/content.js'
-export const CONTENT_KINDS = { ...logic, ...image }
+export const CONTENT_KINDS = { ...logic }
 
 export const contentKindSchemas = Object.fromEntries(Object.entries(CONTENT_KINDS).map(([kind, definition]) => [kind, definition.schema]))
 

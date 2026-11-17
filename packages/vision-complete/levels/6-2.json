@@ -17,12 +17,12 @@
   "tasks": [
     {
       "id": "6-2",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.6-2.tasks.6-2.brief",
       "hint": "@level.6-2.tasks.6-2.hint",
       "inputs": ["in"],
       "outputs": ["out"],
-      "scene": "image:scene-bumps",
+      "scene": "vision-complete:scene-bumps",
       "setup": { "above": 0.3 },
       "tests": [
         { "label": "@level.6-2.tasks.6-2.tests.0.label", "bumps": [[3, 4, 0.9], [11, 5, 0.6], [7, 12, 0.8]] },

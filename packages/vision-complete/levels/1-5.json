@@ -30,7 +30,7 @@
   "tasks": [
     {
       "id": "1-5",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-5.tasks.1-5.brief",
       "views": { "in": "image:view-terrain", "out": "image:view-terrain", "mid": "image:view-terrain" },
       "scene": "image:scene-filter",

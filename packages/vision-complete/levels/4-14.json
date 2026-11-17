@@ -14,12 +14,12 @@
   "tasks": [
     {
       "id": "4-14",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-14.tasks.4-14.brief",
       "hint": "@level.4-14.tasks.4-14.hint",
       "inputs": ["photo"],
       "inputLabels": { "photo": "@level.4-14.tasks.4-14.inputLabels.photo" },
-      "scene": "image:scene-rgbStreet",
+      "scene": "vision-complete:scene-rgbStreet",
       "tests": [
         { "label": "@level.4-14.tasks.4-14.tests.0.label", "layout": "crossing" },
         { "label": "@level.4-14.tasks.4-14.tests.1.label", "layout": "lamps" },

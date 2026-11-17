@@ -1,7 +1,6 @@
 // Migration observations call the production runners and judges, never a second implementation.
 import { withHidden } from './tests.js'
 import { baselineValue } from './baseline-value.js'
-import { startValues, benchRun, openKnobs } from './bench.js'
 const { handExamples, judgeHand } = await import('../modules/table/model/hand-verdict.js')
 const { robotReport } = await import('../modules/table/model/verdict.js')
 const { runProof } = await import('../modules/logic/proof.js')
@@ -23,28 +22,6 @@ const examples = (task, run, reference = task.solution ?? task.answer, naive = t
   reference: reference === undefined ? { absent: true } : { work: reference, report: run(reference) },
   naive: naive == null ? { absent: true } : { work: naive, report: run(naive) },
 })
-
-function benchReport(task) {
-  const { bench, model } = task
-  return {
-    verify: task.verify(),
-    coverage: 'stage starts and authored action sequences; no authored reference/naive works',
-    stages: (bench.stages ?? [null]).map((stage, stageIndex) => {
-      let values = startValues(bench, stage), process = model.start?.() ?? null
-      const snapshot = () => baselineValue({ values, process, report: benchRun(bench, model, values, { stageIndex, process }) })
-      const steps = [{ action: 'start', ...snapshot() }]
-      for (const action of bench.actions ?? []) {
-        if (action.reset) for (const key of action.reset) values = { ...values, [key]: startValues(bench, stage)[key] }
-        else if (model.act) for (let n = 0; n < (action.repeat ?? 1); n++) {
-          process = model.act(process, action.act, values, action.arg)
-          steps.push({ action: action.act, repetition: n, ...snapshot() })
-        }
-        if (action.reset) steps.push({ action: 'reset', ...snapshot() })
-      }
-      return { open: openKnobs(bench, stage), steps }
-    }),
-  }
-}
 
 function logicReport(task) {
   const words = sentence => say(sentenceOf(task, sentence), task.notation)
@@ -77,10 +54,10 @@ function logicReport(task) {
 
 export async function taskReports(spec, providers = []) {
   for (const provider of providers) {
-    const records = provider.baselineReports?.({ spec })
+    const records = provider.baselineReports?.({ spec, value: baselineValue })
     if (records) return records.map(baselineValue)
   }
-  const works = spec.table ?? spec.image ?? spec.logic ?? {}
+  const works = spec.table ?? spec.logic ?? {}
   const tasks = spec.levels.flatMap(level => (works.played?.get(level.id) ?? level.tasks).map(task => ({ level: level.id, task })))
   const records = []
   for (const { level, task } of tasks) {
@@ -90,11 +67,6 @@ export async function taskReports(spec, providers = []) {
       const sample = handExamples(task)
       return examples(task, work => judgeHand(task, work), sample.reference, sample.naive)
     })()
-    else if (spec.kit) report = kind === 'image:graph' ? { ...examples(task, work => spec.kit.runLevel(withHidden(task), work, { traced: true })), alsoFails: (task.alsoFails ?? []).map(work => spec.kit.runLevel(withHidden(task), work, { traced: true })) }
-      : kind === 'image:board' ? benchReport(task) : {
-        verify: task.verify(), examples: task.probe.examples.map(example => ({ ...example, output: task.probe.run(example.input) })),
-        choices: task.probe.answers.map(choice => ({ choice, pass: task.probe.judge(choice) })),
-      }
     else if (spec.logic) report = logicReport(task)
     else {
       const { runLevel } = await import(`../modules/${kind?.split(':')[0]}/run.js`)

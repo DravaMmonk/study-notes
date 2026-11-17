@@ -20,7 +20,7 @@
   "tasks": [
     {
       "id": "8-7",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-7.tasks.8-7.brief",
       "hint": "@level.8-7.tasks.8-7.hint",
       "inputs": ["x0", "eps", "ab"],
@@ -29,7 +29,7 @@
         "eps": "@level.8-7.tasks.8-7.inputLabels.eps",
         "ab": "@level.8-7.tasks.8-7.inputLabels.ab"
       },
-      "scene": "image:scene-noising",
+      "scene": "vision-complete:scene-noising",
       "tests": [
         { "label": "@level.8-7.tasks.8-7.tests.0.label", "letter": "T", "seed": 81, "ab": 0.9 },
         { "label": "@level.8-7.tasks.8-7.tests.1.label", "letter": "X", "seed": 82, "ab": 0.5 },

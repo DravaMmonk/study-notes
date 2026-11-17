@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "2-10",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.2-10.tasks.2-10.brief",
       "hint": "@level.2-10.tasks.2-10.hint",
       "inputs": ["a", "b"],

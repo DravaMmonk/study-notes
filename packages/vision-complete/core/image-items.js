@@ -1,0 +1,31 @@
+import { qualifyItems } from 'kernel'
+import { PIXELS } from './items/scenes/pixels.js'
+import { FILTERS } from './items/scenes/filters.js'
+import { FREQUENCY } from './items/scenes/frequency.js'
+import { LIGHT } from './items/scenes/light.js'
+import { LEARNING } from './items/scenes/learning.js'
+import { ATTENTION } from './items/scenes/attention.js'
+import { MATCHING } from './items/scenes/matching.js'
+import { STEREO } from './items/scenes/stereo.js'
+import { GENERATIVE } from './items/scenes/generative.js'
+import { SEGMENT } from './items/scenes/segment.js'
+import { DETECT } from './items/scenes/detect.js'
+import { EXPLAIN } from './items/scenes/explain.js'
+import { racer } from './benches/racer.js'
+import { stop } from './benches/fitting.js'
+import { contrast } from './benches/contrast.js'
+import { hough } from './benches/hough.js'
+import { ransac } from './benches/ransac.js'
+import { cover } from './benches/cover.js'
+import { gan } from './benches/gan.js'
+import { appleLight } from './benches/apple-light.js'
+import { separable } from './benches/separable.js'
+import { attentionRoles } from './benches/attention-roles.js'
+import { attentionTraining } from './benches/attention-training.js'
+import { sum, probe, alias } from './benches/waves.js'
+import { DISPLAYS } from './items/displays.js'
+export const imageItems = {
+  scenes: qualifyItems('vision-complete', 'scene', Object.assign({}, PIXELS, FILTERS, FREQUENCY, LIGHT, LEARNING, ATTENTION, MATCHING, STEREO, GENERATIVE, SEGMENT, DETECT, EXPLAIN)),
+  benches: qualifyItems('vision-complete', 'benchModel', { racer, stop, contrast, hough, ransac, cover, gan, appleLight, separable, attentionRoles, attentionTraining, sum, probe, alias }),
+  displays: DISPLAYS,
+}

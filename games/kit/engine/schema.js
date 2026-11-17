@@ -136,7 +136,15 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
         return
       }
       case 'either': {
-        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, tasks, languages, names, at: where }))
+        // Try matching literal discriminators first. Invalid values still use every branch for diagnostics.
+        const results = new Map()
+        const candidates = isObj(v) ? s.of.filter(option => option.type !== 'obj' || Object.entries(option.fields).every(([key, field]) => field.type !== 'oneOf' || v[key] === undefined || field.values.includes(v[key]))) : s.of
+        for (const option of candidates) {
+          const problems = validate(option, v, { vocabulary, levels, tasks, languages, names, at: where })
+          if (!problems.length) return
+          results.set(option, problems)
+        }
+        const tries = s.of.map(option => results.get(option) ?? validate(option, v, { vocabulary, levels, tasks, languages, names, at: where }))
         if (tries.every((t) => t.length)) {
           // The closest fit says what is wrong: a shape the value has (no problem with the value itself, only inside it),
           // then the fewest problems.

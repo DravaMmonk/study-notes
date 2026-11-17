@@ -1,5 +1,5 @@
 import { registrationProblems } from './existence.js'
-import { resolveLayers } from './resolver.js'
+import { resolveLayers, contentLayers } from './resolver.js'
 import { installPackageImports, packageCodeProblems } from './plugin-boundaries.js'
 // Node loads core entries only. Bare exports resolve through the same package map as Vite.
 import { pathToFileURL } from 'node:url'
@@ -11,7 +11,8 @@ export const packageEntries = (layers, root) => {
 }
 
 export async function loadPlugins(content, root, load = file => import(pathToFileURL(file).href), view = false) {
-  const entries = packageEntries((content.layerOrder ?? []).map(id => ({ id })), root)
+  const layers = contentLayers(content)
+  const entries = packageEntries(layers.length ? layers : (content.layerOrder ?? []).map(id => ({ id })), root)
   installPackageImports()
   for (const { id } of entries.filter(entry => entry.core || entry.view)) {
     const problems = packageCodeProblems(id, root)

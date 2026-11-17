@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
-import { readPackage, runtimeOf } from './resolver.js'
+import { readPackage, runtimeOf, resolveLayers, layerVocabulary } from './resolver.js'
 import { checkGame } from './checks.js'
 import { closeGames } from './games.mjs'
 import { composeLayers } from './layers.js'
@@ -14,7 +14,7 @@ import { openPackage } from './ops/workspace.js'
 import { runChangeset, undo } from './ops/changeset.js'
 import { contentAssets, CONTENT_FILE } from '../app/content-assets.js'
 import { pageContent } from '../app/page-content.js'
-import { lockFixture, writeContentFixture } from './ops/fixture.js'
+import { lockFixture, writeContentFixture, installImageFixture } from './ops/fixture.js'
 
 after(closeGames)
 const text = en => ({ en })
@@ -54,16 +54,18 @@ test('a numeric library works in packages using image and table boards, with no 
   const root = mkdtempSync(resolve(tmpdir(), 'package-prototypes-'))
   const put = (path, value) => { const file = resolve(root, path); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, JSON.stringify(value)) }
   try {
+    installImageFixture(root)
+    const imageVocabulary = layerVocabulary(resolveLayers({ package: 'image', closure: true, root, unlocked: true }).layers)
     writeContentFixture(root, 'arithmetic', { game: { vocabulary: 1 }, glossary: { groups: [], entries: [] }, partDefs: { parts: arithmetic }, levels: {} }, vocabularyFor('circuit'))
     const common = { title: text('Sample'), vocabulary: 1, primitives: ['arithmetic/add'] }
     writeContentFixture(root, 'picture', {
       game: common, glossary: { groups: [], entries: [] }, levels: { copy: {
-        title: text('Copy'), after: text('Same image.'), intro: [], tasks: [{ id: 'copy', kind: 'image:graph',
+        title: text('Copy'), after: text('Same image.'), intro: [], tasks: [{ id: 'copy', play: 'image:graph',
           brief: text('Copy the image.'), hint: text('Connect the image.'), scene: 'image:scene-filter',
           setup: { target: 'image:target-same' }, tests: [{ label: text('Square'), in: 'image:picture-square' }], hidden: [{ label: text('Disk'), in: 'image:picture-disk' }], solution: ['out <- in'],
         }],
       } },
-    }, vocabularyFor('image'))
+    }, imageVocabulary)
     writeContentFixture(root, 'cells', {
       game: common, glossary: { groups: [], entries: [] }, levels: { copy: {
         title: text('Copy'), short: text('Copy'), intro: [], mission: { goal: text('Copy cells.'), how: text('Read the previous cell.') },
@@ -72,7 +74,7 @@ test('a numeric library works in packages using image and table boards, with no 
         }],
       } },
     }, vocabularyFor('table'))
-    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^0.0.0' }, version: '1.0.0', kernel: '^0.0.0' })
+    for (const id of ['picture', 'cells']) put(`packages/${id}/package.json`, { uses: { 'arithmetic': '^0.0.0', ...(id === 'picture' ? { image: '^0.0.0' } : {}) }, version: '1.0.0', kernel: '^0.0.0' })
     for (const id of ['arithmetic', 'picture', 'cells']) rmSync(resolve(root, 'games', id), { recursive: true })
     lockFixture(root)
     for (const id of ['arithmetic', 'picture', 'cells']) {

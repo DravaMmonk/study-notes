@@ -13,11 +13,11 @@
   "tasks": [
     {
       "id": "2-4",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.2-4.tasks.2-4.brief",
       "hint": "@level.2-4.tasks.2-4.hint",
       "bench": {
-        "model": "image:benchModel-probe",
+        "model": "vision-complete:benchModel-probe",
         "setup": { "N": 32, "wave": { "k": 3, "A": 0.3 } },
         "knobs": {
           "j": { "min": 1, "max": 8, "step": 1, "label": "@level.2-4.tasks.2-4.bench.knobs.j.label" },
@@ -67,10 +67,10 @@
         "layout": {
           "main": [
             {
-              "circuit:display-plot": { "of": "signal", "lo": -1, "hi": 1, "ticks": [-1, 0, 1], "height": [170, 150], "legend": true }
+              "image:display-plot": { "of": "signal", "lo": -1, "hi": 1, "ticks": [-1, 0, 1], "height": [170, 150], "legend": true }
             },
             {
-              "circuit:display-plot": {
+              "image:display-plot": {
                 "of": "product",
                 "lo": -0.6,
                 "hi": 0.6,
@@ -79,18 +79,18 @@
                 "legend": true
               }
             },
-            { "circuit:display-text": { "of": "formula" } }
+            { "image:display-text": { "of": "formula" } }
           ],
           "side": [
             {
               "panel": [
-                "circuit:display-step",
-                "circuit:display-knobs",
-                { "circuit:display-text": { "of": "tries", "look": "small" } },
-                "circuit:display-verdict"
+                "image:display-step",
+                "image:display-knobs",
+                { "image:display-text": { "of": "tries", "look": "small" } },
+                "image:display-verdict"
               ]
             },
-            "circuit:display-stages"
+            "image:display-stages"
           ]
         }
       }

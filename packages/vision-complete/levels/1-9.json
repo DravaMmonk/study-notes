@@ -22,7 +22,7 @@
   "tasks": [
     {
       "id": "1-9",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-9.tasks.1-9.brief",
       "hint": "@level.1-9.tasks.1-9.hint",
       "scene": "image:scene-filter",

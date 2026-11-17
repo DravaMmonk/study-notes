@@ -22,7 +22,7 @@
   "tasks": [
     {
       "id": "8-1",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-1.tasks.8-1.brief",
       "hint": "@level.8-1.tasks.8-1.hint",
       "check": { "tolerance": 0.2, "mismatches": 3 },

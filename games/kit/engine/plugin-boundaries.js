@@ -1,7 +1,7 @@
 import { dependencyIds } from './release-data.js'
 import { packageDirectory, packageConfig } from './resolver.js'
 // Import policy is shared by ESLint and the headless content checker.
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
 import { dirname, extname, relative, resolve, sep } from 'node:path'
 import { createRequire, registerHooks } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -43,6 +43,8 @@ export function importProblem(specifier, file, root, uses) {
   return `${side}: undeclared or private import ${specifier}`
 }
 const walkFiles = dir => !existsSync(dir) ? [] : readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walkFiles(resolve(dir, entry.name)) : [resolve(dir, entry.name)])
+const parsedImports = new Map()
+
 export function packageCodeProblems(id, root) {
   const dir = location(id, root)
   const uses = dependencyIds(packageConfig(id, root))
@@ -53,19 +55,32 @@ export function packageCodeProblems(id, root) {
     if (!/\.(js|jsx|mjs)$/.test(file)) { if (side === 'core' && /\.(css|tsx)$/.test(file)) problems.push({ at: file, says: 'core contains view code' }); continue }
     const add = says => problems.push({ at: relative(root, file), says })
     if (side === 'core' && extname(file) === '.jsx') add('core contains JSX')
-    let ast
-    try { ast = parse(readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', ecmaFeatures: { jsx: side === 'view' } }) }
-    catch (error) { add(error.message); continue }
-    const visit = node => {
-      if (!node || typeof node !== 'object') return
-      let source
-      if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) && node.source) source = node.source
-      if (node.type === 'ImportExpression') source = node.source
-      if (node.type === 'CallExpression' && node.callee?.name === 'require') source = node.arguments[0] ?? {}
-      if (source) { const issue = importProblem(source.type === 'Literal' ? source.value : null, file, root, uses); if (issue) add(issue) }
-      for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(visit); else if (value && typeof value === 'object') visit(value)
+    const stat = statSync(file)
+    const stamp = `${stat.mtimeMs}:${stat.ctimeMs}:${stat.size}`
+    let parsed = parsedImports.get(file)
+    if (parsed?.stamp !== stamp) {
+      parsed = { stamp, sources: [] }
+      try {
+        const ast = parse(readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', ecmaFeatures: { jsx: side === 'view' } })
+        const visit = node => {
+          if (!node || typeof node !== 'object') return
+          let source
+          if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) && node.source) source = node.source
+          if (node.type === 'ImportExpression') source = node.source
+          if (node.type === 'CallExpression' && node.callee?.name === 'require') source = node.arguments[0] ?? {}
+          if (source) parsed.sources.push(source.type === 'Literal' ? source.value : null)
+          for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(visit); else if (value && typeof value === 'object') visit(value)
+        }
+        visit(ast)
+      } catch (error) { parsed.error = error.message }
+      parsedImports.set(file, parsed)
     }
-    visit(ast)
+    if (parsed.error) { add(parsed.error); continue }
+    // Recheck dependency authority and export availability on every call, even when the source is unchanged.
+    for (const source of parsed.sources) {
+      const issue = importProblem(source, file, root, uses)
+      if (issue) add(issue)
+    }
   }
   return problems
 }

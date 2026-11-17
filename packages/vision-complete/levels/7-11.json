@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "7-11",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-11.tasks.7-11.brief",
       "hint": "@level.7-11.tasks.7-11.hint",
       "inputs": ["z", "region"],
@@ -26,7 +26,7 @@
       "outputs": ["stop"],
       "outputLabels": { "stop": "@level.7-11.tasks.7-11.outputLabels.stop" },
       "views": { "in": "image:view-terrain" },
-      "scene": "image:scene-roomDepth",
+      "scene": "vision-complete:scene-roomDepth",
       "tests": [
         {
           "label": "@level.7-11.tasks.7-11.tests.0.label",

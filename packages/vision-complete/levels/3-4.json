@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "3-4",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-4.tasks.3-4.brief",
       "hint": "@level.3-4.tasks.3-4.hint",
       "inputs": ["nx", "ny", "nz", "albedo"],
@@ -28,7 +28,7 @@
         "albedo": "@level.3-4.tasks.3-4.inputLabels.albedo"
       },
       "views": { "in": "image:view-pixels", "out": "image:view-pixels", "mid": "image:view-pixels" },
-      "scene": "image:scene-surface",
+      "scene": "vision-complete:scene-surface",
       "setup": { "lamp": [0.48, -0.36, 0.8], "fill": [-0.8, 0, 0.6] },
       "tests": [
         {

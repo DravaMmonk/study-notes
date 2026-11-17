@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "6-1-energy",
-      "kind": "image:graph",
+      "play": "image:graph",
       "inputs": ["in"],
       "outputs": ["out"],
       "scene": "image:scene-filter",
@@ -73,7 +73,7 @@
     },
     {
       "id": "6-1-response",
-      "kind": "image:graph",
+      "play": "image:graph",
       "inputs": ["in"],
       "outputs": ["out"],
       "scene": "image:scene-filter",
@@ -149,7 +149,7 @@
     {
       "id": "6-1",
       "step": "@level.6-1.tasks.6-1.step",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.6-1.tasks.6-1.brief",
       "hint": "@level.6-1.tasks.6-1.hint",
       "carries": true,

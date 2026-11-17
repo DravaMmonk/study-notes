@@ -14,11 +14,11 @@
   "tasks": [
     {
       "id": "8-3",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-3.tasks.8-3.brief",
       "hint": "@level.8-3.tasks.8-3.hint",
       "check": { "tolerance": 0.15, "mismatches": 3 },
-      "scene": "image:scene-noisyBlob",
+      "scene": "vision-complete:scene-noisyBlob",
       "tests": [
         { "label": "@level.8-3.tasks.8-3.tests.0.label", "at": [3.5, 3.5], "seed": 300 },
         { "label": "@level.8-3.tasks.8-3.tests.1.label", "at": [3.5, 9.17], "seed": 301 },

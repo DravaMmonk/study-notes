@@ -198,7 +198,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     /** Every file whose text changes: [{ file, before, after }] (before null: a new file; after null: removed). */
     changes: () => changes(ws),
     /** The changes as a unified diff. */
-    diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
+    diff: (changes = ws.changes()) => changes.map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws, localeFiles),
     /** The course and package files, keyed by their project-relative paths. */
     onDisk: () => new Map([...new Set([...fileNames(levels(), objectPaths(), ws.packaged), ...localeFiles(), ...extraOverridePaths(), ...ws.original.keys()])]

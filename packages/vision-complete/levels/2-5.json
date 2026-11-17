@@ -22,11 +22,11 @@
   "tasks": [
     {
       "id": "2-5",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.2-5.tasks.2-5.brief",
       "hint": "@level.2-5.tasks.2-5.hint",
       "check": { "tolerance": 0.01 },
-      "scene": "image:scene-waveform",
+      "scene": "vision-complete:scene-waveform",
       "setup": { "k": 3 },
       "tests": [
         {

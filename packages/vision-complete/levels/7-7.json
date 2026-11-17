@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "7-7",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-7.tasks.7-7.brief",
       "hint": "@level.7-7.tasks.7-7.hint",
       "inputs": ["c1", "c2", "c3", "px", "py"],
@@ -28,7 +28,7 @@
         "px": "@level.7-7.tasks.7-7.inputLabels.px",
         "py": "@level.7-7.tasks.7-7.inputLabels.py"
       },
-      "scene": "image:scene-epiline",
+      "scene": "vision-complete:scene-epiline",
       "tests": [
         { "label": "@level.7-7.tasks.7-7.tests.0.label", "x": 2, "y": 3 },
         { "label": "@level.7-7.tasks.7-7.tests.1.label", "x": 10, "y": 4 },

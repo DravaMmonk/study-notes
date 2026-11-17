@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "9-2",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.9-2.tasks.9-2.brief",
       "hint": "@level.9-2.tasks.9-2.hint",
       "inputs": ["img", "m"],
@@ -26,7 +26,7 @@
         "m": "@level.9-2.tasks.9-2.inputLabels.m"
       },
       "check": { "tolerance": 0.005 },
-      "scene": "image:scene-kmeans",
+      "scene": "vision-complete:scene-kmeans",
       "setup": { "expect": "step" },
       "tests": [
         {

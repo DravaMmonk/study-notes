@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "8-11",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-11.tasks.8-11.brief",
       "hint": "@level.8-11.tasks.8-11.hint",
       "inputs": ["xt", "ab"],
@@ -33,7 +33,7 @@
       },
       "check": { "tolerance": 0.35, "mismatches": 25 },
       "trainRate": 2,
-      "scene": "image:scene-oldPhoto",
+      "scene": "vision-complete:scene-oldPhoto",
       "setup": { "ab": 0.9 },
       "tests": [
         { "label": "@level.8-11.tasks.8-11.tests.0.label", "letter": "T", "dx": 0, "dy": 0, "seed": 111 },

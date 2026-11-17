@@ -1,7 +1,7 @@
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createCapabilityRegistry } from './capabilities.js'
-import { createDisplayResolver, benchDisplays } from './displays.js'
+import { createDisplayResolver } from './displays.js'
 import { loadModule, closeGames } from './games.mjs'
 import { capabilities } from './kernel.js'
 
@@ -44,13 +44,4 @@ test('every registered module display loads through the browser module graph', a
     if (['hero', 'figure', 'widget', 'passed', 'rows'].includes(role) || capabilities.tables.display[name].kind === 'display') assert.equal(typeof item, 'function', name)
     else assert.ok(typeof item === 'function' || typeof item === 'object', name)
   }
-  // Both string calls and parameterized calls may be nested inside panels and `with`.
-  const layout = { main: [{ panel: ['circuit:display-text', { 'image:display-obscura': { with: ['circuit:display-goals'] } }] }] }
-  const promise = browser.benchDisplays(layout)
-  assert.equal(browser.benchDisplays(layout), promise)
-  assert.deepEqual(Object.keys(await promise).sort(), ['circuit:display-goals', 'circuit:display-text', 'image:display-obscura'])
-})
-
-test('empty bench layouts need no UI bundle', async () => {
-  assert.deepEqual(await benchDisplays({ main: [] }), {})
 })

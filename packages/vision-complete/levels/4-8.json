@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "4-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-8.tasks.4-8.brief",
       "hint": "@level.4-8.tasks.4-8.hint",
       "inputs": ["a", "b"],

@@ -1,9 +1,9 @@
+import '../../../trace-viewer/src/index.css'
 export { useState, useEffect, createElement } from 'react'
 export { WORDS } from '../shell/words.js'
 export { T } from '../shell/i18n.js'
 export { VIEWS } from '../engine/views.js'
 export { valueText } from '../engine/views.js'
-
 
 export { runTestGroups } from '../engine/tests.js'
 export { TEST_WORDS } from '../engine/tests.js'
@@ -19,16 +19,11 @@ export { usePointerSession } from '../views/usePointerSession.js'
 export { isPair } from '../shell/i18n.js'
 export { sameJson } from '../engine/json-value.js'
 
-
 export { useHistory, historyKey } from '../shell/useHistory.js'
 
 export { cardView } from '../engine/views.js'
 export { definePlays } from '../engine/plays.js'
 export { loadDisplays } from '../engine/displays.js'
-export { formatValue } from '../engine/bench.js'
-export { knobKind } from '../engine/bench.js'
-export { needText } from '../engine/bench.js'
-export { rowValue } from '../engine/bench.js'
 export { keyOf } from '../shell/i18n.js'
 export { numberText } from '../engine/number.js'
 export { workSignature } from '../engine/stamp.js'
@@ -62,16 +57,11 @@ export { default as Popover } from '../shell/Popover.jsx'
 export { useOverlay } from '../shell/useOverlay.js'
 export { useWorkspaceKeys } from '../shell/useOverlay.js'
 
-
 export { Dialog } from '../shell/Dialogs.jsx'
 export { openRef } from '../shell/refs.js'
 export { levelLabels } from '../course.js'
 export { playKinds } from '../shell/plays/Play.jsx'
 export { GridPicture } from '../views/grid/GridView.jsx'
-export { default as Knob } from '../shell/bench/Knob.jsx'
-export { default as Plot } from '../shell/bench/Plot.jsx'
-export { Legend } from '../shell/bench/Plot.jsx'
-export { Rich } from '../shell/bench/Rich.jsx'
 export { TreeButton } from '../strip/TreePick.jsx'
 export { default as NumberField } from '../shell/NumberField.jsx'
 export { Markup } from '../shell/Markup.jsx'
@@ -92,3 +82,37 @@ export { CheckIcon, Dock, SkipIcon, Keypad } from '../shell/RunControls.jsx'
 export { treeKey } from '../strip/tree.js'
 export { playGame } from '../shell/plays/Play.jsx'
 export { default as TreeRows } from '../shell/plays/TreeRows.jsx'
+
+export { display } from '../engine/grid.js'
+
+export { finiteExtent } from '../engine/number.js'
+
+export { qualifyItems } from '../engine/capabilities.js'
+
+export { isGrid } from '../engine/grid.js'
+
+export { createFigureHost } from '../../../trace-viewer/src/figures/host.js'
+
+export { FigureHost, default as IntroFigure } from '../shell/IntroFigure.jsx'
+
+export { pixelUrl } from '../views/canvas.js'
+
+export { clientToSvg, svgToClient } from '../views/svg-point.js'
+
+export { mix, paintPixels, token } from '../views/canvas.js'
+
+export { useTween } from '../views/useTween.js'
+
+export { pixelText, readCell } from '../engine/grid.js'
+
+export { default as GridView } from '../views/grid/GridView.jsx'
+
+export { useMark } from '../shell/edit.js'
+
+export { PinnedPlay } from '../shell/Layout.jsx'
+
+export { linePath, plotY } from '../views/plots/coordinates.js'
+
+export { callOf } from '../engine/schema.js'
+
+export { refParts } from '../shell/refs.js'

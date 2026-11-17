@@ -6,7 +6,7 @@
   "tasks": [
     {
       "id": "separable",
-      "kind": "image:graph",
+      "play": "image:graph",
       "scene": "image:scene-filter",
       "brief": "@level.separable.tasks.separable.brief",
       "setup": { "target": { "image:target-correlate": { "kernel": [0, 1, 0, 1, -4, 1, 0, 1, 0] } } },

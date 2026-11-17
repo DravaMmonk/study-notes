@@ -24,7 +24,7 @@
   "tasks": [
     {
       "id": "3-5",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-5.tasks.3-5.brief",
       "inputs": ["in", "sr", "sg", "sb"],
       "inputLabels": {
@@ -34,7 +34,7 @@
         "sb": "@level.3-5.tasks.3-5.inputLabels.sb"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "image:scene-spectrumColour",
+      "scene": "vision-complete:scene-spectrumColour",
       "tests": [
         {
           "label": "@level.3-5.tasks.3-5.tests.0.label",

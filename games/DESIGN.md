@@ -202,12 +202,12 @@
 
 ## 6. 引擎：内核与内容
 
-包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–7 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，`rows`、`tick-bus` 已成为依赖 `circuit` 的独立包，其余三个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
+包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–8 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，`rows`、`tick-bus` 已成为依赖 `circuit` 的独立包，其余两个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
 
 | 位置 | 职责 |
 |---|---|
 | `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
-| `kit/modules/<模块>/` | 尚未迁出的 image、logic、table |
+| `kit/modules/<模块>/` | 尚未迁出的 logic、table |
 | `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
 | `packages/rows/`、`packages/tick-bus/` | 等式行、逐拍总线的核心、视图、字段声明和普通起步对象 |
 | `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
@@ -382,7 +382,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 
 ### 6.4 参数台
 
-**电路拼不出来的机制用参数台**（机体的物理传感器、连续信号的采样、几万步的训练、几百次随机试验、一场对抗）：玩家不接线，只转旋钮、按按钮，看模拟怎么变。所有参数台是同一个界面（`kit/shell/bench/Bench.jsx`），数据和判定在 `kit/engine/bench.js`（node 下也能跑，`npm run check` 用它）。它放在内核，因为参数台不属于哪个专题：网络（窗口、重传）、总线（位时间）都会有。
+**电路拼不出来的机制用参数台**（机体的物理传感器、连续信号的采样、几万步的训练、几百次随机试验、一场对抗）：玩家不接线，只转旋钮、按按钮，看模拟怎么变。所有参数台是同一个界面（`packages/image/view/bench/Bench.jsx`），数据和判定在 `packages/image/core/bench.js`（node 下也能跑，`npm run check` 用它）。当前参数台由两个图像内容包使用，随图像机制放在 `image`；新消费者通过包依赖复用。
 
 《视觉完备》2-3、2-4 的频率探针是图像模块的参数台模型 `bench.model: probe`。0-2、0-6 的黑箱探针是 `kind: probe` 玩法，玩家通过切换测试图和检查输入输出选择黑箱操作。两种玩法共用 `workshop` 的页面和内核的像素显示，分别用参数目标和选择答案判定。
 
@@ -401,7 +401,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 | `check` | 目标怎样判：`live`（默认）随旋钮实时判；`submit` 只在玩家按「检查这个设置」时判，在那之前目标只写出要求、不显示读数，画面里模型算出的结果（成的像、光线、模糊）也不画，旋钮动了就要再检查一次。只开一个旋钮的一步用它，玩家才会先想再试，而不是拖到变绿（第 4.1 节） |
 | `layout` | 版面：`head`（一行）、`main`（主卡）、`side`（旁栏，`split` 定宽）、`foot`（下面几行）；每处是一列块：显示项，或卡片（`panel`，`dock` 在手机上停在底部）、一列（`stack`）、一行（`row`，`narrow` 第一列窄） |
 
-**显示项是封闭的。** 内核给：步骤说明、旋钮、按钮、结论（分步的带「下一步」）、目标、步骤列表、情形切换、曲线图（指向一处读数）、像素行、一段字、读数块、标签、小曲线、表、进度点。字可以写定，也可以是模型算出的（`{ of: 名字 }`）。每一项都可以 `when`、`unless` 一个模型的量（限时的轮在玩和不在玩时显示不同的东西），`with` 把别的项嵌进它里面。模块只补内核画不出来的图和交互，每一项要说得出为什么通用的不行：《视觉完备》的暗箱侧视图（在图上拖孔板和屏幕）、屏幕正面、霍夫的点和累加器（栅格加叠层）、RANSAC 的一次试验和每种比例一张卡、封面配点（在两张图之间拖）和点对列表、GAN 的分布图、对比学习的嵌入圆和选择表、核速判的一轮和四张核卡（限时作答）。GAN、嵌入圆和暗箱共用 `views/useTween.js` 调度动画。嵌入圆给出沿圆周短弧的插值，减少动态时各视图直接显示最新值。
+**显示项是封闭的。** `image` 包给：步骤说明、旋钮、按钮、结论（分步的带「下一步」）、目标、步骤列表、情形切换、曲线图（指向一处读数）、像素行、一段字、读数块、标签、小曲线、表、进度点。字可以写定，也可以是模型算出的（`{ of: 名字 }`）。每一项都可以 `when`、`unless` 一个模型的量（限时的轮在玩和不在玩时显示不同的东西），`with` 把别的项嵌进它里面。内容包补共享显示项画不出来的图和交互，每一项要说得出为什么通用的不行：《视觉完备》的暗箱侧视图（在图上拖孔板和屏幕）、屏幕正面、霍夫的点和累加器（栅格加叠层）、RANSAC 的一次试验和每种比例一张卡、封面配点（在两张图之间拖）和点对列表、GAN 的分布图、对比学习的嵌入圆和选择表、核速判的一轮和四张核卡（限时作答）。GAN、嵌入圆和暗箱共用 `views/useTween.js` 调度动画。嵌入圆给出沿圆周短弧的插值，减少动态时各视图直接显示最新值。
 
 `npm run check` 对每个参数台跑模型项的 `verify`。检查某组旋钮能否过关时，用界面也调用的 `benchRun`，按当前阶段和每个情形计算模型结果及目标判定。`passingSettings` 用相同的判定逐个试设定。模块可以额外验证课程要求，例如霍夫粗分箱把两条线合并、RANSAC 的天真设置未达标。
 
@@ -423,8 +423,8 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 | 词序条 / 分析 | 往一排类型化的位置里点词，或把一行词折成结构 | 写出或拆开一段有结构的文字：公式、证明项、句子 | `kit/strip/`（词序条） | 《证明完毕》拼公式、`rows` 入门游戏写等式 | 界面共用，内容由模块的语言与判定给出 |
 | 填表 | 逐行写一张表，每格一个编辑器 | 写清单式的规格：检验条例、情形、规则行 | `shell/RowTable.jsx`、`shell/FormFields.jsx` | 《证明完毕》的检验条例 | 内核按模块提供的列与值编辑器装配 |
 | 规则行 + 一次判定 | 给几行各写出它的空位（一句话、一个式子），再检查一次；检验用的条例不给看，只说第一处不对 | 声明和定义：一个连接词的几种造法、一个函数在每种造法上的等式 | `shell/RuleRows.jsx`、`shell/useCheckOnce.js`，空位的编辑器用词序条 | 《证明完毕》的规则板和定义、`rows` 入门游戏（均通过 `plays.js` 配置） | 模块提供行的形状、编辑资源和判定 |
-| 参数台 | 转旋钮、按按钮，看模拟怎么变 | 拼不出电路的机制：连续量、采样、几万步训练、随机试验、物理传感器、对抗 | `engine/bench.js`、`shell/bench/`（第 6.4 节） | 《视觉完备》的暗箱、波、训练、RANSAC 等 | 只有一个模块用过；没有脚手架模板 |
-| 黑箱探针 | 切换示例、对照输入和输出的像素读数，再选出黑箱做了什么 | 从几组输入输出推断同一个操作 | `engine/grid-probe.js`、`shell/plays/GridProbe.jsx`、`views/grid/` | 《视觉完备》0-2、0-6 | 模块提供示例、黑箱运算和答案 |
+| 参数台 | 转旋钮、按按钮，看模拟怎么变 | 拼不出电路的机制：连续量、采样、几万步训练、随机试验、物理传感器、对抗 | `packages/image/core/bench.js`、`packages/image/view/bench/`（第 6.4 节） | 《视觉完备》的暗箱、波、训练、RANSAC 等 | 只有一个模块用过；没有脚手架模板 |
+| 黑箱探针 | 切换示例、对照输入和输出的像素读数，再选出黑箱做了什么 | 从几组输入输出推断同一个操作 | `packages/image/core/grid-probe.js`、`packages/image/view/GridProbe.jsx`、`views/grid/` | 《视觉完备》0-2、0-6 | 模块提供示例、黑箱运算和答案 |
 | 纠错 | 拿到几块别人的板，写一份检验条例去暴露错误 | 检验和评审：找出错的证明、错的规格、错的实现 | `shell/plays/BoardChecks.jsx`、`shell/Checks.jsx`、`shell/TestTabs.jsx` | 《证明完毕》的 `play: 'audit'` | 模块提供每块板的判定 |
 | 手动关 | 玩家自己当机器，一步步做机器以后要做的事 | 机器出现之前的前因：先手做，再搭 | `shell/plays/ManualBoardPlay.jsx`（棋盘、任务卡、动作栏、容量选择、数字键盘和对照图） | 《状态之图》的填格、走路、连图、背包、找破绽、策略与剪缝 | 模块提供动作和判定数据 |
 
@@ -439,7 +439,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 7. 要练的是不是判断别人的东西对不对？是：用纠错玩法，在给定的几块板上运行自己写的检验。
 8. 机器出现之前，玩家是不是该先自己当一回机器？是：手动关，放在机器那一章之前。
 
-以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有模板为 `circuit`、`image`、`logic`、`table`。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
+以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有原生模板为 `logic`、`table`，其他机制复用包。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
 
 ### 6.6 play 钩子（盲玩暂停）
 
@@ -541,8 +541,7 @@ Game adapters select capabilities by name and bind course data; shared shell/vie
 Production game builds keep the virtual game entry and asynchronous module adapters together in a dedicated
 chunk, so display bundles can import work helpers without cycling through an awaiting adapter.
 Bench layouts resolve both string and parameterized display calls (including nested `with` blocks) through the
-same registry. Common bench displays are provided by the circuit module; the shared `Knob` control remains in
-`shell/bench`. Metadata-only view/family/mark entries continue to describe generic value rendering.
+same registry. Common bench displays and `Knob` are provided by `image/view` in `packages/image/view/bench`. Metadata-only view/family/mark entries continue to describe generic value rendering.
 
 **Unlock all.** The progress dialog can open all levels, tasks, parts and encyclopedia entries without marking any task
 passed. Clearing play progress turns off Unlock all and restores the normal prerequisites. Normally a level is complete once every required task has passed. With all content unlocked, passing the last required task completes the level without returning to earlier tasks. A carried circuit opens on the prerequisite's passed board; if all content is unlocked and that prerequisite has not been passed, it opens on the reference board instead. A later pass replaces this starting point with the player's passing board, while a board already edited in the destination remains the player's own. Optional tasks are only recorded and grant their own rewards when actually completed.
@@ -865,7 +864,7 @@ Commands use existing entry points; no new validation runner is needed:
 
 ```sh
 # From the repository root: run only the relevant test file(s).
-node --test games/kit/modules/image/image.test.js
+node --import games/kit/engine/package-imports.mjs --test packages/image/test/image.test.js
 
 # From trace-viewer/: name the game for checks and builds.
 npm run check -- vision-complete
@@ -1121,3 +1120,23 @@ generic task branch; required fields remain required. Unscoped extensions still 
 reject redefinitions. This lets a native task and a package task use different schemas for a field such as
 `rows`. Display discovery resolves each package independently, rather than combining unrelated schemas.
 Node's package preload installs the same public dependency map used by content loading.
+
+
+### Step 8 image package boundary
+
+`image` 直接依赖 `circuit`，提供图像运算、接线图、探针、参数台、判定、盲玩和配对的显示入口。
+`vision-complete` 保存专用场景、实验台和显示项；两包共用的 filter 场景、obscura/wave 模型和暗箱显示项留在 `image`。
+`vision-complete` 与 `comp90086` 各自声明 `<包>/power`、`<包>/box`，对象目录也以包名区分。
+两个内容包及对应游戏都直接选用 `image`，版本保持 `0.0.0`。
+参数台显示项使用 `image:display-*`。包显示定义接收组装后的插件注册表，按同一套显示登记渲染版面。
+图像任务使用 `play`；核心作品仍共用同一份读写和运行实现。Studio 的专用编辑器适配由其负责人继续处理。
+
+
+Scoped task declarations may combine shared `fields` with a `schema` discriminator tree.
+The platform extends every branch with those fields and the common task identity/play fields,
+rejecting redefinitions. Image graph scenes use this to retain correlated setup/test schemas
+without repeating common graph fields in every declaration.
+
+State-graph also selects image explicitly to preserve its historical standalone package palette,
+which exposed the global image primitive inventory before extraction. This dependency preserves
+the locked package observations. The corresponding game selects the complete closure.

@@ -1,0 +1,95 @@
+// The RANSAC bench: fit a line to points with outliers by k rounds of drawing 2 points and counting those within δ;
+// the player picks δ, and k per outlier ratio, and is judged over many seeded trials.
+import { S } from 'kernel'
+import { benchRun } from 'image'
+import { keyOf, T as t } from 'kernel'
+import { approximateNormal, random } from 'image'
+import { lineGap, lineThrough, ransacLine } from 'image'
+
+
+/** k ≥ log(1 − P) / log(1 − pⁿ), the number of rounds for a chance P of drawing n inliers at least once. */
+export const ransacRounds = (p, n = 2, P = 0.99) => Math.ceil(Math.log(1 - P) / Math.log(1 - p ** n))
+
+/**
+ * The trials. A stage is { label, outliers, budget }; n points per trial with noise `sigma`; `trials` seeded trials
+ * per setting; tol: { theta, rho } how close the fit must come to the true line.
+ */
+export function ransacBench({ n, sigma, trials, tol }) {
+  function data(stage, trial) {
+    const next = random(trial * 7919 + Math.round(stage.outliers * 1000))
+    const angle = next() * Math.PI
+    const dx = Math.cos(angle)
+    const dy = Math.sin(angle)
+    const off = (next() - 0.5) * 10
+    const inliers = Math.round(n * (1 - stage.outliers))
+    const points = []
+    const truth = lineThrough([-dy * off, dx * off], [-dy * off + dx, dx * off + dy])
+    for (let i = 0; i < inliers; i++) {
+      const s = (next() - 0.5) * 34
+      const e = approximateNormal(next) * sigma
+      points.push([-dy * off + dx * s - dy * e, dx * off + dy * s + dx * e])
+    }
+    while (points.length < n) points.push([(next() - 0.5) * 44, (next() - 0.5) * 44])
+    return { points, truth, inliers }
+  }
+  function trial(stage, t, k, delta) {
+    const d = data(stage, t)
+    const result = ransacLine(d.points, k, delta, random(1000 + t))
+    const gap = result && lineGap(result.line, d.truth)
+    return { ...d, result, ok: Boolean(gap && gap.dTheta <= tol.theta && gap.dRho <= tol.rho) }
+  }
+  function rate(stage, k, delta) {
+    const outcomes = []
+    for (let t = 0; t < trials; t++) outcomes.push(trial(stage, t + 1, k, delta).ok)
+    const wins = outcomes.filter(Boolean).length
+    return { outcomes, wins, rate: wins / trials, overBudget: k - stage.budget }
+  }
+  return { trials, rate, trial }
+}
+
+/** The bench model: knobs delta (the threshold, shared) and k (rounds, one per case); each case an outlier ratio. */
+export const ransac = {
+  about: t('共识：每轮随机抽两点连线、数支持它的点；旋钮 delta（门槛）和每个情形的 k（轮数）；每个情形是一种外点比例，算出几百次试验的成功率 rate 和超出预算的轮数 overBudget'),
+  setup: S.obj({
+    n: S.int(), sigma: S.num(), trials: S.int(), tol: S.obj({ theta: S.num(), rho: S.num() }),
+    solution: S.obj({ delta: S.num(), k: S.list(S.int()) }, { about: t('一组能过的设定：门槛 δ 和每一种外点比例的轮数') }),
+  }),
+  case: S.obj({ outliers: S.num(), budget: S.int() }),
+  make({ solution, ...p }, bench) {
+    const m = ransacBench(p)
+    const caches = bench.cases.map(() => new Map())
+    return {
+      trials: m.trials,
+      trial: m.trial,
+      solution,
+      view({ k, delta }, { case: example, caseIndex }) {
+        const rounds = k[caseIndex]
+        const cache = caches[caseIndex]
+        const key = `${rounds}:${delta}`
+        if (!cache.has(key)) cache.set(key, m.rate(example, rounds, delta))
+        return cache.get(key)
+      },
+    }
+  },
+  verify(model, bench) {
+    const { cases } = bench
+    const { solution } = model
+    const run = (delta, k) => benchRun(bench, model, { delta, k })
+    const passAll = (delta, k) => run(delta, k).pass
+    const passesCase = (i, rounds) => run(solution.delta, solution.k.map((k, j) => i === j ? rounds : k)).verdicts[i].pass
+    if (!passAll(solution.delta, solution.k)) return `reference δ=${solution.delta}, k=${solution.k} fails`
+    for (const [i, stage] of cases.entries()) {
+      const theory = ransacRounds(1 - stage.outliers)
+      if (theory > stage.budget) return `${keyOf(stage.label)}: formula needs ${theory} rounds, budget ${stage.budget}`
+      // Far fewer rounds than the formula asks for must fail.
+      if (passesCase(i, Math.ceil(theory / 3))) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
+      if (i && passesCase(i, cases[0].budget)) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
+    }
+    // δ too large lets outliers in; δ too small loses inliers; neither is rescued by the budget.
+    const budgets = cases.map((s) => s.budget)
+    if (passAll(6, budgets)) return 'δ = 6 passes'
+    if (passAll(0.25, budgets)) return 'δ = 0.25 passes'
+    if (passAll(2.5, budgets)) return 'δ = 2.5 passes'
+    return ''
+  },
+}

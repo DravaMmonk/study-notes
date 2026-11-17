@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "6-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.6-8.tasks.6-8.brief",
       "hint": "@level.6-8.tasks.6-8.hint",
       "outputs": ["e", "n", "w", "s"],
@@ -28,7 +28,7 @@
         "s": "@level.6-8.tasks.6-8.outputLabels.s"
       },
       "check": { "tolerance": 0.005 },
-      "scene": "image:scene-orientations",
+      "scene": "vision-complete:scene-orientations",
       "tests": [
         { "label": "@level.6-8.tasks.6-8.tests.0.label", "in": { "image:picture-stepX": { "edge": 8 } } },
         {

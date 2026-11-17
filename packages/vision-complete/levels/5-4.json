@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "5-4",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-4.tasks.5-4.brief",
       "hint": "@level.5-4.tasks.5-4.hint",
       "inputs": ["shape", "mark"],
@@ -27,7 +27,7 @@
         "so": "@level.5-4.tasks.5-4.outputLabels.so",
         "mo": "@level.5-4.tasks.5-4.outputLabels.mo"
       },
-      "scene": "image:scene-mendTwo",
+      "scene": "vision-complete:scene-mendTwo",
       "tests": [
         {
           "label": "@level.5-4.tasks.5-4.tests.0.label",

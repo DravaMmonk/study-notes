@@ -20,7 +20,7 @@
   "tasks": [
     {
       "id": "4-11",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-11.tasks.4-11.brief",
       "hint": "@level.4-11.tasks.4-11.hint",
       "trainRate": 8,

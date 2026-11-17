@@ -157,3 +157,18 @@ reservations. Their removal from the global vocabulary must not make the existin
 newly unique and turn `circuit:family-value` into `value`. Only ambiguity bookkeeping changes; family
 values, schemas, works, checks and reports remain compared. No arbitrary removed capability is reserved,
 no output line is suppressed, and snapshots are unchanged.
+
+
+Step 8 adds `imageFieldsBaseline` before name normalization. Only authored tasks at
+`structure.levels[].tasks[]` with no `kind` and an exact `play` of `image:graph`, `image:board`
+or `image:probe` project that discriminator back to `kind`. Other plays, fields, task order,
+works, checks, traces and reports remain compared.
+
+The exact retired image ambiguity reservations are `image:add`, `image:board`, `image:const`,
+`image:family-search`, `image:merge`, `image:mul` and `image:sub`. These keep historical local-name
+collisions when image is absent from a package closure. They affect only alias bookkeeping, as
+with the two bus families in step 7. No missing runtime object or availability entry is removed.
+Shared bench display names move from `circuit:display-*` to `image:display-*` through the existing
+registered-name alias inventory. The shared image kind meaning supplies graph, probe and bench
+reports from `packages/image/core/baseline.js`, including immutable stage/action observations.
+Snapshots remain unchanged. Use `compare` only.

@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "0-6",
-      "kind": "image:probe",
+      "play": "image:probe",
       "brief": "@level.0-6.tasks.0-6.brief",
       "part": "image:mysteryGate",
       "question": "@level.0-6.tasks.0-6.question",

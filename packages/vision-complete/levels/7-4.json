@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "7-4",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-4.tasks.7-4.brief",
       "hint": "@level.7-4.tasks.7-4.hint",
       "inputs": ["d", "f", "b"],
@@ -24,7 +24,7 @@
         "b": "@level.7-4.tasks.7-4.inputLabels.b"
       },
       "views": { "in": "image:view-terrain", "out": "image:view-terrain" },
-      "scene": "image:scene-depth",
+      "scene": "vision-complete:scene-depth",
       "tests": [
         {
           "label": "@level.7-4.tasks.7-4.tests.0.label",

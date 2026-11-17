@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "9-6",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.9-6.tasks.9-6.brief",
       "hint": "@level.9-6.tasks.9-6.hint",
       "inputs": ["small", "big"],
@@ -22,7 +22,7 @@
         "small": "@level.9-6.tasks.9-6.inputLabels.small",
         "big": "@level.9-6.tasks.9-6.inputLabels.big"
       },
-      "scene": "image:scene-pooled",
+      "scene": "vision-complete:scene-pooled",
       "tests": [
         {
           "label": "@level.9-6.tasks.9-6.tests.0.label",

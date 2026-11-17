@@ -1,3 +1,4 @@
+import { sameJson } from '../json-value.js'
 // Content files as text. The house style is 2-space indent, and an object or list on one line when that line (with
 // its key and the comma after it) fits in WIDTH columns, open (one field or item a line) otherwise. Files written
 // before the style was fixed are not all in it, so a file is rewritten keeping its own text wherever its value did not
@@ -74,6 +75,7 @@ export function writeJson(value, old = null) {
     for (const kid of Object.values(n.kids)) index(kid, depth + 1)
   }
   const root = old === null ? null : spans(old)
+  if (root && isBox(value) && sameJson(root.value, value)) return `${root.text}\n`
   if (root) index(root, 0)
 
   const print = (v, depth, lead, tail, was) => {

@@ -166,7 +166,7 @@ async function settle({ ws, changeset, domain, start, says, inverse, write, chec
   }
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
-  const diff = ws.diff()
+  const diff = ws.diff(changes)
   const files = changes.map((c) => c.file)
   const ok = problems.length === 0
   let refused = null

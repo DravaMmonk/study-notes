@@ -24,6 +24,7 @@ export const kindSchemas = schemas => ({ ...contentKindSchemas, chapter: CHAPTER
 const extend = (schema, fields) => {
   if (schema.type === 'either') return { ...schema, of: schema.of.map(s => extend(s, fields)) }
   if (schema.type === 'by') return { ...schema, cases: Object.fromEntries(Object.entries(schema.cases).map(([k, s]) => [k, extend(s, fields)])) }
+  if (schema.type !== 'obj') throw new Error('field extension needs object branches')
   for (const key of Object.keys(fields)) if (schema.fields[key]) throw new Error(`field extension cannot redefine ${key}`)
   return { ...schema, fields: { ...schema.fields, ...fields } }
 }
@@ -45,7 +46,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     const errors = validate(KIND_DECLARATION, d)
     if (errors.length) throw new Error(`${name}: ${JSON.stringify(errors)}`)
     if (d.play && d.extends !== 'task') throw new Error(`${name}: play scopes a task extension`)
-    if (d.extends ? !d.fields || d.schema || d.folder : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
+    if (d.extends ? !d.fields || d.folder || d.schema && !d.play : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
     if (!d.extends && Object.values(definitions).some(other => other.folder === d.folder)) throw new Error(`${name}: duplicate object folder ${d.folder}`)
     if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'chapters', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
     const inspect = schema => {
@@ -56,7 +57,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
       if (schema.type === 'either') schema.of.forEach(inspect)
       if (schema.type === 'by') Object.values(schema.cases).forEach(inspect)
     }
-    if (d.extends) Object.values(d.fields).forEach(inspect)
+    if (d.extends) { Object.values(d.fields).forEach(inspect); if (d.schema) inspect(d.schema) }
     else inspect(d.schema)
     const definition = structuredClone(d)
     for (const path of d.text ?? []) {
@@ -91,7 +92,8 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
       const branches = shape.type === 'either' ? shape.of : [shape]
       const generic = branches.find(branch => branch.fields?.play?.type === 'str')
       if (!generic) throw new Error(`${d.play}: task extension needs a generic play task`)
-      const own = extend({ ...generic, fields: { ...generic.fields, play: S.oneOf([d.play], { reference: 'play' }) } }, d.fields)
+      const base = { ...generic.fields, play: S.oneOf([d.play], { reference: 'play' }) }
+      const own = d.schema ? extend(extend(d.schema, d.fields), base) : extend({ ...generic, fields: base }, d.fields)
       return { ...s, fields: { ...s.fields, tasks: { ...s.fields.tasks, of: S.either(...branches, own) } } }
     }
     level = tasks(level)

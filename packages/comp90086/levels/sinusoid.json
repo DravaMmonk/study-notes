@@ -5,7 +5,7 @@
   "tasks": [
     {
       "id": "sinusoid",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.sinusoid.tasks.sinusoid.brief",
       "bench": {
         "model": "image:benchModel-wave",
@@ -59,7 +59,7 @@
         "layout": {
           "main": [
             {
-              "circuit:display-plot": {
+              "image:display-plot": {
                 "lines": [
                   {
                     "of": "target",
@@ -79,7 +79,7 @@
               }
             },
             {
-              "circuit:display-strips": {
+              "image:display-strips": {
                 "rows": [
                   {
                     "of": "targetRow",
@@ -94,8 +94,8 @@
             }
           ],
           "side": [
-            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
-            "circuit:display-stages"
+            { "panel": ["image:display-step", "image:display-knobs", "image:display-verdict"] },
+            "image:display-stages"
           ]
         }
       }

@@ -25,10 +25,10 @@
   "tasks": [
     {
       "id": "4-10",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-10.tasks.4-10.brief",
       "hint": "@level.4-10.tasks.4-10.hint",
-      "scene": "image:scene-movedDots",
+      "scene": "vision-complete:scene-movedDots",
       "tests": [
         {
           "label": "@level.4-10.tasks.4-10.tests.0.label",

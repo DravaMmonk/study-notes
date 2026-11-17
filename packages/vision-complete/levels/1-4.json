@@ -27,7 +27,7 @@
   "tasks": [
     {
       "id": "1-4",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-4.tasks.1-4.brief",
       "hint": "@level.1-4.tasks.1-4.hint",
       "views": { "out": "image:view-terrain" },

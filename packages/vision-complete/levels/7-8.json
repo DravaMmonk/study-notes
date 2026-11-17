@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "7-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-8.tasks.7-8.brief",
       "hint": "@level.7-8.tasks.7-8.hint",
       "inputs": ["c1", "c2", "c3", "px", "py", "q"],
@@ -28,7 +28,7 @@
       },
       "outputs": ["on"],
       "outputLabels": { "on": "@level.7-8.tasks.7-8.outputLabels.on" },
-      "scene": "image:scene-onEpiline",
+      "scene": "vision-complete:scene-onEpiline",
       "tests": [
         { "label": "@level.7-8.tasks.7-8.tests.0.label", "x": 2, "y": 3, "q": [5, 1.8181819228593974] },
         { "label": "@level.7-8.tasks.7-8.tests.1.label", "x": 10, "y": 4, "q": [3, 9] },

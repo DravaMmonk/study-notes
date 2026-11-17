@@ -15,10 +15,10 @@
   "tasks": [
     {
       "id": "10-11",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.10-11.tasks.10-11.brief",
       "hint": "@level.10-11.tasks.10-11.hint",
-      "scene": "image:scene-shelf",
+      "scene": "vision-complete:scene-shelf",
       "setup": { "expect": "both", "grain": 0.1, "blur": 0.5 },
       "tests": [
         {

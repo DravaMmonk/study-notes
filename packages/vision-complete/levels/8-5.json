@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "8-5",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-5.tasks.8-5.brief",
       "hint": "@level.8-5.tasks.8-5.hint",
       "inputs": ["eps", "mu", "sigma"],
@@ -24,7 +24,7 @@
         "sigma": "@level.8-5.tasks.8-5.inputLabels.sigma"
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
-      "scene": "image:scene-latent",
+      "scene": "vision-complete:scene-latent",
       "setup": { "mu": [-0.5, 0.5], "sigma": [0.3, 0.2], "given": true },
       "tests": [
         { "label": "@level.8-5.tasks.8-5.tests.0.label", "eps": [0.28973564283829173, 0.820593686981651] },

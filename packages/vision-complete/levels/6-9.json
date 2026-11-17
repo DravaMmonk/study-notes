@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "6-9",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.6-9.tasks.6-9.brief",
       "hint": "@level.6-9.tasks.6-9.hint",
       "bench": {
-        "model": "image:benchModel-hough",
+        "model": "vision-complete:benchModel-hough",
         "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
         "knobs": {
           "bin": {
@@ -70,23 +70,23 @@
         ],
         "layout": {
           "head": [
-            { "circuit:display-cases": { "passed": "@level.6-9.tasks.6-9.bench.layout.head.0.cases.passed" } }
+            { "image:display-cases": { "passed": "@level.6-9.tasks.6-9.bench.layout.head.0.cases.passed" } }
           ],
-          "main": ["image:display-houghPlanes"],
+          "main": ["vision-complete:display-houghPlanes"],
           "foot": [
             {
               "row": [
                 {
                   "panel": [
                     {
-                      "circuit:display-text": {
+                      "image:display-text": {
                         "text": "@level.6-9.tasks.6-9.bench.layout.foot.0.row.0.panel.0.text.text",
                         "look": "label"
                       }
                     },
-                    "circuit:display-knobs",
+                    "image:display-knobs",
                     {
-                      "circuit:display-stats": {
+                      "image:display-stats": {
                         "of": [
                           { "of": "dTheta", "label": "Δθ" },
                           { "of": "dRho", "label": "Δρ" },
@@ -104,19 +104,19 @@
                 {
                   "panel": [
                     {
-                      "circuit:display-text": {
+                      "image:display-text": {
                         "text": "@level.6-9.tasks.6-9.bench.layout.foot.0.row.1.panel.0.text.text",
                         "look": "label"
                       }
                     },
-                    "circuit:display-goals"
+                    "image:display-goals"
                   ]
                 },
                 {
                   "panel": [
-                    { "circuit:display-text": { "of": "peaksTitle", "look": "label" } },
-                    { "circuit:display-table": { "of": "peaks" } },
-                    { "circuit:display-text": { "of": "tolerance", "look": "note" } }
+                    { "image:display-text": { "of": "peaksTitle", "look": "label" } },
+                    { "image:display-table": { "of": "peaks" } },
+                    { "image:display-text": { "of": "tolerance", "look": "note" } }
                   ]
                 }
               ]

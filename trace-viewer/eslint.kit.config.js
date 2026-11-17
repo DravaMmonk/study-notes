@@ -45,7 +45,7 @@ export default defineConfig([
   },
   {
     files: [`${KIT}/engine/content-kinds.js`],
-    rules: { 'no-restricted-imports': ['error', { patterns: [{ regex: '(^|/)modules/(?!logic/content\\.js$|image/content\\.js$)', message: 'The native schema registry imports declarations only.' }] }] },
+    rules: { 'no-restricted-imports': ['error', { patterns: [{ regex: '(^|/)modules/(?!logic/content\\.js$)', message: 'The native schema registry imports declarations only.' }] }] },
   },
   {
     files: ['packages/*/{core,view}/**/*.{js,jsx,mjs}'],

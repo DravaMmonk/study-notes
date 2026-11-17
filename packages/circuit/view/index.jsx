@@ -28,7 +28,6 @@ export function register(kernel) {
 }
 
 export { displays as circuitDisplays } from './mechanism/displays.js'
-export { displays as benchDisplays } from './mechanism/bench.jsx'
 export { default } from './game.js'
 export { defineGame } from './game-definition.js'
 
@@ -38,7 +37,6 @@ import './board/wires.css'
 export { centerIn, pointIn } from './coordinates.js'
 
 import { displays as screenDisplays } from './mechanism/displays.js'
-import { displays as layoutDisplays } from './mechanism/bench.jsx'
-export const displays = { ...screenDisplays, ...layoutDisplays }
+export const displays = { ...screenDisplays }
 export { default as PartFace } from './parts/PartFace.jsx'
 export { circuitSettings } from './settings.js'

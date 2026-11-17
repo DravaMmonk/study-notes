@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "5-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-8.tasks.5-8.brief",
       "hint": "@level.5-8.tasks.5-8.hint",
       "inputs": ["q", "a", "b", "c"],
@@ -33,7 +33,7 @@
         "pb": "@level.5-8.tasks.5-8.outputLabels.pb",
         "pc": "@level.5-8.tasks.5-8.outputLabels.pc"
       },
-      "scene": "image:scene-nearest",
+      "scene": "vision-complete:scene-nearest",
       "tests": [
         {
           "label": "@level.5-8.tasks.5-8.tests.0.label",

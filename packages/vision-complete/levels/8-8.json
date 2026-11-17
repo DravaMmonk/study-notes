@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "8-8",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-8.tasks.8-8.brief",
       "hint": "@level.8-8.tasks.8-8.hint",
       "inputs": ["x0", "e1", "e2", "a1", "a2"],
@@ -25,7 +25,7 @@
         "a1": "@level.8-8.tasks.8-8.inputLabels.a1",
         "a2": "@level.8-8.tasks.8-8.inputLabels.a2"
       },
-      "scene": "image:scene-twoNoisings",
+      "scene": "vision-complete:scene-twoNoisings",
       "tests": [
         {
           "label": "@level.8-8.tasks.8-8.tests.0.label",

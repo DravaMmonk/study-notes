@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "4-21",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-21.tasks.4-21.brief",
       "hint": "@level.4-21.tasks.4-21.hint",
       "outputs": ["px", "po", "pp"],
@@ -34,7 +34,7 @@
       },
       "check": { "tolerance": 0.45 },
       "trainRate": 80,
-      "scene": "image:scene-sorter",
+      "scene": "vision-complete:scene-sorter",
       "tests": [
         {
           "label": "@level.4-21.tasks.4-21.tests.0.label",

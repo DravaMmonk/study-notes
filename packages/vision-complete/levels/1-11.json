@@ -51,7 +51,7 @@
   "tasks": [
     {
       "id": "1-11_1",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-11.tasks.1-11_1.brief",
       "hint": "@level.1-11.tasks.1-11_1.hint",
       "after": "@level.1-11.tasks.1-11_1.after",
@@ -161,7 +161,7 @@
     },
     {
       "id": "1-11_2",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-11.tasks.1-11_2.brief",
       "hint": "@level.1-11.tasks.1-11_2.hint",
       "step": "@level.1-11.tasks.1-11_2.step",

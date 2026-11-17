@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "3-12",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-12.tasks.3-12.brief",
       "hint": "@level.3-12.tasks.3-12.hint",
       "inputs": ["p1", "p2", "p3"],
@@ -27,7 +27,7 @@
         "p3": "@level.3-12.tasks.3-12.inputLabels.p3"
       },
       "check": { "tolerance": 0.02, "mismatches": 2 },
-      "scene": "image:scene-photometric",
+      "scene": "vision-complete:scene-photometric",
       "setup": { "expect": "lean", "above": 0.15 },
       "tests": [
         {

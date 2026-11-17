@@ -12,14 +12,14 @@ export function pluginGame(id, kernel, vocabulary, { view = true } = {}) {
   const provided = [...kernel.tables.play].find(([name, play]) => name.startsWith(`${id}:`) && play.runtime)
   if (provided) {
     const presentation = kernel.tables.playView.get(provided[0])
-    return { id, runtime: provided[1].runtime, define: presentation.define }
+    return { id, runtime: provided[1].runtime, define: (content, works) => presentation.define(content, works, { kernel, vocabulary }) }
   }
   const runtime = pluginRuntime(id, kernel, vocabulary)
   const kinds = Object.fromEntries([...kernel.tables.play].filter(([name]) => name.startsWith(`${id}:`)).map(([name, core]) => {
     const view = kernel.tables.playView.get(name)
     function Screen({ level, saved, save, solve, fail, progress, game, phone }) {
       const task = level.source
-      const context = { content: game.pluginContent, task, progress, passed: progress?.passed ?? [] }
+      const context = { content: game.pluginContent, task, kernel, progress, passed: progress?.passed ?? [] }
       const [work, setWork] = useState(() => core.normalize(core.read(saved ?? core.initial(context), context), context))
       const [result, setResult] = useState(null)
       const change = value => { setWork(value); save?.(core.write(value, context)); setResult(null) }

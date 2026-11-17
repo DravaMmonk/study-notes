@@ -15,14 +15,14 @@
   "tasks": [
     {
       "id": "5-9",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-9.tasks.5-9.brief",
       "hint": "@level.5-9.tasks.5-9.hint",
       "inputs": ["a", "b"],
       "inputLabels": { "a": "@level.5-9.tasks.5-9.inputLabels.a", "b": "@level.5-9.tasks.5-9.inputLabels.b" },
       "outputs": ["same"],
       "outputLabels": { "same": "@level.5-9.tasks.5-9.outputLabels.same" },
-      "scene": "image:scene-duplicate",
+      "scene": "vision-complete:scene-duplicate",
       "tests": [
         {
           "label": "@level.5-9.tasks.5-9.tests.0.label",

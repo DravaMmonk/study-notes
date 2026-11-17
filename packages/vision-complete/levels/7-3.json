@@ -17,13 +17,13 @@
   "tasks": [
     {
       "id": "7-3",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-3.tasks.7-3.brief",
       "hint": "@level.7-3.tasks.7-3.hint",
       "inputs": ["d"],
       "inputLabels": { "d": "@level.7-3.tasks.7-3.inputLabels.d" },
       "views": { "in": "image:view-terrain", "out": "image:view-terrain" },
-      "scene": "image:scene-depth",
+      "scene": "vision-complete:scene-depth",
       "tests": [
         {
           "label": "@level.7-3.tasks.7-3.tests.0.label",

@@ -104,10 +104,16 @@ export function existenceProblems(layers, schemas, surfaces = publicSurfaces(lay
     }
   }
   const entries = [...new Map([...surfaces.values()].flatMap(surface => [...surface.values()]).map(entry => [identity(entry.kind, entry.name, entry.member), entry])).values()]
+  const byName = new Map()
+  for (const entry of entries) {
+    const named = byName.get(entry.name) ?? []
+    named.push(entry)
+    byName.set(entry.name, named)
+  }
   const problems = []
   for (const ref of targets) {
     const { kind, target, member, layer, at, object, path } = ref
-    const matches = entries.filter(entry => entry.name === target && (kind === 'tag' ? entry.kind === 'tag' && (!member || kindMatches(schemas, member, entry.member)) : entry.kind !== 'tag' && kindMatches(schemas, kind, entry.kind)))
+    const matches = (byName.get(target) ?? []).filter(entry => (kind === 'tag' ? entry.kind === 'tag' && (!member || kindMatches(schemas, member, entry.member)) : entry.kind !== 'tag' && kindMatches(schemas, kind, entry.kind)))
     // Menu identities are valid untyped order endpoints.
     const owner = ownerOf(target)
     const author = layers.find(item => item.id === layer)

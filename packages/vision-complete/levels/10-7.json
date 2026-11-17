@@ -23,7 +23,7 @@
   "tasks": [
     {
       "id": "10-7",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.10-7.tasks.10-7.brief",
       "hint": "@level.10-7.tasks.10-7.hint",
       "inputs": [
@@ -39,7 +39,7 @@
       "check": {
         "tolerance": 0.005
       },
-      "scene": "image:scene-ranking",
+      "scene": "vision-complete:scene-ranking",
       "tests": [
         {
           "label": "@level.10-7.tasks.10-7.tests.0.label",

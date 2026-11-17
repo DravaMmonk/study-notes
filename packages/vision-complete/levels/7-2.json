@@ -24,7 +24,7 @@
   "tasks": [
     {
       "id": "7-2",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-2.tasks.7-2.brief",
       "hint": "@level.7-2.tasks.7-2.hint",
       "inputs": ["left", "right"],
@@ -34,7 +34,7 @@
       },
       "views": { "out": "image:view-terrain" },
       "check": { "tolerance": 1.01, "mismatches": 28 },
-      "scene": "image:scene-stereo",
+      "scene": "vision-complete:scene-stereo",
       "tests": [
         {
           "label": "@level.7-2.tasks.7-2.tests.0.label",

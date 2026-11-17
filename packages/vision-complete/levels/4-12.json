@@ -21,13 +21,13 @@
   "tasks": [
     {
       "id": "4-12",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-12.tasks.4-12.brief",
       "hint": "@level.4-12.tasks.4-12.hint",
       "inputs": ["photo"],
       "inputLabels": { "photo": "@level.4-12.tasks.4-12.inputLabels.photo" },
       "trainRate": 8,
-      "scene": "image:scene-rgbContrast",
+      "scene": "vision-complete:scene-rgbContrast",
       "setup": { "mix": "redGreen" },
       "tests": [
         { "label": "@level.4-12.tasks.4-12.tests.0.label", "paint": "halves" },

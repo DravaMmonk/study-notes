@@ -19,7 +19,7 @@
   "tasks": [
     {
       "id": "0-8",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.0-8.tasks.0-8.brief",
       "hint": "@level.0-8.tasks.0-8.hint",
       "bench": {
@@ -62,8 +62,8 @@
         "layout": {
           "main": ["image:display-obscura"],
           "foot": [
-            { "panel": ["circuit:display-knobs"] },
-            { "row": ["image:display-obscuraScreen", "circuit:display-goals"], "narrow": true }
+            { "panel": ["image:display-knobs"] },
+            { "row": ["image:display-obscuraScreen", "image:display-goals"], "narrow": true }
           ]
         }
       }

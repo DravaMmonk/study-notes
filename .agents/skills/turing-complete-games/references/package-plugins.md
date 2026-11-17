@@ -59,7 +59,7 @@ supplies shell panels/actions, settings, map rewards, reference display metadata
 A view receives `context` and `phone` alongside task/work state. Studio's current editors remain usable through
 the same schemas and operation metadata; moving the specialized editors into the package is step 11.
 
-Only `engine/circuit-bridge.js` (logic symbol grants) and the three remaining native modules' public circuit
+Only `engine/circuit-bridge.js` (logic symbol grants) and the two remaining native modules' public circuit
 imports are temporary bridges. Remove them as their consumers move in steps 7–10. Synthetic kernel tests
 install explicit circuit fixtures. Baseline observers are provided by kind meanings and compare full reports.
 
@@ -84,9 +84,36 @@ The shell reads section member lists directly so list order reaches the displaye
 
 `rows` and `tick-bus` register their plays through package core/view entries. Their ordinary sample levels
 and bus parts live at package root, with no chapters or course. Both declare `uses.circuit: ^0.0.0`.
-Only image, table and logic retain native circuit import bridges.
+Only table and logic retain native circuit import bridges.
 
 `kinds/*.json` task extensions can include `play: <package>:<play>`. Scoped fields form their own generic
 play-task branch after common extensions; unscoped fields retain strict no-redefinition behavior.
 This preserves distinct native/package schemas for the same field name. Display discovery resolves each
 package separately; public package imports are available in Node through `package-imports.mjs`.
+
+
+## Step 8 extracted image mechanism
+
+`image/core` registers graph, probe and parameter-bench plays and shares the existing production
+work readers with checks, package play, blind play and baseline observations. `image/view` pairs
+all three plays and registers their displays. View definitions receive `{ kernel, vocabulary }`
+as their third argument so bench layouts use the assembled display registry.
+Vision-specific scenes, bench models and displays register through vision-complete's core/view
+entries. Its catalog is an assembly-derived value, never a process-global extension of image.
+Comp90086 and vision-complete own independent power/box kinds and namespaced folders.
+Native templates now remain only for logic/table. Image contracts use synthetic package levels.
+
+The vocabulary tool sends object declarations once in `objectKinds`, policy fields in `kindPolicies`,
+and the projected vocabulary separately. Schema alternatives try matching literal discriminators
+first and stop after a valid branch. Invalid values retain the complete original diagnostic selection.
+Configuration-file ownership is validated after selected core entries register their fields.
+
+
+Scoped task declarations may combine shared `fields` with a `schema` discriminator tree.
+The platform extends every branch with those fields and the common task identity/play fields,
+rejecting redefinitions. Image graph scenes use this to retain correlated setup/test schemas
+without repeating common graph fields in every declaration.
+
+State-graph also selects image explicitly to preserve its historical standalone package palette,
+which exposed the global image primitive inventory before extraction. This dependency preserves
+the locked package observations. The corresponding game selects the complete closure.

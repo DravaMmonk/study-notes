@@ -15,11 +15,11 @@
   "tasks": [
     {
       "id": "9-9",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.9-9.tasks.9-9.brief",
       "hint": "@level.9-9.tasks.9-9.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },
-      "scene": "image:scene-cells",
+      "scene": "vision-complete:scene-cells",
       "tests": [
         {
           "label": "@level.9-9.tasks.9-9.tests.0.label",

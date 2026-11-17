@@ -28,7 +28,6 @@ export { inOrder } from './judge.js'
 export { sameAs } from './judge.js'
 export { ticks } from './judge.js'
 export { runTests } from './test-run.js'
-export { displayItems } from './bench.js'
 export { runTestGroups } from './tests.js'
 export { splitTests } from './tests.js'
 export { TEST_WORDS } from './tests.js'
@@ -75,3 +74,22 @@ export { judgeFor, playFor, definePlays } from './plays.js'
 export { holeTree } from '../strip/tree.js'
 
 export { callOf } from "./schema.js"
+
+export { gridText } from './grid.js'
+
+export { isPair } from '../shell/i18n.js'
+
+
+export { reaches } from '../graph.js'
+
+export { runOutputTests } from './test-run.js'
+
+export { cellError, sameGridShape } from './grid.js'
+
+export { withinTolerance } from './number.js'
+
+export { seedOf } from './seed.js'
+
+export { createCapabilityRegistry } from './capabilities.js'
+
+export { runtimeWorks } from './runtime-model.js'

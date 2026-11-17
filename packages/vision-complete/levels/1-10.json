@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "1-10",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.1-10.tasks.1-10.brief",
       "hint": "@level.1-10.tasks.1-10.hint",
       "bench": {
-        "model": "image:benchModel-racer",
+        "model": "vision-complete:benchModel-racer",
         "setup": {
           "kernels": [
             { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
@@ -64,31 +64,31 @@
         "goal": [{ "of": "final", "atLeast": 8 }],
         "layout": {
           "head": [
-            { "circuit:display-progress": { "of": "dots" } },
-            { "circuit:display-chips": { "of": "score" } },
-            "circuit:display-knobs"
+            { "image:display-progress": { "of": "dots" } },
+            { "image:display-chips": { "of": "score" } },
+            "image:display-knobs"
           ],
           "main": [
-            { "image:display-kernelRound": { "when": "playing" } },
+            { "vision-complete:display-kernelRound": { "when": "playing" } },
             {
               "stack": [
-                { "circuit:display-text": { "of": "result", "look": "title", "unless": "playing" } },
+                { "image:display-text": { "of": "result", "look": "title", "unless": "playing" } },
                 {
-                  "circuit:display-text": {
+                  "image:display-text": {
                     "text": "@level.1-10.tasks.1-10.bench.layout.main.1.stack.1.text.text",
                     "look": "lede",
                     "unless": "playing"
                   }
                 },
-                { "circuit:display-chips": { "of": "rules", "look": "plain", "unless": "playing" } },
-                { "circuit:display-actions": { "unless": "playing" } }
+                { "image:display-chips": { "of": "rules", "look": "plain", "unless": "playing" } },
+                { "image:display-actions": { "unless": "playing" } }
               ],
               "center": true
             }
           ],
           "side": [
-            { "image:display-kernelChoices": { "when": "playing" } },
-            { "circuit:display-verdict": { "center": true, "when": "playing" } }
+            { "vision-complete:display-kernelChoices": { "when": "playing" } },
+            { "image:display-verdict": { "center": true, "when": "playing" } }
           ],
           "split": "even"
         }

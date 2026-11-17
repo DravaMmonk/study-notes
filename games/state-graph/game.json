@@ -2,7 +2,8 @@
   "kernel": "^0.0.0",
   "packages": {
     "state-graph": "^0.0.0",
-    "circuit": "^0.0.0"
+    "circuit": "^0.0.0",
+    "image": "^0.0.0"
   },
   "title": "@course.title",
   "kicker": "@course.kicker",

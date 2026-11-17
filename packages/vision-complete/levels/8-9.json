@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "8-9",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.8-9.tasks.8-9.brief",
       "hint": "@level.8-9.tasks.8-9.hint",
       "inputs": ["eps", "c", "left", "right", "sigma"],
@@ -26,7 +26,7 @@
         "sigma": "@level.8-9.tasks.8-9.inputLabels.sigma"
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
-      "scene": "image:scene-sides",
+      "scene": "vision-complete:scene-sides",
       "setup": { "left": [-1, 0], "right": [1, 0], "sigma": [0.3, 0.3] },
       "tests": [
         {

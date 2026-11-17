@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "4-18",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-18.tasks.4-18.brief",
       "hint": "@level.4-18.tasks.4-18.hint",
       "inputs": ["a", "b"],
@@ -31,7 +31,7 @@
         "pb": "@level.4-18.tasks.4-18.outputLabels.pb"
       },
       "check": { "tolerance": 0.01 },
-      "scene": "image:scene-binaryScores",
+      "scene": "vision-complete:scene-binaryScores",
       "tests": [
         { "label": "@level.4-18.tasks.4-18.tests.0.label", "s": [1, 0] },
         { "label": "@level.4-18.tasks.4-18.tests.1.label", "s": [0, 0] },

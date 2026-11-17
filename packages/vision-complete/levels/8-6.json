@@ -22,11 +22,11 @@
   "tasks": [
     {
       "id": "8-6",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.8-6.tasks.8-6.brief",
       "hint": "@level.8-6.tasks.8-6.hint",
       "bench": {
-        "model": "image:benchModel-gan",
+        "model": "vision-complete:benchModel-gan",
         "setup": {
           "n": 64,
           "mode": 2,
@@ -99,21 +99,21 @@
           }
         ],
         "layout": {
-          "main": ["image:display-ganChart", "circuit:display-verdict"],
+          "main": ["vision-complete:display-ganChart", "image:display-verdict"],
           "split": "narrow",
           "side": [
             {
               "panel": [
                 {
-                  "circuit:display-text": {
+                  "image:display-text": {
                     "text": "@level.8-6.tasks.8-6.bench.layout.side.0.panel.0.text.text",
                     "look": "label"
                   }
                 },
-                { "circuit:display-goals": { "phoneCols": 2 } }
+                { "image:display-goals": { "phoneCols": 2 } }
               ]
             },
-            { "panel": ["circuit:display-knobs", "circuit:display-actions"] }
+            { "panel": ["image:display-knobs", "image:display-actions"] }
           ]
         }
       }

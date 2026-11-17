@@ -29,10 +29,6 @@ export const PLAY = S.by('editor', {
       panelClass: S.str(),
     }),
   }),
-  workshop: S.obj({
-    editor: S.oneOf(['workshop']), judge: S.oneOf(['parameters', 'gridProbe']),
-    resources: S.str(), layout: S.str(), pinOnPhone: S.bool(), taskBoard,
-  }),
   tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once', 'check']) }),
   values: S.obj({ ...fields, editor: S.oneOf(['values']), judge: S.oneOf(['table']) }),
   fields: S.obj({ ...fields, editor: S.oneOf(['fields']), judge: S.oneOf(['rows']) }),

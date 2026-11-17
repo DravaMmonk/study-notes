@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "0-9",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.0-9.tasks.0-9.brief",
       "hint": "@level.0-9.tasks.0-9.hint",
       "inputs": ["scene", "empty"],
-      "scene": "image:scene-outline",
+      "scene": "vision-complete:scene-outline",
       "tests": [
         { "label": "@level.0-9.tasks.0-9.tests.0.label", "shape": [[4, 4, 7, 6]], "seed": 1 },
         { "label": "@level.0-9.tasks.0-9.tests.1.label", "shape": [[2, 6, 12, 3]], "seed": 2 },

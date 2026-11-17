@@ -20,11 +20,11 @@
   "tasks": [
     {
       "id": "5-3",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.5-3.tasks.5-3.brief",
       "hint": "@level.5-3.tasks.5-3.hint",
       "constraint": { "image:constraint-cost": { "max": 10 } },
-      "scene": "image:scene-mend",
+      "scene": "vision-complete:scene-mend",
       "setup": { "scale": 2 },
       "tests": [
         {

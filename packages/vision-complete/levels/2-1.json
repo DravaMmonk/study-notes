@@ -17,7 +17,7 @@
   "tasks": [
     {
       "id": "2-1",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.2-1.tasks.2-1.brief",
       "hint": "@level.2-1.tasks.2-1.hint",
       "bench": {
@@ -100,7 +100,7 @@
         "layout": {
           "main": [
             {
-              "circuit:display-plot": {
+              "image:display-plot": {
                 "lines": [
                   {
                     "of": "target",
@@ -120,7 +120,7 @@
               }
             },
             {
-              "circuit:display-strips": {
+              "image:display-strips": {
                 "rows": [
                   {
                     "of": "targetRow",
@@ -130,11 +130,11 @@
                 ]
               }
             },
-            { "circuit:display-text": { "of": "formula" } }
+            { "image:display-text": { "of": "formula" } }
           ],
           "side": [
-            { "panel": ["circuit:display-step", "circuit:display-knobs", "circuit:display-verdict"] },
-            "circuit:display-stages"
+            { "panel": ["image:display-step", "image:display-knobs", "image:display-verdict"] },
+            "image:display-stages"
           ]
         }
       }

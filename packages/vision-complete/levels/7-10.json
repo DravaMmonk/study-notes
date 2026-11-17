@@ -14,7 +14,7 @@
   "tasks": [
     {
       "id": "7-10",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.7-10.tasks.7-10.brief",
       "hint": "@level.7-10.tasks.7-10.hint",
       "inputs": ["left", "right", "region"],
@@ -25,7 +25,7 @@
       },
       "views": { "out": "image:view-terrain" },
       "check": { "tolerance": 0.05, "mismatches": 40 },
-      "scene": "image:scene-room",
+      "scene": "vision-complete:scene-room",
       "setup": { "expect": "distance" },
       "tests": [
         {

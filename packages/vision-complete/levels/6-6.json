@@ -24,11 +24,11 @@
   "tasks": [
     {
       "id": "6-6",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.6-6.tasks.6-6.brief",
       "hint": "@level.6-6.tasks.6-6.hint",
       "bench": {
-        "model": "image:benchModel-ransac",
+        "model": "vision-complete:benchModel-ransac",
         "setup": {
           "n": 80,
           "sigma": 0.5,
@@ -68,19 +68,19 @@
         "goal": [{ "of": "rate", "atLeast": 0.99 }, { "of": "overBudget", "atMost": 0 }],
         "layout": {
           "head": [
-            { "circuit:display-cases": { "passed": "@level.6-6.tasks.6-6.bench.layout.head.0.cases.passed" } }
+            { "image:display-cases": { "passed": "@level.6-6.tasks.6-6.bench.layout.head.0.cases.passed" } }
           ],
           "main": [
-            "image:display-ransacTrial",
-            "circuit:display-knobs",
+            "vision-complete:display-ransacTrial",
+            "image:display-knobs",
             {
-              "circuit:display-text": {
+              "image:display-text": {
                 "text": "@level.6-6.tasks.6-6.bench.layout.main.2.text.text",
                 "look": "caption"
               }
             }
           ],
-          "side": ["image:display-ransacCases"],
+          "side": ["vision-complete:display-ransacCases"],
           "split": "even"
         }
       }

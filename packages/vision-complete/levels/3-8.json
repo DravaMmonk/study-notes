@@ -14,12 +14,12 @@
     {
       "id": "3-6-light",
       "step": "@level.3-8.tasks.3-6-light.step",
-      "kind": "image:board",
+      "play": "image:board",
       "brief": "@level.3-8.tasks.3-6-light.brief",
       "hint": "@level.3-8.tasks.3-6-light.hint",
       "after": "@level.3-8.tasks.3-6-light.after",
       "bench": {
-        "model": "image:benchModel-appleLight",
+        "model": "vision-complete:benchModel-appleLight",
         "setup": { "colours": [[0.8, 0.18, 0.15], [0.75, 0.72, 0.65]], "red": 0 },
         "knobs": {
           "light": {
@@ -42,8 +42,8 @@
         "status": "@level.3-8.tasks.3-6-light.bench.status",
         "layout": {
           "main": [
-            "image:display-appleChannels",
-            { "panel": ["circuit:display-knobs", "image:display-appleDecision"] }
+            "vision-complete:display-appleChannels",
+            { "panel": ["image:display-knobs", "vision-complete:display-appleDecision"] }
           ]
         }
       }
@@ -51,12 +51,12 @@
     {
       "id": "3-8",
       "step": "@level.3-8.tasks.3-8.step",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-8.tasks.3-8.brief",
       "hint": "@level.3-8.tasks.3-8.hint",
       "inputs": ["r", "g", "b"],
       "inputLabels": { "r": "R", "g": "G", "b": "B" },
-      "scene": "image:scene-redObjects",
+      "scene": "vision-complete:scene-redObjects",
       "tests": [
         { "label": "@level.3-8.tasks.3-8.tests.0.label", "layout": "apples", "light": "window" },
         { "label": "@level.3-8.tasks.3-8.tests.1.label", "layout": "flags", "light": "shade" },

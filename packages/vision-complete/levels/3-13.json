@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "3-13",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-13.tasks.3-13.brief",
       "hint": "@level.3-13.tasks.3-13.hint",
       "inputs": ["p1", "p2", "p3"],
@@ -24,7 +24,7 @@
         "p2": "@level.3-13.tasks.3-13.inputLabels.p2",
         "p3": "@level.3-13.tasks.3-13.inputLabels.p3"
       },
-      "scene": "image:scene-photometric",
+      "scene": "vision-complete:scene-photometric",
       "setup": { "expect": "albedo" },
       "tests": [
         {

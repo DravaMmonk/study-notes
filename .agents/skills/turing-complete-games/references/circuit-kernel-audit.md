@@ -14,11 +14,9 @@ rg -n -i 'circuit|part|tray|stage|workshop|grant' games/kit/engine games/kit/app
 |---|---|---|
 | `games/kit/app/plugin-game.jsx` | 2, 33, 36 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/app/studio.test.js` | 154, 155, 163, 165 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/baseline-reports.js` | 31, 32, 33, 34, 37, 44, 89, 101 | Native table task identifier and production runner observation; parameter-bench step observation. This code contains no circuit content or grant interpretation. |
-| `games/kit/engine/baseline-value.js` | 43, 45, 46, 58, 59, 65, 68, 69, 70, 72, 74, 75, 77, 80, 82, 87, 89, 100, 101, 102, 103, 104, 105, 106, 107, 201, 223, 225 | Frozen-corpus identity/path/copy-key and diagnostic spelling normalization, documented in engine/baseline.md. No execution results are dropped. |
-| `games/kit/engine/baseline.test.js` | 60, 62, 63, 64, 70, 71, 72, 79, 80, 85, 86, 87, 90, 93, 105, 108, 123, 125, 126 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/bench.js` | 9, 11, 67, 103, 133, 134, 142, 169, 170, 174, 180, 181, 201, 202, 204, 205, 206, 207, 211, 217, 218, 220, 221, 222, 224 | Parameter-bench steps and layout. These steps advance knob exercises and do not upgrade grantable objects. |
-| `games/kit/engine/bench.test.js` | 20, 30, 56, 59, 67, 71, 78, 82, 107, 111, 112 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/baseline-reports.js` | 66, 73 | Native table and logic observation dispatch. Image observations are supplied by the image kind meaning. |
+| `games/kit/engine/baseline-value.js` | 43, 45, 46, 58, 59, 65, 68, 69, 70, 72, 74, 75, 77, 80, 82, 87, 89, 100, 101, 102, 103, 104, 105, 106, 107, 202, 224, 226 | Frozen-corpus identity/path/copy-key and diagnostic spelling normalization, documented in engine/baseline.md. No execution results are dropped. |
+| `games/kit/engine/baseline.test.js` | 61, 63, 64, 65, 71, 72, 73, 80, 81, 86, 87, 88, 91, 94, 106, 109, 124, 126, 127, 131, 132, 133, 134, 135 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/capabilities.test.js` | 6, 8, 24, 36, 37, 38, 39, 43, 44, 46, 47, 63, 64, 65, 66, 68, 71, 72, 74, 75, 76, 78 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/check-cache.js` | 22, 24 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/checks.js` | 11, 13, 79 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
@@ -27,34 +25,34 @@ rg -n -i 'circuit|part|tray|stage|workshop|grant' games/kit/engine games/kit/app
 | `games/kit/engine/contract.test.js` | 4, 10, 18 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/course-dependencies.test.js` | 4, 7, 9, 40, 42, 62, 70 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/course.test.js` | 5, 6, 32, 42, 48, 65, 75, 76, 77, 78, 80, 83, 86, 88, 89, 92, 95, 104, 105, 110, 122, 165, 167, 168, 175, 176, 178 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/displays.test.js` | 48, 51 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/encyclopedia.test.js` | 21 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+
+| `games/kit/engine/encyclopedia.test.js` | 20 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/engine.test.js` | 1, 4, 5, 6, 8, 12, 18, 21, 29, 34, 43, 45, 50, 53, 55, 60, 65, 67, 69, 74, 77, 79, 81, 84, 86, 89, 94, 96, 98, 99, 100, 102, 105, 109, 111, 113, 115, 118, 120, 123, 128, 129, 130, 131, 160, 162, 177, 184, 186, 192 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/existence.test.js` | 1, 10, 12, 18, 19, 22, 24, 25, 30 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/i18n.test.js` | 25, 32, 33, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/kernel.js` | 2, 14 | Calls/imports of the permitted symbol-registration bridge. Other matches are ordinary identifiers. |
-| `games/kit/engine/layers.test.js` | 70, 76, 258, 263, 270, 293, 297, 300 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/multi-package.test.js` | 32 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/kernel.js` | 2, 11 | Calls/imports of the permitted symbol-registration bridge. Other matches are ordinary identifiers. |
+| `games/kit/engine/layers.test.js` | 243, 248, 255, 278, 282, 285 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/multi-package.test.js` | 33, 38 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/names.test.js` | 3, 9, 10, 14, 15, 16, 24, 25, 36, 39, 40, 44, 48, 53, 55, 56, 57, 59, 62, 83, 88, 89, 90, 92 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/objects.test.js` | 1, 4, 10, 13, 14, 40, 41, 42, 44, 45, 62, 64, 72, 73, 74, 75, 76, 77, 79, 102, 104, 125, 127, 128, 129, 130, 131, 133, 136, 139, 154, 156, 161, 163, 164, 166, 167, 179, 181, 183, 213, 259, 273, 281, 291 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/ops/fixture.js` | 22, 23, 67, 68, 70, 121, 132, 133, 138, 140, 141, 142, 143, 148, 149, 160, 167, 173, 175, 180, 181, 185, 186, 193, 206, 207, 210, 214, 215, 216, 217, 219, 223, 225, 226, 227, 229, 230 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/objects.test.js` | 1, 4, 10, 13, 14, 40, 41, 42, 44, 45, 62, 64, 72, 73, 74, 75, 76, 77, 79, 116, 118, 119, 120, 121, 123, 126, 129, 145, 147, 148, 150, 151, 163, 165, 167, 205, 222 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/ops/fixture.js` | 23, 24, 68, 69, 71, 122, 133, 134, 141, 143, 144, 147, 148, 153, 154, 165, 172, 178, 180, 185, 186, 190, 191, 198, 211, 212, 215, 219, 220, 221, 222, 224, 228, 230, 231, 234, 237, 238, 243, 244 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/ops/mcp.test.js` | 56 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/ops/operations.test.js` | 1, 19, 31, 34, 61, 120, 123, 125, 126, 127, 128, 132, 133, 177, 388, 410, 415, 416, 419, 423, 424, 425, 428, 430, 431, 432, 433, 434, 437, 438, 440, 441, 442, 443, 444, 445, 448, 449, 450, 451, 452, 454, 457, 458, 461, 462, 470, 483, 484, 487, 488, 491, 492, 493, 494, 544, 552 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/ops/operations.test.js` | 1, 19, 31, 34, 61, 116, 119, 121, 122, 123, 124, 128, 129, 173, 384, 406, 411, 412, 415, 419, 420, 421, 424, 426, 427, 428, 429, 430, 433, 434, 436, 437, 438, 439, 440, 441, 444, 445, 446, 447, 448, 450, 453, 454, 457, 458, 466, 479, 480, 483, 484, 487, 488, 489, 490, 540, 548 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/ops/package-selection.test.js` | 19 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/ops/workspace.js` | 7 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
+| `games/kit/engine/ops/workspace.js` | 8 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/package-content.test.js` | 12, 31, 36, 47, 55, 62, 65, 72, 82, 90, 92, 113, 116, 117, 122, 124, 125, 126, 134, 135, 140, 185, 188, 189, 196 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
-| `games/kit/engine/package-prototypes.test.js` | 12, 24, 25, 26, 57, 70, 80, 82, 83, 84, 85, 86, 87, 96 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
+| `games/kit/engine/package-prototypes.test.js` | 12, 24, 25, 26, 59, 72, 82, 84, 85, 86, 87, 88, 89, 98 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/play/blind.mjs` | 48, 49, 50 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/play/play.js` | 177 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/play/play.test.js` | 5, 82 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/play/session.js` | 2, 5, 7 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/play/stats.js` | 13 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/play/words.js` | 2 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
-| `games/kit/engine/plays.js` | 9, 32, 33 | Generic play schema/layout and native parameter/grid exercise resource adapter. The circuit workshop is supplied by the package shell extension. |
+| `games/kit/engine/plays.js` | 9 | Generic play schema/layout and native parameter/grid exercise resource adapter. The circuit workshop is supplied by the package shell extension. |
 | `games/kit/engine/plugin-boundaries.js` | 26, 27 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/plugins.test.js` | 86 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/releases.js` | 131, 132, 134, 138, 139, 141, 143 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
-| `games/kit/engine/resolver.js` | 1, 181 | Calls/imports of the permitted symbol-registration bridge. Other matches are ordinary identifiers. |
+| `games/kit/engine/resolver.js` | 2, 181 | Calls/imports of the permitted symbol-registration bridge. Other matches are ordinary identifiers. |
 | `games/kit/engine/scaffold.test.js` | 1, 14, 23 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/engine/seed.js` | 2, 3, 5, 6, 9, 10 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/engine/stamp.js` | 5 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
@@ -72,21 +70,21 @@ rg -n -i 'circuit|part|tray|stage|workshop|grant' games/kit/engine games/kit/app
 | `games/kit/shell/Layout.jsx` | 21, 23, 24 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/Timeline.jsx` | 43, 48, 54, 55 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/shell/Workbench.jsx` | 14, 24, 27, 35, 37 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
-| `games/kit/shell/bench/Bench.jsx` | 9, 10, 22, 24, 26, 27, 33, 35, 38, 39, 41, 43, 49, 52, 53, 54, 58, 92, 93, 98, 111 | Parameter-bench steps and layout. These steps advance knob exercises and do not upgrade grantable objects. |
-| `games/kit/shell/bench/Rich.jsx` | 3, 5, 11, 12 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
-| `games/kit/shell/bench/bench.css` | 14, 201 | Parameter-bench steps and layout. These steps advance knob exercises and do not upgrade grantable objects. |
+
+
+
 | `games/kit/shell/edit.js` | 2 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/shell/number-entry.js` | 4, 5, 6, 7 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/shell/plays/BoardChecks.jsx` | 36, 37, 49 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/FieldRows.jsx` | 55, 56, 84 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/ManualBoardPlay.jsx` | 125 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
-| `games/kit/shell/plays/Play.jsx` | 4, 16 | Generic play schema/layout and native parameter/grid exercise resource adapter. The circuit workshop is supplied by the package shell extension. |
+
 | `games/kit/shell/plays/PlayLayout.jsx` | 3, 4, 6 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/Rows.jsx` | 15, 16, 21 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/ScenarioCheck.jsx` | 32, 33, 51 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/TreeWork.jsx` | 42, 43, 60 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
 | `games/kit/shell/plays/ValueTables.jsx` | 53, 54, 76 | Generic main-area stage slot, shared layout/style, or prose describing that slot. No part/tray/stage-chain/grant rules. |
-| `games/kit/shell/plays/WorkshopPlay.jsx` | 10, 14, 15 | Generic play schema/layout and native parameter/grid exercise resource adapter. The circuit workshop is supplied by the package shell extension. |
+
 | `games/kit/shell/refs.js` | 55, 56 | General-purpose identifiers or explanatory comments. Matches include text/path segments (parts), partitioning, replaceState, work stages and schema-independent rendering; no circuit-specific interpretation. |
 | `games/kit/shell/run-marks.test.js` | 3 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
 | `games/kit/shell/settings.test.js` | 1, 6 | Synthetic test data, explicit circuit installation and regression assertions. These files have no production entry point. |
@@ -121,27 +119,6 @@ The remaining native modules consume circuit through its public core/view export
 | `games/kit/modules/table/ui/board.js` | 5, 8 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/ui/partDemo.js` | 1, 2, 3, 4, 6 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/ui/circuitCourse.js` | 1 | Move with `table`; import only public package exports. |
-| `games/kit/modules/image/plays.js` | 1 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/own.js` | 1, 2, 3 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/board-view.js` | 1, 2, 3 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/colour.js` | 2 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/nodes.js` | 1 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/definitions.js` | 3, 4 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/preview.js` | 1 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/board.js` | 10, 11, 12 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/engine/graph.js` | 1, 2, 3 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/reset-training.test.js` | 5 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/colour.test.js` | 101 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/image.test.js` | 9, 10, 11, 12 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/runtime.js` | 8, 9 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/play.js` | 7 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/game.js` | 1, 2, 8, 10, 14 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/vocabulary.js` | 12, 13 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/module.js` | 1 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/work.js` | 7, 11, 12, 13, 14, 15 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/items/constraints.js` | 7 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/ui/catalog.js` | 2 | Move with `image`; import only public package exports. |
-| `games/kit/modules/image/ui/displays.js` | 7 | Move with `image`; import only public package exports. |
 | `games/kit/modules/logic/play.test.js` | 1, 5 | Move with `logic`; import only public package exports. |
 | `games/kit/modules/logic/gates.js` | 9, 10, 11, 12 | Move with `logic`; import only public package exports. |
 | `games/kit/modules/logic/logic.test.js` | 16 | Move with `logic`; import only public package exports. |
@@ -174,7 +151,7 @@ The locked corpus contains all four games and five pre-existing content packages
 
 Collection composition now belongs to `engine/collections.js`. Circuit's tray-specific override hook and all
 runtime display-order relation interpretation were removed. Circuit consumes `circuit/grant` reference lists,
-keeps menu and direct-grant order, and retains the existing workshop default. The five native module bridges
+keeps menu and direct-grant order, and retains the existing workshop default. The remaining native module bridges
 listed above remain scheduled for steps 7–10 with their existing public imports.
 
 Chapters are kernel game-layer objects in `chapters/`; game.json stores their ordered full-name list.
@@ -195,5 +172,19 @@ Vite dispatch are removed. Package code consumes only `kernel`, `kernel/view`, `
 The bus-only tick runner, reports, textual tick-play adapter and tick tests moved from circuit to tick-bus.
 The former native starter objects moved to the owning packages, with no package course or chapter.
 
-Remaining temporary bridges are exactly the image/table/logic public circuit imports listed above, plus
+Remaining temporary bridges are exactly the table/logic public circuit imports listed above, plus
 `engine/circuit-bridge.js` for logic symbol grants. These leave in their respective extraction steps.
+
+
+## Step 8 bridge removal
+
+Image is an ordinary circuit-dependent package. Its native kernel registration, content-kind
+registration, preparation dispatch and image-only workshop dispatch are removed. Parameter-bench
+core, controls, displays, black-box probe judge/view and observation collectors moved to image.
+Circuit no longer registers bench displays. Shared layouts use image display names.
+Vision-complete owns its dedicated catalog and presentation. Each image content package owns
+its power/box kinds. Package imports use only public exports.
+
+Remaining temporary bridges are the table and logic public circuit imports in the table above,
+and `engine/circuit-bridge.js` for logic symbol grants. Studio editors remain with their owner
+until step 11. No image bridge remains.

@@ -105,8 +105,8 @@ export function nameNormalizer(names) {
     .replace(/\bcircuit\/tray\b/g, 'tray')
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
-  // Preserve only the two retired bus family collisions in the frozen native vocabulary inventory.
-  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
+  // Preserve the exact retired bus and image collisions in the frozen native vocabulary inventory.
+  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory', 'image:add', 'image:board', 'image:const', 'image:family-search', 'image:merge', 'image:mul', 'image:sub'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {
@@ -250,4 +250,17 @@ export function collectionFieldsBaseline(value) {
     for (const link of plan.dependencyLinks ?? []) if (link.source === 'course') link.detail = local(link.detail)
   }
   return result
+}
+
+/** The three image task discriminators move from native kind to the package play protocol. */
+export function imageFieldsBaseline(value) {
+  if (!value.structure?.levels) return value
+  const plays = new Set(['image:graph', 'image:board', 'image:probe'])
+  return { ...value, structure: { ...value.structure, levels: value.structure.levels.map(level => ({ ...level,
+    tasks: level.tasks.map(task => {
+      if (task.kind !== undefined || !plays.has(task.play)) return task
+      const { play, ...fields } = task
+      return { ...fields, kind: play }
+    }),
+  })) } }
 }

@@ -28,11 +28,11 @@
   "tasks": [
     {
       "id": "3-10",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.3-10.tasks.3-10.brief",
       "hint": "@level.3-10.tasks.3-10.hint",
       "views": { "in": "image:view-pixels", "out": "image:view-pixels", "mid": "image:view-terrain" },
-      "scene": "image:scene-relit",
+      "scene": "vision-complete:scene-relit",
       "tests": [
         {
           "label": "@level.3-10.tasks.3-10.tests.0.label",

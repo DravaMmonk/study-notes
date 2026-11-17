@@ -25,7 +25,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 - After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  the three remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
+  the two remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
@@ -43,7 +43,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
   select the complete dependency closure in `game.json`'s ordered `packages` range map and declare `kernel`; the first key is primary; loading is topological, with the game last.
 - Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
-  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
+  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`).
   File names supply object ids; task, stage and menu ids remain inside their containing objects. Chapters are game objects in chapters/<name>.json.
   Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
@@ -227,3 +227,14 @@ has a course. Both use circuit's public exports at `^0.0.0`; bus-only ticking an
 `tick-bus`, not circuit. Native imports remain only for image/table/logic and the symbol bridge.
 Task declarations can scope `extends: task` fields with `play`; this creates a separate schema branch
 without redefining native fields. Keep required fields required on that branch.
+
+
+## Image extraction (MODULES step 8)
+
+`image` depends on `circuit` and owns image operations, graph/probe/bench works, judges, blind-play
+adapters, scoped task declarations, parameter benches, displays and previews. The kernel has no
+image registration or image-only workshop dispatch. Consumers select `image` directly.
+`vision-complete` owns its scenes and dedicated bench models/displays. Only the filter scene,
+obscura/wave models and obscura displays are shared by vision-complete and comp90086.
+Both content packages declare their own namespaced power/box kinds and folders.
+Keep Studio source and tests with its owner when the user assigns that boundary.

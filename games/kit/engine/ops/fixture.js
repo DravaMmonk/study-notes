@@ -238,3 +238,12 @@ export function assembleCircuitFixture({ partDefs, trays = [], ...options }) {
     ...(trays.length && { 'circuit/tray': Object.fromEntries(trays.map(([name, value, namespace]) => [namespace && !name.includes('/') ? `${namespace}/${name}` : name, value])) }),
   } })
 }
+
+export function installImageFixture(root) {
+  installCircuitFixture(root)
+  cpSync(new URL('../../../../packages/circuit/view', import.meta.url), join(root, 'packages/circuit/view'), { recursive: true })
+  const dir = join(root, 'packages', 'image')
+  mkdirSync(dir, { recursive: true })
+  for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/image/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+  cpSync(new URL('../../../../packages/image/package.json', import.meta.url), join(dir, 'package.json'))
+}

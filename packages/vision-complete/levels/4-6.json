@@ -16,7 +16,7 @@
   "tasks": [
     {
       "id": "4-6",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-6.tasks.4-6.brief",
       "hint": "@level.4-6.tasks.4-6.hint",
       "inputs": ["f1", "f2"],
@@ -26,7 +26,7 @@
       },
       "check": { "tolerance": 0.4 },
       "trainRate": 10,
-      "scene": "image:scene-strokes",
+      "scene": "vision-complete:scene-strokes",
       "tests": [
         { "label": "@level.4-6.tasks.4-6.tests.0.label", "letter": "X", "f1": 0.85, "f2": 0.15 },
         { "label": "@level.4-6.tasks.4-6.tests.1.label", "letter": "X", "f1": 0.15, "f2": 0.85 },

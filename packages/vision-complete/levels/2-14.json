@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "2-14",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.2-14.tasks.2-14.brief",
       "hint": "@level.2-14.tasks.2-14.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },

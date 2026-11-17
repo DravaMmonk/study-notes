@@ -15,7 +15,7 @@
     {
       "id": "4-16-features",
       "step": "@level.4-16.tasks.4-16-features.step",
-      "kind": "image:graph",
+      "play": "image:graph",
       "optional": true,
       "brief": "@level.4-16.tasks.4-16-features.brief",
       "hint": "@level.4-16.tasks.4-16-features.hint",
@@ -93,7 +93,7 @@
     {
       "id": "4-16",
       "step": "@level.4-16.tasks.4-16.step",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-16.tasks.4-16.brief",
       "hint": "@level.4-16.tasks.4-16.hint",
       "check": { "tolerance": 0.04 },

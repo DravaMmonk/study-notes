@@ -17,13 +17,13 @@
   "tasks": [
     {
       "id": "4-13",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.4-13.tasks.4-13.brief",
       "hint": "@level.4-13.tasks.4-13.hint",
       "inputs": ["photo"],
       "inputLabels": { "photo": "@level.4-13.tasks.4-13.inputLabels.photo" },
       "trainRate": 8,
-      "scene": "image:scene-rgbContrast",
+      "scene": "vision-complete:scene-rgbContrast",
       "setup": { "mix": "blueYellow" },
       "tests": [
         { "label": "@level.4-13.tasks.4-13.tests.0.label", "paint": "skyline" },

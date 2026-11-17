@@ -20,7 +20,7 @@
   "tasks": [
     {
       "id": "1-12",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.1-12.tasks.1-12.brief",
       "hint": "@level.1-12.tasks.1-12.hint",
       "constraint": { "image:constraint-cost": { "max": 8 } },

@@ -15,7 +15,7 @@
   "tasks": [
     {
       "id": "0-12",
-      "kind": "image:graph",
+      "play": "image:graph",
       "brief": "@level.0-12.tasks.0-12.brief",
       "hint": "@level.0-12.tasks.0-12.hint",
       "inputs": ["ref", "part"],
@@ -23,7 +23,7 @@
         "ref": "@level.0-12.tasks.0-12.inputLabels.ref",
         "part": "@level.0-12.tasks.0-12.inputLabels.part"
       },
-      "scene": "image:scene-station",
+      "scene": "vision-complete:scene-station",
       "tests": [
         {
           "label": "@level.0-12.tasks.0-12.tests.0.label",
