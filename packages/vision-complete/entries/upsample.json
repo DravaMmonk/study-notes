@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.upsample.title",
-  "at": "9-4",
-  "body": ["@glossary.entries.upsample.body.0", "@glossary.entries.upsample.body.1"],
-  "see": ["pooling", "unet"]
-}

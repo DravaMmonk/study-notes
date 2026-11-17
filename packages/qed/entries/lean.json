@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lean.title",
-  "at": "r-match",
-  "body": ["@glossary.entries.lean.body.0"],
-  "see": ["isabelle", "provers"]
-}

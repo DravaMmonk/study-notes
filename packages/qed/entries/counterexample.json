@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.counterexample.title",
-  "at": "onerow",
-  "body": ["@glossary.entries.counterexample.body.0", "@glossary.entries.counterexample.body.1"],
-  "see": ["soundness", "countermodel"]
-}

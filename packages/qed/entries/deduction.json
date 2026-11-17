@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.deduction.title",
-  "at": "x-chain",
-  "body": ["@glossary.entries.deduction.body.0"],
-  "see": ["hilbert", "box"]
-}

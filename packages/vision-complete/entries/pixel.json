@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.pixel.title",
-  "at": "0-1",
-  "body": ["@glossary.entries.pixel.body.0", "@glossary.entries.pixel.body.1"],
-  "see": ["perpixel", "colour", "views"]
-}

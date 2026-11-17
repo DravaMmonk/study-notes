@@ -1,9 +1,0 @@
-{
-  "kind": "requires",
-  "edges": [
-    {
-      "from": "stock1",
-      "to": "cooldown"
-    }
-  ]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.bound.title",
-  "at": "fo-nested",
-  "body": ["@glossary.entries.bound.body.0"],
-  "see": ["free", "capture"]
-}

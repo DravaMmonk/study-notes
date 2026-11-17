@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.receptive.title",
-  "at": "4-10",
-  "body": ["@glossary.entries.receptive.body.0", "@glossary.entries.receptive.body.1"],
-  "see": ["convlayer", "pooling", "attention"]
-}

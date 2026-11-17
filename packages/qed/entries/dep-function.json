@@ -1,5 +1,0 @@
-{
-  "title": "@glossary.entries.dep-function.title",
-  "body": ["@glossary.entries.dep-function.body.0"],
-  "see": ["dependent", "curry-howard"]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.truth.title",
-  "at": "table",
-  "body": ["@glossary.entries.truth.body.0", "@glossary.entries.truth.body.1"],
-  "see": ["tautology", "counterexample", "contradiction"]
-}

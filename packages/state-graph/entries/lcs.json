@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lcs.title",
-  "at": "link",
-  "body": ["@glossary.entries.lcs.body.0", "@glossary.entries.lcs.body.1"],
-  "see": ["edit", "local", "stateSize"]
-}

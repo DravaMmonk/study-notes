@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.kernel.title",
-  "at": "copy",
-  "body": ["@glossary.entries.kernel.body.0", "@glossary.entries.kernel.body.1"],
-  "see": ["soundness", "provers"]
-}

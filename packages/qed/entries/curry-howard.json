@@ -1,9 +1,0 @@
-{
-  "title": "@glossary.entries.curry-howard.title",
-  "body": [
-    "@glossary.entries.curry-howard.body.0",
-    "@glossary.entries.curry-howard.body.1",
-    "@glossary.entries.curry-howard.body.2"
-  ],
-  "see": ["proof-term", "intuitionistic"]
-}

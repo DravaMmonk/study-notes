@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lemma.title",
-  "at": "chain",
-  "body": ["@glossary.entries.lemma.body.0"],
-  "see": ["theorem", "definition"]
-}

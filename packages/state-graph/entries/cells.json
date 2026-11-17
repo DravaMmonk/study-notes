@@ -1,9 +1,0 @@
-{
-  "title": "@glossary.entries.cells.title",
-  "body": [
-    "@glossary.entries.cells.body.0",
-    "@glossary.entries.cells.body.1",
-    "@glossary.entries.cells.body.2"
-  ],
-  "see": ["dag", "brief"]
-}

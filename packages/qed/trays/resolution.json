@@ -1,8 +1,0 @@
-{
-  "title": "@tray.resolution.title",
-  "desc": "@tray.resolution.desc",
-  "workshop": false,
-  "values": [
-    "res"
-  ]
-}

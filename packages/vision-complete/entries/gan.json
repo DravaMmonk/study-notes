@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.gan.title",
-  "at": "8-6",
-  "body": ["@glossary.entries.gan.body.0", "@glossary.entries.gan.body.1", "@glossary.entries.gan.body.2"],
-  "see": ["reparam", "contrastive"]
-}

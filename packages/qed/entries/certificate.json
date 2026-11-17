@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.certificate.title",
-  "at": "au-cert",
-  "body": ["@glossary.entries.certificate.body.0"],
-  "see": ["automation", "reflection"]
-}

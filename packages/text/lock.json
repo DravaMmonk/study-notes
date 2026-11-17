@@ -1,9 +1,0 @@
-{
-  "target": "text",
-  "dependencies": {
-    "kernel": {
-      "version": "0.0.0",
-      "hash": "95db36a132c4967cd95951787461aa894968edef93a466502e6596886916596c"
-    }
-  }
-}

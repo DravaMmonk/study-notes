@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.automation.title",
-  "at": "au-negate",
-  "body": ["@glossary.entries.automation.body.0", "@glossary.entries.automation.body.1"],
-  "see": ["resolution", "certificate"]
-}

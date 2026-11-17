@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.induction.title",
-  "at": "in-zero",
-  "body": ["@glossary.entries.induction.body.0"],
-  "see": ["inductive", "simplifier"]
-}

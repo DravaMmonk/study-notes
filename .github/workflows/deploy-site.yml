@@ -10,13 +10,7 @@ on:
       - 'hooks/**'
       - 'mkdocs.yml'
       - 'requirements-docs.txt'
-      - 'games/kit/tokens.css'
-      - 'games/kit/ui.css'
-      - 'games/kit/prose.css'
-      - 'games/kit/menu.js'
-      - 'games/kit/overlay-keys.js'
-      - 'games/kit/lang.js'
-      - 'games/kit/theme.js'
+      - 'ui/**'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 

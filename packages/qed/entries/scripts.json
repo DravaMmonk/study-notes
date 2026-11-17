@@ -1,5 +1,0 @@
-{
-  "title": "@glossary.entries.scripts.title",
-  "body": ["@glossary.entries.scripts.body.0", "@glossary.entries.scripts.body.1"],
-  "see": ["provers", "tactic"]
-}

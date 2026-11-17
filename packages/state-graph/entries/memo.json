@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.memo.title",
-  "at": "city",
-  "body": ["@glossary.entries.memo.body.0", "@glossary.entries.memo.body.1"],
-  "see": ["topdown", "overlap", "dag"]
-}

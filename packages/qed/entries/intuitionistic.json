@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.intuitionistic.title",
-  "at": "raa",
-  "body": ["@glossary.entries.intuitionistic.body.0"],
-  "see": ["classical", "curry-howard"]
-}

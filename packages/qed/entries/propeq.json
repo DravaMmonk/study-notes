@@ -1,5 +1,0 @@
-{
-  "title": "@glossary.entries.propeq.title",
-  "body": ["@glossary.entries.propeq.body.0"],
-  "see": ["defeq", "transport"]
-}

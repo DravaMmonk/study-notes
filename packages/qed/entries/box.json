@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.box.title",
-  "at": "assume",
-  "body": ["@glossary.entries.box.body.0", "@glossary.entries.box.body.1", "@glossary.entries.box.body.2"],
-  "see": ["assumption", "deduction"]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.equality.title",
-  "at": "q-eq",
-  "body": ["@glossary.entries.equality.body.0", "@glossary.entries.equality.body.1"],
-  "see": ["rewrite", "propeq"]
-}

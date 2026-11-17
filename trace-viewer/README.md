@@ -15,7 +15,7 @@ Open the local URL printed by Vite. The library is generated from every Markdown
 
 Every note is read in English or Chinese. The library lists each note once, by its original `X.md`; the reader opens its translation (`X.zh.md` or `X.en.md`) when that is the reader's language, and the 中/EN button in the top bar switches both the note and the interface. The choice is shared with the notes site and the games (`../games/kit/lang.js`). Folder names come from `../docs/.sections.json`; interface text is in `src/lib/strings.js`. Each language version keeps its own annotations.
 
-The top bar, buttons and note typography are the shared kit's (`../games/kit/ui.css`, `prose.css`), the same as on the notes site and in the games.
+The top bar, buttons and note typography are the shared ones in `../ui/` (`ui.css`, `prose.css`), the same as on the notes site.
 
 ## Annotations
 
@@ -35,10 +35,4 @@ Obsidian and MkDocs hide the comment; Fieldnotes replaces it with the figure. Ea
 
 Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (themes: `light`, `dark`, `blueprint`).
 
-## Vision Complete (视觉完备)
-
-`game.html` hosts a standalone computer vision puzzle game inspired by *Turing Complete*: each level gives a goal, a few parts and a set of test images; the player wires an image pipeline on a board and every test runs live. Solving a level unlocks its part for later levels. During development, open `/game/vision-complete/index.html`; progress is kept in the browser. Production games belong to the independent Course Puzzles site at `/games/vision-complete/`. Players can open it from the game hub. `npm run build:games` builds the complete site into `dist-games/`, and `npm run preview:games` previews that output.
-
-
-- The game is built here on the shared kit (`../games/kit/`): `game.html` is every game's page (`src/game.js` loads `../games/kit/app`), `GAME=vision-complete npm run build:game` builds it into `dist-games/vision-complete/`. Its spec — levels, intros, encyclopedia — is `../games/vision-complete/`; what runs it (images, parts, benches, screens) is `../games/kit/domains/image/`. `npm run check` checks every game's levels.
-- Design, research notes and the full level map: `../games/vision-complete/DESIGN.md`.
+A note's embedded level (`<!-- task: <game>/<namespace>/<level> -->`) opens from the published games site; the games are the [DravaMmonk/games](https://github.com/DravaMmonk/games) repository.

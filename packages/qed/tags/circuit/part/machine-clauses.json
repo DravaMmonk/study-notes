@@ -1,9 +1,0 @@
-{
-  "title": "@tag.machine-clauses.title",
-  "values": [
-    "skolem",
-    "toClauses",
-    "resolve",
-    "saturate"
-  ]
-}

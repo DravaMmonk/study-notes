@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.wordBreak.title",
-  "at": "wordbreak",
-  "body": ["@glossary.entries.wordBreak.body.0", "@glossary.entries.wordBreak.body.1"],
-  "see": ["manyWays", "games"]
-}

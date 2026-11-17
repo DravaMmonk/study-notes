@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.coin.title",
-  "at": "change",
-  "body": ["@glossary.entries.coin.body.0", "@glossary.entries.coin.body.1", "@glossary.entries.coin.body.2"],
-  "see": ["manyWays", "countOpt", "knap01"]
-}

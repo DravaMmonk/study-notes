@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.metavariable.title",
-  "at": "r-match",
-  "body": ["@glossary.entries.metavariable.body.0"],
-  "see": ["unification", "proof-state"]
-}

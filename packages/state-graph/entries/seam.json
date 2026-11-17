@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.seam.title",
-  "at": "seam",
-  "body": ["@glossary.entries.seam.body.0", "@glossary.entries.seam.body.1", "@glossary.entries.seam.body.2"],
-  "see": ["countOpt", "backtrack"]
-}

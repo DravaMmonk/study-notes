@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.dfs.title",
-  "at": "s-search",
-  "body": ["@glossary.entries.dfs.body.0"],
-  "see": ["backtracking", "tactic"]
-}

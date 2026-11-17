@@ -1,7 +1,0 @@
-{
-  "name": "@part.skolem.name",
-  "desc": "@part.skolem.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:skolem"
-}

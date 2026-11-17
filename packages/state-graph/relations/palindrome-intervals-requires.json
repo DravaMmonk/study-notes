@@ -1,9 +1,0 @@
-{
-  "kind": "requires",
-  "edges": [
-    {
-      "from": "palin",
-      "to": "lps"
-    }
-  ]
-}

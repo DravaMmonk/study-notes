@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.iou.title",
-  "at": "10-1",
-  "body": ["@glossary.entries.iou.body.0", "@glossary.entries.iou.body.1"],
-  "see": ["detect"]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.soundness.title",
-  "at": "copy",
-  "body": ["@glossary.entries.soundness.body.0", "@glossary.entries.soundness.body.1"],
-  "see": ["proof", "counterexample"]
-}

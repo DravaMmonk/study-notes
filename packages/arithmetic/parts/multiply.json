@@ -1,7 +1,0 @@
-{
-  "name": "@part.multiply.name",
-  "desc": "@part.multiply.desc",
-  "icon": "X",
-  "family": "circuit:family-value",
-  "op": "circuit:times"
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lis.title",
-  "at": "rising",
-  "body": ["@glossary.entries.lis.body.0", "@glossary.entries.lis.body.1"],
-  "see": ["manyWays", "state"]
-}

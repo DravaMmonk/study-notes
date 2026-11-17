@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.separable.title",
-  "at": "1-4",
-  "body": ["@glossary.entries.separable.body.0", "@glossary.entries.separable.body.1"],
-  "see": ["filter", "score", "gaussian"]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.backtrack.title",
-  "at": "seam",
-  "body": ["@glossary.entries.backtrack.body.0", "@glossary.entries.backtrack.body.1"],
-  "see": ["countOpt", "viterbi", "seam"]
-}

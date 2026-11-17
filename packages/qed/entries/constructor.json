@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.constructor.title",
-  "at": "decl-nat",
-  "body": ["@glossary.entries.constructor.body.0"],
-  "see": ["injectivity", "inductive"]
-}

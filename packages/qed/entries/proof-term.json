@@ -1,5 +1,0 @@
-{
-  "title": "@glossary.entries.proof-term.title",
-  "body": ["@glossary.entries.proof-term.body.0"],
-  "see": ["curry-howard", "lambda"]
-}

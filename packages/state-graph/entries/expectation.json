@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.expectation.title",
-  "at": "slip",
-  "body": ["@glossary.entries.expectation.body.0", "@glossary.entries.expectation.body.1"],
-  "see": ["valueIter", "policy"]
-}

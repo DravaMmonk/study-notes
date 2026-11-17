@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.invariance.title",
-  "at": "3-11",
-  "body": ["@glossary.entries.invariance.body.0", "@glossary.entries.invariance.body.1"],
-  "see": ["gradient", "padding", "ratio"]
-}

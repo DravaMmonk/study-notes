@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.rewrite.title",
-  "at": "sp-rw",
-  "body": ["@glossary.entries.rewrite.body.0"],
-  "see": ["simplifier", "equivalence"]
-}

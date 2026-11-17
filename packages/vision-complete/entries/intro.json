@@ -1,9 +1,0 @@
-{
-  "title": "@glossary.entries.intro.title",
-  "body": [
-    "@glossary.entries.intro.body.0",
-    "@glossary.entries.intro.body.1",
-    "@glossary.entries.intro.body.2"
-  ],
-  "see": ["map", "game"]
-}

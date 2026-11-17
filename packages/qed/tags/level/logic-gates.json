@@ -1,4 +1,0 @@
-{
-  "title": "@tag.logic-gates.title",
-  "values": ["g-not", "g-and", "g-tree", "g-or", "g-imp", "g-iff", "g-xor"]
-}

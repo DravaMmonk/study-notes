@@ -1,8 +1,0 @@
-{
-  "primitives": [
-    "table:msum",
-    "table:const",
-    "table:pass",
-    "table:block"
-  ]
-}

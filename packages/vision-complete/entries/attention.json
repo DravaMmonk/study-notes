@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.attention.title",
-  "at": "5-1",
-  "body": ["@glossary.entries.attention.body.0", "@glossary.entries.attention.body.1"],
-  "see": ["receptive", "posenc"]
-}

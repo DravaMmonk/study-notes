@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.consistency.title",
-  "at": "gd-con",
-  "body": ["@glossary.entries.consistency.body.0"],
-  "see": ["incompleteness", "soundness"]
-}

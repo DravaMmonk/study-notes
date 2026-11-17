@@ -18,9 +18,9 @@ import {
 } from 'lucide-react'
 import './App.css'
 import 'katex/dist/katex.min.css'
-import { applyLang, currentLang, otherLang } from '../../games/kit/lang.js'
-import { THEMES } from '../../games/kit/theme.js'
-import { mountBarMenus } from '../../games/kit/menu.js'
+import { applyLang, currentLang, otherLang } from '../../ui/lang.js'
+import { THEMES } from '../../ui/theme.js'
+import { mountBarMenus } from '../../ui/menu.js'
 import sections from '../../docs/.sections.json'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
@@ -454,7 +454,7 @@ function App() {
       />
 
       <main className="reading-workspace">
-        {/* The kit's top bar (games/kit/ui.css), as on the notes site and in the games. */}
+        {/* The shared top bar (ui/ui.css), as on the notes site and in the games. */}
         <header className={`kit-bar topbar ${barHidden ? 'is-hidden' : ''}`}>
           <button
             className="kit-btn sidebar-toggle"
@@ -466,7 +466,7 @@ function App() {
           </button>
           <Breadcrumbs document={activeDocument} lang={lang} />
           <div className="kit-actions topbar-actions">
-            {/* The kit's language and theme menus (games/kit/menu.js), mounted into an element React leaves empty. */}
+            {/* The shared language and theme menus (ui/menu.js), mounted into an element React leaves empty. */}
             <span className="kit-bar-menus" ref={barMenusRef} />
             <span className="annotation-count" title={t('annotationCount')}><Highlighter size={15} /> {annotations.length}</span>
             <button

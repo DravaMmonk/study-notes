@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.ratio.title",
-  "at": "6-4",
-  "body": ["@glossary.entries.ratio.body.0", "@glossary.entries.ratio.body.1"],
-  "see": ["corner", "ransac", "homography"]
-}

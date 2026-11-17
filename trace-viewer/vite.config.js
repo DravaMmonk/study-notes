@@ -1,63 +1,14 @@
-import { contentRoot, contentTargets, gameCatalog, gameDirectory } from '../games/kit/engine/resolver.js'
-import { existsSync, readFileSync, statSync } from 'node:fs'
-import { resolve, sep } from 'node:path'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { gameApp } from '../games/kit/app/vite.js'
-import { studioApp } from '../games/kit/app/studio.js'
 
-// On the dev server the games sit where the published site puts them: the hub at /game/index.html (straight from
-// games/, with its kit), each game at /game/<id>/index.html (game.html, every game's page, which picks the game from
-// the address: games/kit/app/vite.js). /game.html leads to the first game, so every link works the same locally as
-// on the site.
-const GAMES_DIR = gameDirectory()
-const IDS = new Set(contentTargets([], undefined, { game: true }).map(game => game.id))
-const localPaths = (studio) => ({
-  name: 'local-paths',
-  configureServer(server) {
-    server.middlewares.use(async (req, res, next) => {
-      const url = new URL(req.url, 'http://localhost')
-      const path = url.pathname
-      if (studio && path === '/') {
-        res.statusCode = 302
-        res.setHeader('Location', `/studio.html${url.search}`)
-        return res.end()
-      }
-      const moved = path === '/game.html' ? (await gameCatalog()).find(game => IDS.has(game.id))?.id ?? [...IDS][0] : null
-      if (moved || path === '/game' || path === '/game/') {
-        res.statusCode = 302
-        res.setHeader('Location', `${moved ? `/game/${moved}` : '/game'}/index.html${url.search}`)
-        return res.end()
-      }
-      if (path === '/game/index.html') {
-        const html = readFileSync(resolve(GAMES_DIR, 'index.html'), 'utf8')
-        res.setHeader('Content-Type', 'text/html')
-        res.end(await server.transformIndexHtml(path, html))
-        return
-      }
-      const game = path.match(/^\/game\/([^/]+)\/(?:index\.html)?$/)
-      if (game && IDS.has(game[1])) {
-        req.url = `/game.html${url.search}`
-        return next()
-      }
-      if (path.startsWith('/game/')) {
-        const file = resolve(GAMES_DIR, `.${path.slice('/game'.length)}`)
-        if (file.startsWith(GAMES_DIR + sep) && existsSync(file) && statSync(file).isFile()) req.url = `/@fs${file}${url.search}`
-      }
-      return next()
-    })
-  },
-})
-
-// https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
-  cacheDir: mode === 'studio' ? 'node_modules/.vite-studio' : 'node_modules/.vite',
-  // The shared game shell lives outside this project (games/kit/shell); resolve its React from here.
-  resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] },
-  plugins: [react(), localPaths(mode === 'studio'), gameApp(), studioApp()],
+// Fieldnotes: the reader for ../docs and the notes' figures (figures.html). The games are their own repository; a note's
+// embedded level opens from the published games site (src/figures/task.js).
+export default defineConfig({
+  plugins: [react()],
   server: {
     fs: {
-      allow: ['..', contentRoot()],
+      allow: ['..'],
     },
   },
   build: {
@@ -68,4 +19,4 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-}))
+})

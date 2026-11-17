@@ -1,4 +1,4 @@
-// Fieldnotes' interface text in both languages. The language itself is the shared one (games/kit/lang.js).
+// Fieldnotes' interface text in both languages. The language itself is the shared one (ui/lang.js).
 const STRINGS = {
   brandTagline: ['本地学习书库', 'Local study library'],
   searchNotes: ['搜索笔记', 'Search notes'],

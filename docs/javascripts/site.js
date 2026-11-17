@@ -1,5 +1,5 @@
 // The notes site's part of the shared kit: the same top bar, language and theme as Fieldnotes and the games
-// (games/kit/ui.css, lang.js, theme.js; storage keys 'fieldnotes.lang' and 'fieldnotes.theme'). This is a plain
+// (ui/ui.css, lang.js, theme.js; storage keys 'fieldnotes.lang' and 'fieldnotes.theme'). This is a plain
 // script, not a module, so the site also works opened from disk (the offline plugin).
 //
 // hooks/i18n.py puts window.__i18n on every page: this page's language, every note/translation pair and the

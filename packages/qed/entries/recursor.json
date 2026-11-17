@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.recursor.title",
-  "at": "gen-each",
-  "body": ["@glossary.entries.recursor.body.0", "@glossary.entries.recursor.body.1"],
-  "see": ["elim-rule", "declaration"]
-}

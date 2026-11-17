@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.arms.title",
-  "at": "frog",
-  "body": ["@glossary.entries.arms.body.0", "@glossary.entries.arms.body.1"],
-  "see": ["models", "sweep"]
-}

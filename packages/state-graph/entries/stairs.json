@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.stairs.title",
-  "at": "stairs",
-  "body": ["@glossary.entries.stairs.body.0", "@glossary.entries.stairs.body.1"],
-  "see": ["recurrence", "part"]
-}

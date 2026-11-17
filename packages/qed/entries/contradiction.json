@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.contradiction.title",
-  "at": "g-always",
-  "body": ["@glossary.entries.contradiction.body.0", "@glossary.entries.contradiction.body.1"],
-  "see": ["satisfiable", "explosion"]
-}

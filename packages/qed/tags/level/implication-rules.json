@@ -1,4 +1,0 @@
-{
-  "title": "@tag.implication-rules.title",
-  "values": ["mp", "assume", "nested", "box", "chain", "twice", "swap", "mergeUse", "mergeLong", "mergeBoth"]
-}

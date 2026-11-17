@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.edge.title",
-  "at": "1-6",
-  "body": ["@glossary.entries.edge.body.0", "@glossary.entries.edge.body.1"],
-  "see": ["sobel", "gradient", "views"]
-}

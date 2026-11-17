@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lem.title",
-  "at": "raa",
-  "body": ["@glossary.entries.lem.body.0", "@glossary.entries.lem.body.1"],
-  "see": ["classical", "intuitionistic"]
-}

@@ -1,6 +1,0 @@
-{
-  "title": "@glossary.entries.lcf.title",
-  "at": "s-repeat",
-  "body": ["@glossary.entries.lcf.body.0"],
-  "see": ["isabelle", "kernel"]
-}
