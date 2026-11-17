@@ -203,7 +203,7 @@
 
 ## 6. 引擎：内核与内容
 
-内核提供封闭的能力，包用数据挑选、组合、填参数，游戏在包之上编排。内核里的模块只是代码组织单位，不是内容归属；包不声明属于哪个模块，可以同时使用几种模块的能力。这样基础计算只实现一次，也不用为了跨专题复用再造一层模块接口。
+包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。当前处于 `MODULES.md` 第 2 步：六个既有模块暂留内核，新增玩法走包协议，不再向内核新增领域实现。第 3–7 步按所属机制迁出既有模块。
 
 | 位置 | 职责 |
 |---|---|
@@ -211,7 +211,7 @@
 | `kit/modules/<模块>/` | 能力声明和实现：运算、板、任务、内容资源、语言、显示 |
 | `kit/circuit/`、`kit/strip/`、`kit/shell/`、`kit/views/` | 共用编辑、呈现、运行与反馈 |
 | `kit/templates/<模板>/starter/` | 复制起步的内容，不被依赖 |
-| `packages/<包>/` | 对象、依赖、文案、覆盖；全部是数据 |
+| `packages/<包>/` | 对象、依赖、文案、覆盖；可带 `core/`、`view/` 机制代码 |
 | `games/<游戏>/` | 选包、课程、入口文案和允许的覆盖 |
 
 参考解、naive 解、预置板和玩家蓝图共用 `circuit/text.js`。端口名、设置值和蓝图标识用 ASCII，符号放在标签里；内容全名接受 `/`，能力名用 `:`。框与区域、端口接线、运行报告、作品保存和失败位置都由共用内核处理。判定使用播种的随机数，不读时钟或未播种随机数；模块实现走代码审查，内容不能写函数或计算脚本。
@@ -232,7 +232,9 @@
 | 关系 `relation` | `relations/<名>.json` | `requires`、`order`、`replaces` 的有向边 |
 | 托盘 `tray` | `trays/<名>.json` | 可发放对象和阶段的 `values`、二级 `menus`、标题、说明、`workshop` |
 | 百科分组 `section` | `sections/<名>.json` | 标题、说明和词条或词条标签的 `values` |
-| 内核声明的内容种类 | `<种类>/<名>.json` | `wordset`、`quote`、`power`、`box` 等数据原型 |
+| 对象类型 `kind` | `kinds/<名>.json` | schema、目录、引用方、关系、覆盖、文案与左栏声明；全名 `<包>/<名>` |
+| 包声明的对象 | `<声明目录>/<名>.json` | 自动参与引用、标签、关系、覆盖、来源、文案和操作集 |
+| 尚待迁出的内容种类 | `<种类>/<名>.json` | `wordset`、`quote`、`power`、`box` 暂随旧模块 |
 
 一个对象一个文件，文件名提供 id，文件不再重复存对象 id。任务、阶段、菜单等对象内部的身份仍写在内部。标签只提供集合和 Studio 的名字、说明，不承担托盘、百科分组或概念功能；同一个词条可进几个分组，未分组的归「其它」。组装后的 `glossary`、`partDefs` 和 `eras` 是运行与显示投影，不是可写文件。
 
@@ -262,7 +264,7 @@
 - **schema 是数据。** `engine/schema.js` 的 `S.text()`、`S.obj()`、`S.ref()`、`S.call()`、`S.level()`、`S.task()`、`S.board()`、`S.syntax()` 描述字段、引用、蓝图和小语言。提示 `view`、`step`、`section` 只帮助编辑器选通用控件。语言由模块注册读法，不把函数塞进内容。
 - **文字只带内核标记。** `engine/markup.js` 校验强调和引用等允许的标记，外壳绘制，不把内容当 HTML 插入；自画 SVG 的模块仍须转义。
 - **版本声明归包。** `package.json` 的 `vocabulary` 是最低要求，不得高于当前版。快照在 `kit/engine/versions/<n>.json`，存下不改。词汇表变化先升内核版本，再 `npm run versions`；相邻版本只能增加，删改在该版 `removes: [{ at, why }]` 写明并同步迁移内容。版本测试检查遗漏和空写的 removes，不再维护各模块的版本线。
-- 内容只能选择已有能力、填参数、组合元件。缺能力就改内核并过代码审查，不能靠内容中的表达式绕成新的运算实现。
+- 内容只选择能力、填参数和组织对象。新机制经包的 `core/`、`view/` 代码提交和契约测试提供，不通过内容表达式绕过协议。旧模块词汇表在迁出期间保留。
 
 ### 6.3 模块契约与一个课程模型
 
@@ -275,6 +277,22 @@
 **技术层与规范层分开。** 内核只查 schema、引用、类型、答案和课程能否玩通。怎样引入新想法、何时复用、首次遭遇能否观察清楚、手机操作负担是否合理，由第 5.1 节的关卡开发规范评审。没有概念标签、`concept()` 或对应的教学元数据；技术检查通过不证明教学质量。作者流水线的蓝图与教学 lint 是另外的评审辅助，不恢复成课程模型的硬规则。
 
 **测试不认识真实游戏。** 单元测试用测试内的小内容或 `kit/templates/<模板>/starter/`，不读真实关卡、任务 id 或关卡数。真实内容由操作集和 `npm run check` 检查。改内核跑 `npm test`、`npm run lint:kit`、`npm run words -- --check`；词汇表变化另存版本。行为重构对比游戏的检查输出，只接受事先说明的差异。
+
+### 6.3.1 包插件协议（第 2 步）
+
+`packages/<包>/core/index.js` 和 `view/index.jsx` 均导出 `register(kernel)`，按直接 `uses` 的拓扑顺序登记。检查、基线与 `play_task`（`game` 或 `package`、`level`、可选 `task`、`work`）只加载包的核心；游戏与 Studio 的 Vite 入口同时加载两份。公开导出使用 `kernel`（`kit/engine/index.js`）、`kernel/view`（`kit/app/view.jsx`），依赖包用 `<包>` 与 `<包>/view`，禁止深入依赖内部路径。
+
+- 核心可调 `play(name, { initial, read, write, normalize, run, judge })`、`kind(name, { type, read })`、`state(name, derive)`、`check(name, check)`、`agent(name, { observe, act })`、`tag(name, memberKinds)`。登记名字必须是本包的 `<包>:<名>`；每张协议表内重名报错。`kernel.meanings(type, value, context)` 调用该类型登记的含义；`judge` 返回 `{ pass, score? }`，`evaluatePlay(kernel, task, work, context)` 统一读取、规范化、运行、判定、保存。
+- 视图可调 `play(name, { component, preview, modes? })`、`editor(name, { type, ...editor })`、`display(name, display)`。核心与视图的玩法名配对；孤立视图报错，游戏实际用到只有核心的玩法时报错。主区组件接收 `{ task, work, onChange, state }`，内核负责保存、检验与通关。Studio 可直接读取 `kernel.tables.playView` 的预览、编辑模式，以及 `editor`、`display` 表。
+- 新任务用 `play: "text:answer"` 选择玩法。`text` 是无元件依赖的最小插件：五关分别演示精确匹配、忽略大小写与空白、正则、带非负容差的数值、多个可接受答案。配置为 `answerRule`、`referenceAnswer`、`wrongAnswers`、可选 `choices`；检查参考答案通过且全部错误答案失败。正则每次创建，拒绝有状态的 `g`/`y` 标志。
+- `kinds/<名>.json` 的对象声明是 `{ folder, schema, references?, relations?, override?, text?, studio? }`。`schema` 使用 `S` 的 JSON 结构；`references` 列出允许引用它的对象类型；`relations` 将关系名映射为 `{ from, to }` 对象类型；`override` 是 `replace`（默认）或 `append`（合并 `values`）；`text` 列出文案字段路径（列表元素用 `*`）；`studio` 是 `{ name, icon, group? }`。对象类型全名 `<包>/<名>`，实例全名 `<包>/<对象名>`。实例标签在 `tags/<对象类型全名>/<名>.json`，覆盖沿声明目录写入 `overrides/<命名空间>/`。
+- 字段扩展用 `{ extends: "level" | "task", fields: { 字段: schema } }`，不能重定义已有字段。内核类型与保留目录不能用包声明替换。`kind.put/set/remove` 编辑定义，`object.put/set/remove` 用 `{ kind, name, data? }` 编辑声明实例；代码目录不属于操作集。
+- Studio 的约定读者登记在数据协议初始化处：`studio-left` 接受 `kind`，`templates` 接受任一合法对象类型。包的读者用 `kernel.tag("包:名字", [成员类型])` 登记。检查成员类型以及近似约定名的拼写；普通集合保持自由命名。左栏和模板动作的界面接入由 Studio 负责。
+- `plugin-boundaries.js` 用 AST 同时检查静态 import、re-export、动态 import 和 require，拒绝计算出的导入路径。核心只能引用公开无界面接口与本核心，禁止界面库、JSX、CSS、Node I/O；视图可读本核心。`npm run check` 加载代码前检查，`lint:kit` 使用同一规则覆盖包代码。核心判定应保持确定性，只使用传入种子，不访问时间、文件或网络。
+
+共存只在任务所属者分派处发生：`runtimeOf`、游戏组装与 Studio 入口把已登记的包玩法投影为现有的两阶段课程读者，和未迁出的内核模块共用课程、进度、检查和外壳。没有第二份判定实现。第 3 步把 circuit 实现与对象声明迁进 `packages/circuit`，移除它的内核词汇表登记和 `modules/circuit` 加载项；其余模块迁完后删除内建模块加载分支及插件的临时课程投影，让通用进度只保留任务与关卡。
+
+包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
 
 ### 6.4 参数台
 
@@ -335,7 +353,7 @@
 7. 要练的是不是判断别人的东西对不对？是：用纠错玩法，在给定的几块板上运行自己写的检验。
 8. 机器出现之前，玩家是不是该先自己当一回机器？是：手动关，放在机器那一章之前。
 
-以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有模板为 `circuit`、`rows`、`tick-bus`、`image`、`logic`、`table`。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。缺机制时在内核模块实现并过契约测试。
+以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有模板为 `circuit`、`rows`、`tick-bus`、`image`、`logic`、`table`。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
 
 ### 6.6 play 钩子（盲玩暂停）
 

@@ -1,3 +1,6 @@
+import { packageEntries } from '../engine/plugin-node.js'
+import { packageApp } from './package-vite.js'
+import { packageIds } from '../engine/content-node.js'
 // The studio's server side (games/DESIGN.md 6.7), a Vite plugin for the dev server (npm run studio): the tools the
 // MCP server offers (../engine/ops/tools.js) as HTTP endpoints, and the module that gives the studio's page every
 // domain's game.js. Like the MCP server it has no logic of its own: every change is a changeset run by the operation
@@ -119,16 +122,22 @@ export function bridge(tools, lacking, aside = null) {
 
 /** The plugin: the bridge on the dev server, and `virtual:studio-domains` ({ domain: () => import(its game.js) }). */
 export function studioApp() {
+  const root = process.env.GAMES_ROOT ?? PROJECT_DIR
+  const packages = packageApp(root)
   return {
     name: 'studio',
-    resolveId: (id) => (id === MODULE ? `\0${id}` : null),
+    resolveId: (id) => (id === MODULE ? `\0${id}` : packages.resolveId(id)),
     load(id) {
       if (id !== `\0${MODULE}`) return null
       const domains = readdirSync(DOMAINS).filter((d) => existsSync(gameModule(DOMAINS, d)))
-      return `export const DOMAINS = { ${domains.map((d) => {
+      const code = packageEntries(packageIds(root).map(id => ({ id })), root)
+      return `import { loadGame } from ${JSON.stringify(resolve(import.meta.dirname, 'load-game.js'))}
+const PACKAGES = { ${code.filter(entry => entry.core || entry.view).map(entry => `${JSON.stringify(entry.id)}: async () => ({ ${['core', 'view'].filter(side => entry[side]).map(side => `${side}: await import(${JSON.stringify(entry[side])})`).join(', ')} })`).join(', ')} }
+export const defineContent = content => loadGame(content, DOMAINS, PACKAGES)
+export const DOMAINS = { ${domains.map((d) => {
         const entry = JSON.stringify(gameModule(DOMAINS, d))
         const vocabulary = JSON.stringify(resolve(DOMAINS, d, 'vocabulary.js'))
-        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary})])`
+        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary}), import(${JSON.stringify(resolve(DOMAINS, d, 'runtime.js'))})])`
       }).join(', ')} }`
     },
     async configureServer(server) {

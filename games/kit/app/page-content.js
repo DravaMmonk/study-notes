@@ -1,4 +1,5 @@
-import { contentKindSchemas } from '../engine/content-kinds.js'
+import { kindSchemas, withKindDeclarations } from '../engine/plugin-kinds.js'
+import { vocabularyFor } from '../engine/kernel.js'
 import { ENTRY } from '../engine/vocabulary.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
@@ -9,6 +10,10 @@ import { assemble, combineConfiguration, configurationFiles } from '../engine/co
 /** Resolve the separately published language files once at startup so switching languages needs no reload. */
 export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   const { id, locales, levels, glossary, partDefs, blueprint, tags, relations, sections, trays, game, contentObjects = {} } = manifest
+  if (vocabulary.legacyModules) {
+    const layers = Object.entries(contentObjects.kind ?? {}).map(([name, value]) => ({ id: name.split('/')[0], objects: [{ kind: 'kind', name: name.split('/')[1], value }] }))
+    vocabulary = withKindDeclarations(vocabularyFor(vocabulary.legacyModules), layers, vocabulary.packageCode)
+  }
   async function reader(scope) {
     const catalogs = await Promise.all(Object.entries(locales[scope]).map(async ([lang, path]) => {
       const response = await fetcher(new URL(path, base))
@@ -23,7 +28,7 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   ]))
   return assemble({
     id, schemas: vocabulary,
-    contentObjects: Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.fromEntries(Object.entries(values).map(([name, value]) => [name, packageText(value, `${kind}/${name}.json`, contentKindSchemas[kind], vocabulary)]))])),
+    contentObjects: Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.fromEntries(Object.entries(values).map(([name, value]) => [name, packageText(value, `${kind}/${name}.json`, kindSchemas(vocabulary)[kind], vocabulary)]))])),
     game: combineConfiguration(configuration),
     levels: levels.map(([level, value]) => [level, packageText(value, `levels/${level}.json`, vocabulary.level, vocabulary)]),
     ...Object.fromEntries(Object.entries({ tags, relations, sections, trays }).map(([kind, values]) => [kind, (values ?? []).map(([name, value, ns]) => [name, packageText(value, `${kind}/${name}.json`, OBJECT_SCHEMAS[kind], vocabulary), ns])])),

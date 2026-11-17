@@ -1,3 +1,5 @@
+import { pluginSource, packageApp } from './package-vite.js'
+import { readPackageLayers } from '../engine/content-node.js'
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. A game's page is code
 // only — its domain (`virtual:game/<id>`: the domain's game.js and vocabulary) — and reads the game's content when
@@ -19,16 +21,20 @@ const q = JSON.stringify
 
 /** The module that is game `id`'s domain as the page takes it: { define (its game.js), vocabulary }. */
 function gameModule(id) {
-  const modules = runtimeIds(readContent(id))
+  const content = readContent(id)
+  const layers = readPackageLayers(content.layerOrder.filter(id => !id.startsWith('@')))
+  const hasCode = layers.some(layer => layer.hasCore || layer.hasView)
+  const pluginIds = runtimeIds(content).filter(id => layers.some(layer => layer.id === id && layer.hasCore))
+  const modules = runtimeIds(content).filter(id => !pluginIds.includes(id))
   return [
+    ...(hasCode ? [pluginSource(layers)] : []),
     ...modules.flatMap((id, index) => [
       `import define${index} from ${q(domainEntry(resolve(KIT, 'modules'), id))}`,
       `import { ${({ logic: 'prepareLogicWorks', image: 'prepareImageWorks', table: 'prepareTableWorks', rows: 'prepare' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, id === 'rows' ? 'runtime.js' : 'work.js'))}`,
     ]),
     `import { composeGame } from ${q(resolve(KIT, 'app/compose-game.js'))}`,
-    `const define = content => composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}])`,
-    `import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`,
-    `const vocabulary = vocabularyFor(${q(modules)})`,
+    `const define = content => composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}${modules.length && pluginIds.length ? ',' : ''}${pluginIds.map(id => `pluginGame(${q(id)}, kernel, vocabulary)`).join(', ')}])`,
+    ...(!hasCode ? [`import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`, `const vocabulary = { ...vocabularyFor(${q(modules)}), legacyModules: ${q(modules)}, packageCode: false }`] : []),
     'export default { define, vocabulary }',
   ].join('\n')
 }
@@ -37,9 +43,10 @@ function gameModule(id) {
 const assetsOf = (id) => contentAssets(readContent(id))
 
 export function gameApp({ game = null } = {}) {
+  const packages = packageApp()
   return {
     name: 'game-app',
-    resolveId: (id) => (id === 'virtual:game' || id.startsWith(PREFIX) ? `\0${id}` : null),
+    resolveId: (id) => (id === 'virtual:game' || id.startsWith(PREFIX) ? `\0${id}` : packages.resolveId(id)),
     load(id) {
       if (id.startsWith(`\0${PREFIX}`)) return gameModule(id.slice(PREFIX.length + 1))
       if (id !== '\0virtual:game') return null

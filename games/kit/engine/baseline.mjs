@@ -1,5 +1,5 @@
 // Save/compare a migration corpus. Kept data belongs in output/, never in content or git.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -25,10 +25,14 @@ try {
   for (const target of targets) {
     const { id, kind } = target
     const packaged = kind === 'package'
+    if (action === 'compare' && packaged && !existsSync(resolve(folder, `${kind}-${id}.json`)) && existsSync(resolve(root, 'packages', id, 'core/index.js'))) {
+      console.log(`compare package ${id}: new plugin outside the locked corpus (covered by package contracts)`)
+      continue
+    }
     const content = (packaged ? readPackage : readContent)(id, root)
     const runtime = await runtimeOf(content)
     const names = new Set()
-    for (const registry of Object.values(content.registries)) for (const name of Object.keys(registry)) names.add(name)
+    for (const [kind, registry] of Object.entries(content.registries)) if (kind !== 'kind') for (const name of Object.keys(registry)) names.add(name)
     for (const registry of Object.values(runtime.vocabulary.kinds)) for (const name of Object.keys(registry)) names.add(name)
     for (const level of content.levels) for (const task of level.tasks) names.add(task.id)
     const checked = spawnSync(process.execPath, [fileURLToPath(new URL('./check.js', import.meta.url)), ...(packaged ? ['--package'] : ['--game']), id, '--fresh'], {

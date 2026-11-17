@@ -23,18 +23,20 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 ## Implementation contracts
 
-- The kernel owns mechanisms, editors, judging, checks, playback, feedback and availability. Code is organized in
-  `games/kit/modules/<module>/`; modules register closed capabilities through `module.js`, runtime contracts through
-  `runtime.js`, and displays through registered display loaders. Packages do not belong to a module. Do not create
-  `domains/` or `scaffold/` layers or duplicate course logic in an adapter.
+- During `games/MODULES.md` step 2, packages may provide `core/index.js` and `view/index.jsx`, both exporting
+  `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
+  the six existing `kit/modules/` implementations remain only until their scheduled migration.
+- Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
+  import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
+  game/Studio Vite entries register both sides in topological `uses` order.
 - There is one capability vocabulary and version line (`kit/engine/kernel.js`, snapshots in `engine/versions/`),
   and one course model (`engine/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
   typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
 - Content is data. `packages/<package>/package.json` declares direct `uses` and minimum `vocabulary` version.
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
   select the complete dependency closure in `game.json`'s `packages`; loading is topological, with the game last.
-- Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<level|part|symbol|entry>/`, `relations/`,
-  `trays/`, `sections/`, or a kernel-declared content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
+- Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
+  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
   File names supply object ids; task, stage, menu and chapter ids remain inside their containing objects.
   Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
@@ -83,6 +85,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - New content starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
   `npm run new-game -- <id> --template <name>`. To reuse an existing game’s packages and startup settings,
   use the `create_game` tool (`id`, `from`, `title`), then the package-selection operations.
+  Package plugins can also start with `npm run new-package -- <id> --from text` or `--empty`.
   Templates are copied, not depended upon. Shared evolving parts belong in library packages such as `arithmetic`.
 - Tests use content written in the test or template `starter/`, never real game levels, ids or counts. Actual
   game/package correctness belongs to `npm run check -- <game>` and `npm run check -- --package <package>`.
@@ -159,7 +162,8 @@ Before calling a change done (`games/DESIGN.md` §7.0):
 3. For visual or interaction changes, inspect the changed flow on desktop and phone; add representative consumers
    only when shared UI is affected. Pure model changes need browser review only if their displayed behaviour changes.
    To watch a run, write the reference solution into the save, then step and run.
-4. A new runtime module gives its `play` hook in `runtime.js` (circuit play through `kit/engine/play/circuit.js`): the
+4. New package plays register core `agent`, `check` and paired view `play` hooks (handbook §6.3.1).
+   Existing unmigrated modules give their `play` hook in `runtime.js` (circuit play through `kit/engine/play/circuit.js`): the
    level in words and an attempt judged, which `run_tests` uses; its play tests run in `npm test`. Blind play is
    paused (`games/DESIGN.md` §6.6).
 5. Report what was checked and what was not.

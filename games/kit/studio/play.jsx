@@ -28,8 +28,7 @@ import { Component, useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang, tr } from '../shell/index.js'
 import { useLang } from '../shell/useLang.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
-import { runtimeIds } from '../engine/runtime.js'
-import { DOMAINS } from 'virtual:studio-domains'
+import { defineContent } from 'virtual:studio-domains'
 import PartView from './PartView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
@@ -64,8 +63,7 @@ function look({ theme, lang }) {
 /** The game the shell plays, made of `content`, with saves of its own, kept across the author's edits (a board an
  *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
-  const [{ default: defineGame }] = await DOMAINS[runtimeIds(content)[0]]()
-  const game = defineGame(content)
+  const game = await defineContent(content)
   game.store = createProgress({ id: `studio.${content.id}`, persist: !content.standalone })
   game.stamp = stamp
   game.partDefs = content.partDefs

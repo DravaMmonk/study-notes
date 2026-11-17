@@ -1,0 +1,13 @@
+{
+  "title": "@level.number.title",
+  "tasks": [
+    {
+      "id": "number-answer",
+      "play": "text:answer",
+      "brief": "@level.number.tasks.number-answer.brief",
+      "answerRule": { "type": "number", "answer": 0.3333333333333333, "tolerance": 0.001 },
+      "referenceAnswer": "0.333",
+      "wrongAnswers": ["0.3", ""]
+    }
+  ]
+}

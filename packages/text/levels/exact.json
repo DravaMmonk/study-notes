@@ -1,0 +1,13 @@
+{
+  "title": "@level.exact.title",
+  "tasks": [
+    {
+      "id": "exact-answer",
+      "play": "text:answer",
+      "brief": "@level.exact.tasks.exact-answer.brief",
+      "answerRule": { "type": "exact", "answer": "hello" },
+      "referenceAnswer": "hello",
+      "wrongAnswers": ["Hello", " hello"]
+    }
+  ]
+}

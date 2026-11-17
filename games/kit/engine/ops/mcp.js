@@ -15,7 +15,7 @@ const send = (message) => out(`${JSON.stringify({ jsonrpc: '2.0', ...message })}
 const typeOf = (spec) => spec.replace(/\?$/, '')
 const inputSchema = (params) => ({
   type: 'object',
-  properties: Object.fromEntries(Object.entries(params).map(([k, spec]) => [k, { type: typeOf(spec) }])),
+  properties: Object.fromEntries(Object.entries(params).map(([k, spec]) => [k, typeOf(spec) === 'any' ? {} : { type: typeOf(spec) }])),
   required: Object.entries(params).filter(([, spec]) => !spec.endsWith('?')).map(([k]) => k),
   additionalProperties: false,
   ...(params.package && { oneOf: [{ required: ['game'] }, { required: ['package'] }] }),

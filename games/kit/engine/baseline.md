@@ -52,7 +52,7 @@ repeated proof states. `unpackBaseline` in `baseline-value.js` reads it. Compari
 No clock, timestamps, absolute project paths, machine timings or random identifiers are added. Physical
 quantities such as a bench's configured countdown seconds remain part of its behaviour.
 
-Only registered object, task and vocabulary names are normalized before comparing. Unique local names
+Only registered instance object, task and vocabulary names are normalized before comparing. Unique local names
 ignore their namespace/module and existing world/robot/port/want/family prefixes. Ambiguous local names keep
 qualified identities, and normalized key collisions fail explicitly. The mechanical `piece`/`pieces`/`parts`,
 `circuit/part`, and `@piece.`/`@part.` spellings explicitly declared equivalent in MODULES.md §10.3 also normalize, including plural/camel-case identifiers, diagnostic names and override `tag/` → `tags/` paths. The two authored English uses of `pieced` use `assembled` (with `pieced it together` → `assembled it`). Prose/formulas with arbitrary slashes
@@ -89,3 +89,8 @@ Other object names, definitions, editor fields and ownership are unaffected. Sna
 - Determinism is checked by a second independent run. Cross-Node/CPU floating-point portability is not claimed;
   numeric comparisons are exact, without rounding or tolerance that could hide drift. Existing check output
   includes author log drift notices, so real content/log edits can change it intentionally.
+
+The `kind` registry describes object types, not work-instance identities. Its names are excluded from the
+instance-name alias inventory so a new built-in type cannot make an existing instance name ambiguous.
+New code packages outside the locked corpus are reported explicitly during `compare`; existing missing
+snapshots still fail. Their Node and Vite contracts validate the new package independently.

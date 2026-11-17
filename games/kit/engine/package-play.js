@@ -1,4 +1,5 @@
 // A single-level runtime shell. It is never authored, persisted or checked as a course.
+import { contentRoots, contentSchemas } from './content.js'
 import { layout } from '../course.js'
 import { grantIndex, grantObjects } from './grants.js'
 import { relationOrder } from './objects.js'
@@ -8,7 +9,7 @@ export function packageLevel(content, level) {
   if (!content.packageTarget) throw new Error('single-level play needs package content')
   const selected = content.levels.find(({ id }) => id === level)
   if (!selected) throw new Error(`${content.id} has no level ${level}`)
-  return {
+  const shell = {
     ...content, title: selected.title, levels: [selected], libraryLevels: content.levels,
     standalone: { level }, eras: [], primitives: Object.keys(grantObjects(content)),
     words: Object.keys(content.registries.wordset ?? {}),
@@ -17,6 +18,9 @@ export function packageLevel(content, level) {
       return name ? [[kind, name]] : []
     })),
   }
+  if (contentRoots.has(content)) contentRoots.set(shell, contentRoots.get(content))
+  if (contentSchemas.has(content)) contentSchemas.set(shell, contentSchemas.get(content))
+  return shell
 }
 
 /** No chapters, prerequisites or progress: only a task-addressable work reader plan. */

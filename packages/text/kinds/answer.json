@@ -1,0 +1,46 @@
+{
+  "extends": "task",
+  "fields": {
+    "answerRule": {
+      "type": "by",
+      "field": "type",
+      "cases": {
+        "exact": {
+          "type": "obj",
+          "fields": { "type": { "type": "oneOf", "values": ["exact"] }, "answer": { "type": "str" } }
+        },
+        "folded": {
+          "type": "obj",
+          "fields": { "type": { "type": "oneOf", "values": ["folded"] }, "answer": { "type": "str" } }
+        },
+        "regex": {
+          "type": "obj",
+          "fields": {
+            "type": { "type": "oneOf", "values": ["regex"] },
+            "pattern": { "type": "str" },
+            "flags": { "type": "str", "optional": true }
+          }
+        },
+        "number": {
+          "type": "obj",
+          "fields": {
+            "type": { "type": "oneOf", "values": ["number"] },
+            "answer": { "type": "num" },
+            "tolerance": { "type": "num", "min": 0 }
+          }
+        },
+        "oneOf": {
+          "type": "obj",
+          "fields": {
+            "type": { "type": "oneOf", "values": ["oneOf"] },
+            "answers": { "type": "list", "of": { "type": "str" }, "min": 1 }
+          }
+        }
+      },
+      "optional": true
+    },
+    "referenceAnswer": { "type": "str", "optional": true },
+    "wrongAnswers": { "type": "list", "of": { "type": "str" }, "optional": true },
+    "choices": { "type": "list", "of": { "type": "str" }, "optional": true }
+  }
+}

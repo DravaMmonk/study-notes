@@ -1,3 +1,4 @@
+import { kindSchemas } from '../plugin-kinds.js'
 // A data game's files opened for operations (./operations.js): the game selector, its course (course.json), its
 // package's configuration, entries/<id>.json, levels/<id>.json, tags/<kind>/<id>.json, relations/sections/<id>.json, parts/<name>.json (when present), the game's
 // own texts over its package's (overrides/<namespace>/i18n/<lang>.json) and the course blueprint (blueprint.json, when the game has one
@@ -7,12 +8,11 @@
 // Every workspace writes one layer and keeps its log there. Other layers are read-only inputs.
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
-import { combineConfiguration, configurationFiles, courseLevelCount, deepFreeze } from '../content.js'
+import { contentRoots, combineConfiguration, configurationFiles, courseLevelCount, deepFreeze } from '../content.js'
 import { PROJECT_DIR, readPackageLayers, packageLayers as loadPackageLayers, assembleLayers, layerVocabulary, catalogFiles, configPaths, gameDirectory, objectFiles, gameDeclarationProblems, levelFiles, splitGameConfig } from '../content-node.js'
 import { catalogReader, sourceValue } from '../catalogs.js'
 import { catalogsOf, normalizeText } from '../content-text.js'
-import { contentKindSchemas } from '../content-kinds.js'
-import { folders, kindForFolder } from '../layers.js'
+import { folders } from '../layers.js'
 import { orderPackages } from '../layers.js'
 import { ENTRY } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
@@ -69,12 +69,14 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
   const packageDirs = packageIds.map((id) => resolve(root, 'packages', id))
   const dependencyFiles = new Map(packageDirs.filter((path) => !packaged || path !== packageDir).flatMap((dir) => overridePaths(dir).map((file) => [resolve(dir, file), read(resolve(dir, file))])))
   const packageLayers = readPackageLayers(packageIds, root)
+  const schemas = vocabulary ?? layerVocabulary(packageLayers)
+  const kindFolders = { ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(schemas.objectKinds ?? {}).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) }
   const paths = packaged ? { 'package.json': resolve(packageDir, 'package.json') } : configPaths(dir, packageDir)
   const pathFor = (file) => {
     if (file.startsWith('package/overrides/')) return relative(root, resolve(packageDir, file.slice('package/'.length)))
     if (file.startsWith(`${PACKAGE_I18N}/`)) return relative(root, resolve(packageDir, file.slice('package/'.length)))
     if (Object.hasOwn(paths, file)) return relative(root, paths[file])
-    const inPackage = file.split('/')[0] in kindForFolder
+    const inPackage = Object.values(kindFolders).includes(file.split('/')[0])
     return relative(root, resolve(inPackage ? packageDir : dir, file))
   }
   const onDisk = (file) => packaged && ['game.json', 'course.json', 'blueprint.json'].includes(file) ? null : read(resolve(root, pathFor(file)))
@@ -85,8 +87,8 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     return parse(text, pathFor(file))
   }
   const levels = () => levelFiles(packageDir).map(([levelId]) => levelId).sort()
-  const objectPaths = () => ['parts', 'entries', 'tags', 'relations', 'sections', 'trays', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
-    ...objectFiles(packageDir, folders[kind] ?? kind).map(([name]) => `${folders[kind] ?? kind}/${name}.json`),
+  const objectPaths = () => ['parts', 'entries', 'tags', 'relations', 'sections', 'trays', ...Object.keys(kindSchemas(schemas))].flatMap((kind) => [
+    ...objectFiles(packageDir, kindFolders[kind] ?? kind).map(([name]) => `${kindFolders[kind] ?? kind}/${name}.json`),
   ])
   const localeFiles = () => [
     ...(packaged ? [] : catalogFiles(resolve(dir, COURSE_I18N))).map(([lang]) => `${COURSE_I18N}/${lang}.json`),
@@ -107,7 +109,6 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     course: catalogReader(allCatalogs(courseCatalog), resolve(dir, COURSE_I18N)),
     package: catalogReader(allCatalogs(packageCatalog), resolve(packageDir, 'i18n')),
   }
-  const schemas = vocabulary ?? layerVocabulary(packageLayers)
   const keyed = (catalogs) => new Set(Object.values(catalogs).flatMap(Object.keys))
   const gameConfig = combineConfiguration({
     'game.json': readers.course(game, pathFor('game.json'), schemas.game, schemas),
@@ -123,7 +124,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
     packaged,
     owns: (file) => packaged ? file.startsWith(`packages/${id}/`) : file === HUB || file.startsWith(`games/${id}/`),
     packageId, packageIds, packageLayers,
-    schemas,
+    schemas, kindFolders,
     packageDir, packageDirs, dependencyFiles,
     pathFor,
     objectPaths,
@@ -135,8 +136,8 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
       const file = `levels/${levelId}.json`
       return [levelId, readers.package(load(file), pathFor(file), schemas.level, schemas)]
     })),
-    ...Object.fromEntries(Object.keys(OBJECT_SCHEMAS).map((kind) => [kind, new Map(objectPaths().filter((p) => p.startsWith(`${kind}/`)).map((file) => [file.split('/').at(-1).slice(0, -5), { ...readers.package(load(file), pathFor(file), OBJECT_SCHEMAS[kind], schemas), ...(kind === 'tags' && { kind: file.split('/')[1] }) }]))])),
-    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, new Map(objectFiles(packageDir, folders[kind] ?? kind).map(([name]) => [name, readers.package(load(`${folders[kind] ?? kind}/${name}.json`), pathFor(`${folders[kind] ?? kind}/${name}.json`), schema, schemas)]))])),
+    ...Object.fromEntries(Object.keys(OBJECT_SCHEMAS).map((kind) => [kind, new Map(objectPaths().filter((p) => p.startsWith(`${kind}/`)).map((file) => [file.split('/').at(-1).slice(0, -5), { ...readers.package(load(file), pathFor(file), OBJECT_SCHEMAS[kind], schemas), ...(kind === 'tags' && { kind: file.split('/').slice(1, -1).join('/') }) }]))])),
+    contentObjects: Object.fromEntries(Object.entries(kindSchemas(schemas)).map(([kind, schema]) => [kind, new Map(objectFiles(packageDir, kindFolders[kind] ?? kind).map(([name]) => [name, readers.package(load(`${kindFolders[kind] ?? kind}/${name}.json`), pathFor(`${kindFolders[kind] ?? kind}/${name}.json`), schema, schemas)]))])),
     declarationProblems: packaged ? [] : gameDeclarationProblems(dir),
     overrideFiles: new Map(extraOverridePaths().map((file) => [file, load(file)])),
     reservations: { course: keyed(courseCatalog), package: keyed(packageCatalog) },
@@ -148,10 +149,14 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
   ws.activePackageKeys = keyed(catalogsOf(PACKAGE_I18N, ...packageValues(ws)))
   return Object.assign(ws, {
     /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
-    content: () => deepFreeze(contentOf(ws)),
+    content: () => { const content = deepFreeze(contentOf(ws)); contentRoots.set(content, ws.root); return content },
     /** What the files hold now, by name; a removed level file is null. */
-    snapshot: () => ({ schemas: ws.schemas, packageIds: ws.packageIds, packageLayers: ws.packageLayers, packageDirs: ws.packageDirs, dependencyFiles: ws.dependencyFiles, game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, contentObjects: Object.fromEntries(Object.entries(ws.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), reservations: ws.reservations }),
-    restore: (s) => Object.assign(ws, { schemas: s.schemas, packageIds: s.packageIds, packageLayers: s.packageLayers, packageDirs: s.packageDirs, dependencyFiles: s.dependencyFiles, game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, contentObjects: Object.fromEntries(Object.entries(s.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), reservations: s.reservations }),
+    snapshot: () => ({ schemas: ws.schemas, kindFolders: { ...ws.kindFolders }, packageIds: ws.packageIds, packageLayers: ws.packageLayers, packageDirs: ws.packageDirs, dependencyFiles: ws.dependencyFiles, game: ws.game, entries: new Map(ws.entries), partDefs: ws.partDefs, blueprint: ws.blueprint, contentObjects: Object.fromEntries(Object.entries(ws.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(ws.levels), ...objectSnapshot(ws), overrideFiles: new Map(ws.overrideFiles), reservations: ws.reservations }),
+    restore: (s) => {
+      for (const key of Object.keys(ws.kindFolders)) delete ws.kindFolders[key]
+      Object.assign(ws.kindFolders, s.kindFolders)
+      return Object.assign(ws, { schemas: s.schemas, packageIds: s.packageIds, packageLayers: s.packageLayers, packageDirs: s.packageDirs, dependencyFiles: s.dependencyFiles, game: s.game, entries: new Map(s.entries), partDefs: s.partDefs, blueprint: s.blueprint, contentObjects: Object.fromEntries(Object.entries(s.contentObjects).map(([kind, values]) => [kind, new Map(values)])), levels: new Map(s.levels), ...objectSnapshot(s), overrideFiles: new Map(s.overrideFiles), reservations: s.reservations })
+    },
     normalize: (vocabulary, previous) => normalize(ws, vocabulary, previous),
     /** Select exactly the game's explicit package list; dependencies remain explicit selections. */
     selectPackages: (ids) => {
@@ -181,7 +186,7 @@ const objectSnapshot = (ws) => Object.fromEntries(Object.keys(OBJECT_SCHEMAS).ma
 const objectFile = (kind, name, value) => `${kind}/${kind === 'tags' ? `${value.kind}/` : ''}${name}.json`
 const objectEntries = (ws) => [
   ...Object.keys(OBJECT_SCHEMAS).flatMap((kind) => [...ws[kind]].map(([name, value]) => [objectFile(kind, name, value), value])),
-  ...Object.entries(ws.contentObjects).flatMap(([kind, values]) => [...values].map(([name, value]) => [`${folders[kind] ?? kind}/${name}.json`, value])),
+  ...Object.entries(ws.contentObjects).flatMap(([kind, values]) => [...values].map(([name, value]) => [`${ws.kindFolders[kind] ?? kind}/${name}.json`, value])),
 ]
 const objectPathsOf = (ws) => [...objectEntries(ws).map(([file]) => file), ...Object.keys(ws.partDefs?.parts ?? {}).map((id) => `parts/${id}.json`), ...[...ws.entries.keys()].map((id) => `entries/${id}.json`)]
 
@@ -206,7 +211,7 @@ function contentOf(ws) {
     const [, namespace, folder] = path
     const filename = path.at(-1)
     if (folder === 'i18n') target.textOverrides.push({ namespace, lang: filename.slice(0, -5), entries: value })
-    else target.overrides.push({ kind: kindForFolder[folder], name: `${namespace}/${filename.slice(0, -5)}`, value: { ...value, ...(folder === 'tags' && { kind: path[3] }) } })
+    else target.overrides.push({ kind: Object.keys(ws.kindFolders).find(k => ws.kindFolders[k] === folder), name: `${namespace}/${filename.slice(0, -5)}`, value: { ...value, ...(folder === 'tags' && { kind: path.slice(3, -1).join('/') }) } })
   }
   const layers = orderPackages(ws.packaged ? ws.packageLayers.map((layer) => layer.id === ws.packageId ? own : layer) : ws.packageLayers)
   return assembleLayers(ws.id, ws.packaged ? layers : [...layers, game], ws.schemas, { blueprint: ws.blueprint, declarationProblems: ws.declarationProblems, ...(ws.packaged && { packageId: ws.packageId }) })
@@ -252,7 +257,7 @@ function normalize(ws, vocabulary, previous) {
   ws.partDefs = assign(ws.partDefs, previous.partDefs, PARTS_FILE, 'parts', 'package')
   for (const [level, value] of ws.levels) ws.levels.set(level, assign(value, previous.levels.get(level), vocabulary.level, `level.${level}`, 'package'))
   for (const [kind, schema] of Object.entries(OBJECT_SCHEMAS)) for (const [name, value] of ws[kind]) ws[kind].set(name, assign(value, previous[kind].get(name), schema, `${kind}.${name.split('/').at(-1)}`, 'package'))
-  for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, value] of ws.contentObjects[kind]) ws.contentObjects[kind].set(name, assign(value, previous.contentObjects[kind].get(name), schema, `${kind}.${name}`, 'package'))
+  for (const [kind, schema] of Object.entries(kindSchemas(vocabulary))) for (const [name, value] of ws.contentObjects[kind]) ws.contentObjects[kind].set(name, assign(value, previous.contentObjects[kind]?.get(name), schema, `${kind}.${name}`, 'package'))
   ws.reservations = reservations
 }
 

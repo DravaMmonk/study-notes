@@ -1,0 +1,12 @@
+{
+  "level.choice.tasks.choice-answer.brief": "Choose an even number from the options.",
+  "level.choice.title": "Choose an even number",
+  "level.exact.tasks.exact-answer.brief": "Write hello with exactly the same letters and spacing.",
+  "level.exact.title": "Copy the word",
+  "level.folded.tasks.folded-answer.brief": "Write Hello World. Case and whitespace do not matter.",
+  "level.folded.title": "Recognise the same phrase",
+  "level.number.tasks.number-answer.brief": "Write one third, allowing an error of 0.001.",
+  "level.number.title": "Estimate one third",
+  "level.regex.tasks.regex-answer.brief": "Write A followed by three digits.",
+  "level.regex.title": "Write an identifier"
+}

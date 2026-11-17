@@ -7,9 +7,9 @@ import { dependencyCycle } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.oneOf(['level', 'part', 'symbol', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
+export const TAG = S.obj({ kind: S.str(), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'part', 'symbol', 'grant', 'entry', 'tag', 'section'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const RELATION = S.obj({ kind: S.str(), of: S.opt(S.str()), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
 export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'grant' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'grant' }) }))) })
 export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION, trays: TRAY_OBJECT }
@@ -31,7 +31,7 @@ export function referenceResolver(registries, problems = []) {
   const has = (kind, id) => {
     if (kind === 'grant') return granted.has(id)
     if (grants.types.has(kind)) return granted.get(id)?.type === kind
-    return kind === 'any' ? ['level', 'part', 'symbol', 'entry'].some((k) => has(k, id)) : Object.hasOwn(registries[kind] ?? {}, id)
+    return kind === 'any' ? Object.keys(registries).filter(k => k !== 'tag').some((k) => has(k, id)) : Object.hasOwn(registries[kind] ?? {}, id)
   }
   const expand = (value, kind, at = 'reference', active = []) => {
     const values = Array.isArray(value) ? value : [value]
@@ -57,11 +57,11 @@ export function referenceResolver(registries, problems = []) {
   expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
   expand.partOf = id => granted.get(id)?.part ?? id
   expand.kindOf = (id) => id.startsWith('#') ? registries.tag[id.slice(1)]?.kind
-    : ['level', 'entry', ...grants.types.keys(), 'section'].find((kind) => has(kind, id))
+    : Object.keys(registries).filter(k => k !== 'tag').find((kind) => has(kind, id))
   return expand
 }
 
-export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? ({ part: 'part', unlock: 'part', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
+export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? (schema.kind?.includes('/') ? schema.kind : { part: 'part', unlock: 'part', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
 
 /** Expand tags structurally, using schema types rather than a list of field names. */
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
@@ -83,7 +83,7 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
       : [expandReferences(child, schema?.of, expand, vocabulary, `${at}[${i}]`)])
     return tagged ? relationOrder(list, expand.order ?? [], kind) : list
   }
-  if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind]) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
+  if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind] || schema?.kind?.includes('/')) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
   if (typeof value === 'string' && value.startsWith('#') && referenceKind(schema)) {
     const ids = expand(value, referenceKind(schema), at)
     if (ids.length !== 1) throw new Error(`${at}: a scalar reference needs exactly one member, got ${ids.length}`)
@@ -100,14 +100,15 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
 const edgesOf = (relation) => [...(relation.edges ?? []), ...(relation.sequence ?? []).slice(1).map((to, i) => ({ from: relation.sequence[i], to }))]
 
 /** Expand each relation's tag boundaries against its own edges, restricted to scheduled levels. */
-export function expandRelations(relations, expand, scheduled, problems = [], optional = new Set()) {
+export function expandRelations(relations, expand, scheduled, problems = [], optional = new Set(), definitions = {}) {
   const result = { requires: [], order: [], replaces: [] }
   for (const [name, relation] of Object.entries(relations)) {
     const endpoints = edgesOf(relation).flatMap((e) => [e.from, e.to])
     const endpoint = endpoints.find((v) => v.startsWith('#')) ?? endpoints[0]
+    const declaration = definitions[relation.kind]
     const inferredKind = endpoint && expand.kindOf?.(endpoint)
     const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'part' : relation.of ?? inferredKind ?? 'any'
-    const ends = (id, external = false) => ((external || relation.kind === 'order' && ['part', 'grant'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const ends = (id, external = false, side = 'from') => ((external || relation.kind === 'order' && ['part', 'grant'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
       if (expand(endpoint, 'part').some(id => expand.partOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' })
@@ -116,7 +117,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     if (relation.of === 'tag' && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations can order tags' })
     if (relation.sequence && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations have a sequence' })
     if (['requires', 'order'].includes(relation.kind) && raw.some((e) => e.from === e.to)) problems.push({ at: `relations/${name}`, says: `circular ${relation.kind}: a relation cannot link an endpoint to itself` })
-    const candidates = raw.map((edge) => ({ edge, from: ends(edge.from, Boolean(edge.game)), to: ends(edge.to) }))
+    const candidates = raw.map((edge) => ({ edge, from: ends(edge.from, Boolean(edge.game)), to: ends(edge.to, false, 'to') }))
     const direct = candidates.flatMap(({ edge, from, to }) => from.flatMap((f) => to.map((t) => ({ ...edge, from: f, to: t }))))
     if (['requires', 'order'].includes(relation.kind)) {
       const ids = [...new Set(direct.filter((edge) => !edge.game).flatMap((edge) => [edge.from, edge.to]))]
@@ -130,9 +131,9 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
       const required = ends.filter((v) => !optional.has(v))
       return side === 'from' && kind === 'level' && required.length ? required : ends
     }
-    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) result[relation.kind]?.push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
+    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) (result[relation.kind] ??= []).push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'part', 'symbol', 'grant', 'entry', 'tag', 'section', 'any']) {
+  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : [...new Set(['level', 'part', 'symbol', 'grant', 'entry', 'tag', 'section', 'any', ...result.order.map(e => e.of)])]) {
     const edges = result[kind].filter((e) => !e.game && (kind !== 'order' || e.of === of))
     const graph = new Map([...new Set(edges.flatMap((e) => [e.from, e.to]))].map((id) => [id, edges.filter((e) => e.to === id).map((e) => e.from)]))
     const cycle = dependencyCycle(graph)

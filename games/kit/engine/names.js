@@ -20,7 +20,7 @@ export function registryOf(kind, declarations) {
 
 /** Separate registries let a level, part and entry share a name. */
 export function createRegistries(objects = {}) {
-  return Object.fromEntries(OBJECT_KINDS.map((kind) => [kind, registryOf(kind, objects[kind] ?? [])]))
+  return Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(objects)])].map((kind) => [kind, registryOf(kind, objects[kind] ?? [])]))
 }
 
 /** Expand typed references while preserving domain syntax, local ports, variant ids and ordinary strings. */
@@ -51,7 +51,7 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
   }
   const ref = (kind, v) => {
     if (kind === 'part') return part(v)
-    return ['entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS)].includes(kind) ? name(v) : v
+    return ['entry', 'group', 'tag', 'relation', 'section', 'tray', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v

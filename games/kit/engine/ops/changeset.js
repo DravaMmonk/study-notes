@@ -1,3 +1,4 @@
+import { kindSchemas } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
 // A changeset: several operations (operations.js) applied to a game together, as one change.
 //
@@ -41,7 +42,7 @@ export { LOG, readLog } from './log.js'
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
-  let domain = given ?? (await runtimeOf(ws.content()))
+  let domain = given ?? (await runtimeOf(ws.content(), ws.root))
   ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []
@@ -70,8 +71,20 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
       const previous = ws.snapshot()
       const done = op.apply(ws, args, { vocabulary, domain })
       if (ws.packageLayers !== previous.packageLayers && !given) {
-        domain = await runtimeOf(ws.content())
+        domain = await runtimeOf(ws.content(), ws.root)
         ws.schemas = domain.vocabulary
+      }
+      if (name.startsWith('kind.')) {
+        const layers = ws.packageLayers.map(layer => layer.id !== ws.packageId ? layer : { ...layer, objects: [...layer.objects.filter(o => o.kind !== 'kind'), ...[...ws.contentObjects.kind].map(([name, value]) => ({ kind: 'kind', name, value }))] })
+        // Rebuild from the unextended layer vocabulary, so replacing a declaration is a hard switch.
+        const { layerVocabulary } = await import('../content-node.js')
+        ws.schemas = layerVocabulary(layers)
+        domain = { ...domain, vocabulary: ws.schemas }
+        for (const kind of Object.keys(ws.contentObjects)) if (!kindSchemas(ws.schemas)[kind]) {
+          if (ws.contentObjects[kind].size) throw new Error(`cannot remove nonempty kind ${kind}`)
+          delete ws.contentObjects[kind]; delete ws.kindFolders[kind]
+        }
+        for (const [kind, definition] of Object.entries(ws.schemas.objectKinds)) if (!definition.extends) { ws.kindFolders[kind] = definition.folder; ws.contentObjects[kind] ??= new Map() }
       }
       ws.normalize(withParts(domain.vocabulary, ws.partDefs), previous)
       says.push(done.says)
@@ -84,6 +97,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   // Whatever throws from here on (a domain's spec, its checks, the whole game's check) refuses the changeset and
   // leaves the workspace as it was found: fail restores it.
   try {
+    if (!given) domain = await runtimeOf(ws.content(), ws.root)
     return await settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache })
   } catch (error) {
     return fail([`the changeset could not be settled: ${error.message}`])
@@ -98,6 +112,8 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const source = (value, schema) => expandNames(value, ws.packageId, { parts: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema, vocabulary, resolve: local })
   const args = source(selected, OPERATIONS[operation].params)
+  if (operation.startsWith('kind.')) args.kind = local(args.kind)
+  if (operation.startsWith('object.')) args.name = local(args.name)
   if (args.entry !== undefined) args.entry = local(args.entry)
   if (args.tag !== undefined) args.tag = local(args.tag)
   if (args.path !== undefined && (operation.startsWith('parts.') || args.in === 'parts')) {
@@ -114,7 +130,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     part: [PART, ws.partDefs?.parts?.[args.part]],
     parts: [PARTS_FILE, ws.partDefs],
   }
-  const [schema, base] = targets[operation.split('.')[0]] ?? []
+  const [schema, base] = operation.startsWith('object.') ? [kindSchemas(vocabulary)[args.kind], ws.contentObjects[args.kind]?.get(args.name)] : targets[operation.split('.')[0]] ?? []
   if (operation.startsWith('game.') && args.value !== undefined && args.path !== undefined) {
     const gameSchema = shapeAt(vocabulary.game, ws.game, parsePath(args.path), { vocabulary })
     args.value = expandNames(supplied.value, ws.packaged ? ws.packageId : `@${ws.id}`, { parts: new Set(Object.keys(ws.partDefs?.parts ?? {})), schema: gameSchema, vocabulary, textKeys: false })

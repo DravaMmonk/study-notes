@@ -1,3 +1,4 @@
+import { KIND_DECLARATION } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
 // The operation set (games/DIRECTION.md decision 4): every change to a data game's content is one of these. The CLI
 // (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
@@ -18,7 +19,7 @@ import { ITEM_REFERENCE, TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
 import { contentFileFor } from '../content.js'
-import { folders, schemaForKind } from '../layers.js'
+import { schemaForKind } from '../layers.js'
 import { expandNames } from '../names.js'
 import { sourceValue } from '../catalogs.js'
 import { OBJECT_NAME, OBJECT_SCHEMAS } from '../objects.js'
@@ -452,8 +453,8 @@ export function opScope({ op, path, in: where, layer }) {
 }
 
 // The same operations edit entries, tags, relations and sections. Reads use ws.content().registries[kind][fullName].
-for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['tray', 'trays'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
-  const objects = (ws) => contentKindSchemas[kind] ? ws.contentObjects[kind] : ws[plural]
+for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['tray', 'trays'], ['kind', 'kinds'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
+  const objects = (ws) => (kind === 'kind' || contentKindSchemas[kind]) ? ws.contentObjects[kind] : ws[plural]
   const selector = { [kind]: S.str({ pattern: OBJECT_NAME }) }
   const target = (ws, name) => {
     if (name.includes('/') || name.startsWith('@')) fail('declare objects in this package using its local name')
@@ -463,7 +464,7 @@ for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation'
   Object.assign(OPERATIONS, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : contentKindSchemas[kind] ?? OBJECT_SCHEMAS[plural] }),
+      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.any() : OBJECT_SCHEMAS[plural]) }),
       apply(ws, args) {
         const name = target(ws, args[kind]), old = objects(ws).get(name)
         assertStableIds(old ?? {}, args.data)
@@ -504,11 +505,11 @@ OPERATIONS['entry.patch'] = {
 }
 
 /** Overrides always write to the named authoring layer, never to the declaration. */
-const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders), 'i18n']), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
+const overrideParams = { layer: S.str(), kind: S.str(), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
 const overrideFile = (ws, { layer, kind, name }) => {
   if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
-  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tags/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : folders[kind]}/${id}.json`
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tags/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : ws.kindFolders[kind] ?? fail(`unknown kind ${kind}`)}/${id}.json`
 }
 Object.assign(OPERATIONS, {
   'override.put': {
@@ -549,3 +550,19 @@ Object.assign(OPERATIONS, {
     },
   },
 })
+
+// Declared kinds use one operation family instead of generating commands at import time.
+for (const action of ['put', 'set', 'remove']) OPERATIONS[`object.${action}`] = {
+  about: t('编辑声明的对象', 'Edit a declared object'),
+  params: S.obj({ kind: S.str(), name: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }),
+    ...(action === 'put' ? { data: S.any() } : action === 'set' ? { path: PATH, value: S.any() } : {}) }),
+  apply(ws, { kind, name, data, path, value }) {
+    const objects = ws.contentObjects[kind]
+    if (!objects) fail(`unknown declared kind ${kind}`)
+    const old = objects.get(name)
+    if (action !== 'put' && old === undefined) fail(`no ${kind} ${name}`)
+    if (action === 'remove') objects.delete(name)
+    else { const next = action === 'put' ? data : setAt(old, path, value); assertStableIds(old ?? {}, next); objects.set(name, next) }
+    return { says: `${kind} ${name}: ${action}`, inverse: [old === undefined ? { op: 'object.remove', kind, name } : { op: 'object.put', kind, name, data: old }] }
+  },
+}

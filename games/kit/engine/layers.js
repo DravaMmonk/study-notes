@@ -1,4 +1,5 @@
 // Dependency ordering, override composition and provenance shared by readers and author operations.
+import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { qualifyObject, OBJECT_SCHEMAS } from './objects.js'
@@ -9,7 +10,7 @@ import { mergePatch } from './ops/edit.js'
 
 export const folders = { level: 'levels', part: 'parts', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, CONTENT_KINDS[kind].folder ?? kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: PARTS_FILE.fields.parts.of, entry: ENTRY, ...kindSchemas(schemas), ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
@@ -76,7 +77,7 @@ function contextFor(layer, layers, schemas) {
 /** Qualify declarations before composing, so short references retain their author's namespace. */
 export function composeLayers(layers, schemas) {
   layers = [...orderPackages(layers.filter((layer) => !layer.id.startsWith('@'))), ...layers.filter((layer) => layer.id.startsWith('@'))]
-  const registries = Object.fromEntries([...OBJECT_KINDS, 'i18n'].map((kind) => [kind, {}]))
+  const registries = Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(kindSchemas(schemas)), 'i18n'])].map((kind) => [kind, {}]))
   const sources = Object.fromEntries(Object.keys(registries).map((kind) => [kind, {}]))
   const history = [], catalogs = {}, configurations = []
   const dependencies = new Map(layers.map((layer) => [layer.id, layer.config?.uses ?? []]))
@@ -120,12 +121,20 @@ export function composeLayers(layers, schemas) {
     const texts = (value, schema, context = '') => readText(sourceValue(qualify(value, schema, context)), layer.id, schema, schemas)
     const object = (kind, value) => {
       if (kind === 'entry' && (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group'))) throw new Error('entry identity belongs in its name and membership in entry tags')
+      const direct = owner => owner === layer.id || layer.id.startsWith('@') || (layer.config.uses ?? []).includes(owner)
+      const memberType = kind === 'tag' ? value.kind : kind === 'relation' ? value.of : null
+      if (memberType?.includes('/') && !direct(memberType.split('/')[0])) throw new Error(`${layer.id}: undeclared object type dependency ${memberType}`)
+      if (kind === 'level') for (const task of value.tasks ?? []) {
+        const owner = task.play?.split(':')[0]
+        if (owner && layers.some(other => other.id === owner && other.hasCore) && !direct(owner)) throw new Error(`${layer.id}: undeclared play dependency ${task.play}`)
+      }
+      if (kind.includes('/') && kind.split('/')[0] !== layer.id && !(layer.config.uses ?? []).includes(kind.split('/')[0])) throw new Error(`${layer.id}: undeclared object kind dependency ${kind}`)
       const schema = schemaForKind(kind, schemas)
       let qualified = qualify(value, schema)
       const endpoint = [...(value.edges ?? []).flatMap((e) => [e.from, e.to]), ...(value.sequence ?? [])][0]
       const endpointTag = typeof endpoint === 'string' && endpoint.startsWith('#') ? registries.tag[fullName(layer.id, endpoint.slice(1))] ?? layer.objects.find((o) => o.kind === 'tag' && o.name === endpoint.slice(1))?.value : null
       const item = kind === 'tag' && value.kind === 'part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'part' || endpointTag?.kind === 'part' || schemas.kinds?.part?.[endpoint]))
-      const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
+      const objectName = (v) => kind === 'tag' && value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
       if (['tag', 'relation', 'section', 'tray'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }
@@ -143,7 +152,7 @@ export function composeLayers(layers, schemas) {
       name(id)
       const before = registries[kind]?.[id]
       if (before === undefined) throw new Error(`${layer.id}: cannot override unknown ${kind} ${id}`)
-      const after = applyOverride(kind, before, object(kind, value))
+      const after = applyOverride(schemas.objectKinds?.[kind]?.override === 'append' ? 'tag' : kind, before, object(kind, value))
       const levelRelation = (value) => ['requires', 'order'].includes(value.kind) && (!value.of || value.of === 'level') && edges(value).every((edge) => [edge.from, edge.to].every((ref) => ref.startsWith('#') ? registries.tag[ref.slice(1)]?.kind === 'level' : Boolean(registries.level[ref]) || Boolean(edge.game && ref === edge.from)))
       if (layer.id.startsWith('@') && !(kind === 'relation' && levelRelation(before) && levelRelation(after))) throw new Error(`${layer.id}: games cannot override ${kind} ${id}`)
       record(kind, id, after, layer, true)

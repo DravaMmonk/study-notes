@@ -1,3 +1,6 @@
+import { importProblem } from '../games/kit/engine/plugin-boundaries.js'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 // Lint for the games kit (../games/kit), run from the repository root: npm run lint:kit. Two things only: plain
 // mistakes (undefined names, unused ones) and the layering (games/DIRECTION.md, decision 17) — a domain imports no
 // other domain, and the kernel imports no domain (it loads one by name: engine/content-node.js).
@@ -15,7 +18,7 @@ const no = (patterns, message) => ({ 'no-restricted-imports': ['error', { patter
 export default defineConfig([
   globalIgnores(['**/node_modules', '**/versions']),
   {
-    files: [`${KIT}/**/*.{js,jsx,mjs}`],
+    files: [`${KIT}/**/*.{js,jsx,mjs}`, 'packages/*/{core,view}/**/*.{js,jsx,mjs}'],
     extends: [js.configs.recommended],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -39,6 +42,24 @@ export default defineConfig([
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
     ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/grants.js'],
     rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/content-node.js).'),
+  },
+  {
+    files: ['packages/*/{core,view}/**/*.{js,jsx,mjs}'],
+    plugins: { packages: { rules: { boundary: { create(context) {
+      const file = context.filename, root = file.slice(0, file.lastIndexOf('/packages/'))
+      const id = file.slice(root.length + 10).split('/')[0]
+      const uses = JSON.parse(readFileSync(resolve(root, 'packages', id, 'package.json'))).uses ?? []
+      const check = node => {
+        const source = node.source ?? node.arguments?.[0]
+        const message = importProblem(source?.type === 'Literal' ? source.value : null, file, root, uses)
+        if (message) context.report({ node, message })
+      }
+      return { ImportDeclaration: check, ExportAllDeclaration: check, ExportNamedDeclaration: node => { if (node.source) check(node) }, ImportExpression: check,
+        CallExpression: node => { if (node.callee?.name === 'require') check(node) },
+        JSXElement: node => { if (file.includes('/core/')) context.report({ node, message: 'core cannot contain JSX' }) },
+      }
+    } } } } },
+    rules: { 'packages/boundary': 'error' },
   },
   ...domains.map((name) => ({
     files: [`${KIT}/modules/${name}/**/*.{js,jsx}`],

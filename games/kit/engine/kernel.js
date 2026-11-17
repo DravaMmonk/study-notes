@@ -14,21 +14,9 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 11,
-  removes: [
-    "courses.circuit.game.primitives",
-    "courses.circuit.level",
-    "courses.rows.level",
-    "courses.tick-bus.game.primitives",
-    "courses.tick-bus.level",
-    "courses.image.level",
-    "courses.logic.game.primitives",
-    "courses.logic.level",
-    "courses.table.game.primitives",
-    "courses.table.level",
-    "game",
-    "level"
-  ].map(at => ({ at, why: 'Split formula symbols from parts and resolve grant fields across registered object types.' })),
+  version: 12,
+  removes: [],
+  plugins: { version: 1, core: ['play', 'kind', 'state', 'check', 'agent', 'tag'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

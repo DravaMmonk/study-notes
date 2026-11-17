@@ -145,8 +145,8 @@ const tools = {
     params: { game: 'string', kind: 'string?', name: 'string?', changeset: 'object?', scope: 'string?' },
     async run({ game, kind, name, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
-      if (kind && !['tag', 'relation', 'section'].includes(kind)) throw new Error(`unknown object kind ${kind}`)
-      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : { tag: content.tags, relation: content.relations, section: content.sections, tray: content.registries.tray }, route: courseRoute(content) }
+      if (kind && !Object.hasOwn(content.registries, kind)) throw new Error(`unknown object kind ${kind}`)
+      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : content.registries, route: courseRoute(content) }
     },
   },
   games: {
@@ -442,6 +442,22 @@ const tools = {
   },
 }
 
+
+// Headless plugin play never loads a view or discloses authored reference/wrong answers.
+tools.play_task = {
+  about: 'Observe a game or package plugin task, or submit work through its registered blind-play agent.',
+  params: { game: 'string', level: 'string', task: 'string?', work: 'any?' },
+  async run({ game, level: name, task: key, work }) {
+    const content = await contentAfter(game)
+    const level = content.levels.find(level => level.id === name)
+    if (!level) throw new Error(`unknown level ${name}`)
+    const task = key ? level.tasks.find(task => task.id === key) : level.tasks[0]
+    if (!task) throw new Error(`unknown task ${key}`)
+    const runtime = await runtimeOf(content)
+    const context = { content, level: { source: { ...level, ...task, taskId: task.id } }, progress: { passed: [] } }
+    return work === undefined ? runtime.play.open(context) : runtime.play.attempt(context, work)
+  },
+}
 
 /** The same tools accept exactly one explicit target. Package calls share no game state or game log. */
 export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, tool]) => {

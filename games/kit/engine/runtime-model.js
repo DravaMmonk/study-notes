@@ -9,7 +9,7 @@ const namedOwner = (value) => {
 }
 
 const ownerOf = (name) => typeof name === 'string' && name.includes(':') ? name.split(':')[0] : null
-export const taskModule = (task) => ownerOf(task.kind) ?? ownerOf(task.mode)
+export const taskModule = (task) => ownerOf(task.play) ?? ownerOf(task.kind) ?? ownerOf(task.mode)
   ?? namedOwner(task.want) ?? 'circuit'
 
 /** Empty libraries select a work reader from their interfaces; no course requires a domain declaration. */

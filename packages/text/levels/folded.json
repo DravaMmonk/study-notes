@@ -1,0 +1,13 @@
+{
+  "title": "@level.folded.title",
+  "tasks": [
+    {
+      "id": "folded-answer",
+      "play": "text:answer",
+      "brief": "@level.folded.tasks.folded-answer.brief",
+      "answerRule": { "type": "folded", "answer": "Hello World" },
+      "referenceAnswer": "HELLO world",
+      "wrongAnswers": ["Hello worlds"]
+    }
+  ]
+}

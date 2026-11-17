@@ -1,0 +1,9 @@
+// Public headless API for package authors. No view modules are exported here.
+export { S, validate, find, shapeAt } from './schema.js'
+export { createPluginKernel, registerPlugins } from './plugins.js'
+export { evaluatePlay, describeTask } from './plugin-runtime.js'
+export { objectOf, referenceResolver, relationOrder } from './objects.js'
+export { firstText, textEntries } from './i18n.js'
+export { contentCourse } from './course-model.js'
+export { courseLayout } from './course-dependencies.js'
+export { assemble, deepFreeze } from './content.js'

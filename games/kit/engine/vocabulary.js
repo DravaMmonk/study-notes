@@ -1,3 +1,5 @@
+import { shapeAt } from './schema.js'
+import { kindSchemas } from './plugin-kinds.js'
 // A domain's vocabulary: everything content may name (games/DESIGN.md 6.2). Content is data made of the vocabulary's
 // items and their parameters, and nothing else; whatever it needs that the vocabulary lacks is a new item, written in
 // the domain (code, under review), never worked around in the content.
@@ -22,7 +24,6 @@
 // has a parts/<name>.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
-import { contentKindSchemas } from './content-kinds.js'
 import { S, validate } from './schema.js'
 import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { courseDependencies } from './course-dependencies.js'
@@ -135,11 +136,12 @@ function changes(before, after, at = 'vocabulary') {
  */
 export function checkContent({ vocabulary: domainVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
   const out = []
-  const vocabulary = withParts(domainVocabulary, content.partDefs)
+  const baseVocabulary = withParts(domainVocabulary, content.partDefs)
+  const vocabulary = { ...baseVocabulary, kinds: { ...baseVocabulary.kinds, ...Object.fromEntries(Object.entries(domainVocabulary.objectKinds ?? {}).filter(([, definition]) => !definition.extends).map(([kind]) => [kind, content.registries?.[kind] ?? {}])) } }
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open. Chapters retain their authored tag references.
-  const { packageTarget, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
+  const { objectKinds: _objectKinds, packageTarget, id: ID, levels, glossary, vocabulary: version, open, blueprint, partDefs: parts, tags = {}, relations = {}, sections = {}, relationEdges: _edges, objectProblems = [], sourceChapters, eras, trays: _trays, replaces: _replaces, overridden = {}, registries: _registries, sources: _sources, overrideHistory: _history, layerOrder: _layerOrder, layerUses: _layerUses, ...played } = content
   const game = sourceChapters ? { ...played, chapters: sourceChapters } : played
   out.push(...objectProblems)
   const courseKeys = new Map(), packageKeys = new Map()
@@ -157,12 +159,29 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   for (const [key, was] of Object.entries(overridden)) if (was === null) out.push({ at: 'overrides', says: `${key} stands over no text of the package` })
   const ids = new Set(levels.map((l) => l.id))
   // Registry names and domain-specific configuration names used by S.name.
-  const names = { ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.tray ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
-  for (const [kind, schema] of Object.entries(contentKindSchemas)) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
+  const names = { ...Object.fromEntries(Object.keys(kindSchemas(domainVocabulary)).map(kind => [kind, new Set(Object.keys(content.registries?.[kind] ?? {}))])), entry: new Set((glossary?.entries ?? []).map((e) => e.id)), tray: new Set(Object.keys(content.registries?.tray ?? {})), group: new Set((glossary?.groups ?? []).map((g) => g.id)), tag: new Set(Object.keys(tags)), section: new Set(Object.keys(sections)), relation: new Set(Object.keys(relations)), ...domainNames(content) }
+  for (const [kind, schema] of Object.entries(kindSchemas(domainVocabulary))) for (const [name, object] of Object.entries(content.registries?.[kind] ?? {})) {
+    if (kind === 'kind' && !content.objectKinds?.[name]) continue
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
   const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), part: parts?.parts ?? {}, entry: {}, tag: tags }, out)
+  const inspectReferences = (schema, value, from, at) => {
+    if (!schema || value == null) return
+    if (schema.type === 'either') return inspectReferences(shapeAt(schema, value, [], { vocabulary }), value, from, at)
+    if (schema.type === 'by') return inspectReferences(schema.cases[value[schema.field]], value, from, at)
+    const target = schema.reference ?? (['name', 'ref'].includes(schema.type) ? schema.kind : null)
+    const definition = vocabulary.objectKinds?.[target]
+    if (definition?.references && !definition.references.includes(from)) out.push({ at, says: `${from} cannot reference ${target}` })
+    if (Array.isArray(value)) value.forEach((item, i) => inspectReferences(schema.of, item, from, `${at}[${i}]`))
+    else if (typeof value === 'object' && schema.type !== 'text') for (const [key, item] of Object.entries(value)) inspectReferences(schema.type === 'map' ? schema.of : schema.fields?.[key], item, from, `${at}.${key}`)
+  }
+  for (const [kind, schema] of Object.entries(kindSchemas(vocabulary))) if (kind !== 'kind') for (const [name, value] of Object.entries(content.registries?.[kind] ?? {})) inspectReferences(schema, value, kind, `${kind}/${name}`)
+  for (const level of levels) {
+    const { tasks: _tasks, ...own } = level
+    inspectReferences(vocabulary.level, own, 'level', level.id)
+    for (const task of level.tasks ?? []) inspectReferences(vocabulary.level.fields?.tasks?.of, task, 'task', task.id)
+  }
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
   for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) {
     add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)

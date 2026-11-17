@@ -1,3 +1,5 @@
+import { contentRoots, contentSchemas } from './content.js'
+import { packageApp } from '../app/package-vite.js'
 // A game's whole definition (the shell's levels, parts box and encyclopedia), made under node for the checks from its
 // content (content.js): its domain's game.js loaded through vite, as the build loads it, with the few browser globals
 // the games touch at import time stubbed. vite and the games' packages are trace-viewer's, wherever node runs from.
@@ -32,9 +34,15 @@ export async function loadModule(file) {
 }
 
 /** The game made from `content` as the shell gets it (its domain's game.js over it). */
-export async function gameOf(content) {
+export async function gameOf(content, { view = false } = {}) {
   await serve()
-  const modules = await Promise.all(runtimeIds(content).map(async id => ({
+  const root = contentRoots.get(content) ?? process.env.GAMES_ROOT ?? resolve(KIT_DIR, '../..')
+  const plugins = (await import('./plugin-node.js')).loadPlugins
+  const kernel = await plugins(content, root, file => server.ssrLoadModule(file), view)
+  const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
+  const vocabulary = contentSchemas.get(content)
+  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))
+  const modules = await Promise.all(runtimeIds(content).map(async id => pluginIds.has(id) ? pluginGame(id, kernel, vocabulary, { view }) : ({
     id, define: (await server.ssrLoadModule(gameModule(DOMAINS, id))).default,
     runtime: (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
   })))
@@ -47,7 +55,7 @@ async function serve() {
     const { createServer } = await import(pathToFileURL(from.resolve('vite')).href)
     const react = (await import(pathToFileURL(from.resolve('@vitejs/plugin-react')).href)).default
     server = await createServer({
-      root: ROOT, configFile: false, plugins: [react()], appType: 'custom', logLevel: 'error',
+      root: ROOT, configFile: false, plugins: [react(), packageApp(process.env.GAMES_ROOT ?? resolve(KIT_DIR, '../..'))], appType: 'custom', logLevel: 'error',
       server: { middlewareMode: true, hmr: false, ws: false, fs: { allow: ['..'] } },
       resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] }, ssr: { noExternal: ['lucide-react', 'katex'] }, optimizeDeps: { noDiscovery: true, include: [] },
     })
