@@ -40,7 +40,8 @@ export function useChangeset(target, scope) {
   }, [game, scope])
   useEffect(() => {
     if (!game) return
-    call('preview', { ...on, scope, check: false }).then((r) => { setBase(r.content); setHead(r.head) }).catch(() => setBase(null))
+    // Asked exactly as the quick preview of an empty changeset is, so the two are one request when nothing is pending.
+    call('preview', { ...on, scope, changeset: { ops: [] }, check: false }).then((r) => { setBase(r.content); setHead(r.head) }).catch(() => setBase(null))
   }, [game, scope, rev])
 
   const changeset = useMemo(() => ({ ...(why && { why }), ops }), [why, ops])

@@ -349,7 +349,8 @@ test('on every starter: each value a schema hint names gets its control, and eac
       }
     }
   }
-  for (const k of ['text', 'board', 'choice', 'call', 'list', 'chips']) assert.ok(counts[k] > 0, `some field is ${k}`)
+  // Chips are covered on hand-written schemas above; the starters left in kit/templates have no list of choices.
+  for (const k of ['text', 'board', 'choice', 'call', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
 })
 
 test('each control on content written here: a grid, ticks, a wave, a table read back as the value they show', () => {
