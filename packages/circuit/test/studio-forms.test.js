@@ -1,12 +1,13 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { runtimeOf, readStarter } from '../../../games/kit/engine/resolver.js'
+import { runtimeOf } from '../../../games/kit/engine/resolver.js'
+import { readStarter } from '../../../games/kit/engine/ops/fixture.js'
 import { find } from 'kernel'
 import { contentVocabulary } from '../../../games/kit/studio/editors.js'
 import { boardPaths, cellText, cellValue, formOf, gridRows, gridValue, tableOf, tableValue, textsOf, tickValue, tickValues } from '../../../games/kit/studio/form.js'
 const STARTERS = ['circuit']
-const starter = () => readStarter(resolve(import.meta.dirname, '../../../games/kit/templates/circuit'))
+const starter = () => readStarter(resolve(import.meta.dirname, '../../circuit/test'))
 test('every level of every starter reads as a form: each text a text pair, each board a board, where the schema has it', async () => {
   assert.ok(STARTERS.length > 0)
   for (const game of STARTERS) {
@@ -76,7 +77,7 @@ test('on every starter: each value a schema hint names gets its control, and eac
       }
     }
   }
-  // What the starters left in kit/templates still exercise; chips, choices and calls are covered on hand-written
+  // What the package-owned test examples still exercise; chips, choices and calls are covered on hand-written
   // schemas, now that the image and table starters moved into their packages.
   for (const k of ['text', 'board', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
 })

@@ -4,7 +4,8 @@ import { execFile } from 'node:child_process'
 import { availableParallelism } from 'node:os'
 import { resolve } from 'node:path'
 import { promisify } from 'node:util'
-import { GAMES } from '../../games.js'
+import { existsSync } from 'node:fs'
+import { contentTargets, gameDirectory } from '../engine/resolver.js'
 
 const cwd = resolve(import.meta.dirname, '../../../trace-viewer')
 const run = promisify(execFile)
@@ -23,8 +24,8 @@ async function build(name, config, env = {}) {
 }
 
 // The hub build clears the output before any games are written; the games' folders are their own, so they build at once.
-await build('hub', 'vite.games.config.js')
-const queue = GAMES.map(({ id }) => id)
+if (existsSync(resolve(gameDirectory(), 'index.html'))) await build('hub', 'vite.games.config.js')
+const queue = contentTargets([], undefined, { game: true }).map(({ id }) => id)
 const worker = async () => {
   for (let id = queue.shift(); id; id = queue.shift()) await build(id, 'vite.game.config.js', { GAME: id })
 }

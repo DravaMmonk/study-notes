@@ -1,5 +1,5 @@
 import { Text } from './Layout.jsx'
-import { GAMES } from '../../games.js'
+import { GAMES } from 'virtual:game-catalog'
 import { mapRows } from '../course.js'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'

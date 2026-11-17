@@ -34,7 +34,6 @@ const ID = S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$' })
 const SLOT_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('关卡 id（也是将来的文件名）') })
 
 /** The catalogue's mechanisms (games/DESIGN.md 6.5). */
-export const MECHANISMS = ['circuit', 'step-machine', 'tick-bus', 'frame', 'strip', 'table', 'bench', 'audit', 'manual']
 /** The practice dimensions (games/DESIGN.md 2.3). New numbers alone are no dimension: they are tests or tasks. */
 export const DIMENSIONS = ['direction', 'depth', 'scaffold', 'combine', 'false']
 const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'challenge']
@@ -80,7 +79,7 @@ export const BLUEPRINT = S.obj({
   endpoint: S.text(),
   scope: S.text(),
   sources: S.list(S.str()),
-  mechanisms: S.list(S.obj({ id: S.oneOf(MECHANISMS), where: S.text(), why: S.text() }), { min: 1 }),
+  mechanisms: S.list(S.obj({ id: S.str(), where: S.text(), why: S.text() }), { min: 1 }),
   abilities: S.list(S.obj({ id: ID, about: S.text() })),
   machines: S.list(S.obj({ id: ID, title: S.text(), can: S.list(ID), lacks: S.text() }), { min: 1 }),
   knowledge: S.list(S.obj({

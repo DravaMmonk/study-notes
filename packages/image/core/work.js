@@ -1,3 +1,4 @@
+import { boardShape } from 'circuit'
 // An image game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): every task of every level made playable from its data (tests from its scene, boards from their blueprints, a
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
@@ -39,7 +40,7 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
   const read = (lines) => kit.fromText(lines, { ...io, tests: examples })
   const board = (lines, wrong = false) => {
     const b = read(lines)
-    keep({ board: b, write: kit.toText, read, ...(wrong ? { naive: true } : {}) })
+    keep({ board: b, fingerprint: () => b.wires.length ? boardShape(b) : null, write: kit.toText, read, ...(wrong ? { naive: true } : {}) })
     return b
   }
   return {

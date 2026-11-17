@@ -126,3 +126,5 @@ export {
 } from '../studio/public.jsx'
 
 export { packageLevel } from '../engine/package-play.js'
+
+export { default as ClearButton } from '../shell/ClearButton.jsx'

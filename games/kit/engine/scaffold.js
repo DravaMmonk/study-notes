@@ -1,22 +1,14 @@
-import { contentSchemas } from './content.js'
 import { kernelIdentity } from './release-data.js'
 import { packageDirectory } from './resolver.js'
 /* global process */
-// Create a game from an installed module starter, or arrange an existing package.
+// Copy installed packages and game arrangements.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { contentRoot, gameDirectory, isDataGame, resolveLayers, readContent, readPackage } from './resolver.js'
+import { contentRoot, gameDirectory, isDataGame, resolveLayers } from './resolver.js'
 import { lockTarget } from './releases.js'
-import { expandNames } from './names.js'
 import { firstText } from './i18n.js'
-import { courseLevelCount } from './content.js'
 import { writeJson } from './ops/json.js'
-
-const TEMPLATES = resolve(import.meta.dirname, '../templates')
-
-/** The mechanisms the scaffold has a template for (games/DESIGN.md 6.5 says what each suits). */
-export const templates = () => readdirSync(TEMPLATES).filter(name => existsSync(resolve(TEMPLATES, name, 'starter/package.json')))
 
 const fail = (text) => {
   throw new Error(text)
@@ -38,8 +30,9 @@ const gameText = (value, lang) => value?.[lang] ?? firstText(value)
 
 function register(root, id, content) {
   const file = resolve(gameDirectory('', root), 'games.js')
+  if (!existsSync(file)) return
   const text = readFileSync(file, 'utf8')
-  const end = text.lastIndexOf('];')
+  const end = text.lastIndexOf(']')
   if (end < 0) fail(`${file} has no list of games to add to`)
   const q = (s) => JSON.stringify(s).replaceAll('"', "'")
   const en = gameText(content.title, 'en')
@@ -56,73 +49,20 @@ function register(root, id, content) {
   writeFileSync(file, `${text.slice(0, end)}${entry}${text.slice(end)}`)
 }
 
-// A game's folder may hold its design docs before it holds a game: anything
-// else in it is a game there already.
-const isDocs = (name) => name.endsWith('.md')
-
-/** Why game `id` cannot be made under `root`, or nothing. */
-function gameRefused(root, id) {
-  if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) return `a game id is lowercase letters, digits and dashes: ${id}`
-  const dir = gameDirectory(id, root)
-  if (existsSync(dir) && readdirSync(dir).some((name) => !isDocs(name))) return `games/${id} is there already`
-  if (existsSync(packageDirectory(id, root))) return `packages/${id} is there already`
-  if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
-  return null
-}
-
-/** Copy a template into an independent package. Templates are never dependencies. */
-export function newPackage({ root = contentRoot(), id, template, from, empty = false, title = id }) {
+/** Copy an installed package or create an empty package. */
+export function newPackage({ root = contentRoot(), id, from, empty = false }) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a package id is lowercase letters, digits and dashes: ${id}`)
   const target = packageDirectory(id, root)
-  if (empty || from) {
-    if (existsSync(target)) fail(`packages/${id} is there already`)
-    if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null)) }
-    else {
-      if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(packageDirectory(from, root), 'package.json'))) fail(`no package ${from}`)
-      mkdirSync(target, { recursive: true })
-      for (const name of readdirSync(packageDirectory(from, root)).filter(name => !['changes.jsonl', 'changes.lock', 'lock.json', 'manifest.json', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(packageDirectory(from, root), name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
-    }
-    lockTarget({ kind: 'package', id }, root)
-    return target
+  if (!empty && !from) fail('choose --from <package> or --empty')
+  if (existsSync(target)) fail(`packages/${id} is there already`)
+  if (empty) { mkdirSync(target, { recursive: true }); writeFileSync(resolve(target, 'package.json'), writeJson({ version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: {} }, null)) }
+  else {
+    if (!/^[a-z][a-z0-9-]*$/.test(from) || !existsSync(resolve(packageDirectory(from, root), 'package.json'))) fail(`no package ${from}`)
+    mkdirSync(target, { recursive: true })
+    for (const name of readdirSync(packageDirectory(from, root)).filter(name => !['changes.jsonl', 'changes.lock', 'lock.json', 'manifest.json', 'node_modules', '.DS_Store'].includes(name))) fill(resolve(packageDirectory(from, root), name), resolve(target, name), { [`${from}/`]: `${id}/`, [`${from}:`]: `${id}:` })
   }
-  if (!templates().includes(template)) fail(`no template ${template} in kit/templates`)
-  const starter = resolve(TEMPLATES, template, 'starter')
-  const packageDir = packageDirectory(id, root)
-  if (existsSync(packageDir)) fail(`packages/${id} is there already`)
-  mkdirSync(packageDir, { recursive: true })
-  const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
-  for (const name of readdirSync(starter)) if (!['game.json', 'course.json', 'chapters', 'i18n'].includes(name)) fill(resolve(starter, name), resolve(packageDir, name), words)
-  const locales = resolve(starter, 'i18n/package')
-  if (existsSync(locales)) fill(locales, resolve(packageDir, 'i18n'), words)
   lockTarget({ kind: 'package', id }, root)
-  return packageDir
-}
-
-/** Create a game and its independent package from the same template. */
-export function newGame({ root = contentRoot(), id, template, title = id }) {
-  const refused = gameRefused(root, id)
-  if (refused) fail(refused)
-  newPackage({ root, id, template, title })
-  const starter = resolve(TEMPLATES, template, 'starter')
-  const dir = gameDirectory(id, root)
-  mkdirSync(dir, { recursive: true })
-  const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
-  const game = JSON.parse(readFileSync(resolve(starter, 'game.json'), 'utf8').replaceAll('__title__', () => words.__title__))
-  game.chapters = game.chapters.map(name => name.replace(/^@?starter\//, `@${id}/`))
-  fill(resolve(starter, 'chapters'), resolve(dir, 'chapters'), words)
-  const source = JSON.parse(readFileSync(resolve(starter, 'course.json'), 'utf8').replaceAll('starter/', `${id}/`))
-  // Template-local selections belong to the copied package, while chapter wording belongs to the game.
-  for (const kind of ['power', 'box']) if (source[kind]) source[kind] = `${id}/${source[kind]}`
-  const contentPackage = readPackage(id, root)
-  const vocabulary = contentSchemas.get(contentPackage)
-  const course = expandNames(source, id, { objects: contentPackage.registries, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
-  writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
-  if (existsSync(resolve(starter, 'i18n/course'))) fill(resolve(starter, 'i18n/course'), resolve(dir, 'i18n'), words)
-  writeFileSync(resolve(dir, 'game.json'), writeJson({ ...game, kernel: `^${kernelIdentity().version}`, packages: { [id]: '^0.0.0', ...Object.fromEntries(resolveLayers({ package: id, closure: true, root, unlocked: true }).layers.filter(layer => layer.id !== id).map(layer => [layer.id, `^${layer.config.version}`])) } }, null))
-  lockTarget({ kind: 'game', id }, root)
-  const content = readContent(id, root)
-  register(root, id, { title: content.title, lede: content.lede, levels: courseLevelCount(content, content.levels.length) })
-  return dir
+  return target
 }
 
 const refs = (value, out = new Set()) => {
@@ -140,7 +80,7 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a game id is lowercase letters, digits and dashes: ${id}`)
   const dir = gameDirectory(id, root)
   if (existsSync(resolve(dir, 'game.json'))) fail(`games/${id} is there already`)
-  if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
+  if (existsSync(resolve(gameDirectory('', root), 'games.js')) && readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
   if (!from || !isDataGame(from, root)) fail(`no game ${from} to take the course settings from`)
   const { packageRanges: packages, files, layers } = resolveLayers({ game: from, root })
   const { optional: _optional, skippable: _skippable, ...settings } = files['course.json']
@@ -167,17 +107,17 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   return dir
 }
 
-/** `node scaffold.js game <id> --template <name> [--title <title>]`. */
+/** Create content from an installed package or game. */
 function cli([what, name, ...rest]) {
   const opt = (key) => {
     const k = rest.indexOf(`--${key}`)
     return k >= 0 ? rest[k + 1] : undefined
   }
   if (what === 'game') {
-    console.log(`made ${newGame({ root: contentRoot(), id: name, template: opt('template'), title: opt('title') ?? name })}\nnext: npm run check -- ${name}`)
+    console.log(`made ${gameOnPackage({ root: contentRoot(), id: name, from: opt('from'), title: opt('title') ?? name })}\nnext: npm run check -- ${name}`)
   } else if (what === 'package') {
-    console.log(`made ${newPackage({ root: contentRoot(), id: name, template: opt('template'), from: opt('from'), empty: rest.includes('--empty') })}\nnext: npm run check -- --package ${name}`)
-  } else fail('usage: scaffold.js <game|package> <id> --template <name>')
+    console.log(`made ${newPackage({ root: contentRoot(), id: name, from: opt('from'), empty: rest.includes('--empty') })}\nnext: npm run check -- --package ${name}`)
+  } else fail('usage: scaffold.js <game|package> <id> --from <id> (package also accepts --empty)')
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

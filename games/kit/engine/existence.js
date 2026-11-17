@@ -25,6 +25,7 @@ export function publicSurfaces(layers, schemas) {
   for (const name of BUILTIN_KIND_NAMES) add('kernel', 'kind', name)
   for (const [key, reader] of kernelTags) { void key; add('kernel', 'tag', reader.name, { kind: reader.member }) }
   for (const [kind, values] of Object.entries(schemas.kinds ?? {})) for (const name of Object.keys(values)) add(ownerOf(name), meaningsOf(schemas).find(meaning => meaning.capability === kind)?.type ?? kind, name)
+  for (const entry of schemas.codeObjects ?? []) add(ownerOf(entry.name), entry.kind, entry.name, entry.value)
   for (const layer of layers) {
     if (layer.missing) continue
     if (layer.manifest) {

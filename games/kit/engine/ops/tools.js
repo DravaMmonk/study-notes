@@ -6,7 +6,7 @@ import { runtimeIds } from '../runtime.js'
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
 import { find, shapeAt } from '../schema.js'
@@ -39,9 +39,9 @@ export const lacking = (tool, args) => [
 
 // The tools use the repository layout, or a copy with games/ and packages/ under GAMES_ROOT.
 const ROOT = contentRoot()
-const listed = (id) => typeof id === 'object' ? null : hubCount(readFileSync(resolve(gameDirectory('', ROOT), 'games.js'), 'utf8'), id)
+const listed = (id) => typeof id === 'object' || !existsSync(resolve(gameDirectory('', ROOT), 'games.js')) ? null : hubCount(readFileSync(resolve(gameDirectory('', ROOT), 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
-const kept = (id) => (!workspaceCheckCache() || typeof id === 'object' ? null : checkCache(id))
+const kept = (id) => (!workspaceCheckCache() || typeof id === 'object' || !existsSync(resolve(gameDirectory('', ROOT), 'games.js')) ? null : checkCache(id))
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 // A game the studio's game workspace makes is known at once: it is read off the folder, not off the list loaded at start.
 const dataGames = () => contentTargets([], ROOT, { game: true }).map(target => target.id)

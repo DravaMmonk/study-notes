@@ -30,6 +30,7 @@ export function script(level, { game, progress }) {
   const locked = Boolean(level.locked)
   const judge = scriptJudge(level)
   return {
+    openLabel: 'proof', closeLabel: 'qed',
     goal: text(level.goal), premises, judge, locked,
     initial: level.given ?? [],
     add: KINDS.map((k) => ({ label: k, make: () => emptyRow(k) })),

@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process'
 import { performance } from 'node:perf_hooks'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
+import { contentTargets } from '../resolver.js'
 
 const args = process.argv.slice(2)
 if (args[0] === '--sample') {
@@ -27,10 +28,10 @@ if (args[0] === '--sample') {
     console.log(JSON.stringify({ times, cpu, hashes }))
   } finally { await closeGames() }
 } else {
-  const ids = ['qed', 'vision-complete', 'state-graph', 'comp90086']
+  const installed = [...contentTargets([], undefined, { package: true }), ...contentTargets([], undefined, { game: true })]
   const targets = args.includes('--tools')
-    ? [...['vocabulary', 'names'].flatMap(tool => ['package', 'game'].flatMap(kind => ids.map(id => [tool, kind, id]))), ['games'], ['packages']]
-    : ['package', 'game'].flatMap(kind => ids.map(id => ['preview', kind, id]))
+    ? [...['vocabulary', 'names'].flatMap(tool => installed.map(({ kind, id }) => [tool, kind, id])), ['games'], ['packages']]
+    : installed.map(({ kind, id }) => ['preview', kind, id])
   const selected = args.indexOf('--target')
   const measured = selected < 0 ? targets : targets.filter(([, kind, id]) => kind === args[selected + 1] && id === args[selected + 2])
   if (!measured.length) throw new Error('no benchmark target matches --target <package|game> <id>')

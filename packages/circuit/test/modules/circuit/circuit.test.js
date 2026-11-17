@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 // new-game copies) passes its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readStarter } from "../../../../../games/kit/engine/resolver.js"
+import { readStarter } from "../../../../../games/kit/engine/ops/fixture.js"
 import { defineParts, partProblems } from '../../../core/index.js'
 import { OPS } from '../../../core/index.js'
 import { vocabulary } from '../../../core/index.js'
@@ -14,7 +14,7 @@ import { runLevel } from '../../../core/index.js'
 import { runtime as domain } from '../../../core/index.js'
 
 const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], outputs: [{ name: 'sum', label: 'Sum' }], tests: [{ inputs: { a: 2, b: 3 }, expect: { sum: 5 } }] }
-const content = readStarter(resolve(import.meta.dirname, '../../../../../games/kit/templates', import.meta.dirname.split('/').at(-1)))
+const content = readStarter(resolve(import.meta.dirname, '../..'))
 const { PARTS } = defineParts(content.partDefs, OPS)
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board

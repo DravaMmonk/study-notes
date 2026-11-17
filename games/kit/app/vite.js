@@ -6,10 +6,10 @@ import { contentLayers } from '../engine/resolver.js'
 // it opens: content.json beside the page (games/DESIGN.md 6.1: the selected course and its package, assembled by
 // ../engine/content.js). A build writes content.json next to the page; the dev server reads
 // it off the files on every request. So content changes without a build. The page's title, description and tab icon
-// come from the hub's list (../../games.js).
+// come from the content workspace's optional presentation catalog.
 import { resolve } from 'node:path'
-import { GAMES } from '../../games.js'
-import { isDataGame, readContent } from '../engine/resolver.js'
+import { firstText } from '../engine/i18n.js'
+import { contentTargets, gameCatalog, readContent } from '../engine/resolver.js'
 import { runtimeIds } from '../engine/runtime.js'
 import { CONTENT_FILE, contentAssets } from './content-assets.js'
 
@@ -39,19 +39,21 @@ export function gameApp({ game = null } = {}) {
   return {
     name: 'game-app',
     resolveId: (id) => (id === 'virtual:game' || id.startsWith(PREFIX) ? `\0${id}` : packages.resolveId(id)),
-    load(id) {
+    async load(id) {
       if (id.startsWith(`\0${PREFIX}`)) return gameModule(id.slice(PREFIX.length + 1))
       if (id !== '\0virtual:game') return packages.load(id)
       if (game) return `export const loadDomain = async () => (await import(${q(PREFIX + game)})).default`
-      const loaders = GAMES.filter((g) => isDataGame(g.id)).map((g) => `${q(g.id)}: () => import(${q(PREFIX + g.id)})`)
+      const games = contentTargets([], undefined, { game: true })
+      const first = (await gameCatalog()).find(entry => games.some(game => game.id === entry.id))?.id ?? games[0]?.id ?? null
+      const loaders = games.map((g) => `${q(g.id)}: () => import(${q(PREFIX + g.id)})`)
       return `const GAMES = { ${loaders.join(', ')} }
-export const loadDomain = async () => (await GAMES[location.pathname.match(/\\/game\\/([^/]+)\\//)?.[1] ?? ${q(GAMES[0].id)}]()).default`
+export const loadDomain = async () => (await GAMES[location.pathname.match(/\\/game\\/([^/]+)\\//)?.[1] ?? ${q(first)}]()).default`
     },
     // The dev server: a game's content read off its files on every request.
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const [, id, asset] = req.url?.match(/\/game\/([^/?#]+)\/(content\.json|i18n\/(?:course|package)\/[a-zA-Z0-9.-]+\.json)(?:\?|$)/) ?? []
-        if (!id || !isDataGame(id)) return next()
+        if (!id || !contentTargets([], undefined, { game: true }).some(game => game.id === id)) return next()
         const text = assetsOf(id).get(asset)
         if (text === undefined) return next()
         res.setHeader('Content-Type', 'application/json')
@@ -63,11 +65,13 @@ export const loadDomain = async () => (await GAMES[location.pathname.match(/\\/g
     generateBundle() {
       if (game) for (const [fileName, source] of assetsOf(game)) this.emitFile({ type: 'asset', fileName, source })
     },
-    transformIndexHtml(html, ctx) {
-      const id = game ?? idOfUrl(ctx.originalUrl) ?? GAMES[0].id
-      const g = GAMES.find((x) => x.id === id)
-      if (!g || !html.includes('%GAME_')) return html
-      return html.replaceAll('%GAME_TITLE%', g.title).replaceAll('%GAME_EN%', g.en).replaceAll('%GAME_DESCRIPTION%', g.page.description).replaceAll('%GAME_ICON%', g.page.icon)
+    async transformIndexHtml(html, ctx) {
+      if (!html.includes('%GAME_')) return html
+      const id = game ?? idOfUrl(ctx.originalUrl) ?? contentTargets([], undefined, { game: true })[0]?.id
+      if (!id) return html
+      const content = readContent(id)
+      const entry = (await gameCatalog()).find(entry => entry.id === id)
+      return html.replaceAll('%GAME_TITLE%', entry?.title ?? firstText(content.title) ?? id).replaceAll('%GAME_EN%', entry?.en ?? content.title?.en ?? firstText(content.title) ?? id).replaceAll('%GAME_DESCRIPTION%', entry?.page?.description ?? firstText(content.lede) ?? '').replaceAll('%GAME_ICON%', entry?.page?.icon ?? '')
     },
   }
 }

@@ -37,8 +37,8 @@ export default defineConfig([
   },
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
-    ignores: ['**/*.test.js'],
-    rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/resolver.js).'),
+    ignores: ['**/*.test.js', '**/ops/fixture.js'],
+    rules: no(['**/modules/**', '**/packages/**'], 'The kernel loads package protocols through the resolver, never package source imports.'),
   },
   {
     files: ['packages/*/{core,view}/**/*.{js,jsx,mjs}'],

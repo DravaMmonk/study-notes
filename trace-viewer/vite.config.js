@@ -1,9 +1,8 @@
-import { gameDirectory } from '../games/kit/engine/resolver.js'
+import { contentRoot, contentTargets, gameCatalog, gameDirectory } from '../games/kit/engine/resolver.js'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { GAMES } from '../games/games.js'
 import { gameApp } from '../games/kit/app/vite.js'
 import { studioApp } from '../games/kit/app/studio.js'
 
@@ -12,7 +11,7 @@ import { studioApp } from '../games/kit/app/studio.js'
 // the address: games/kit/app/vite.js). /game.html leads to the first game, so every link works the same locally as
 // on the site.
 const GAMES_DIR = gameDirectory()
-const IDS = new Set(GAMES.map((game) => game.id))
+const IDS = new Set(contentTargets([], undefined, { game: true }).map(game => game.id))
 const localPaths = (studio) => ({
   name: 'local-paths',
   configureServer(server) {
@@ -24,7 +23,7 @@ const localPaths = (studio) => ({
         res.setHeader('Location', `/studio.html${url.search}`)
         return res.end()
       }
-      const moved = path === '/game.html' ? GAMES[0].id : null
+      const moved = path === '/game.html' ? (await gameCatalog()).find(game => IDS.has(game.id))?.id ?? [...IDS][0] : null
       if (moved || path === '/game' || path === '/game/') {
         res.statusCode = 302
         res.setHeader('Location', `${moved ? `/game/${moved}` : '/game'}/index.html${url.search}`)
@@ -58,7 +57,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), localPaths(mode === 'studio'), gameApp(), studioApp()],
   server: {
     fs: {
-      allow: ['..'],
+      allow: ['..', contentRoot()],
     },
   },
   build: {

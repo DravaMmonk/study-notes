@@ -1,3 +1,4 @@
+import { boardShape } from './board-shape.js'
 import { grantIndex } from "./grants.js"
 // A circuit game's course read from its content (games/DESIGN.md 6.3): its tasks with their tests and boards, the play
 // order and level tree from its eras, and its built parts (parts.json, ./parts.js builtParts), each running inside
@@ -117,7 +118,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
     const boardOf = (lines, what, naive = false) => {
       try {
         const b = board.fromText(lines, out, circuit)
-        blueprints.push({ level: id, task: task.task, key: task.taskId, board: b, write: (x) => board.toText(x, out, forTask(out)), read: (text) => board.fromText(text, out, forTask(out)), ...(naive ? { naive } : {}) })
+        blueprints.push({ level: id, task: task.task, key: task.taskId, board: b, fingerprint: () => b.wires.length ? boardShape(b) : null, write: (x) => board.toText(x, out, forTask(out)), read: (text) => board.fromText(text, out, forTask(out)), ...(naive ? { naive } : {}) })
         return b
       } catch (e) {
         say(where, `${what}: ${e.en ?? String(e)}`)

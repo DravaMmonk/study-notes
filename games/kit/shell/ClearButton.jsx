@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Trash2 } from 'lucide-react'
-import { Dialog } from 'kernel/view'
+import { Dialog } from './Dialogs.jsx'
+import { tr } from './i18n.js'
 
-import { tr } from 'kernel/view'
-
-
-// The board's clear button, in each editor's own row of tools (the desktop board's corner, the phone board's top
-// row, a strip's row): it asks first, since a whole board is a lot to lose, though undo brings it back. A strip says
-// what it clears in its own words (`title`, `lines`). Without `onClear` it is greyed out: there is nothing to clear.
+// Shared confirmation control. Callers provide the text for the work being cleared.
 export default function ClearButton({ onClear, size = 14, title = null, lines = null }) {
   const [asking, setAsking] = useState(false)
   const close = () => setAsking(false)
@@ -18,8 +14,8 @@ export default function ClearButton({ onClear, size = 14, title = null, lines = 
       {/* On the page itself: the tools' blurred backing would otherwise hold the dialog inside it. */}
       {asking && createPortal(
         <Dialog
-          title={title ?? tr('清空整块板？')}
-          lines={lines ?? [tr('板上的元件和连线将全部移除，清空后仍可撤销。')]}
+          title={title}
+          lines={lines}
           actions={[[tr('取消'), close], [tr('清空'), () => { close(); onClear() }]]}
           onClose={close}
         />,

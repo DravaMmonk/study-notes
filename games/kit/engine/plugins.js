@@ -73,3 +73,8 @@ export async function registerPlugins(entries, { view = false, tasks = [] } = {}
   kernel.pair(tasks, view)
   return kernel
 }
+
+/** Public identities registered by code, shared by Node and browser assembly. */
+export function pluginObjects(kernel) {
+  return [...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))]
+}

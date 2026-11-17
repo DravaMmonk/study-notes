@@ -35,7 +35,8 @@ export default function Studio() {
       setPkg((id) => (list.some((p) => p.id === id) ? id : list[0]?.id ?? null))
     })
   }, [])
-  if (!games || !game || !packages || !pkg) return <div className="studio-loading">{tr('读取中……')}</div>
+  if (!games || !packages) return <div className="studio-loading">{tr('读取中……')}</div>
+  if (!packages.length || (space === 'arrange' && !games.length)) return <div className="studio-loading">{tr('没有内容', 'No content')}</div>
   const switcher = { value: space, onChange: setSpace }
   if (space === 'copy') {
     const opened = copyOpen === 'game' ? { game } : { package: pkg }

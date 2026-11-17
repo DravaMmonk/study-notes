@@ -18,7 +18,7 @@ import { useWorkspaceKeys } from 'kernel/view'
 
 import { useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from "../../core/board/folding.js"
-import ClearButton from "./ClearButton.jsx"
+import { ClearButton } from 'kernel/view'
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from "../../core/board/connections.js"
 import { layoutAt, pipelineLayout, reflowLayout } from "../../core/board/layout.js"
 import SaveSlots from "./SaveSlots.jsx"
@@ -800,7 +800,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
         {!readOnly && (
           <>
-            {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
+            {onClear && <><ClearButton title={tr('清空整块板？')} lines={[tr('板上的元件和连线将全部移除，清空后仍可撤销。')]} onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
             <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销')} title={tr('撤销（⌘/Ctrl+Z）')}><Undo2 size={14} /></button>
             <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做')} title={tr('重做（⇧⌘/Ctrl+Z）')}><Redo2 size={14} /></button>
             <i className="board-zoom-rule" aria-hidden="true" />

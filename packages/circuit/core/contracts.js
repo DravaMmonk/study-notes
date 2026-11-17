@@ -94,7 +94,7 @@ export function specProblems(domain, content, spec) {
 }
 
 /**
- * spec.blueprints: [{ level, task, key, board, write(board) → lines, read(lines) → board, naive? }]
+ * spec.blueprints: [{ level, task, key, board, fingerprint(), write(board) → lines, read(lines) → board, naive? }]
  * every board the content writes as blueprint text (`naive` for a naive answer; `task`, the index of the task it is a
  * board of, `key` that task's id, its key in the saves, ../shell/progress.js), and how the domain writes it and reads
  * it back on its task; the level's screen keeps the board itself.

@@ -1,3 +1,4 @@
+import { boardShape } from 'circuit'
 // A logic game's course, from its course configuration and content package ( vocabulary.js says what
 // may be in it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it
 // can really offer, its reference and naive answers as the boards they write (../../engine/board-cards.js), and its built parts
@@ -326,7 +327,7 @@ export function* prepareLogicWorks(content) {
     const read = (lines) => board.fromText(lines, one, circuit)
     try {
       const graph = read(one[field])
-      blueprints.push({ level: one.id, task: one.task, key: one.taskId, board: graph, write: (work) => board.toText(work, one, circuit), read, ...(field === 'naive' ? { naive: true } : {}) })
+      blueprints.push({ level: one.id, task: one.task, key: one.taskId, board: graph, fingerprint: () => graph.wires.length ? boardShape(graph) : null, write: (work) => board.toText(work, one, circuit), read, ...(field === 'naive' ? { naive: true } : {}) })
       return graph
     } catch (error) {
       wrong.push(`${one.id}: its ${field}: ${blueprintProblem(error)}`)

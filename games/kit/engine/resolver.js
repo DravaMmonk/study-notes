@@ -1,19 +1,18 @@
 import { memoResolution } from './read-cache.js'
-import { expandNames } from './names.js'
 import { projectVocabulary } from './kind-meanings.js'
 import { validateConfig, kernelIdentity, readJSON, dependencyProblem, satisfies } from './release-data.js'
 import { layerManifest, viewRegistrations } from './manifests.js'
 import { chooseRelease, releaseSource, releaseIndex } from './release-store.js'
 import { existenceProblems, publicSurfaces } from './existence.js'
 import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import { installPackageImports, registerPackageLocation } from './plugin-boundaries.js'
-import { createPluginKernel } from './plugins.js'
+import { createPluginKernel, pluginObjects } from './plugins.js'
 import { tagName } from './tag-identity.js'
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { assemble, combineConfiguration, contentRoots } from './content.js'
-import { ENTRY } from './vocabulary.js'
 import { OBJECT_SCHEMAS } from './objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
@@ -31,6 +30,12 @@ export function contentRoot(root) {
 }
 export const packageDirectory = (id = '', root) => resolve(contentRoot(root), 'packages', id)
 export const gameDirectory = (id = '', root) => resolve(contentRoot(root), 'games', id)
+
+/** Optional site presentation data, independent of installed game discovery. */
+export async function gameCatalog(root) {
+  const file = resolve(gameDirectory('', root), 'games.js')
+  return existsSync(file) ? (await import(pathToFileURL(file).href)).GAMES : []
+}
 
 export const contentVocabulary = () => vocabularyFor()
 export const layerVocabulary = layers => {
@@ -68,15 +73,11 @@ export function splitGameConfig({ packages, ...game }, root = contentRoot()) {
   return { packageId, packageDir, packageIds: ids, packageRanges: packages, game }
 }
 
-/** Locations of the configuration, keyed by the logical filenames: the course in the game, the rest in its package. */
+/** Configuration locations for layer-scoped authoring. */
 export const configPaths = (gameDir, packageDir) => ({
   'package.json': resolve(packageDir, 'package.json'),
   'course.json': resolve(gameDir, 'course.json'),
 })
-
-function configuration(paths) {
-  return Object.fromEntries(Object.entries(paths).map(([file, path]) => [file, json(path)]))
-}
 
 export function readGameConfig(id, root = contentRoot()) {
   const gameDir = gameDirectory(id, root)
@@ -136,29 +137,6 @@ export function readPlaytests(id, dir = gameDirectory()) {
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
-function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocales, vocabulary, courseNamespace, provenance, packageId = packageDir.split('/').at(-1) }) {
-  const blueprint = resolve(gameDir, 'blueprint.json')
-  const courseText = catalogReader(readCatalogs(courseLocales), courseLocales)
-  const packageCatalogs = readCatalogs(packageLocales)
-  const packageText = catalogReader(packageCatalogs, packageLocales)
-  const schemas = vocabulary ?? layerVocabulary([readLayer(packageId, packageDir)])
-  const read = (reader, path, schema) => reader(json(path), path, schema, schemas)
-  const ownText = (file) => (file === 'game.json' || file === 'course.json' ? courseText : packageText)
-  return assemble({
-    id, packageId, courseNamespace, schemas, provenance,
-    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, expandNames(ownText(file)(value, file, schemas.game, schemas), file === 'course.json' ? packageId : courseNamespace, { schema: schemas.game, vocabulary: schemas, context: 'configuration', textKeys: false })]))),
-    levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
-    ...Object.fromEntries(['tags', 'relations', 'sections'].map((kind) => [kind, [
-      ...objectFiles(packageDir, folders[kind] ?? kind).map(([name, file]) => [kind === 'tags' ? name.split('/').at(-1) : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.slice(0, name.lastIndexOf('/')) }) }, packageId]),
-    ]])),
-    contentObjects: Object.fromEntries(Object.entries(kindSchemas(schemas)).filter(([kind]) => kind !== 'kind').map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(kind === 'chapter' ? gameDir : packageDir, schemas.objectKinds?.[kind]?.folder ?? folders[kind] ?? kind).map(([name, file]) => [name, read(kind === 'chapter' ? courseText : packageText, file, schema)]))])),
-    declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
-    glossary: { groups: [], entries: objectFiles(packageDir, 'entries').map(([id, file]) => ({ id, ...read(packageText, file, ENTRY) })) },
-    blueprint: existsSync(blueprint) ? read(courseText, blueprint, BLUEPRINT) : undefined,
-    fromDisk: true,
-  })
-}
-
 /** Read a layer in file shape; workspaces can replace this layer before assembling. */
 function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declarations = {}) {
   return memoResolution(`layer:${JSON.stringify([id, dir, config, declarations])}`, () => readLayerUncached(id, dir, config, declarations))
@@ -191,7 +169,7 @@ function readLayerUncached(id, dir, config, declarations) {
     for (const [kind, folder] of Object.entries({ ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(declarations).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) })) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/').at(-1) : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, meanings: [...kernel.tables.kind.values()], codeObjects: [...viewRegistrations(existsSync(resolve(dir, 'view/index.jsx')) ? resolve(dir, 'view/index.jsx') : null), ...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
+  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, meanings: [...kernel.tables.kind.values()], codeObjects: [...viewRegistrations(existsSync(resolve(dir, 'view/index.jsx')) ? resolve(dir, 'view/index.jsx') : null), ...pluginObjects(kernel)], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
 /** Resolve locked dependencies into a single layer representation for every consumer. */
@@ -353,15 +331,6 @@ export function readPackage(id, root = contentRoot(), { vocabulary } = {}) {
   const content = assembleLayers(id, layers, schemas, { packageId: id })
   contentRoots.set(content, root)
   return content
-}
-
-/** A domain's uninstalled starter keeps the course and package files together. */
-export function readStarter(templateDir) {
-  const dir = resolve(templateDir, 'starter')
-  const files = { 'game.json': json(resolve(dir, 'game.json')), ...configuration(configPaths(dir, dir)) }
-  const dependencies = resolveLayers({ packages: Object.keys(files['package.json'].uses ?? {}), closure: true, unlocked: true }).layers
-  const declarations = layerVocabulary(dependencies).objectKinds
-  return readFiles('starter', files, { vocabulary: layerVocabulary([...dependencies, readLayer('starter', dir, files['package.json'], declarations)]), provenance: { layerOrder: dependencies.map(layer => layer.id) }, courseNamespace: '@starter', packageId: 'starter', packageDir: dir, gameDir: dir, courseLocales: resolve(dir, 'i18n/course'), packageLocales: resolve(dir, 'i18n/package') })
 }
 
 export { runtimeOf } from './runtime.js'

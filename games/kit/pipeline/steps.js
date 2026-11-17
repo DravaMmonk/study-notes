@@ -25,7 +25,7 @@ import { lintPedagogy } from './pedagogy.js'
 import { reviewTerminology } from './terminology.js'
 import { searchable } from '../engine/ops/search.js'
 import { checkContent } from '../engine/vocabulary.js'
-import { withParts } from '../../../packages/circuit/core/index.js'
+import { meaningsOf } from '../engine/kind-meanings.js'
 import { isLanguageCode } from '../engine/i18n.js'
 
 const KIT_DIR = resolve(import.meta.dirname, '..')
@@ -35,7 +35,8 @@ const finding = (rule, at, says) => ({ rule, at, says })
  *  the same run may have just changed it. */
 async function checks(id) {
   const content = readContent(id)
-  const listed = hubCount(readFileSync(resolve(gameDirectory(), 'games.js'), 'utf8'), id)
+  const hub = resolve(gameDirectory(), 'games.js')
+  const listed = existsSync(hub) ? hubCount(readFileSync(hub, 'utf8'), id) : null
   const lines = await checkGame(content, { domain: await runtimeOf(content), listed })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
@@ -150,7 +151,7 @@ export const STEPS = [
     gate: async (id, _state, scope) => {
       const content = readContent(id)
       const domain = await runtimeOf(content)
-      const vocabulary = withParts(domain.vocabulary, content.partDefs)
+      const vocabulary = meaningsOf(domain.vocabulary).reduce((vocabulary, meaning) => meaning.validationVocabulary?.({ vocabulary, content }) ?? vocabulary, domain.vocabulary)
       const places = searchable(content, vocabulary, ['text']).filter((p) => p.side)
       const field = (place) => JSON.stringify([place.file, place.path])
       const fields = new Set(places.map(field)).size

@@ -1,17 +1,17 @@
 import { itemOf } from './worklist.js'
-import { installCircuitFixture, lockFixture } from '../engine/ops/fixture.js'
+import { installCircuitFixture, lockFixture, readStarter } from '../engine/ops/fixture.js'
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
 // palette's index and ranking (palette.js), the check's lines as a worklist (worklist.js), the copy
-// table's rows (copy.js); and on every domain's starter game (kit/templates/<template>/starter, copied to a temp folder), that
+// table's rows (copy.js); and on every domain's starter game (package-owned test fixtures, copied to a temp folder), that
 // bulk operations, the palette's index and the copy rows hold up.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
-import { cpSync, existsSync, mkdirSync, readFileSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { runtimeOf, readStarter } from '../engine/resolver.js'
+import { runtimeOf } from '../engine/resolver.js'
 import { eraLevels } from '../course.js'
 import { openPackage } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
@@ -55,16 +55,16 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
-const DOMAINS = resolve(import.meta.dirname, '../templates')
-const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
-const starter = (d) => readStarter(resolve(DOMAINS, d))
+const DOMAINS = resolve(import.meta.dirname, '../../../packages')
+const STARTERS = ['circuit', 'logic']
+const starter = d => readStarter(resolve(DOMAINS, d, 'test'))
 function openStarter(template) {
   const d = `sample-${template}`
   const root = mkdtempSync(join(tmpdir(), 'studio-tools-'))
   const dir = join(root, 'games', d)
   const pkg = join(root, 'packages', d)
   mkdirSync(dir, { recursive: true })
-  const source = resolve(DOMAINS, template, 'starter')
+  const source = resolve(DOMAINS, template, 'test/starter')
   cpSync(source, pkg, { recursive: true, filter: (file) => !['game.json', 'course.json', 'i18n'].map((name) => resolve(source, name)).includes(file) })
   cpSync(resolve(source, 'course.json'), join(dir, 'course.json'))
   cpSync(resolve(source, 'i18n/course'), resolve(dir, 'i18n'), { recursive: true })

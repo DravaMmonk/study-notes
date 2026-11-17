@@ -2,12 +2,13 @@ import { CHAPTER } from '../course-schema.js'
 import { kernelIdentity } from '../release-data.js'
 import { lockTarget } from '../releases.js'
 import { folders } from '../layers.js'
+import { register as registerLogic } from '../../../../packages/logic/core/index.js'
 import { meaning as logicMeaning } from '../../../../packages/logic/core/catalog.js'
 import { register as registerQED } from '../../../../packages/qed/core/index.js'
 import { createPluginKernel } from '../plugins.js'
 import { projectVocabulary, registerMeaning } from '../kind-meanings.js'
 import { withKindDeclarations, kindSchemas } from '../plugin-kinds.js'
-import { objectFiles, packageIds, contentTargets, resolveLayers } from '../resolver.js'
+import { objectFiles, packageIds, contentTargets, resolveLayers, readContent } from '../resolver.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
 // real game (games/DESIGN.md: unit tests never read a real game's levels). Each call writes a fresh folder.
@@ -16,7 +17,7 @@ import { objectFiles, packageIds, contentTargets, resolveLayers } from '../resol
 //
 // The game: `given` (the given is the goal), `apply` (two Applies in a row), `suppose` (an assumption box around them);
 // every brief and hint in everyday words, the English side naming “Saturday” and “Assume” for search and replace.
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, cpSync, existsSync, readdirSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, cpSync, existsSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { catalogsOf, normalizeText } from '../content-text.js'
@@ -58,6 +59,7 @@ const GAME = {
 }
 const qedKernel = createPluginKernel()
 registerQED(qedKernel.forPackage('qed', 'core'))
+registerLogic(qedKernel.forPackage('logic', 'core'))
 registerMeaning(logicMeaning)
 const fixtureKinds = Object.fromEntries(['logic/symbol', 'qed/wordset'].map(name => [name, JSON.parse(readFileSync(new URL(`../../../../packages/${name.split('/')[0]}/kinds/${name.split('/')[1]}.json`, import.meta.url)))]))
 export const logicVocabulary = withKindDeclarations(projectVocabulary({ ...contentVocabulary([]), meanings: [...contentMeanings, logicMeaning, ...qedKernel.tables.kind.values()] }), Object.entries(fixtureKinds).map(([name, value]) => ({ id: name.split('/')[0], resolved: true, objects: [{ kind: 'kind', name: name.split('/')[1], value }] })))
@@ -285,4 +287,28 @@ export function installLogicFixture(root) {
     for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/${id}/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
     cpSync(new URL(`../../../../packages/${id}/package.json`, import.meta.url), join(dir, 'package.json'))
   }
+}
+
+const starterFixtures = new Map()
+process.once('exit', () => { for (const root of starterFixtures.values()) rmSync(root, { recursive: true, force: true }) })
+/** Install package-owned test data through the regular workspace resolver. */
+export function readStarter(fixtureDir) {
+  if (starterFixtures.has(fixtureDir)) return readContent('starter', starterFixtures.get(fixtureDir))
+  const source = join(fixtureDir, 'starter')
+  const root = mkdtempSync(join(tmpdir(), 'package-example-'))
+  installLogicFixture(root)
+  installTableFixture(root)
+  const pkg = join(root, 'packages/starter')
+  const game = join(root, 'games/starter')
+  mkdirSync(game, { recursive: true })
+  cpSync(source, pkg, { recursive: true, filter: file => !['game.json', 'course.json', 'chapters', 'i18n'].some(name => file === join(source, name)) })
+  for (const name of ['game.json', 'course.json', 'chapters']) cpSync(join(source, name), join(game, name), { recursive: true })
+  cpSync(join(source, 'i18n/course'), join(game, 'i18n'), { recursive: true })
+  cpSync(join(source, 'i18n/package'), join(pkg, 'i18n'), { recursive: true })
+  const config = JSON.parse(readFileSync(join(game, 'game.json')))
+  config.packages = Object.fromEntries(['starter', ...packageIds(root).filter(id => id !== 'starter')].map(id => [id, '^0.0.0']))
+  writeFileSync(join(game, 'game.json'), JSON.stringify(config))
+  lockFixture(root)
+  starterFixtures.set(fixtureDir, root)
+  return readContent('starter', root)
 }

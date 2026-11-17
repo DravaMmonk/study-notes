@@ -1,3 +1,4 @@
+import { gameDirectory } from '../games/kit/engine/resolver.js'
 import { packageApp } from '../games/kit/app/package-vite.js'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -5,7 +6,7 @@ import react from '@vitejs/plugin-react'
 
 // Bundle only the hub's imported UI and illustrations; game builds fill its sibling folders.
 export default defineConfig({
-  root: resolve(import.meta.dirname, '../games'),
+  root: gameDirectory(),
   base: './',
   publicDir: false,
   resolve: {

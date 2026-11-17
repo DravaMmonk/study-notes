@@ -15,7 +15,7 @@ import { primitivesOnly } from 'circuit'
 import { PROOF_BOARD, runProof, startProof } from '../core/proof.js'
 import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from '../core/gates.js'
 import { deepFreeze } from '../../../games/kit/engine/content.js'
-import { readStarter } from '../../../games/kit/engine/resolver.js'
+import { readStarter } from '../../../games/kit/engine/ops/fixture.js'
 import { openPackedPart, packedBoards } from 'circuit'
 import { trayDisplay } from 'circuit'
 import domain from '../core/runtime.js'
@@ -41,7 +41,7 @@ const halfOf = (form, goal) => ({
 })
 const CONTENT = {
   words: ['everyday'],
-  registries: { 'logic/symbol': Object.fromEntries(Object.entries(readStarter(resolve(import.meta.dirname, '../../../games/kit/templates/logic')).registries['logic/symbol']).map(([name, value]) => [name.split('/').at(-1), value])), wordset: {
+  registries: { 'logic/symbol': Object.fromEntries(Object.entries(readStarter(resolve(import.meta.dirname, '../../logic/test')).registries['logic/symbol']).map(([name, value]) => [name.split('/').at(-1), value])), wordset: {
     everyday: { Rain: L('下雨', 'it rains'), Wind: L('刮风', 'it is windy'), Wet: L('地湿', 'the ground is wet'), Slip: L('路滑', 'the road is slippery'), Bright: L('{0}很亮', '{0} is bright'), Seen: L('{0}看得见', '{0} can be seen'), i: L('安', 'Ann'), j: L('博', 'Bo') },
     stars: { a: L('晨星', 'the Morning Star'), b: L('昏星', 'the Evening Star'), i: L('晨星', 'the Morning Star'), j: L('昏星', 'the Evening Star') },
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
@@ -50,7 +50,7 @@ const CONTENT = {
   // The parts the starter defines (its parts/<name>.json: the gates and the proof rules), and the parts built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
   partDefs: { parts: {
-    ...Object.fromEntries(Object.entries(starterParts(new URL('../../../games/kit/templates/logic/', import.meta.url).pathname).parts).filter(([, p]) => !p.inside)),
+    ...Object.fromEntries(Object.entries(starterParts(new URL('../../logic/test/', import.meta.url).pathname).parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'logic:family-gate', inside: [{ id: 'base', reference: GATE }] },
     chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B', 'C'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'base', reference: CHAIN }] },
     half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
@@ -275,7 +275,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
 })
 
 test('reading a game on the domain never writes into its content', () => {
-  const spec = domain.spec(deepFreeze(readStarter(resolve(import.meta.dirname, '../../../games/kit/templates/logic'))))
+  const spec = domain.spec(deepFreeze(readStarter(resolve(import.meta.dirname, '../../logic/test'))))
   assert.deepEqual(spec.logic.wrong, [])
   // The parts the player builds run the boards kept for them, or their levels' reference boards.
   spec.syncOwn({})
@@ -285,7 +285,7 @@ test('reading a game on the domain never writes into its content', () => {
 
 
 test('formula chips use the registered symbols and keep contextual names', () => {
-  const content = readStarter(resolve(import.meta.dirname, '../../../games/kit/templates/logic'))
+  const content = readStarter(resolve(import.meta.dirname, '../../logic/test'))
   const level = logicWorks(content).LEVELS.at(-1).tasks.at(-1)
   const chips = chipsOf({
     kind: 'logic:translate', notation: level.notation, vocab: { preds: [['Rain', 0]], consts: [] },
@@ -299,7 +299,7 @@ test('formula chips use the registered symbols and keep contextual names', () =>
 })
 
 test('formula and circuit groups share a task, combining in order and respecting unlocks', () => {
-  const content = readStarter(resolve(import.meta.dirname, '../../../games/kit/templates/logic'))
+  const content = readStarter(resolve(import.meta.dirname, '../../logic/test'))
   content.trays = {
     gates: { name: 'Gates', desc: 'Logic gates', items: ['starter/gNot', 'starter/gAnd'] },
     basic: { name: 'Basic', desc: 'Basic symbols', items: ['starter/formulaAnd', 'starter/formulaNot'] },

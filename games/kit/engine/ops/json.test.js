@@ -2,14 +2,14 @@
 // changed, and the diff that previews it.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { WIDTH, writeJson } from './json.js'
 import { lineDiff, unified } from './diff.js'
 
 // The modules' starter games: content files the kit keeps, in the house style every content file is written in.
-const MODULES = resolve(import.meta.dirname, '../../templates')
-const files = readdirSync(MODULES).map((d) => resolve(MODULES, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
+const MODULES = resolve(import.meta.dirname, '../../../../packages')
+const files = ['circuit', 'logic'].map(d => resolve(MODULES, d, 'test/starter')).flatMap((g) => [
   resolve(g, 'game.json'), ...['levels', 'entries', 'tags/entry'].flatMap((dir) => readdirSync(resolve(g, dir)).map((f) => resolve(g, dir, f))),
 ])
 

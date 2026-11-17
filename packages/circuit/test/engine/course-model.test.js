@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { contentCourse, publicationEvents, readWorkSet } from '../../core/index.js'
 import { holds, met, offer } from '../../core/index.js'
-import { readStarter } from "../../../../games/kit/engine/resolver.js"
+import { readStarter } from "../../../../games/kit/engine/ops/fixture.js"
 import { runtimeOf } from "../../../../games/kit/engine/runtime.js"
 
 const sample = () => ({
@@ -64,7 +64,7 @@ test('proved stages open after the publishing task and carry along prerequisites
 })
 
 test('runtime selection follows task declarations when the historical domain is changed or absent', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../../../../games/kit/templates/logic'))
+  const content = readStarter(resolve(import.meta.dirname, '../../../logic/test'))
   const runtime = await runtimeOf(content)
   const expected = runtime.spec(content)
   for (const domain of ['image', undefined]) {

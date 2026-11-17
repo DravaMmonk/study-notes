@@ -5,7 +5,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { auditBlueprint, conformance, erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
-import { boardShape, lintPedagogy } from './pedagogy.js'
+import { lintPedagogy } from './pedagogy.js'
+import { boardShape } from '../../../packages/circuit/core/index.js'
 
 const t = (s) => ({ en: s })
 const slot = (id, extra = {}) => ({ id, title: t(id), task: t(id), question: t(`why ${id}?`), chain: [t('try'), t('see')], role: 'foundation', uses: [], ...(extra.role === 'practice' ? { facet: t('a new case') } : {}), ...extra })
@@ -145,7 +146,7 @@ test('the pedagogy lint: the same board twice whatever its ids, the same prose t
   const level = (id, more) => ({ id, title: text(id), tasks: [{ id, brief: text(`brief of ${id}, long enough`), ...more }], intro: [{ t: text('The pipeline needs new numbers now.') }] })
   const bench = { knobs: { Z: { min: 1, max: 8, step: 1 }, f: { min: 1, max: 4, step: 1, fixed: true } }, layout: { main: ['goals'] } }
   const content = { levels: [level('1'), level('2'), level('3', { bench }), { id: '4', tasks: [{ id: '4', bench: { ...bench, check: 'submit' } }, { id: '4_2', kind: 'choice' }] }] }
-  const spec = { blueprints: [{ level: '1', board: board('one', '1') }, { level: '2', board: board('k', '1') }, { level: '3', board: board('k', '1'), naive: true }] }
+  const spec = { blueprints: [{ level: '1', board: board('one', '1'), fingerprint: () => boardShape(board('one', '1')) }, { level: '2', board: board('k', '1'), fingerprint: () => boardShape(board('k', '1')) }, { level: '3', board: board('k', '1'), fingerprint: () => boardShape(board('k', '1')), naive: true }] }
   const found = lintPedagogy(content, spec).map((f) => `${f.rule} ${f.at}${f.report ? ' (report)' : ''}`)
   assert.deepEqual(found, ['pd-repeat-board 2', 'pd-repeat-text 2 intro[0].t', 'pd-repeat-text 3 intro[0].t', 'pd-quiz 4 task 4_2 (report)', 'pd-slide 3 (report)'])
 })

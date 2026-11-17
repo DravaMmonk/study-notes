@@ -1,3 +1,4 @@
+import { boardShape } from 'circuit'
 // A table game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): the play order and the tree from its eras (../../course.js layout), each level's number, chapter and
 // introduction, its tasks as they are played (a circuit task with what its board is given, its palette and its reference
@@ -176,7 +177,7 @@ export function* prepareTableWorks(content) {
     const board = (text, naive) => {
       try {
         const b = read(text);
-        blueprints.push({ level: L.id, task: s.task, key: s.taskId, board: b, write, read, ...(naive ? { naive } : {}) });
+        blueprints.push({ level: L.id, task: s.task, key: s.taskId, board: b, fingerprint: () => b.wires.length ? boardShape(b) : null, write, read, ...(naive ? { naive } : {}) });
         return b;
       } catch (e) {
         say(where, e.en ?? String(e));

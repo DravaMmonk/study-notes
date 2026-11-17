@@ -2,12 +2,11 @@
 // npm run playtests [-- <game id>…] — the audit panel's blind-play table (./stats.js): for every game with sessions,
 // each level played (in play order) with its sessions, pass rate, attempts to pass, hints, difficulty and time, then the
 // difficulty-spike findings. Reads games/<game>/playtests/; plays nothing.
-import { GAMES } from '../../../games.js'
-import { isDataGame, readContent, readPlaytests, runtimeOf } from '../resolver.js'
+import { contentTargets, isDataGame, readContent, readPlaytests, runtimeOf } from '../resolver.js'
 import { SPIKE, perLevel, spikes } from './stats.js'
 
 const asked = process.argv.slice(2)
-for (const id of asked.length ? asked : GAMES.map((g) => g.id)) {
+for (const id of asked.length ? asked : contentTargets([], undefined, { game: true }).map(game => game.id)) {
   const records = readPlaytests(id)
   if (!records.length || !isDataGame(id)) continue
   const content = readContent(id)

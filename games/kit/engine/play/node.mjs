@@ -3,8 +3,9 @@
 // (games/<game>/playtests/<session>.json, ./session.js). Run from trace-viewer, as npm run play does.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { gameDirectory, readContent } from '../resolver.js'
+import { contentRoot, gameDirectory, readContent } from '../resolver.js'
 import { gameOf, loadModule } from '../games.mjs'
+import { contentRoots } from '../content.js'
 import { createPlay } from './play.js'
 import { fresh } from '../../shell/progress.js'
 import { checkPlaytest, newSession } from './session.js'
@@ -30,7 +31,7 @@ export async function loadPlay(game, lang = 'en') {
   const content = typeof game === 'string' ? readContent(game) : game
   const shell = await gameOf(content)
   const { runtimeOf } = await loadModule(resolve(KIT, 'engine/runtime.js'))
-  const domain = await runtimeOf(content)
+  const domain = await runtimeOf(content, contentRoots.get(content) ?? contentRoot())
   if (!domain.play) throw new Error('the selected runtime has no play hook')
   return { shell, hook: domain.play, course: domain.spec(content).course, content }
 }

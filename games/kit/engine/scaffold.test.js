@@ -1,38 +1,32 @@
-import { installLogicFixture } from './ops/fixture.js'
-// Installed mechanism starters remain usable through the game creation entry point.
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { gameDirectory, readContent, runtimeOf } from './resolver.js'
-import { templates, newGame, newPackage } from './scaffold.js'
-import { checkContent } from './vocabulary.js'
-import { closeGames } from './games.mjs'
-import { checkGame } from './checks.js'
-import { readPackage } from './resolver.js'
-import { audit } from '../../../packages/circuit/core/index.js'
+import { newPackage, gameOnPackage } from './scaffold.js'
+import { proofsRoot } from './ops/fixture.js'
+import { readPackage, readContent } from './resolver.js'
 
-after(closeGames)
+const roots = []
+after(() => roots.forEach(root => rmSync(root, { recursive: true, force: true })))
 
-for (const mechanism of templates()) test(`${mechanism}: the installed module starter creates a working game`, async () => {
-  const root = mkdtempSync(join(tmpdir(), 'module-starter-'))
-  try {
-    cpSync(join(gameDirectory(), 'kit'), join(root, 'games/kit'), { recursive: true })
-    writeFileSync(join(root, 'games/games.js'), 'export const GAMES = [\n];\n')
-    installLogicFixture(root)
-    newPackage({ root, id: 'library', template: mechanism })
-    const library = readPackage('library', root)
-    assert.deepEqual((await checkGame(library, { domain: await runtimeOf(library), root })).filter(line => line.fail), [])
-    newGame({ root, id: 'sample', template: mechanism, title: 'Sample' })
-    assert.throws(() => newGame({ root, id: 'sample', template: mechanism }), /there already/)
-    const content = readContent('sample', root)
-    const domain = await runtimeOf(content)
-    assert.deepEqual(checkContent(domain, content), [])
-    const spec = domain.spec(content)
-    assert.deepEqual(audit(spec.course), [])
-    assert.deepEqual((await domain.validate(spec)).filter((line) => line.fail), [])
-  } finally {
-    rmSync(root, { recursive: true, force: true })
-  }
+test('packages start empty or copy installed objects without a template catalog', () => {
+  const root = mkdtempSync(join(tmpdir(), 'new-package-'))
+  roots.push(root)
+  newPackage({ root, id: 'sample', empty: true })
+  assert.equal(readPackage('sample', root).levels.length, 0)
+  newPackage({ root, id: 'copy', from: 'sample' })
+  assert.equal(readPackage('copy', root).id, 'copy')
+  assert.throws(() => newPackage({ root, id: 'missing' }), /choose --from/)
+  assert.throws(() => newPackage({ root, id: 'copy', empty: true }), /there already/)
+})
+
+test('games copy installed selections and settings with an empty chapter', () => {
+  const { root, id } = proofsRoot()
+  roots.push(root)
+  gameOnPackage({ root, id: 'sample', from: id, title: 'Sample' })
+  const content = readContent('sample', root)
+  assert.deepEqual(content.sourceChapters[0].levels, [])
+  assert.equal(content.title.en, 'Sample')
+  assert.throws(() => gameOnPackage({ root, id: 'sample', from: id }), /there already/)
 })

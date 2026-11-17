@@ -1,9 +1,9 @@
 /* global process */
-// The games a command line names, checked the same way by every command (check, deps, op): each a game on the hub's
-// list (../../games.js); an unknown or missing one stops the command with its usage and the known ids.
-import { GAMES } from '../../games.js'
+// Command targets come from the content workspace resolver. Unknown or missing
+// selections stop the command with its usage and the installed game ids.
+import { contentTargets } from './resolver.js'
 
-export const ALL_GAMES = GAMES.map((g) => g.id)
+export const ALL_GAMES = contentTargets([], undefined, { game: true }).map(game => game.id)
 
 /** `ids` when every one is a known game (and there is at least one); otherwise the command stops. */
 export function knownGames(ids, usage) {

@@ -1,3 +1,4 @@
+import { kindSchemas } from '../engine/plugin-kinds.js'
 import { objectTypes, listOfType } from './object-types.js'
 import { glossaryTarget } from './form.js'
 // The copy table's rows (CopyTable.jsx): every text of a scope — an era (its own texts, then its levels'), a level group
@@ -52,7 +53,7 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
   const era = typeof scope === 'number' ? content.eras?.[scope] : null
   const group = typeof scope === 'string' && scope.startsWith('group:') ? scope.slice('group:'.length) : null
   const ids = era ? new Set(eraLevels(era)) : group !== null ? new Set((levelTags(content)[group]?.levels ?? []).map(({ id }) => id)) : null
-  if (era) find(vocabulary.game.fields.chapters.of, content.sourceChapters?.[scope] ?? era, 'text', { vocabulary }).forEach((t) => add({ game: true }, String(era.id), 'game')({ ...t, path: ['chapters', scope, ...t.path] }))
+  if (era) find(kindSchemas(vocabulary).chapter, content.sourceChapters?.[scope] ?? era, 'text', { vocabulary }).forEach((t) => add({ game: true }, String(era.id), 'game')({ ...t, path: ['chapters', scope, ...t.path] }))
   if (scope === 'all') {
     const game = Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_GAME.includes(k)))
     find(vocabulary.game, game, 'text', { vocabulary }).forEach(add({ game: true }, side === 'game' ? 'game.json' : 'package.json', 'game'))

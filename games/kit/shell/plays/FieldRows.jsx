@@ -69,8 +69,8 @@ export default function FieldRows({ screen, resource, play }) {
                 </div>
                 {why && <p className="fr-error">{L(why)}</p>}
               </li>
-              {opens && <li className="fr-region" style={{ '--depth': depth }}>proof</li>}
-              {closes.map((at) => <li key={at} className="fr-region" style={{ '--depth': at }}>qed</li>)}
+              {opens && <li className="fr-region" style={{ '--depth': depth }}>{L(resource.openLabel)}</li>}
+              {closes.map((at) => <li key={at} className="fr-region" style={{ '--depth': at }}>{L(resource.closeLabel)}</li>)}
             </Fragment>
           )
         })}

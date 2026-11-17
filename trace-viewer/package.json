@@ -25,7 +25,8 @@
     "pipeline": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/pipeline/pipeline.mjs",
     "new-package": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/engine/scaffold.js package",
     "baseline": "node --import ../games/kit/engine/package-imports.mjs --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ../games/kit/engine/baseline.mjs",
-    "publish": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/engine/releases.js"
+    "publish": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/engine/releases.js",
+    "test:zero": "node zero-content.mjs"
   },
   "dependencies": {
     "dompurify": "^3.4.14",
@@ -45,6 +46,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "playwright": "^1.65.1",
     "vite": "^7.2.4"
   }
 }

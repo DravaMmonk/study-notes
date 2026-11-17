@@ -270,3 +270,5 @@ export { partRefs } from './author-references.js'
 export { plainBoard } from './contracts.js'
 export { dependencies, dot, mermaid } from './dependencies.js'
 export { circuitPlaySchema } from './play-schema.js'
+
+export { boardShape } from './board-shape.js'

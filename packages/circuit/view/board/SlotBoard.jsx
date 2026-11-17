@@ -9,7 +9,7 @@ import { WORDS } from '../words.js'
 import { useSetting } from 'kernel/view'
 
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from "../../core/board/connections.js"
-import ClearButton from "./ClearButton.jsx"
+import { ClearButton } from 'kernel/view'
 import SaveSlots from "./SaveSlots.jsx"
 import { useElementSize } from 'kernel/view'
 
@@ -456,7 +456,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
-        {!fixed && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
+        {!fixed && <span className="pb-steps pb-clear"><ClearButton title={tr('清空整块板？')} lines={[tr('板上的元件和连线将全部移除，清空后仍可撤销。')]} onClear={onClear} size={16} /></span>}
         {!fixed&&manualBlocks&&blocks&&<button type="button" className="pb-partition" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{setPartitioning(!partitioning);setStartRow(null)}}><Group size={16} /></button>}
         {history && (
           <span className="pb-steps">

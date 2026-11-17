@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from 'circuit';
-import { readStarter } from '../../../games/kit/engine/resolver.js';
+import { readStarter } from '../../../games/kit/engine/ops/fixture.js';
 import { textPrint as print, read, readLines } from 'circuit'
 import { workshopView } from 'circuit'
 import { tableWorks } from '../core/work.js';

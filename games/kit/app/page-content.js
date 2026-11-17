@@ -23,7 +23,7 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   const packageText = catalogReader(packageCatalogs, 'i18n/package')
   if (vocabulary.packageCode !== undefined) {
     const layers = Object.entries(contentObjects.kind ?? {}).map(([name, value]) => ({ id: name.split('/')[0], catalogs: packageCatalogs, objects: [{ kind: 'kind', name: name.split('/')[1], value }] }))
-    vocabulary = withKindDeclarations(projectVocabulary({ ...vocabularyFor(), meanings: vocabulary.meanings }), layers, vocabulary.packageCode)
+    vocabulary = withKindDeclarations(projectVocabulary({ ...vocabularyFor(), codeObjects: vocabulary.codeObjects, meanings: vocabulary.meanings }), layers, vocabulary.packageCode)
   }
 
   const configuration = Object.fromEntries(Object.entries(configurationFiles(game)).map(([file, value]) => [
