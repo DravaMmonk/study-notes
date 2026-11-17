@@ -1,3 +1,4 @@
+import { tagKey } from '../tag-identity.js'
 import { kindSchemas } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
 // A changeset: several operations (operations.js) applied to a game together, as one change.
@@ -126,7 +127,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],
     game: [undefined, ws.game],
-    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(args[kind])]])),
+    ...Object.fromEntries(Object.entries({ tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays' }).map(([kind, plural]) => [kind, [OBJECT_SCHEMAS[plural], ws[plural]?.get(kind === 'tag' ? tagKey(args.member, args.tag) : args[kind])]])),
     part: [PART, ws.partDefs?.parts?.[args.part]],
     parts: [PARTS_FILE, ws.partDefs],
   }

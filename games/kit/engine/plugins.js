@@ -1,3 +1,4 @@
+import { tagKey, kernelTags } from './tag-identity.js'
 // Environment-neutral package registration. Each assembly owns its registry.
 const CORE = ['play', 'kind', 'state', 'check', 'agent']
 const VIEW = ['play', 'editor', 'display']
@@ -10,8 +11,7 @@ export function createPluginKernel() {
     tables[table].set(name, value)
   }
   // These names are consumed by Studio, including in headless author checks.
-  add('tag', 'studio-left', { kinds: ['kind'], reader: 'studio' })
-  add('tag', 'templates', { kinds: ['*'], reader: 'studio' })
+  for (const [key, reader] of kernelTags) add('tag', key, reader)
   return {
     tables,
     forPackage(id, side) {
@@ -23,10 +23,11 @@ export function createPluginKernel() {
         if (['check', 'state'].includes(type) && typeof value !== 'function') throw new Error(`${name}: ${type} needs a function`)
         add(type === 'play' && side === 'view' ? 'playView' : type, name, value)
       }]))
-      api.tag = (name, kinds) => {
+      api.tag = (name, member) => {
         if (side !== 'core') throw new Error('tag readers register in core')
-        if (!name.startsWith(`${id}:`)) throw new Error(`${id}: tag reader needs a qualified name`)
-        add('tag', name, { kinds, reader: id })
+        if (!name.startsWith(`${id}/`) || !/^[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*$/.test(name)) throw new Error(`${id}: tag reader needs its own full name`)
+        if (typeof member !== 'string' || !member) throw new Error(`${name}: tag reader needs a member type`)
+        add('tag', tagKey(member, name), { name, member, reader: id })
       }
       return Object.freeze(api)
     },

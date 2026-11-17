@@ -1,3 +1,4 @@
+import { tagName } from '../tag-identity.js'
 import { packageLevel, packageLevelOrder } from '../package-play.js'
 import { runtimeIds } from '../runtime.js'
 /* global process */
@@ -142,11 +143,11 @@ const tools = {
   },
   objects: {
     about: 'Read registered tags, relations or sections and the expanded course route, optionally after a pending changeset.',
-    params: { game: 'string', kind: 'string?', name: 'string?', changeset: 'object?', scope: 'string?' },
-    async run({ game, kind, name, changeset = null, scope }) {
+    params: { game: 'string', kind: 'string?', name: 'string?', member: 'string?', changeset: 'object?', scope: 'string?' },
+    async run({ game, kind, name, member, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
       if (kind && !Object.hasOwn(content.registries, kind)) throw new Error(`unknown object kind ${kind}`)
-      return { objects: name ? objectOf(content, kind, name) : kind ? content.registries[kind] : content.registries, route: courseRoute(content) }
+      return { objects: name ? objectOf(content, kind, name, member) : kind ? content.registries[kind] : content.registries, route: courseRoute(content) }
     },
   },
   games: {
@@ -292,7 +293,9 @@ const tools = {
     params: { game: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
+      const tags = Object.entries(content.registries.tag).map(([key, tag]) => ({ key, name: tagName(key), member: tag.kind }))
       if (content.packageTarget) return {
+        tags,
         levels: packageLevelOrder(content).map(id => ({ id, label: id, title: levelIn(content, id).title })),
         parts: Object.entries(content.partDefs?.parts ?? {}).map(([key, p]) => ({ key, name: p.name, part: key, at: null })),
         entries: content.glossary.entries.map(e => ({ id: e.id, title: e.title })), quotes: [],
@@ -300,6 +303,7 @@ const tools = {
       const shown = await gameOf(content)
       const domain = await runtimeOf(content)
       return {
+        tags,
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
         // Each with the part it is (its type in parts/<name>.json) and the level that first gives it: a primitive's first level
         // bringing it in, a built one's level earning its flag.

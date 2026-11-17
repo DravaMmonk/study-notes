@@ -1,3 +1,4 @@
+import { tagKey, tagName } from './tag-identity.js'
 import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { encyclopedia } from './encyclopedia.js'
 import { PARTS_FILE } from './parts/schema.js'
@@ -69,13 +70,14 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     const endpoints = [...(value.edges ?? []).flatMap((edge) => [edge.from, edge.to]), ...(value.sequence ?? [])]
     const endpoint = endpoints.find((ref) => ref.startsWith('#')) ?? endpoints[0]
     const endpointName = endpoint && referenceName(namespace, endpoint)
-    const taggedKind = endpoint?.startsWith('#') && tags.find(([id, , ns = packageId]) => fullName(ns, id) === endpointName.slice(1))?.[1].kind
+    const taggedKinds = endpoint?.startsWith('#') ? [...new Set(tags.filter(([id, tag, ns = packageId]) => fullName(ns, id) === endpointName.slice(1) && (!value.of || tag.kind === (value.member ?? value.of))).map(([, tag]) => tag.kind))] : []
+    const taggedKind = taggedKinds.length === 1 ? taggedKinds[0] : undefined
     const objectKind = levels.some(([id]) => id === endpointName) ? 'level'
       : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'part'
     const relationKind = value.of ?? (taggedKind || objectKind)
     const item = kind === 'tags' ? value.kind === 'part' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'part')
     const ref = (ns, v) => value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : referenceName(ns, v)
-    return [fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
+    return [kind === 'tags' ? tagKey(value.kind, fullName(namespace, name)) : fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
   }))
   const tagMap = objects('tags', tags)
   const trayMap = objects('trays', trays)
@@ -95,7 +97,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const resolve = referenceResolver(registries, objectProblems)
   for (const [name, tag] of Object.entries(tagMap)) {
     if (!(tag.kind in registries)) objectProblems.push({ at: `tags/${name}`, says: `unknown tag member kind ${tag.kind}` })
-    resolve(`#${name}`, tag.kind, `tags/${name}`)
+    resolve(`#${tagName(name)}`, tag.kind, `tags/${name}`)
   }
   const refs = (value, schema) => expandReferences(value, schema, resolve, schemas)
   for (const [kind, schema] of Object.entries(kindSchemas(schemas))) for (const [name, value] of Object.entries(registries[kind])) registries[kind][name] = refs(value, schema)
@@ -158,6 +160,6 @@ export function assemblySource(content) {
   return {
     id, game, contentObjects: Object.fromEntries(Object.keys(kindSchemas({ objectKinds: _objectKinds })).map(kind => [kind, kind === 'kind' ? Object.fromEntries(Object.entries(_registries?.kind ?? {}).filter(([name]) => _objectKinds?.[name])) : _registries?.[kind] ?? {}])), glossary: { groups: [], entries: Object.entries(_registries?.entry ?? {}).map(([id, entry]) => ({ id, ...entry })) }, partDefs, blueprint, overridden,
     levels: levels.map(({ id, ...level }) => [id, level]),
-    ...Object.fromEntries(Object.entries({ tags, relations, sections, trays: _registries?.tray ?? {} }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [name, object, name.split('/')[0]])])),
+    ...Object.fromEntries(Object.entries({ tags, relations, sections, trays: _registries?.tray ?? {} }).map(([kind, objects]) => [kind, Object.entries(objects).map(([name, object]) => [kind === 'tags' ? tagName(name) : name, object, (kind === 'tags' ? tagName(name) : name).split('/')[0]])])),
   }
 }

@@ -220,7 +220,7 @@
 
 **命名空间和全名。** 包的对象全名是 `<包>/<名>`；游戏自有文案用 `@<游戏>/<键>` 的命名空间，避免同名游戏和包混淆。在声明文件内引用本包可写短名，引用别包写全名；标签引用前加 `#`。文案字段的 `@` 是引用标记，例如游戏文案组装为 `@@qed/chapter.paper.title`。组装后模块、检查、页面和存档都读全名。
 
-每种对象一张注册表，名字在同种里唯一。标签的成员种类写进路径；组装后 `registries.tag` 是同一张表，标签名不能跨成员种类重名。元件和它的阶段也共用名字空间。
+每种对象一张注册表，名字在同种里唯一。标签的成员种类写进路径；标签身份是「成员类型 + 全名」，不同成员类型可以同名。组装后用 `registries.tag[tagKey(member, fullName)]`（键为 `<成员类型>:<全名>`）读取；`content.tags`、`sources.tag` 同键，`overrideHistory` 的标签事件携带 `member`。引用仍写 `#<命名空间>/<名>`，在字段期望的成员类型里查找；不限成员类型时，同名多类型报歧义。元件和它的阶段也共用名字空间。
 
 | 对象 | 包内文件 | 职责 |
 |---|---|---|
@@ -238,7 +238,7 @@
 
 一个对象一个文件，文件名提供 id，文件不再重复存对象 id。任务、阶段、菜单等对象内部的身份仍写在内部。标签只提供集合和 Studio 的名字、说明，不承担托盘、百科分组或概念功能；同一个词条可进几个分组，未分组的归「其它」。组装后的 `glossary`、`partDefs` 和 `eras` 是运行与显示投影，不是可写文件。
 
-**关系加载即生效。** 关系写 `{ kind, of?, edges: [{ from, to, required?, game? }] }`；`order` 也可写 `sequence`，等同相邻边。标签端点连到集合的起点、从终点连出；`of: "tag"` 保留 `#全名`，排标签本身，不展开成员。`requires`、`order` 各自无环；关卡的 `order` 只排 Studio，游戏顺序只读章的列表。元件和词条的 `order`、元件的 `replaces` 对所有加载者生效。无显式先后时按全名字典序；`orderedTags(content, kind)` 先满足标签显式顺序，再从成员的本地先修推断，最后按全名排。通常把成员顺序写成 `<标签名>-order`，标签间顺序写成 `<种类>-tags-order`。
+**关系加载即生效。** 关系写 `{ kind, of?, edges: [{ from, to, required?, game? }] }`；`order` 也可写 `sequence`，等同相邻边。标签端点连到集合的起点、从终点连出；`of: "tag"` 必须同时写 `member: "<成员类型>"`，保留 `#全名`，排标签本身，不展开成员。跨对象类型的 `order` 不写 `of`，直接用对象全名，在已登记的对象类型中查找，同名歧义报错；不再使用 `of: "grant"`。`requires`、`order` 各自无环；关卡的 `order` 只排 Studio，游戏顺序只读章的列表。元件和词条的 `order`、元件的 `replaces` 对所有加载者生效。无显式先后时按全名字典序；`orderedTags(content, kind)` 先满足标签显式顺序，再从成员的本地先修推断，最后按全名排。通常把成员顺序写成 `<标签名>-order`，标签间顺序写成 `<种类>-tags-order`。
 
 **依赖。** `package.json` 写 `uses` 和最低内核 `vocabulary` 版本。包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；选择列表的位置不改变加载顺序。
 
@@ -250,7 +250,7 @@
 | 标签、关系、托盘、百科分组 | 默认追加成员或边并去重；`replace: true` 清空后重写，`remove` 逐项去掉 |
 | 文案 | 按键合并，后层盖前层 |
 
-托盘菜单与成员、百科分组的显示顺序也写 `order`；菜单通常用 `<托盘>-<菜单>-order`。托盘菜单按 id 合并；`remove` 可移除菜单或成员。两个互不依赖的包覆盖同一对象时，先后无从决定，检查拒绝，须明确依赖。游戏层只准覆盖文案及关卡的 `requires`、`order`，不能声明对象。`sources`、`overrideHistory` 保留声明者、覆盖层及前后值，Studio 和检查共用，不能只看最终 JSON 猜来源。
+托盘菜单与成员、百科分组的显示顺序也写 `order`；菜单通常用 `<托盘>-<菜单>-order`。托盘菜单按 id 合并；`remove` 可移除菜单或成员。标签的独立贡献按依赖顺序取并集，记录每个成员的贡献者；`replace: true` 重置集合与来源，`remove` 移除成员及来源。其它对象由两个互不依赖的包覆盖时，检查拒绝，须明确依赖。游戏层只准覆盖文案及关卡的 `requires`、`order`，不能声明对象。`sources`、`overrideHistory` 保留声明者、覆盖层及前后值，Studio 和检查共用，不能只看最终 JSON 猜来源。
 
 **检查命令**（`trace-viewer/`）：`npm run check -- <游戏>` 查课程和选入的关；`npm run check -- --package <包>` 不生成课程，先查对象、引用、依赖和覆盖，再查元件的类型与设置，最后逐关检查参考解通过、naive 解失败。课程解锁、托盘引入来源、章和进度只在游戏上查。不写目标时查全部游戏，再查没有游戏玩的包；同名时用 `--game`、`--package` 区分。
 
@@ -282,12 +282,12 @@
 
 `packages/<包>/core/index.js` 和 `view/index.jsx` 均导出 `register(kernel)`，按直接 `uses` 的拓扑顺序登记。检查、基线与 `play_task`（`game` 或 `package`、`level`、可选 `task`、`work`）只加载包的核心；游戏与 Studio 的 Vite 入口同时加载两份。公开导出使用 `kernel`（`kit/engine/index.js`）、`kernel/view`（`kit/app/view.jsx`），依赖包用 `<包>` 与 `<包>/view`，禁止深入依赖内部路径。
 
-- 核心可调 `play(name, { initial, read, write, normalize, run, judge })`、`kind(name, { type, read })`、`state(name, derive)`、`check(name, check)`、`agent(name, { observe, act })`、`tag(name, memberKinds)`。登记名字必须是本包的 `<包>:<名>`；每张协议表内重名报错。`kernel.meanings(type, value, context)` 调用该类型登记的含义；`judge` 返回 `{ pass, score? }`，`evaluatePlay(kernel, task, work, context)` 统一读取、规范化、运行、判定、保存。
+- 核心可调 `play(name, { initial, read, write, normalize, run, judge })`、`kind(name, { type, read })`、`state(name, derive)`、`check(name, check)`、`agent(name, { observe, act })`、`tag(fullName, member)`。标签读者登记本包的 `<包>/<名>` 与单个成员类型；其它登记名字必须是本包的 `<包>:<名>`；每张协议表内重名报错。`kernel.meanings(type, value, context)` 调用该类型登记的含义；`judge` 返回 `{ pass, score? }`，`evaluatePlay(kernel, task, work, context)` 统一读取、规范化、运行、判定、保存。
 - 视图可调 `play(name, { component, preview, modes? })`、`editor(name, { type, ...editor })`、`display(name, display)`。核心与视图的玩法名配对；孤立视图报错，游戏实际用到只有核心的玩法时报错。主区组件接收 `{ task, work, onChange, state }`，内核负责保存、检验与通关。Studio 可直接读取 `kernel.tables.playView` 的预览、编辑模式，以及 `editor`、`display` 表。
 - 新任务用 `play: "text:answer"` 选择玩法。`text` 是无元件依赖的最小插件：五关分别演示精确匹配、忽略大小写与空白、正则、带非负容差的数值、多个可接受答案。配置为 `answerRule`、`referenceAnswer`、`wrongAnswers`、可选 `choices`；检查参考答案通过且全部错误答案失败。正则每次创建，拒绝有状态的 `g`/`y` 标志。
 - `kinds/<名>.json` 的对象声明是 `{ folder, schema, references?, relations?, override?, text?, studio? }`。`schema` 使用 `S` 的 JSON 结构；`references` 列出允许引用它的对象类型；`relations` 将关系名映射为 `{ from, to }` 对象类型；`override` 是 `replace`（默认）或 `append`（合并 `values`）；`text` 列出文案字段路径（列表元素用 `*`）；`studio` 是 `{ name, icon, group? }`。对象类型全名 `<包>/<名>`，实例全名 `<包>/<对象名>`。实例标签在 `tags/<对象类型全名>/<名>.json`，覆盖沿声明目录写入 `overrides/<命名空间>/`。
 - 字段扩展用 `{ extends: "level" | "task", fields: { 字段: schema } }`，不能重定义已有字段。内核类型与保留目录不能用包声明替换。`kind.put/set/remove` 编辑定义，`object.put/set/remove` 用 `{ kind, name, data? }` 编辑声明实例；代码目录不属于操作集。
-- Studio 的约定读者登记在数据协议初始化处：`studio-left` 接受 `kind`，`templates` 接受任一合法对象类型。包的读者用 `kernel.tag("包:名字", [成员类型])` 登记。检查成员类型以及近似约定名的拼写；普通集合保持自由命名。左栏和模板动作的界面接入由 Studio 负责。
+- 代码读取的标签归读者所有。内核登记 `kernel/studio-left`，成员类型为 `kind`；`kernel` 是保留命名空间，不能用作包名。包用 `kernel.tag("包/名字", "成员类型")` 登记，登记表 `kernel.tables.tag` 使用相同的复合键。自己声明写 `tags/<成员类型>/<名>.json`，贡献给读者或依赖标签写 `overrides/<命名空间>/tags/<成员类型>/<名>.json`。标签必须由命名空间所属包声明，或由读者登记；不存在的精确类型标签不能被覆盖。没有短名跨包合并或 `templates` 约定标签。新对象复制任意已有对象或从 schema 起步；精选起点可用普通标签。Studio 的左栏读取、标签打开与地址携带成员类型的界面接入另行完成。
 - `plugin-boundaries.js` 用 AST 同时检查静态 import、re-export、动态 import 和 require，拒绝计算出的导入路径。核心只能引用公开无界面接口与本核心，禁止界面库、JSX、CSS、Node I/O；视图可读本核心。`npm run check` 加载代码前检查，`lint:kit` 使用同一规则覆盖包代码。核心判定应保持确定性，只使用传入种子，不访问时间、文件或网络。
 
 共存只在任务所属者分派处发生：`runtimeOf`、游戏组装与 Studio 入口把已登记的包玩法投影为现有的两阶段课程读者，和未迁出的内核模块共用课程、进度、检查和外壳。没有第二份判定实现。第 3 步把 circuit 实现与对象声明迁进 `packages/circuit`，移除它的内核词汇表登记和 `modules/circuit` 加载项；其余模块迁完后删除内建模块加载分支及插件的临时课程投影，让通用进度只保留任务与关卡。

@@ -68,6 +68,19 @@ ownership. All other order edges retain their order. Their formula notation inve
 symbol ownership. Marks, labels, descriptions, icons, stages, availability and executed results remain compared.
 Other object names, definitions, editor fields and ownership are unaffected. Snapshots are never rewritten for this rule.
 
+The typed-tag migration normalizes only tag-shaped inventory names (`<member>:<namespace>/<name>`)
+back to their full name when building the existing instance alias inventory. Member types do not become
+extra namespaces or make an unchanged object alias ambiguous. This inventory is metadata; actual tag
+keys and membership are not globally stripped or merged. A distinct object's qualified name still collides
+and remains qualified as before. The collector's behavioural projection does not include tag definitions.
+
+Exactly five QED cross-type order edges retire `of: "grant"`: `certificate-certificate`, `gIff`,
+`machine-certificate`, `natInd`, and `res`, each pointing to `formulaForall`. For these exact QED
+full names (or their existing normalized local names), omitted `of` and old `grant` normalize to the
+existing formula-symbol ownership projection (`part`) and stable affected-edge ordering. No other
+untyped edge, endpoint, relation ownership, member sequence or runtime result is rewritten.
+Snapshots remain unchanged; this rule accepts no arbitrary edge rename or reordering.
+
 ## Current evidence boundaries
 
 - This is a finite reference/naive corpus, not equivalence for every possible player work. No browser,

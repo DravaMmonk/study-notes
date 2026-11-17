@@ -1,3 +1,4 @@
+import { tagName } from './tag-identity.js'
 // The shape of content (games/DESIGN.md 6.2). A schema is plain data, { type, … }, so a domain's whole vocabulary
 // prints as JSON for whoever writes content (an agent, a studio) without reading any code. validate() reports every
 // place a value does not fit, by its path.
@@ -162,7 +163,11 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
       case 'name':
         if (typeof v !== 'string') say(where, `expected the name of a ${s.kind}, found ${show(v)}`)
         // Without the names of that kind (a page checking content without its domain's names) only the type is checked.
-        else if (names?.[s.kind] && !names[s.kind].has(v)) say(where, `${show(v)} is no ${s.kind} of this game`)
+        else if (s.kind === 'tag' && names?.tag) {
+          const matches = [...names.tag].filter(key => tagName(key) === v.replace(/^#/, '') && (!s.members || key.slice(0, key.indexOf(':')) === s.members))
+          if (!matches.length) say(where, `${show(v)} is no tag of this game${s.members ? ` with member type ${s.members}` : ''}`)
+          else if (matches.length > 1) say(where, `ambiguous tag ${v}: ${matches.join(', ')}`)
+        } else if (names?.[s.kind] && !names[s.kind].has(v)) say(where, `${show(v)} is no ${s.kind} of this game`)
         return
       case 'board':
         if (!Array.isArray(v) || v.some((line) => typeof line !== 'string')) say(where, `expected a board as blueprint text, a list of lines, found ${show(v)}`)

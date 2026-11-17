@@ -1,3 +1,4 @@
+import { tagName } from '../tag-identity.js'
 // Where a game's content names a level: every field its domain's schema types as a level (schema.js S.level, the
 // chapters and typed object members included), every <level-ref> link inside a text, and the audit findings game.json leaves open
 // ('part@level').
@@ -18,7 +19,7 @@ const files = (ws, vocabulary) => [
   ...[...ws.entries].map(([id, entry]) => [`entries/${id}.json`, entry, ENTRY]),
   ...Object.entries(ws.partDefs?.parts ?? {}).map(([id, part]) => [`parts/${id}.json`, part, PARTS_FILE.fields.parts.of]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level]),
-  ...Object.entries(OBJECT_SCHEMAS).flatMap(([kind, schema]) => [...(ws[kind] ?? [])].map(([id, value]) => [`${kind}/${id}.json`, value, objectReferenceSchema(ws, kind, value, schema)])),
+  ...Object.entries(OBJECT_SCHEMAS).flatMap(([kind, schema]) => [...(ws[kind] ?? [])].map(([id, value]) => [`${kind}/${kind === 'tags' ? `${value.kind}/${tagName(id)}` : id}.json`, value, objectReferenceSchema(ws, kind, value, schema)])),
 ]
 
 // Object registries are separate: level references never name a same-named part or text.
@@ -26,7 +27,7 @@ function objectReferenceSchema(ws, kind, value, schema) {
   const local = (id) => id?.replace(`#${ws.packageId}/`, '').replace(`${ws.packageId}/`, '').replace(/^#/, '')
   const endpoints = [...(value.edges ?? []).flatMap(({ from, to }) => [from, to]), ...(value.sequence ?? [])]
   const first = endpoints.find((id) => id.startsWith('#')) ?? endpoints[0]
-  const of = value.of ?? (first?.startsWith('#') ? ws.tags.get(local(first))?.kind : ws.levels.has(local(first)) ? 'level' : 'part')
+  const of = value.of ?? (first?.startsWith('#') ? [...ws.tags].filter(([key]) => tagName(key) === local(first)).map(([, tag]) => tag.kind).filter(type => !value.member || type === value.member)[0] : ws.levels.has(local(first)) ? 'level' : 'part')
   const reference = (type) => type === 'level' ? S.level() : type === 'part' ? S.ref('part') : S.str()
   if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.list(reference(value.kind)) } }
   if (kind === 'relations') {

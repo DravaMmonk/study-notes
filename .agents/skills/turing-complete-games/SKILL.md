@@ -42,11 +42,11 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
   Local short references are qualified on assembly. Tags are unordered, typed development collections; they
   have no runtime teaching or presentation role. Relations (`requires`, `order`, `replaces`) load automatically.
-  Use `of: "tag"` for ordering tags themselves. Trays and encyclopedia sections are separate objects.
+  Use `of: "tag", member: "<member-type>"` for ordering tags themselves. Tag identity is member type plus full name, so different member types may share a full name. Read `registries.tag[tagKey(member, name)]` (key `<member>:<full-name>`); references remain `#<namespace>/<name>` and resolve in the expected member type. Untyped ambiguous references fail. Mixed object order relations omit `of`; never write `of: "grant"`. Trays and encyclopedia sections are separate objects.
 - Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `symbols/`, `entries/`,
   `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
   Objects replace by default (`$merge` opts into merge patch); collections append (`replace` and `remove`
-  control membership). Independent packages overriding the same object must establish a dependency.
+  control membership). Independent tag contributions union in dependency order; each member retains its contributors in `sources.tag[key].members`. Other independent overrides of one object require a dependency. A tag contribution requires its exact typed owner declaration or reader registration. Core registers `kernel/studio-left` (`kind`); `kernel` is reserved as a package namespace. Package readers register `kernel.tag("<own-package>/<name>", "<member-type>")`. Never merge conventions by short name or register `templates`.
   Preserve source and override history; never edit a dependency's declaration from the current workspace.
 - A game only arranges content: `course.json` has `chapters`, each with an ordered list of full level names
   in `levels`, and map `rows` (up to three positions per row). The order must respect `requires`. Optional and
@@ -82,7 +82,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Studio (§6.7) has build, arrange and copy workspaces, with resource, main editor and configuration columns.
   It uses the same preview/modify/undo tools as agents. Keep adapters thin. Follow the user's ownership boundary
   when another engineer owns Studio or frontend work; schema migrations warrant only required mechanical fixes.
-- New content starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
+- New objects copy any existing object (own or dependency) or start from their schema; curated starts are ordinary tags, with no template tag convention. The legacy starter directory remains until MODULES.md step 7. New content currently starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
   `npm run new-game -- <id> --template <name>`. To reuse an existing game’s packages and startup settings,
   use the `create_game` tool (`id`, `from`, `title`), then the package-selection operations.
   Package plugins can also start with `npm run new-package -- <id> --from text` or `--empty`.

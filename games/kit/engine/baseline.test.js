@@ -86,3 +86,16 @@ test('only the eight migrated formula symbols normalize ownership and retain the
   assert.equal(normalize('other/part.formulaAnd.desc'), 'other/part.formulaAnd.desc')
   assert.equal(normalize('other/parts/formulaAnd.json'), 'other/parts/formulaAnd.json')
 })
+
+test('typed tag inventory aliases and only the five retired QED grant edges normalize', () => {
+  const old = nameNormalizer(['qed/proof', 'qed/natInd', 'qed/formulaForall'])
+  const now = nameNormalizer(['qed/proof', 'level:qed/proof', 'qed/natInd', 'qed/formulaForall'])
+  const before = { structure: { relations: { order: [{ from: 'qed/natInd', to: 'qed/formulaForall', of: 'grant' }] } }, text: 'qed/proof' }
+  const after = { structure: { relations: { order: [{ from: 'qed/natInd', to: 'qed/formulaForall' }] } }, text: 'qed/proof' }
+  assert.deepEqual(differences(old(before), now(after)), [])
+  after.structure.relations.order[0].from = 'qed/other'
+  assert.ok(differences(old(before), now(after)).length)
+  const unrelated = { structure: { relations: { order: [{ from: 'other/natInd', to: 'qed/formulaForall' }] } } }
+  assert.equal(now(unrelated).structure.relations.order[0].of, undefined)
+  assert.notEqual(nameNormalizer(['qed/proof', 'level:other/proof'])('qed/proof'), 'proof')
+})

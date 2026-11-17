@@ -25,7 +25,7 @@ const content = (relations = {}, more = {}, order = []) => {
 
 test('the tags of a kind in the kernel’s order: tag orders, then prerequisites between their levels, then names', () => {
   assert.deepEqual(orderedTags(content(), 'level'), ['base/far', 'demo/two', 'demo/one'])
-  assert.deepEqual(orderedTags(content({}, {}, [{ from: '#demo/one', to: '#base/far', of: 'tag' }]), 'level'), ['demo/two', 'demo/one', 'base/far'])
+  assert.deepEqual(orderedTags(content({}, {}, [{ from: '#demo/one', to: '#base/far', of: 'tag', member: 'level' }]), 'level'), ['demo/two', 'demo/one', 'base/far'])
   // The tree's sections follow it.
   assert.deepEqual(groupTree(content(), []).sections.map((s) => s.group), ['base/far', 'demo/two', 'demo/one', null])
 })
@@ -48,17 +48,17 @@ test('an order is written as the layer’s own sequence, or as an override of an
 test('a tag moved among its kind writes the layer’s <kind>-tags-order, an order of the tags themselves', () => {
   assert.equal(kindOrderName('demo', 'level'), 'demo/level-tags-order')
   assert.deepEqual(tagMoveOps(content(), 'demo', 'level', 'demo/one', { before: 'base/far' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', sequence: ['#one', '#base/far', '#two'] } }])
+    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#one', '#base/far', '#two'] } }])
   // Only the tags the move passes over, besides those the relation already names.
   const four = content({}, { 'demo/zz': tag([]) })
   assert.deepEqual(orderedTags(four, 'level'), ['base/far', 'demo/two', 'demo/one', 'demo/zz'])
   assert.deepEqual(tagMoveOps(four, 'demo', 'level', 'demo/two', { after: 'demo/one' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', sequence: ['#one', '#two'] } }])
+    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#one', '#two'] } }])
   // Once the relation names tags, it keeps them and adds the one moved where it lands.
-  const named = content({ 'demo/level-tags-order': { kind: 'order', of: 'tag', sequence: ['#demo/two', '#demo/one'] } }, {}, [{ from: '#demo/two', to: '#demo/one', of: 'tag' }])
+  const named = content({ 'demo/level-tags-order': { kind: 'order', of: 'tag', member: 'level', sequence: ['#demo/two', '#demo/one'] } }, {}, [{ from: '#demo/two', to: '#demo/one', of: 'tag', member: 'level' }])
   assert.deepEqual(orderedTags(named, 'level'), ['base/far', 'demo/two', 'demo/one'])
   assert.deepEqual(tagMoveOps(named, 'demo', 'level', 'base/far', { after: 'demo/one' }),
-    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', sequence: ['#two', '#one', '#base/far'] } }])
+    [{ op: 'relation.put', relation: 'level-tags-order', data: { kind: 'order', of: 'tag', member: 'level', sequence: ['#two', '#one', '#base/far'] } }])
   assert.deepEqual(tagMoveOps(content(), 'demo', 'level', 'base/far', { before: 'demo/two' }), [])
 })
 

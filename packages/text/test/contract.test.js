@@ -61,5 +61,5 @@ test('published text content retains data declarations and resolves bilingual co
   const page = await pageContent(manifest, 'https://example.test/game/', async url => ({ ok: true, json: async () => JSON.parse(assets.get(url.pathname.slice('/game/'.length))) }), contentSchemas.get(content))
   assert.equal(page.objectKinds['text/answer'].extends, 'task')
   assert.equal(page.levels.find(level => level.id === 'text/exact').title.en, 'Copy the word')
-  assert.equal(page.registries.tag['text/studio-left'].values[0], 'level')
+  assert.equal(page.registries.tag['kind:kernel/studio-left'].values[0], 'level')
 })

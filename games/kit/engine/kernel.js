@@ -14,9 +14,9 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 12,
-  removes: [],
-  plugins: { version: 1, core: ['play', 'kind', 'state', 'check', 'agent', 'tag'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
+  version: 13,
+  removes: [{ at: 'plugins.version', why: 'Tag readers now register a member type and their own full name; templates and short-name conventions are removed.' }],
+  plugins: { version: 2, tags: { key: '<member>:<namespace>/<name>', register: 'tag(fullName, member)', reserved: ['kernel'], readers: [{ name: 'kernel/studio-left', member: 'kind' }] }, core: ['play', 'kind', 'state', 'check', 'agent', 'tag'], view: ['play', 'editor', 'display'], exports: ['kernel', 'kernel/view'], declarations: 'kinds/<name>.json' },
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

@@ -1,3 +1,7 @@
+import { createRequire } from 'node:module'
+import { installPackageImports } from './plugin-boundaries.js'
+import { createPluginKernel } from './plugins.js'
+import { tagName } from './tag-identity.js'
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -152,8 +156,21 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
 
 /** Read a layer in file shape; workspaces can replace this layer before assembling. */
 export function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declarations = {}) {
+  if (id === 'kernel') throw new Error('kernel is a reserved namespace')
   if (existsSync(resolve(dir, 'settings')) || existsSync(resolve(dir, 'settings.json'))) throw new Error(`${dir}: settings belong inside parts/`)
   if (existsSync(resolve(dir, 'glossary.json'))) throw new Error(`${dir}: glossary.json has been replaced by entries/ and tags/entry/`)
+  const tagReaders = []
+  const core = resolve(dir, 'core/index.js')
+  if (existsSync(core)) {
+    installPackageImports()
+    const api = createPluginKernel().forPackage(id, 'core')
+    const registration = createRequire(import.meta.url)(core)
+    const result = registration.register({ ...api, tag(name, member) {
+      api.tag(name, member)
+      tagReaders.push({ name, member, reader: id })
+    } })
+    if (result?.then) throw new Error(`${id}: register(kernel) must register declarations synchronously`)
+  }
   const objects = levelFiles(dir).map(([name, file]) => ({ kind: 'level', name, value: json(file) }))
   for (const folder of ['tags', 'relations', 'sections', 'trays']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/').at(-1) : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
   if (existsSync(resolve(dir, 'parts.json'))) throw new Error(`${dir}: parts.json has been replaced by parts/`)
@@ -168,7 +185,7 @@ export function readLayer(id, dir, config = json(resolve(dir, 'package.json')), 
     for (const [kind, folder] of Object.entries({ ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(declarations).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) })) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/').at(-1) : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
+  return { id, config, tagReaders, objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
 export function readPackageLayers(packageIds, root = PROJECT_DIR) {
@@ -184,7 +201,7 @@ export function assembleLayers(id, layers, schemas, { blueprint, declarationProb
   const game = Object.assign({}, ...configurations)
   delete game.uses
   const packageFields = Object.keys(game).filter((key) => key !== 'vocabulary')
-  const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [name, value, name.slice(0, name.lastIndexOf('/'))])
+  const entries = (kind) => Object.entries(r[kind]).map(([name, value]) => [kind === 'tag' ? tagName(name) : name, value, (kind === 'tag' ? tagName(name) : name).split('/')[0]])
   const overridden = {}
   for (const event of overrideHistory) if (event.kind === 'i18n') {
     const [lang, key] = event.name.split(':')

@@ -11,7 +11,6 @@ import { readPackage } from './content-node.js'
 import { checkContent } from './vocabulary.js'
 import { openPackage } from './ops/workspace.js'
 import { runChangeset } from './ops/changeset.js'
-import { tagReaderProblems } from './plugin-runtime.js'
 
 const play = { initial: () => '', read: x => x, write: x => x, normalize: x => x, run: x => x, judge: x => ({ pass: x === 'ok' }) }
 
@@ -53,16 +52,16 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
     } }] }, { write: true })
     assert.equal(result.ok, true, result.problems.join('\n'))
     ws = openPackage('story', root)
-    result = await runChangeset(ws, { why: 'Add a scene and its template', ops: [
+    result = await runChangeset(ws, { why: 'Add a scene and its collection', ops: [
       { op: 'object.put', kind: 'story/scene', name: 'start', data: { title: { en: 'Start', zh: '开始' } } },
-      { op: 'object.put', kind: 'story/scene', name: 'end', data: { title: { en: 'End', zh: '结束' }, next: '#templates' } },
-      { op: 'tag.put', tag: 'templates', data: { kind: 'story/scene', values: ['start'] } },
+      { op: 'object.put', kind: 'story/scene', name: 'end', data: { title: { en: 'End', zh: '结束' }, next: '#starts' } },
+      { op: 'tag.put', tag: 'starts', member: 'story/scene', data: { values: ['start'] } },
       { op: 'relation.put', relation: 'follows', data: { kind: 'story:follows', edges: [{ from: 'start', to: 'end' }] } },
     ] }, { write: true })
     assert.equal(result.ok, true, result.problems.join('\n') + JSON.stringify(result.lines))
     const content = readPackage('story', root)
     assert.equal(content.registries['story/scene']['story/end'].next, 'story/start')
-    assert.deepEqual(content.registries.tag['story/templates'].values, ['story/start'])
+    assert.deepEqual(content.registries.tag['story/scene:story/starts'].values, ['story/start'])
     assert.equal(content.relationEdges['story:follows'][0].to, 'story/end')
     assert.equal(content.sources['story/scene']['story/start'].declaration, 'story')
     assert.deepEqual(checkContent({ vocabulary: ws.schemas }, content), [])
@@ -87,12 +86,6 @@ test('kind declarations cannot change built-in structure or hide malformed schem
   assert.throws(() => withKindDeclarations(base, layer({ folder: 'scenes', schema: { type: 'invalid' } })), /schema/)
 })
 
-test('Studio conventions detect spelling and member kinds, ordinary tags remain collections', () => {
-  const kernel = createPluginKernel()
-  assert.equal(tagReaderProblems({ registries: { tag: { 'story/themes': { kind: 'entry', values: [] } } } }, kernel).length, 0)
-  assert.equal(tagReaderProblems({ registries: { tag: { 'story/studio-left': { kind: 'level', values: [] } } } }, kernel).length, 1)
-  assert.equal(tagReaderProblems({ registries: { tag: { 'story/templats': { kind: 'level', values: [] } } } }, kernel).length, 1)
-})
 
 test('Node core imports and paired Vite entries compose two dependent plugins in one level', async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'package-code-'))
@@ -152,5 +145,35 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
       assert.equal(typeof mixedGame.kinds['beta:answer'].Screen, 'function')
 
     } finally { await closeGames() }
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('tag readers register only their own full names and one member type per identity', () => {
+  const kernel = createPluginKernel(), api = kernel.forPackage('story', 'core')
+  api.tag('story/picks', 'level')
+  api.tag('story/picks', 'entry')
+  assert.deepEqual(kernel.tables.tag.get('level:story/picks'), { name: 'story/picks', member: 'level', reader: 'story' })
+  assert.ok(kernel.tables.tag.has('kind:kernel/studio-left'))
+  assert.equal(kernel.tables.tag.size, 3)
+  assert.throws(() => api.tag('story:picks', ['level']), /own full name/)
+  assert.throws(() => api.tag('other/picks', 'level'), /own full name/)
+  assert.throws(() => api.tag('story/picks', ['level']), /member type/)
+  assert.throws(() => api.tag('story/picks', 'level'), /duplicate/)
+  assert.throws(() => kernel.forPackage('story', 'view').tag('story/view', 'level'), /register in core/)
+})
+
+test('Node assembly discovers code-owned tags before composing contributions', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'tag-readers-'))
+  const put = (path, value) => { const file = resolve(root, path); mkdirSync(resolve(file, '..'), { recursive: true }); writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value)) }
+  try {
+    put('packages/reader/package.json', { uses: [], vocabulary: 13 })
+    put('packages/reader/core/index.js', "export function register(k) { k.tag('reader/picks', 'entry') }")
+    put('packages/writer/package.json', { uses: ['reader'], vocabulary: 13 })
+    put('packages/writer/entries/example.json', { title: 'Example', body: [] })
+    put('packages/writer/overrides/reader/tags/entry/picks.json', { values: ['example'] })
+    const content = readPackage('writer', root)
+    assert.deepEqual(content.registries.tag['entry:reader/picks'].values, ['writer/example'])
+    assert.equal(content.sources.tag['entry:reader/picks'].reader, 'reader')
+    assert.deepEqual(content.sources.tag['entry:reader/picks'].members, { 'writer/example': ['writer'] })
   } finally { rmSync(root, { recursive: true, force: true }) }
 })

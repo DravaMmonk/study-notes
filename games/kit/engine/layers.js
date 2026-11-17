@@ -1,4 +1,5 @@
 // Dependency ordering, override composition and provenance shared by readers and author operations.
+import { tagKey, tagName, kernelTags } from './tag-identity.js'
 import { kindSchemas, BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
@@ -14,6 +15,7 @@ export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: P
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
+  if (packages.some(p => p.id === 'kernel')) throw new Error('kernel is a reserved namespace')
   const byId = new Map(packages.map((p) => [p.id, p]))
   if (byId.size !== packages.length) throw new Error('duplicate package selection')
   for (const p of packages) {
@@ -62,7 +64,7 @@ export function visibleOverrides(content, layer = content.layerOrder?.at(-1)) {
 }
 
 function contextFor(layer, layers, schemas) {
-  const allowed = new Set([layer.id, ...(layer.id.startsWith('@') ? layers.filter((l) => !l.id.startsWith('@')).map((l) => l.id) : layer.config.uses ?? [])])
+  const allowed = new Set(['kernel', layer.id, ...(layer.id.startsWith('@') ? layers.filter((l) => !l.id.startsWith('@')).map((l) => l.id) : layer.config.uses ?? [])])
   const name = (v) => {
     const qualified = fullName(layer.id, v)
     if (typeof qualified === 'string' && qualified.includes('/') && !allowed.has(qualified.split('/')[0])) throw new Error(`${layer.id}: undeclared dependency in ${qualified}`)
@@ -80,23 +82,38 @@ export function composeLayers(layers, schemas) {
   const registries = Object.fromEntries([...new Set([...OBJECT_KINDS, ...Object.keys(kindSchemas(schemas)), 'i18n'])].map((kind) => [kind, {}]))
   const sources = Object.fromEntries(Object.keys(registries).map((kind) => [kind, {}]))
   const history = [], catalogs = {}, configurations = []
+  const readers = new Map([...kernelTags, ...layers.flatMap(layer => (layer.tagReaders ?? []).map(reader => [tagKey(reader.member, reader.name), reader]))])
+  for (const [key, reader] of readers) {
+    registries.tag[key] = { kind: reader.member, values: [] }
+    sources.tag[key] = { declaration: null, reader: reader.reader, overrides: [], members: {} }
+  }
+  const identity = (kind, name, value) => kind === 'tag' ? tagKey(value.kind, name) : name
   const dependencies = new Map(layers.map((layer) => [layer.id, layer.config?.uses ?? []]))
   const depends = (a, b, seen = new Set()) => {
     if (seen.has(a)) return false
     seen.add(a)
     return (dependencies.get(a) ?? []).some((dep) => dep === b || depends(dep, b, seen))
   }
-  const record = (kind, name, value, layer, override) => {
-    const before = registries[kind][name]
+  const record = (kind, name, value, layer, override, contribution) => {
+    const key = identity(kind, name, value)
+    const before = registries[kind][key]
     if (override && before === undefined && !(kind === 'i18n' && Object.keys(registries.i18n).some((key) => key.slice(key.indexOf(':') + 1) === name.slice(name.indexOf(':') + 1)))) throw new Error(`${layer.id}: cannot override unknown ${kind} ${name}`)
-    if (!override && before !== undefined) throw new Error(`duplicate ${kind} ${name}`)
+    if (!override && before !== undefined && !(kind === 'tag' && !sources.tag[key]?.declaration)) throw new Error(`duplicate ${kind} ${name}`)
     if (override) {
-      sources[kind][name] ??= { declaration: name.slice(name.indexOf(':') + 1).split('/')[0], overrides: [] }
-      for (const previous of sources[kind][name].overrides) if (!previous.startsWith('@') && !layer.id.startsWith('@') && !depends(layer.id, previous) && !depends(previous, layer.id)) throw new Error(`conflicting overrides of ${kind} ${name}: ${previous}, ${layer.id}`)
-      history.push({ kind, name, layer: layer.id, before: structuredClone(kind === 'i18n' ? before : sourceValue(before)), after: structuredClone(kind === 'i18n' ? value : sourceValue(value)) })
-      sources[kind][name].overrides.push(layer.id)
-    } else sources[kind][name] = { declaration: layer.id, overrides: [] }
-    registries[kind][name] = value
+      sources[kind][key] ??= { declaration: name.slice(name.indexOf(':') + 1).split('/')[0], overrides: [] }
+      for (const previous of kind === 'tag' ? [] : sources[kind][key].overrides) if (!previous.startsWith('@') && !layer.id.startsWith('@') && !depends(layer.id, previous) && !depends(previous, layer.id)) throw new Error(`conflicting overrides of ${kind} ${name}: ${previous}, ${layer.id}`)
+      history.push({ kind, name, ...(kind === 'tag' && { member: value.kind }), layer: layer.id, before: structuredClone(kind === 'i18n' ? before : sourceValue(before)), after: structuredClone(kind === 'i18n' ? value : sourceValue(value)) })
+      sources[kind][key].overrides.push(layer.id)
+    } else sources[kind][key] = { ...sources[kind][key], declaration: layer.id, overrides: [] }
+    if (kind === 'tag') {
+      const previous = sources.tag[key].members ?? {}
+      sources.tag[key].members = Object.fromEntries(value.values.map(member => {
+        const retained = !contribution?.replace && !contribution?.remove?.includes(member) && before?.values.includes(member)
+        const added = !override || contribution?.values?.includes(member)
+        return [member, [...new Set([...(retained ? previous[member] ?? [] : []), ...(added ? [layer.id] : [])])]]
+      }))
+    }
+    registries[kind][key] = value
   }
   // Text is composed first, then references resolve against the catalog visible to the whole assembly.
   for (const layer of layers) {
@@ -122,7 +139,7 @@ export function composeLayers(layers, schemas) {
     const object = (kind, value) => {
       if (kind === 'entry' && (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group'))) throw new Error('entry identity belongs in its name and membership in entry tags')
       const direct = owner => owner === layer.id || layer.id.startsWith('@') || (layer.config.uses ?? []).includes(owner)
-      const memberType = kind === 'tag' ? value.kind : kind === 'relation' ? value.of : null
+      const memberType = kind === 'tag' ? value.kind : kind === 'relation' ? value.member ?? value.of : null
       if (memberType?.includes('/') && !direct(memberType.split('/')[0])) throw new Error(`${layer.id}: undeclared object type dependency ${memberType}`)
       if (kind === 'level') for (const task of value.tasks ?? []) {
         const owner = task.play?.split(':')[0]
@@ -132,7 +149,13 @@ export function composeLayers(layers, schemas) {
       const schema = schemaForKind(kind, schemas)
       let qualified = qualify(value, schema)
       const endpoint = [...(value.edges ?? []).flatMap((e) => [e.from, e.to]), ...(value.sequence ?? [])][0]
-      const endpointTag = typeof endpoint === 'string' && endpoint.startsWith('#') ? registries.tag[fullName(layer.id, endpoint.slice(1))] ?? layer.objects.find((o) => o.kind === 'tag' && o.name === endpoint.slice(1))?.value : null
+      const expectedMember = value.member ?? value.of
+      const endpointTags = typeof endpoint === 'string' && endpoint.startsWith('#') ? [
+        ...Object.entries(registries.tag).filter(([key]) => tagName(key) === fullName(layer.id, endpoint.slice(1))).map(([, tag]) => tag),
+        ...layer.objects.filter(o => o.kind === 'tag' && fullName(layer.id, o.name) === fullName(layer.id, endpoint.slice(1))).map(o => o.value),
+      ].filter(tag => !expectedMember || tag.kind === expectedMember) : []
+      const endpointKinds = [...new Set(endpointTags.map(tag => tag.kind))]
+      const endpointTag = endpointKinds.length === 1 ? endpointTags[0] : null
       const item = kind === 'tag' && value.kind === 'part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'part' || endpointTag?.kind === 'part' || schemas.kinds?.part?.[endpoint]))
       const objectName = (v) => kind === 'tag' && value.kind === 'kind' && BUILTIN_KIND_NAMES.includes(v) ? v : item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
       if (['tag', 'relation', 'section', 'tray'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
@@ -146,16 +169,18 @@ export function composeLayers(layers, schemas) {
     configurations.push(texts(layer.config ?? {}, schemas.game, 'configuration'))
     for (const { kind, name: id, value } of layer.objects) {
       if (id.includes('/') && !id.startsWith(`${layer.id}/`)) throw new Error(`${layer.id}: declare foreign object ${id} in overrides`)
-      record(kind, fullName(layer.id, id), object(kind, value), layer, false)
+      const full = fullName(layer.id, id)
+      const qualified = object(kind, value)
+      record(kind, full, kind === 'tag' ? applyOverride('tag', { kind: value.kind, values: [] }, qualified) : qualified, layer, false)
     }
     for (const { kind, name: id, value } of layer.overrides ?? []) {
       name(id)
-      const before = registries[kind]?.[id]
+      const before = registries[kind]?.[identity(kind, id, value)]
       if (before === undefined) throw new Error(`${layer.id}: cannot override unknown ${kind} ${id}`)
       const after = applyOverride(schemas.objectKinds?.[kind]?.override === 'append' ? 'tag' : kind, before, object(kind, value))
-      const levelRelation = (value) => ['requires', 'order'].includes(value.kind) && (!value.of || value.of === 'level') && edges(value).every((edge) => [edge.from, edge.to].every((ref) => ref.startsWith('#') ? registries.tag[ref.slice(1)]?.kind === 'level' : Boolean(registries.level[ref]) || Boolean(edge.game && ref === edge.from)))
+      const levelRelation = (value) => ['requires', 'order'].includes(value.kind) && (!value.of || value.of === 'level') && edges(value).every((edge) => [edge.from, edge.to].every((ref) => ref.startsWith('#') ? Boolean(registries.tag[tagKey('level', ref.slice(1))]) : Boolean(registries.level[ref]) || Boolean(edge.game && ref === edge.from)))
       if (layer.id.startsWith('@') && !(kind === 'relation' && levelRelation(before) && levelRelation(after))) throw new Error(`${layer.id}: games cannot override ${kind} ${id}`)
-      record(kind, id, after, layer, true)
+      record(kind, id, after, layer, true, object(kind, value))
     }
   }
   return { registries, sources, overrideHistory: history, layerOrder: layers.map((l) => l.id), layerUses: Object.fromEntries(layers.map((l) => [l.id, l.id.startsWith('@') ? layers.filter((p) => !p.id.startsWith('@')).map((p) => p.id) : l.config.uses ?? []])), configurations, catalogs }

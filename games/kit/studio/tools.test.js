@@ -87,10 +87,10 @@ test('on every starter: a bulk edit of its package levels runs as a changeset, a
     const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { en: '同一个标题' })
     assert.deepEqual([ops.length, skipped], [ids.length, []], d)
     // The era's levels backwards, into a new group: they end up together there, in that order.
-    const grouped = [{ op: 'tag.put', tag: 'first', data: { kind: 'level', title: { en: 'First' }, values: ids } }]
+    const grouped = [{ op: 'tag.put', tag: 'first', member: 'level', data: { title: { en: 'First' }, values: ids } }]
     const r = await runChangeset(ws, { ops: [...ops, ...grouped] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
-    assert.deepEqual(r.content.tags[`${d}/first`].values, ids, d)
+    assert.deepEqual(r.content.tags[`level:${d}/first`].values, ids, d)
     assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === '同一个标题'), d)
   }
 })

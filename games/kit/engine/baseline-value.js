@@ -39,6 +39,8 @@ export function baselineValue(input) {
 
 // The eight QED connectives changed object ownership, retaining their exact identities and values.
 const FORMULA_NAMES = ['formulaAnd', 'formulaOr', 'formulaNot', 'formulaImplies', 'formulaIff', 'formulaForall', 'formulaExists', 'formulaFalse']
+const mixedFormulaSources = new Set(['certificate-certificate', 'gIff', 'machine-certificate', 'natInd', 'res'])
+const mixedFormulaEdge = edge => /^(?:qed\/)?formulaForall$/.test(edge?.to) && mixedFormulaSources.has(edge?.from?.replace(/^qed\//, '')) && (edge.of === 'grant' || edge.of === undefined)
 const formulaName = name => typeof name === 'string' && FORMULA_NAMES.includes(name.replace(/^qed\//, ''))
 const formulaCopy = new RegExp(`(?<![\\w/])((?:qed/)?)part\\.(${FORMULA_NAMES.join('|')})(?=\\.)`, 'g')
 const formulaFile = new RegExp(`(?<![\\w/])((?:packages/qed/|qed/)?)parts/(${FORMULA_NAMES.join('|')})(?=\\.json\\b)`, 'g')
@@ -82,6 +84,9 @@ export function formulaSymbolBaseline(input) {
     memo.set(value, out)
     return out
   }
+  // Only the five authored cross-type QED edges retired `of: grant`.
+  const order = input?.structure?.relations?.order
+  if (Array.isArray(order)) input = { ...input, structure: { ...input.structure, relations: { ...input.structure.relations, order: order.map(edge => mixedFormulaEdge(edge) ? { ...edge, of: 'part' } : edge) } } }
   return walk(input)
 }
 
@@ -98,7 +103,7 @@ export function nameNormalizer(names) {
     .replace(/\bcircuit\/part\b/g, 'part')
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
-  names = [...new Set([...names].map(kindNames))]
+  names = [...new Set([...names].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {

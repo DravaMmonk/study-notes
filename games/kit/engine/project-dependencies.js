@@ -1,3 +1,4 @@
+import { tagKey, tagName } from './tag-identity.js'
 import { runtimeIds } from './runtime.js'
 // Server-side validation of the graph across the games installed in a project.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -19,14 +20,14 @@ function siblingCourseProblems(own, content, peers, root) {
     const belongs = (name) => shared.has(name.split('/')[0])
     const extra = peer.packageIds.filter((packageId) => !own.packageIds.includes(packageId))
     const installedLevels = extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'levels').map(([name]) => ({ id: `${packageId}/${name}` })))
-    const installedTags = Object.fromEntries(extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'tags').map(([name, file]) => [`${packageId}/${name.split('/')[1]}`, qualifyObject('tags', { ...JSON.parse(readFileSync(file, 'utf8')), kind: name.split('/')[0] }, packageId)])))
+    const installedTags = Object.fromEntries(extra.flatMap((packageId) => objectFiles(resolve(root, 'packages', packageId), 'tags').map(([name, file]) => [tagKey(name.slice(0, name.lastIndexOf('/')), `${packageId}/${name.split('/').at(-1)}`), qualifyObject('tags', { ...JSON.parse(readFileSync(file, 'utf8')), kind: name.slice(0, name.lastIndexOf('/')) }, packageId)])))
     const levels = new Set([...installedLevels, ...content.levels.filter((l) => belongs(l.id))].map((l) => l.id))
     const registries = { level: Object.fromEntries([...levels].map((name) => [name, {}])), tag: {
-      ...Object.fromEntries(Object.entries(installedTags).filter(([name]) => !belongs(name))),
-      ...Object.fromEntries(Object.entries(content.tags ?? {}).filter(([name]) => belongs(name))),
+      ...Object.fromEntries(Object.entries(installedTags).filter(([name]) => !belongs(tagName(name)))),
+      ...Object.fromEntries(Object.entries(content.tags ?? {}).filter(([name]) => belongs(tagName(name)))),
     } }
     for (const layer of readPackageLayers(peer.packageIds, root).filter((layer) => extra.includes(layer.id))) for (const patch of layer.overrides.filter((o) => o.kind === 'tag')) {
-      if (registries.tag[patch.name]) registries.tag[patch.name] = applyOverride('tag', registries.tag[patch.name], qualifyObject('tags', patch.value, layer.id))
+      if (registries.tag[tagKey(patch.value.kind, patch.name)]) registries.tag[tagKey(patch.value.kind, patch.name)] = applyOverride('tag', registries.tag[tagKey(patch.value.kind, patch.name)], qualifyObject('tags', patch.value, layer.id))
     }
     const problems = []
     const expand = referenceResolver(registries, problems)

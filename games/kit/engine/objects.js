@@ -1,3 +1,4 @@
+import { tagKey, tagName } from './tag-identity.js'
 import { grantIndex, grants } from './grants.js'
 import { contentKindSchemas } from './content-kinds.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
@@ -9,7 +10,7 @@ export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
 export const TAG = S.obj({ kind: S.str(), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.str(), of: S.opt(S.str()), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const RELATION = S.obj({ kind: S.str(), of: S.opt(S.str()), member: S.opt(S.str()), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
 export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'grant' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'grant' }) }))) })
 export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION, trays: TRAY_OBJECT }
@@ -33,31 +34,46 @@ export function referenceResolver(registries, problems = []) {
     if (grants.types.has(kind)) return granted.get(id)?.type === kind
     return kind === 'any' ? Object.keys(registries).filter(k => k !== 'tag').some((k) => has(k, id)) : Object.hasOwn(registries[kind] ?? {}, id)
   }
-  const expand = (value, kind, at = 'reference', active = []) => {
+  const findTag = (name, kind, at) => {
+    const matches = Object.entries(registries.tag ?? {}).filter(([key, tag]) => tagName(key) === name && (kind === 'any' || kind === 'grant' && grants.types.has(tag.kind) || tag.kind === kind))
+    if (matches.length !== 1) {
+      report(at, matches.length ? `ambiguous tag ${name}: ${matches.map(([, tag]) => tag.kind).join(', ')}` : `unknown tag ${name}; expected ${kind}`)
+      return null
+    }
+    return matches[0]
+  }
+  const expand = (value, kind, at = 'reference', active = [], member) => {
     const values = Array.isArray(value) ? value : [value]
     const out = values.flatMap((id) => {
       if (typeof id !== 'string') return []
       if (kind === 'tag') {
         if (!id.startsWith('#')) { report(at, `expected a tag reference, got ${id}`); return [] }
-        if (!registries.tag[id.slice(1)]) { report(at, `unknown tag ${id.slice(1)}`); return [] }
-        return [id]
+        return findTag(id.slice(1), member ?? 'any', at) ? [id] : []
       }
       if (!id.startsWith('#')) {
-        if (!has(kind, id)) report(at, `unknown ${kind} ${id}`)
+        if (kind === 'any') {
+          const matches = Object.keys(registries).filter(type => type !== 'tag' && has(type, id))
+          if (matches.length > 1) report(at, `ambiguous object ${id}: ${matches.join(', ')}`)
+          if (!matches.length) report(at, `unknown object ${id}`)
+        } else if (!has(kind, id)) report(at, `unknown ${kind} ${id}`)
         return [id]
       }
-      const name = id.slice(1), tag = registries.tag[name]
-      if (!tag) { report(at, `unknown tag ${name}`); return [] }
-      if (kind !== 'any' && !(kind === 'grant' && grants.types.has(tag.kind)) && tag.kind !== kind) { report(at, `tag ${name} contains ${tag.kind}, expected ${kind}`); return [] }
-      if (active.includes(name)) { report(at, `circular tags: ${[...active, name].join(' → ')}`); return [] }
-      return expand(tag.values, kind === 'any' ? tag.kind : kind, at, [...active, name])
+      const found = findTag(id.slice(1), kind, at)
+      if (!found) return []
+      const [key, tag] = found
+      if (active.includes(key)) { report(at, `circular tags: ${[...active, key].join(' → ')}`); return [] }
+      return expand(tag.values, tag.kind, at, [...active, key])
     })
     return [...new Set(out)].sort()
   }
   expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
   expand.partOf = id => granted.get(id)?.part ?? id
-  expand.kindOf = (id) => id.startsWith('#') ? registries.tag[id.slice(1)]?.kind
-    : Object.keys(registries).filter(k => k !== 'tag').find((kind) => has(kind, id))
+  expand.kindOf = (id) => {
+    if (id.startsWith('#')) return findTag(id.slice(1), 'any', 'reference')?.[1].kind
+    const matches = Object.keys(registries).filter(kind => kind !== 'tag' && has(kind, id))
+    if (matches.length > 1) report('reference', `ambiguous object ${id}: ${matches.join(', ')}`)
+    return matches.length === 1 ? matches[0] : undefined
+  }
   return expand
 }
 
@@ -103,12 +119,14 @@ const edgesOf = (relation) => [...(relation.edges ?? []), ...(relation.sequence 
 export function expandRelations(relations, expand, scheduled, problems = [], optional = new Set(), definitions = {}) {
   const result = { requires: [], order: [], replaces: [] }
   for (const [name, relation] of Object.entries(relations)) {
-    const endpoints = edgesOf(relation).flatMap((e) => [e.from, e.to])
-    const endpoint = endpoints.find((v) => v.startsWith('#')) ?? endpoints[0]
     const declaration = definitions[relation.kind]
-    const inferredKind = endpoint && expand.kindOf?.(endpoint)
+    const endpointKinds = !relation.of && relation.kind === 'order' ? [...new Set(edgesOf(relation).flatMap(edge => [edge.from, edge.to]).map(id => expand.kindOf?.(id)))] : []
+    const inferredKind = endpointKinds.length === 1 ? endpointKinds[0] : undefined
     const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'part' : relation.of ?? inferredKind ?? 'any'
-    const ends = (id, external = false, side = 'from') => ((external || relation.kind === 'order' && ['part', 'grant'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    if (relation.of === 'grant') problems.push({ at: `relations/${name}`, says: 'order endpoints use registered object types; omit of for mixed types' })
+    if (kind === 'tag' && !relation.member) problems.push({ at: `relations/${name}`, says: 'tag order needs a member type' })
+    if (kind !== 'tag' && relation.member) problems.push({ at: `relations/${name}`, says: 'member belongs to tag order relations' })
+    const ends = (id, external = false, side = 'from') => ((external || relation.kind === 'order' && ['part', 'any'].includes(kind) && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, declaration?.[side] ?? kind, `relations/${name}`, [], relation.member)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
       if (expand(endpoint, 'part').some(id => expand.partOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' })
@@ -131,11 +149,13 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
       const required = ends.filter((v) => !optional.has(v))
       return side === 'from' && kind === 'level' && required.length ? required : ends
     }
-    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) (result[relation.kind] ??= []).push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
+    for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) (result[relation.kind] ??= []).push({ ...edge, ...(relation.kind === 'order' && { ...(kind !== 'any' && { of: kind }), ...(kind === 'tag' && { member: relation.member }) }), from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : [...new Set(['level', 'part', 'symbol', 'grant', 'entry', 'tag', 'section', 'any', ...result.order.map(e => e.of)])]) {
-    const edges = result[kind].filter((e) => !e.game && (kind !== 'order' || e.of === of))
-    const graph = new Map([...new Set(edges.flatMap((e) => [e.from, e.to]))].map((id) => [id, edges.filter((e) => e.to === id).map((e) => e.from)]))
+  for (const kind of ['requires', 'order']) {
+    const node = (edge, id) => kind === 'requires' ? id : edge.of === 'tag' ? tagKey(edge.member, id)
+      : tagKey(edge.of ?? expand.kindOf?.(id) ?? 'menu', id)
+    const edges = result[kind].filter(edge => !edge.game).map(edge => ({ from: node(edge, edge.from), to: node(edge, edge.to) }))
+    const graph = new Map([...new Set(edges.flatMap(edge => [edge.from, edge.to]))].map(id => [id, edges.filter(edge => edge.to === id).map(edge => edge.from)]))
     const cycle = dependencyCycle(graph)
     if (cycle) problems.push({ at: 'relations', says: `circular ${kind}: ${cycle.join(' → ')}` })
   }
@@ -144,8 +164,8 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
 }
 
 /** Stable topological order: satisfy edges first, then compare full names by code point. */
-export function relationOrder(ids, edges, kind = 'level') {
-  edges = edges.filter((e) => !e.of || e.of === 'any' || e.of === kind || kind === 'grant' && grants.types.has(e.of))
+export function relationOrder(ids, edges, kind = 'level', member) {
+  edges = edges.filter((e) => !e.of || e.of === 'any' || e.of === kind && (kind !== 'tag' || e.member === member) || kind === 'grant' && grants.types.has(e.of))
   const pending = new Set(ids), out = []
   while (pending.size) {
     const ready = [...pending].filter((id) => !edges.some((e) => e.to === id && pending.has(e.from))).sort()
@@ -159,7 +179,7 @@ export function relationOrder(ids, edges, kind = 'level') {
 /** Order tag full names by explicit tag orders, then member prerequisites, then code point. */
 export function orderedTags(content, kind) {
   const tags = content.registries?.tag ?? {}
-  const names = Object.keys(tags).filter((name) => tags[name].kind === kind).sort()
+  const names = Object.keys(tags).filter((name) => tags[name].kind === kind).map(tagName).sort()
   const expand = referenceResolver(content.registries)
   const owners = new Map()
   for (const name of names) for (const member of expand(`#${name}`, kind)) {
@@ -168,7 +188,7 @@ export function orderedTags(content, kind) {
   const requires = (content.relationEdges?.requires ?? []).filter((edge) => !edge.game).flatMap(({ from, to }) =>
     (owners.get(from) ?? []).flatMap((a) => (owners.get(to) ?? []).filter((b) => a !== b).map((b) => ({ from: a, to: b }))))
   const inferred = relationOrder(names, requires, kind)
-  const hard = (content.relationEdges?.order ?? []).filter((edge) => edge.of === 'tag')
+  const hard = (content.relationEdges?.order ?? []).filter((edge) => edge.of === 'tag' && edge.member === kind)
     .map(({ from, to }) => ({ from: from.slice(1), to: to.slice(1) }))
   // Explicit author order wins when inferred prerequisites disagree with it.
   const pending = new Set(inferred), out = []
@@ -203,8 +223,9 @@ export function assembleChapters(chapters, { expand, relations, optional = [], s
 }
 
 /** Read one registered object by full name. */
-export function objectOf(content, kind, name) {
-  const value = content.registries?.[kind]?.[name]
+export function objectOf(content, kind, name, member) {
+  if (kind === 'tag' && !member) throw new Error('tag lookup needs a member type')
+  const value = content.registries?.[kind]?.[kind === 'tag' ? tagKey(member, name) : name]
   if (!value) throw new Error(`unknown ${kind} ${name}`)
   return value
 }

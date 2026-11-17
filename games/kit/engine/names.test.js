@@ -41,7 +41,7 @@ test('file assembly qualifies each layer and keeps the registries independent', 
   assert.equal(content.glossary.entries[0].group, 'library/entries-calc')
   assert.deepEqual(content.glossary.entries[0].see, ['other/entry'])
   for (const kind of ['level', 'part', 'entry']) assert.ok(content.registries[kind]['library/calc'])
-  assert.ok(content.registries.tag['library/calc'])
+  assert.ok(content.registries.tag['level:library/calc'])
   for (const kind of ['relation']) assert.deepEqual(Object.keys(content.registries[kind]), [])
   assert.deepEqual(source, before)
   assert.throws(() => assemble({ ...source, partDefs: { parts: { calc: {}, 'library/calc': {} } } }), /duplicate part library\/calc/)

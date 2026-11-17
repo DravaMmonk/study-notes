@@ -1,3 +1,4 @@
+import { tagKey, tagName } from '../tag-identity.js'
 import { KIND_DECLARATION } from '../plugin-kinds.js'
 import { contentKindSchemas } from '../content-kinds.js'
 // The operation set (games/DIRECTION.md decision 4): every change to a data game's content is one of these. The CLI
@@ -169,7 +170,7 @@ export const OPERATIONS = {
         }
       }
       for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['tray', 'trays']]) for (const [name, old] of ws[plural]) {
-        if (!references.some((r) => r.file === `${plural}/${name}.json`)) continue
+        if (!references.some((r) => r.file === `${plural}/${kind === 'tag' ? `${old.kind}/${tagName(name)}` : name}.json`)) continue
         const next = { ...old }
         if (kind === 'tag') next.values = old.values.filter((id) => !matches(id))
         if (kind === 'relation') {
@@ -177,7 +178,7 @@ export const OPERATIONS = {
           if (old.sequence) next.sequence = old.sequence.filter((id) => !matches(id))
         }
         ws[plural].set(name, next)
-        inverse.push({ op: `${kind}.put`, [kind]: name, data: old })
+        inverse.push({ op: `${kind}.put`, [kind]: kind === 'tag' ? tagName(name) : name, ...(kind === 'tag' && { member: old.kind }), data: kind === 'tag' ? Object.fromEntries(Object.entries(old).filter(([key]) => key !== 'kind')) : old })
       }
       ws.levels.delete(level)
       return { says: `${level}: removed`, inverse }
@@ -269,11 +270,11 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('修改某个语言的字段文本'),
-    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
-    apply(ws, { level, entry, symbol, tag, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
+    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), member: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
+    apply(ws, { level, entry, symbol, tag, member, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
       if ([level, entry, symbol, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, symbol, tag, tray, section, or in: game or parts')
       if (where === 'parts' && ws.partDefs === undefined) fail('the content has no parts')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
       if (shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
@@ -286,7 +287,7 @@ export const OPERATIONS = {
       // Keep the message identity when a whole field is edited or restored by its inverse.
       const key = textKey(next) ?? textKey(old)
       const updated = key && typeof next === 'object' ? withTextKey(next, key) : next
-      const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
+      const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag, member }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
       const file = level ?? entry ?? symbol ?? tag ?? tray ?? section ?? where
       // Restoring the complete message also removes a locale that this edit added.
       const inverse = [symbol !== undefined || entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
@@ -295,7 +296,7 @@ export const OPERATIONS = {
       else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else if (symbol !== undefined) ws.contentObjects.symbol.set(symbol, setAt(value, keys, updated))
       else if (entry !== undefined) ws.entries.set(entry, setAt(value, keys, updated))
-      else if (tag !== undefined) ws.tags.set(tag, setAt(value, keys, updated))
+      else if (tag !== undefined) ws.tags.set(tagKey(member, tag), setAt(value, keys, updated))
       else if (tray !== undefined) ws.trays.set(tray, setAt(value, keys, updated))
       else if (section !== undefined) ws.sections.set(section, setAt(value, keys, updated))
       return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
@@ -406,8 +407,8 @@ export const OPERATIONS = {
 }
 
 /** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
-function packageText(ws, { level, entry, symbol, tag, tray, section, in: where }, keys, vocabulary) {
-  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+function packageText(ws, { level, entry, symbol, tag, member, tray, section, in: where }, keys, vocabulary) {
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tagKey(member, tag)) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
   if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
   if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
   const text = getAt(value, keys)
@@ -419,14 +420,14 @@ Object.assign(OPERATIONS, {
   'text.override': {
     about: t('这款游戏在包的一处文案上写它自己的（不改包里的原文）；value 为 null 时恢复原文', 'The game\'s own wording over a text of its package (the package is left as it is); value null: back to the package\'s'),
     params: S.obj({
-      level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH,
+      level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), member: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH,
       lang: S.str({ pattern: LANGUAGE_CODE }), value: S.either(S.str(), S.oneOf([null])),
     }),
-    apply(ws, { level, entry, symbol, tag, tray, section, in: where, path, lang, value }, { vocabulary }) {
+    apply(ws, { level, entry, symbol, tag, member, tray, section, in: where, path, lang, value }, { vocabulary }) {
       if ([level, entry, symbol, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, symbol, tag, tray, section, or in: game or parts')
       if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       const keys = parsePath(path)
-      const key = textKey(packageText(ws, { level, entry, symbol, tag, tray, section, in: where }, keys, vocabulary))
+      const key = textKey(packageText(ws, { level, entry, symbol, tag, member, tray, section, in: where }, keys, vocabulary))
       const target = `overrides/${ws.packageId}/i18n/${lang}.json`
       const old = ws.overrideFiles.get(target)?.[key] ?? null
       const entries = { ...ws.overrideFiles.get(target) }
@@ -434,7 +435,7 @@ Object.assign(OPERATIONS, {
       else entries[key] = value
       if (Object.keys(entries).length) ws.overrideFiles.set(target, entries)
       else ws.overrideFiles.delete(target)
-      const file = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
+      const file = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag, member }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
       return { says: `${level ?? where}: ${showPath(keys)} (${lang}) ${value === null ? 'reads as its package writes it' : 'reads the game\'s own way'}`, inverse: [{ op: 'text.override', ...file, path: keys, lang, value: old }] }
     },
   },
@@ -455,39 +456,42 @@ export function opScope({ op, path, in: where, layer }) {
 // The same operations edit entries, tags, relations and sections. Reads use ws.content().registries[kind][fullName].
 for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['tray', 'trays'], ['kind', 'kinds'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) {
   const objects = (ws) => (kind === 'kind' || contentKindSchemas[kind]) ? ws.contentObjects[kind] : ws[plural]
-  const selector = { [kind]: S.str({ pattern: OBJECT_NAME }) }
-  const target = (ws, name) => {
+  const selector = { [kind]: S.str({ pattern: OBJECT_NAME }), ...(kind === 'tag' && { member: S.str() }) }
+  const target = (ws, name, member) => {
     if (name.includes('/') || name.startsWith('@')) fail('declare objects in this package using its local name')
-    return name
+    if (kind === 'tag' && !member) fail('tag needs a member type')
+    return kind === 'tag' ? tagKey(member, name) : name
   }
-  const get = (ws, name) => objects(ws).get(target(ws, name)) ?? fail(`no ${kind} ${name}`)
+  const get = (ws, name, member) => objects(ws).get(target(ws, name, member)) ?? fail(`no ${kind} ${name}`)
   Object.assign(OPERATIONS, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.any() : OBJECT_SCHEMAS[plural]) }),
+      params: S.obj({ ...selector, data: kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), values: S.opt(OBJECT_SCHEMAS.tags.fields.values), replace: S.opt(S.bool()), remove: S.opt(OBJECT_SCHEMAS.tags.fields.values) }) : OBJECT_SCHEMAS[plural]) }),
       apply(ws, args) {
-        const name = target(ws, args[kind]), old = objects(ws).get(name)
+        const name = target(ws, args[kind], args.member), old = objects(ws).get(name)
+        if (kind === 'tag' && args.data.kind !== undefined) fail('tag member belongs in the member selector')
         assertStableIds(old ?? {}, args.data)
-        objects(ws).set(name, args.data)
-        return { says: `${kind} ${name}: written`, inverse: [old ? { op: `${kind}.put`, [kind]: name, data: old } : { op: `${kind}.remove`, [kind]: name }] }
+        objects(ws).set(name, kind === 'tag' ? { ...args.data, kind: args.member } : args.data)
+        return { says: `${kind} ${name}: written`, inverse: [old ? { op: `${kind}.put`, [kind]: args[kind], ...(kind === 'tag' && { member: args.member }), data: kind === 'tag' ? Object.fromEntries(Object.entries(old).filter(([key]) => key !== 'kind')) : old } : { op: `${kind}.remove`, [kind]: args[kind], ...(kind === 'tag' && { member: args.member }) }] }
       },
     },
     [`${kind}.set`]: {
       about: t('修改对象字段', 'Set an object field'),
       params: S.obj({ ...selector, path: PATH, value: S.any() }),
       apply(ws, args) {
-        const name = args[kind], old = get(ws, name)
+        const name = target(ws, args[kind], args.member), old = get(ws, args[kind], args.member)
+        if (kind === 'tag' && (!parsePath(args.path).length || parsePath(args.path)[0] === 'kind')) fail('tag member type is immutable')
         objects(ws).set(name, setAt(old, args.path, args.value))
-        return { says: `${kind} ${name}: patched`, inverse: [{ op: `${kind}.put`, [kind]: name, data: old }] }
+        return { says: `${kind} ${name}: patched`, inverse: [{ op: `${kind}.put`, [kind]: args[kind], ...(kind === 'tag' && { member: args.member }), data: kind === 'tag' ? Object.fromEntries(Object.entries(old).filter(([key]) => key !== 'kind')) : old }] }
       },
     },
     [`${kind}.remove`]: {
       about: t('删除对象', 'Remove an object'),
       params: S.obj(selector),
       apply(ws, args) {
-        const name = args[kind], old = get(ws, name)
+        const name = target(ws, args[kind], args.member), old = get(ws, args[kind], args.member)
         objects(ws).delete(name)
-        return { says: `${kind} ${name}: removed`, inverse: [{ op: `${kind}.put`, [kind]: name, data: old }] }
+        return { says: `${kind} ${name}: removed`, inverse: [{ op: `${kind}.put`, [kind]: args[kind], ...(kind === 'tag' && { member: args.member }), data: kind === 'tag' ? Object.fromEntries(Object.entries(old).filter(([key]) => key !== 'kind')) : old }] }
       },
     },
   })
@@ -505,11 +509,11 @@ OPERATIONS['entry.patch'] = {
 }
 
 /** Overrides always write to the named authoring layer, never to the declaration. */
-const overrideParams = { layer: S.str(), kind: S.str(), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
-const overrideFile = (ws, { layer, kind, name }) => {
+const overrideParams = { layer: S.str(), kind: S.str(), member: S.opt(S.str()), name: S.str({ pattern: '^(?:@?[a-z][a-z0-9-]*)/[A-Za-z0-9][A-Za-z0-9_.-]*$' }) }
+const overrideFile = (ws, { layer, kind, name, member }) => {
   if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
-  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tags/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : ws.kindFolders[kind] ?? fail(`unknown kind ${kind}`)}/${id}.json`
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tags/${member ?? fail('tag override needs a member type')}` : ws.kindFolders[kind] ?? fail(`unknown kind ${kind}`)}/${id}.json`
 }
 Object.assign(OPERATIONS, {
   'override.put': {
@@ -523,20 +527,20 @@ Object.assign(OPERATIONS, {
       if (data === undefined) {
         if (args.kind === 'i18n') data = {}
         else {
-          const object = ws.content().registries[args.kind]?.[args.name]
+          const object = ws.content().registries[args.kind]?.[args.kind === 'tag' ? tagKey(args.member, args.name) : args.name]
           if (!object) fail(`no ${args.kind} ${args.name}`)
           const { id: _id, ...value } = sourceValue(object)
           data = args.merge ? {} : args.kind === 'tag' ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'kind')) : value
         }
       }
       if (args.kind !== 'i18n') {
-        const object = ws.content().registries[args.kind]?.[args.name]
+        const object = ws.content().registries[args.kind]?.[args.kind === 'tag' ? tagKey(args.member, args.name) : args.name]
         const { id: _id, ...base } = sourceValue(object ?? {})
         const qualified = expandNames(data, ws.layer, { schema: schemaForKind(args.kind, vocabulary), vocabulary })
         assertStableIds(base, args.merge || data?.$merge ? mergePatch(base, qualified) : qualified)
       }
       ws.overrideFiles.set(file, { ...(args.merge && { $merge: true }), ...data })
-      return { says: `${args.layer}: override ${args.kind} ${args.name}`, inverse: [old === undefined ? { op: 'override.remove', layer: args.layer, kind: args.kind, name: args.name } : { op: 'override.put', layer: args.layer, kind: args.kind, name: args.name, data: old }] }
+      return { says: `${args.layer}: override ${args.kind} ${args.name}`, inverse: [old === undefined ? { op: 'override.remove', layer: args.layer, kind: args.kind, ...(args.member && { member: args.member }), name: args.name } : { op: 'override.put', layer: args.layer, kind: args.kind, ...(args.member && { member: args.member }), name: args.name, data: old }] }
     },
   },
   'override.remove': {

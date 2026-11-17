@@ -35,25 +35,13 @@ export function evaluatePlay(kernel, task, work, context = {}) {
   return { work: play.write(normalized, ctx), report, verdict: play.judge(report, ctx) }
 }
 
-const distance = (a, b) => {
-  let row = Array.from({ length: b.length + 1 }, (_, i) => i)
-  for (let i = 0; i < a.length; i++) {
-    const next = [i + 1]
-    for (let j = 0; j < b.length; j++) next.push(Math.min(next[j] + 1, row[j + 1] + 1, row[j] + (a[i] === b[j] ? 0 : 1)))
-    row = next
-  }
-  return row[b.length]
-}
 export function tagReaderProblems(content, kernel) {
   const problems = []
-  for (const [name, tag] of Object.entries(content.registries.tag)) {
-    const [owner, local] = name.split('/')
-    const reader = kernel.tables.tag.get(`${owner}:${local}`) ?? kernel.tables.tag.get(local)
-    if (reader && !reader.kinds.includes('*') && !reader.kinds.includes(tag.kind)) problems.push({ at: `tags/${name}`, says: `${local} expects ${reader.kinds.join(', ')}, got ${tag.kind}` })
-    if (!reader) {
-      const reserved = [...kernel.tables.tag.keys()].find(key => distance(local, key.split(':').at(-1)) <= 2)
-      if (reserved) problems.push({ at: `tags/${name}`, says: `unread convention ${local}; did you mean ${reserved}?` })
-    }
+  for (const [key, source] of Object.entries(content.sources?.tag ?? {})) {
+    if (!source.declaration && !kernel.tables.tag.has(key)) problems.push({ at: `tags/${key}`, says: 'tag has no declaration or registered reader' })
+  }
+  for (const [key, reader] of kernel.tables.tag) {
+    if (!content.registries.kind?.[reader.member]) problems.push({ at: `tags/${key}`, says: `unknown tag member type ${reader.member}` })
   }
   return problems
 }

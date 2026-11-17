@@ -46,12 +46,12 @@ export function canOrder(content, layer, relation, owner = null, overriding = fa
  * kind `of`): the layer's own written whole, another package's overridden by the edges it adds and takes out. Null when
  * the layer may not (canOrder; `overriding`: the author has asked to override it here), [] when nothing changes.
  */
-export function orderOps(content, layer, relation, sequence, of, owner = null, overriding = false) {
+export function orderOps(content, layer, relation, sequence, of, owner = null, overriding = false, member) {
   if (!canOrder(content, layer, relation, owner, overriding)) return null
   const now = content?.registries?.relation?.[relation]
   if (now?.sequence && now.sequence.length === sequence.length && now.sequence.every((id, k) => id === sequence[k]) && !now.edges?.length) return []
   if (namespaceOf(relation) === layer) {
-    return [{ op: 'relation.put', relation: localName(layer, relation), data: { kind: 'order', of, sequence: sequence.map((id) => writtenName(layer, id)) } }]
+    return [{ op: 'relation.put', relation: localName(layer, relation), data: { kind: 'order', of, ...(of === 'tag' && { member }), sequence: sequence.map((id) => writtenName(layer, id)) } }]
   }
   return relationOverrideOps(content, layer, relation, sequence.slice(1).map((to, k) => ({ from: sequence[k], to })))
 }
@@ -70,7 +70,7 @@ export function tagMoveOps(content, layer, kind, tag, to) {
   const named = edgesOf(content?.registries?.relation?.[relation] ?? {}).flatMap((e) => [e.from, e.to]).map((ref) => ref.replace(/^#/, ''))
   const [a, b] = [now.indexOf(tag), next.indexOf(tag)].sort((x, y) => x - y)
   const keep = new Set([...named, ...now.slice(a, b + 1)])
-  return orderOps(content, layer, relation, next.filter((id) => keep.has(id)).map((id) => `#${id}`), 'tag')
+  return orderOps(content, layer, relation, next.filter((id) => keep.has(id)).map((id) => `#${id}`), 'tag', null, false, kind)
 }
 
 /** The operations that make `members` (full names) the order of the tag `tag`'s members (null when the layer may not). */

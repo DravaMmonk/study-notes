@@ -1,6 +1,5 @@
 {
   "kind": "order",
-  "of": "grant",
   "edges": [
     {
       "from": "natInd",

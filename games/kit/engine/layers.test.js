@@ -34,14 +34,14 @@ test('dependencies are complete, direct, acyclic and deterministically ordered',
 })
 
 test('whole replacements, recursive merge patches and additive collections retain provenance', () => {
-  const b = layer('b', ['base'], [], [obj('level', 'base/a', { $merge: true, options: { x: null, z: 3 } }), obj('level', 'base/b', { title: 'Replaced' }), obj('tag', 'base/all', { values: ['base/b'], remove: ['base/a'] }), obj('relation', 'base/path', { remove: [{ from: 'base/a', to: 'base/b' }], sequence: ['base/b', 'base/a'] })])
-  const c = layer('c', ['base', 'b'], [], [obj('tag', 'base/all', { replace: true, values: ['base/a'] })])
+  const b = layer('b', ['base'], [], [obj('level', 'base/a', { $merge: true, options: { x: null, z: 3 } }), obj('level', 'base/b', { title: 'Replaced' }), obj('tag', 'base/all', { kind: 'level', values: ['base/b'], remove: ['base/a'] }), obj('relation', 'base/path', { remove: [{ from: 'base/a', to: 'base/b' }], sequence: ['base/b', 'base/a'] })])
+  const c = layer('c', ['base', 'b'], [], [obj('tag', 'base/all', { kind: 'level', replace: true, values: ['base/a'] })])
   const content = assembleLayers('demo', [base(), b, c, game()], schemas)
   assert.deepEqual(content.registries.level['base/a'].options, { y: 2, z: 3 })
   assert.equal(content.registries.level['base/b'].title, 'Replaced')
-  assert.deepEqual(content.tags['base/all'].values, ['base/a'])
+  assert.deepEqual(content.tags['level:base/all'].values, ['base/a'])
   assert.deepEqual(content.relations['base/path'].edges, [{ from: 'base/b', to: 'base/a' }])
-  assert.deepEqual(content.sources.tag['base/all'], { declaration: 'base', overrides: ['b', 'c'] })
+  assert.deepEqual(content.sources.tag['level:base/all'], { declaration: 'base', overrides: ['b', 'c'], members: { 'base/a': ['c'] } })
   const audit = visibleOverrides(content, 'b')
   assert.equal(audit.length, 4)
   assert.deepEqual(audit[0].before.options, { x: 1, y: 2 })
@@ -67,7 +67,7 @@ test('game overrides are limited to level relations', () => {
   for (const kind of ['level', 'part', 'entry', 'tag', 'section', 'tray']) {
     const a = base()
     if (!a.objects.some((o) => o.kind === kind)) a.objects.push(obj(kind, 'a', {}))
-    assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : kind === 'section' ? 'base/map' : 'base/a', { $merge: true })])], schemas), /games cannot override/)
+    assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : kind === 'section' ? 'base/map' : 'base/a', { $merge: true, ...(kind === 'tag' && { kind: 'level' }) })])], schemas), /games cannot override/)
   }
   assert.doesNotThrow(() => composeLayers([base(), game([obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
   const a = base(); a.objects.push(obj('part', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'part', edges: [{ from: 'p', to: 'p' }] }))
@@ -197,14 +197,14 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   assert.deepEqual(restored.glossary, content.glossary)
   const domain = { vocabulary: schemas }
   const ws = openGame('demo', root, { vocabulary: schemas, layer: 'extra' })
-  const result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'tag', name: 'base/second', data: { replace: true, values: ['base/a'] } }] }, { check: false, write: true, domain })
+  const result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'tag', member: 'entry', name: 'base/second', data: { replace: true, values: ['base/a'] } }] }, { check: false, write: true, domain })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/extra/overrides/base/tags/entry/second.json'))), { replace: true, values: ['base/a'] })
   assert.ok(result.files.every((file) => file.startsWith('packages/extra/')))
   assert.deepEqual(openPackage('extra', root, { vocabulary: schemas }).content().glossary, readPackage('extra', root, { vocabulary: schemas }).glossary)
   assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })).ok, true)
   const own = openGame('demo', root, { vocabulary: schemas, layer: 'base' })
-  const edit = await runChangeset(own, { ops: [{ op: 'entry.put', entry: 'new', data: { title: { en: 'New' }, body: [] } }, { op: 'text.set', tag: 'first', path: 'title', lang: 'en', value: 'First edited' }] }, { check: false, write: true, domain })
+  const edit = await runChangeset(own, { ops: [{ op: 'entry.put', entry: 'new', data: { title: { en: 'New' }, body: [] } }, { op: 'text.set', tag: 'first', member: 'entry', path: 'title', lang: 'en', value: 'First edited' }] }, { check: false, write: true, domain })
   assert.equal(edit.ok, true, edit.problems.join('\n'))
   assert.ok(edit.files.includes('packages/base/entries/new.json'))
   assert.ok(edit.files.every((file) => file.startsWith('packages/base/')))
@@ -212,7 +212,7 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   assert.deepEqual(reopened.content().glossary, readPackage('base', root, { vocabulary: schemas }).glossary)
   assert.deepEqual(reopened.changes(), [])
   assert.equal(JSON.parse(readFileSync(resolve(root, 'packages/base/tags/entry/first.json'))).kind, undefined)
-  assert.equal(readContent('demo', root, { vocabulary: schemas }).tags['base/first'].title.en, 'First edited')
+  assert.equal(readContent('demo', root, { vocabulary: schemas }).tags['entry:base/first'].title.en, 'First edited')
   assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'base' }), { check: false, write: true, domain })).ok, true)
 })
 
@@ -220,7 +220,7 @@ test('source files reject retired glossary and tag formats and tag overrides can
   const { root, put } = fixture()
   put('packages/base/tags/entry/words.json', { values: [] })
   put('packages/extra/overrides/base/tags/level/words.json', { values: [] })
-  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /cannot change.*kind/)
+  assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /unknown tag/)
   put('packages/base/tags/entry/words.json', { kind: 'entry', values: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /kind belongs in the path/)
   put('packages/base/glossary.json', { groups: [], entries: [] })
@@ -229,10 +229,10 @@ test('source files reject retired glossary and tag formats and tag overrides can
 
 
 test('tag order overrides append, remove and replace edges without changing member order', () => {
-  const before = { kind: 'order', of: 'tag', sequence: ['#base/a', '#base/b'] }
+  const before = { kind: 'order', of: 'tag', member: 'level', sequence: ['#base/a', '#base/b'] }
   const patched = applyOverride('relation', before, { remove: [{ from: '#base/a', to: '#base/b' }], sequence: ['#base/b', '#extra/c'] })
-  assert.deepEqual(patched, { kind: 'order', of: 'tag', edges: [{ from: '#base/b', to: '#extra/c' }] })
-  assert.deepEqual(applyOverride('relation', patched, { replace: true, sequence: ['#extra/c', '#base/a'] }), { kind: 'order', of: 'tag', edges: [{ from: '#extra/c', to: '#base/a' }] })
+  assert.deepEqual(patched, { kind: 'order', of: 'tag', member: 'level', edges: [{ from: '#base/b', to: '#extra/c' }] })
+  assert.deepEqual(applyOverride('relation', patched, { replace: true, sequence: ['#extra/c', '#base/a'] }), { kind: 'order', of: 'tag', member: 'level', edges: [{ from: '#extra/c', to: '#base/a' }] })
 })
 
 
@@ -303,4 +303,57 @@ test('selection guards newly loaded package files against concurrent writes', as
   ws.selectPackages([...ws.packageIds, 'library'])
   put('packages/library/levels/late.json', { title: 'Late' })
   assert.throws(() => ws.write(), /dependency changed on disk/)
+})
+
+test('typed tags merge independent contributions and keep exact member provenance', () => {
+  const a = base()
+  a.objects.push(obj('entry', 'word', { title: 'Word', body: [] }), obj('tag', 'all', { kind: 'entry', values: ['word'] }))
+  const b = layer('b', ['base'], [], [obj('tag', 'base/all', { kind: 'level', values: ['base/a', 'base/b'] })])
+  const c = layer('c', ['base'], [], [obj('tag', 'base/all', { kind: 'level', values: ['base/b'] })])
+  const content = assembleLayers('demo', [c, b, a, game()], schemas)
+  assert.deepEqual(content.tags['level:base/all'].values, ['base/a', 'base/b'])
+  assert.deepEqual(content.tags['entry:base/all'].values, ['base/word'])
+  assert.deepEqual(content.sources.tag['level:base/all'].members, { 'base/a': ['base', 'b'], 'base/b': ['b', 'c'] })
+  assert.deepEqual(content.overrideHistory.filter(e => e.kind === 'tag').map(e => [e.name, e.member]), [['base/all', 'level'], ['base/all', 'level']])
+  c.overrides[0].value = { kind: 'level', replace: true, values: ['base/b'] }
+  assert.deepEqual(composeLayers([a, b, c], schemas).sources.tag['level:base/all'].members, { 'base/b': ['c'] })
+  c.overrides[0].value = { kind: 'level', remove: ['base/a'], values: ['base/a'] }
+  assert.deepEqual(composeLayers([a, b, c], schemas).sources.tag['level:base/all'].members['base/a'], ['c'])
+})
+
+test('tag contributions require the exact typed declaration or reader; kernel is reserved', () => {
+  const a = base(), b = layer('b', ['base'], [], [obj('tag', 'base/all', { kind: 'entry', values: [] })])
+  assert.throws(() => composeLayers([a, b], schemas), /unknown tag base\/all/)
+  a.tagReaders = [{ name: 'base/all', member: 'entry', reader: 'base' }]
+  assert.deepEqual(composeLayers([a, b], schemas).registries.tag['entry:base/all'].values, [])
+  b.overrides = [obj('tag', 'kernel/studio-left', { kind: 'kind', values: ['level'] })]
+  assert.deepEqual(composeLayers([a, b], schemas).sources.tag['kind:kernel/studio-left'].members, { level: ['b'] })
+  b.overrides = [obj('tag', 'kernel/studio-left', { kind: 'level', values: [] })]
+  assert.throws(() => composeLayers([a, b], schemas), /unknown tag kernel\/studio-left/)
+  assert.throws(() => orderPackages([layer('kernel')]), /reserved namespace/)
+})
+
+test('same-named tags persist, publish and undo independently by member type', async () => {
+  const { root, put } = fixture()
+  put('packages/base/entries/word.json', { title: 'Word', body: [] })
+  const ws = openPackage('base', root, { vocabulary: schemas })
+  const domain = { vocabulary: schemas }
+  const result = await runChangeset(ws, { why: 'Use the same tag name in two types', ops: [
+    { op: 'tag.put', tag: 'pick', member: 'level', data: { title: { en: 'Levels' }, values: ['a'] } },
+    { op: 'tag.put', tag: 'pick', member: 'entry', data: { title: { en: 'Entries' }, values: ['word'] } },
+  ] }, { write: true, check: false, domain })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  const content = readPackage('base', root, { vocabulary: schemas })
+  assert.deepEqual(content.tags['level:base/pick'].values, ['base/a'])
+  assert.deepEqual(content.tags['entry:base/pick'].values, ['base/word'])
+  const assets = contentAssets(content)
+  const restored = await pageContent(JSON.parse(assets.get(CONTENT_FILE)), 'https://example.test/', async url => ({ ok: true, json: async () => JSON.parse(assets.get(url.pathname.slice(1))) }), schemas)
+  assert.deepEqual(restored.registries.tag, content.registries.tag)
+  const reopened = openPackage('base', root, { vocabulary: schemas })
+  assert.deepEqual(reopened.changes(), [])
+  const removed = await runChangeset(reopened, { ops: [{ op: 'tag.remove', tag: 'pick', member: 'level' }] }, { write: true, check: false, domain })
+  assert.equal(removed.ok, true, removed.problems.join('\n'))
+  assert.ok(readPackage('base', root, { vocabulary: schemas }).tags['entry:base/pick'])
+  assert.equal((await undo(openPackage('base', root, { vocabulary: schemas }), { check: false, write: true, domain })).ok, true)
+  assert.deepEqual(readPackage('base', root, { vocabulary: schemas }).tags, content.tags)
 })
