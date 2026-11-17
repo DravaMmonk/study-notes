@@ -327,7 +327,7 @@ test('formula and circuit groups share a task, combining in order and respecting
 
 test('a proof tray groups disjunction rules and leaves truth gates off the proof board', () => {
   const content = structuredClone(CONTENT)
-  content.trays = { proof: { name: 'Proof', desc: '', items: [{ id: 'or', title: 'Or', items: ['orI', 'orE'] }] } }
+  content.trays = { proof: { name: 'Proof', desc: '', menuThreshold: 2, items: [{ id: 'or', title: 'Or', items: ['orI', 'orE'] }] } }
   content.levels[0].tray = 'proof'
   const logic = logicWorks(content)
   const task = logic.LEVELS[0].tasks[0]

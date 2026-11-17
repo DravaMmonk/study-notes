@@ -22,13 +22,35 @@ test('tray menus show only available parts and follow their main and folded plac
   const part = (type) => ({ type })
   assert.deepEqual(trayMembers(trays.proof), ['orI', 'orE', 'locked', 'swap'])
 
-  const pinned = trayDisplay(trays, ['proof'], [part('orI')], [part('orE'), part('swap')])
+  // With the threshold at 1 a menu forms around any part it holds, in the main area or among the folded ones.
+  const one = { proof: { ...trays.proof, menuThreshold: 1 } }
+  const pinned = trayDisplay(one, ['proof'], [part('orI')], [part('orE'), part('swap')])
   assert.deepEqual(pinned.items.map(({ children }) => children), [[part('orI'), part('orE')]])
   assert.deepEqual(pinned.folded, [part('swap')])
 
-  const folded = trayDisplay(trays, ['proof'], [], [part('orE'), part('swap')])
+  const folded = trayDisplay(one, ['proof'], [], [part('orE'), part('swap')])
   assert.deepEqual(folded.items, [])
   assert.deepEqual(folded.folded[0].children, [part('orE')])
+})
+
+test('a menu opens only when the level shows at least its threshold of its parts, 3 by default', () => {
+  const part = (type) => ({ type })
+  const trays = { t: { items: [{ id: 'm', title: 'M', items: ['a', 'b', 'c', 'd'] }, 'x'] } }
+  // Two shown: they stand on their own; the two folded are too few for a menu among the folded.
+  const two = trayDisplay(trays, ['t'], [part('a'), part('b'), part('x')], [part('c'), part('d')])
+  assert.deepEqual(two.items, [part('a'), part('b'), part('x')])
+  assert.deepEqual(two.folded, [part('c'), part('d')])
+  // Three shown: the menu opens and holds the folded ones too.
+  const three = trayDisplay(trays, ['t'], [part('a'), part('b'), part('c')], [part('d')])
+  assert.deepEqual(three.items.map((item) => item.children ?? item), [[part('a'), part('b'), part('c'), part('d')]])
+  assert.deepEqual(three.folded, [])
+  // Three folded and none shown: the menu forms among the folded ones.
+  const hidden = trayDisplay(trays, ['t'], [], [part('a'), part('b'), part('c')])
+  assert.deepEqual(hidden.items, [])
+  assert.deepEqual(hidden.folded[0].children, [part('a'), part('b'), part('c')])
+  // A tray sets its own threshold.
+  const two2 = trayDisplay({ t: { ...trays.t, menuThreshold: 2 } }, ['t'], [part('a'), part('b')], [])
+  assert.deepEqual(two2.items[0].children, [part('a'), part('b')])
 })
 
 test('switching trays groups only the parts in the selected tray', () => {
@@ -37,7 +59,7 @@ test('switching trays groups only the parts in the selected tray', () => {
     proof: { name: 'Proof', desc: 'Proof tools', items: [{ id: 'or', title: '∨', items: ['orI', 'orE'] }] },
     rules: { name: 'Rules', desc: 'Rules', items: ['orI', 'orE'] },
   }
-  assert.deepEqual(trayDisplay(trays, ['proof'], items, []).items[0].children, items)
+  assert.deepEqual(trayDisplay({ ...trays, proof: { ...trays.proof, menuThreshold: 2 } }, ['proof'], items, []).items[0].children, items)
   assert.deepEqual(trayDisplay(trays, ['rules'], items, []).items, items)
 })
 

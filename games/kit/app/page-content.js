@@ -29,8 +29,10 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
   const configuration = Object.fromEntries(Object.entries(configurationFiles(game)).map(([file, value]) => [
     file, (file === 'game.json' || file === 'course.json' ? courseText : packageText)(value, file, vocabulary.game, vocabulary),
   ]))
+  // The published content was checked when it was built, against every package's registrations, view ones (a
+  // game's hero display) included; the page holds only what it plays, so it does not check existence again.
   return assemble({
-    id, schemas: vocabulary,
+    id, schemas: vocabulary, existenceChecked: true,
     contentObjects: Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.fromEntries(Object.entries(values).map(([name, value]) => [name, (kind === 'chapter' ? courseText : packageText)(value, `${kind}/${name}.json`, kindSchemas(vocabulary)[kind], vocabulary)]))])),
     game: combineConfiguration(configuration),
     levels: levels.map(([level, value]) => [level, packageText(value, `levels/${level}.json`, vocabulary.level, vocabulary)]),
