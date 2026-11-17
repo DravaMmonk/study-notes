@@ -165,6 +165,14 @@ test('frames span the saved number of columns and can share rows with a card or 
   assert.deepEqual([...placement(both, parts).cell], [['f', 0], ['g', 1]])
 })
 
+test('a frame whose id carries its package namespace keeps its saved span and its cards', () => {
+  const graph = { nodes: [{ id: 'qed/impI1', type: 'box', span: 1 }, { id: 'm', in: 'qed/impI1/body' }], wires: [] }
+  assert.deepEqual(frameTree(graph.nodes).ancestors('qed/impI1/body'), ['qed/impI1/body'])
+  const placed = placement(graph, parts)
+  assert.deepEqual(placed.span.get('qed/impI1'), [1, 4])
+  assert.equal(placement(graph, parts, 'qed/impI1/body').cols, 1)
+})
+
 test('each empty region uses three rows with the title in the first one at either width', () => {
   const frame = { id: 'f', type: 'box', span: 1 }
   const graph = { nodes: [frame], wires: [] }

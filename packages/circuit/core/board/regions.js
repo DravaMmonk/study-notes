@@ -1,9 +1,10 @@
-// A containment address names one region of one frame. The board itself has no address.
+// A containment address names one region of one frame. The board itself has no address. A frame's id may carry its
+// package's namespace (`qed/impI1`), a region's name never has a slash: the address splits at its last one.
 export const regionAddress = (frame, region) => `${frame}/${region}`
 
 export function splitRegion(address) {
   if (typeof address !== 'string') return [null, null]
-  const split = address.indexOf('/')
+  const split = address.lastIndexOf('/')
   return split > 0 && split < address.length - 1
     ? [address.slice(0, split), address.slice(split + 1)]
     : [null, null]
