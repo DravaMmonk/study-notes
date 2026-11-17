@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.proof.items.exists.title",
+  "title": "@tag.proof-exists.title",
   "values": [
     "exI",
     "exE"

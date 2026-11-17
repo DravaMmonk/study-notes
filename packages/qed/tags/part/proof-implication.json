@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.proof.items.implication.title",
+  "title": "@tag.proof-implication.title",
   "values": [
     "mp-bot-desc",
     "impI",

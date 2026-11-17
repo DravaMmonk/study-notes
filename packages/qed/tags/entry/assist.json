@@ -1,1 +1,1 @@
-{ "title": "@glossary.groups.assist.title", "values": ["provers", "isabelle", "lean", "lcf", "scripts"] }
+{ "title": "@tag.assist.title", "values": ["provers", "isabelle", "lean", "lcf", "scripts"] }

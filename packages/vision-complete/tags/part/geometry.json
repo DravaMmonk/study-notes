@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.geometry.name",
-  "desc": "@tray.trays.geometry.desc",
+  "title": "@tag.geometry.title",
+  "desc": "@tag.geometry.desc",
   "values": [
     "shift-n",
     "const",

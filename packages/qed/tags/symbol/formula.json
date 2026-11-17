@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.formula.name",
-  "desc": "@tray.trays.formula.desc",
+  "title": "@tag.formula.title",
+  "desc": "@tag.formula.desc",
   "values": [
     "formulaForall",
     "formulaExists",

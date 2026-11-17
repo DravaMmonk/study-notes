@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.machine.items.lists.title",
+  "title": "@tag.machine-lists.title",
   "values": [
     "consFront",
     "eachOf"

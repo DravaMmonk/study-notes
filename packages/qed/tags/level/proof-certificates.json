@@ -1,1 +1,1 @@
-{ "title": "@group.proof-certificates.title", "values": ["au-cert", "au-replay", "au-wrong"] }
+{ "title": "@tag.proof-certificates.title", "values": ["au-cert", "au-replay", "au-wrong"] }

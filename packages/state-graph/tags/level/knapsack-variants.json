@@ -1,1 +1,1 @@
-{ "title": "@group.knapsack-variants.title", "values": ["pack", "knaptable", "knapmany", "knapmix", "roll"] }
+{ "title": "@tag.knapsack-variants.title", "values": ["pack", "knaptable", "knapmany", "knapmix", "roll"] }

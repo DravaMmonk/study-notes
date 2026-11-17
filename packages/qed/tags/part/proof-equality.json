@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.proof.items.equality.title",
+  "title": "@tag.proof-equality.title",
   "values": [
     "rewrite",
     "refl"

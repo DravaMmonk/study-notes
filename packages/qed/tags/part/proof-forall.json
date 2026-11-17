@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.proof.items.forall.title",
+  "title": "@tag.proof-forall.title",
   "values": [
     "allI",
     "allE"

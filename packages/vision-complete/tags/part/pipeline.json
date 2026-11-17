@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.pipeline.name",
-  "desc": "@tray.trays.pipeline.desc",
+  "title": "@tag.pipeline.title",
+  "desc": "@tag.pipeline.desc",
   "values": [
     "shift-n",
     "mul",

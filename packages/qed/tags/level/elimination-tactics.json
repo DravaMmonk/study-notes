@@ -1,1 +1,1 @@
-{ "title": "@group.elimination-tactics.title", "values": ["r-elim", "r-cases", "r-false", "r-exE"] }
+{ "title": "@tag.elimination-tactics.title", "values": ["r-elim", "r-cases", "r-false", "r-exE"] }

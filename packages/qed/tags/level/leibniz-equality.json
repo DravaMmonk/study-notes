@@ -1,1 +1,1 @@
-{ "title": "@group.leibniz-equality.title", "values": ["h-eq-refl", "h-eq-subst", "h-eq-sym"] }
+{ "title": "@tag.leibniz-equality.title", "values": ["h-eq-refl", "h-eq-subst", "h-eq-sym"] }

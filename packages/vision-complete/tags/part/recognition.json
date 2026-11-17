@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.recognition.name",
-  "desc": "@tray.trays.recognition.desc",
+  "title": "@tag.recognition.title",
+  "desc": "@tag.recognition.desc",
   "values": [
     "zeroUp",
     "shift-n",

@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.machine.items.clauses.title",
+  "title": "@tag.machine-clauses.title",
   "values": [
     "skolem",
     "toClauses",

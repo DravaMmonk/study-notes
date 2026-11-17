@@ -1,4 +1,4 @@
 {
-  "title": "@glossary.groups.freq.title",
+  "title": "@tag.freq.title",
   "values": ["wave", "superpose", "fourier", "spectrum", "convthm", "lowpass", "sampling", "hybrid"]
 }

@@ -1,4 +1,4 @@
 {
-  "title": "@glossary.groups.light.title",
+  "title": "@tag.light.title",
   "values": ["lambert", "colour", "sfs", "intrinsic", "gradient", "invariance"]
 }

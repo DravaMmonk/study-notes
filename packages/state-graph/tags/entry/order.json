@@ -1,1 +1,1 @@
-{ "title": "@glossary.groups.order.title", "values": ["topo", "topdown", "memo", "fixedPoint"] }
+{ "title": "@tag.order.title", "values": ["topo", "topdown", "memo", "fixedPoint"] }

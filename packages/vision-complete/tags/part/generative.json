@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.generative.name",
-  "desc": "@tray.trays.generative.desc",
+  "title": "@tag.generative.title",
+  "desc": "@tag.generative.desc",
   "values": [
     "dg_encode",
     "dg_decode",

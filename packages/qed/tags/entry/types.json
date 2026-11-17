@@ -1,5 +1,5 @@
 {
-  "title": "@glossary.groups.types.title",
+  "title": "@tag.types.title",
   "values": [
     "curry-howard",
     "proof-term",

@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.machine.items.rule-building.title",
+  "title": "@tag.machine-rule-building.title",
   "values": [
     "anyR",
     "swapConcl",

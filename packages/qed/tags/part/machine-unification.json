@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.machine.items.unification.title",
+  "title": "@tag.machine-unification.title",
   "values": [
     "uDecompose-r-pattern-desc",
     "uDelete",

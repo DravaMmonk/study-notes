@@ -1,4 +1,4 @@
 {
-  "title": "@group.natural-induction.title",
+  "title": "@tag.natural-induction.title",
   "values": ["in-zero", "in-succ", "in-noteq", "in-comm", "in-assoc", "in-induct"]
 }

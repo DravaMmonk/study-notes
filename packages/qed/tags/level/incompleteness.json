@@ -1,4 +1,4 @@
 {
-  "title": "@group.incompleteness.title",
+  "title": "@tag.incompleteness.title",
   "values": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"]
 }

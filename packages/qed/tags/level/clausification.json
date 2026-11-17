@@ -1,4 +1,4 @@
 {
-  "title": "@group.clausification.title",
+  "title": "@tag.clausification.title",
   "values": ["au-negate", "au-iff", "au-hyps", "au-skolem", "au-clauses"]
 }

@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.main.name",
-  "desc": "@tray.trays.main.desc",
+  "title": "@tag.main.title",
+  "desc": "@tag.main.desc",
   "values": [
     "table:msum",
     "table:const",

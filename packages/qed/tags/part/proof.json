@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.proof.name",
-  "desc": "@tray.trays.proof.desc",
+  "title": "@tag.proof.title",
+  "desc": "@tag.proof.desc",
   "values": [
     "#proof-implication",
     "#proof-and",

@@ -1,5 +1,5 @@
 {
-  "title": "@tray.trays.machine.items.reasoning.title",
+  "title": "@tag.machine-reasoning.title",
   "values": [
     "rule",
     "assumption-s-results-desc",

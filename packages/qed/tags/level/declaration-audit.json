@@ -1,4 +1,4 @@
 {
-  "title": "@group.declaration-audit.title",
+  "title": "@tag.declaration-audit.title",
   "values": ["decl-check", "decl-strength", "decl-three", "decl-order", "decl-two"]
 }

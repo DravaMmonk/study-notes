@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.gates.name",
-  "desc": "@tray.trays.gates.desc",
+  "title": "@tag.gates.title",
+  "desc": "@tag.gates.desc",
   "values": [
     "gNot",
     "gAnd",

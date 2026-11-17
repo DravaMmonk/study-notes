@@ -1,1 +1,1 @@
-{ "title": "@group.word-segmentation.title", "values": ["wordbreak", "wordcost", "segment"] }
+{ "title": "@tag.word-segmentation.title", "values": ["wordbreak", "wordcost", "segment"] }

@@ -1,1 +1,1 @@
-{ "title": "@glossary.groups.scene.title", "values": ["upsample", "kmeans", "unet", "iou", "detect"] }
+{ "title": "@tag.scene.title", "values": ["upsample", "kmeans", "unet", "iou", "detect"] }

@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.certificate.name",
-  "desc": "@tray.trays.certificate.desc",
+  "title": "@tag.certificate.title",
+  "desc": "@tag.certificate.desc",
   "values": [
     "#certificate-certificate"
   ]

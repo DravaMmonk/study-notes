@@ -1,4 +1,4 @@
 {
-  "title": "@group.backward-rule-application.title",
+  "title": "@tag.backward-rule-application.title",
   "values": ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-allI", "r-exI"]
 }

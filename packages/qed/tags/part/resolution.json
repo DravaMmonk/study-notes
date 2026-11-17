@@ -1,6 +1,6 @@
 {
-  "title": "@tray.trays.resolution.name",
-  "desc": "@tray.trays.resolution.desc",
+  "title": "@tag.resolution.title",
+  "desc": "@tag.resolution.desc",
   "values": [
     "res"
   ]
