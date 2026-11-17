@@ -127,9 +127,14 @@ function Tree({ game, track, rows, byId, solved, all, best = () => null, current
   const half = Math.max(0, ...spots.map((p) => Math.abs(p.col)))
   const x = (c) => (c + half) * (w + col)
   const width = x(half) + w
-  const chipOf = level => game.mapBadges?.(level, { solved, all }) ?? []
-  // A level's own box: full size, or smaller; and the gap under it.
-  const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
+  // Each level's badges, worked out once per render: the layout asks for them again and again (stack below), and a
+  // game's badges look back over every level before (mapBadges).
+  const chips = useMemo(() => new Map([...byId.values()].map((level) => [level.id, game.mapBadges?.(level, { solved, all }) ?? []])), [game, byId, solved, all])
+  const chipOf = (level) => chips.get(level.id) ?? []
+  // A level's own box: full size, or smaller; and the gap under it. Whether a level is a milestone is asked once per
+  // render: the layout asks for boxes inside its loops.
+  const minorIds = useMemo(() => new Set([...byId.values()].filter((level) => !game.core(level)).map((level) => level.id)), [game, byId])
+  const box = (id) => (minorIds.has(id) ? minor : { w, h })
   const chip = (id) => Boolean(byId.get(id) && chipOf(byId.get(id)).length)
   const below = Object.assign((id) => (chip(id) ? gap : plain), { chip })
   const { top, turn, height } = stack({ at, edges, box, below, x, w, join: plain / 2 })
