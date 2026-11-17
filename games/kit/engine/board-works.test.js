@@ -76,9 +76,9 @@ test('a task gives and withholds a value for itself alone, and its answer keeps 
 test('an item a task names is one of the game’s: a part, a setting of several values, a value of it', () => {
   const read = course([level('one', [task('one', sums, 'plus', { withholds: ['gone'], gives: ['calc-missing'], opens: ['calc-times', 'calc'] })], { adds: ['calc'] })])
   assert.deepEqual(read.wrong, [
-    'one: withholds names gone: gone is no piece or stage',
-    'one: gives names calc-missing: calc-missing is no piece or stage',
-    'one: opens names calc-times: calc-times is no piece or stage',
+    'one: withholds names gone: gone is no part or stage',
+    'one: gives names calc-missing: calc-missing is no part or stage',
+    'one: opens names calc-times: calc-times is no part or stage',
 
   ])
 })

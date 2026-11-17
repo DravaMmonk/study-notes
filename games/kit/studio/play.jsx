@@ -10,8 +10,8 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a piece of pieces/<name>.json shown: the scenes its editor draws and its
-//                  fields (PieceView.jsx)
+//                  { type: 'part', content, part } a part of parts/<name>.json shown: the scenes its editor draws and its
+//                  fields (PartView.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
@@ -19,7 +19,7 @@
 //                  as the part settings/<name>) picked, an item added to one;
 //                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
 //                  (file 'glossary', in the encyclopedia; an entry by its id) picked;
-//                  { type: 'task-go', task } a step of a built piece's upgrade chain clicked: go to that task
+//                  { type: 'task-go', task } a step of a built part's upgrade chain clicked: go to that task
 import '../wires.css'
 import '../shell/shell.css'
 import '../views/views.css'
@@ -30,7 +30,7 @@ import { useLang } from '../shell/useLang.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { runtimeIds } from '../engine/runtime.js'
 import { DOMAINS } from 'virtual:studio-domains'
-import PieceView from './PieceView.jsx'
+import PartView from './PartView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
 
@@ -142,7 +142,7 @@ export default function Play() {
   }), [level, take, editing, go])
   if (part) {
     const which = { part: part.type }
-    // A stage previewed is read only: its fields are the piece's over the stages before it.
+    // A stage previewed is read only: its fields are the part's over the stages before it.
     const parts = edit.on && !part.stage ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
     const toTask = (task) => say({ type: 'task-go', task })
     // A task as the map numbers it: its level's label, and which task of the level when it has several.
@@ -152,7 +152,7 @@ export default function Play() {
       const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
       return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
     }
-    return <PieceView game={part.game} type={part.type} stage={part.stage} edit={parts} onTask={toTask} label={taskLabel} />
+    return <PartView game={part.game} type={part.type} stage={part.stage} edit={parts} onTask={toTask} label={taskLabel} />
   }
   if (!shown) return null
   return <DraftPreview key={shown.no} stamp={shown.game.stamp}>

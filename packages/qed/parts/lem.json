@@ -1,0 +1,33 @@
+{
+  "name": "@part.lem.name",
+  "desc": "@part.lem.desc",
+  "family": "logic:family-lemma",
+  "settings": { "A": { "control": "tree" } },
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"~(A | ~A)\"](body: m2) {",
+          "  body {",
+          "    na = impI[A=A](body: m) {",
+          "      body {",
+          "        i = orI[other=\"~A\", side=right](na.body)",
+          "        m = mp(f.body, i)",
+          "      }",
+          "    }",
+          "    i2 = orI[other=A, side=left](na)",
+          "    m2 = mp(f.body, i2)",
+          "  }",
+          "}",
+          "r = raa(f)",
+          "goal <- r"
+        ],
+        "tests": [{ "goal": "A ∨ ¬A" }]
+      }
+    }
+  ],
+  "inputs": [],
+  "outputType": "logic:judgment"
+}

@@ -23,7 +23,7 @@
       ],
       "publishes": [
         {
-          "piece": "gImp",
+          "part": "gImp",
           "variant": "base"
         }
       ]

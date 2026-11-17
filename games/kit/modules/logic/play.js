@@ -67,7 +67,7 @@ const partDefinition = ({ game, level }, type) => game.circuit.forTask(level.sou
 
 function derivationPlay(readout, run) {
   return circuitPlay({
-    part: (ctx, type) => partDefinition(ctx, type) ?? ctx.game.logic.pieces[type],
+    part: (ctx, type) => partDefinition(ctx, type) ?? ctx.game.logic.parts[type],
     settings: (ctx, type) => {
       const def = partDefinition(ctx, type)
       return def ? definedSettings(def) : []

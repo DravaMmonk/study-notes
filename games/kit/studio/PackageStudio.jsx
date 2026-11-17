@@ -5,10 +5,10 @@
 // operations to it. The package's levels are played in a game that plays the package, as its course sets them up; how
 // a game arranges them is the game workspace's (GameStudio.jsx).
 //
-// The page (games/DESIGN.md 6.7): lists on the left, one at a time (left-lists.js) — the levels, the pieces and the
+// The page (games/DESIGN.md 6.7): lists on the left, one at a time (left-lists.js) — the levels, the parts and the
 // encyclopedia's entries, each grouped by the tags, relations, trays or sections that gather them (list-groups.js),
 // the kernel's capabilities, the overrides, search; in the middle what is picked: the level as the game shows it, which
-// is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item), a piece with its
+// is where it is edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item), a part with its
 // stages (StageChain.jsx), several levels at once, a group's own object in its editor (a tag, a relation, a tray, a
 // section), a capability, an override; the file of what is picked on the right (Inspector.jsx), the field picked in it
 // with its control; the helpers in a fold bar under the middle. Each folds away and resizes (remembered per viewer,
@@ -72,18 +72,18 @@ const SAVED_VIEW = window.history.state?.studio
 const OPENED = readOpen(QUERY)
 // The left column's switcher (left-lists.js PACKAGE_LISTS): each list's icon and name.
 const LISTS = {
-  tree: [ListTree, '关卡', 'Levels'], parts: [Shapes, '件', 'Pieces'], entries: [BookOpen, '词条', 'Entries'],
+  tree: [ListTree, '关卡', 'Levels'], parts: [Shapes, '元件', 'Parts'], entries: [BookOpen, '词条', 'Entries'],
   kernel: [Cpu, '能力', 'Capabilities'], overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
 }
 // The kind of object each build list holds, and the relations a new group of it can be.
-const LIST_KIND = { tree: 'level', parts: 'piece', entries: 'entry' }
-const RELATION_KINDS = { level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], piece: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
+const LIST_KIND = { tree: 'level', parts: 'part', entries: 'entry' }
+const RELATION_KINDS = { level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], part: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
 const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
 
-const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : null
-const selectionPath = (at) => piecePath(at) ?? (at ? [] : null)
+const partPath = (at) => at?.part !== undefined ? ['parts', at.part] : null
+const selectionPath = (at) => partPath(at) ?? (at ? [] : null)
 
 /** Keep the selection in the address and the editor details in the same history entry. */
 const remember = (pkg, at, field, playLevel, task, opened, heading) => {
@@ -117,9 +117,9 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const namespace = pkg
   const [opened, setOpened] = useState(OPENED.open) // what each object list has open: { capability, override }
   const [headingState, setHeading] = useState(HEADING) // a group's own object open in the middle: { kind, full }
-  const [pieceStage, setPieceStage] = useState(null) // the stage of the piece shown that the page previews
+  const [partStage, setPartStage] = useState(null) // the stage of the part shown that the page previews
   const [levelsBy, setLevelsBy] = usePref('level-by', 'tag')
-  const [piecesBy, setPiecesBy] = usePref('piece-by', 'tag')
+  const [partsBy, setPartsBy] = usePref('part-by', 'tag')
   const [entriesBy, setEntriesBy] = usePref('entry-by', 'tag')
   const [objectField, setObjectField] = useState(null) // the field of the object open shown on the right: { of, path }
   const { ops, redo, why, setWhy, shown, last, checked, base, busy, rev, saving, said, savingRef, changeset, key, fresh, lines, result, edit, addOps, back, again, discard, apply, undo } = pending
@@ -145,7 +145,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [savedSide, setSide] = usePref('side', 'tree')
   // The list the address names wins over the one last shown.
   useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => setPieceStage(null), [at?.part])
+  useEffect(() => setPartStage(null), [at?.part])
   const side = PACKAGE_LISTS.includes(savedSide) ? savedSide : 'tree'
   const objectList = isObjectList(side)
   // The level list last shown, which a level picked elsewhere goes back to.
@@ -207,11 +207,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
 
   const content = shown?.content ?? null
   const playContent = useMemo(() => content?.levels.some(level => level.id === play?.level) ? packageLevel(content, play.level) : null, [content, play?.level])
-  // A piece's page needs a game around it: the level played, else the package's first level.
+  // A part's page needs a game around it: the level played, else the package's first level.
   const pageContent = useMemo(() => playContent ?? (at?.part !== undefined && content?.levels[0] ? packageLevel(content, content.levels[0].id) : null), [playContent, at?.part, content])
-  // A domain that defines its parts as data names them by the game's pieces/<name>.json as the changeset leaves it.
+  // A domain that defines its parts as data names them by the game's parts/<name>.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
-  const pieceRoot = piecePath(at)
+  const partRoot = partPath(at)
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
   const names = useMemo(() => rawNames && {
@@ -223,8 +223,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     onLevel: (id) => select({ level: id }),
   }, [rawNames]) // eslint-disable-line react-hooks/exhaustive-deps
   const playOrder = useMemo(() => (rawNames ? rawNames.levels.map((l) => l.id) : content?.levels.map((l) => l.id) ?? []), [rawNames, content])
-  // Where the course first gives each piece (the names tool reads it off the components box): its type → a level.
-  const earnedAt = useMemo(() => new Map((rawNames?.parts ?? []).filter((p) => p.at).map((p) => [p.piece, p.at])), [rawNames])
+  // Where the course first gives each part (the names tool reads it off the components box): its type → a level.
+  const earnedAt = useMemo(() => new Map((rawNames?.parts ?? []).filter((p) => p.at).map((p) => [p.part, p.at])), [rawNames])
   const levelOptions = useMemo(() => {
     if (!content) return null
     const label = new Map((rawNames?.levels ?? []).map((l) => [l.id, l]))
@@ -265,7 +265,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     const other = next?.level !== at?.level || next?.group !== at?.group || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part
     setAt(next)
     setMoving(null)
-    const root = piecePath(next)
+    const root = partPath(next)
     if (root) pickField(root)
     else if (other) setField(null)
     if (!keep) setPicked(new Set(next?.level ? [next.level] : []))
@@ -293,7 +293,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const relationOf = (full) => {
     const relation = content?.registries?.relation?.[full]
-    return relation?.kind === 'replaces' ? 'piece' : relation?.of === 'entry' ? 'entry' : relation?.of === 'piece' ? 'piece' : 'level'
+    return relation?.kind === 'replaces' ? 'part' : relation?.of === 'entry' ? 'entry' : relation?.of === 'part' ? 'part' : 'level'
   }
   /** A new group's object for a build list of `kind` grouped `by` (a relation of `option`'s kind), opened. */
   const newGroup = (kind, by, option) => {
@@ -333,7 +333,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       return
     }
     if (level) select({ level })
-    else if (file === 'pieces') select({ part: keys[1] })
+    else if (file === 'parts') select({ part: keys[1] })
     else select({ game: true })
     if (keys.length) pickField(keys, true)
     else setField(null)
@@ -371,7 +371,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     const game = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (game) return jump(null, game[1].replace(/^\./, ''), 'game')
     if (/^content: glossary\.json/.test(item.text)) return jump(null, null, 'glossary')
-    const part = /^content: pieces\/([^\s]+)\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
+    const part = /^content: parts\/([^\s]+)\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (part) {
       select({ part: part[1] })
       return pickField(parsePath(`parts.${part[1]}${part[2]}`), true)
@@ -435,7 +435,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   // The name of what the page shows, clicked: all its fields in the side panel, those the screen does not draw too.
   const onRoot = () => {
-    if (pieceRoot) return pickField(pieceRoot)
+    if (partRoot) return pickField(partRoot)
     if (play?.level) {
       if (at?.level !== play.level) select({ level: play.level })
       return pickField([])
@@ -443,7 +443,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     select({ game: true }, true)
     return pickField([])
   }
-  // A step of a built piece's upgrade chain clicked: its task, on the page and in the side panel.
+  // A step of a built part's upgrade chain clicked: its task, on the page and in the side panel.
   const onTaskGo = ({ task }) => {
     const found = findTask(content.levels, task)
     if (!found) return select({ level: task })
@@ -451,7 +451,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     setPageTask(found.at)
     return pickField(['tasks', found.at])
   }
-  // A tick of a piece's way through the course: its level, at the task and on the field that says it.
+  // A tick of a part's way through the course: its level, at the task and on the field that says it.
   const onFlow = (e) => {
     select({ level: e.level })
     if (e.task !== undefined) setPageTask(e.task)
@@ -493,10 +493,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     const [key, face] = m.path
     if (key === 'views' && face) {
       const path = [...base, 'views', face]
-      const pending = [...ops].reverse().find((op) => op.op === 'pieces.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
+      const pending = [...ops].reverse().find((op) => op.op === 'parts.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
       const existing = pending?.value ?? def.views?.[face]
       const list = existing ?? DEFAULT_VIEWS[face]
-      const write = (value) => edit({ op: 'pieces.set', path, value })
+      const write = (value) => edit({ op: 'parts.set', path, value })
       if (!existing) write(list)
       return pickField(m.type === 'pick' ? [...base, ...m.path] : path, m.type === 'pick', list)
     }
@@ -510,7 +510,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     if (creationChoices(schema.of, { vocabulary: vocab.vocabulary }).length > 1) return pickField(path)
     const list = getAt(content.partDefs, path) ?? []
     const blankOf = { rules: { set: {} }, checks: { holds: 'circuit:eq(1, 1)', say: { en: '' } } }
-    edit({ op: 'pieces.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
+    edit({ op: 'parts.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
     return pickField([...path, list.length], true)
   }
   // Levels dropped in the tree: into a group at a place, or out of every group.
@@ -556,8 +556,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
-  const sideFile = at?.level ? { level: at.level } : pieceRoot ? { parts: true, root: pieceRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
-  const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
+  const sideFile = at?.level ? { level: at.level } : partRoot ? { parts: true, root: partRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
+  const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'parts.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))
     : field?.path && sideFile?.game ? { file: 'game', path: JSON.stringify(field.path) }
@@ -571,7 +571,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     levelOptions,
     textField,
     lang,
-    onPiece: (part) => { showList('parts'); select({ part }) },
+    onPart: (part) => { showList('parts'); select({ part }) },
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       before: (path) => {
@@ -714,7 +714,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 heading={heading} onHeading={(next) => openHeading(next)} {...grouping('entry', entriesBy, setEntriesBy)} onOpen={(k) => jump(null, `entries[${k}]`, 'glossary')} />
               : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} namespace={namespace} game={game} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length}
-                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('piece', piecesBy, setPiecesBy)} onSelect={select} onOps={addOps} />
+                heading={heading} onHeading={(next) => openHeading(next)} {...grouping('part', partsBy, setPartsBy)} onSelect={select} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file)} />
               : levelsBy !== 'tag' ? <GroupedList kind="level" content={content} namespace={namespace} game={game} items={playOrder} label={(id) => L(content.registries?.level?.[id]?.title)}
@@ -757,13 +757,13 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               </div>
             )}
             <GameFrame
-              visible={middle === 'page' && Boolean(pageContent)} content={pageContent} play={play} part={at?.part} stage={pieceStage} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={middle === 'page' && Boolean(pageContent)} content={pageContent} play={play} part={at?.part} stage={partStage} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined ? <>
-                <StageChain piece={at.part} raw={content.partDefs?.parts?.[at.part]} operations={capabilities?.operation ?? {}} namespace={namespace} stage={pieceStage} pending={objectPending}
-                  editable={namespaceOf(at.part) === namespace} onStage={(id, path) => { setPieceStage(id); pickField(['parts', at.part, ...path]) }}
-                  onAdd={(stages) => edit({ op: 'pieces.set', path: ['parts', at.part, 'stages'], value: stages })} />
-                <Flow target={target} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
+                <StageChain part={at.part} raw={content.partDefs?.parts?.[at.part]} operations={capabilities?.operation ?? {}} namespace={namespace} stage={partStage} pending={objectPending}
+                  editable={namespaceOf(at.part) === namespace} onStage={(id, path) => { setPartStage(id); pickField(['parts', at.part, ...path]) }}
+                  onAdd={(stages) => edit({ op: 'parts.set', path: ['parts', at.part, 'stages'], value: stages })} />
+                <Flow target={target} part={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
               </>
                 : level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openNamed(...Object.entries(next)[0])} />}
             />

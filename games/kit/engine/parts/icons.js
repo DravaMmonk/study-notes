@@ -1,5 +1,5 @@
 // The kernel's icon table, by name (games/DESIGN.md 6.8): the icons a part, an option or a block may name in
-// pieces.json. The shell draws each by the same name (../../shell/parts/icons.js, a test keeps the two the same).
+// parts.json. The shell draws each by the same name (../../shell/parts/icons.js, a test keeps the two the same).
 export const ICON_NAMES = [
   'Activity', 'ArrowDown', 'ArrowDownNarrowWide', 'ArrowDownToLine', 'ArrowLeft', 'ArrowLeftRight', 'ArrowRight',
   'ArrowRightFromLine', 'ArrowRightLeft', 'ArrowUp', 'ArrowUpFromLine', 'Binary', 'Blend', 'Box', 'Boxes', 'Braces',

@@ -73,7 +73,7 @@
       ],
       "publishes": [
         {
-          "piece": "metis",
+          "part": "metis",
           "variant": "base"
         }
       ]

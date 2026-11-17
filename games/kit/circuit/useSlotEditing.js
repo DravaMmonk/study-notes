@@ -263,10 +263,10 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
         const region = over?.dataset.region || null
         if (g.kind === 'port' && over) {
           if (over.dataset.p && over.dataset.p !== g.id) now.wire(g.id, over.dataset.p)
-          else if (over.dataset.piece) now.wireToCard(g.id, over.dataset.piece)
+          else if (over.dataset.part) now.wireToCard(g.id, over.dataset.part)
         }
         if (g.kind === 'tray' && slot !== null) now.place(g.id, slot, region)
-        if (g.kind === 'piece' && over) {
+        if (g.kind === 'part' && over) {
           if (slot !== null) now.movePart(g.id, slot, region)
           else if (now.canMove(g.id)) now.remove(g.id)
         }

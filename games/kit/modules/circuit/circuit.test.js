@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-// node --test (npm test) — the circuit domain: its engine resources compute, the starter's parts (pieces.json) hold
+// node --test (npm test) — the circuit domain: its engine resources compute, the starter's parts (parts.json) hold
 // together over them, boards read from and write back to blueprint text, and its starter game (starter/, what npm run
 // new-game copies) passes its own checks.
 import { test } from 'node:test'

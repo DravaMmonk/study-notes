@@ -1,6 +1,6 @@
-import { piecePath } from './schema.js'
-import { operationPiece, operationTrees } from './operation.js'
-import { holesOf, outletsOf, resolveSettings, insideOf, editorOf, regionsOf } from '../pieces.js'
+import { partPath } from './schema.js'
+import { operationPart, operationTrees } from './operation.js'
+import { holesOf, outletsOf, resolveSettings, insideOf, editorOf, regionsOf } from '../parts.js'
 
 import { acceptsType, typeAlternatives as alternatives } from '../value-types.js'
 
@@ -12,9 +12,9 @@ export function typeProblems(file, vocabulary) {
   const types = vocabulary.kinds.valueType ?? {}
   const ops = vocabulary.kinds.op ?? {}
   const compatible = (expected, actual) => acceptsType(expected, actual, types)
-  const say = (at, says) => out.push({ at: piecePath(at), says })
+  const say = (at, says) => out.push({ at: partPath(at), says })
   for (const [name, declaration] of Object.entries(file.parts ?? {})) {
-    const part = operationPiece(declaration, ops)
+    const part = operationPart(declaration, ops)
     if (editorOf(part) !== 'circuit') continue
     const base = `.parts.${name}`
     if (declaration.outputType && declaration.outputType !== part.outputType) say(`${base}.outputType`, 'output type must come from the selected operation')

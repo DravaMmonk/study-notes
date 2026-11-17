@@ -1,7 +1,0 @@
-{
-  "name": "@piece.uSwap.name",
-  "desc": "@piece.uSwap.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:uSwap"
-}

@@ -71,7 +71,7 @@ import './training.css'
 //                         change (a preset locked back in…)
 //   settings?(node, ctx)  a card's pickers: [{ key, label, value, options: [[value, label], …] }]
 //   defaults?(type)       a new card's settings
-//   portLabels?           { type: { port: label } }               defined?  the game's pieces.json parts (CircuitLevel)
+//   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   inspect?(node, ctx)   what a defined part's detail shows of its values (by default, as its card)
 //   language?(task, test) the language a defined part's tree setting is built in (../strip/TreePick.jsx)
 //   context?(task, test)  what a resource sees on the screen when it works out a setting's options (`from`)
@@ -120,7 +120,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const level = entry.source
   const base = course.forTask(level)
   const rawDefined = base.defined ?? gameDefined
-  const { board: kind, BUILT, pieces } = base
+  const { board: kind, BUILT, parts: builtDefinitions } = base
   const onPhone = useMedia(PHONE)
   const timed = Boolean(kind.ticks) && !once?.(level)
   base.syncOwn(progress.built)
@@ -295,7 +295,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     if (known(type)) return { type, label: resolve.definition(type).name, desc: resolve.definition(type).description, icon: CircuitBoard, family: 'built', packed: true }
     const fresh = entry.fresh?.includes(type)
     if (BUILT[type]) {
-      const b = pieces[type]
+      const b = builtDefinitions[type]
       return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
     }
     if (defined?.of(type)) return definedItem(type, defined.of(type), { fresh }, allowed)
@@ -432,7 +432,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           brief={brief}
           taskNav={<TaskNavigation level={entry} />}
           below={onPhone && practice.panel}
-          describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id, n.type)?.desc)}
+          describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? builtDefinitions[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id, n.type)?.desc)}
           results={showResults ? strip : undefined}
           pad={surface?.pad ? <Dock pad={surface.pad} /> : undefined}
           tabs={!table || !showResults}

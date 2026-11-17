@@ -33,10 +33,10 @@ test('types check nested operations, branches and outputs across modules', () =>
       'picture:blur': { args: [{ name: 'a', type: 'toy:image' }], returns: 'toy:image', params: S.obj({}) },
     },
   } }
-  const piece = { inputs: [{ name: 'a', type: 'toy:number' }], outputType: 'toy:number', op: 'math:add' }
-  assert.deepEqual(typeProblems({ parts: { sample: piece } }, vocabulary), [])
-  assert.match(typeProblems({ parts: { sample: { ...piece, outputType: 'toy:image', op: 'picture:blur' } } }, vocabulary)[0].says, /input types/)
-  assert.match(typeProblems({ parts: { sample: { ...piece, outputType: 'toy:image' } } }, vocabulary)[0].says, /output type/)
+  const part = { inputs: [{ name: 'a', type: 'toy:number' }], outputType: 'toy:number', op: 'math:add' }
+  assert.deepEqual(typeProblems({ parts: { sample: part } }, vocabulary), [])
+  assert.match(typeProblems({ parts: { sample: { ...part, outputType: 'toy:image', op: 'picture:blur' } } }, vocabulary)[0].says, /input types/)
+  assert.match(typeProblems({ parts: { sample: { ...part, outputType: 'toy:image' } } }, vocabulary)[0].says, /output type/)
 })
 
 test('named parameters are checked using their declared value type', () => {
@@ -60,7 +60,7 @@ test('module contracts reject missing implementations and incomplete signatures'
   assert.ok(problems.some((problem) => problem.includes('no parameter declaration')))
 })
 
-test('operations from another module execute through the normal piece compiler', async () => {
+test('operations from another module execute through the normal part compiler', async () => {
   const { defineParts } = await import('./parts/define.js')
   const { PARTS } = defineParts({ parts: { sample: {
     inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', op: 'circuit:add',

@@ -1,0 +1,24 @@
+{
+  "name": "@part.occlusion.name",
+  "desc": "@part.occlusion.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "g = const[c=0.5]()",
+          "n = const[c=9]()",
+          "d = arith[op=sub](in, g)",
+          "c = arith[op=mul](d, w)",
+          "b = box3(c)",
+          "k = arith[op=mul](b, n)",
+          "out <- k"
+        ],
+        "inputs": ["in", "w"]
+      }
+    }
+  ],
+  "inputs": [{ "name": "in", "type": "image:image" }, { "name": "w", "type": "image:image" }],
+  "outputType": "image:image"
+}

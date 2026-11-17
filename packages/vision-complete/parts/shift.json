@@ -1,0 +1,87 @@
+{
+  "name": "@part.shift.name",
+  "desc": "@part.shift.desc",
+  "icon": "Move",
+  "family": "image:family-neighbour",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "dir": {
+      "label": "@part.shift.settings.dir.label",
+      "options": [
+        {
+          "value": "right",
+          "label": "→"
+        },
+        {
+          "value": "left",
+          "label": "←"
+        },
+        {
+          "value": "down",
+          "label": "↓"
+        },
+        {
+          "value": "up",
+          "label": "↑"
+        }
+      ]
+    },
+    "n": {
+      "label": "@part.shift.settings.n.label",
+      "fixed": true
+    },
+    "border": {
+      "label": "@part.shift.settings.border.label",
+      "options": [
+        {
+          "value": "zero",
+          "label": "@part.shift.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@part.shift.settings.border.options.1.label"
+        },
+        {
+          "value": "wrap",
+          "label": "@part.shift.settings.border.options.2.label"
+        }
+      ],
+      "fixed": true,
+      "remove": [
+        "wrap"
+      ]
+    }
+  },
+  "op": "image:shift",
+  "stages": [
+    {
+      "id": "shift-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    },
+    {
+      "id": "shift-border-wrap",
+      "settings": {
+        "border": {
+          "remove": []
+        }
+      }
+    },
+    {
+      "id": "shift-n",
+      "settings": {
+        "n": {
+          "fixed": false
+        }
+      }
+    }
+  ]
+}

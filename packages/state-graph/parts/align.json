@@ -1,0 +1,22 @@
+{
+  "name": "@part.align.name",
+  "desc": "@part.align.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "k = table:const[value=1]()",
+          "a = table:add(view.ul, k)",
+          "g = table:pass(facts.same, a)",
+          "m = table:mmax(view.up, view.left, g)",
+          "cell <- m"
+        ],
+        "world": "table:world-align",
+        "robot": "table:robot-ranger",
+        "facts": ["same"]
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 // on every cell: the board passes when it gives the sentence's value on every row.
 //
 // A gates level: { kind: 'logic:gates', target: formula text (in WORDS letters), builds?: gate type, budget?: gates allowed,
-// gates }. Its `gates` are every gate its board may hold, by type: the game's primitive gates (pieces.json, run as the
+// gates }. Its `gates` are every gate its board may hold, by type: the game's primitive gates (parts.json, run as the
 // kernel's defined parts) and the ones its levels build (game.json gates, each { name, desc, ports }), which run the
 // board of the level that builds them (builtGates).
 import { packed, runBoard } from '../../engine/boards.js'
@@ -53,7 +53,7 @@ export function builtGates(gates, builders, ownBoard) {
     }
     const circuit = () => {
       const own = ownBoard(level.taskId)
-      return portsOn(own && passes(own) ? own : level.pieceSolution)
+      return portsOn(own && passes(own) ? own : level.partSolution)
     }
     all[type] = {
       ...g,

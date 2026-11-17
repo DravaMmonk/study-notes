@@ -23,6 +23,8 @@ parts/
 !games/kit/modules/image/engine/parts/
 !games/kit/engine/parts/
 !games/kit/shell/parts/
+!packages/**/parts/
+!games/kit/templates/**/parts/
 sdist/
 var/
 wheels/

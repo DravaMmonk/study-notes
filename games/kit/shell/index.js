@@ -1,7 +1,7 @@
 import { earnedUnlocks, passedLevelIn, taskOpen } from './progress.js'
 import { holds } from '../course.js'
-import { stageDefinition } from '../engine/piece-stages.js'
-import { editorOf } from '../engine/pieces.js'
+import { stageDefinition } from '../engine/part-stages.js'
+import { editorOf } from '../engine/parts.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -44,8 +44,8 @@ export { PHONE, useMedia } from './useMedia.js'
  *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
  *                 preview?(part, { progress }) → { sample?, experiment?, inside? } for the editor (../circuit/preview.jsx),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
- *   unlocked(level)  what passing a level awards [{ piece?, label, icon?, family? }]
- *   extraPieces   introduced pieces used outside the components box, in its same record format
+ *   unlocked(level)  what passing a level awards [{ part?, label, icon?, family? }]
+ *   extraParts   introduced parts used outside the components box, in its same record format
  *   passed(level)    more for the passed dialog, after the level's key idea: { label, lines } or null, such as the
  *                    rules a level declared
  *   core(level)   whether the map draws a level full size (a milestone: ../course.js isCore) or smaller
@@ -55,7 +55,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
  *   notes         a notes edition (games/DESIGN.md 12): every level open, each chapter listed in order on the map
  *
- * Piece descriptions and available forms follow the same named stages as the circuit cards.
+ * Part descriptions and available forms follow the same named stages as the circuit cards.
  */
 export function defineGame(def) {
   const plan = def.course?.plan
@@ -133,19 +133,19 @@ export function defineGame(def) {
     stageTexts.get(text).set(entry.id, result)
     return result
   }
-  game.textAt = (text, id, piece = text?.piece) => {
-    if (!def.course || !piece) return text
+  game.textAt = (text, id, part = text?.part) => {
+    if (!def.course || !part) return text
     const has = holds(def.course, { id, task: 0 }, new Set())
-    return stagedText(text, def.course.stages.get(has.stage(piece)))
+    return stagedText(text, def.course.stages.get(has.stage(part)))
   }
   const progressStages = new WeakMap()
   game.textFor = (text, progress) => {
-    const course = def.course, piece = text?.piece
-    if (!course || !piece) return text
+    const course = def.course, part = text?.part
+    if (!course || !part) return text
     if (!progressStages.has(progress)) {
       const selected = new Map()
       const consider = entry => {
-        if (entry && entry.index > (selected.get(entry.piece)?.index ?? -1)) selected.set(entry.piece, entry)
+        if (entry && entry.index > (selected.get(entry.part)?.index ?? -1)) selected.set(entry.part, entry)
       }
       for (const id of course.startStages) consider(course.stages.get(id))
       if (progress.all) for (const entry of course.stages.values()) consider(entry)
@@ -168,11 +168,11 @@ export function defineGame(def) {
       }
       progressStages.set(progress, selected)
     }
-    return stagedText(text, progressStages.get(progress).get(piece) ?? course.stages.get(piece))
+    return stagedText(text, progressStages.get(progress).get(part) ?? course.stages.get(part))
   }
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
-  game.isCircuitPiece = (type) => Boolean(type && editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
+  game.isCircuitPart = (type) => Boolean(type && editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
   // A built part is earned by solving its level; a primitive when its introducing task becomes available.
   // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
   const earned = (progress, parts) => {
@@ -186,10 +186,10 @@ export function defineGame(def) {
     }
     return [...game.flagsOf(progress), ...parts.filter((part) => part.at?.some((id) => introduced(part, id))).map((part) => part.key)]
   }
-  const pieces = [...(def.parts?.all ?? []), ...(def.extraPieces ?? [])].filter(({ piece }) => piece)
-  game.earnedPieces = (progress) => {
-    const keys = new Set(earned(progress, pieces))
-    return pieces.filter(({ key }) => keys.has(key))
+  const parts = [...(def.parts?.all ?? []), ...(def.extraParts ?? [])].filter(({ part }) => part)
+  game.earnedParts = (progress) => {
+    const keys = new Set(earned(progress, parts))
+    return parts.filter(({ key }) => keys.has(key))
   }
   if (def.parts) {
     game.parts = { ...def.parts, earned: (progress) => earned(progress, def.parts.all) }

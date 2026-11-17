@@ -1,0 +1,40 @@
+{
+  "name": "@part.disparity.name",
+  "desc": "@part.disparity.desc",
+  "icon": "Search",
+  "family": "image:family-search",
+  "inputs": [
+    {
+      "name": "left",
+      "label": "@part.disparity.inputs.0.label"
+    },
+    {
+      "name": "right",
+      "label": "@part.disparity.inputs.1.label"
+    }
+  ],
+  "settings": {
+    "window": {
+      "label": "@part.disparity.settings.window.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "1×1"
+        },
+        {
+          "value": "3",
+          "label": "3×3"
+        },
+        {
+          "value": "5",
+          "label": "5×5"
+        },
+        {
+          "value": "7",
+          "label": "7×7"
+        }
+      ]
+    }
+  },
+  "op": "image:disparity"
+}

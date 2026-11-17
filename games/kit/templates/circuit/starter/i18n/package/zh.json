@@ -11,11 +11,11 @@
   "level.1-2.tasks.1-2.brief": "交出 a + b − c + d − e。",
   "level.1-2.tasks.1-2.outputs.0.label": "结果",
   "level.1-2.title": "再来两个数",
-  "piece.add.desc": "给出两个输入之和；只要有一个输入为「—」，就给出「—」。",
-  "piece.add.name": "相加",
-  "piece.addSub.desc": "给出 a 加 b、再减去 c 的结果。",
-  "piece.addSub.name": "加了再减",
-  "piece.sub.desc": "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。",
-  "piece.sub.name": "相减",
+  "part.add.desc": "给出两个输入之和；只要有一个输入为「—」，就给出「—」。",
+  "part.add.name": "相加",
+  "part.addSub.desc": "给出 a 加 b、再减去 c 的结果。",
+  "part.addSub.name": "加了再减",
+  "part.sub.desc": "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。",
+  "part.sub.name": "相减",
   "section.adding.title": "加减"
 }

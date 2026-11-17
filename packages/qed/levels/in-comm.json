@@ -67,7 +67,7 @@
       ],
       "publishes": [
         {
-          "piece": "addComm",
+          "part": "addComm",
           "variant": "base"
         }
       ]

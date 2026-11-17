@@ -1,4 +1,4 @@
-// The circuit domain's engine resources (games/DESIGN.md 6.8): the computations a game's pieces.json may call, each
+// The circuit domain's engine resources (games/DESIGN.md 6.8): the computations a game's parts.json may call, each
 // with what it is, its arguments (positional) and its named parameters, if any (a schema). A part's expression calls
 // them on its inputs and settings; a resource handed what it cannot work on stops with why (a PartError). The kernel's
 // builtins (../../engine/parts/builtins.js) come with every domain.

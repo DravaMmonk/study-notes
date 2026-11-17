@@ -6,8 +6,8 @@ has already learned, and any terms it links. Existing locale entries can help es
 
 Use `text.set` with a field location and one locale, for example
 `{ "op": "text.set", "level": "start", "path": "title", "lang": "fr", "value": "Départ" }`.
-Use `in: "game"`, `in: "glossary"` or `in: "pieces"` in place of `level` to address those fields. Applying a
+Use `in: "game"`, `in: "glossary"` or `in: "parts"` in place of `level` to address those fields. Applying a
 translation edit updates the corresponding locale file.
-Reference tags should name the relevant level, piece or entry that the player can access at that point.
+Reference tags should name the relevant level, part or entry that the player can access at that point.
 
 Preview the changeset, run the content checks and review the missing fields reported by `./gate --scope <locale>`.

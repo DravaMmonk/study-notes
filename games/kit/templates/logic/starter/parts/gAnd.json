@@ -1,0 +1,7 @@
+{
+  "name": "@part.gAnd.name",
+  "desc": "@part.gAnd.desc",
+  "icon": "ToggleLeft",
+  "family": "logic:family-gate",
+  "op": "circuit:and"
+}

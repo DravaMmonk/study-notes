@@ -1,5 +1,5 @@
 // The kernel's capabilities, read only (games/DESIGN.md 6.2, 6.7): what a package can pick and combine — value types,
-// operations, primitive pieces, boards, task kinds, content items, displays, languages, content kinds — each by its
+// operations, primitive parts, boards, task kinds, content items, displays, languages, content kinds — each by its
 // `<module>:<name>`, listed in the left column narrowed by kind, module and a search; the one picked in the middle, with
 // what it says and what it takes; its description as JSON on the right.
 import { useMemo, useState } from 'react'
@@ -9,7 +9,7 @@ import { capabilityOf } from './left-lists.js'
 import SidebarListTools from './SidebarListTools.jsx'
 
 const KINDS = [
-  ['operation', '运算', 'Operations'], ['primitive', '原始件', 'Primitive pieces'], ['valueType', '值类型', 'Value types'],
+  ['operation', '运算', 'Operations'], ['primitive', '原始元件', 'Primitive parts'], ['valueType', '值类型', 'Value types'],
   ['board', '板', 'Boards'], ['task', '任务种类', 'Task kinds'], ['content', '内容项', 'Content items'],
   ['display', '显示', 'Displays'], ['language', '语言', 'Languages'], ['contentKind', '内容种类', 'Content kinds'],
 ]

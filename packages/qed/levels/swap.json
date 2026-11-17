@@ -49,7 +49,7 @@
       ],
       "publishes": [
         {
-          "piece": "swap",
+          "part": "swap",
           "variant": "base"
         }
       ]

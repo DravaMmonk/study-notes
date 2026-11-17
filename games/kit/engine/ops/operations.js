@@ -53,7 +53,7 @@ const indexIn = (tasks, level, { after, first }) => {
 }
 /** The place a task is at in its level, said as task.move and task.add take it. */
 const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
-/** The game's pieces/<name>.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
+/** The game's parts/<name>.json (one is written the first time it is edited): its parts, or its built ones alone where its domain defines primitives in code. */
 const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
@@ -268,16 +268,16 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('修改某个语言的字段文本'),
-    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'pieces'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
+    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
     apply(ws, { level, entry, tag, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
-      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or pieces')
-      if (where === 'pieces' && ws.partDefs === undefined) fail('the content has no pieces')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or parts')
+      if (where === 'parts' && ws.partDefs === undefined) fail('the content has no parts')
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
       if (shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
-      if (old === undefined && (entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'pieces')) fail(`${where}.json has no text at ${showPath(keys)}`)
+      if (old === undefined && (entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
       if (lang && !isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       if (lang && typeof text !== 'string') fail('editing one language needs one string')
       if (lang && typeof old === 'string') fail('use a text field without a language to edit a shared string')
@@ -288,10 +288,10 @@ export const OPERATIONS = {
       const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
       const file = level ?? entry ?? tag ?? tray ?? section ?? where
       // Restoring the complete message also removes a locale that this edit added.
-      const inverse = [entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'pieces' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      const inverse = [entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, updated, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, updated)
-      else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+      else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else if (entry !== undefined) ws.entries.set(entry, setAt(value, keys, updated))
       else if (tag !== undefined) ws.tags.set(tag, setAt(value, keys, updated))
       else if (tray !== undefined) ws.trays.set(tray, setAt(value, keys, updated))
@@ -299,23 +299,23 @@ export const OPERATIONS = {
       return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
     },
   },
-  'piece.add': {
-    about: t('加一个件，写入 pieces/<件>.json', 'Add a piece in pieces/<piece>.json'),
-    params: S.obj({ piece: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
-    apply(ws, { piece: part, data, after }, { vocabulary }) {
+  'part.add': {
+    about: t('加一个件，写入 parts/<件>.json', 'Add a part in parts/<part>.json'),
+    params: S.obj({ part: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
+    apply(ws, { part: part, data, after }, { vocabulary }) {
       partsOf(ws)
       if (ws.partDefs.parts[part]) fail(`there is a part ${part} already`)
       const entries = Object.entries(ws.partDefs.parts)
       const k = after === undefined ? entries.length : entries.findIndex(([type]) => type === after) + 1
       if (after !== undefined && k === 0) fail(`no part ${after}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries([...entries.slice(0, k), [part, data], ...entries.slice(k)]) }
-      return { says: `pieces: added ${part}`, inverse: [{ op: 'piece.remove', piece: part }] }
+      return { says: `parts: added ${part}`, inverse: [{ op: 'part.remove', part: part }] }
     },
   },
-  'piece.remove': {
-    about: t('删除没有被课程、关卡、板或文字引用的件', 'Delete a piece with no course, level, board or text references'),
-    params: S.obj({ piece: PART_NAME }),
-    apply(ws, { piece: part }, { vocabulary }) {
+  'part.remove': {
+    about: t('删除没有被课程、关卡、板或文字引用的件', 'Delete a part with no course, level, board or text references'),
+    params: S.obj({ part: PART_NAME }),
+    apply(ws, { part: part }, { vocabulary }) {
       partsOf(ws)
       const entries = Object.entries(ws.partDefs.parts)
       const k = entries.findIndex(([type]) => type === part)
@@ -323,40 +323,40 @@ export const OPERATIONS = {
       const named = partRefs(ws, vocabulary, part)
       if (named.length) fail(`${part} is still named at ${named.slice(0, 8).map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}${named.length > 8 ? ` and ${named.length - 8} more` : ''}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(entries.filter(([type]) => type !== part)) }
-      return { says: `pieces: removed ${part}`, inverse: [{ op: 'piece.add', piece: part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
+      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part: part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
     },
   },
-  'pieces.set': {
-    about: t('修改件的字段，路径为 parts.<件>.<字段>', 'Edit a piece field at parts.<piece>.<field>'),
+  'parts.set': {
+    about: t('修改件的字段，路径为 parts.<件>.<字段>', 'Edit a part field at parts.<part>.<field>'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (!keys.length || keys[0] !== 'parts') fail('use piece.add/remove to manage objects; settings belong to a piece')
-      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is added with piece.add; id cannot change: create a new object, then delete the old one')
+      if (!keys.length || keys[0] !== 'parts') fail('use part.add/remove to manage objects; settings belong to a part')
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add; id cannot change: create a new object, then delete the old one')
       // A first face can be written independently even before the part has a views object.
       const parent = keys.slice(0, -1)
       if (keys.length === 4 && keys[0] === 'parts' && keys[2] === 'views' && getAt(ws.partDefs, parent) === undefined) {
-        const inverse = [restore('pieces', ws.partDefs, parent, {})]
+        const inverse = [restore('parts', ws.partDefs, parent, {})]
         ws.partDefs = setAt(ws.partDefs, parent, { [keys[3]]: value }, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-        return { says: `pieces: set ${showPath(keys)}`, inverse }
+        return { says: `parts: set ${showPath(keys)}`, inverse }
       }
-      const inverse = [restore('pieces', ws.partDefs, keys, {})]
+      const inverse = [restore('parts', ws.partDefs, keys, {})]
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      return { says: `pieces: set ${showPath(keys)}`, inverse }
+      return { says: `parts: set ${showPath(keys)}`, inverse }
     },
   },
-  'pieces.unset': {
-    about: t('去掉件的一个字段或列表项', 'Remove a piece field or list item'),
+  'parts.unset': {
+    about: t('去掉件的一个字段或列表项', 'Remove a part field or list item'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (!keys.length || keys[0] !== 'parts') fail('settings belong to a piece')
-      if (keys.length < 3) fail('a whole piece is removed with piece.remove')
-      const back = typeof keys.at(-1) === 'number' ? { op: 'pieces.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'pieces.set', path: keys, value: getAt(ws.partDefs, keys) }
+      if (!keys.length || keys[0] !== 'parts') fail('settings belong to a part')
+      if (keys.length < 3) fail('a whole part is removed with part.remove')
+      const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }
       ws.partDefs = unsetAt(ws.partDefs, keys)
-      return { says: `pieces: removed ${showPath(keys)}`, inverse: [back] }
+      return { says: `parts: removed ${showPath(keys)}`, inverse: [back] }
     },
   },
   'blueprint.put': {
@@ -405,7 +405,7 @@ export const OPERATIONS = {
 
 /** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
 function packageText(ws, { level, entry, tag, tray, section, in: where }, keys, vocabulary) {
-  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
   if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
   if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
   const text = getAt(value, keys)
@@ -417,11 +417,11 @@ Object.assign(OPERATIONS, {
   'text.override': {
     about: t('这款游戏在包的一处文案上写它自己的（不改包里的原文）；value 为 null 时恢复原文', 'The game\'s own wording over a text of its package (the package is left as it is); value null: back to the package\'s'),
     params: S.obj({
-      level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'pieces'])), path: PATH,
+      level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH,
       lang: S.str({ pattern: LANGUAGE_CODE }), value: S.either(S.str(), S.oneOf([null])),
     }),
     apply(ws, { level, entry, tag, tray, section, in: where, path, lang, value }, { vocabulary }) {
-      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or pieces')
+      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or parts')
       if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       const keys = parsePath(path)
       const key = textKey(packageText(ws, { level, entry, tag, tray, section, in: where }, keys, vocabulary))
@@ -438,7 +438,7 @@ Object.assign(OPERATIONS, {
   },
 })
 
-/** Which workspace an operation belongs to (games/DESIGN.md 6.7): 'package' (the levels, their groups, pieces and encyclopedia) or 'game' (the course and the game's own texts). */
+/** Which workspace an operation belongs to (games/DESIGN.md 6.7): 'package' (the levels, their groups, parts and encyclopedia) or 'game' (the course and the game's own texts). */
 export function opScope({ op, path, in: where, layer }) {
   if (op.startsWith('game.package.')) return 'game'
   if (op.startsWith('override.')) return layer?.startsWith('@') ? 'game' : 'package'
@@ -507,7 +507,7 @@ const overrideParams = { layer: S.str(), kind: S.oneOf([...Object.keys(folders),
 const overrideFile = (ws, { layer, kind, name }) => {
   if (layer !== ws.layer) fail(`open the package workspace with layer ${layer} before editing it`)
   const [namespace, id] = name.split('/')
-  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tag/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : kind === 'piece' ? 'piece' : folders[kind]}/${id}.json`
+  return `${layer.startsWith('@') ? '' : 'package/'}overrides/${namespace}/${kind === 'i18n' ? 'i18n' : kind === 'tag' ? `tags/${ws.content().registries.tag[name]?.kind ?? fail(`no tag ${name}`)}` : folders[kind]}/${id}.json`
 }
 Object.assign(OPERATIONS, {
   'override.put': {

@@ -1,7 +1,0 @@
-{
-  "name": "@piece.toClauses.name",
-  "desc": "@piece.toClauses.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:toClauses"
-}

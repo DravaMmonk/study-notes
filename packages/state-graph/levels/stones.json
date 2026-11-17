@@ -182,7 +182,7 @@
       "diag": 0,
       "publishes": [
         {
-          "piece": "interval",
+          "part": "interval",
           "variant": "base"
         }
       ]

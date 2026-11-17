@@ -47,7 +47,7 @@
       ],
       "publishes": [
         {
-          "piece": "arrow",
+          "part": "arrow",
           "variant": "elim"
         }
       ]
@@ -93,7 +93,7 @@
       ],
       "publishes": [
         {
-          "piece": "arrow",
+          "part": "arrow",
           "variant": "intro"
         }
       ],

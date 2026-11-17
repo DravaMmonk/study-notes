@@ -6,7 +6,7 @@ import { StripTools } from './StripTools.jsx'
 import { useStrip } from './useStrip.js'
 import { treeKey, treePath } from './tree.js'
 
-/** Edit a work on a strip. The language describes its tree, pieces, accepted holes and text. */
+/** Edit a work on a strip. The language describes its tree, parts, accepted holes and text. */
 const TreeEditor = forwardRef(function TreeEditor({ tree, onChange, chips, language, scope }, ref) {
   const { nodeAt, setAt, holesOf, joinsOnto, complete } = language
   const byKey = useMemo(() => new Map(chips.map((chip) => [chip.key, chip])), [chips])
@@ -39,7 +39,7 @@ const TreeEditor = forwardRef(function TreeEditor({ tree, onChange, chips, langu
   const groups = language.groups.map(([key, label]) => ({
     key, label,
     chips: chips.filter((chip) => chip.group === key).map((chip) => ({
-      key: chip.key, family: key, text: language.chipText?.(chip) ?? chip.text, sub: chip.sub, piece: chip.piece,
+      key: chip.key, family: key, text: language.chipText?.(chip) ?? chip.text, sub: chip.sub, part: chip.part,
     })),
   })).filter((group) => group.chips.length)
   const problem = language.problem?.(tree)

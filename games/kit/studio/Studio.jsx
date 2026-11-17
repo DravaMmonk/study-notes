@@ -1,5 +1,5 @@
 // The studio (games/DESIGN.md 6.7): workspaces over the operation set, one for each role. Build (PackageStudio.jsx)
-// opens a package: its levels, pieces, entries, tags, relations, trays, sections and overrides. Arrange
+// opens a package: its levels, parts, entries, tags, relations, trays, sections and overrides. Arrange
 // (GameStudio.jsx) opens a game: the packages it uses, its chapters and their maps, its overrides of relations. The bar switches between them; each keeps
 // its own pending changes, and only its own side's operations run in it. Copy (CopyStudio.jsx) opens a package or a
 // game: every text of it, in every language.

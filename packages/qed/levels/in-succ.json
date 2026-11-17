@@ -63,7 +63,7 @@
       ],
       "publishes": [
         {
-          "piece": "addSucc",
+          "part": "addSucc",
           "variant": "base"
         }
       ]

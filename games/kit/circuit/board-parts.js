@@ -1,5 +1,5 @@
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
-import { holesOf, outletsOf, regionsOf } from '../engine/pieces.js'
+import { holesOf, outletsOf, regionsOf } from '../engine/parts.js'
 import { T } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from '../engine/workshop-terminals.js'
@@ -52,7 +52,7 @@ const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? nam
 
 /** The editor's description of a task's cards (model.js): the board's wiring, drawn. */
 export function partsFor(level, circuit, { cards, portLabels, defined }) {
-  const { board, BUILT, builtBy, pieces } = circuit
+  const { board, BUILT, builtBy, parts: builtDefinitions } = circuit
   const wiring = board.wiring(level, circuit)
   // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
   const draft = (node) => node.type === WORKSHOP_INPUT || node.type === WORKSHOP_OUTPUT
@@ -60,7 +60,7 @@ export function partsFor(level, circuit, { cards, portLabels, defined }) {
   const workshop = (node) => circuit.workshopPart?.(node.type)
   const parts = {
     ...wiring,
-    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? pieces[node.type].name : workshop(node)?.name ?? cards[node.type]?.name ?? node.type),
+    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? builtDefinitions[node.type].name : workshop(node)?.name ?? cards[node.type]?.name ?? node.type),
     portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type, node.params)), port) : portLabels[node.type]?.[port] ?? wiring.portLabel?.(node, port) ?? ''),
     family: (node) => (BUILT[node.type] || workshop(node) ? 'built' : given(node) ? (node.type === WORKSHOP_OUTPUT || (!draft(node) && wiring.role(node) === 'sink') ? 'end' : 'given') : cards[node.type]?.family),
     icon: (node) => (BUILT[node.type] || workshop(node) ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),

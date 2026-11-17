@@ -1,0 +1,17 @@
+{
+  "name": "@part.consFront.name",
+  "desc": "@part.consFront.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [
+    {
+      "name": "first",
+      "label": "@part.consFront.inputs.0.label"
+    },
+    {
+      "name": "rest",
+      "label": "@part.consFront.inputs.1.label"
+    }
+  ],
+  "op": "logic:consFront"
+}

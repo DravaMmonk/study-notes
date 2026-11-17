@@ -32,15 +32,15 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
   const expand = referenceResolver(content.registries, wrong)
   for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
     const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
-    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'piece', `${at}.${field}`)
+    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'part', `${at}.${field}`)
     if (entry.tray) expand(entry.tray, 'tray', `${at}.tray`)
   }
   const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
   if (wrong.length) return lines
-  const names = Object.fromEntries(['level', 'piece', 'entry'].map(kind => [kind === 'piece' ? 'part' : kind === 'entry' ? 'wiki' : kind,
+  const names = Object.fromEntries(['level', 'part', 'entry'].map(kind => [kind === 'part' ? 'part' : kind === 'entry' ? 'wiki' : kind,
     new Map(Object.entries(content.registries[kind]).map(([id, object]) => [id, String(firstText(object.title ?? object.name ?? id))])),
   ]))
-  for (const id of Object.keys(content.registries.piece)) {
+  for (const id of Object.keys(content.registries.part)) {
     names.part.set(`part:${id}`, '')
     names.part.set(`lemma:${id}`, '')
   }

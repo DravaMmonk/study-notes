@@ -14,7 +14,7 @@ import { sidebarSearch } from './sidebar-list.js'
 const LEFT = '\0rest'
 
 /**
- * `kind` the list's objects (level, piece, entry); `items` their full names, in order; `label(id)` what a row is called
+ * `kind` the list's objects (level, part, entry); `items` their full names, in order; `label(id)` what a row is called
  * (searched); `row(id)` draws one; `by`/`onBy` the grouping; `heading` the group open ({ kind, full }), `onHeading`;
  * `newGroup` as GroupingBar takes it; `addOptions`/`onAdd` a new object of the list.
  */
@@ -30,7 +30,7 @@ export default function GroupedList({ kind, content, namespace, game, items, lab
   const keys = [...groups.map((group) => group.full), LEFT]
   const titleOf = (group) => L(content.registries?.[group.kind]?.[group.full]?.title) || shownName(namespace, group.full)
   return (
-    <nav className="parts-list" aria-label={tr(...{ level: ['关卡', 'Levels'], piece: ['件', 'Pieces'], entry: ['词条', 'Entries'] }[kind])}>
+    <nav className="parts-list" aria-label={tr(...{ level: ['关卡', 'Levels'], part: ['元件', 'Parts'], entry: ['词条', 'Entries'] }[kind])}>
       <SidebarListTools addOptions={addOptions} addLabel={addLabel} onAdd={onAdd} query={query} onQuery={setQuery} />
       <GroupingBar groupings={groupings} by={by} onBy={onBy} newOptions={newOptions} onNew={onNew}
         folded={keys.every((key) => folded.has(key))} onFoldAll={(fold) => setAll(keys, fold)} />

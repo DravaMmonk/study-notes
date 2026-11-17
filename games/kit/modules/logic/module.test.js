@@ -19,7 +19,7 @@ test('logic registers its boards, languages and typed executable operations', ()
   assert.deepEqual(registry.tables.operation['logic:resolve'].params.fields.unit.values, ['any', 'unit'])
 })
 
-test('built logic pieces retain the wire types of their public interfaces', async () => {
+test('built logic parts retain the wire types of their public interfaces', async () => {
   const { lemma } = await import('./proof.js')
   const { builtGates } = await import('./gates.js')
   const { builtMachine } = await import('./machine.js')

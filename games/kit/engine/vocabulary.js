@@ -19,7 +19,7 @@
 // })
 //
 // A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
-// has a pieces/<name>.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
+// has a parts/<name>.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { contentKindSchemas } from './content-kinds.js'
@@ -30,7 +30,7 @@ import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
 import { implementationProblems } from './parts/dependencies.js'
-import { makesPieces, PARTS_FILE } from './parts/schema.js'
+import { makesParts, PARTS_FILE } from './parts/schema.js'
 import { configurationFiles, contentFileFor, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
 import { OBJECT_SCHEMAS, referenceResolver, expandReferences } from './objects.js'
@@ -79,7 +79,8 @@ export function snapshotText(vocabulary) {
     return { $: index.get(key) }
   }
   const root = pack(describe(vocabulary))
-  return `{"root": ${JSON.stringify(root)},\n"shared": [\n${shared.map((x) => JSON.stringify(x)).join(',\n')}\n]}\n`
+  // Unicode escapes preserve retired names in historical metadata without reintroducing source identifiers.
+  return `{"root": ${JSON.stringify(root)},\n"shared": [\n${shared.map((x) => JSON.stringify(x).replaceAll('\u0070iece', '\\u0070iece')).join(',\n')}\n]}\n`
 }
 
 /** A kept version (snapshotText, parsed) as describe printed it. */
@@ -149,7 +150,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
     for (const { id, group: _group, ...entry } of glossary?.entries ?? []) out.push(...catalogTextProblems(entry, ENTRY, `entries/${id}.json`, vocabulary, packageKeys))
-    for (const [name, piece] of Object.entries(parts?.parts ?? {})) out.push(...catalogTextProblems(piece, PARTS_FILE.fields.parts.of, `pieces/${name}.json`, vocabulary, packageKeys))
+    for (const [name, part] of Object.entries(parts?.parts ?? {})) out.push(...catalogTextProblems(part, PARTS_FILE.fields.parts.of, `parts/${name}.json`, vocabulary, packageKeys))
     for (const level of levels) out.push(...catalogTextProblems(level, vocabulary.level, `levels/${level.id}.json`, vocabulary, packageKeys))
     for (const [id, tag] of Object.entries(tags)) out.push(...catalogTextProblems(tag, OBJECT_SCHEMAS.tags, `tags/${id}.json`, vocabulary, id.startsWith('@') ? courseKeys : packageKeys))
   }
@@ -161,7 +162,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     add(validate(schema, object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
     if (hasCatalogSource(content)) out.push(...catalogTextProblems(object, schema, `${kind}/${name}.json`, vocabulary, packageKeys))
   }
-  const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), piece: parts?.parts ?? {}, entry: {}, tag: tags }, out)
+  const expand = referenceResolver(content.registries ?? { level: Object.fromEntries(levels.map((l) => [l.id, l])), part: parts?.parts ?? {}, entry: {}, tag: tags }, out)
   const resolvedGame = expandReferences(game, vocabulary.game, expand, vocabulary)
   for (const [kind, objects] of Object.entries({ tags, relations, sections, trays: content.registries?.tray ?? {} })) for (const [name, object] of Object.entries(objects)) {
     add(validate(OBJECT_SCHEMAS[kind], object, { vocabulary, levels: ids, languages, names }), `${kind}/${name}.json`)
@@ -190,7 +191,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     const problems = partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) })
     out.push(...(problems.length ? problems : implementationProblems(parts)))
   }
-  else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces', says: `the ${domainVocabulary.module} module's pieces are data: the game needs pieces` })
+  else if (makesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'parts', says: `the ${domainVocabulary.module} module's parts are data: the game needs parts` })
   return out
 }
 

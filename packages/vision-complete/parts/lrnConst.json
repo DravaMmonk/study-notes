@@ -1,0 +1,13 @@
+{
+  "name": "@part.lrnConst.name",
+  "desc": "@part.lrnConst.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "settings": {
+    "p": {
+      "label": "@part.lrnConst.settings.p.label",
+      "fixed": true
+    }
+  },
+  "op": "image:lrnConst"
+}

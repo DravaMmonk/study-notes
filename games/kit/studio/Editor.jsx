@@ -5,8 +5,8 @@
 // levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
 // The level's own actions are operations: level.add (a copy after it), level.remove, and moving it in the tree; its
 // id never changes (games/DESIGN.md 6.1). A row says how many findings of the check are on its field and whether the pending changes touched it. A
-// part of pieces/<name>.json  is a file of its own here: its fields as rows, and its own actions —
-// piece.add (a copy after it), piece.remove.
+// part of parts/<name>.json  is a file of its own here: its fields as rows, and its own actions —
+// part.add (a copy after it), part.remove.
 import { useMemo } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
@@ -173,7 +173,7 @@ function GameEditor({ side, content, base, vocabulary, order, names, levelOption
   )
 }
 
-/** An independently selected piece , with its fields and definition actions. */
+/** An independently selected part , with its fields and definition actions. */
 function PartEditor({ content, base, vocabulary, order, names, levelOptions, at, places, field, onEdit, onSelect, onPick }) {
   const file = { parts: true }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { partDefs: content.partDefs })
@@ -187,13 +187,13 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   const copy = () => {
     const to = freeName(taken, `${selected}_`)
     const data = copyWithoutTextKeys(hit.field.value)
-    onEdit({ op: 'piece.add', piece: to, data, after: selected })
+    onEdit({ op: 'part.add', part: to, data, after: selected })
     onSelect({ part: to })
   }
   const definition = hit.field.value
   const remove = () => {
     if (!confirmDelete(selected)) return
-    onEdit({ op: 'piece.remove', piece: selected })
+    onEdit({ op: 'part.remove', part: selected })
     onSelect(null)
   }
   return (
@@ -203,8 +203,8 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
         <h1>{L(definition.name) || selected}</h1>
         <span className="kit-spacer" />
         <span className="editor-tools">
-          <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的件')}><Copy size={14} /></button>
-          <button type="button" className="kit-btn editor-tool" onClick={remove} title={tr('删掉这个件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
+          <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的元件')}><Copy size={14} /></button>
+          <button type="button" className="kit-btn editor-tool" onClick={remove} title={tr('删掉这个元件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
         </span>
       </header>
       <Rows form={hit.field} ctx={ctx} picked={field} findings={findings} before={beforeIn(base?.partDefs)} onPick={onPick} onAdd={addIn(file, onEdit, onPick)} />

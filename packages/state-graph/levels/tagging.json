@@ -350,7 +350,7 @@
       ],
       "publishes": [
         {
-          "piece": "viterbi",
+          "part": "viterbi",
           "variant": "base"
         }
       ]

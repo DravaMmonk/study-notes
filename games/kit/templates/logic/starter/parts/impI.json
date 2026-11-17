@@ -1,0 +1,20 @@
+{
+  "name": "@part.impI.name",
+  "desc": "@part.impI.desc",
+  "icon": "Box",
+  "family": "logic:family-box",
+  "settings": {
+    "A": {
+      "label": "@part.impI.settings.A.label"
+    }
+  },
+  "regions": [
+    {
+      "name": "body",
+      "label": "@part.impI.regions.0.label",
+      "opens": true,
+      "closes": true
+    }
+  ],
+  "op": "logic:impI"
+}

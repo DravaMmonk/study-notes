@@ -81,7 +81,7 @@
       ],
       "publishes": [
         {
-          "piece": "erule",
+          "part": "erule",
           "variant": "base"
         }
       ]

@@ -156,7 +156,7 @@
       ],
       "publishes": [
         {
-          "piece": "cross",
+          "part": "cross",
           "variant": "base"
         }
       ]

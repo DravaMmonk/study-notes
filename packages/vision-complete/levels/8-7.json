@@ -54,7 +54,7 @@
         "x = arith[op=add](a, b)",
         "out <- x"
       ],
-      "publishes": [{ "piece": "addNoise", "variant": "base" }]
+      "publishes": [{ "part": "addNoise", "variant": "base" }]
     }
   ]
 }

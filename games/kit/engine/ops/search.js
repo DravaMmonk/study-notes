@@ -74,7 +74,7 @@ export function searchable(content, vocabulary, kinds = KINDS) {
     texts(game, vocabulary.game, { file: 'game.json', in: 'game' })
     for (const { id, group: _group, ...entry } of glossary.entries) texts(entry, ENTRY, { file: `entries/${id}.json`, entry: id })
     for (const [name, tag] of Object.entries(content.tags ?? {})) if (tag.kind === 'entry') texts(tag, OBJECT_SCHEMAS.tags, { file: `tags/${tag.kind}/${name}.json`, tag: name })
-    for (const [id, piece] of Object.entries(partDefs?.parts ?? {})) texts(piece, PARTS_FILE.fields.parts.of, { file: `pieces/${id}.json`, in: 'pieces' }, ['parts', id])
+    for (const [id, part] of Object.entries(partDefs?.parts ?? {})) texts(part, PARTS_FILE.fields.parts.of, { file: `parts/${id}.json`, in: 'parts' }, ['parts', id])
   }
   if (kinds.includes('id')) glossary.entries.forEach((e) => out.push({ file: `entries/${e.id}.json`, entry: e.id, path: [], kind: 'id', text: e.id }))
   return out

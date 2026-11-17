@@ -73,7 +73,7 @@
       ],
       "publishes": [
         {
-          "piece": "ifTrue",
+          "part": "ifTrue",
           "variant": "base"
         }
       ]
@@ -127,7 +127,7 @@
       ],
       "publishes": [
         {
-          "piece": "ifFalse",
+          "part": "ifFalse",
           "variant": "base"
         }
       ]

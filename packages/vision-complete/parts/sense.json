@@ -1,0 +1,32 @@
+{
+  "name": "@part.sense.name",
+  "desc": "@part.sense.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "channel": {
+      "label": "@part.sense.settings.channel.label",
+      "options": [
+        {
+          "value": "R",
+          "label": "R"
+        },
+        {
+          "value": "G",
+          "label": "G"
+        },
+        {
+          "value": "B",
+          "label": "B"
+        }
+      ]
+    }
+  },
+  "op": "image:sense"
+}

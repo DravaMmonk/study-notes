@@ -115,20 +115,20 @@ test('stable ids allow list reordering, insertion, deletion and undo', () => {
   roundTrip(ws, 'level.set', { level: 'a1', path: 'tasks[0].id', value: 'a1' })
 })
 
-test('piece variants, setting definitions, blueprints and overrides preserve ids', () => {
+test('part variants, setting definitions, blueprints and overrides preserve ids', () => {
   const { root } = toy()
   const ws = openPackage('toy', root, { vocabulary: VOCAB })
-  run(ws, 'piece.add', { piece: 'made', data: { inside: [{ id: 'base', reference: {} }] } })
+  run(ws, 'part.add', { part: 'made', data: { inside: [{ id: 'base', reference: {} }] } })
   for (const args of [
     { path: 'parts.made.id', value: 'new' },
     { path: 'parts.made.inside[0].id', value: 'new' },
     { path: 'parts.made.inside', value: [{ id: 'new', reference: {} }] },
-  ]) assert.throws(() => run(ws, 'pieces.set', args), /id cannot change/)
+  ]) assert.throws(() => run(ws, 'parts.set', args), /id cannot change/)
   run(ws, 'blueprint.put', { data: { eras: [{ id: 'chapter' }] } })
   assert.throws(() => run(ws, 'blueprint.set', { path: 'eras[0].id', value: 'new' }), /id cannot change/)
   assert.throws(() => run(ws, 'blueprint.put', { data: { eras: [{ id: 'new' }] } }), /id cannot change/)
-  assert.throws(() => run(ws, 'pieces.set', { path: [], value: { parts: {} } }), /manage objects/)
-  assert.throws(() => run(ws, 'pieces.set', { path: 'settings', value: {} }), /settings belong to a piece/)
+  assert.throws(() => run(ws, 'parts.set', { path: [], value: { parts: {} } }), /manage objects/)
+  assert.throws(() => run(ws, 'parts.set', { path: 'settings', value: {} }), /settings belong to a part/)
   for (const merge of [false, true]) {
     for (const id of ['a1', 'toy/a1']) {
       const data = { ...level(ws, 'a1'), tasks: [{ id }] }
@@ -405,7 +405,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.remove
   assert.equal(JSON.stringify([...ws.levels]), before)
 })
 
-// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in pieces/<name>.json.
+// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in parts/<name>.json.
 const PVOCAB = defineVocabulary({
   module: 'ptoy',
   version: 1,
@@ -425,38 +425,38 @@ function partsToy() {
 }
 const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
 
-test('the first part of a game makes its pieces.json', () => {
+test('the first part of a game makes its parts.json', () => {
   const ws = partsToy()
   ws.partDefs = undefined
-  prun(ws, 'piece.add', { piece: 'sum', data: sum })
+  prun(ws, 'part.add', { part: 'sum', data: sum })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })
 
-test('the part operations edit pieces.json, refuse to remove a part still used', () => {
+test('the part operations edit parts.json, refuse to remove a part still used', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())
-  const added = prun(ws, 'piece.add', { piece: 'twice', data: { ...sum, inputs: [{ name: 'a' }], op: 'add' }, after: 'sum' })
+  const added = prun(ws, 'part.add', { part: 'twice', data: { ...sum, inputs: [{ name: 'a' }], op: 'add' }, after: 'sum' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum', 'twice'])
-  const said = prun(ws, 'text.set', { in: 'pieces', path: 'parts.twice.name', lang: 'en', value: '两倍' })
+  const said = prun(ws, 'text.set', { in: 'parts', path: 'parts.twice.name', lang: 'en', value: '两倍' })
   assert.deepEqual(ws.partDefs.parts.twice.name, { ...sum.name, en: '两倍' })
-  const removed = prun(ws, 'piece.remove', { piece: 'twice' })
+  const removed = prun(ws, 'part.remove', { part: 'twice' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
   for (const { op, ...args } of removed.inverse) prun(ws, op, args)
   for (const done of [said, added]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
-  assert.equal(JSON.stringify(ws.content()), before, 'the inverses put pieces.json back')
-  assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.en, levels\/a1.json solution\[0\]/)
-  assert.throws(() => prun(ws, 'pieces.set', { path: 'parts.sum', value: {} }), /piece.add/)
-  assert.throws(() => prun(ws, 'piece.add', { piece: 'twice', data: sum, after: 'none' }), /no part none/)
+  assert.equal(JSON.stringify(ws.content()), before, 'the inverses put parts.json back')
+  assert.throws(() => prun(ws, 'part.remove', { part: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.en, levels\/a1.json solution\[0\]/)
+  assert.throws(() => prun(ws, 'parts.set', { path: 'parts.sum', value: {} }), /part.add/)
+  assert.throws(() => prun(ws, 'part.add', { part: 'twice', data: sum, after: 'none' }), /no part none/)
   // A map's key naming a part also prevents removal.
   prun(ws, 'level.set', { level: 'a1', path: 'uses', value: { sum: 'twice', other: 'once' } })
-  assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /levels\/a1.json uses.sum/)
+  assert.throws(() => prun(ws, 'part.remove', { part: 'sum' }), /levels\/a1.json uses.sum/)
 })
 
-test('inline settings are edited and undone with their piece', () => {
+test('inline settings are edited and undone with their part', () => {
   const ws = partsToy()
   const before = ws.content()
   const data = { k: { control: 'slider', min: 0, max: 4 } }
-  const change = prun(ws, 'pieces.set', { path: ['parts', 'sum', 'settings'], value: data })
+  const change = prun(ws, 'parts.set', { path: ['parts', 'sum', 'settings'], value: data })
   assert.deepEqual(ws.partDefs.parts.sum.settings, data)
   for (const { op, ...args } of change.inverse) prun(ws, op, args)
   assert.deepEqual(ws.content(), before)
@@ -478,18 +478,18 @@ test('operations consume assembled names and keep package source references loca
   assert.deepEqual(ws.snapshot(), before)
 })
 
-test('assembled piece selectors and registry paths address layer-local source objects', async () => {
+test('assembled part selectors and registry paths address layer-local source objects', async () => {
   const original = partsToy()
   const ws = openGame('ptoy', original.root)
   const result = await runChangeset(ws, { ops: [
-    { op: 'pieces.set', path: ['parts', 'ptoy/sum', 'inputs', 0, 'label'], value: { en: 'First input' } },
-    { op: 'piece.add', piece: 'ptoy/other', data: sum, after: 'ptoy/sum' },
+    { op: 'parts.set', path: ['parts', 'ptoy/sum', 'inputs', 0, 'label'], value: { en: 'First input' } },
+    { op: 'part.add', part: 'ptoy/other', data: sum, after: 'ptoy/sum' },
   ] }, { check: false, domain: { vocabulary: PVOCAB } })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  assert.ok(result.changes.some(({ file }) => file.endsWith('/pieces/sum.json')))
-  assert.ok(result.changes.some(({ file }) => file.endsWith('/pieces/other.json')))
+  assert.ok(result.changes.some(({ file }) => file.endsWith('/parts/sum.json')))
+  assert.ok(result.changes.some(({ file }) => file.endsWith('/parts/other.json')))
   assert.equal(result.content.partDefs.parts['ptoy/sum'].inputs[0].label.en, 'First input')
-  assert.ok(result.content.registries.piece['ptoy/other'])
+  assert.ok(result.content.registries.part['ptoy/other'])
 })
 
 test('package tags, relations and sections persist and reopen with full names', async () => {
@@ -539,7 +539,7 @@ test('package operations write collection tags and local items on levels and tas
   const { root } = toy()
   const ws = openPackage('toy', root, { vocabulary: VOCAB })
   const result = await runChangeset(ws, { why: 'Declare package-owned progression.', ops: [
-    { op: 'tag.put', tag: 'numbers', data: { kind: 'piece', values: ['a', 'b'] } },
+    { op: 'tag.put', tag: 'numbers', data: { kind: 'part', values: ['a', 'b'] } },
     { op: 'level.set', level: 'a1', path: 'adds', value: ['a'] },
     { op: 'level.set', level: 'a1', path: 'local', value: ['#numbers'] },
     { op: 'level.set', level: 'a1', path: 'tasks[0].adds', value: ['b'] },

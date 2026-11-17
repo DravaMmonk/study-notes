@@ -128,7 +128,7 @@
       ],
       "publishes": [
         {
-          "piece": "revApp",
+          "part": "revApp",
           "variant": "base"
         }
       ]

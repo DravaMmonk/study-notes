@@ -54,7 +54,7 @@
       ],
       "publishes": [
         {
-          "piece": "addAssoc",
+          "part": "addAssoc",
           "variant": "base"
         }
       ]

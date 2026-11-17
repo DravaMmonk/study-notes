@@ -1,0 +1,18 @@
+{
+  "name": "@part.merge.name",
+  "desc": "@part.merge.desc",
+  "icon": "Calculator",
+  "family": "image:family-pixel",
+  "inputs": [
+    {
+      "name": "a",
+      "label": "a"
+    },
+    {
+      "name": "b",
+      "label": "b"
+    }
+  ],
+  "nulls": "pass",
+  "op": "image:merge"
+}

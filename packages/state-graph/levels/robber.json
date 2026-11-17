@@ -315,7 +315,7 @@
       "unlockToast": "@level.robber.tasks.robber_2.unlockToast",
       "publishes": [
         {
-          "piece": "layer",
+          "part": "layer",
           "variant": "base"
         }
       ]

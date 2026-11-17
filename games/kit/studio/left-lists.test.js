@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { GAME_LISTS, PACKAGE_LISTS, capabilityKey, capabilityOf, currentOf, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
-import { objectFileName, objectOp, objectValue, overrideFileOf, overrideOp, ownObjectData } from './object-file.js'
+import { objectFileName, objectOp, objectValue, overrideFileOf, overrideFileName, overrideOp, ownObjectData } from './object-file.js'
 import { fileForm, opFor } from './form.js'
 
 test('search is the last list of the package workspace; the object lists are told apart', () => {
@@ -23,7 +23,7 @@ test('the address keeps what is open: an object list’s object, or a group’s 
   assert.deepEqual(readHeading(new URLSearchParams('tray=demo/main&level=demo/a')), { kind: 'tray', full: 'demo/main' })
   assert.equal(readHeading(new URLSearchParams('level=demo/a')), null)
   assert.deepEqual(['tag', 'relation', 'tray', 'section'].map((k) => listOfHeading(k)), ['tree', 'tree', 'parts', 'entries'])
-  assert.equal(listOfHeading('tag', 'piece'), 'parts')
+  assert.equal(listOfHeading('tag', 'part'), 'parts')
 })
 
 test('a capability and an override have one key each', () => {
@@ -82,4 +82,13 @@ test('an override’s file is what the override operation writes: a patch of a t
   assert.deepEqual(overrideFileOf(layout), { of: '#demo/t', rows: [['demo/a']] })
   assert.deepEqual(overrideOp(layout, '@game', { rows: [] }), { op: 'override.put', layer: '@game', kind: 'section', name: 'demo/map', data: { rows: [] } })
   assert.equal(overrideOp(layout, 'demo', { rows: [] }), null)
+})
+
+
+test('override audit paths mirror each object declaration folder', () => {
+  const event = { layer: 'extra', name: 'base/item' }
+  assert.equal(overrideFileName({ ...event, kind: 'part' }), 'extra/overrides/base/parts/item.json')
+  assert.equal(overrideFileName({ ...event, kind: 'level' }), 'extra/overrides/base/levels/item.json')
+  assert.equal(overrideFileName({ ...event, kind: 'tag', after: { kind: 'part' } }), 'extra/overrides/base/tags/part/item.json')
+  assert.equal(overrideFileName({ ...event, kind: 'tag', after: { kind: 'entry' } }), 'extra/overrides/base/tags/entry/item.json')
 })

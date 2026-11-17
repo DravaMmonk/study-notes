@@ -2,7 +2,7 @@
 import { defineGame } from '../shell/index.js'
 import { runtimeWorks, taskModule } from '../engine/runtime-model.js'
 
-/** Compose module games over one course, dispatching task and piece services to their owning projection. */
+/** Compose module games over one course, dispatching task and part services to their owning projection. */
 export function composeGame(content, modules) {
   if (modules.length === 1) return modules[0].define(content)
   const { plan, scopes, works } = runtimeWorks(content, modules)
@@ -20,15 +20,15 @@ export function composeGame(content, modules) {
       unlocks: [...new Set(parts.flatMap(({ level }) => level.unlocks ?? []))], keeps: parts.some(({ level }) => level.keeps) }
   })
   const unique = values => [...new Map(values.map(value => [value.key, value])).values()]
-  const pieces = unique(games.flatMap(game => game.parts?.all ?? []))
+  const parts = unique(games.flatMap(game => game.parts?.all ?? []))
   const owner = part => games.find(game => game.parts?.all.some(value => value.key === part.key))
   const primary = fragments(plan.order[0])[0]?.game ?? games[0]
   const game = defineGame({
     ...Object.assign({}, ...games), ...primary, course: works[0].course, levels,
     kinds: Object.assign({}, ...games.map(game => game.kinds)),
-    extraPieces: unique(games.flatMap(game => game.extraPieces ?? [])),
+    extraParts: unique(games.flatMap(game => game.extraParts ?? [])),
     parts: {
-      all: pieces,
+      all: parts,
       preview: (part, options) => owner(part)?.parts.preview?.(part, options),
       settings: (part, ...args) => owner(part)?.parts.settings?.(part, ...args) ?? [],
     },

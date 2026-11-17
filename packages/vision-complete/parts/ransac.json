@@ -1,0 +1,21 @@
+{
+  "name": "@part.ransac.name",
+  "desc": "@part.ransac.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "k": {
+      "label": "@part.ransac.settings.k.label"
+    },
+    "d": {
+      "label": "δ"
+    }
+  },
+  "op": "image:ransac"
+}

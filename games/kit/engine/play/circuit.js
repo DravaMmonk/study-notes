@@ -148,7 +148,7 @@ export function circuitPlay(hook) {
  *                        by default `show`'s
  *   more?(task, test, lang) → [line]   what the waveform says besides it (what is wanted in order, say)
  *   settings   { type: [{ key, values, about? }] } what can be set on the game's primitives in code; a part defined as
- *              data (game.defined) offers its settings as pieces.json writes them (definedSettings)
+ *              data (game.defined) offers its settings as parts.json writes them (definedSettings)
  *   words      what the game calls its tests (../tests.js TEST_WORDS)
  */
 export function tickPlay({ run, given, lanes, more = () => [], settings = {}, show = valueText, words = TEST_WORDS }) {

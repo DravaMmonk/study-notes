@@ -1,0 +1,32 @@
+{
+  "name": "@part.kmeansStep.name",
+  "desc": "@part.kmeansStep.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "k = const[c=0.5]()",
+          "d = arith[op=sub](img, m)",
+          "L = threshold[t=0](d)",
+          "N = invert(L)",
+          "hn = arith[op=mul](img, L)",
+          "hd = fqMean(L)",
+          "hm = fqMean(hn)",
+          "ln = arith[op=mul](img, N)",
+          "ld = fqMean(N)",
+          "hi = arith[op=div](hm, hd)",
+          "lm = fqMean(ln)",
+          "lo = arith[op=div](lm, ld)",
+          "s = arith[op=add](hi, lo)",
+          "m2 = arith[op=mul](s, k)",
+          "out <- m2"
+        ],
+        "inputs": ["img", "m"]
+      }
+    }
+  ],
+  "inputs": [{ "name": "img", "type": "image:image" }, { "name": "m", "type": "image:image" }],
+  "outputType": "image:image"
+}

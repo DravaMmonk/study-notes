@@ -154,7 +154,7 @@ test('passing records the circuit that ran even when the task has never saved it
 })
 
 
-test('completion reports newly opened branches and their pieces, and waits for every gate at a join', () => {
+test('completion reports newly opened branches and their parts, and waits for every gate at a join', () => {
   const level = { id: 'start', tasks: [{ key: 'start' }], unlocks: ['built', 'mode'] }
   const left = { id: 'left', requires: ['start'] }
   const right = { id: 'right', requires: ['start'] }
@@ -162,15 +162,15 @@ test('completion reports newly opened branches and their pieces, and waits for e
   const game = {
     levels: [level, left, right, join],
     isOpen: (entry, solved) => (entry.requires ?? []).every((id) => solved.has(id)),
-    unlocked: (entry) => entry.unlocks.map((flag) => flag === 'built' ? { piece: 'gate', label: 'Gate' } : { label: 'Mode' }),
-    earnedPieces: ({ solved }) => solved.includes('start') ? [{ piece: 'gate', name: 'Gate' }, { piece: 'symbol', name: 'Symbol' }] : [],
+    unlocked: (entry) => entry.unlocks.map((flag) => flag === 'built' ? { part: 'gate', label: 'Gate' } : { label: 'Mode' }),
+    earnedParts: ({ solved }) => solved.includes('start') ? [{ part: 'gate', name: 'Gate' }, { part: 'symbol', name: 'Symbol' }] : [],
   }
   const before = { ...fresh(), all: true }
   const after = { ...before, solved: ['start'] }
   const rewards = completionUnlocks(game, level, before, after)
-  assert.deepEqual(rewards.pieces.map(({ piece }) => piece), ['gate', 'symbol'])
+  assert.deepEqual(rewards.parts.map(({ part }) => part), ['gate', 'symbol'])
   assert.deepEqual(rewards.levels, [left, right])
-  assert.deepEqual(completionUnlocks(game, level, after, after), { pieces: [], levels: [] })
+  assert.deepEqual(completionUnlocks(game, level, after, after), { parts: [], levels: [] })
   assert.deepEqual(completionUnlocks(game, level, { ...before, solved: ['other'] }, { ...after, solved: ['other', 'start'] }).levels, [left, right, join])
 })
 

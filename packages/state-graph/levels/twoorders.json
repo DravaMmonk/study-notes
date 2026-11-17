@@ -122,7 +122,7 @@
       "carries": true,
       "publishes": [
         {
-          "piece": "anyorder",
+          "part": "anyorder",
           "variant": "base"
         }
       ]

@@ -57,7 +57,7 @@
       ],
       "publishes": [
         {
-          "piece": "res",
+          "part": "res",
           "variant": "base"
         }
       ]

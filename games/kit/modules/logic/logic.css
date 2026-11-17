@@ -46,7 +46,7 @@
 /* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
    once the run has a step to show. */
 
-/* Formulas built from chips (formulaWork.js, on the shared strip): the sentence to say, and a colour per kind of piece. */
+/* Formulas built from chips (formulaWork.js, on the shared strip): the sentence to say, and a colour per kind of part. */
 .fo-prompt { font-size: 20px; }
 .fo-level { --fam-pred: #3f7fb5; --fam-name: #2f918f; --fam-var: #7a6fb0; --fam-quant: #b4579a; --fam-conn: #b98516; }
 :root[data-theme='night'] .fo-level, :root[data-theme='blueprint'] .fo-level { --fam-pred: #8db3d6; --fam-name: #7fc2c2; --fam-var: #b3a9dc; --fam-quant: #c5a0cc; --fam-conn: #e0ac4f; }

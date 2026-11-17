@@ -141,7 +141,7 @@
         "@level.wordbreak.tasks.wordbreak.hints.0",
         "@level.wordbreak.tasks.wordbreak.hints.1"
       ],
-      "world": "table:world-pieces",
+      "world": "table:world-parts",
       "facts": [
         "ground"
       ],
@@ -192,7 +192,7 @@
       ],
       "publishes": [
         {
-          "piece": "wordbreak",
+          "part": "wordbreak",
           "variant": "base"
         }
       ]

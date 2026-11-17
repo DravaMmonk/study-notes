@@ -106,7 +106,7 @@
       ],
       "publishes": [
         {
-          "piece": "clausify",
+          "part": "clausify",
           "variant": "base"
         }
       ]

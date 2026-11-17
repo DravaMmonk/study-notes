@@ -75,7 +75,7 @@ test('a numeric library works in packages using image and table boards, with no 
     for (const id of ['arithmetic', 'picture', 'cells']) rmSync(resolve(root, 'games', id), { recursive: true })
     for (const id of ['arithmetic', 'picture', 'cells']) {
       const content = readPackage(id, root)
-      assert.equal(Object.keys(content.registries.piece).filter(name => name.startsWith('arithmetic/')).length, 4)
+      assert.equal(Object.keys(content.registries.part).filter(name => name.startsWith('arithmetic/')).length, 4)
       assert.deepEqual((await checkGame(content, { domain: await runtimeOf(content), root })).filter(line => line.fail), [], id)
       const { PARTS } = defineParts(content.partDefs, {})
       assert.equal(PARTS['arithmetic/add'].eval({ a: 6, b: 3 }, {}), 9)

@@ -37,7 +37,7 @@
       "hidden": [{ "label": "@level.7-7.tasks.7-7.hidden.0.label", "x": 14, "y": 1 }],
       "solution": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b, c3)", "out <- s"],
       "naive": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b)", "out <- s"],
-      "publishes": [{ "piece": "epiline", "variant": "base" }]
+      "publishes": [{ "part": "epiline", "variant": "base" }]
     }
   ]
 }

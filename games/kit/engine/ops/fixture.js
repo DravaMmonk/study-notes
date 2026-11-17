@@ -61,7 +61,7 @@ const GLOSSARY = {
   }],
 }
 
-// Its pieces: Apply, the assumption box and the implication key.
+// Its parts: Apply, the assumption box and the implication key.
 const PARTS = {
 
   parts: {
@@ -132,18 +132,18 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const gameText = normalize(game, vocabulary.game, 'course')
   const { 'game.json': shell, 'course.json': route, ...config } = configurationFiles(gameText)
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
-  const piecesText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'pieces')
+  const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
   const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
   put(join(course, 'game.json'), { packages: [id], ...sourceValue(shell) })
-  put(join(course, 'course.json'), sourceValue(expandNames(route, id, { pieces: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
+  put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
   for (const [file, value] of Object.entries(config)) put(join(pkg, file), sourceValue(value))
   mkdirSync(join(pkg, 'entries'), { recursive: true })
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
   for (const { id, ...group } of glossaryText.groups) put(join(pkg, 'tags/entry', `${id}.json`), { ...sourceValue(group), values: glossaryText.entries.filter((e) => e.group === id).map((e) => e.id) })
-  mkdirSync(join(pkg, 'pieces'), { recursive: true })
-  for (const [name, piece] of Object.entries(piecesText?.parts ?? {})) put(join(pkg, 'pieces', `${name}.json`), sourceValue(piece))
+  mkdirSync(join(pkg, 'parts'), { recursive: true })
+  for (const [name, part] of Object.entries(partsText?.parts ?? {})) put(join(pkg, 'parts', `${name}.json`), sourceValue(part))
   for (const [level, value] of levelText) put(join(pkg, 'levels', `${level}.json`), sourceValue(value))
   for (const [kind, name, value] of objectText) {
     const folder = kind === 'tags' ? `${kind}/${value.kind}` : kind
@@ -154,7 +154,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   putCatalogs(course, shell, route)
   const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
   for (const [kind, name, value] of extra) { mkdirSync(join(pkg, kind), { recursive: true }); put(join(pkg, kind, `${name}.json`), sourceValue(value)) }
-  putCatalogs(pkg, ...extra.map(([, , value]) => value), ...Object.values(config), glossaryText, piecesText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
+  putCatalogs(pkg, ...extra.map(([, , value]) => value), ...Object.values(config), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
 }
 
 export function proofsRoot() {
@@ -165,7 +165,7 @@ export function proofsRoot() {
 }
 
 /** Source definitions for unit tests that compose their own small content over the starter's resources. */
-export function starterPieces(domainDir) {
+export function starterParts(domainDir) {
   const dir = join(domainDir, 'starter')
-  return { parts: Object.fromEntries(objectFiles(dir, 'pieces').map(([name, file]) => [name, catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(file, 'utf8')))])) }
+  return { parts: Object.fromEntries(objectFiles(dir, 'parts').map(([name, file]) => [name, catalogReader(readCatalogs(join(dir, 'i18n/package')))(JSON.parse(readFileSync(file, 'utf8')))])) }
 }

@@ -51,7 +51,7 @@
       ],
       "publishes": [
         {
-          "piece": "axS",
+          "part": "axS",
           "variant": "base"
         }
       ]

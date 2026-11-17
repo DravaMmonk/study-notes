@@ -71,31 +71,31 @@ export const coins = line({
   segment: (t, { i }, get) => t.coins.map(c => (i - c >= 0 ? get(String(i - c)) : null)),
 });
 
-/** What a piece costs (t.dict: { word: cost }, or a list of words at 1 each); a single letter outside the dictionary
- *  may stand alone at t.letter, when the level allows it. null: the piece can't be cut off. */
-const pieceCost = (t, w) => {
+/** What a part costs (t.dict: { word: cost }, or a list of words at 1 each); a single letter outside the dictionary
+ *  may stand alone at t.letter, when the level allows it. null: the part can't be cut off. */
+const partCost = (t, w) => {
   const d = Array.isArray(t.dict) ? Object.fromEntries(t.dict.map(x => [x, 1])) : t.dict;
   return Object.hasOwn(d, w) ? d[w] : w.length === 1 && t.letter !== undefined ? t.letter : null;
 };
-/** Cutting a string into pieces at the least cost: position i is "the first i letters". The arm sweeps every earlier
- *  cut point j and brings two segments of the same length: the table there, and what the piece from j to here costs. */
-export const pieces = line({
+/** Cutting a string into parts at the least cost: position i is "the first i letters". The arm sweeps every earlier
+ *  cut point j and brings two segments of the same length: the table there, and what the part from j to here costs. */
+export const parts = line({
   size: t => t.s.length, noun: i => tr(`前 ${i} 个字母`, `first ${i} letter${i === 1 ? '' : 's'}`), out: T('切到这里最省', 'cheapest cut so far'), ground: [T('是开头', 'is start'), T('头', 'start'), 'flag'], label: t => t.s, orderText: T('从开头往右', 'from the start rightward'), top: t => t.s,
   near: { m2: [T('少 2 个字母', '2 letters fewer'), '−2'], m1: [T('少 1 个字母', '1 letter fewer'), '−1'], p1: [T('多 1 个字母', '1 letter more'), '+1'] },
-  arms: { seg: [T('前面每个切点', 'every earlier cut'), T('切点', 'cuts')], cost: [T('切下的那一块', 'the piece cut off'), T('代价', 'cost')] },
+  arms: { seg: [T('前面每个切点', 'every earlier cut'), T('切点', 'cuts')], cost: [T('切下的那一块', 'the part cut off'), T('代价', 'cost')] },
   arm(t, { i }) {
     const js = Array.from({ length: i }, (_, j) => j);
     return { label: tr('扫过前面每个切点', 'sweeps every earlier cut'), sweeps: [
       { sensor: 'seg', label: tr('切在那里', 'cut there'), cells: js.map(j => ({ key: String(j), label: String(j) })) },
       {
         sensor: 'cost',
-        label: tr('那里到这里的一块', 'the piece from there to here'),
+        label: tr('那里到这里的一块', 'the part from there to here'),
         cells: js.map(j => {
-          const label = t.s.slice(j, i), v = pieceCost(t, label);
+          const label = t.s.slice(j, i), v = partCost(t, label);
           return { key: null, label, v, out: v === null };
         }),
       },
     ] };
   },
-  segment: (t, { i }, get, o, id) => Array.from({ length: i }, (_, j) => (id === 'cost' ? pieceCost(t, t.s.slice(j, i)) : get(String(j)))),
+  segment: (t, { i }, get, o, id) => Array.from({ length: i }, (_, j) => (id === 'cost' ? partCost(t, t.s.slice(j, i)) : get(String(j)))),
 });

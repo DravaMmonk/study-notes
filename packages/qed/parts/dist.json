@@ -1,0 +1,240 @@
+{
+  "name": "@part.dist.name",
+  "desc": "@part.dist.desc",
+  "family": "logic:family-lemma",
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "B": {
+      "control": "tree"
+    },
+    "C": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "orAndR",
+          "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+        }
+      ],
+      "default": "orAndR"
+    }
+  },
+  "inside": [
+    {
+      "id": "orAndR",
+      "form": "orAndR",
+      "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "e = orE(p, left: c1, right: c2) {",
+          "  left {",
+          "    i1 = orI[other=B, side=right](e.left)",
+          "    i2 = orI[other=C, side=right](e.left)",
+          "    c1 = andI(i1, i2)",
+          "  }",
+          "  right {",
+          "    s = andE(e.right)",
+          "    j1 = orI[other=A, side=left](s.left)",
+          "    j2 = orI[other=A, side=left](s.right)",
+          "    c2 = andI(j1, j2)",
+          "  }",
+          "}",
+          "goal <- e"
+        ],
+        "tests": [
+          {
+            "goal": "(A ∨ B) ∧ (A ∨ C)",
+            "premises": {
+              "p": "A ∨ (B ∧ C)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "andOrR",
+      "form": "andOrR",
+      "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "s = andE(p)",
+          "o1 = orE(s.left, left: i1, right: o2) {",
+          "  left {",
+          "    i1 = orI[other=\"B & C\", side=right](o1.left)",
+          "  }",
+          "  right {",
+          "    o2 = orE(s.right, left: i2, right: i3) {",
+          "      left {",
+          "        i2 = orI[other=\"B & C\", side=right](o2.left)",
+          "      }",
+          "      right {",
+          "        c = andI(o1.right, o2.right)",
+          "        i3 = orI[other=A, side=left](c)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "goal <- o1"
+        ],
+        "tests": [
+          {
+            "goal": "A ∨ (B ∧ C)",
+            "premises": {
+              "p": "(A ∨ B) ∧ (A ∨ C)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "orAndL",
+      "form": "orAndL",
+      "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "e = orE(p, left: c1, right: c2) {",
+          "  left {",
+          "    s = andE(e.left)",
+          "    i1 = orI[other=C, side=right](s.left)",
+          "    i2 = orI[other=C, side=right](s.right)",
+          "    c1 = andI(i1, i2)",
+          "  }",
+          "  right {",
+          "    j1 = orI[other=A, side=left](e.right)",
+          "    j2 = orI[other=B, side=left](e.right)",
+          "    c2 = andI(j1, j2)",
+          "  }",
+          "}",
+          "goal <- e"
+        ],
+        "tests": [
+          {
+            "goal": "(A ∨ C) ∧ (B ∨ C)",
+            "premises": {
+              "p": "(A ∧ B) ∨ C"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "andOrL",
+      "form": "andOrL",
+      "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "s = andE(p)",
+          "o1 = orE(s.left, left: o2, right: i3) {",
+          "  left {",
+          "    o2 = orE(s.right, left: i1, right: i2) {",
+          "      left {",
+          "        c = andI(o1.left, o2.left)",
+          "        i1 = orI[other=C, side=right](c)",
+          "      }",
+          "      right {",
+          "        i2 = orI[other=\"A & B\", side=left](o2.right)",
+          "      }",
+          "    }",
+          "  }",
+          "  right {",
+          "    i3 = orI[other=\"A & B\", side=left](o1.right)",
+          "  }",
+          "}",
+          "goal <- o1"
+        ],
+        "tests": [
+          {
+            "goal": "(A ∧ B) ∨ C",
+            "premises": {
+              "p": "(A ∨ C) ∧ (B ∨ C)"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "dist-andOrR",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-orAndL",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            },
+            {
+              "value": "orAndL",
+              "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-andOrL",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "orAndR",
+              "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)"
+            },
+            {
+              "value": "andOrR",
+              "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)"
+            },
+            {
+              "value": "orAndL",
+              "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)"
+            },
+            {
+              "value": "andOrL",
+              "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dist-sp-rw-desc",
+      "desc": "@part.dist.revisions.0.desc"
+    }
+  ]
+}

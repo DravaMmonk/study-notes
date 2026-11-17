@@ -49,7 +49,7 @@
       ],
       "publishes": [
         {
-          "piece": "chain",
+          "part": "chain",
           "variant": "base"
         }
       ]

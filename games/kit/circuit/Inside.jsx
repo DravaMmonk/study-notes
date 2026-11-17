@@ -87,7 +87,7 @@ export function InsideBoard({ inside, path }) {
   const lit = at?.view.lit
   useLayoutEffect(() => {
     const el = box.current
-    const chip = el && lit && el.querySelector(`[data-piece="${CSS.escape(lit)}"]`)
+    const chip = el && lit && el.querySelector(`[data-part="${CSS.escape(lit)}"]`)
     if (!chip) return
     // Scroll the window only, never the sheet or the page.
     const top = chip.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop

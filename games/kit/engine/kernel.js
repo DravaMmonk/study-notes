@@ -14,10 +14,20 @@ Object.assign(registeredOperations, capabilities.operations)
 Object.assign(registeredValueTypes, capabilities.tables.valueType)
 
 export const vocabulary = {
-  version: 9,
+  version: 10,
   removes: [
-    ...["courses.circuit.level", "courses.image.level", "courses.logic.level", "courses.table.level", "courses.tick-bus.level", "level"].map(at => ({ at, why: 'Teaching guidance and showcase exceptions belong in the author handbook, not executable content.' })),
-  ],
+    "capabilities.content.table:world-\u0070ieces",
+    "capabilities.display.table:catalog.about.en",
+    "capabilities.contentKind.image:box.about.en",
+    "kinds.world.table:world-\u0070ieces",
+    "courses.circuit.level",
+    "courses.rows.level",
+    "courses.tick-bus.level",
+    "courses.image.level",
+    "courses.logic.level",
+    "courses.table.level",
+    "level",
+  ].map(at => ({ at, why: "Rename \u0070iece references and publishes.\u0070iece to part, and rename the part vocabulary." })),
   capabilities: capabilities.tables,
   kinds: capabilities.kinds,
   languages: capabilities.languages,

@@ -39,7 +39,7 @@
       ],
       "publishes": [
         {
-          "piece": "dneg",
+          "part": "dneg",
           "variant": "elim"
         }
       ]
@@ -77,7 +77,7 @@
       ],
       "publishes": [
         {
-          "piece": "dneg",
+          "part": "dneg",
           "variant": "intro"
         }
       ],

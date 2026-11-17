@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import { evaluate, parse, print, problemsOf } from './expr.js'
 import { BUILTIN_ITEMS, BUILTINS } from './builtins.js'
 import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
-import { editorOf, facesOf, holesOf, insideOf, keepsOf, markOf, regionsOf, settingsOf } from '../pieces.js'
-import { BLANKS, makesPieces } from './schema.js'
+import { editorOf, facesOf, holesOf, insideOf, keepsOf, markOf, regionsOf, settingsOf } from '../parts.js'
+import { BLANKS, makesParts } from './schema.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
 
@@ -57,7 +57,7 @@ test('if works out only the branch it takes; a builtin’s numbers are plain num
   assert.deepEqual(said("circuit:times(circuit:plus($k, 1), 2)"), [])
 })
 
-test('pieces.json becomes engine parts: settings resolved from shared definitions, one or several outputs, 「—」 given on', () => {
+test('parts.json becomes engine parts: settings resolved from shared definitions, one or several outputs, 「—」 given on', () => {
   const { PARTS, defaultsOf } = defineParts(file, OPS)
   assert.deepEqual(defaultsOf('scaled'), { k: 2, how: 'up', lock: false })
   assert.deepEqual(PARTS.scaled.settings, { how: ['up', 'down'] })
@@ -92,7 +92,7 @@ test('interaction: rules follow a change, checks say what fails, settings-only e
   assert.equal(evalSettings("circuit:times($k, $k)", defs.scaled, { k: 3 }, OPS), 9)
 })
 
-test('a pieces.json that holds together has no problems; one that does not says where', () => {
+test('a parts.json that holds together has no problems; one that does not says where', () => {
   assert.deepEqual(partProblems(file, vocabulary), [])
   const bad = structuredClone(file)
   bad.parts.sum.op = 'missing'
@@ -103,19 +103,19 @@ test('a pieces.json that holds together has no problems; one that does not says 
   bad.parts.scaled.views.tile[0].text = '{nope}'
   bad.parts.scaled.rules[0].set = { z: '1' }
   const unknown = partProblems(bad, vocabulary)
-  assert.deepEqual(unknown.map(p => p.at), ['pieces/sum.json.op', 'pieces/split.json.op.lo'])
+  assert.deepEqual(unknown.map(p => p.at), ['parts/sum.json.op', 'parts/split.json.op.lo'])
   bad.parts.sum.op = 'add'
   bad.parts.split.op.lo = 'lower'
   assert.deepEqual(partProblems(bad, vocabulary).map((p) => `${p.at}: ${p.says}`), [
-    'pieces/sum.json.icon: Nope is no icon of the kernel’s table',
-    'pieces/scaled.json.settings.k.default: 9 is not a number in its range',
-    'pieces/scaled.json.rules[0].set.z: z is no setting of the part',
-    'pieces/scaled.json.views.tile[0].text: {nope} is no setting of the part',
+    'parts/sum.json.icon: Nope is no icon of the kernel’s table',
+    'parts/scaled.json.settings.k.default: 9 is not a number in its range',
+    'parts/scaled.json.rules[0].set.z: z is no setting of the part',
+    'parts/scaled.json.views.tile[0].text: {nope} is no setting of the part',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
 })
 
-test('code and content pieces share both the vocabulary and the running registry', () => {
+test('code and content parts share both the vocabulary and the running registry', () => {
   const code = { fixed: { inputs: [], eval: () => 4 } }
   const mixed = { ...vocabulary, kinds: { ...vocabulary.kinds, part: { fixed: { about: 'a fixed number' } } } }
   const data = { parts: { sum: file.parts.sum } }
@@ -126,30 +126,30 @@ test('code and content pieces share both the vocabulary and the running registry
   assert.equal(run(board, { parts: PARTS }).values.get('s'), 8)
 })
 
-test('the piece readers expose the optional faces without renaming stored fields', () => {
-  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }] }
+test('the part readers expose the optional faces without renaming stored fields', () => {
+  const part = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }] }
   const keeping = { keeps: { input: 'in', register: 'reg' } }
   const built = { name: { en: '做成的' }, desc: { en: 'The board that runs work.' }, inside: [{ id: 'base', reference: {} }, { id: 'better', reference: {} }] }
-  assert.equal(holesOf(piece), piece.inputs)
-  assert.deepEqual(settingsOf(piece).map((s) => s.key), ['k', 'how', 'lock'])
-  assert.equal(facesOf(piece), piece.views)
-  assert.equal(regionsOf(piece), piece.regions)
+  assert.equal(holesOf(part), part.inputs)
+  assert.deepEqual(settingsOf(part).map((s) => s.key), ['k', 'how', 'lock'])
+  assert.equal(facesOf(part), part.views)
+  assert.equal(regionsOf(part), part.regions)
   assert.equal(insideOf(built), built.inside)
   assert.equal(keepsOf(keeping), keeping.keeps)
-  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece, made: built } }, vocabulary), [])
-  // A piece computes or has an inside, never both; a built piece can declare its typed interface.
+  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: part, made: built } }, vocabulary), [])
+  // A part computes or has an inside, never both; a built part can declare its typed interface.
   assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, op: 'add' } } }, vocabulary), [])
   assert.deepEqual(partProblems({ ...file, parts: { made: { ...built, inputs: [] } } }, vocabulary), [])
   assert.deepEqual(Object.keys(defineParts({ ...file, parts: { ...file.parts, made: built } }, OPS).defs), Object.keys(file.parts))
-  // A domain with its primitives in code keeps its built pieces alone in pieces/<name>.json.
+  // A domain with its primitives in code keeps its built parts alone in parts/<name>.json.
   const coded = { ...vocabulary, kinds: { part: { wire: { about: 'a wire' } } } }
   assert.deepEqual(partProblems({ parts: { made: built } }, coded), [])
   assert.ok(partProblems({ parts: { scaled: file.parts.scaled } }, coded).some((p) => /circuit primitives in code/.test(p.says)))
   assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, null])
 })
 
-test('a piece of another editor has its own faces: a block on a strip marks an item of the domain’s mark kind', () => {
-  // A domain with no engine resources, whose games' pieces are blocks: they are its parts all the same.
+test('a part of another editor has its own faces: a block on a strip marks an item of the domain’s mark kind', () => {
+  // A domain with no engine resources, whose games' parts are blocks: they are its parts all the same.
   const marking = { domain: 'marks', version: 1, kinds: { mark: { noun: { about: 'a noun' }, verb: { about: 'a verb' } } } }
   const block = { editor: 'strip', name: { en: '名词' }, desc: { en: 'A noun.' }, icon: 'Rows3', mark: 'noun' }
   assert.equal(editorOf(block), 'strip')
@@ -157,14 +157,14 @@ test('a piece of another editor has its own faces: a block on a strip marks an i
   assert.equal(markOf(block), 'noun')
   assert.deepEqual(partProblems({ parts: { noun: block } }, marking), [])
   assert.deepEqual(Object.keys(withParts(marking, { parts: { noun: block } }).kinds.part), ['noun'])
-  assert.deepEqual(partProblems({ parts: { noun: { ...block, mark: 'adverb' } } }, marking).map((p) => p.at), ['pieces/noun.json.mark'])
+  assert.deepEqual(partProblems({ parts: { noun: { ...block, mark: 'adverb' } } }, marking).map((p) => p.at), ['parts/noun.json.mark'])
   // The circuit's faces are not a block's, and a block is no circuit primitive to define.
   assert.ok(partProblems({ parts: { noun: { ...block, op: 'add' } } }, marking).length > 0)
   assert.deepEqual(Object.keys(defineParts({ parts: { ...file.parts, noun: block } }, OPS).defs), Object.keys(file.parts))
-  // A new piece of each editor where the vocabulary gives what it is made of.
+  // A new part of each editor where the vocabulary gives what it is made of.
   assert.deepEqual([BLANKS.circuit(marking), BLANKS.strip(marking).mark], [null, 'noun'])
   assert.deepEqual([BLANKS.circuit(vocabulary).op, BLANKS.strip(vocabulary)], ['add', null])
-  assert.deepEqual([makesPieces(marking), makesPieces(vocabulary), makesPieces({ kinds: {} })], [true, true, false])
+  assert.deepEqual([makesParts(marking), makesParts(vocabulary), makesParts({ kinds: {} })], [true, true, false])
 })
 
 test('a description names only the options that are open', () => {
@@ -235,8 +235,8 @@ test('an optional number left unset reads 「—」, and a new card starts from 
 test('inline settings inherit operation parameters for every output', () => {
   const parameters = S.obj({ gain: S.num({ min: 1, max: 4, default: 2 }), mode: S.oneOf(['up', 'down'], { default: 'up' }) })
   const ops = { scale: { args: [{ name: 'a' }], params: parameters, run: ([a], { gain, mode }) => mode === 'up' ? a * gain : a / gain } }
-  const piece = { ...file.parts.sum, settings: { mode: { remove: ['down'] } }, op: { hi: 'scale', lo: 'scale' } }
-  const { defs, defaultsOf, PARTS } = defineParts({ parts: { scale: piece } }, ops)
+  const part = { ...file.parts.sum, settings: { mode: { remove: ['down'] } }, op: { hi: 'scale', lo: 'scale' } }
+  const { defs, defaultsOf, PARTS } = defineParts({ parts: { scale: part } }, ops)
   assert.deepEqual(defaultsOf('scale'), { gain: 2, mode: 'up' })
   assert.deepEqual(defs.scale.setting.mode.options, [{ value: 'up' }])
   assert.equal(PARTS.scale.eval({ a: 3 }, { params: {} }, {}, 'lo'), 6)

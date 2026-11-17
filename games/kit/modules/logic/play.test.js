@@ -5,7 +5,7 @@ import { defineParts } from '../../engine/parts/define.js'
 import { gateCourse } from './gates.js'
 import { play } from './play.js'
 
-// The gate the level holds, as a game's pieces.json defines it.
+// The gate the level holds, as a game's parts.json defines it.
 const gNot = { name: { zh: '非' }, desc: { zh: 'd' }, icon: 'ToggleLeft', family: 'logic:family-gate', inputs: [{ name: 'a' }], op: 'circuit:not' }
 const gates = { gNot: { ...defineParts({ parts: { gNot } }, {}).PARTS.gNot, name: gNot.name, desc: gNot.desc } }
 

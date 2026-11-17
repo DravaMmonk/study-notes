@@ -55,7 +55,7 @@
       ],
       "publishes": [
         {
-          "piece": "appAssoc",
+          "part": "appAssoc",
           "variant": "base"
         }
       ]

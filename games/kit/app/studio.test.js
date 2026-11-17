@@ -150,17 +150,17 @@ test('the HTTP tools list, preview and write a package that no game selects', as
   const pkg = join(root, 'packages', 'library')
   mkdirSync(pkg, { recursive: true })
   writeFileSync(join(pkg, 'package.json'), `${JSON.stringify({ vocabulary: 1 })}\n`)
-  mkdirSync(join(pkg, 'pieces'), { recursive: true })
-  writeFileSync(join(pkg, 'pieces/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' }))
+  mkdirSync(join(pkg, 'parts'), { recursive: true })
+  writeFileSync(join(pkg, 'parts/apply.json'), JSON.stringify( { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' }))
   const packages = (await post('packages', {})).body
   assert.ok(packages.some((entry) => entry.id === 'library'))
   const preview = (await post('preview', { package: 'library' })).body
   assert.equal(preview.ok, true, preview.problems.join('\n'))
   assert.deepEqual(preview.content.levels, [])
   assert.equal(preview.content.packageTarget.id, 'library')
-  const modified = (await post('modify', { package: 'library', changeset: { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'A revised description.' }] } })).body
+  const modified = (await post('modify', { package: 'library', changeset: { ops: [{ op: 'parts.set', path: ['parts', 'apply', 'desc'], value: 'A revised description.' }] } })).body
   assert.equal(modified.written, true, modified.problems.join('\n'))
-  assert.deepEqual(modified.files, ['packages/library/pieces/apply.json'])
+  assert.deepEqual(modified.files, ['packages/library/parts/apply.json'])
   assert.equal((await post('log', { package: 'library' })).body.head, 1)
   assert.equal((await post('preview', { game: GAME, package: 'library' })).status, 422)
 })

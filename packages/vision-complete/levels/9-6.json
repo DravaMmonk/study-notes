@@ -51,7 +51,7 @@
         "out <- m"
       ],
       "naive": ["u = tconv(small)", "out <- u"],
-      "publishes": [{ "piece": "unpool", "variant": "base" }]
+      "publishes": [{ "part": "unpool", "variant": "base" }]
     }
   ]
 }

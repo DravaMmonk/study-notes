@@ -11,7 +11,7 @@ export const inspectorTabKey = (at, path) => JSON.stringify([at, path])
 function describe({ at, path }, content) {
   const owner = at.level ?? at.part
     ?? (at.era !== undefined ? L(content.eras?.[at.era]?.title) || content.eras?.[at.era]?.id : null)
-  const file = at.level ? `levels/${at.level.slice(at.level.indexOf('/') + 1)}.json` : at.part ? `pieces/${at.part.slice(at.part.indexOf('/') + 1)}.json` : at.glossary ? glossaryFile(content.glossary, path) : contentFileFor(path)
+  const file = at.level ? `levels/${at.level.slice(at.level.indexOf('/') + 1)}.json` : at.part ? `parts/${at.part.slice(at.part.indexOf('/') + 1)}.json` : at.glossary ? glossaryFile(content.glossary, path) : contentFileFor(path)
   const nestedRoot = at.part || at.era !== undefined
   const ancestor = nestedRoot && path.length < 2
   const relative = nestedRoot && !ancestor ? path.slice(2) : path

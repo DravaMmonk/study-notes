@@ -28,7 +28,7 @@ export async function pageContent(manifest, base, fetcher = fetch, vocabulary) {
     levels: levels.map(([level, value]) => [level, packageText(value, `levels/${level}.json`, vocabulary.level, vocabulary)]),
     ...Object.fromEntries(Object.entries({ tags, relations, sections, trays }).map(([kind, values]) => [kind, (values ?? []).map(([name, value, ns]) => [name, packageText(value, `${kind}/${name}.json`, OBJECT_SCHEMAS[kind], vocabulary), ns])])),
     glossary: { groups: [], entries: glossary.entries.map(({ id, ...entry }) => ({ id, ...packageText(entry, `entries/${id}.json`, ENTRY, vocabulary) })) },
-    partDefs: partDefs && { parts: Object.fromEntries(Object.entries(partDefs?.parts ?? {}).map(([name, piece]) => [name, packageText(piece, `pieces/${name}.json`, PARTS_FILE.fields.parts.of, vocabulary)])) },
+    partDefs: partDefs && { parts: Object.fromEntries(Object.entries(partDefs?.parts ?? {}).map(([name, part]) => [name, packageText(part, `parts/${name}.json`, PARTS_FILE.fields.parts.of, vocabulary)])) },
     blueprint: courseText(blueprint, 'blueprint.json', BLUEPRINT, vocabulary),
     fromDisk: true,
   })

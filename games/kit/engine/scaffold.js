@@ -97,8 +97,8 @@ export function newGame({ root = PROJECT_DIR, id, template, title = id }) {
   for (const kind of ['power', 'box']) if (source[kind]) source[kind] = `${id}/${source[kind]}`
   const contentPackage = readPackage(id, root)
   const vocabulary = contentVocabulary(runtimeIds(contentPackage))
-  const pieces = new Set(Object.keys(contentPackage.partDefs.parts).map(name => name.split('/')[1]))
-  const course = expandNames(source, id, { pieces, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
+  const parts = new Set(Object.keys(contentPackage.partDefs.parts).map(name => name.split('/')[1]))
+  const course = expandNames(source, id, { parts, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   if (existsSync(resolve(starter, 'i18n/course'))) fill(resolve(starter, 'i18n/course'), resolve(dir, 'i18n'), words)
   writeFileSync(resolve(dir, 'game.json'), writeJson({ packages: [id], ...game }, null))

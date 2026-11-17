@@ -3,34 +3,34 @@ import assert from 'node:assert/strict'
 import { trayDisplay, trayMembers, workshopTrayNames } from './trays.js'
 
 test('the workshop lists enabled circuit trays and leaves exercise trays usable by the course', () => {
-  const pieces = { gate: {}, word: { editor: 'strip' } }
+  const parts = { gate: {}, word: { editor: 'strip' } }
   const trays = {
     main: { items: ['gate'] },
     exercise: { workshop: false, items: ['gate'] },
     words: { workshop: true, items: ['word'] },
     mixed: { workshop: true, items: [{ id: 'menu', items: ['word', 'gate'] }] },
   }
-  assert.deepEqual(workshopTrayNames(trays, pieces), ['main', 'mixed'])
+  assert.deepEqual(workshopTrayNames(trays, parts), ['main', 'mixed'])
   assert.deepEqual(trayMembers(trays.exercise), ['gate'])
 })
 
-test('tray menus show only available pieces and follow their main and folded placement', () => {
+test('tray menus show only available parts and follow their main and folded placement', () => {
   const menu = { id: 'or', title: '∨', items: ['orI', 'orE', 'locked'] }
   const entries = [menu, 'swap']
   const trays = { proof: { name: 'Proof', desc: 'Proof tools', items: entries } }
-  const piece = (type) => ({ type })
+  const part = (type) => ({ type })
   assert.deepEqual(trayMembers(trays.proof), ['orI', 'orE', 'locked', 'swap'])
 
-  const pinned = trayDisplay(trays, ['proof'], [piece('orI')], [piece('orE'), piece('swap')])
-  assert.deepEqual(pinned.items.map(({ children }) => children), [[piece('orI'), piece('orE')]])
-  assert.deepEqual(pinned.folded, [piece('swap')])
+  const pinned = trayDisplay(trays, ['proof'], [part('orI')], [part('orE'), part('swap')])
+  assert.deepEqual(pinned.items.map(({ children }) => children), [[part('orI'), part('orE')]])
+  assert.deepEqual(pinned.folded, [part('swap')])
 
-  const folded = trayDisplay(trays, ['proof'], [], [piece('orE'), piece('swap')])
+  const folded = trayDisplay(trays, ['proof'], [], [part('orE'), part('swap')])
   assert.deepEqual(folded.items, [])
-  assert.deepEqual(folded.folded[0].children, [piece('orE')])
+  assert.deepEqual(folded.folded[0].children, [part('orE')])
 })
 
-test('switching trays groups only the pieces in the selected tray', () => {
+test('switching trays groups only the parts in the selected tray', () => {
   const items = [{ type: 'orI' }, { type: 'orE' }]
   const trays = {
     proof: { name: 'Proof', desc: 'Proof tools', items: [{ id: 'or', title: '∨', items: ['orI', 'orE'] }] },
@@ -59,7 +59,7 @@ test('tray order interleaves menus and direct members without changing menu-memb
       { id: 'z-menu', title: 'First', values: ['two', 'one'] },
       { id: 'a-menu', title: 'Second', values: ['two'] },
     ] }]],
-    relations: [['tools-order', { kind: 'order', of: 'piece', edges: [
+    relations: [['tools-order', { kind: 'order', of: 'part', edges: [
       { from: 'z-menu', to: 'last' }, { from: 'last', to: 'a-menu' }, { from: 'two', to: 'one' },
     ] }]],
   })

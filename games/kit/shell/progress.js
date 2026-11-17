@@ -225,18 +225,18 @@ export function earnedUnlocks(level, progress) {
 export function completionUnlocks(game, level, before, after) {
   const wasSolved = new Set(before.solved)
   const solved = new Set(after.solved)
-  const known = new Set(game.earnedPieces({ ...before, all: false }).map(({ piece }) => piece))
-  const pieces = new Map()
+  const known = new Set(game.earnedParts({ ...before, all: false }).map(({ part }) => part))
+  const parts = new Map()
   if (!wasSolved.has(level.id)) {
     for (const part of game.unlocked({ ...level, unlocks: earnedUnlocks(level, after) })) {
-      if (part.piece) pieces.set(part.piece, part)
+      if (part.part) parts.set(part.part, part)
     }
   }
-  for (const part of game.earnedPieces({ ...after, all: false })) {
-    if (!known.has(part.piece)) pieces.set(part.piece, { ...part, label: part.name })
+  for (const part of game.earnedParts({ ...after, all: false })) {
+    if (!known.has(part.part)) parts.set(part.part, { ...part, label: part.name })
   }
   const levels = game.levels.filter((next) => !solved.has(next.id) && !game.isOpen(next, wasSolved) && game.isOpen(next, solved))
-  return { pieces: [...pieces.values()], levels }
+  return { parts: [...parts.values()], levels }
 }
 
 /** The work and the exact dependencies the game selected when the task passed. */

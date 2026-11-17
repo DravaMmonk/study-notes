@@ -130,7 +130,7 @@
       ],
       "publishes": [
         {
-          "piece": "elimRules",
+          "part": "elimRules",
           "variant": "base"
         }
       ]

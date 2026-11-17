@@ -2,7 +2,7 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: a game's parts in its pieces.json, the signals a level wants in wants.js, the line a test
+// The items are implemented next to them: a game's parts in its parts.json, the signals a level wants in wants.js, the line a test
 // plays on in line.js.
 
 import { S } from '../../engine/schema.js'
@@ -17,7 +17,7 @@ const BITS = S.str({ pattern: '^[01.]*$', about: t('一拍一个字符：0、1�
 
 /* ---------- the parts ---------- */
 
-// A game's parts are its pieces.json, computing with the kernel's builtins and registers (no resources of its own),
+// A game's parts are its parts.json, computing with the kernel's builtins and registers (no resources of its own),
 // coloured by family (ui/tick-bus.css).
 const FAMILIES = {
   value: item(t('算数的元件')),

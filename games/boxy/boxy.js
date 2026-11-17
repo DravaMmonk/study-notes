@@ -2012,9 +2012,9 @@ function t3LatheSheets(levels, geo, step, buckets) {
           return (arc.to + next) / 2;
         });
         sorted.forEach((arc, q) => {
-          const piece = { from: q ? cuts[q - 1] : cuts[n - 1] - T3_TAU, to: cuts[q] };
-          if (flip) quad(arc, piece);
-          else quad(piece, arc);
+          const part = { from: q ? cuts[q - 1] : cuts[n - 1] - T3_TAU, to: cuts[q] };
+          if (flip) quad(arc, part);
+          else quad(part, arc);
         });
         return;
       }
@@ -2023,9 +2023,9 @@ function t3LatheSheets(levels, geo, step, buckets) {
       for (let q = 1; q < sorted.length; q++) cuts.push(Math.min(span.to, Math.max(span.from, (sorted[q - 1].to + sorted[q].from) / 2)));
       cuts.push(span.to);
       sorted.forEach((arc, q) => {
-        const piece = { from: cuts[q], to: cuts[q + 1] };
-        if (flip) quad(arc, piece);
-        else quad(piece, arc);
+        const part = { from: cuts[q], to: cuts[q + 1] };
+        if (flip) quad(arc, part);
+        else quad(part, arc);
       });
     };
     for (let j = 0; j < above.length; j++) {

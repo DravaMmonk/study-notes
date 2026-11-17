@@ -1,4 +1,4 @@
-// A piece's way through the course, under its page in the studio (games/DESIGN.md 6.7): read-only, from the course
+// A part's way through the course, under its page in the studio (games/DESIGN.md 6.7): read-only, from the course
 // (the tool `flow`, ../engine/flow.js), one tick a level in course order, each event a mark on it — at hand from the
 // start, brought in (+), given there only (↑), withheld (−), superseded (⇢), a step of its chains (■, its form). A tick
 // opens the level, at the task and on the field that says it.
@@ -16,14 +16,14 @@ const SAYS = {
   step: (e) => tr(`里面跑这个任务的作品${e.form ? `（${e.form}）` : ''}`, `runs this task’s work inside${e.form ? ` (${e.form})` : ''}`),
 }
 
-export default function Flow({ target, piece, changeset, label, onOpen }) {
+export default function Flow({ target, part, changeset, label, onOpen }) {
   const [events, setEvents] = useState([])
   const key = JSON.stringify(changeset.ops)
   useEffect(() => {
     let live = true
-    const timer = window.setTimeout(() => call('flow', { ...target, piece, changeset }).then((r) => live && setEvents(r.events)).catch(() => live && setEvents([])), 300)
+    const timer = window.setTimeout(() => call('flow', { ...target, part, changeset }).then((r) => live && setEvents(r.events)).catch(() => live && setEvents([])), 300)
     return () => { live = false; window.clearTimeout(timer) }
-  }, [target, piece, key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [target, part, key]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!events.length) return null
   // One tick a level (the start its own), its events in order.
   const ticks = []

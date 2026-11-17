@@ -51,7 +51,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "notOr"
         }
       ]
@@ -100,7 +100,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "andNot"
         }
       ],
@@ -152,7 +152,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "orNot"
         }
       ],
@@ -206,7 +206,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "notAnd"
         }
       ],

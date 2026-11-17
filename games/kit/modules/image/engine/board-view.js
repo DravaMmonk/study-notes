@@ -7,7 +7,7 @@ import { INPUT_LABELS } from '../words.js'
 
 // The image circuit configuration shared by the screen and the text play hook.
 export function imageBoards(image) {
-  const { kit, pieces } = image
+  const { kit, parts } = image
   const ports = (task, side) => {
     const input = side === 'input'
     const names = input ? task.inputs : task.outputs
@@ -37,8 +37,8 @@ export function imageBoards(image) {
       }
     },
   }
-  const built = Object.fromEntries(Object.entries(pieces).map(([type, piece]) => [
-    type, { ...piece, ...kit.types[type], opens: () => ({ circuit: kit.types[type].circuitOf(), level: image.builtBy(type) ?? image.referenceOf(type) }) },
+  const built = Object.fromEntries(Object.entries(parts).map(([type, part]) => [
+    type, { ...part, ...kit.types[type], opens: () => ({ circuit: kit.types[type].circuitOf(), level: image.builtBy(type) ?? image.referenceOf(type) }) },
   ]))
   return boardView({
     board,

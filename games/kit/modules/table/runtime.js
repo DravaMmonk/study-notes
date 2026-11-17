@@ -6,11 +6,11 @@ import { vocabulary } from './vocabulary.js';
 import { tableWorks, prepareTableWorks } from './work.js';
 import { validate } from './validate.js';
 import { play } from './play.js';
-import { builtPieces } from '../../engine/pieces.js';
+import { builtParts } from '../../engine/parts.js';
 
 /** A table game's spec, as the checks read one (../../engine/checks.js). */
-// What a tray may list (vocabulary.js): the parts and ideas pieces.json names.
-const names = content => ({ part: new Set(Object.keys(builtPieces(content.partDefs))) });
+// What a tray may list (vocabulary.js): the parts and ideas parts.json names.
+const names = content => ({ part: new Set(Object.keys(builtParts(content.partDefs))) });
 
 function spec(content, works = tableWorks(content)) {
   const table = works;

@@ -1,10 +1,10 @@
 // A circuit game's course read from its content (games/DESIGN.md 6.3): its tasks with their tests and boards, the play
-// order and level tree from its eras, and its built pieces (pieces.json, ./pieces.js builtPieces), each running inside
+// order and level tree from its eras, and its built parts (parts.json, ./parts.js builtParts), each running inside
 // their package reference board or the passed work supplied by a publishing task, and
-// game.json's `replaces` says which built pieces supersede which. A domain says how its own fields and tests read:
+// game.json's `replaces` says which built parts supersede which. A domain says how its own fields and tests read:
 //
 //   circuitWorks(content, { board, parts, read?, test?, kinds?, holds?, unwanted? }) → { LEVELS, played, builtBy,
-//     CHAPTERS, course, partOf, BUILT, pieces, types, blueprints, wrong, offerIn, introductions, carried, opening,
+//     CHAPTERS, course, partOf, BUILT, parts, types, blueprints, wrong, offerIn, introductions, carried, opening,
 //     syncOwn }
 //       board  its circuitBoard (./board-cards.js)
 //       parts  { type: part } the game's primitives; read(task, say) → the task's own fields read (what it wants…),
@@ -13,19 +13,19 @@
 //              right must give (`want`) names each port there once, but those unwanted(task) names
 //       kinds  { kind: read(task, say) → the task read } the tasks that are no board (a grid to fill in, a choice), by
 //              their `kind`: the domain reads them and plays them on screens of its own; every other task is a board
-//       pieces { type: piece } the built pieces, as pieces.json names and describes them
+//       parts { type: part } the built parts, as parts.json names and describes them
 //     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
 //     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
 //   partsWorks(content, ops, options) → circuitWorks's, with { defs, defaultsOf }: the course of a domain whose games
-//     define their parts as data (pieces.json) over its engine resources `ops`, circuitWorks's options beside
+//     define their parts as data (parts.json) over its engine resources `ops`, circuitWorks's options beside
 //   definedWorks(content, { board, ops, read? }) → partsWorks's: the course of a domain
-//     whose games define their own parts (pieces.json, ./parts/define.js) over its engine resources `ops`, and whose
+//     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
 //     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
 //     a value as content writes it made a value on the wires
 //
 // The boards the player passed the building levels with live in the course read (syncOwn), one per content: two games
 // of a domain in one process never share them.
-import { builtPieces, pieceReferences, publications } from './pieces.js'
+import { builtParts, partReferences, publications } from './parts.js'
 import { packed } from './boards.js'
 import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
@@ -78,8 +78,8 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
   const partOf = (type) => primitive(type) ?? (Object.hasOwn(BUILT, type) ? BUILT[type] : undefined)
   const blueprints = []
   const played = new Map()
-  const pieces = builtPieces(content.partDefs)
-  const implementations = publications(levels, pieces)
+  const builtDefinitions = builtParts(content.partDefs)
+  const implementations = publications(levels, builtDefinitions)
   const published = new Map()
   for (const p of implementations) if (p.task && plan.place.has(p.level)) {
     published.set(p.task, [...(published.get(p.task) ?? []), p])
@@ -123,7 +123,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
   }
   // Why an item (../course.js: a part, one of its settings, one value of a setting) is none of this game's, or ''.
   const itemProblem = (item) => {
-    return content.partDefs?.parts?.[item] || parts[item] || pieces[item] || [...Object.values(content.partDefs?.parts ?? {})].some(piece => piece.stages?.some(stage => stage.id === item)) ? '' : `${item} is no piece or stage`
+    return content.partDefs?.parts?.[item] || parts[item] || builtDefinitions[item] || [...Object.values(content.partDefs?.parts ?? {})].some(part => part.stages?.some(stage => stage.id === item)) ? '' : `${item} is no part or stage`
   }
   const isBoard = (task) => !kinds[task.kind]
 
@@ -136,7 +136,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
       if (!referenceBoard) {
         try { referenceBoard = board.fromText(reference.solution, artifact, circuit) }
         catch (error) {
-          say(`pieces.json ${type}.${variant}`, error.en ?? String(error))
+          say(`parts.json ${type}.${variant}`, error.en ?? String(error))
           referenceBoard = { nodes: [], wires: [] }
         }
       }
@@ -173,13 +173,13 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
     const level = given.get(id)
     // A task holds what the level adds and what its tasks up to it add; it brings in (`fresh`) its own, the first the level's too.
     const tasks = taskLevels(level, content.taskPositions).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0, k + 1).flatMap((T) => T.adds ?? [])])], opened: [...new Set(level.tasks.slice(0, k + 1).flatMap((T) => T.opens ?? []))], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
-    // The pieces its tasks publish, each at the task it refers to (a later task of the level then holds it).
+    // The parts its tasks publish, each at the task it refers to (a later task of the level then holds it).
     const builds = []
     const read = tasks.map((task, k) => {
       const where = tasks.length > 1 ? `${id} task ${task.taskId}` : id
       const last = readTask(id, task, where)
       const publishes = published.get(task.taskId) ?? []
-      if (publishes.length && !isBoard(last)) say(where, `pieces.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
+      if (publishes.length && !isBoard(last)) say(where, `parts.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
       if (!publishes.length || !isBoard(last)) return last
       for (const entry of publishes) {
         register(entry, last)
@@ -211,7 +211,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
         .filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))]
     },
     carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
-    references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
+    references: partReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
   }
   const { references } = course
   wrong.push(...references.problems())
@@ -266,7 +266,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
     course,
     partOf,
     BUILT,
-    pieces,
+    parts: builtDefinitions,
     types: circuit.types,
     board,
     blueprints,
@@ -324,7 +324,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
 }
 
 /**
- * The course of a domain whose games define their own parts (content.partDefs: pieces.json) over its engine resources,
+ * The course of a domain whose games define their own parts (content.partDefs: parts.json) over its engine resources,
  * its tests giving a value on every input and expecting one of every output.
  */
 export function* prepareDefinedWorks(content, { board, ops, parts, read: readValue = (v) => v }) {
@@ -338,7 +338,7 @@ export function* prepareDefinedWorks(content, { board, ops, parts, read: readVal
 }
 
 /**
- * The course of a domain whose games define their parts (content.partDefs: pieces.json) over its engine resources `ops`
+ * The course of a domain whose games define their parts (content.partDefs: parts.json) over its engine resources `ops`
  * (code parts `parts` beside them): circuitWorks's, its parts those, with { defs, defaultsOf }.
  */
 export function* preparePartsWorks(content, ops, { parts, ...options }) {

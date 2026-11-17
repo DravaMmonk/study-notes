@@ -7,7 +7,7 @@ import { useOverlay } from '../shell/useOverlay.js'
 
 export const trayItemCount = (entries) => entries.reduce((total, entry) => total + (entry.children?.length ?? 1), 0)
 
-export default function TrayMenu({ entry, className, compact, phoneHost, renderPiece }) {
+export default function TrayMenu({ entry, className, compact, phoneHost, renderPart }) {
   const [anchor, setAnchor] = useState(null)
   const id = useId()
   const toggle = useRef(null)
@@ -24,9 +24,9 @@ export default function TrayMenu({ entry, className, compact, phoneHost, renderP
         <span>{L(entry.label)}</span>
       </button>
       {anchor && (phone
-        ? createPortal(<div id={id} ref={panel} className="tray-menu-row" role="group" aria-label={L(entry.label)}>{entry.children.map(renderPiece)}</div>, phoneHost.current)
+        ? createPortal(<div id={id} ref={panel} className="tray-menu-row" role="group" aria-label={L(entry.label)}>{entry.children.map(renderPart)}</div>, phoneHost.current)
         : <Popover anchor={anchor} title={L(entry.label)} placement="below" className="tray-menu-pop" onClose={close}>
-          <div id={id} className={`palette ${compact ? 'is-compact' : ''}`}>{entry.children.map(renderPiece)}</div>
+          <div id={id} className={`palette ${compact ? 'is-compact' : ''}`}>{entry.children.map(renderPart)}</div>
         </Popover>)}
     </div>
   )

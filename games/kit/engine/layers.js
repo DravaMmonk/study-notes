@@ -7,9 +7,9 @@ import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', piece: 'pieces', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
+export const folders = { level: 'levels', part: 'parts', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
-export const schemaForKind = (kind, schemas) => ({ level: schemas.level, piece: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
+export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 
 /** The game must explicitly select the complete dependency closure. */
 export function orderPackages(packages) {
@@ -67,10 +67,10 @@ function contextFor(layer, layers, schemas) {
     if (typeof qualified === 'string' && qualified.includes('/') && !allowed.has(qualified.split('/')[0])) throw new Error(`${layer.id}: undeclared dependency in ${qualified}`)
     return qualified
   }
-  const pieces = new Set(layer.objects.filter((o) => o.kind === 'piece').map((o) => o.name))
-  const pieceRules = new Set(layer.objects.filter((o) => o.kind === 'piece' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
-  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { pieces, pieceRules, schema, vocabulary: schemas, context, resolve: name })
-  return { name, pieces, qualify }
+  const parts = new Set(layer.objects.filter((o) => o.kind === 'part').map((o) => o.name))
+  const partRules = new Set(layer.objects.filter((o) => o.kind === 'part' && o.value.inside && ['logic:family-lemma', 'logic:family-rule'].includes(o.value.family)).map((o) => o.name))
+  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { parts, partRules, schema, vocabulary: schemas, context, resolve: name })
+  return { name, parts, qualify }
 }
 
 /** Qualify declarations before composing, so short references retain their author's namespace. */
@@ -116,7 +116,7 @@ export function composeLayers(layers, schemas) {
   for (const [name, text] of Object.entries(registries.i18n)) { const i = name.indexOf(':'); (catalogs[name.slice(0, i)] ??= {})[name.slice(i + 1)] = text }
   const readText = catalogReader(catalogs)
   for (const layer of layers) {
-    const { name, pieces, qualify } = contextFor(layer, layers, schemas)
+    const { name, parts, qualify } = contextFor(layer, layers, schemas)
     const texts = (value, schema, context = '') => readText(sourceValue(qualify(value, schema, context)), layer.id, schema, schemas)
     const object = (kind, value) => {
       if (kind === 'entry' && (Object.hasOwn(value, 'id') || Object.hasOwn(value, 'group'))) throw new Error('entry identity belongs in its name and membership in entry tags')
@@ -124,8 +124,8 @@ export function composeLayers(layers, schemas) {
       let qualified = qualify(value, schema)
       const endpoint = [...(value.edges ?? []).flatMap((e) => [e.from, e.to]), ...(value.sequence ?? [])][0]
       const endpointTag = typeof endpoint === 'string' && endpoint.startsWith('#') ? registries.tag[fullName(layer.id, endpoint.slice(1))] ?? layer.objects.find((o) => o.kind === 'tag' && o.name === endpoint.slice(1))?.value : null
-      const item = kind === 'tag' && value.kind === 'piece' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'piece' || endpointTag?.kind === 'piece' || schemas.kinds?.part?.[endpoint]))
-      const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
+      const item = kind === 'tag' && value.kind === 'part' || kind === 'relation' && (value.kind === 'replaces' || value.kind === 'order' && (value.of === 'part' || endpointTag?.kind === 'part' || schemas.kinds?.part?.[endpoint]))
+      const objectName = (v) => item && typeof v === 'string' && !v.includes('/') && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : typeof v === 'string' && v.startsWith('#') ? `#${name(v.slice(1))}` : name(v)
       if (['tag', 'relation', 'section', 'tray'].includes(kind)) qualified = qualifyObject(folders[kind], qualified, layer.id, (v) => qualify(v, { type: 'text' }), (_ns, v) => objectName(v))
       return readText(sourceValue(qualified), layer.id, schema, schemas)
     }

@@ -1,0 +1,39 @@
+{
+  "name": "Sobel y",
+  "desc": "@part.sobely.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "border": {
+      "label": "@part.sobely.settings.border.label",
+      "options": [
+        {
+          "value": "zero",
+          "label": "@part.sobely.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@part.sobely.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
+    }
+  },
+  "op": "image:sobely",
+  "stages": [
+    {
+      "id": "sobely-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
+}

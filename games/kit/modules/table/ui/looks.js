@@ -1,5 +1,5 @@
 // The parts' looks: each one a little machine drawn like the robots (../model/robots.js), on the same 32 × 32 grid and
-// with the same pieces (a body, an antenna and its lamp, a base), so they share the robots' colours in every theme.
+// with the same parts (a body, an antenna and its lamp, a base), so they share the robots' colours in every theme.
 // What the part does is its face: a merger is a funnel with three pipes in, a gate a barrier, a constant a battery.
 
 import { createElement } from 'react';

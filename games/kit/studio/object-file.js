@@ -4,6 +4,7 @@
 // `<kind>.set` for a field, `<kind>.put` for the whole object (and for a field taken out). Another layer's object is
 // read here only: it is overridden from the middle (SourceMark.jsx). An override picked has its file here too, as the
 // override operation writes it.
+import { folders } from '../engine/layers.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
 import { isText, textKey } from '../engine/i18n.js'
 import { getAt, parsePath, unsetAt } from '../engine/ops/edit.js'
@@ -86,7 +87,7 @@ export function overrideFileOf(event) {
 /** Where an override's file is, in the layer that made it. */
 export function overrideFileName(event) {
   const [namespace, name] = [namespaceOf(event.name) ?? '', event.name.slice(event.name.indexOf('/') + 1)]
-  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : OBJECT_KINDS[event.kind] ?? event.kind
+  const folder = event.kind === 'i18n' ? 'i18n' : event.kind === 'tag' ? `tags/${event.after?.kind ?? event.before?.kind ?? 'level'}` : folders[event.kind] ?? event.kind
   return `${event.layer}/overrides/${namespace}/${folder}/${name}.json`
 }
 

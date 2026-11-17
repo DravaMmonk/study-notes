@@ -1,0 +1,30 @@
+{
+  "name": "@part.reg.name",
+  "desc": "@part.reg.desc",
+  "icon": "ArrowUpFromLine",
+  "family": "tick-bus:family-memory",
+  "settings": {
+    "start": {
+      "label": "@part.reg.settings.start.label"
+    },
+    "reg": {
+      "control": "select",
+      "label": "@part.reg.settings.reg.label",
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ]
+    }
+  },
+  "op": "circuit:held"
+}

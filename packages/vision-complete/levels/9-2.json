@@ -76,7 +76,7 @@
         "h = arith[op=mul](a, k)",
         "out <- h"
       ],
-      "publishes": [{ "piece": "kmeansStep", "variant": "base" }]
+      "publishes": [{ "part": "kmeansStep", "variant": "base" }]
     }
   ]
 }

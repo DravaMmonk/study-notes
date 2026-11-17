@@ -1,0 +1,26 @@
+{
+  "name": "@part.argmin4.name",
+  "desc": "@part.argmin4.desc",
+  "icon": "Search",
+  "family": "image:family-search",
+  "inputs": [
+    {
+      "name": "c0",
+      "label": "d=0"
+    },
+    {
+      "name": "c1",
+      "label": "d=1"
+    },
+    {
+      "name": "c2",
+      "label": "d=2"
+    },
+    {
+      "name": "c3",
+      "label": "d=3"
+    }
+  ],
+  "nulls": "pass",
+  "op": "image:argmin4"
+}

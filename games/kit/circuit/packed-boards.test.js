@@ -7,9 +7,9 @@ test('nested packed boards and edit destinations resolve against their own paren
   const correct = { level: 'correct', circuit: { nodes: [] } }
   const outerVersion = { level: 'outerVersion', circuit: { nodes: [] } }
   let resolutions = 0
-  const task = (pieces) => ({
-    BUILT: pieces,
-    builtBy: (type, params) => pieces[type]?.opens(params).level,
+  const task = (parts) => ({
+    BUILT: parts,
+    builtBy: (type, params) => parts[type]?.opens(params).level,
   })
   const tasks = {
     top: task({ shared: { opens: () => outerVersion }, main: { opens: () => inner } }),

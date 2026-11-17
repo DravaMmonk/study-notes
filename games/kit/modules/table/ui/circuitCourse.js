@@ -36,7 +36,7 @@ export function robotCircuits(table) {
         board,
         gameCourse: course,
         BUILT: built,
-        pieces: built,
+        parts: built,
         builtBy: (type) => builders[type],
         partOf: model.partOf,
         syncOwn: table.syncOwn,

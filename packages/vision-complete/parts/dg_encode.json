@@ -1,0 +1,36 @@
+{
+  "name": "@part.dg_encode.name",
+  "desc": "@part.dg_encode.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "k": {
+      "label": "@part.dg_encode.settings.k.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "@part.dg_encode.settings.k.options.0.label"
+        },
+        {
+          "value": "2",
+          "label": "@part.dg_encode.settings.k.options.1.label"
+        },
+        {
+          "value": "3",
+          "label": "@part.dg_encode.settings.k.options.2.label"
+        }
+      ]
+    },
+    "w": {
+      "label": "@part.dg_encode.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:dg_encode"
+}

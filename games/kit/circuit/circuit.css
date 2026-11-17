@@ -637,7 +637,7 @@
 }
 .cs-card .vw-value, .pf-value .vw-value { white-space: pre-line; }
 
-/* A tray menu reveals related pieces without placing a card. */
+/* A tray menu reveals related parts without placing a card. */
 .tray-menu-toggle[aria-expanded='true'] { background: var(--hover); }
 .tray-menu-icon { flex: none; color: var(--muted); }
 .palette .tray-menu-toggle { width: 100%; justify-content: flex-start; text-align: left; }

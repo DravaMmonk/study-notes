@@ -29,18 +29,18 @@ test('references are validated independently in every language', () => {
 
 test('catalog text keeps its identity through serialization and resolves each language independently', () => {
   const read = catalogReader({
-    en: { 'piece.counter.name': 'Route Counter' },
-    zh: { 'piece.counter.name': '路线计数器', 'piece.counter.desc': '数路线' },
+    en: { 'part.counter.name': 'Route Counter' },
+    zh: { 'part.counter.name': '路线计数器', 'part.counter.desc': '数路线' },
   }, 'package i18n')
-  const source = { name: '@piece.counter.name', desc: '@piece.counter.desc', inside: [{ id: 'base', reference: {} }] }
-  const piece = JSON.parse(JSON.stringify(read(source)))
-  assert.deepEqual(sourceValue(piece), source)
-  assert.deepEqual(languagesOf([piece.name, piece.desc]), ['en', 'zh'])
-  assert.equal(firstText(piece.name), 'Route Counter')
-  assert.equal(sideOf(piece.name, 'zh'), '路线计数器')
-  assert.equal(textIn(piece.desc, 'en'), '')
-  assert.equal(sideOf(piece.desc, 'en'), '⟦piece.counter.desc · en⟧')
-  assert.throws(() => read({ name: '@piece.unknown.name' }, 'pieces.json'), /pieces.json: @piece\.unknown\.name has no entry/)
-  assert.throws(() => read({ name: { en: 'Inline', $key: 'piece.counter.name' } }), /Use an @key catalog reference/)
+  const source = { name: '@part.counter.name', desc: '@part.counter.desc', inside: [{ id: 'base', reference: {} }] }
+  const part = JSON.parse(JSON.stringify(read(source)))
+  assert.deepEqual(sourceValue(part), source)
+  assert.deepEqual(languagesOf([part.name, part.desc]), ['en', 'zh'])
+  assert.equal(firstText(part.name), 'Route Counter')
+  assert.equal(sideOf(part.name, 'zh'), '路线计数器')
+  assert.equal(textIn(part.desc, 'en'), '')
+  assert.equal(sideOf(part.desc, 'en'), '⟦part.counter.desc · en⟧')
+  assert.throws(() => read({ name: '@part.unknown.name' }, 'parts.json'), /parts.json: @part\.unknown\.name has no entry/)
+  assert.throws(() => read({ name: { en: 'Inline', $key: 'part.counter.name' } }), /Use an @key catalog reference/)
   assert.throws(() => catalogReader({ en: { name: { subfield: 'Text' } } }), /invalid text entry name/)
 })

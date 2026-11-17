@@ -16,11 +16,11 @@ export const taskModule = (task) => ownerOf(task.kind) ?? ownerOf(task.mode)
 export function runtimeIds(content) {
   const tasks = (content.levels ?? []).flatMap((level) => (level.tasks ?? []).map((task) => ({ ...level, ...task })))
   if (tasks.length) return [...new Set(tasks.map(taskModule))]
-  const pieces = Object.values(content.partDefs?.parts ?? {})
-  const references = pieces.flatMap((piece) => piece.inside?.map((entry) => entry.reference) ?? [])
+  const parts = Object.values(content.partDefs?.parts ?? {})
+  const references = parts.flatMap((part) => part.inside?.map((entry) => entry.reference) ?? [])
   if (references.length) return [...new Set(references.map(taskModule))]
-  const types = pieces.flatMap((piece) => [piece.outputType, ...(piece.inputs ?? []).map((port) => port.type)])
-  return [[...types.map(ownerOf), ...pieces.map((piece) => ownerOf(piece.family) ?? ownerOf(piece.mark))].find((id) => id && id !== 'circuit') ?? 'circuit']
+  const types = parts.flatMap((part) => [part.outputType, ...(part.inputs ?? []).map((port) => port.type)])
+  return [[...types.map(ownerOf), ...parts.map((part) => ownerOf(part.family) ?? ownerOf(part.mark))].find((id) => id && id !== 'circuit') ?? 'circuit']
 }
 
 /** Prepare module projections against one shared course and preserve original task positions. */
@@ -29,8 +29,8 @@ export function runtimeWorks(content, runtimes) {
   const scopes = runtimes.map(({ id, runtime }) => {
     const levels = content.levels.map(level => ({ ...level, tasks: level.tasks.filter(task => taskModule({ ...level, ...task }) === id) })).filter(level => level.tasks.length)
     const ids = new Set(levels.map((level) => level.id))
-    const parts = Object.fromEntries(Object.entries(content.partDefs?.parts ?? {}).filter(([, piece]) =>
-      !piece.inside || piece.inside.some((entry) => taskModule(entry.reference) === id)))
+    const parts = Object.fromEntries(Object.entries(content.partDefs?.parts ?? {}).filter(([, part]) =>
+      !part.inside || part.inside.some((entry) => taskModule(entry.reference) === id)))
     const scope = { ...content, levels, partDefs: { ...content.partDefs, parts } }
     Object.defineProperty(scope, 'taskPositions', { value: new Map(content.levels.flatMap(level => level.tasks.map((task, index) => [task.id, index]))) })
     Object.defineProperty(scope, 'coursePlan', { value: { ...plan, order: plan.order.filter((id) => ids.has(id)) } })

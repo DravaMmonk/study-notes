@@ -1,4 +1,4 @@
-import { starterPieces } from '../../engine/ops/fixture.js'
+import { starterParts } from '../../engine/ops/fixture.js'
 // node --test games/kit/modules/logic — formulas, rules as parts, boxes, and countermodels. Boards are written short,
 // by the helpers below.
 import { test } from 'node:test'
@@ -12,7 +12,7 @@ import { checkDeclaration, linesOf, premiseChips, problemsOf, readRuleRows } fro
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, substMany, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
-import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
+import { MACHINE_BOARD, MACHINE_TESTS, RULE_DEFINITION, rulePartOf, runMachine } from './machine.js'
 import { compileParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { PROOF_BOARD, RULES, lemmaGives, runProof } from './proof.js'
@@ -21,14 +21,14 @@ import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
 import { T } from '../../shell/i18n.js'
 
-// A proof runs on the parts the starter defines (its pieces.json) and the level's lemmas.
-const STARTER = starterPieces(new URL('../../templates/logic/', import.meta.url).pathname)
+// A proof runs on the parts the starter defines (its parts.json) and the level's lemmas.
+const STARTER = starterParts(new URL('../../templates/logic/', import.meta.url).pathname)
 const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
 const run = (level, circuit) => runProof({ parts: proofParts(level.lemmas), ...level }, circuit)
 // A machine runs on the starter's machine parts, and a rule part for every rule part type.
 const STARTER_DEFINED = partsOf(STARTER)
 const MACHINE_ONLY = Object.fromEntries(Object.entries(STARTER_DEFINED.PARTS).filter(([type]) => ['logic:family-tactic', 'logic:family-loop'].includes(STARTER_DEFINED.defs[type].family)))
-const RULE_ENGINE = compileParts({ rules: RULE_PIECE }, OPS).PARTS.rules
+const RULE_ENGINE = compileParts({ rules: RULE_DEFINITION }, OPS).PARTS.rules
 const machineParts = (type) => MACHINE_BOARD.FIXED_PARTS[type] ?? MACHINE_ONLY[type] ?? RULE_ENGINE
 const onMachine = (level) => ({ parts: machineParts, ...level })
 
@@ -245,7 +245,7 @@ test('proof terms: parsed, printed and compared', async () => {
   assert.ok(!alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => b')))
 })
 
-test('formulas built from chips: holes in reading order, pieces taken out whole', async () => {
+test('formulas built from chips: holes in reading order, parts taken out whole', async () => {
   const { chipsOf, complete, holesOf, kindAt, missingChips, setAt } = await import('./formulaTree.js')
   const level = { kind: 'logic:translate', consts: ['soc'], vocab: { preds: [['Mortal', 1], ['Human', 1]], consts: ['soc'] }, notation: { symbols: ['∀'] } }
   const chips = new Map(chipsOf(level).map((c) => [c.key, c]))

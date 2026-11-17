@@ -1,10 +1,10 @@
-// Settings belong to a piece. Operation parameters supply their shared control and constraints.
+// Settings belong to a part. Operation parameters supply their shared control and constraints.
 import { registeredOperations } from '../capabilities.js'
 
 /** Collect the parameter declarations of each selected operation. */
-export function settingParameters(piece, operations = registeredOperations) {
+export function settingParameters(part, operations = registeredOperations) {
   const found = new Map()
-  const names = typeof piece.op === 'string' ? [piece.op] : Object.values(piece.op ?? {})
+  const names = typeof part.op === 'string' ? [part.op] : Object.values(part.op ?? {})
   for (const name of names) for (const [key, schema] of Object.entries(operations[name]?.params?.fields ?? {})) {
     found.set(key, [...(found.get(key) ?? []), schema])
   }
@@ -21,11 +21,11 @@ export function parameterSetting(schema) {
 }
 
 /** Resolve the inline declarations once at the boundary to runtime setting arrays. */
-export function resolveSettings(piece, operations = registeredOperations) {
-  const parameters = settingParameters(piece, operations)
-  const keys = new Set([...parameters.keys(), ...Object.keys(piece.settings ?? {})])
+export function resolveSettings(part, operations = registeredOperations) {
+  const parameters = settingParameters(part, operations)
+  const keys = new Set([...parameters.keys(), ...Object.keys(part.settings ?? {})])
   return [...keys].map(key => {
-    const patch = piece.settings?.[key] ?? {}
+    const patch = part.settings?.[key] ?? {}
     const schemas = parameters.get(key) ?? []
     const inherited = schemas.length ? parameterSetting(schemas[0]) : {}
     const { remove = [], add = [], ...fields } = patch

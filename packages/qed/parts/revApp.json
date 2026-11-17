@@ -1,0 +1,36 @@
+{
+  "name": "@part.revApp.name",
+  "desc": "@part.revApp.desc",
+  "family": "logic:family-rule",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "c0r0 = math[use=[\"list.induct\"]]()",
+          "c0 = rule(in, c0r0)",
+          "c1 = each(c0, body: c4) {",
+          "  body {",
+          "    c2r0 = allI()",
+          "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\", appNil, appAssoc]]()",
+          "    c4r0 = refl()",
+          "    c3r6 = logic:hyp(c3r0)",
+          "    c2 = rule(c1.body, c2r0)",
+          "    c3 = simp(c2, c3r6)",
+          "    c4 = rule(c3, c4r0)",
+          "  }",
+          "}",
+          "out <- c1"
+        ],
+        "want": "logic:want-proved",
+        "defs": ["app", "len", "rev"],
+        "types": ["list"],
+        "inputs": [{ "name": "in", "label": "in" }],
+        "tests": [{ "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))" }]
+      }
+    }
+  ],
+  "inputs": [{ "name": "before", "type": "logic:machine-value", "optional": true }],
+  "outputType": "logic:machine-value"
+}

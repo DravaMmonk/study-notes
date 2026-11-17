@@ -31,6 +31,6 @@ export function* prepareWorks(content) {
     return testOf(t)
   }
   // A task's wants read; a built part keeps its own registers.
-  // The parts are the game's pieces.json over the domain's resources.
+  // The parts are the game's parts.json over the domain's resources.
   return yield* preparePartsWorks(content, {}, { board, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
 }

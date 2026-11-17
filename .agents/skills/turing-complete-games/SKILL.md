@@ -1,6 +1,6 @@
 ---
 name: turing-complete-games
-description: Design, extend or review the learning games in study-notes (games/ and packages/, built on games/kit) — curricula, chapters, levels, pieces, stages, and component-wiring interaction.
+description: Design, extend or review the learning games in study-notes (games/ and packages/, built on games/kit) — curricula, chapters, levels, parts, stages, and component-wiring interaction.
 ---
 
 # Turing-Complete-style learning games
@@ -29,20 +29,20 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   `domains/` or `scaffold/` layers or duplicate course logic in an adapter.
 - There is one capability vocabulary and version line (`kit/engine/kernel.js`, snapshots in `engine/versions/`),
   and one course model (`engine/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
-  typed operations declare ports, optional inputs, regions and parameters. Wiring and piece checks use value types.
+  typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
 - Content is data. `packages/<package>/package.json` declares direct `uses` and minimum `vocabulary` version.
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
   select the complete dependency closure in `game.json`'s `packages`; loading is topological, with the game last.
-- Each object has its own file: `levels/`, `pieces/`, `entries/`, `tags/<level|piece|entry>/`, `relations/`,
+- Each object has its own file: `levels/`, `parts/`, `entries/`, `tags/<level|part|entry>/`, `relations/`,
   `trays/`, `sections/`, or a kernel-declared content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
   File names supply object ids; task, stage, menu and chapter ids remain inside their containing objects.
-  Do not recreate `groups/`, `pieces.json`, `glossary.json`, `trays.json`, or package layouts/courses.
+  Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
   Local short references are qualified on assembly. Tags are unordered, typed development collections; they
   have no runtime teaching or presentation role. Relations (`requires`, `order`, `replaces`) load automatically.
   Use `of: "tag"` for ordering tags themselves. Trays and encyclopedia sections are separate objects.
-- Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `piece/`, `entries/`,
-  `tag/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
+- Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `entries/`,
+  `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
   Objects replace by default (`$merge` opts into merge patch); collections append (`replace` and `remove`
   control membership). Independent packages overriding the same object must establish a dependency.
   Preserve source and override history; never edit a dependency's declaration from the current workspace.
@@ -51,14 +51,14 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   skippable selections belong to the game. Game overrides are limited to copy and level relations; no objects
   or behavior changes are declared there. Use a dependent package for new or changed behavior.
 - A package has no course, chapters, unlock graph or learning progress. `check -- --package` checks objects,
-  pieces and each level separately; package play opens a single level with its tray (all pieces/stages when
+  parts and each level separately; package play opens a single level with its tray (all parts/stages when
   omitted). Never generate a package course to reuse a game-only check or UI path.
-- Pieces in `pieces/<name>.json` choose `op` (or one operation per output) and narrow its settings, then add
+- Parts in `parts/<name>.json` choose `op` (or one operation per output) and narrow its settings, then add
   presentation. Settings are inline, not independent objects. No `compute` expressions implement calculations;
   expressions remain for interaction rules, checks and readouts. `stages` lists later linear upgrades, with the
-  piece itself as stage one. Piece and stage ids share a namespace. `opens` applies at task start; `awards`
+  part itself as stage one. Part and stage ids share a namespace. `opens` applies at task start; `awards`
   applies after passing. `gives`/`withholds` adjust only this task; `local` stays with its introducing level/task.
-- Built pieces use `inside` variants and reference works; tasks `publish` through the `publishes` list and
+- Built parts use `inside` variants and reference works; tasks `publish` through the `publishes` list and
   explicitly award stages. They normally run the player's passing work, using a reference if unavailable;
   plays may explicitly choose reference works. Keep the selected variant and its dependency closure intact.
 - Ids never change after creation, including task, stage and chapter ids. Rename visible text, not identity.
@@ -76,7 +76,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - New content starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
   `npm run new-game -- <id> --template <name>`. To reuse an existing game’s packages and startup settings,
   use the `create_game` tool (`id`, `from`, `title`), then the package-selection operations.
-  Templates are copied, not depended upon. Shared evolving pieces belong in library packages such as `arithmetic`.
+  Templates are copied, not depended upon. Shared evolving parts belong in library packages such as `arithmetic`.
 - Tests use content written in the test or template `starter/`, never real game levels, ids or counts. Actual
   game/package correctness belongs to `npm run check -- <game>` and `npm run check -- --package <package>`.
   All commands here run in `trace-viewer/`. Kernel changes require `npm test`, `npm run lint:kit`, and
@@ -94,7 +94,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 Read `games/DESIGN.md` §5.1 when authoring or reviewing levels. These are human and agent review duties,
 not kernel gates or content fields. The implemented package and kernel structure is in handbook §6.1–6.3.
 
-- Introduce a main idea through a real problem, judging cognitive load rather than counting pieces. Do not create
+- Introduce a main idea through a real problem, judging cognitive load rather than counting parts. Do not create
   concept tags or a `concept()` mapping; tags are development collections with no runtime behavior.
 - Put a new capability to work when it appears and reuse it soon in subsequent tasks or packed works. Reconsider
   early introductions instead of adding filler to satisfy counts or intervals (`many-new`, `idle-idea`).
@@ -103,16 +103,16 @@ not kernel gates or content fields. The implemented package and kernel structure
   design notes, never a `showcase` exception field (`bare-intro`).
 - Review reuse of built works and repeated structures. Prefer an appropriate abstraction where it serves the task;
   terminal works may stand on their own (`unused`, `bypass`).
-- Review loose pieces and the actual phone workflow after staging. Eight loose pieces is a review prompt, not an
+- Review loose parts and the actual phone workflow after staging. Eight loose parts is a review prompt, not an
   enforced limit; split tasks or build intermediate works when the observed load warrants it (`open-crowded`).
 - Prefer meaningful construction, but lend tools or givens through `gives` where appropriate. Avoid redundant
   introduction declarations when they add no clarity (`granted`, `carried`).
 - Interpret attempts, hints, abandonment and time with player context and sample size. Difficulty thresholds do not
   decide pedagogical correctness (`difficulty-spike`).
 - Check still enforces schemas, references, types, passing references, failing naive works, reachable unlocks,
-  prerequisites and introduced tray pieces/stages. A passing check does not establish teaching quality.
-- New badges follow the first introduction of each piece or stage on the prerequisite route; a new stage marks its
-  existing piece card. They are independent of how the author explains the underlying ideas.
+  prerequisites and introduced tray parts/stages. A passing check does not establish teaching quality.
+- New badges follow the first introduction of each part or stage on the prerequisite route; a new stage marks its
+  existing part card. They are independent of how the author explains the underlying ideas.
 
 ## Learning design and copy
 

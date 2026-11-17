@@ -4,7 +4,7 @@ import { MIN_SLOT, PORT_TARGET, SLOT_GUTTER, TILE_HEIGHT } from './slot-metrics.
 
 const portCount = (parts, node) => Math.max(parts.inputs?.(node)?.length ?? 0, parts.outputs?.(node)?.length ?? 1)
 
-/** Read the width of a piece from its value view and the faces that have to fit around it. */
+/** Read the width of a part from its value view and the faces that have to fit around it. */
 export function cardWidth(parts, node, available = Infinity) {
   const ports = portCount(parts, node)
   const view = cardView(parts.valueView?.(node))
@@ -22,10 +22,10 @@ const mostCommon = (sizes, defaultSize) => {
 
 /** The nominal dimensions of one slot come from the fixed tray. */
 export function traySize(types, parts, defaults = () => ({})) {
-  const pieces = types.map((type) => ({ type, params: defaults(type) }))
+  const nodes = types.map((type) => ({ type, params: defaults(type) }))
   return {
-    width: mostCommon(pieces.map((node) => cardWidth(parts, node)), cardView().cardWidth),
-    height: mostCommon(pieces.map((node) => cardHeight(parts, node)), TILE_HEIGHT),
+    width: mostCommon(nodes.map((node) => cardWidth(parts, node)), cardView().cardWidth),
+    height: mostCommon(nodes.map((node) => cardHeight(parts, node)), TILE_HEIGHT),
   }
 }
 

@@ -38,7 +38,7 @@ export function combineConfiguration(files) {
 }
 
 export const courseLevelCount = (configuration, total, tags = configuration.tags ?? {}) => configuration.chapters
-  ? configuration.chapters.reduce((count, chapter) => count + referenceResolver({ tag: tags, level: {}, piece: {}, entry: {} })(chapter.levels, 'level').length, 0)
+  ? configuration.chapters.reduce((count, chapter) => count + referenceResolver({ tag: tags, level: {}, part: {}, entry: {} })(chapter.levels, 'level').length, 0)
   : total
 
 /** One content from a game's files. `levels` and named objects: [[id, value, namespace?]] in any order (they are kept sorted by id). */
@@ -46,11 +46,11 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   game = { ...game }
   delete game.uses
   if (!schemas) throw new Error('content assembly needs the domain vocabulary')
-  const pieces = new Set(Object.keys(partDefs?.parts ?? {})
+  const parts = new Set(Object.keys(partDefs?.parts ?? {})
     .filter((name) => !name.includes('/') || name.startsWith(`${packageId}/`))
     .map((name) => name.includes('/') ? name.slice(name.indexOf('/') + 1) : name))
-  const pieceRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, piece]) => piece.inside && ['logic:family-lemma', 'logic:family-rule'].includes(piece.family)).map(([name]) => name))
-  const expand = (value, namespace, schema, context = '') => qualified ? value : expandNames(value, namespace, { pieces, pieceRules, schema, vocabulary: schemas, context })
+  const partRules = new Set(Object.entries(partDefs?.parts ?? {}).filter(([, part]) => part.inside && ['logic:family-lemma', 'logic:family-rule'].includes(part.family)).map(([name]) => name))
+  const expand = (value, namespace, schema, context = '') => qualified ? value : expandNames(value, namespace, { parts, partRules, schema, vocabulary: schemas, context })
   game = Object.fromEntries(Object.entries(configurationFiles(game)).flatMap(([file, value]) => {
     const namespace = file === 'game.json' || file === 'course.json' ? courseNamespace : packageId
     return Object.entries(expand(value, namespace, schemas.game, 'configuration'))
@@ -58,7 +58,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   levels = levels.map(([name, value]) => [fullName(packageId, name), expand(value, packageId, schemas?.level)])
   glossary = expand(glossary, packageId, GLOSSARY)
   if (partDefs) partDefs = Object.fromEntries(Object.entries(partDefs).map(([kind, values]) => [kind,
-    registryOf('piece', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
+    registryOf('part', Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, PARTS_FILE.fields[kind]?.of)])),
   ]))
   blueprint = expand(blueprint, `@${id}`)
   overridden = Object.fromEntries(Object.entries(overridden).map(([key, value]) => [fullName(packageId, key), value]))
@@ -69,10 +69,10 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
     const endpointName = endpoint && referenceName(namespace, endpoint)
     const taggedKind = endpoint?.startsWith('#') && tags.find(([id, , ns = packageId]) => fullName(ns, id) === endpointName.slice(1))?.[1].kind
     const objectKind = levels.some(([id]) => id === endpointName) ? 'level'
-      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'piece'
+      : glossary?.entries?.some(({ id }) => id === endpointName) ? 'entry' : 'part'
     const relationKind = value.of ?? (taggedKind || objectKind)
-    const item = kind === 'tags' ? value.kind === 'piece' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'piece')
-    const ref = (ns, v) => item && typeof v === 'string' && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !pieces.has(v.split('.')[0]) ? v : referenceName(ns, v)
+    const item = kind === 'tags' ? value.kind === 'part' : kind === 'relations' && (value.kind === 'replaces' || value.kind === 'order' && relationKind === 'part')
+    const ref = (ns, v) => item && typeof v === 'string' && !v.startsWith('#') && schemas.kinds?.part?.[v.split('.')[0]] && !parts.has(v.split('.')[0]) ? v : referenceName(ns, v)
     return [fullName(namespace, name), qualifyObject(kind, value, namespace, (v) => expand(v, namespace, { type: 'text' }), ref)]
   }))
   const tagMap = objects('tags', tags)
@@ -80,7 +80,7 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   const sectionMap = objects('sections', sections)
   const relationMap = objects('relations', relations)
   const registries = createRegistries({
-    level: levels, piece: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
+    level: levels, part: Object.entries({ ...schemas.kinds?.part, ...partDefs?.parts }),
     entry: (glossary?.entries ?? []).map((entry) => [entry.id, entry]),
     ...Object.fromEntries(Object.entries(contentObjects).map(([kind, values]) => [kind, Object.entries(values).map(([name, value]) => [fullName(packageId, name), expand(value, packageId, contentKindSchemas[kind])])])),
     tag: Object.entries(tagMap), relation: Object.entries(relationMap), section: Object.entries(sectionMap), tray: Object.entries(trayMap),
@@ -114,13 +114,13 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   for (const { from, to } of relationEdges.replaces) (replaces[from] ??= []).push(to)
   const displayedTrays = {}
   for (const [name, tray] of Object.entries(trayMap)) {
-    const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: relationOrder(resolve(menu.values, 'piece', `trays/${name}/menus/${menu.id}`), relationEdges.order, 'piece') }))
+    const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: relationOrder(resolve(menu.values, 'part', `trays/${name}/menus/${menu.id}`), relationEdges.order, 'part') }))
     const ids = menus.map(menu => menu.id)
     if (new Set(ids).size !== ids.length) objectProblems.push({ at: `trays/${name}`, says: 'duplicate menu id' })
-    const direct = relationOrder(resolve(tray.values, 'piece', `trays/${name}`), relationEdges.order, 'piece')
+    const direct = relationOrder(resolve(tray.values, 'part', `trays/${name}`), relationEdges.order, 'part')
     const order = relationEdges.order
     displayedTrays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop,
-      items: relationOrder([...direct, ...menus.map(menu => menu.id)], order, 'piece').map(id => menus.find(menu => menu.id === id) ?? id) }
+      items: relationOrder([...direct, ...menus.map(menu => menu.id)], order, 'part').map(id => menus.find(menu => menu.id === id) ?? id) }
   }
   const content = {
     id, ...game, ...provenance, ...(packageTarget && { packageTarget }), ...(eras && { eras, sourceChapters }), trays: displayedTrays, replaces,

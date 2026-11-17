@@ -1,4 +1,4 @@
-import { editorOf, settingsOf } from '../engine/pieces.js'
+import { editorOf, settingsOf } from '../engine/parts.js'
 import { defaultOf, shows } from '../engine/parts/define.js'
 import { useElementSize } from '../views/useElementSize.js'
 import { portNotes } from '../circuit/card-ports.js'
@@ -252,7 +252,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
 
   const all = [...items, ...folded]
   const source = level.source ?? level
-  const display = trayDisplay(game.course?.trays ?? {}, trayNames ?? game.course?.tray(source) ?? [], items, folded, game.course?.pieceOf)
+  const display = trayDisplay(game.course?.trays ?? {}, trayNames ?? game.course?.tray(source) ?? [], items, folded, game.course?.partOf)
   const trayItems = [...trayActions, ...display.items]
   const terminalBody = (node, graph, close) => terminalDetail
     ? terminalDetail(node, { graph, change, close })

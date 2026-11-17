@@ -47,7 +47,7 @@
       ],
       "publishes": [
         {
-          "piece": "merge",
+          "part": "merge",
           "variant": "base"
         }
       ]

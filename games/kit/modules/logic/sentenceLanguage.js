@@ -17,33 +17,33 @@ const placesOf = (notation, pred, places = 0) => (notation.words?.[pred] ? L(not
 const template = (words, at) => words.split(/(\{\d\})/).filter(Boolean).map((w) => (/^\{\d\}$/.test(w) ? at(Number(w[1])) : w))
 
 /**
- * The formula as it reads, for the strip: each piece its own words, with a box for every empty place, so the line
+ * The formula as it reads, for the strip: each part its own words, with a box for every empty place, so the line
  * reads as the formula does (∀x. x是人 → x会死). A whole ∀, ∃ or connective inside a connective keeps its brackets.
  */
 function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
   if (!node) return { hole: key, label: kind === 'term' ? T('东西') : T('句子', 'sentence') }
-  const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
+  const part = (family, parts) => ({ part: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
   const kid = (k, inner) => {
     const { value, kind: takes } = kidsOf(node)[k]
     return segmentOf(value, [...path, k], takes, notation, inner && Boolean(value) && !value.t && value.op !== 'atom' && value.op !== '¬')
   }
   // A thing where a sentence goes is marked: it is not a sentence yet. A function (s, plus) has a box for each thing.
-  if (node.t === 'fn' && node.args.length) return { ...piece('name', template(L(notation.words?.[node.f] ?? T('')) || `${node.f}(${node.args.map((_, k) => `{${k}}`).join(', ')})`, (k) => kid(k))), bad: kind === 'formula' }
-  if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
+  if (node.t === 'fn' && node.args.length) return { ...part('name', template(L(notation.words?.[node.f] ?? T('')) || `${node.f}(${node.args.map((_, k) => `{${k}}`).join(', ')})`, (k) => kid(k))), bad: kind === 'formula' }
+  if (node.t) return { ...part(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
   switch (node.op) {
     case 'atom': {
       const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : node.pred === '=' ? '{0} = {1}' : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
-      return piece('pred', template(words, (k) => kid(k)))
+      return part('pred', template(words, (k) => kid(k)))
     }
-    case '⊥': return piece('conn', ['⊥'])
-    case '¬': return piece('conn', ['¬', kid(0, true)])
-    case '∀': case '∃': return piece('quant', [`${node.op}${node.v}. `, { region: [kid(0)] }])
-    default: return piece('conn', [kid(0, true), ` ${node.op} `, kid(1, true)])
+    case '⊥': return part('conn', ['⊥'])
+    case '¬': return part('conn', ['¬', kid(0, true)])
+    case '∀': case '∃': return part('quant', [`${node.op}${node.v}. `, { region: [kid(0)] }])
+    default: return part('conn', [kid(0, true), ` ${node.op} `, kid(1, true)])
   }
 }
 
-/** A whole sentence on a strip that cannot be changed (a sentence a level shows), its pieces keyed under `key`. */
+/** A whole sentence on a strip that cannot be changed (a sentence a level shows), its parts keyed under `key`. */
 export function fixedLine(f, notation, key) {
   const fix = (part) => typeof part === 'string' || part.hole ? part : part.region ? { region: part.region.map(fix) } : { ...part, fixed: true, parts: part.parts.map(fix) }
   return [fix(segmentOf(f, [key], 'formula', notation))]

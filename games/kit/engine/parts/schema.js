@@ -1,14 +1,14 @@
-// The schema of a game's pieces/<name>.json (games/DESIGN.md 6.8): every piece the course gives, as data. A piece has the
-// faces every piece has (its name, what it does, its icon and family) and the
+// The schema of a game's parts/<name>.json (games/DESIGN.md 6.8): every part the course gives, as data. A part has the
+// faces every part has (its name, what it does, its icon and family) and the
 // faces of the editor it is made with (`editor`; the circuit's when it names none), each editor declaring its own:
 //   circuit  a primitive's ports, its settings (one of the kernel controls), what it computes (an expression over the
-//            domain's engine resources, expr.js) and its three views; or a built piece's independent board and interface.
-//            Its rule: a piece computes (or keeps an input), or runs an inside, never both
+//            domain's engine resources, expr.js) and its three views; or a built part's independent board and interface.
+//            Its rule: a part computes (or keeps an input), or runs an inside, never both
 //   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
 // with settings declared inline. The schema is the kernel's, the same in every domain; what it names
 // (resources, families, widgets, marks) the domain's vocabulary gives.
 import { S } from '../schema.js'
-import { PIECE_REFERENCE_FIELDS } from '../pieces.js'
+import { PART_REFERENCE_FIELDS } from '../parts.js'
 import { T as t } from '../../shell/i18n.js'
 
 
@@ -95,7 +95,7 @@ const PAINT = {
   views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
 }
 
-/** The faces every piece has, whatever its editor. */
+/** The faces every part has, whatever its editor. */
 const NAMED = {
   name: S.text(),
   desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
@@ -122,9 +122,9 @@ export const PRIMITIVE = S.obj({
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
 /**
- * A built piece has named implementations. A task can publish player work to any one of them.
+ * A built part has named implementations. A task can publish player work to any one of them.
  */
-const REFERENCE = S.obj(Object.fromEntries(PIECE_REFERENCE_FIELDS
+const REFERENCE = S.obj(Object.fromEntries(PART_REFERENCE_FIELDS
   .map((key) => [key, S.opt(key === 'solution' ? S.board() : S.any())])),
 { about: t('可独立读取的参考作品和接口', 'A standalone reference work and its interface') })
 
@@ -156,22 +156,22 @@ export const STRIP = S.obj({
   family: S.opt(S.ref('family')),
   mark: S.ref('mark', { about: t('这一块标出的是什么：领域给的一项') }),
 })
-/** The faces each editor reads: the circuit's a primitive (compute) or a built piece (inside), never both. */
+/** The faces each editor reads: the circuit's a primitive (compute) or a built part (inside), never both. */
 export const EDITORS = { circuit: S.either(PRIMITIVE, BUILT), strip: STRIP }
-/** A piece, by the editor it is made with: one of the editors' shapes. */
+/** A part, by the editor it is made with: one of the editors' shapes. */
 export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape.type === 'either' ? shape.of : [shape])))
 
-/** A new piece of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
+/** A new part of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
 export const BLANKS = {
   circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', op: Object.keys(vocabulary.kinds.op)[0] } : null),
   strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { en: 'New block' }, desc: { en: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
 }
-/** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */
-export const makesPieces = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))
+/** Whether a domain's games make parts of some editor out of what its vocabulary gives: their content names them as parts. */
+export const makesParts = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))
 
-/** Piece creation options read by authoring tools. A built piece needs a task before it has data. */
-export function pieceCreationOptions(vocabulary, tasks = []) {
-  const labels = { circuit: t('电路件', 'Circuit piece'), strip: t('词序条块', 'Strip piece') }
+/** Part creation options read by authoring tools. A built part needs a task before it has data. */
+export function partCreationOptions(vocabulary, tasks = []) {
+  const labels = { circuit: t('电路件', 'Circuit part'), strip: t('词序条块', 'Strip part') }
   const choices = Object.entries(BLANKS).flatMap(([value, blank]) => {
     const data = blank(vocabulary)
     return data ? [{ value, label: labels[value], data }] : []
@@ -182,13 +182,13 @@ export function pieceCreationOptions(vocabulary, tasks = []) {
 
 export const builtPart = (reference, name) => ({ name: { en: name }, desc: { en: '' }, inside: [{ id: 'base', reference }] })
 
-/** Assembled piece declarations, indexed by identity. */
+/** Assembled part declarations, indexed by identity. */
 export const PARTS_FILE = S.obj({
   parts: S.map(PART, { keys: NAME.pattern }),
 })
 
-/** Translate an assembled piece path into its per-object source filename. */
-export function piecePath(path) {
+/** Translate an assembled part path into its per-object source filename. */
+export function partPath(path) {
   const match = /^\.parts\.([^.[\]]+)(.*)$/.exec(path)
-  return match ? `pieces/${match[1]}.json${match[2]}` : `pieces${path}`
+  return match ? `parts/${match[1]}.json${match[2]}` : `parts${path}`
 }

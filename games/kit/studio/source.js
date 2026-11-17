@@ -72,7 +72,7 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
       const next = after[group] ?? {}
       for (const id of changedKeys(old, next)) {
         if (!Object.hasOwn(old, id) || !Object.hasOwn(next, id)) {
-          throw new Error(tr('请用列表中的新增或删除按钮管理件和设置。', 'Use the list controls to add or delete pieces and settings.'))
+          throw new Error(tr('请用列表中的新增或删除按钮管理件和设置。', 'Use the list controls to add or delete parts and settings.'))
         }
         for (const key of changedKeys(old[id], next[id])) edits.push(op([group, id, key], next[id][key]))
       }

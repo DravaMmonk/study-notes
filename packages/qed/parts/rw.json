@@ -1,0 +1,34 @@
+{
+  "name": "@part.rw.name",
+  "desc": "@part.rw.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "inputs": [
+    {
+      "name": "rules",
+      "label": "@part.rw.inputs.1.label"
+    }
+  ],
+  "settings": {
+    "at": {
+      "label": "@part.rw.settings.at.label",
+      "options": [
+        {
+          "value": "goal",
+          "label": "@part.rw.settings.at.options.0.label"
+        },
+        {
+          "value": "hyps",
+          "label": "@part.rw.settings.at.options.1.label"
+        }
+      ]
+    }
+  },
+  "op": "logic:rw",
+  "stages": [
+    {
+      "id": "rw-au-hyps-desc",
+      "desc": "@part.rw.revisions.0.desc"
+    }
+  ]
+}

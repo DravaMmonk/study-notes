@@ -282,7 +282,7 @@
       ],
       "publishes": [
         {
-          "piece": "min",
+          "part": "min",
           "variant": "base"
         }
       ]

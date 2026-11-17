@@ -1,6 +1,6 @@
-// A piece's stages under its page (games/DESIGN.md 6.8, 6.7): the piece and its stages in order, one picked to
+// A part's stages under its page (games/DESIGN.md 6.8, 6.7): the part and its stages in order, one picked to
 // preview on the page above and to open on the right; what the stage picked changes; and every setting there — what
-// the operation declares, what the piece narrows, what holds — the ones the stage changes marked. A new stage is added
+// the operation declares, what the part narrows, what holds — the ones the stage changes marked. A new stage is added
 // at the end, changing nothing yet.
 import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -21,15 +21,15 @@ const settingSum = (setting) => {
 }
 
 /**
- * `piece` the full id; `raw` its file; `operations` the kernel's declarations; `stage` the one previewed (null: the
- * piece); `onStage(id, path)` picks one (its path in pieces/<name>.json); `onAdd(stages)` writes the stages.
+ * `part` the full id; `raw` its file; `operations` the kernel's declarations; `stage` the one previewed (null: the
+ * part); `onStage(id, path)` picks one (its path in parts/<name>.json); `onAdd(stages)` writes the stages.
  */
-export default function StageChain({ piece, raw, operations, namespace, stage, pending, editable, onStage, onAdd }) {
+export default function StageChain({ part, raw, operations, namespace, stage, pending, editable, onStage, onAdd }) {
   if (!raw) return null
-  const chain = stageChain(piece, raw, operations)
+  const chain = stageChain(part, raw, operations)
   const at = chain.find((step) => step.id === stage) ?? chain[0]
   const add = () => {
-    const id = newStageId(piece, chain.map((step) => step.id))
+    const id = newStageId(part, chain.map((step) => step.id))
     onAdd([...(raw.stages ?? []), { id }])
   }
   return (
@@ -57,7 +57,7 @@ export default function StageChain({ piece, raw, operations, namespace, stage, p
             {at.settings.map((row) => (
               <tr key={row.key} className={row.changed ? 'is-changed' : ''}>
                 <th><code>{row.key}</code></th>
-                <td>{row.declared ? settingSum(row.declared) : tr('件里写全', 'In the piece')}</td>
+                <td>{row.declared ? settingSum(row.declared) : tr('元件里写全', 'In the part')}</td>
                 <td>{row.narrowed ? summaryOf(row.narrowed, 60) : '—'}</td>
                 <td>{settingSum(row.effective)}</td>
               </tr>

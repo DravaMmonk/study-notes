@@ -20,7 +20,7 @@ const reads = (parser) => (text) => {
 }
 const languages = { 'logic:formula': reads(parse), 'logic:side': reads(parseSide), 'logic:condition': reads(parseS) }
 
-// What a part's name may be (vocabulary.js PART): the vocabulary's parts and the pieces registered by the game.
+// What a part's name may be (vocabulary.js PART): the vocabulary's parts and the parts registered by the game.
 const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.partDefs?.parts ?? {})]) })
 
 /** A logic game's spec, as the checks read one (../../engine/checks.js). */

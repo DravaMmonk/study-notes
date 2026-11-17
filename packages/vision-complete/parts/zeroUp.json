@@ -1,0 +1,13 @@
+{
+  "name": "@part.zeroUp.name",
+  "desc": "@part.zeroUp.desc",
+  "icon": "Minimize2",
+  "family": "image:family-size",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:zeroUp"
+}

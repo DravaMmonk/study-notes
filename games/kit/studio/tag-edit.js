@@ -1,30 +1,30 @@
 // Pure edits of a tag for the tag editor (games/DESIGN.md 6.1): an unordered set of one kind of object, members by
 // full name, nested tags as `#<full name>`. Registries hold full names; a layer writes its own by their short names.
-import { pieceStages } from '../engine/piece-stages.js'
+import { partStages } from '../engine/part-stages.js'
 import { referenceResolver } from '../engine/objects.js'
 import { textEntries, textKey } from '../engine/i18n.js'
 import { freeObjectName, localName, ownNames } from './objects-edit.js'
 
-export const TAG_KINDS = ['level', 'piece', 'entry']
+export const TAG_KINDS = ['level', 'part', 'entry']
 
 /** How `namespace` writes a full name (or `#` tag reference): short when it is its own, full otherwise. */
 export const writtenName = (namespace, full) => localName(namespace, full) ?? full
 
-/** The registry an object of a tag's kind is in, and its id there (an item's piece for `piece.key=value`). */
+/** The registry an object of a tag's kind is in, and its id there (an item's part for `part.key=value`). */
 const objectOf = (content, kind, id) => {
   const registries = content?.registries ?? {}
-  if (kind === 'piece') return pieceStages(registries.piece).get(id)?.definition
+  if (kind === 'part') return partStages(registries.part).get(id)?.definition
   return registries[kind]?.[id]
 }
 
 /** Does the registry of a tag's kind hold `member` (a `#` reference: is there such a tag)? */
 export const memberKnown = (content, kind, member) => member.startsWith('#') ? Boolean(content?.registries?.tag?.[member.slice(1)]) : Boolean(objectOf(content, kind, member))
 
-/** What a member is called besides its name: a level's or entry's title, a piece's name, a tag's title. */
+/** What a member is called besides its name: a level's or entry's title, a part's name, a tag's title. */
 export function memberTitle(content, kind, member) {
   if (member.startsWith('#')) return content?.registries?.tag?.[member.slice(1)]?.title ?? null
   const object = objectOf(content, kind, member)
-  return (kind === 'piece' ? object?.name : object?.title) ?? null
+  return (kind === 'part' ? object?.name : object?.title) ?? null
 }
 
 /** Would `member` (a `#` reference) inside the tag `full` close a ring of tags? Asked of the kernel's resolver. */
@@ -35,7 +35,7 @@ export function tagCycle(content, full, member) {
   const tag = tags[full]
   if (!tag) return false
   const problems = []
-  const registries = { level: {}, piece: {}, entry: {}, ...content.registries, tag: { ...tags, [full]: { ...tag, values: [...tag.values, member] } } }
+  const registries = { level: {}, part: {}, entry: {}, ...content.registries, tag: { ...tags, [full]: { ...tag, values: [...tag.values, member] } } }
   referenceResolver(registries, problems)(`#${full}`, tag.kind)
   return problems.some(({ says }) => says.startsWith('circular tags'))
 }

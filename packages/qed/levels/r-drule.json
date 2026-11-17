@@ -85,7 +85,7 @@
       ],
       "publishes": [
         {
-          "piece": "frule",
+          "part": "frule",
           "variant": "base"
         }
       ]

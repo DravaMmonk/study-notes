@@ -1,0 +1,19 @@
+{
+  "name": "@part.lrnRgb.name",
+  "desc": "@part.lrnRgb.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [
+    {
+      "name": "b",
+      "label": "b"
+    }
+  ],
+  "settings": {
+    "w": {
+      "label": "@part.lrnRgb.settings.w.label",
+      "fixed": true
+    }
+  },
+  "op": "image:lrnRgb"
+}

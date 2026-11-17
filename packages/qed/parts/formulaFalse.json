@@ -1,0 +1,7 @@
+{
+  "editor": "strip",
+  "mark": "logic:mark-formulaFalse",
+  "icon": "Rows3",
+  "name": "⊥",
+  "desc": "@part.formulaFalse.desc"
+}

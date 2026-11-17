@@ -1,4 +1,4 @@
-// Check the domain's reference works, the pieces they use, and the properties specific to proof tasks.
+// Check the domain's reference works, the parts they use, and the properties specific to proof tasks.
 import { worldCheck } from './worldValues.js'
 import { judgeFor, playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
@@ -242,10 +242,10 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
         for (const [key, value] of Object.entries(n.params ?? {})) {
           const kind = SETTING_KINDS[level.partResources?.[n.type] ?? n.type]?.[key] ?? 'formula'
           if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(level.parts[n.type]?.params ?? []).includes(key)) continue
-          // A sentence is built from the pieces of the level's sentences; a thing is picked from those offered.
+          // A sentence is built from the parts of the level's sentences; a thing is picked from those offered.
           if (kind === 'formula' || kind === 'exists') {
             const missing = missingChips(parse(value, { consts: level.consts ?? [] }), sentenceChips)
-            if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution builds ${value} on ${n.type} from pieces its card does not offer: ${missing.join(', ')} (add a sentence with them to the level's sentences)` })
+            if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution builds ${value} on ${n.type} from parts its card does not offer: ${missing.join(', ')} (add a sentence with them to the level's sentences)` })
           } else if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ level: level.id, fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
         }
       }

@@ -1,6 +1,6 @@
 {
   "kind": "order",
-  "of": "piece",
+  "of": "part",
   "edges": [
     {
       "from": "res",

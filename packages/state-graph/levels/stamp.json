@@ -193,7 +193,7 @@
       ],
       "publishes": [
         {
-          "piece": "counter",
+          "part": "counter",
           "variant": "base"
         }
       ]

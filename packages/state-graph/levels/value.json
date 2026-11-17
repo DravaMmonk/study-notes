@@ -265,7 +265,7 @@
       "arrows": true,
       "publishes": [
         {
-          "piece": "value",
+          "part": "value",
           "variant": "base"
         }
       ]

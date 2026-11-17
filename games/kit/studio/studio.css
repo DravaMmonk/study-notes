@@ -875,7 +875,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .gather-menu-order { display: grid; gap: 4px; margin: 6px 0 0 16px; }
 .gather-add { justify-self: start; }
 
-/* A piece's stages under its page (StageChain.jsx). */
+/* A part's stages under its page (StageChain.jsx). */
 .stage-chain { display: grid; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--hairline); background: var(--paper); max-height: 40vh; overflow: auto; }
 .stage-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .stage-step { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px; border: 1px solid var(--hairline); border-radius: 12px; color: var(--ink); background: none; cursor: pointer; }

@@ -64,13 +64,13 @@ test('independent overrides conflict; an explicit dependency resolves the ambigu
 })
 
 test('game overrides are limited to level relations', () => {
-  for (const kind of ['level', 'piece', 'entry', 'tag', 'section', 'tray']) {
+  for (const kind of ['level', 'part', 'entry', 'tag', 'section', 'tray']) {
     const a = base()
     if (!a.objects.some((o) => o.kind === kind)) a.objects.push(obj(kind, 'a', {}))
     assert.throws(() => composeLayers([a, game([obj(kind, kind === 'tag' ? 'base/all' : kind === 'section' ? 'base/map' : 'base/a', { $merge: true })])], schemas), /games cannot override/)
   }
   assert.doesNotThrow(() => composeLayers([base(), game([obj('relation', 'base/path', { replace: true, edges: [] })])], schemas))
-  const a = base(); a.objects.push(obj('piece', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'piece', edges: [{ from: 'p', to: 'p' }] }))
+  const a = base(); a.objects.push(obj('part', 'p', {}), obj('relation', 'items', { kind: 'order', of: 'part', edges: [{ from: 'p', to: 'p' }] }))
   assert.throws(() => composeLayers([a, game([obj('relation', 'base/items', { replace: true, edges: [] })])], schemas), /games cannot override/)
   assert.throws(() => composeLayers([base(), game([obj('section', 'base/missing', {})])], schemas), /unknown section/)
 })
@@ -183,7 +183,7 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   put('packages/base/tags/entry/second.json', { title: 'Second', values: ['a'] })
   put('packages/base/i18n/en.json', { title: 'Original', 'entry-z': 'Z', 'entry-group': 'First' })
   put('packages/base/relations/encyclopedia.json', { kind: 'order', of: 'section', sequence: ['first', 'second'] })
-  put('packages/extra/overrides/base/tag/entry/first.json', { values: ['base/c'] })
+  put('packages/extra/overrides/base/tags/entry/first.json', { values: ['base/c'] })
   put('packages/extra/overrides/base/entries/z.json', { $merge: true, body: ['Changed'] })
   const content = readContent('demo', root, { vocabulary: schemas })
   assert.deepEqual(content.glossary.groups.map((g) => g.id), ['base/first', 'base/second'])
@@ -199,7 +199,7 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
   const ws = openGame('demo', root, { vocabulary: schemas, layer: 'extra' })
   const result = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'tag', name: 'base/second', data: { replace: true, values: ['base/a'] } }] }, { check: false, write: true, domain })
   assert.equal(result.ok, true, result.problems.join('\n'))
-  assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/extra/overrides/base/tag/entry/second.json'))), { replace: true, values: ['base/a'] })
+  assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'packages/extra/overrides/base/tags/entry/second.json'))), { replace: true, values: ['base/a'] })
   assert.ok(result.files.every((file) => file.startsWith('packages/extra/')))
   assert.deepEqual(openPackage('extra', root, { vocabulary: schemas }).content().glossary, readPackage('extra', root, { vocabulary: schemas }).glossary)
   assert.equal((await undo(openGame('demo', root, { vocabulary: schemas, layer: 'extra' }), { check: false, write: true, domain })).ok, true)
@@ -219,7 +219,7 @@ test('entry files, typed tag paths, ordering and overrides round trip through au
 test('source files reject retired glossary and tag formats and tag overrides cannot change kind', () => {
   const { root, put } = fixture()
   put('packages/base/tags/entry/words.json', { values: [] })
-  put('packages/extra/overrides/base/tag/level/words.json', { values: [] })
+  put('packages/extra/overrides/base/tags/level/words.json', { values: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /cannot change.*kind/)
   put('packages/base/tags/entry/words.json', { kind: 'entry', values: [] })
   assert.throws(() => readContent('demo', root, { vocabulary: schemas }), /kind belongs in the path/)

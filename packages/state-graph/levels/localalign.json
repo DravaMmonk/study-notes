@@ -108,7 +108,7 @@
       "border0": true,
       "publishes": [
         {
-          "piece": "local",
+          "part": "local",
           "variant": "base"
         }
       ]

@@ -11,7 +11,7 @@ export default function useBlockDrag({ graph, parts, layer, zoom, onChange, redr
     cancel()
     const root = layer.current, members = new Set(block.nodes)
     const start = [event.clientX, event.clientY]
-    const nodes = [...root.querySelectorAll('[data-piece]')].filter(el => el.closest('.board-layer') === root && members.has(el.dataset.piece))
+    const nodes = [...root.querySelectorAll('[data-part]')].filter(el => el.closest('.board-layer') === root && members.has(el.dataset.part))
     const section = [...root.querySelectorAll('[data-block]')].find(el => el.closest('.board-layer') === root && el.dataset.block === block.id)
     const elements = [...nodes, section].filter(Boolean)
     const transforms = elements.map(el => el.style.transform)

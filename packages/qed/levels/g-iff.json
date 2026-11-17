@@ -27,7 +27,7 @@
       ],
       "publishes": [
         {
-          "piece": "gIff",
+          "part": "gIff",
           "variant": "base"
         }
       ]

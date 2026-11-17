@@ -1,8 +1,8 @@
 // One curriculum model for all task and board mechanisms. Runtime readers supply observations about works;
-// progression, item granularity, trays, local pieces and replacements are interpreted here.
+// progression, item granularity, trays, local parts and replacements are interpreted here.
 import { defineCourse } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
-import { standaloneItems, standalonePieces } from './package-play.js'
+import { standaloneItems, standaloneParts } from './package-play.js'
 import { trayIn } from './trays.js'
 
 const unique = (items) => [...new Set(items)]
@@ -39,9 +39,9 @@ export function contentCourse(content, {
       && !content.levels.some((level) => defaultAdds(level).includes(part) && !localAt(part, level))
 
   const course = defineCourse({
-    pieces: content.partDefs?.parts ?? {},
+    parts: content.partDefs?.parts ?? {},
     awards: (at) => [...(at.task === undefined || at.task >= tasks(at).length ? level(at).awards ?? [] : []), ...tasks(at).flatMap((task, index) => at.task === undefined || index < at.task ? task.awards ?? [] : [])],
-    available: content.standalone ? (at) => standalonePieces(content, at) : null,
+    available: content.standalone ? (at) => standaloneParts(content, at) : null,
     availableItems: content.standalone ? (at) => standaloneItems(content, at) : null,
     complete: content.levels.every((level) => plan.place.has(level.id)),
     levels: levels.map((level) => ({ id: level.id, unlocks: unique([...(level.unlocks ?? []), ...unlocked(level)]) })),

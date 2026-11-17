@@ -1,6 +1,6 @@
 // The copy workspace (games/DESIGN.md 6.7): the writer's. It opens a package or a game and audits and edits every
 // text of that layer in every language — terms, references, and a game's own wording over its packages' texts. On the
-// left the texts by object (the whole layer, a level group or a chapter, the encyclopedia, the pieces) or by file, and
+// left the texts by object (the whole layer, a level group or a chapter, the encyclopedia, the parts) or by file, and
 // for a package search and replace last; in the middle the copy table (CopyTable.jsx) of what is picked, with its
 // findings; on the right the field a row goes to (Inspector.jsx); the check and the change log fold under the middle.
 import './studio.css'
@@ -121,10 +121,10 @@ export default function CopyStudio({ opened, packages, games, onOpen, space }) {
       ? (content.eras ?? []).map((era, k) => [k, `${era.id} ${L(era.title ?? era.chapter?.title) ?? ''}`.trim()])
       : groupTree(content, order).sections.filter((s) => s.group !== null).map((s) => [`group:${s.group}`, L(content.tags?.[s.group]?.title) || s.group])),
     ['glossary', tr('百科')],
-    ...(content.partDefs ? [['pieces', tr('件', 'Pieces')]] : []),
+    ...(content.partDefs ? [['parts', tr('元件', 'Parts')]] : []),
   ]
   const matches = sidebarSearch(query)
-  const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPiece: () => {} }
+  const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPart: () => {} }
   // A game edits only its own files here; its packages' texts get its own wording in the table.
   const sideField = picked && (side === 'package' || picked.at.game) ? picked : null
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
@@ -157,7 +157,7 @@ export default function CopyStudio({ opened, packages, games, onOpen, space }) {
             {shownList === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, kind) => {
                 const keys = path ? parsePath(path) : []
-                pick(level ? { at: { level }, path: keys } : kind === 'glossary' ? { at: { glossary: true }, path: keys } : kind === 'pieces' ? { at: { parts: true, root: keys.slice(0, 2) }, path: keys } : { at: { game: true }, path: keys })
+                pick(level ? { at: { level }, path: keys } : kind === 'glossary' ? { at: { glossary: true }, path: keys } : kind === 'parts' ? { at: { parts: true, root: keys.slice(0, 2) }, path: keys } : { at: { game: true }, path: keys })
               }} />
               : (
                 <nav className="parts-list" aria-label={tr(...LISTS[shownList].slice(1))}>

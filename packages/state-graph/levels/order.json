@@ -198,7 +198,7 @@
       "answerAt": "start",
       "publishes": [
         {
-          "piece": "order",
+          "part": "order",
           "variant": "base"
         }
       ]

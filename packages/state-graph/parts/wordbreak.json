@@ -1,0 +1,22 @@
+{
+  "name": "@part.wordbreak.name",
+  "desc": "@part.wordbreak.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "a = table:add(view.seg, view.cost)",
+          "z = table:const[value=0]()",
+          "g = table:pass(facts.ground, z)",
+          "m = table:mmin(a, g)",
+          "cell <- m"
+        ],
+        "world": "table:world-parts",
+        "robot": "table:robot-broom",
+        "facts": ["ground"]
+      }
+    }
+  ]
+}

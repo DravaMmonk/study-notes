@@ -63,3 +63,13 @@ test('the declared piece-to-part migration changes only naming in diagnostics an
   assert.deepEqual(normalize({ kind: 'piece', path: 'pieces/x.json', key: '@pkg/piece.x.name', tag: 'tags/piece/x' }), normalize({ kind: 'circuit/part', path: 'parts/x.json', key: '@pkg/part.x.name', tag: 'tags/circuit/part/x' }))
   assert.equal(differences(normalize({ kind: 'piece', value: 1 }), normalize({ kind: 'circuit/part', value: 2 })).length, 1)
 })
+
+
+test('migration normalization precedes registered aliases and preserves semantic differences', () => {
+  const old = nameNormalizer(['table:world-pieces'])
+  const current = nameNormalizer(['table:world-parts'])
+  assert.equal(old('table:world-pieces'), current('table:world-parts'))
+  assert.deepEqual(old({ pieces: [], pieceRules: [], earnedPieces: [], code: 'missing-piece', path: 'overrides/base/tag/piece/a.json' }), current({ parts: [], partRules: [], earnedParts: [], code: 'missing-part', path: 'overrides/base/tags/part/a.json' }))
+  assert.equal(old('You pieced it together.'), current('You assembled it.'))
+  assert.equal(differences(old({ score: 1 }), current({ score: 2 })).length, 1)
+})

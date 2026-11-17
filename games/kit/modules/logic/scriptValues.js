@@ -1,12 +1,12 @@
 import { T } from '../../shell/i18n.js'
-import { registerPieces } from '../../engine/pieces.js'
+import { registerParts } from '../../engine/parts.js'
 import { parse, show } from './formula.js'
 import { say } from './notation.js'
 import { methodText, methodsOf, namesOf, regionsOf, scriptJudge, sentencesOf } from './script.js'
 
 const KINDS = ['have', 'show', 'assume', 'fix', 'obtain']
 const emptyRow = (k) => ({ k, using: [], ...(k === 'have' || k === 'show' ? { by: '' } : {}) })
-const options = (pieces) => Object.entries(registerPieces({}, Object.fromEntries(pieces))).map(([value, text]) => ({ value, text }))
+const options = (parts) => Object.entries(registerParts({}, Object.fromEntries(parts))).map(([value, text]) => ({ value, text }))
 
 export function script(level, { game, progress }) {
   game.logic.syncOwn(progress.built)

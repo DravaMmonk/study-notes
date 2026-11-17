@@ -1,6 +1,6 @@
 // The lists of the studio's left column (games/DESIGN.md 6.7): whatever is picked from is listed on the left, one
 // kind at a time, a switcher above choosing which; the middle shows what is picked, the right its file. The build
-// workspace's three lists — levels, pieces, entries — are grouped by the objects that gather them (list-groups.js); a
+// workspace's three lists — levels, parts, entries — are grouped by the objects that gather them (list-groups.js); a
 // group's heading opens that tag, relation, tray or section in the middle (`heading`). The object lists (the kernel's
 // capabilities, the overrides) put the object picked there. What is open is kept in the address, so a reload comes back
 // to it.
@@ -24,7 +24,7 @@ export function readHeading(query) {
 }
 
 /** The build list a heading of `kind` (of an object of list kind `of`) is in. */
-export const listOfHeading = (kind, of = 'level') => (kind === 'tray' ? 'parts' : kind === 'section' ? 'entries' : of === 'piece' ? 'parts' : of === 'entry' ? 'entries' : 'tree')
+export const listOfHeading = (kind, of = 'level') => (kind === 'tray' ? 'parts' : kind === 'section' ? 'entries' : of === 'part' ? 'parts' : of === 'entry' ? 'entries' : 'tree')
 
 // The old top-bar tabs that only switched to one of these lists.
 const OLD_TABS = { overrides: 'overrides', kernel: 'kernel' }

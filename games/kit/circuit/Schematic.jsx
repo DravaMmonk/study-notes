@@ -111,7 +111,7 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
     )
   }
   const face = (node) => ({
-    'data-piece': node.id,
+    'data-part': node.id,
     'data-family': parts.family(node),
     style: parts.cardStyle?.(node),
     ...(onOpen && (parts.role(node) !== 'part' || parts.packed?.(node)) ? {

@@ -28,7 +28,7 @@
       ],
       "publishes": [
         {
-          "piece": "gOr",
+          "part": "gOr",
           "variant": "base"
         }
       ]

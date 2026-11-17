@@ -1,7 +1,0 @@
-{
-  "name": "@piece.uEliminate.name",
-  "desc": "@piece.uEliminate.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:uEliminate"
-}

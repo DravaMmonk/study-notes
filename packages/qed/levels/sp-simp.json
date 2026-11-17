@@ -92,7 +92,7 @@
       ],
       "publishes": [
         {
-          "piece": "simp",
+          "part": "simp",
           "variant": "base"
         }
       ]

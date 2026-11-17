@@ -42,17 +42,17 @@
 //                                          anything, and no audit (the checks skip it)
 // })
 //
-// A task holds stable pieces at named stages. Opens apply immediately and awards apply after passing a task.
-// Giving a later stage specializes the same piece for that task. Withholding a stage caps its linear progression.
+// A task holds stable parts at named stages. Opens apply immediately and awards apply after passing a task.
+// Giving a later stage specializes the same part for that task. Withholding a stage caps its linear progression.
 // Settings and option visibility come from the selected stage's resolved operation signature.
 //
 // met(course, level) is every part a level has met; reach(course, level) puts them in display order;
 // usable(course, level, flags) the parts it holds for a player; holds(course, level, flags) whether it holds an item
 // of any grain;
 // offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
-// pieces and stages new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
+// parts and stages new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
 // a milestone the map draws full size; audit(course) lists every broken rule.
-import { pieceStages, stageDefinition } from './engine/piece-stages.js'
+import { partStages, stageDefinition } from './engine/part-stages.js'
 import { trayMembers } from './engine/trays.js'
 
 /** What each rule of the audit means, for reports (./engine/checks.js). */
@@ -201,21 +201,21 @@ export function dependencyCycle(requires) {
 }
 
 
-export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], carries = () => [], references = null, notes = false, available = null, availableItems = null, pieces = {}, awards = () => [] }) {
-  const stages = pieceStages(pieces)
-  const pieceOf = (id) => stages.get(id)?.piece ?? id
-  const isBase = (id) => pieceOf(id) === id
+export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, complete = true, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], carries = () => [], references = null, notes = false, available = null, availableItems = null, parts = {}, awards = () => [] }) {
+  const stages = partStages(parts)
+  const partOf = (id) => stages.get(id)?.part ?? id
+  const isBase = (id) => partOf(id) === id
   const startStages = primitives
-  primitives = [...new Set(primitives.map(pieceOf))]
+  primitives = [...new Set(primitives.map(partOf))]
   const brought = adds, opened = opens
   const additions = new Map()
   adds = (level) => {
     const key = JSON.stringify([level.id, level.task])
     if (additions.has(key)) return additions.get(key)
     const earlier = new Set(levels.filter(entry => up(level.id).has(entry.id))
-      .flatMap(entry => [...brought(entry), ...opened(entry), ...awards(entry), ...builds(entry)]).map(pieceOf))
+      .flatMap(entry => [...brought(entry), ...opened(entry), ...awards(entry), ...builds(entry)]).map(partOf))
     const stages = [...brought(level).filter(id => !isBase(id)), ...opened(level).filter(isBase)]
-    const result = [...new Set([...brought(level).filter(isBase), ...stages.map(pieceOf).filter(piece => !earlier.has(piece))])]
+    const result = [...new Set([...brought(level).filter(isBase), ...stages.map(partOf).filter(part => !earlier.has(part))])]
     additions.set(key, result)
     return result
   }
@@ -244,8 +244,8 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
     for (const name of names) if (!Object.hasOwn(trays, name)) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
     return names
   }
-  // Stage progress is evaluated when a task asks for its pieces.
-  return { stages, pieceOf, startStages, awards, levels, eras, plan, complete, trays, tray, available, availableItems, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, machine, uses, can, replaces, local, needed, featured, boards, carries, references, notes, index, builder, before: (a, b) => up(b).has(a) }
+  // Stage progress is evaluated when a task asks for its parts.
+  return { stages, partOf, startStages, awards, levels, eras, plan, complete, trays, tray, available, availableItems, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, machine, uses, can, replaces, local, needed, featured, boards, carries, references, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -258,31 +258,31 @@ export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, c
 export function met(course, level) {
   if (course.available) return course.available(level)
   const own = [...course.adds(level), ...builtBefore(course, level)]
-  const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].map(course.pieceOf)
+  const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].map(course.partOf)
   const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => !course.local(p, l)))]
   const gone = new Set([...own, ...earlier].flatMap((p) => course.replaces(p)))
   const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p))
   return [...new Set([...own, ...carried])]
 }
 
-/** The pieces in the level's selected groups, without duplicates and in the requested order. */
-function trayPieces(course, level) {
+/** The parts in the level's selected groups, without duplicates and in the requested order. */
+function trayParts(course, level) {
   const trays = course.tray(level)
-  return trays === null ? null : [...new Set(trays.flatMap((name) => trayMembers(course.trays[name]).map(course.pieceOf)))]
+  return trays === null ? null : [...new Set(trays.flatMap((name) => trayMembers(course.trays[name]).map(course.partOf)))]
 }
 
 /** All parts a level has met, ordered with members of its selected trays first. */
 export function reach(course, level) {
   const all = met(course, level)
-  const trays = trayPieces(course, level)
+  const trays = trayParts(course, level)
   if (trays === null) return all
   const metSet = new Set(all)
   return [...new Set([...trays.filter((part) => metSet.has(part)), ...all])]
 }
 
-/** The fixed pieces of selected trays, or the whole course's piece list for an implicit tray. */
+/** The fixed parts of selected trays, or the whole course's part list for an implicit tray. */
 export function fixedTray(course, level) {
-  return trayPieces(course, level)
+  return trayParts(course, level)
     ?? [...new Set([...course.primitives, ...course.levels.flatMap((entry) => course.builds(entry))])]
 }
 
@@ -312,8 +312,8 @@ function earned(course, level, flags, p) {
  */
 export function usable(course, level, flags, parts = reach(course, level)) {
   if (course.available) return parts
-  const given = course.gives(level).map(course.pieceOf)
-  const withheld = new Set([...course.withholds(level).filter(id => course.pieceOf(id) === id), ...building(course, level)])
+  const given = course.gives(level).map(course.partOf)
+  const withheld = new Set([...course.withholds(level).filter(id => course.partOf(id) === id), ...building(course, level)])
   return [...new Set([...parts.filter((p) => given.includes(p) || earned(course, level, flags, p)), ...given])].filter((p) => !withheld.has(p))
 }
 
@@ -336,12 +336,12 @@ export function holds(course, level, flags) {
     let current = base
     for (const id of ids) {
       const stage = course.stages.get(id)
-      if (stage?.piece === part && !withheld.has(id) && (!current || stage.index > current.index)) current = stage
+      if (stage?.part === part && !withheld.has(id) && (!current || stage.index > current.index)) current = stage
     }
     // Withholding an intermediate stage caps the linear progression before that stage.
     for (const id of withheld) {
       const cap = course.stages.get(id)
-      if (cap?.piece === part && current?.index >= cap.index) current = [...course.stages.values()].find(entry => entry.piece === part && entry.index === cap.index - 1)
+      if (cap?.part === part && current?.index >= cap.index) current = [...course.stages.values()].find(entry => entry.part === part && entry.index === cap.index - 1)
     }
     return current
   }
@@ -354,7 +354,7 @@ export function holds(course, level, flags) {
   const has = (part, key, value) => {
     if (key === undefined) {
       const stage = course.stages.get(part)
-      return stage && stage.piece !== part ? parts.has(stage.piece) && selected(stage.piece)?.index >= stage.index : parts.has(part)
+      return stage && stage.part !== part ? parts.has(stage.part) && selected(stage.part)?.index >= stage.index : parts.has(part)
     }
     const setting = definition(part)?.setting[key]
     if (!setting || setting.fixed) return false
@@ -377,7 +377,7 @@ export function offer(course, level, flags) {
   return { shown, folded, types: [...shown, ...folded] }
 }
 
-/** Piece and stage introductions on this route, without pedagogical grouping. */
+/** Part and stage introductions on this route, without pedagogical grouping. */
 export function fresh(course, level) {
   const items = at => [...course.adds(at), ...course.opens(at), ...course.awards(at)]
   const seen = new Set(course.levels.filter(at => course.before(at.id, level.id)).flatMap(items))
@@ -407,7 +407,7 @@ export function introductions(course, keyOf = (p) => p) {
   return out
 }
 
-/** Chapter starts and levels introducing pieces or stages are drawn as milestones. */
+/** Chapter starts and levels introducing parts or stages are drawn as milestones. */
 export function isCore(course, level) {
   const at = course.plan?.place.get(level.id)
   if (!at) return true
@@ -481,17 +481,17 @@ export function againstOpen(found, open = {}) {
   })
 }
 
-/** Tray entries describe real course pieces, regardless of where players first meet those pieces. */
+/** Tray entries describe real course parts, regardless of where players first meet those parts. */
 function trayRules(course, say) {
   if (course.complete === false) return
   const met = new Set(course.levels.flatMap((level) => [...course.adds(level), ...course.builds(level)]))
   const stages = [...course.startStages, ...course.levels.flatMap(level => [...course.opens(level), ...course.awards(level)])]
     .map(id => course.stages.get(id)).filter(Boolean)
   for (const [name, entries] of Object.entries(course.trays)) for (const item of trayMembers(entries)) {
-    const p = course.pieceOf(item)
+    const p = course.partOf(item)
     if (!met.has(p)) say('tray-unmet', '', p, `tray ${name} lists it, and no level brings it in or builds it`)
     const stage = course.stages.get(item)
-    if (stage?.index > 0 && !stages.some(entry => entry.piece === p && entry.index >= stage.index)) {
+    if (stage?.index > 0 && !stages.some(entry => entry.part === p && entry.index >= stage.index)) {
       say('tray-unmet', '', item, `tray ${name} lists this stage, and no level opens or awards it`)
     }
   }

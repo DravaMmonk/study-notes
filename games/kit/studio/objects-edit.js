@@ -58,7 +58,7 @@ export function objectPlaces(content, kind, full) {
   const named = new Set([full, ...tags.map((name) => `#${name}`)])
   const relations = Object.entries(registries.relation ?? {}).filter(([, relation]) => edgesOf(relation).some(({ from, to }) => named.has(from) || named.has(to))).map(([name]) => name)
   const gathers = (value) => [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])].some((ref) => named.has(ref))
-  const trays = kind === 'piece' ? Object.entries(registries.tray ?? {}).filter(([, tray]) => gathers(tray)).map(([name]) => name) : []
+  const trays = kind === 'part' ? Object.entries(registries.tray ?? {}).filter(([, tray]) => gathers(tray)).map(([name]) => name) : []
   const sections = kind === 'entry' ? Object.entries(registries.section ?? {}).filter(([, section]) => gathers(section)).map(([name]) => name) : []
   return { tags, relations, trays, sections }
 }

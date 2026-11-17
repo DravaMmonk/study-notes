@@ -3,13 +3,13 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js, the
-// parts and the built pieces in a game's pieces.json (`op` the resources its parts call, `family` how they are coloured
-// and what a built piece is: course.js readBuilt), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
+// parts and the built parts in a game's parts.json (`op` the resources its parts call, `family` how they are coloured
+// and what a built part is: course.js readBuilt), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
 // Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { qualifyVocabulary } from '../../engine/capabilities.js'
-import { symbolFor } from './stripPieces.js'
+import { symbolFor } from './stripParts.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
@@ -44,7 +44,7 @@ const PART_ITEMS = {
   hyp: { ...item(t('已知里的等式')), inputs: [{ name: 'before', type: 'logic:machine-value' }], outputType: 'logic:machine-value', params: S.obj({ use: S.opt(S.list(S.str(), { default: [] })) }) },
 }
 
-// How a game's pieces.json colours its parts.
+// How a game's parts.json colours its parts.
 const FAMILIES = {
   gate: item(t('逻辑门')),
   rule: item(t('推理规则', 'Inference rule')),
@@ -194,7 +194,7 @@ export const vocabulary = qualifyVocabulary('logic', defineVocabulary({
   version: 1,
   kinds: {
     part: PART_ITEMS,
-    // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
+    // The engine resources parts.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
     op: OP_ITEMS,
     family: FAMILIES,
     kind: KINDS,

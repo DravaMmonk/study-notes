@@ -1,0 +1,32 @@
+{
+  "name": "@part.interval.name",
+  "desc": "@part.interval.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "a = table:add(view.segL, view.segR)",
+          "m = table:mmin(a)",
+          "b = table:add(m, facts.weight)",
+          "cell <- b"
+        ],
+        "world": "table:world-interval",
+        "robot": "table:robot-broom",
+        "ports": [
+          { "table:port-reads": "segL" },
+          { "table:port-reads": "segR" },
+          { "table:port-reads": "weight" }
+        ],
+        "facts": ["weight"]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "segL", "type": "table:number-input" },
+    { "name": "segR", "type": "table:number-input" },
+    { "name": "weight", "type": "circuit:number" }
+  ],
+  "outputType": "circuit:number"
+}

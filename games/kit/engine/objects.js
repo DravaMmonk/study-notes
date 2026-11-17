@@ -1,5 +1,5 @@
 import { contentKindSchemas } from './content-kinds.js'
-import { pieceStages } from './piece-stages.js'
+import { partStages } from './part-stages.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
 import { S, shapeAt } from './schema.js'
 import { fullName } from './names.js'
@@ -7,11 +7,11 @@ import { dependencyCycle } from '../course.js'
 
 export const OBJECT_NAME = '^(?:@?[a-z][a-z0-9-]*/)?[A-Za-z0-9][A-Za-z0-9_-]*$'
 export const REFERENCE = S.str({ pattern: '^#?(?:(?:@?[a-z][a-z0-9-]*/)|(?:[a-z][a-z0-9-]*:))?[A-Za-z0-9][A-Za-z0-9_-]*$' })
-export const TAG = S.obj({ kind: S.oneOf(['level', 'piece', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
+export const TAG = S.obj({ kind: S.oneOf(['level', 'part', 'entry']), title: S.opt(S.text()), desc: S.opt(S.text()), values: S.list(REFERENCE) })
 const EDGE = S.obj({ from: REFERENCE, to: REFERENCE, required: S.opt(S.bool()), game: S.opt(S.str()) })
-export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'piece', 'entry', 'tag', 'section'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
+export const RELATION = S.obj({ kind: S.oneOf(['requires', 'order', 'replaces']), of: S.opt(S.oneOf(['level', 'part', 'entry', 'tag', 'section'])), edges: S.opt(S.list(EDGE)), sequence: S.opt(S.list(REFERENCE)) })
 export const SECTION = S.obj({ title: S.text(), desc: S.opt(S.text()), values: S.list({ ...REFERENCE, reference: 'entry' }) })
-export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'piece' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'piece' }) }))) })
+export const TRAY_OBJECT = S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), workshop: S.opt(S.bool()), values: S.list({ ...REFERENCE, reference: 'part' }), menus: S.opt(S.list(S.obj({ id: S.str({ pattern: OBJECT_NAME }), title: S.text(), values: S.list({ ...REFERENCE, reference: 'part' }) }))) })
 export const OBJECT_SCHEMAS = { tags: TAG, relations: RELATION, sections: SECTION, trays: TRAY_OBJECT }
 export const referenceName = (namespace, value) => typeof value === 'string' && value.startsWith('#') ? `#${fullName(namespace, value.slice(1))}` : fullName(namespace, value)
 
@@ -27,10 +27,10 @@ export function qualifyObject(kind, value, namespace, text = (v) => v, resolve =
 /** One resolver for every typed reference field and relation endpoint. Tags are unordered sets. */
 export function referenceResolver(registries, problems = []) {
   const report = (at, says) => problems.push({ at, says })
-  const stages = pieceStages(registries.piece)
+  const stages = partStages(registries.part)
   const has = (kind, id) => {
-    if (kind === 'piece') return stages.has(id)
-    return kind === 'any' ? ['level', 'piece', 'entry'].some((k) => has(k, id)) : Object.hasOwn(registries[kind] ?? {}, id)
+    if (kind === 'part') return stages.has(id)
+    return kind === 'any' ? ['level', 'part', 'entry'].some((k) => has(k, id)) : Object.hasOwn(registries[kind] ?? {}, id)
   }
   const expand = (value, kind, at = 'reference', active = []) => {
     const values = Array.isArray(value) ? value : [value]
@@ -54,13 +54,13 @@ export function referenceResolver(registries, problems = []) {
     return [...new Set(out)].sort()
   }
   expand.menu = id => Object.values(registries.tray ?? {}).some(tray => (tray.menus ?? []).some(menu => menu.id === id))
-  expand.pieceOf = id => stages.get(id)?.piece ?? id
+  expand.partOf = id => stages.get(id)?.part ?? id
   expand.kindOf = (id) => id.startsWith('#') ? registries.tag[id.slice(1)]?.kind
-    : ['level', 'entry', 'piece', 'section'].find((kind) => has(kind, id))
+    : ['level', 'entry', 'part', 'section'].find((kind) => has(kind, id))
   return expand
 }
 
-export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? ({ part: 'piece', unlock: 'piece', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
+export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? ({ part: 'part', unlock: 'part', entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
 
 /** Expand tags structurally, using schema types rather than a list of field names. */
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
@@ -105,12 +105,12 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     const endpoints = edgesOf(relation).flatMap((e) => [e.from, e.to])
     const endpoint = endpoints.find((v) => v.startsWith('#')) ?? endpoints[0]
     const inferredKind = endpoint && expand.kindOf?.(endpoint)
-    const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'piece' : relation.of ?? inferredKind ?? 'any'
-    const ends = (id, external = false) => ((external || relation.kind === 'order' && kind === 'piece' && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
+    const kind = relation.kind === 'requires' ? 'level' : relation.kind === 'replaces' ? 'part' : relation.of ?? inferredKind ?? 'any'
+    const ends = (id, external = false) => ((external || relation.kind === 'order' && kind === 'part' && expand.menu?.(id)) && !id.startsWith('#') ? [id] : expand(id, kind, `relations/${name}`)).filter((v) => external || kind !== 'level' || scheduled.has(v))
     const raw = edgesOf(relation)
     if (relation.kind === 'replaces') for (const edge of raw) for (const endpoint of [edge.from, edge.to]) {
-      if (expand(endpoint, 'piece').some(id => expand.pieceOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base pieces; stages upgrade in their declared order' })
-      if (edge.from === edge.to) problems.push({ at: `relations/${name}`, says: 'a piece cannot replace itself' })
+      if (expand(endpoint, 'part').some(id => expand.partOf?.(id) !== id)) problems.push({ at: `relations/${name}`, says: 'replaces only links different base parts; stages upgrade in their declared order' })
+      if (edge.from === edge.to) problems.push({ at: `relations/${name}`, says: 'a part cannot replace itself' })
     }
     if (relation.of === 'tag' && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations can order tags' })
     if (relation.sequence && relation.kind !== 'order') problems.push({ at: `relations/${name}`, says: 'only order relations have a sequence' })
@@ -131,7 +131,7 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
     }
     for (const { edge, from, to } of candidates) for (const f of boundary(edge.from, from, 'from')) for (const t of boundary(edge.to, to, 'to')) result[relation.kind]?.push({ ...edge, ...(relation.kind === 'order' && { of: kind }), from: f, to: t })
   }
-  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'piece', 'entry', 'tag', 'section', 'any']) {
+  for (const kind of ['requires', 'order']) for (const of of kind === 'requires' ? ['level'] : ['level', 'part', 'entry', 'tag', 'section', 'any']) {
     const edges = result[kind].filter((e) => !e.game && (kind !== 'order' || e.of === of))
     const graph = new Map([...new Set(edges.flatMap((e) => [e.from, e.to]))].map((id) => [id, edges.filter((e) => e.to === id).map((e) => e.from)]))
     const cycle = dependencyCycle(graph)

@@ -1,0 +1,30 @@
+{
+  "name": "@part.natInd.name",
+  "desc": "@part.natInd.desc",
+  "icon": "Box",
+  "family": "logic:family-box",
+  "settings": {
+    "P": {
+      "label": "@part.natInd.settings.P.label"
+    },
+    "x": {
+      "control": "select",
+      "label": "@part.natInd.settings.x.label",
+      "from": "logic:names()"
+    }
+  },
+  "regions": [
+    {
+      "name": "zero",
+      "label": "@part.natInd.regions.0.label",
+      "closes": true
+    },
+    {
+      "name": "step",
+      "label": "@part.natInd.regions.1.label",
+      "opens": true,
+      "closes": true
+    }
+  ],
+  "op": "logic:natInd"
+}

@@ -7,7 +7,7 @@ import { useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { ExprError, parse, problemsOf } from '../engine/parts/expr.js'
-import { resolveSettings } from '../engine/pieces.js'
+import { resolveSettings } from '../engine/parts.js'
 import { BUILTIN_ITEMS } from '../engine/parts/builtins.js'
 import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
@@ -16,7 +16,7 @@ import { creationChoices } from './form.js'
 import { AddMenu, usePickerPopup } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
-/** The part an expression at `path` belongs to in pieces/<name>.json, and whether it may read the part's inputs. */
+/** The part an expression at `path` belongs to in parts/<name>.json, and whether it may read the part's inputs. */
 function partAt(file, path) {
   if (path[0] !== 'parts' || !file?.parts?.[path[1]]) return null
   const raw = file.parts[path[1]]

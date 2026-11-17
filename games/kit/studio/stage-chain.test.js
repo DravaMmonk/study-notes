@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from '../engine/schema.js'
-import { newStageId, pieceAtStage, stageChain, stageChanges, stageId } from './stage-chain.js'
+import { newStageId, partAtStage, stageChain, stageChanges, stageId } from './stage-chain.js'
 
 const operations = { 'demo:blur': { params: S.obj({ sigma: S.num({ min: 0, max: 5, default: 1 }), border: S.oneOf(['zero', 'edge']) }) } }
 const raw = {
@@ -10,7 +10,7 @@ const raw = {
   stages: [{ id: 'blur-border', settings: { border: { fixed: false } } }, { id: 'blur-free', settings: { sigma: {} }, desc: 'Free' }],
 }
 
-test('a piece’s stages: what each changes, and every setting declared, narrowed and in effect', () => {
+test('a part’s stages: what each changes, and every setting declared, narrowed and in effect', () => {
   assert.equal(stageId('p/blur', 'blur-border'), 'p/blur-border')
   assert.deepEqual(stageChanges(raw.stages[1]), [{ path: ['settings', 'sigma'], value: {} }, { path: ['desc'], value: 'Free' }])
   const chain = stageChain('p/blur', raw, operations)
@@ -31,8 +31,8 @@ test('a piece’s stages: what each changes, and every setting declared, narrowe
   assert.equal(sigma(free).narrowed, null)
   assert.equal(sigma(free).effective.max, 5)
   assert.equal(free.definition.desc, 'Free')
-  // The piece as a stage has it, with the stages still to come.
-  assert.deepEqual(pieceAtStage('p/blur', raw, 'p/blur-border').stages.map((s) => s.id), ['blur-free'])
-  assert.equal(pieceAtStage('p/blur', raw, 'p/blur-border').settings.border.fixed, false)
+  // The part as a stage has it, with the stages still to come.
+  assert.deepEqual(partAtStage('p/blur', raw, 'p/blur-border').stages.map((s) => s.id), ['blur-free'])
+  assert.equal(partAtStage('p/blur', raw, 'p/blur-border').settings.border.fixed, false)
   assert.equal(newStageId('p/blur', ['p/blur-2']), 'blur-3')
 })

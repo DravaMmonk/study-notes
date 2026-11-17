@@ -17,7 +17,7 @@ export function holeTree({ kids, withKid, root = 'any' }) {
   const kindAt = (tree, path) => (path.length ? kids(nodeAt(tree, path.slice(0, -1)))[path[path.length - 1]].kind : root)
   const complete = (tree) => tree != null && !holesOf(tree).length
   // The last whole thing of a kind the line ends with: down the last child each time, the deepest node of that kind,
-  // if it is complete (null when the line ends with a box). A piece that needs something in front of it (→ after a
+  // if it is complete (null when the line ends with a box). A part that needs something in front of it (→ after a
   // sentence, .1 after a term) takes this one, as a calculator's operator takes the last number.
   const trailing = (tree, kind) => {
     let found = null
@@ -34,8 +34,8 @@ export function holeTree({ kids, withKid, root = 'any' }) {
     }
     return found && complete(nodeAt(tree, found)) ? found : null
   }
-  // From a path, up through each parent `up(parent, k)` lets it climb out of (k: which child it is): how far a piece
-  // joining on reaches back, by how tightly the pieces around bind (A ∧ B then → takes A ∧ B; p q then □ □ takes p q).
+  // From a path, up through each parent `up(parent, k)` lets it climb out of (k: which child it is): how far a part
+  // joining on reaches back, by how tightly the parts around bind (A ∧ B then → takes A ∧ B; p q then □ □ takes p q).
   const outward = (tree, path, up) => {
     let at = path
     while (at.length && up(nodeAt(tree, at.slice(0, -1)), at[at.length - 1])) at = at.slice(0, -1)

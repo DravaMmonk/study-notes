@@ -1,0 +1,22 @@
+{
+  "name": "@part.resolve.name",
+  "desc": "@part.resolve.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "settings": {
+    "unit": {
+      "label": "@part.resolve.settings.unit.label",
+      "options": [
+        {
+          "value": "any",
+          "label": "@part.resolve.settings.unit.options.0.label"
+        },
+        {
+          "value": "unit",
+          "label": "@part.resolve.settings.unit.options.1.label"
+        }
+      ]
+    }
+  },
+  "op": "logic:resolve"
+}

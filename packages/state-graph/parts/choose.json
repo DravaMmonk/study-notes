@@ -1,0 +1,27 @@
+{
+  "name": "@part.choose.name",
+  "desc": "@part.choose.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": ["a = table:add(view.upk, facts.value)", "m = table:mmax(view.up, a)", "cell <- m"],
+        "world": "table:world-knap",
+        "robot": "table:robot-reach",
+        "ports": [
+          { "table:port-named": { "label": "up", "short": "up", "sensor": "up" } },
+          { "table:port-named": { "label": "upk", "short": "upk", "sensor": "upk" } },
+          { "table:port-named": { "label": "value", "short": "value", "sensor": "value" } }
+        ],
+        "facts": ["value"]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "up", "type": "circuit:number" },
+    { "name": "upk", "type": "circuit:number" },
+    { "name": "value", "type": "circuit:number" }
+  ],
+  "outputType": "circuit:number"
+}

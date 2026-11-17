@@ -1,0 +1,31 @@
+{
+  "name": "@part.fqLowpass.name",
+  "desc": "@part.fqLowpass.desc",
+  "icon": "Waves",
+  "family": "image:family-frequency",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "shape": {
+      "label": "@part.fqLowpass.settings.shape.label",
+      "options": [
+        {
+          "value": "disk",
+          "label": "@part.fqLowpass.settings.shape.options.0.label"
+        },
+        {
+          "value": "gauss",
+          "label": "@part.fqLowpass.settings.shape.options.1.label"
+        }
+      ]
+    },
+    "R": {
+      "label": "@part.fqLowpass.settings.R.label"
+    }
+  },
+  "op": "image:fqLowpass"
+}

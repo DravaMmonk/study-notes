@@ -26,7 +26,7 @@ Each target stores:
 
 - Fresh production `check` stdout, stderr and exit status, with the project path replaced by `<project>`.
   The cache is bypassed; Node's host-specific module-type warning is suppressed.
-- Authored assembled levels/tasks, chapters, relations, pieces/stages and trays; the runtime course plan,
+- Authored assembled levels/tasks, chapters, relations, parts/stages and trays; the runtime course plan,
   publication information and stages; and task availability with empty progress and with prerequisites earned.
   Availability uses the production course model, including actual stage definitions and tray ordering.
 - One report per task containing the reference and naive works wherever they exist. Graphs use all visible
@@ -43,7 +43,7 @@ Each target stores:
 
 The printed record count includes one task-report and one availability record per task, plus one course
 record per runtime projection (per independently opened level for packages). A package with no levels still
-captures checks and all its piece definitions.
+captures checks and all its part definitions.
 
 Stable serialization preserves undefined, nonfinite numbers, negative zero, typed arrays, maps and sets.
 Array order is retained; map/set order and object key order are canonical. Structurally equal subtrees are
@@ -55,7 +55,7 @@ quantities such as a bench's configured countdown seconds remain part of its beh
 Only registered object, task and vocabulary names are normalized before comparing. Unique local names
 ignore their namespace/module and existing world/robot/port/want/family prefixes. Ambiguous local names keep
 qualified identities, and normalized key collisions fail explicitly. The mechanical `piece`/`pieces`/`parts`,
-`circuit/part`, and `@piece.`/`@part.` spellings explicitly declared equivalent in MODULES.md §10.3 also normalize. Prose/formulas with arbitrary slashes
+`circuit/part`, and `@piece.`/`@part.` spellings explicitly declared equivalent in MODULES.md §10.3 also normalize, including plural/camel-case identifiers, diagnostic names and override `tag/` → `tags/` paths. The two authored English uses of `pieced` use `assembled` (with `pieced it together` → `assembled it`). Prose/formulas with arbitrary slashes
 are not globally rewritten. Future migrations that rename a semantic local identifier need an explicit,
 reviewed observation update; the tool must not mask arbitrary renames or collapse distinct objects.
 

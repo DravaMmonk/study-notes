@@ -28,11 +28,11 @@ const fixture = () => {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
   }
   put('packages/library/package.json', { vocabulary: 1 })
-  put('packages/library/pieces/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' })
+  put('packages/library/parts/apply.json', { name: 'Apply', desc: 'Apply an implication.', icon: 'GitFork', family: 'logic:family-rule', inputs: [{ name: 'imp', type: 'logic:judgment' }, { name: 'a', type: 'logic:judgment' }], outputType: 'logic:judgment', op: 'logic:mp' })
   return { root, put }
 }
 
-test('a pieces-only package opens without a course, checks and writes its own log without a game', async () => {
+test('a parts-only package opens without a course, checks and writes its own log without a game', async () => {
   const { root } = fixture()
   const ws = openPackage('library', root)
   const content = ws.content()
@@ -43,7 +43,7 @@ test('a pieces-only package opens without a course, checks and writes its own lo
   const domain = await runtimeOf(content)
   assert.deepEqual((await checkGame(content, { domain, root })).filter((line) => line.fail), [])
   adopt(ws, 'Start the independent library log.')
-  const result = await runChangeset(ws, { ops: [{ op: 'pieces.set', path: ['parts', 'apply', 'desc'], value: 'Use the implication rule.' }] }, { write: true })
+  const result = await runChangeset(ws, { ops: [{ op: 'parts.set', path: ['parts', 'apply', 'desc'], value: 'Use the implication rule.' }] }, { write: true })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.ok(result.files.every((file) => file.startsWith('packages/library/')))
   assert.equal(readLog(ws).length, 2)
@@ -86,7 +86,7 @@ test('single-level play uses task trays, ignores prerequisites and opens setting
   assert.throws(() => packageLevel(content, 'missing'), /no level/)
 })
 
-test('a levels-only package plays dependency pieces and checks references and naive answers independently', async () => {
+test('a levels-only package plays dependency parts and checks references and naive answers independently', async () => {
   const { root, put } = fixture()
   put('packages/problems/package.json', { vocabulary: 1, uses: ['library'] })
   put('packages/problems/levels/implication.json', {
@@ -110,15 +110,15 @@ test('package dependencies are readable while only the selected layer can be edi
   const { root, put } = fixture()
   put('packages/extra/package.json', { vocabulary: 1, uses: ['library'] })
   const ws = openPackage('extra', root)
-  assert.ok(ws.content().registries.piece['library/apply'])
-  const wrongLayer = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'library', kind: 'piece', name: 'library/apply', merge: true, data: { desc: 'Wrong layer' } }] })
+  assert.ok(ws.content().registries.part['library/apply'])
+  const wrongLayer = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'library', kind: 'part', name: 'library/apply', merge: true, data: { desc: 'Wrong layer' } }] })
   assert.equal(wrongLayer.ok, false)
   assert.match(wrongLayer.problems[0], /open layer library/)
   const gameOp = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'title', value: 'Game title' }] })
   assert.equal(gameOp.ok, false)
-  const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'piece', name: 'library/apply', merge: true, data: { desc: 'Local override' } }] }, { write: true })
+  const edited = await runChangeset(ws, { ops: [{ op: 'override.put', layer: 'extra', kind: 'part', name: 'library/apply', merge: true, data: { desc: 'Local override' } }] }, { write: true })
   assert.equal(edited.ok, true, edited.problems.join('\n'))
-  assert.deepEqual(edited.files, ['packages/extra/overrides/library/piece/apply.json'])
+  assert.deepEqual(edited.files, ['packages/extra/overrides/library/parts/apply.json'])
   assert.equal(readPackage('library', root).partDefs.parts['library/apply'].desc, 'Apply an implication.')
   assert.equal(readPackage('extra', root).partDefs.parts['library/apply'].desc, 'Local override')
   assert.deepEqual(readLog(openPackage('library', root)), [])
@@ -128,13 +128,13 @@ test('games can edit only their own layer and cannot undo a package log entry', 
   const { root, id } = proofsRoot()
   roots.push(root)
   const ws = openGame(id, root)
-  const before = readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8')
-  const refused = await runChangeset(ws, { ops: [{ op: 'pieces.set', path: ['parts', 'mp', 'desc'], value: 'Forbidden' }] })
+  const before = readFileSync(resolve(root, 'packages', id, 'parts/mp.json'), 'utf8')
+  const refused = await runChangeset(ws, { ops: [{ op: 'parts.set', path: ['parts', 'mp', 'desc'], value: 'Forbidden' }] })
   assert.equal(refused.ok, false)
   const result = await runChangeset(ws, { ops: [{ op: 'game.set', path: 'title', value: 'New game title' }] }, { write: true })
   assert.equal(result.ok, true, result.problems.join('\n'))
   assert.deepEqual(result.files, [`games/${id}/game.json`, `games/${id}/i18n/en.json`])
-  assert.equal(readFileSync(resolve(root, 'packages', id, 'pieces/mp.json'), 'utf8'), before)
+  assert.equal(readFileSync(resolve(root, 'packages', id, 'parts/mp.json'), 'utf8'), before)
   assert.equal(readContent(id, root).title, 'New game title')
   assert.equal((await undo(openPackage(id, root))).ok, false)
 })

@@ -55,7 +55,7 @@
         "out <- m"
       ],
       "naive": ["big = threshold[t=0.3](in)", "out <- big"],
-      "publishes": [{ "piece": "peaks", "variant": "base" }]
+      "publishes": [{ "part": "peaks", "variant": "base" }]
     }
   ]
 }

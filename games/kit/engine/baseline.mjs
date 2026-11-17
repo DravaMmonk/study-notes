@@ -66,7 +66,7 @@ try {
     const snapshot = baselineValue({
       format: 1, names: [...names].sort(),
       check: { status: checked.status, stdout: checked.stdout.replaceAll(root, '<project>'), stderr: checked.stderr.replaceAll(root, '<project>') },
-      structure: { levels: content.levels, eras: content.eras, relations: content.relationEdges, pieces: content.partDefs, trays: content.trays },
+      structure: { levels: content.levels, eras: content.eras, relations: content.relationEdges, parts: content.partDefs, trays: content.trays },
       records,
     })
     const file = resolve(folder, `${kind}-${id}.json`)

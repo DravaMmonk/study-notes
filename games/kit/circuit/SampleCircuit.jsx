@@ -7,7 +7,7 @@ import { L, T } from '../shell/i18n.js'
 import { definedFaces } from '../shell/parts/faces.jsx'
 import Show from '../views/Show.jsx'
 
-// A fixed example wired around a piece, run on the supplied cases. The editor supplies the same setting controls as a task.
+// A fixed example wired around a part, run on the supplied cases. The editor supplies the same setting controls as a task.
 export default function SampleCircuit({ example, defined, phone }) {
   const { board: start, parts, tests, run, view, prepare } = example
   const [board, setBoard] = useState(start)

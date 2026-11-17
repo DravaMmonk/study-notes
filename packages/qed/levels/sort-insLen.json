@@ -78,7 +78,7 @@
       ],
       "publishes": [
         {
-          "piece": "insLen",
+          "part": "insLen",
           "variant": "base"
         }
       ]

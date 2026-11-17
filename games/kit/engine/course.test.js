@@ -100,13 +100,13 @@ test('a task gives and withholds parts for itself alone, over what the course ha
   assert.deepEqual(['a', 'b', 'P', 'Q', 'c'].map((p) => has(p)), [false, true, false, true, true])
 })
 
-test('stages upgrade one piece, carry along prerequisites and can be given or capped locally', () => {
-  const pieces = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] }, gain: { control: 'number', fixed: true, default: 1 } }, stages: [
+test('stages upgrade one part, carry along prerequisites and can be given or capped locally', () => {
+  const parts = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] }, gain: { control: 'number', fixed: true, default: 1 } }, stages: [
     { id: 'a-fast', settings: { mode: { options: [{ value: 'slow' }, { value: 'fast' }] } } },
     { id: 'a-gain', settings: { gain: { fixed: false } } },
   ] } }
   const spec = { 1: { adds: ['a'] }, 2: { opens: ['a-fast'] }, 3: { gives: ['a-gain'], withholds: ['a-fast'] }, 4: {} }
-  const course = sketch([serial('1', '2', '3', '4')], spec, { pieces,
+  const course = sketch([serial('1', '2', '3', '4')], spec, { parts,
     opens: l => spec[l.id].opens ?? [], gives: l => spec[l.id].gives ?? [], withholds: l => spec[l.id].withholds ?? [] })
   const at = id => holds(course, { id }, new Set())
   assert.equal(at('1')('a', 'mode', 'fast'), false)
@@ -161,20 +161,20 @@ test('the map lays a chapter out a layer at a time, three to a row, around the r
 })
 
 
-test('a stage introduced by adds upgrades its stable piece identity', () => {
+test('a stage introduced by adds upgrades its stable part identity', () => {
   const spec = { 1: { adds: ['a'] }, 2: { adds: ['a-fast'] }, 3: {} }
-  const pieces = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] } }, stages: [{ id: 'a-fast', settings: { mode: { options: [{ value: 'slow' }, { value: 'fast' }] } } }] } }
-  const course = sketch([serial('1', '2', '3')], spec, { pieces })
+  const parts = { a: { settings: { mode: { control: 'select', options: [{ value: 'slow' }] } }, stages: [{ id: 'a-fast', settings: { mode: { options: [{ value: 'slow' }, { value: 'fast' }] } } }] } }
+  const course = sketch([serial('1', '2', '3')], spec, { parts })
   assert.deepEqual(course.adds({ id: '2' }), [])
   assert.deepEqual(course.opens({ id: '2' }), ['a-fast'])
   assert.equal(holds(course, { id: '1' }, new Set())('a', 'mode', 'fast'), false)
   assert.equal(holds(course, { id: '3' }, new Set())('a', 'mode', 'fast'), true)
 })
 
-test('new markers distinguish pieces and stages, including earlier tasks and prerequisite branches', () => {
+test('new markers distinguish parts and stages, including earlier tasks and prerequisite branches', () => {
   const stages = { tool: { stages: [{ id: 'tool-wide' }, { id: 'tool-all' }] }, other: {} }
   const course = defineCourse({
-    pieces: stages, levels: [{ id: 'start' }, { id: 'next' }, { id: 'branch' }],
+    parts: stages, levels: [{ id: 'start' }, { id: 'next' }, { id: 'branch' }],
     eras: [{ id: 'chapter', levels: [{ id: 'start' }, { id: 'next' }, { id: 'branch' }], links: [{ from: 'start', to: 'next' }, { from: 'start', to: 'branch' }] }],
     primitives: ['tool', 'other'], adds: () => ['tool', 'other'], needs: () => null, builds: () => [],
     opens: at => at.id === 'next' ? at.task === 0 ? ['tool-wide'] : ['tool-wide', 'tool-all'] : [],

@@ -23,22 +23,22 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     return controls.every(({ key, options }) => !Object.hasOwn(params, key) || options.some(([value]) => Object.is(value, params[key])))
   }
   const offeredTypes = new Set(offers.types)
-  const available = (piece) => Boolean(profile && workshopAvailable(piece, {
+  const available = (part) => Boolean(profile && workshopAvailable(part, {
     identity, types: offeredTypes, has, allows: taskConstraints, resolve: runtime,
   }))
   const workshop = workshopView(base, library, available, runtime)
   const { known, view: circuit, resolve } = workshop
   const parts = partsFor(level, circuit, { cards, portLabels, defined })
   const packed = packedView(course, { cards, portLabels, defined }, workshop)
-  const personal = workshopEntries(library).filter((piece) => available(piece)
-    && !(piece.tray && JSON.parse(piece.tray)[0] === game.id && offers.types.includes(piece.rewardType)))
+  const personal = workshopEntries(library).filter((part) => available(part)
+    && !(part.tray && JSON.parse(part.tray)[0] === game.id && offers.types.includes(part.rewardType)))
   const pickedTrays = game.course?.tray(level) ?? []
   const main = new Set((pickedTrays.length ? pickedTrays : ['']).flatMap((tray) => library.featured[trayKey(game.id, tray)] ?? []))
   const palette = [...offers.shown, ...personal.filter(({ id }) => main.has(id)).map(({ id }) => id)]
   const folded = [...offers.folded, ...personal.filter(({ id }) => !main.has(id)).map(({ id }) => id)]
   const types = [...offers.types, ...personal.map(({ id }) => id)]
   const held = new Set(types)
-  const hasPersonal = (graph) => graph.nodes.some((node) => Object.hasOwn(library.pieces, node.type))
+  const hasPersonal = (graph) => graph.nodes.some((node) => Object.hasOwn(library.parts, node.type))
   const hold = (graph) => ready ? ready(graph, level, parts) : graph
   function openForCapture(node, at) {
     const opened = packed.open(node, at)
@@ -52,18 +52,18 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     defaults: (type) => definition?.of(type) ? definition.defaults(type) : defaults?.(type),
     book: library,
   })
-  const put = (piece, lineage, rank, replaces) => update((current) => publishWorkshop(current, piece, {
-    id: piece.id, lineage, rank, replaces,
+  const put = (part, lineage, rank, replaces) => update((current) => publishWorkshop(current, part, {
+    id: part.id, lineage, rank, replaces,
   }))
   const publish = (graph) => {
     if (!profile) return
     const lineage = (type) => JSON.stringify([game.id, type])
-    for (const { piece: type, variant } of profile.publications[entry.key] ?? []) {
-      const piece = game.partDefs.parts[type]
+    for (const { part: type, variant } of profile.publications[entry.key] ?? []) {
+      const part = game.partDefs.parts[type]
       const listed = Object.entries(game.course?.trays ?? {}).find(([, entries]) => trayMembers(entries).includes(type))?.[0]
       const tray = trayKey(game.id, listed ?? pickedTrays[0] ?? '')
-      const reward = capture(graph, { name: L(piece.name), description: L(piece.desc), tray, rewardType: type })
-      const rank = piece.inside.findIndex(({ id }) => id === variant)
+      const reward = capture(graph, { name: L(part.name), description: L(part.desc), tray, rewardType: type })
+      const rank = part.inside.findIndex(({ id }) => id === variant)
       const replaced = (profile.replaces[type] ?? []).map(lineage)
       if (!reward || !put(reward, lineage(type), rank, replaced)) {
         showNotice(tr('这次通关未能写入工坊。', 'This pass could not be published to the workshop.'))

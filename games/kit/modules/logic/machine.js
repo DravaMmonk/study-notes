@@ -71,7 +71,7 @@ export function ruleBookOf(level) {
     const shaped = (type, l) => (r) => !l.forms || !level.forms?.[type] || level.forms[type].includes(r.key.split('.')[1] ?? l.forms[0].key)
     const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l).filter(shaped(type, l)))
     const facts = factsOf(level).map(([type, f]) => ({ ...ruleOf(type, f.name, f.rule?.premises ?? [], f.rule?.conclusion ?? f.statement), fact: true }))
-    books.set(level, Object.fromEntries([...Object.values(KERNEL).map((r) => ({ ...r, part: level.rulePieces?.[`logic:${r.part}`] ?? r.part })).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL).map((r) => ({ ...r, part: level.ruleParts?.[`logic:${r.part}`] ?? r.part })).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
 }
@@ -395,7 +395,7 @@ const BODIES = {
   resolve: { inputs: ['in'], eval: ({ in: v }, node) => { const c = clausesIn(v); return { ...c, set: resolveRound(c.set, { unit: node.params?.unit === 'unit' }) } } },
   oracle: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx, oracleRound) },
   replay: { inputs: ['in'], eval: ({ in: v }) => replayed(clausesIn(v)) },
-  // A rule part: the rules wired in before it, then its own (machine.js rulePieces).
+  // A rule part: the rules wired in before it, then its own (machine.js ruleParts).
   rules: RULE_PART,
 }
 const ABOUT = {
@@ -409,7 +409,7 @@ const ABOUT = {
   replay: T('重放', 'Replay'), rules: T('规则元件：给出它的规则', 'A rule part: the rules it gives'),
 }
 /**
- * The machine board's parts as engine resources (a game's pieces.json makes each a part, games/DESIGN.md 6.8): a
+ * The machine board's parts as engine resources (a game's parts.json makes each a part, games/DESIGN.md 6.8): a
  * resource's arguments are its part's inputs, in order; the card it runs on, the region whose value it gives and the
  * regions to run come with ctx (../../engine/parts/define.js).
  */
@@ -481,7 +481,7 @@ function clausify(s0, ctx) {
     return r.fail ? { ...firstOf(s), error: r.fail } : r.results[0]
   }
   let s = step(step(s0, (x) => rule(x, KERNEL.raa)), (x) => rule(x, KERNEL.impI))
-  const source = ctx.pieceForRule?.['logic:raa']
+  const source = ctx.partForRule?.['logic:raa']
   const namespace = source?.slice(0, source.lastIndexOf('/') + 1) ?? ''
   s = step(s, (x) => simplify(x, CNF_LAWS.map((key) => ctx.rewrites?.[`${namespace}${key}`]).filter(Boolean), 'hyps'))
   s = step(s, skolemStep)
@@ -537,7 +537,7 @@ export const ruleWritten = (e, text, term) => (e.book === 'rule' ? ruleText(e.ru
 const AFTER = T('接入其他规则元件时，本元件的规则排在它们之后。')
 const joined = (a, b) => T(`${a.zh}${b.zh}`, `${a.en} ${b.en}`)
 /** A rule part as every one is (machine.js RULE_PART): the rules wired in before it, then those added on it. */
-export const RULE_PIECE = {
+export const RULE_DEFINITION = {
   name: T('规则元件', 'Rule part'),
   desc: joined(T('给出这个元件的规则。在元件上添加要给出的规则，按添加顺序排列。'), AFTER),
   icon: 'GitFork',
@@ -549,15 +549,15 @@ export const RULE_PIECE = {
   op: 'logic:rules',
 }
 /**
- * The rule parts a level holds, as the course registers them beside pieces.json's: one for each part its rule books'
+ * The rule parts a level holds, as the course registers them beside parts.json's: one for each part its rule books'
  * rules belong to (rulePartsOf), named after it, giving the rules added on it.
  */
-export function rulePieces(level) {
+export function ruleParts(level) {
   return Object.fromEntries([...rulePartsOf(level).keys()].map((type) => {
     const several = choicesOfPart(rulePartsOf(level).get(type)).length > 1
     const desc = type === MATH ? joined(T('给出这一关的数与列表规则：类型声明生成的规则、定义中的等式和已证出的等式。在元件上添加要给出的规则，按添加顺序排列。'), AFTER)
-      : several ? RULE_PIECE.desc : joined(T('给出这个元件的规则。'), AFTER)
-    return [type, { ...RULE_PIECE, name: rulePartName(level, type), desc }]
+      : several ? RULE_DEFINITION.desc : joined(T('给出这个元件的规则。'), AFTER)
+    return [type, { ...RULE_DEFINITION, name: rulePartName(level, type), desc }]
   }))
 }
 /** The rules a rule part offers to add, each written out in the test's words (ctx: the task, its text, the card). */
@@ -655,10 +655,10 @@ export function judge(want, test, out, level = {}) {
 }
 
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
-/** A packed machine part reads the work and rules of its selected builder; `params` the settings its piece takes beyond
+/** A packed machine part reads the work and rules of its selected builder; `params` the settings its part takes beyond
  *  its board's (simp works on the goal or the hypotheses). */
 export function builtMachine(type, builder, reference, ownBoard, params = []) {
-  const circuit = () => ownBoard(builder().taskId) ?? builder().pieceSolution
+  const circuit = () => ownBoard(builder().taskId) ?? builder().partSolution
   const part = packed({
     circuit,
     inputs: inputsOfLevel(reference).map((i) => i.name),
@@ -692,7 +692,7 @@ const failsAsState = (run) => (ins, node, ctx) => {
 
 // What a machine runs with: the level's books and rule parts, whether it backtracks, and the board input that is a
 // constant (a level's rules, for a frame's region: ../../circuit/frames.js runRegion).
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, pieceForRule: level.rulePieces, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), constants: ['rules'], ...extra })
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, partForRule: level.ruleParts, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), constants: ['rules'], ...extra })
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */

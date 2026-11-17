@@ -415,7 +415,7 @@ export function placesOf(lines, order) {
     if (!line.fail) continue
     const content = /^content: levels\/(.+?)\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
     if (content) { out.push({ level: content[1], path: keysOf(content[2]), says: content[3] }); continue }
-    const parts = /^content: pieces\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
+    const parts = /^content: parts\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
     if (parts) { out.push({ file: 'parts', path: keysOf(parts[1]), says: parts[2] }); continue }
     const copy = /^text levels\.(\d+)((?:\.[^\s.]+)*) (.*)$/.exec(line.text)
     if (copy && order[Number(copy[1])]) { out.push({ level: order[Number(copy[1])], path: keysOf(copy[2]), says: copy[3] }); continue }
@@ -493,7 +493,7 @@ export function opFor(file, path, edit, type = null) {
   if (file.object) return objectOp(file.object, path, edit, type)
   const keys = parsePath(path)
   if (type === 'text' && !edit.unset) {
-    const where = file.glossary ? glossaryTarget(file.glossary, keys) : file.level !== undefined ? { level: file.level } : { in: file.parts ? 'pieces' : 'game' }
+    const where = file.glossary ? glossaryTarget(file.glossary, keys) : file.level !== undefined ? { level: file.level } : { in: file.parts ? 'parts' : 'game' }
     if (!where) return null
     return { op: 'text.set', ...where, path: where.path ?? keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
   }
@@ -517,13 +517,13 @@ export function opFor(file, path, edit, type = null) {
     if (keys[0] === 'entries' && keys.length === 2) return { op: 'entry.remove', entry: file.glossary.entries[keys[1]].id }
     return null
   }
-  // pieces/<name>.json: a field of it (a whole part is added and removed by the part operations).
+  // parts/<name>.json: a field of it (a whole part is added and removed by the part operations).
   if (file.parts) {
     if (edit.unset && keys.length === 2) {
-      if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }
+      if (keys[0] === 'parts') return { op: 'part.remove', part: keys[1] }
     }
-    if (edit.unset) return { op: 'pieces.unset', path: keys }
-    return { op: 'pieces.set', path: keys, value: edit.set }
+    if (edit.unset) return { op: 'parts.unset', path: keys }
+    return { op: 'parts.set', path: keys, value: edit.set }
   }
   const where = file.level !== undefined ? { level: file.level } : {}
   const op = (name) => (file.level !== undefined ? `level.${name}` : `game.${name}`)

@@ -15,7 +15,7 @@ import { T } from './lang.js'
 import { tableWorks } from './work.js'
 
 const ui = await loadDisplays(['table:hero', 'table:introduction', 'table:circuit', 'table:manual', 'table:catalog'])
-const { pieceDemo, lookIcon } = ui['table:catalog']
+const { partDemo, lookIcon } = ui['table:catalog']
 
 const briefOf = ({ mission, hints }) => ({ text: [mission.goal, mission.how], hint: hints })
 const hand = Object.fromEntries(Object.entries(ui['table:manual']).map(([name, useBoard]) => [name, { useBoard, briefOf }]))
@@ -25,7 +25,7 @@ const icons = Object.fromEntries(Object.entries(plays).map(([name, play]) => [na
 const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh ?? head.en}</b>`, `<b>${head.en ?? head.zh}</b>`)] : []), ...body]
 
 /**
- * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (pieces.json: the parts and
+ * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (parts.json: the parts and
  * ideas its levels unlock), borrow?: { part: level id }
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
@@ -63,7 +63,7 @@ export default function tableGame(content, table = tableWorks(content)) {
     return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
   }
   const descOf = (k) => (modelsOf(k) ? T('用所选模式把几个输入合并成一个值。', 'Combines the inputs into one value using the selected mode.') : table.model.def(k).desc)
-  const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, piece: k, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
+  const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, part: k, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
 
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
   // games/DESIGN.md 2.1). It joins the box once the first level of its era is passed.
@@ -91,23 +91,23 @@ export default function tableGame(content, table = tableWorks(content)) {
     intro: (level) => level.intro,
     IntroFigure: ui['table:introduction'],
     kinds: playKinds(plays, { ...hand, robot: ui['table:circuit'](table) }, icons),
-    unlocked: (level) => level.unlocks.map((k) => ({ piece: k, label: PARTS[k].name })),
+    unlocked: (level) => level.unlocks.map((k) => ({ part: k, label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {
       // The primitives, and the parts a level that is played unlocks (a retired level's card would never be earned).
-      all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, piece: key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
+      all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, part: key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
       // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
       // models to change and a Run button. A built part runs, and opens to show, the board the player passed its level with.
       preview: (part, { progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
-        const spec = pieceDemo(table.model, game.circuit, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
+        const spec = partDemo(table.model, game.circuit, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
         return { experiment: spec }
       },
       filters: robotFilters,
       settings: (part, progress, scope) => {
         const solved = new Set(progress.solved)
-        return table.settingsIn(part.piece ?? part.key.replace(/^part:/, ''), {
+        return table.settingsIn(part.part ?? part.key.replace(/^part:/, ''), {
           scope,
           flags: new Set(game.flagsOf(progress)),
           open: (task) => game.isOpen(game.byId[task.id], solved, progress.all) && taskOpen(game, progress, task.id, task.task),

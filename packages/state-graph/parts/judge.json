@@ -1,0 +1,21 @@
+{
+  "name": "@part.judge.name",
+  "desc": "@part.judge.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "a = table:not(view.up)",
+          "b = table:not(view.left)",
+          "c = table:not(view.ul)",
+          "m = table:many(a, b, c)",
+          "cell <- m"
+        ],
+        "world": "table:world-piles",
+        "robot": "table:robot-ranger"
+      }
+    }
+  ]
+}

@@ -25,7 +25,7 @@ function segment(node, path = []) {
   const key = treeKey(path)
   if (node === null) return { hole: key, label: T('加数', 'Addend') }
   const parts = typeof node === 'number' ? [String(node)] : [segment(node[0], [...path, 0]), ' + ', segment(node[1], [...path, 1])]
-  return { piece: key, family: 'sum', parts }
+  return { part: key, family: 'sum', parts }
 }
 
 const language = {

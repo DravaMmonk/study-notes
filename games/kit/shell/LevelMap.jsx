@@ -130,10 +130,10 @@ function Tree({ game, track, rows, byId, solved, all, best = () => null, current
   // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks, less
   // what a level before it unlocked already (an upgrade of a part shows no chip of its own).
   const firstUnlocks = (level) => ({ ...level, unlocks: (level.unlocks ?? []).filter((flag) => !game.unlocksBefore(level).includes(flag)) })
-  const circuitPiece = ({ piece }) => game.isCircuitPiece(piece)
+  const circuitPart = ({ part }) => game.isCircuitPart(part)
   const chipOf = (level) => [
-    ...game.introduced(level).filter(circuitPiece).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })),
-    ...game.unlocked(firstUnlocks(level)).filter(circuitPiece).map((part) => ({ label: part.label, open: all || solved.has(level.id) })),
+    ...game.introduced(level).filter(circuitPart).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })),
+    ...game.unlocked(firstUnlocks(level)).filter(circuitPart).map((part) => ({ label: part.label, open: all || solved.has(level.id) })),
   ]
   // A level's own box: full size, or smaller; and the gap under it.
   const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })

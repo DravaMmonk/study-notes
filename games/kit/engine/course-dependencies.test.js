@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import { defineCourse, holds, usable } from '../course.js'
 import { courseDependencies, courseLayout, projectDependencyProblems } from './course-dependencies.js'
 
-const pieces = { shift: { settings: { border: { control: 'select', options: [{ value: 'edge' }] } }, stages: [{ id: 'shift-wrap', settings: { border: { options: [{ value: 'edge' }, { value: 'wrap' }] } } }] }, adder: { stages: [{ id: 'adder-wide' }] } }
-const course = (id, levels, entries, links = []) => ({ id, levels, partDefs: { parts: pieces }, eras: [{ id: 0, levels: entries, links }] })
+const parts = { shift: { settings: { border: { control: 'select', options: [{ value: 'edge' }] } }, stages: [{ id: 'shift-wrap', settings: { border: { options: [{ value: 'edge' }, { value: 'wrap' }] } } }] }, adder: { stages: [{ id: 'adder-wide' }] } }
+const course = (id, levels, entries, links = []) => ({ id, levels, partDefs: { parts: parts }, eras: [{ id: 0, levels: entries, links }] })
 const inspect = (id, solution, hints = {}) => ({ id, ...hints, tasks: [{ id: `${id}Task`, solution, ...hints.task }] })
 
 test('package prerequisites upgrade an optional authored edge and reject a missing binding', () => {
@@ -32,9 +32,9 @@ test('a unique reference award adds a strict gate and explains it', () => {
 })
 
 test('an already guaranteed provider wins over an alternative source', () => {
-  const a = inspect('a', [], { task: { publishes: [{ piece: 'adder', variant: 'simple' }] } })
+  const a = inspect('a', [], { task: { publishes: [{ part: 'adder', variant: 'simple' }] } })
   const b = inspect('b', ['x = adder()'])
-  const c = inspect('c', [], { task: { publishes: [{ piece: 'adder', variant: 'complete' }] } })
+  const c = inspect('c', [], { task: { publishes: [{ part: 'adder', variant: 'complete' }] } })
   const all = course('world', [a, b, c], [{ id: 'a' }, { id: 'b' }, { id: 'c' }], [{ from: 'a', to: 'b' }])
   assert.equal(courseDependencies(all).links.length, 1)
   all.eras[0].links.length = 0
@@ -54,7 +54,7 @@ test('an option can first be used on the task that opens it', () => {
 })
 
 test('cross-game pass provides shared package awards and carries through skipped optional levels', () => {
-  const a = inspect('a', [], { task: { publishes: [{ piece: 'adder', variant: 'simple' }], opens: ['adder-wide'] } })
+  const a = inspect('a', [], { task: { publishes: [{ part: 'adder', variant: 'simple' }], opens: ['adder-wide'] } })
   const source = course('source', [a], [{ id: 'a' }])
   const receiving = course('target', [a, { id: 'b', requires: ['a'] }, { id: 'c' }],
     [{ id: 'b', optional: true, skippable: true }, { id: 'c' }], [{ fromGame: 'source', from: 'a', to: 'b' }, { from: 'b', to: 'c' }])
@@ -62,7 +62,7 @@ test('cross-game pass provides shared package awards and carries through skipped
   assert.deepEqual(plan.external.get('c'), [{ game: 'source', level: 'a' }])
   assert.deepEqual([...plan.externalItems.get('c')], ['adder-wide', 'adder'])
   const c = { id: 'c' }
-  const options = { plan, pieces, levels: [{ id: 'b' }, c], primitives: [], adds: () => [], builds: () => [], needs: (part) => part === 'adder' ? part : null }
+  const options = { plan, parts, levels: [{ id: 'b' }, c], primitives: [], adds: () => [], builds: () => [], needs: (part) => part === 'adder' ? part : null }
   const resolved = defineCourse(options)
   assert.deepEqual(usable(resolved, c, new Set()), ['adder'])
   assert.equal(holds(resolved, c, new Set())('adder-wide'), true)

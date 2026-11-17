@@ -1,7 +1,7 @@
 import { printSource } from '../circuit/text.js'
 import { failureOf } from './test-run.js'
 // The circuit preset (games/DESIGN.md 6.3, games/DIRECTION.md decision 24): a way to play made of the kernel's
-// pieces — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-works.js), the
+// parts — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-works.js), the
 // level's schema (./level-schema.js) and the author checks below over the judge (./authoring.js, ./judge.js). A domain
 // on it gives its vocabulary, its course and how a task runs, and gets its domain module:
 //
@@ -16,7 +16,7 @@ import { failureOf } from './test-run.js'
 //       kinds { kind: check(task) → { problems, ok } } the domain's checks of a task that is no board
 import { withHidden } from './tests.js'
 import { partNames } from './trays.js'
-import { builtPieces } from './pieces.js'
+import { builtParts } from './parts.js'
 import { holds as holding, usable } from '../course.js'
 import { rowProblems, showProblems, viewsProblems } from './views.js'
 import { keyOf } from '../shell/i18n.js'
@@ -35,8 +35,8 @@ export function circuitRuntime({ vocabulary, course, run, entries, failure, more
   }
 }
 
-/** A circuit game's part names (runtime.js names): its built pieces. */
-export const circuitNames = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
+/** A circuit game's part names (runtime.js names): its built parts. */
+export const circuitNames = (content) => partNames(Object.keys(builtParts(content.partDefs)))
 
 export const circuitSpec = (courseOf) => (content, circuit = courseOf(content)) => {
   return {
@@ -98,7 +98,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       })
       const inspect = (work) => run(all, work, partOf)
       const opening = board.startBoard(task)
-      // The pieces this task publishes, each placed alone and wired to its cards.
+      // The parts this task publishes, each placed alone and wired to its cards.
       const publishes = level.builds.filter((b) => b.at === k)
       const outs = board.portsOut(task).map((o) => o.name)
       const box = ({ type, form }) => board.fromText([`p = ${type}${form ? `[form=${form}]` : ''}(${board.portsIn(task).map((i) => printSource(board.sourceFor(task, i.name))).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here)
@@ -131,8 +131,8 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         if (!checked.naive.ok) problems.push('the naive answer passes')
         else naive = `, naive fails ${where(checked.naive.fail.check)}`
       }
-      for (const piece of publishes) checkWorks(inspect, { built: box(piece) }).built.runs.forEach((r, j) => {
-        if (failureOf(r)) problems.push(`its part ${piece.type} alone fails ${where(j)}`)
+      for (const part of publishes) checkWorks(inspect, { built: box(part) }).built.runs.forEach((r, j) => {
+        if (failureOf(r)) problems.push(`its part ${part.type} alone fails ${where(j)}`)
       })
       // Asked for (`circuit.mutants`, npm run check -- --mutants): what the tests make of the answer's mutants
       // (./mutate.js), a report and never a failure. A mutant that lives is a

@@ -53,7 +53,7 @@
       ],
       "publishes": [
         {
-          "piece": "succNeq",
+          "part": "succNeq",
           "variant": "base"
         }
       ]

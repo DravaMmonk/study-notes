@@ -1,7 +1,7 @@
 // A formula built from chips (《证明完毕》 chapter 5's translations and queries), shown on the shared strip
-// (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one piece of it, a
+// (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one part of it, a
 // predicate with a hole per place, a name, a variable, a quantifier with its variable, or a connective with a hole
-// per side, or ⊥, a whole sentence of its own. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it. A thing may
+// per side, or ⊥, a whole sentence of its own. Putting a chip in a hole fills it; taking a part out empties its hole, with everything inside it. A thing may
 // be put where a sentence goes (it is marked as not yet a sentence): a predicate put next takes it as its first place.
 //
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
@@ -78,8 +78,8 @@ export function chipsOf(level) {
   const preds = [...level.vocab.preds].sort(([a], [b]) => (a < b ? -1 : 1))
   const order = level.consts ?? []
   const consts = [...level.vocab.consts].sort((a, b) => order.indexOf(a) - order.indexOf(b))
-  const pieces = level.notation.formulaPieces
-  const ordered = (symbols) => pieces ? Object.keys(pieces).filter((symbol) => symbols.includes(symbol)) : symbols
+  const parts = level.notation.formulaParts
+  const ordered = (symbols) => parts ? Object.keys(parts).filter((symbol) => symbols.includes(symbol)) : symbols
   const quantifiers = ordered(QUANTIFIERS).filter((q) => level.notation.symbols.includes(q))
   const vars = level.vars ?? (level.kind === 'logic:query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
   const fns = level.vocab.fns ?? []
@@ -91,9 +91,9 @@ export function chipsOf(level) {
     // A function (s, plus) is a thing with a box for each of its things.
     ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
-    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'logic:query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', piece: pieces?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
+    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'logic:query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', part: parts?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
-    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', piece: pieces?.[c], text: pieces?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
+    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', part: parts?.[c], text: parts?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
   ]
 }
 
@@ -127,9 +127,9 @@ export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
   const equal = needed.has('P:=') ? [['=', 2]] : []
   const vocab = { preds: [...preds, ...equal], consts: [...fns].filter(([, n]) => n === 0).map(([c]) => c), fns: [...fns].filter(([, n]) => n > 0) }
   const vars = [...needed].filter((k) => k.startsWith('v:')).map((k) => k.slice(2))
-  const pieces = { kind: 'logic:translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] } }
+  const parts = { kind: 'logic:translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] } }
   const free = new Set(formulas.flatMap((formula) => [...freeVars(formula)]))
-  return chipsOf(pieces).filter((c) => needed.has(c.key)).map((chip) => chip.group === 'var' && free.has(chip.text) ? { ...chip, free: true } : chip)
+  return chipsOf(parts).filter((c) => needed.has(c.key)).map((chip) => chip.group === 'var' && free.has(chip.text) ? { ...chip, free: true } : chip)
 }
 
 /**

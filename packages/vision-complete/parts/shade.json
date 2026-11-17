@@ -1,0 +1,18 @@
+{
+  "name": "@part.shade.name",
+  "desc": "@part.shade.desc",
+  "icon": "Box",
+  "family": "image:family-other",
+  "settings": {
+    "lx": {
+      "label": "@part.shade.settings.lx.label"
+    },
+    "ly": {
+      "label": "@part.shade.settings.ly.label"
+    },
+    "lz": {
+      "label": "@part.shade.settings.lz.label"
+    }
+  },
+  "op": "image:shade"
+}

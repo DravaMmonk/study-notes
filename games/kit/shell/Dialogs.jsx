@@ -70,12 +70,12 @@ export function SolvedDialog({ game, level, unlocked, onStay, onExit }) {
             <div className="dialog-lines">{passed.lines.map((line, k) => <code key={k}>{L(line)}</code>)}</div>
           </div>
         )}
-        {unlocked.pieces.length > 0 && (
+        {unlocked.parts.length > 0 && (
           <div className="unlocked">
-            <span className="panel-label">{tr('解锁的件', 'Pieces unlocked')}</span>
+            <span className="panel-label">{tr('解锁的元件', 'Parts unlocked')}</span>
             <ul className="unlocked-list">
-              {unlocked.pieces.map((part) => (
-                <li key={part.piece} className="unlocked-part" data-family={part.family}>
+              {unlocked.parts.map((part) => (
+                <li key={part.part} className="unlocked-part" data-family={part.family}>
                   {part.icon && <i className="family-chip">{createElement(part.icon, { size: 14, strokeWidth: 1.7 })}</i>}
                   {L(part.label)}
                 </li>

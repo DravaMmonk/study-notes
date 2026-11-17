@@ -21,7 +21,7 @@ const BANNED = [
   [/搞定|接一下|啥|就行|没事/, 'colloquial: write standard written Chinese'],
   [/进行|得到证明|得到揭示|被引入|对[^，。]{1,8}进行/, 'translationese: use an active verb'],
   [/卡片|方块/, 'everything on a board is a 元件'],
-  // A network card is the field's own term, not a board's piece.
+  // A network card is the field's own term, not a board's part.
   [/(?<!network )\bcards?\b|\bblocks?\b/i, 'everything on a board is a part'],
   [/\b(?:simply|just wire|obviously)\b/i, 'no hand-waving words'],
 ]

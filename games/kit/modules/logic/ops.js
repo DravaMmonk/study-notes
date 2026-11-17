@@ -1,9 +1,9 @@
-// The logic domain's engine resources (games/DESIGN.md 6.8): what a game's pieces.json calls, each with what it is and
+// The logic domain's engine resources (games/DESIGN.md 6.8): what a game's parts.json calls, each with what it is and
 // its arguments. The proof rules and the lemmas' run are proof.js's, with the options a proof card's settings offer;
 // the machine board's parts and the rules a rule part offers are machine.js's.
 import { signatures } from './signatures.js'
 import { qualifyItems } from '../../engine/capabilities.js'
-import { LEMMA, OPTIONS, RULES, lemmaPieces } from './proof.js'
+import { LEMMA, OPTIONS, RULES, lemmaParts } from './proof.js'
 import { MACHINE_PARTS, RULE_CHOICES } from './machine.js'
 import { compileParts, defineParts } from '../../engine/parts/define.js'
 
@@ -22,10 +22,10 @@ export const OPS = qualifyItems('logic', 'op', {
 /** The same, as the vocabulary's items (what each is, without running it). */
 export const OP_ITEMS = Object.fromEntries(Object.entries(OPS).map(([name, { run: _, ...item }]) => [name, item]))
 
-/** A game's parts (../../engine/parts/define.js defineParts): its pieces.json's, and those its lemmas make. */
+/** A game's parts (../../engine/parts/define.js defineParts): its parts.json's, and those its lemmas make. */
 export function partsOf(partDefs, lemmas = {}) {
   const authored = defineParts(partDefs, OPS)
-  const generated = compileParts(lemmaPieces(lemmas), OPS)
+  const generated = compileParts(lemmaParts(lemmas), OPS)
   const PARTS = { ...authored.PARTS, ...generated.PARTS }
   return {
     PARTS,

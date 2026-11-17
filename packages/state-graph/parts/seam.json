@@ -1,0 +1,5 @@
+{
+  "name": "@part.seam.name",
+  "desc": "@part.seam.desc",
+  "inside": [{ "id": "base", "reference": { "mode": "table:seam" } }]
+}

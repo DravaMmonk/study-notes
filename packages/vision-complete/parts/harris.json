@@ -1,0 +1,18 @@
+{
+  "name": "@part.harris.name",
+  "desc": "@part.harris.desc",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "k": {
+      "label": "k"
+    }
+  },
+  "op": "image:harris"
+}

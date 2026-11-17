@@ -13,7 +13,7 @@ import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import domain from './runtime.js'
 
-// The starter's parts (its pieces.json), over the kernel's builtins.
+// The starter's parts (its parts.json), over the kernel's builtins.
 const { PARTS } = defineParts(readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1))).partDefs, {})
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board

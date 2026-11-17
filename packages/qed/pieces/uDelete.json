@@ -1,7 +1,0 @@
-{
-  "name": "@piece.uDelete.name",
-  "desc": "@piece.uDelete.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:uDelete"
-}

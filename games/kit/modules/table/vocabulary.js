@@ -47,7 +47,7 @@ const WORLDS = {
   strip: world(t('一段楼梯：一次上一级或两级，坏台阶踩不得'), S.obj({ n: nat, broken: S.opt(S.list(nat)) })),
   pile: world(t('一堆石子：一次拿一颗或两颗，拿走最后一颗的赢'), S.obj({ n: nat })),
   coins: world(t('凑零钱：每格是一个钱数，扫描臂退回每种硬币'), S.obj({ n: nat, coins: S.list(int({ min: 1 })) })),
-  pieces: world(t('切词：一串字母切成词典里的词，每块有代价'), S.obj({ s: S.str(), dict: S.either(ids, S.map(S.num())), letter: S.opt(S.num()) })),
+  parts: world(t('切词：一串字母切成词典里的词，每块有代价'), S.obj({ s: S.str(), dict: S.either(ids, S.map(S.num())), letter: S.opt(S.num()) })),
   rob1: world(t('一排房子，每家一个格子'), STREET),
   rob2: world(t('一排房子，每家三个格子：没偷、偷了、最多'), STREET),
   ring: world(t('环形的街：第一家和最后一家相邻'), STREET),
@@ -212,7 +212,7 @@ const CIRCUIT = {
   tip: S.opt(S.text()),
   carries: S.opt(S.bool({ about: t('从上一个任务的电路板开始') })),
   unlockToast: S.opt(S.text({ about: t('第一次打开这个任务时说的一句') })),
-  // (a vocabulary keeps its words: the file it names is pieces.json now)
+  // (a vocabulary keeps its words: the file it names is parts.json now)
   ports: S.opt(S.list(S.call('port'), { section: 'course', about: t('这块板给出的口：parts.json 里引用这个任务的件是一个元件，口就是这些') })),
   noArm: S.opt(S.bool()),
   naive: S.opt(BOARD),
@@ -262,7 +262,7 @@ const GAME = S.obj({
 export const vocabulary = qualifyVocabulary('table', defineVocabulary({
   module: 'table',
   version: 1,
-  // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
+  // A part or an idea a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
     part: PARTS,
     world: WORLDS,

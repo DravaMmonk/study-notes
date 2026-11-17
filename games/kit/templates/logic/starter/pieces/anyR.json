@@ -1,7 +1,0 @@
-{
-  "name": "@piece.anyR.name",
-  "desc": "@piece.anyR.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:anyR"
-}

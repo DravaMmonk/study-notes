@@ -52,7 +52,7 @@
       ],
       "publishes": [
         {
-          "piece": "dist",
+          "part": "dist",
           "variant": "orAndR"
         }
       ]
@@ -107,7 +107,7 @@
       ],
       "publishes": [
         {
-          "piece": "dist",
+          "part": "dist",
           "variant": "andOrR"
         }
       ],
@@ -160,7 +160,7 @@
       ],
       "publishes": [
         {
-          "piece": "dist",
+          "part": "dist",
           "variant": "orAndL"
         }
       ],
@@ -217,7 +217,7 @@
       ],
       "publishes": [
         {
-          "piece": "dist",
+          "part": "dist",
           "variant": "andOrL"
         }
       ],

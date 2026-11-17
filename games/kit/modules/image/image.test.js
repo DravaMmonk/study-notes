@@ -21,7 +21,7 @@ import { imageBoards } from './engine/board-view.js'
 import { play } from './play.js'
 import domain from './runtime.js'
 
-// A course of three levels: one a built piece runs, one holds that piece, one is two tasks.
+// A course of three levels: one a built part runs, one holds that part, one is two tasks.
 const L = (s) => ({ zh: s, en: s })
 const square = { "image:picture-square": { x0: 4, y0: 4, s: 8 } }
 const filter = (id, rest) => ({ id, kind: 'image:graph', brief: L('b'), scene: "image:scene-filter", setup: { target: "image:target-same" }, tests: [{ label: L('t'), in: square }], ...rest })
@@ -31,7 +31,7 @@ const content = deepFreeze({
   primitives: ["image:const", "image:add", "image:sub", "image:mul", "image:arith", "image:merge"],
   eras: [{ id: 0, levels: [{ id: 'wide' }, { id: 'use' }, { id: 'two' }], links: [{ from: 'wide', to: 'use' }, { from: 'use', to: 'two' }], chapter: { title: L('c'), label: L('l'), question: L('q') } }],
   levels: [
-    level('wide', [filter('wide', { solution: wide, publishes: [{ piece: 'widen', variant: 'base' }] })]),
+    level('wide', [filter('wide', { solution: wide, publishes: [{ part: 'widen', variant: 'base' }] })]),
     level('use', [filter('use', { solution: ['k = image:const[c="pi/8"]()', 'm = image:arith[op=mul](in, k)', 'p = widen(m)', 'out <- p'], naive: ['out <- in'] })]),
     level('two', [filter('two_1', { solution: ['s = image:shift[dir=up, n=2](in)', 'out <- s'] }), filter('two_2', { carries: true, solution: ['t = image:threshold[t=0.3](in)', 'out <- t'] })], { adds: ["image:shift"] }),
   ],
@@ -119,19 +119,19 @@ test('a course reward runs and displays the exact workshop version used by its p
   const source = made.levelById.wide.tasks[0]
   const game = { circuit, partDefs: content.partDefs, workshop: {}, levels: [{ tasks: [{ key: 'wide', source }] }] }
   const passthrough = made.kit.fromText(['out <- in'])
-  const take = (graph, id, name, pieces = {}) => captureWorkshop(graph, {
+  const take = (graph, id, name, parts = {}) => captureWorkshop(graph, {
     scope: id, name, description: '', parts: made.kit.boardParts(), resolve: made.kit.partOf,
     identity: (type) => workshopIdentity(content.partDefs, type), defaults: made.kit.defaultParams,
-    book: { pieces },
+    book: { parts },
   })
   const inner = take(passthrough, 'user_inner', 'Inner component')
-  const wrap = (piece) => ({
-    nodes: [...passthrough.nodes, { id: 'wrapped', type: piece.id }],
+  const wrap = (part) => ({
+    nodes: [...passthrough.nodes, { id: 'wrapped', type: part.id }],
     wires: [{ from: 'in', to: 'wrapped', port: 'in' }, { from: 'wrapped', to: 'out', port: 'in' }],
   })
   const original = take(wrap(inner), 'user_first', 'Original version', { [inner.id]: inner })
   const upgrade = take(source.solution, 'user_second', 'New version')
-  let library = publishWorkshop({ pieces: { [inner.id]: inner }, published: {}, featured: {} }, original, { id: original.id, lineage: 'demo' })
+  let library = publishWorkshop({ parts: { [inner.id]: inner }, published: {}, featured: {} }, original, { id: original.id, lineage: 'demo' })
   library = publishWorkshop(library, upgrade, { id: upgrade.id, lineage: 'demo', rank: 1 })
   const saved = { wide: wrap(original) }
   const bindings = courseWorkshop(game, () => library)
@@ -152,7 +152,7 @@ test('a course reward runs and displays the exact workshop version used by its p
     assert.deepEqual(reward.view.workshopPart(placed.type).graph, original.graph)
     assert.deepEqual(reward.view.workshopPart(inner.id).graph, inner.graph)
   }
-  delete library.pieces[inner.id]
+  delete library.parts[inner.id]
   made.syncOwn(bindings.restore(saved))
   assert.deepEqual(run().outputs.out, reference)
 })

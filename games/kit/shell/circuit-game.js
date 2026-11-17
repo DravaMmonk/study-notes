@@ -1,6 +1,6 @@
 // A game on a circuit domain (../engine/circuit-preset.js) on the shared shell, from its content (games/DESIGN.md 6.3):
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
-// and the parts box holding the game's primitives and its built pieces (`piece`: the pieces.json entry; each opens on
+// and the parts box holding the game's primitives and its built parts (`part`: the parts.json entry; each opens on
 // the board it runs). The course read is `game.circuit`.
 //
 //   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, IntroFigure? })
@@ -12,7 +12,7 @@
 //   definedGame(content, circuit, { ops, cards?, …circuitGame's })   the game of a domain whose games define their
 //     own parts: its screen says what a failed run gives as its reason and the room a card's picture takes, so the
 //     domain declares only its run.js (`screen: { play }`) and what it adds;
-//     own parts (pieces.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
+//     own parts (parts.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
 //     own way), and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and as the circuit editor previews them (../circuit/preview.jsx)
 import { CircuitBoard } from 'lucide-react'
@@ -31,10 +31,10 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
     const { name, desc, icon } = cards[type]
-    return { key: `part:${type}`, piece: type, name, desc, icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
+    return { key: `part:${type}`, part: type, name, desc, icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
-  // The built pieces, in the order the course builds them.
-  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, icon: CircuitBoard }))
+  // The built parts, in the order the course builds them.
+  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, part: type, name: circuit.parts[type].name, desc: circuit.parts[type].desc, icon: CircuitBoard }))
   const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
@@ -56,7 +56,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
       return {
         id: L.id,
         index,
-        fresh: [...fresh(course, L)].map(course.pieceOf),
+        fresh: [...fresh(course, L)].map(course.partOf),
         chapter: L.era,
         requires: L.requires,
         title: L.title,
@@ -69,7 +69,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
         note: L.note,
         tasks: tasks.map((T, k) => {
           const { step, brief, hint, intro, after, carries } = L.tasks[k]
-          return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), fresh: [...fresh(course, { id: L.id, task: k })].map(course.pieceOf), source: T }
+          return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), fresh: [...fresh(course, { id: L.id, task: k })].map(course.partOf), source: T }
         }),
       }
     }),
@@ -78,14 +78,14 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
     kinds: playKinds(plays, resources, { [kind.id]: kind }),
     parts: {
       all: [...primitives, ...built],
-      // A built piece shows the board it runs: the one the player passed its task with, else the reference.
+      // A built part shows the board it runs: the one the player passed its task with, else the reference.
       preview: (part, { progress }) => {
-        if (!circuit.BUILT[part.piece]) return null
+        if (!circuit.BUILT[part.part]) return null
         circuit.syncOwn(progress?.built)
         return { inside: { course: circuit, cards } }
       },
     },
-    unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ piece: b.piece, label: b.name, icon: b.icon })),
+    unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ part: b.part, label: b.name, icon: b.icon })),
   })
   game.circuit = circuit
   return game

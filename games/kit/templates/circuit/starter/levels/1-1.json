@@ -77,7 +77,7 @@
       ],
       "publishes": [
         {
-          "piece": "addSub",
+          "part": "addSub",
           "variant": "base"
         }
       ]

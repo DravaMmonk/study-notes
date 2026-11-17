@@ -12,7 +12,7 @@ import { overrideKey } from './left-lists.js'
 import { sidebarSearch } from './sidebar-list.js'
 import SidebarListTools from './SidebarListTools.jsx'
 
-const KINDS = { level: ['关卡', 'Level'], piece: ['件', 'Piece'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
+const KINDS = { level: ['关卡', 'Level'], part: ['元件', 'Part'], entry: ['词条', 'Entry'], tag: ['标签', 'Tag'], relation: ['关系', 'Relation'], layout: ['布局', 'Layout'], i18n: ['文案', 'Copy'] }
 const kindWord = (kind) => tr(...KINDS[kind] ?? [kind, kind])
 const FILTERS = [['all', '全部', 'All'], ['own', '本层', 'This layer'], ['below', '依赖的包', 'Dependencies']]
 

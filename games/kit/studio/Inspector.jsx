@@ -8,7 +8,7 @@ import { glossaryFile } from './form.js'
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
-//   at: the file shown ({ level } | { game: true } | { parts: true }: a piece's pieces/<name>.json, with root: ['parts', id] | { glossary: true }
+//   at: the file shown ({ level } | { game: true } | { parts: true }: a part's parts/<name>.json, with root: ['parts', id] | { glossary: true }
 //       | { object: { kind, full, namespace, own } }: a tag, relation or layout (object-file.js), another layer's read only
 //       | { capability: { kind, name, it } }: the kernel's, read only | { override: { event, layer } }: an override's file,
 //       edited in the layer that made it); field: { path } | { missing: text } | null
@@ -263,12 +263,12 @@ function longConfig(value) {
 
 /** Breadcrumbs always start at the original JSON file. */
 function Head({ path, trail, file, root, onPick, json, onToggleJson, about, pinned, onPin, onRemove }) {
-  // A piece is a file of its own (pieces/<name>.json): its crumbs start at the piece.
-  const piece = file.parts && root?.length === 2 && root.every((key, i) => key === path[i] && key === trail[i]) ? root : null
-  const base = piece ?? []
+  // A part is a file of its own (parts/<name>.json): its crumbs start at the part.
+  const part = file.parts && root?.length === 2 && root.every((key, i) => key === path[i] && key === trail[i]) ? root : null
+  const base = part ?? []
   const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.tagKind, file.object.namespace)
     : file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json`
-    : piece ? `pieces/${piece[1].slice(piece[1].indexOf('/') + 1)}.json` : file.parts ? 'pieces/'
+    : part ? `parts/${part[1].slice(part[1].indexOf('/') + 1)}.json` : file.parts ? 'parts/'
     : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)
   const atRoot = path.length === base.length
   const canOpenRoot = !['course.json', 'package.json'].includes(name)

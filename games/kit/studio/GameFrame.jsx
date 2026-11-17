@@ -5,11 +5,11 @@
 // the game alone. While a board of the level is edited there (`take`), the game's 「用作 …」 sends the board back.
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
-//   part: a piece of pieces.json shown instead (the scenes its editor draws and its fields, PieceView.jsx;
+//   part: a part of parts.json shown instead (the scenes its editor draws and its fields, PartView.jsx;
 //         settings/<name>, a setting definition, the control it draws); picked is then the path picked in it;
 //         stage: one of its stages previewed instead (read only)
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
-//         does not draw too;  footer: what goes under the page (a piece's way through the course, Flow.jsx)
+//         does not draw too;  footer: what goes under the page (a part's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'
 import { CirclePlay, MousePointerClick, Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'

@@ -1,0 +1,25 @@
+{
+  "name": "@part.iou.name",
+  "desc": "@part.iou.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "i = arith[op=mul](a, b)",
+          "ma = fqMean(a)",
+          "mb = fqMean(b)",
+          "mi = fqMean(i)",
+          "s = arith[op=add](ma, mb)",
+          "u = arith[op=sub](s, mi)",
+          "q = arith[op=div](mi, u)",
+          "out <- q"
+        ],
+        "inputs": ["a", "b"]
+      }
+    }
+  ],
+  "inputs": [{ "name": "a", "type": "image:image" }, { "name": "b", "type": "image:image" }],
+  "outputType": "image:image"
+}

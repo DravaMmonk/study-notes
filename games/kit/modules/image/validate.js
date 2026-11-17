@@ -1,7 +1,7 @@
 // The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
 // checks its authored intro figures, every bench proves its lesson (its item's verify, items/benches.js), and every
 // circuit task keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
-// naive ones; a task a built piece runs is passed by that piece alone, wired to the task's inputs. The parts'
+// naive ones; a task a built part runs is passed by that part alone, wired to the task's inputs. The parts'
 // own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { checkWorks } from '../../engine/authoring.js'
@@ -17,7 +17,7 @@ const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
 /** spec: { levels, intros, kit, course, packageTarget?, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
- *  pieces a task runs inside). Returns [{ text, fail?, level? }]: a line
+ *  parts a task runs inside). Returns [{ text, fail?, level? }]: a line
  *  about one level names it. Notes editions and independent package levels may omit introductions. */
 export function validate({ levels, intros, kit, course, publishedBy, packageTarget = false, memo = (_id, _name, f) => f() }) {
   const { runLevel } = kit
@@ -78,7 +78,7 @@ export function validate({ levels, intros, kit, course, publishedBy, packageTarg
       if (!bad.ok) fail(text)
       else say(text)
     }
-    // A built piece, alone between its task's inputs and its output, passes that task's tests.
+    // A built part, alone between its task's inputs and its output, passes that task's tests.
     for (const type of publishedBy(level.key)) {
       const board = startBoard(level)
       board.nodes.push({ id: 'part', type, x: 300, y: 60, params: {} })

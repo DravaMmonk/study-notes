@@ -249,7 +249,7 @@
       "border0": false,
       "publishes": [
         {
-          "piece": "cost",
+          "part": "cost",
           "variant": "base"
         }
       ]

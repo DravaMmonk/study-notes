@@ -1,0 +1,22 @@
+{
+  "name": "@part.frule.name",
+  "desc": "@part.frule.desc",
+  "family": "logic:family-built",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"],
+        "want": "logic:want-becomes",
+        "inputs": [{ "name": "in", "label": "in" }, { "name": "rules", "label": "rules" }],
+        "tests": [{ "goal": "Mortal(h)" }]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "in", "type": "logic:machine-value" },
+    { "name": "rules", "type": "logic:machine-value" }
+  ],
+  "outputType": "logic:machine-value"
+}

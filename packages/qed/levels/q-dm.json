@@ -49,7 +49,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "notEx"
         }
       ],
@@ -96,7 +96,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "allNot"
         }
       ],
@@ -143,7 +143,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "exNot"
         }
       ],
@@ -200,7 +200,7 @@
       ],
       "publishes": [
         {
-          "piece": "dm",
+          "part": "dm",
           "variant": "notAll"
         }
       ],

@@ -1,13 +1,13 @@
 import './parts.css'
 import { L } from '../i18n.js'
-import { facesOf, holesOf, outletsOf, settingsOf } from '../../engine/pieces.js'
+import { facesOf, holesOf, outletsOf, settingsOf } from '../../engine/parts.js'
 import { numberText } from '../../engine/number.js'
 import { isFixed } from '../../circuit/presets.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
 
 // One face of a defined part (games/DESIGN.md 6.8): the desktop card's body, the phone tile, or the detail both
-// share, as pieces/<name>.json's `views` lays it out in blocks (the default where it says nothing). The kernel draws every
+// share, as parts/<name>.json's `views` lays it out in blocks (the default where it says nothing). The kernel draws every
 // block but the part's value and the domain's widgets, which the domain gives (`defined.value`, `defined.widgets`).
 //
 //   def       the part, resolved (../../engine/parts/define.js)      face   'card' | 'tile' | 'detail'
@@ -23,7 +23,7 @@ export const DEFAULT_VIEWS = {
   detail: [{ show: 'desc' }, { show: 'settings' }, { show: 'value' }],
 }
 
-/** A face's blocks: pieces/<name>.json's, or the default; the path each has in pieces/<name>.json (null for a default one). */
+/** A face's blocks: parts/<name>.json's, or the default; the path each has in parts/<name>.json (null for a default one). */
 export function blocksOf(def, face) {
   const blocks = facesOf(def)[face]
   return blocks ? blocks.map((b, k) => [b, ['views', face, k]]) : DEFAULT_VIEWS[face].map((b) => [b, null])
@@ -55,7 +55,7 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
     </div>
   )
   const block = (b, path, key) => {
-    // A default block stands for no field of its own; the description's is the piece's.
+    // A default block stands for no field of its own; the description's is the part's.
     const at = path ? mark(path) : b.show === 'desc' ? mark(['desc']) : {}
     switch (b.show) {
       case 'value': {

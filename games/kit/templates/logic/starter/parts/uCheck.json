@@ -1,0 +1,7 @@
+{
+  "name": "@part.uCheck.name",
+  "desc": "@part.uCheck.desc",
+  "icon": "Sigma",
+  "family": "logic:family-tactic",
+  "op": "logic:uCheck"
+}

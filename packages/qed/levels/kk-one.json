@@ -67,7 +67,7 @@
       ],
       "publishes": [
         {
-          "piece": "liar",
+          "part": "liar",
           "variant": "base"
         }
       ]

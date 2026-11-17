@@ -1,0 +1,19 @@
+{
+  "name": "@part.lrnDense.name",
+  "desc": "@part.lrnDense.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "p": {
+      "label": "w, b",
+      "fixed": true
+    }
+  },
+  "op": "image:lrnDense"
+}

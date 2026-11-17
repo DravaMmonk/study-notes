@@ -1,0 +1,30 @@
+{
+  "name": "@part.attention.name",
+  "desc": "@part.attention.desc",
+  "icon": "Network",
+  "family": "image:family-global",
+  "settings": {
+    "s": {
+      "label": "@part.attention.settings.s.label"
+    },
+    "P": {
+      "label": "@part.attention.settings.P.label",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "8",
+          "label": "8"
+        }
+      ]
+    }
+  },
+  "nulls": "pass",
+  "op": "image:attention"
+}

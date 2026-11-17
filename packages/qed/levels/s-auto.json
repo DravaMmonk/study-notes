@@ -61,7 +61,7 @@
       ],
       "publishes": [
         {
-          "piece": "auto",
+          "part": "auto",
           "variant": "base"
         }
       ]

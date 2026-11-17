@@ -1,0 +1,17 @@
+{
+  "name": "@part.gImp.name",
+  "desc": "@part.gImp.desc",
+  "family": "logic:family-gate",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "logic:gates",
+        "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"],
+        "target": "Rain → Wet"
+      }
+    }
+  ],
+  "inputs": [{ "name": "a", "type": "circuit:boolean" }, { "name": "b", "type": "circuit:boolean" }],
+  "outputType": "circuit:boolean"
+}

@@ -1,7 +1,7 @@
 import { glossaryTarget } from './form.js'
 // The copy table's rows (CopyTable.jsx): every text of a scope — an era (its own texts, then its levels'), a level group
 // (its name, then its levels'), the whole game or package (the configuration's texts, then every level's), the
-// encyclopedia or the pieces — in play order, each with the file it is in, its path, the copy rule it is held to (the
+// encyclopedia or the parts — in play order, each with the file it is in, its path, the copy rule it is held to (the
 // field it is) and whose it is (`own`: the package's, or the game's own). A workspace (`side`) sees its own: the package
 // workspace the package's texts; the game workspace the game's and the package's, which it puts its own wording over.
 import { languagesOf } from '../engine/i18n.js'
@@ -19,7 +19,7 @@ const NOT_GAME = ['id', 'levels', 'glossary', 'vocabulary', 'open', 'blueprint',
 export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'chapters' ? path[2] ?? '' : path[0] ?? '')
 
 /**
- * The rows of `scope` (an era's index, 'group:<id>', 'all', 'glossary' or 'pieces') as workspace `side` sees them,
+ * The rows of `scope` (an era's index, 'group:<id>', 'all', 'glossary' or 'parts') as workspace `side` sees them,
  * `order` the levels in play order: [{ key, file: { level } | { group } | { game } | { glossary } | { parts }, name,
  * path, value, field, own }].
  */
@@ -31,8 +31,8 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
     if (side === 'package' && own === 'game') return
     rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value, own, field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
   }
-  if (scope === 'pieces') {
-    find(PARTS_FILE, content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'pieces.json', 'pieces'))
+  if (scope === 'parts') {
+    find(PARTS_FILE, content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'parts.json', 'parts'))
     return rows
   }
   if (scope === 'glossary') {
@@ -62,12 +62,12 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
 }
 
 
-export const allCopyRows = (content, vocabulary, order, side = 'package') => ['all', 'glossary', 'pieces']
+export const allCopyRows = (content, vocabulary, order, side = 'package') => ['all', 'glossary', 'parts']
   .flatMap((scope) => copyRows(content, vocabulary, scope, order, side))
 
 export const copyLanguages = (rows) => [...new Set(['en', 'zh', ...languagesOf(rows.map((row) => row.value))])].sort()
 
-const fileOf = (row) => row.file.target ?? (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : 'game' })
+const fileOf = (row) => row.file.target ?? (row.file.level !== undefined ? { level: row.file.level } : row.file.group !== undefined ? { group: row.file.group } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'parts' : 'game' })
 
 /** The edit of a row's text in `lang`: in the game workspace, a package text gets the game's own wording (text.override). */
 export function copyEdit(row, lang, value, side = 'package') {
@@ -87,7 +87,7 @@ const shortName = (full) => String(full).slice(String(full).indexOf('/') + 1)
 /** The file a row's text is written in, as the layer keeps it (the copy workspace lists texts by file). */
 export function copyFileOf(row) {
   if (row.file.level !== undefined) return `levels/${shortName(row.file.level)}.json`
-  if (row.file.parts) return row.path[0] === 'parts' && row.path[1] !== undefined ? `pieces/${shortName(row.path[1])}.json` : 'pieces/'
+  if (row.file.parts) return row.path[0] === 'parts' && row.path[1] !== undefined ? `parts/${shortName(row.path[1])}.json` : 'parts/'
   if (row.file.glossary) {
     const target = row.file.target ?? {}
     return target.entry ? `entries/${shortName(target.entry)}.json` : target.tag ? `tags/entry/${shortName(target.tag)}.json` : 'entries/'

@@ -1,0 +1,13 @@
+{
+  "name": "@part.sqrt.name",
+  "desc": "@part.sqrt.desc",
+  "icon": "Calculator",
+  "family": "image:family-pixel",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:sqrt"
+}

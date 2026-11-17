@@ -18,11 +18,11 @@ const FEATURED_PARTS = S.opt(S.list(S.ref('part'), {
   section: 'course', about: t('默认展开的可用元件，参考解所用的件会自动展开。', 'Available parts to show alongside those used by the reference answer.'),
 }))
 
-const PUBLISHES = S.opt(S.list(S.obj({ piece: S.ref('part'), variant: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }) }), {
-  section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named piece variant.'),
+const PUBLISHES = S.opt(S.list(S.obj({ part: S.ref('part'), variant: S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }) }), {
+  section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named part variant.'),
 }))
 
-export const ITEM_REFERENCE = S.str({ reference: 'piece' })
+export const ITEM_REFERENCE = S.str({ reference: 'part' })
 export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens', 'awards'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
 
 const OWN = {

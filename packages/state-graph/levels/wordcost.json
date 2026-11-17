@@ -29,7 +29,7 @@
       "hints": [
         "@level.wordcost.tasks.wordcost.hints.0"
       ],
-      "world": "table:world-pieces",
+      "world": "table:world-parts",
       "facts": [
         "ground"
       ],

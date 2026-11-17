@@ -6,12 +6,12 @@ const content = {
   partDefs: { parts: { 'p/add': { stages: [{ id: 'add-carry' }] }, 'p/mul': {}, 'p/neg': {} } },
   registries: {
     level: { 'p/a': {}, 'p/b': {}, 'p/c': {} },
-    piece: { 'p/add': {}, 'p/mul': {}, 'p/neg': {} },
+    part: { 'p/add': {}, 'p/mul': {}, 'p/neg': {} },
     entry: { 'p/e1': {}, 'p/e2': {} },
     tag: {
       'p/basics': { kind: 'level', values: ['p/b', 'p/a'] },
       'p/more': { kind: 'level', values: ['p/a', 'p/c'] },
-      'p/arith': { kind: 'piece', values: ['p/add-carry', 'p/mul'] },
+      'p/arith': { kind: 'part', values: ['p/add-carry', 'p/mul'] },
       'p/words': { kind: 'entry', values: ['p/e1'] },
     },
     relation: {
@@ -28,16 +28,16 @@ const content = {
 }
 
 test('each list groups by the tags of its kind, or by the objects that gather it', () => {
-  assert.deepEqual(GROUPINGS.piece, ['tag', 'tray', 'relation'])
+  assert.deepEqual(GROUPINGS.part, ['tag', 'tray', 'relation'])
   assert.deepEqual(groupsOf(content, 'level', 'tag').map((g) => [g.full, g.members]), [['p/more', ['p/a', 'p/c']], ['p/basics', ['p/a', 'p/b']]])
-  // A stage stands for its piece; a tray's menus count as its members.
+  // A stage stands for its part; a tray's menus count as its members.
   assert.deepEqual(stageOwners(content).get('p/add-carry'), 'p/add')
-  assert.deepEqual(groupsOf(content, 'piece', 'tag').map((g) => g.members), [['p/add', 'p/mul']])
-  assert.deepEqual(groupsOf(content, 'piece', 'tray'), [{ kind: 'tray', full: 'p/main', members: ['p/neg', 'p/add', 'p/mul'] }])
+  assert.deepEqual(groupsOf(content, 'part', 'tag').map((g) => g.members), [['p/add', 'p/mul']])
+  assert.deepEqual(groupsOf(content, 'part', 'tray'), [{ kind: 'tray', full: 'p/main', members: ['p/neg', 'p/add', 'p/mul'] }])
   assert.deepEqual(groupsOf(content, 'entry', 'section').map((g) => g.full), ['p/two', 'p/one'])
   // Relations by the kind of their endpoints; one ordering tags or sections is no group.
   assert.deepEqual(groupsOf(content, 'level', 'relation').map((g) => [g.full, g.members]), [['p/basics-requires', ['p/a', 'p/b']]])
-  assert.deepEqual(groupsOf(content, 'piece', 'relation').map((g) => g.full), ['p/upgrades'])
+  assert.deepEqual(groupsOf(content, 'part', 'relation').map((g) => g.full), ['p/upgrades'])
   assert.deepEqual(groupsOf(content, 'entry', 'relation').map((g) => g.full), ['p/entry-order'])
   assert.equal(relationKind(content, content.registries.relation['p/level-tags-order']), null)
   assert.deepEqual(ungrouped(['p/a', 'p/b', 'p/c'], groupsOf(content, 'level', 'relation')), ['p/c'])

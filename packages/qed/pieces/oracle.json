@@ -1,7 +1,0 @@
-{
-  "name": "@piece.oracle.name",
-  "desc": "@piece.oracle.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:oracle"
-}

@@ -1,0 +1,7 @@
+{
+  "name": "@part.gNot.name",
+  "desc": "@part.gNot.desc",
+  "icon": "ToggleLeft",
+  "family": "logic:family-gate",
+  "op": "circuit:not"
+}

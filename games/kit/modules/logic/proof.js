@@ -287,7 +287,7 @@ const ABOUT = {
   rewrite: T('等量代换：由 s = t 和 φ(s) 得到 φ(t)', 'Rewrite: from s = t and φ(s), φ(t)'),
 }
 /**
- * The proof rules as engine resources (a game's pieces.json makes each a part, games/DESIGN.md 6.8): a resource's
+ * The proof rules as engine resources (a game's parts.json makes each a part, games/DESIGN.md 6.8): a resource's
  * arguments are its part's inputs, a box's regions included, in order; the card it runs on and the region whose value
  * it gives come with ctx (../../engine/parts/define.js).
  */
@@ -470,10 +470,10 @@ export const PROOF_BOARD = circuitBoard({
 export const startProof = (level) => PROOF_BOARD.startBoard(level)
 
 // A lemma's part, by its definition: one card of several shapes when it has forms.
-const lemmaParts = new WeakMap()
+const lemmaCache = new WeakMap()
 const lemmaPart = (l) => {
-  if (!lemmaParts.has(l)) lemmaParts.set(l, lemma(l))
-  return lemmaParts.get(l)
+  if (!lemmaCache.has(l)) lemmaCache.set(l, lemma(l))
+  return lemmaCache.get(l)
 }
 /** The proof a lemma card's selected form runs. Cards backed by a primitive have no proof dependency. */
 export function lemmaReference(node, lemmas, proofs) {
@@ -481,7 +481,7 @@ export function lemmaReference(node, lemmas, proofs) {
   return proofs[node.type]?.[formOf(lemmaPart(lemmas[node.type]), node) ?? '']
 }
 
-/** The resource a lemma's card runs (lemmaPieces): the proof that proved the shape it is in, on the card's inputs. */
+/** The resource a lemma's card runs (lemmaParts): the proof that proved the shape it is in, on the card's inputs. */
 export const LEMMA = {
   about: T('引理：照证出它的那段证明来推', 'A lemma: runs the proof that proved it'),
   args: [],
@@ -517,11 +517,11 @@ export const OPTIONS = {
 }
 
 /**
- * The parts a game's lemmas make (game.json lemmas), registered by the course beside pieces.json's: a lemma's card has an
+ * The parts a game's lemmas make (game.json lemmas), registered by the course beside parts.json's: a lemma's card has an
  * input for each premise, a sentence to set for each letter its premises leave open and, with forms, its shape; it
  * runs the proof that proved it (LEMMA), or the kit's card it names (`card`).
  */
-export function lemmaPieces(lemmas = {}) {
+export function lemmaParts(lemmas = {}) {
   return Object.fromEntries(Object.entries(lemmas).map(([type, l]) => {
     const forms = l.forms ?? [l]
     const open = [...new Set(forms.flatMap((f) => lemmaForm({ metas: l.metas, ...f }, '').params))]

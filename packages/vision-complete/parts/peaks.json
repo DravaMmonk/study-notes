@@ -1,0 +1,31 @@
+{
+  "name": "@part.peaks.name",
+  "desc": "@part.peaks.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "kind": "image:graph",
+        "solution": [
+          "l = shift[dir=left](in)",
+          "r = shift[dir=right](in)",
+          "big = threshold[t=0.3](in)",
+          "h1 = max(in, l)",
+          "h = max(h1, r)",
+          "u = shift[dir=up](h)",
+          "d = shift[dir=down](h)",
+          "v1 = max(h, u)",
+          "v = max(v1, d)",
+          "df = arith[op=sub](in, v)",
+          "eq = threshold[t=-0.02](df)",
+          "m = arith[op=mul](eq, big)",
+          "out <- m"
+        ],
+        "inputs": ["in"],
+        "outputs": ["out"]
+      }
+    }
+  ],
+  "inputs": [{ "name": "in", "type": "image:image" }],
+  "outputType": "image:image"
+}

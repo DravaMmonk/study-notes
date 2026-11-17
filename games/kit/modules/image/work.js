@@ -9,7 +9,7 @@ import { taskLevels } from '../../engine/tasks.js'
 import { keptBoards } from '../../engine/kept-boards.js'
 import { fitsCircuit } from '../../engine/board-view.js'
 import { workshopOf } from '../../circuit/workshop-view.js'
-import { builtPieces, publications } from '../../engine/pieces.js'
+import { builtParts, publications } from '../../engine/parts.js'
 import { readWorks, publicationEvents } from '../../engine/course-model.js'
 import { gridProbe } from '../../engine/grid-probe.js'
 import { imageDefinitions } from './engine/definitions.js'
@@ -106,9 +106,9 @@ export function* prepareImageWorks(config) {
     }
   }
   const kit = { ...imageKit(types, partsFor), ...definitions }
-  const pieces = builtPieces(partDefs)
+  const parts = builtParts(partDefs)
   const published = new Map()
-  const implementations = publications(levels, pieces)
+  const implementations = publications(levels, parts)
   for (const { task, type } of implementations) if (task) published.set(task, [...(published.get(task) ?? []), type])
   const publishingTasks = new Map()
   const own = keptBoards((key, board) => {
@@ -116,19 +116,19 @@ export function* prepareImageWorks(config) {
     const workshop = workshopOf(board)
     return task && (workshop ? fitsCircuit(board, task, workshop.view) : kit.fits(board, task))
   })
-  // The task that publishes each built piece, as played.
+  // The task that publishes each built part, as played.
   const builders = new Map()
   // Every level's tasks made playable, by level id.
   const played = new Map()
   const blueprints = []
   const references = new Map()
   for (const { type, task, reference } of implementations) {
-    if (references.has(type)) throw new Error(`image piece ${type} must have one implementation`)
+    if (references.has(type)) throw new Error(`image part ${type} must have one implementation`)
     const io = { inputs: reference.inputs ?? ['in'], outputs: reference.outputs ?? ['out'] }
     let circuit
     const board = () => (circuit ??= kit.fromText(reference.solution, io))
     references.set(type, { task: { ...reference, ...io }, board })
-    types[type] = ownPart(io, type, pieces[type], () => own.board(task) ?? board(), types)
+    types[type] = ownPart(io, type, parts[type], () => own.board(task) ?? board(), types)
   }
   for (const id of plan.order) {
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
@@ -136,7 +136,7 @@ export function* prepareImageWorks(config) {
     played.set(id, tasks)
     // A publishing task can supply the player's board over the reference implementation.
     for (const task of tasks) for (const type of published.get(task.taskId) ?? []) {
-      if (task.kind !== "image:graph") throw new Error(`pieces.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
+      if (task.kind !== "image:graph") throw new Error(`parts.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
       builders.set(type, task)
       publishingTasks.set(task.taskId, task)
     }
@@ -153,7 +153,7 @@ export function* prepareImageWorks(config) {
     freshViews: Object.keys(views).filter((view) => views[view] === id),
   })
 
-  // What a task unlocks: the flags its level names, and the pieces it publishes.
+  // What a task unlocks: the flags its level names, and the parts it publishes.
   const unlocksOf = (task) => [...(task.unlocks ?? []), ...(published.get(task.taskId) ?? [])]
   // A task as the shell plays it (../../shell/GameShell.jsx): the domain's defaults under it, its level's place in the
   // course, its key and name (`step`, from the content's task `given`), and what it opens for the tasks after it. A level
@@ -188,11 +188,11 @@ export function* prepareImageWorks(config) {
   /** Whether a task holds a part, one of its settings or one option of a choice: has(part), has(part, key), has(part, key, value). */
   const holdsIn = (level, flags) => holds(course, at(level), flags)
 
-  /** The task a built piece runs, as the screens play it; the pieces a task (by its key) publishes. */
+  /** The task a built part runs, as the screens play it; the parts a task (by its key) publishes. */
   const builtBy = (type) => (builders.has(type) ? levelById[builders.get(type).id].tasks.find(task => task.task === builders.get(type).task) : null)
   const publishedBy = (key) => published.get(key) ?? []
 
   const referenceOf = (type) => references.get(type)?.task ?? null
 
-  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn: own.sync, builtBy, referenceOf, publishedBy, pieces, blueprints }
+  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn: own.sync, builtBy, referenceOf, publishedBy, parts, blueprints }
 }

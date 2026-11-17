@@ -1,0 +1,23 @@
+{
+  "name": "@part.rewrite.name",
+  "desc": "@part.rewrite.desc",
+  "icon": "GitFork",
+  "family": "logic:family-rule",
+  "inputs": [
+    {
+      "name": "eq",
+      "label": "@part.rewrite.inputs.0.label"
+    },
+    {
+      "name": "p",
+      "label": "@part.rewrite.inputs.1.label"
+    }
+  ],
+  "settings": {
+    "at": {
+      "label": "@part.rewrite.settings.at.label",
+      "from": "logic:occurrences(eq, p)"
+    }
+  },
+  "op": "logic:rewrite"
+}

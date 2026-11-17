@@ -1,0 +1,13 @@
+{
+  "name": "σ",
+  "desc": "@part.dg_sigma.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "settings": {
+    "w": {
+      "label": "σ",
+      "fixed": true
+    }
+  },
+  "op": "image:dg_sigma"
+}

@@ -54,7 +54,7 @@
       ],
       "publishes": [
         {
-          "piece": "appNil",
+          "part": "appNil",
           "variant": "base"
         }
       ]

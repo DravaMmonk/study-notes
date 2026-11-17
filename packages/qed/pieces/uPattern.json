@@ -1,7 +1,0 @@
-{
-  "name": "@piece.uPattern.name",
-  "desc": "@piece.uPattern.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:uPattern"
-}

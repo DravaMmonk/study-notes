@@ -19,7 +19,7 @@ export default function Palette({ items, folded = [], onAdd, compact = false, st
     const edge = (item.closest('.kit-board') ?? document.documentElement).getBoundingClientRect().right
     item.dataset.tip = item.getBoundingClientRect().right + 12 + tip.offsetWidth > edge ? 'left' : 'right'
   }
-  const piece = (item, tooltip = compact) => (
+  const part = (item, tooltip = compact) => (
     <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={item.onPick ?? (() => onAdd(item.type))} title={tooltip ? undefined : L(item.desc)} onPointerEnter={tooltip ? aim : undefined} onFocus={tooltip ? aim : undefined} aria-description={tooltip ? L(item.desc) : undefined}>
       <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
       <span className="palette-text">
@@ -31,8 +31,8 @@ export default function Palette({ items, folded = [], onAdd, compact = false, st
     </button>
   )
   const entry = (item, hidden = false) => item.children
-    ? <TrayMenu key={item.menu} entry={item} className="palette-more" compact={compact} renderPiece={(child) => piece({ ...child, folded: hidden }, false)} />
-    : piece({ ...item, folded: hidden })
+    ? <TrayMenu key={item.menu} entry={item} className="palette-more" compact={compact} renderPart={(child) => part({ ...child, folded: hidden }, false)} />
+    : part({ ...item, folded: hidden })
   const count = trayItemCount(folded)
   if (!start && !items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>
   return (

@@ -1,0 +1,39 @@
+{
+  "name": "@part.gradmag.name",
+  "desc": "√(Gx² + Gy²)",
+  "icon": "Grid3x3",
+  "family": "image:family-neighbour",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "settings": {
+    "border": {
+      "label": "@part.gradmag.settings.border.label",
+      "options": [
+        {
+          "value": "zero",
+          "label": "@part.gradmag.settings.border.options.0.label"
+        },
+        {
+          "value": "edge",
+          "label": "@part.gradmag.settings.border.options.1.label"
+        }
+      ],
+      "fixed": true
+    }
+  },
+  "op": "image:gradmag",
+  "stages": [
+    {
+      "id": "gradmag-border",
+      "settings": {
+        "border": {
+          "fixed": false
+        }
+      }
+    }
+  ]
+}

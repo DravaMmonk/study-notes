@@ -4,14 +4,14 @@
 //   boardView({ board, parts(task), built?(task), builder?(type, task), defined?(task), offerIn, holdsIn, syncOwn, tasksAt?, opening? })
 //       board    its circuitBoard (./board-cards.js)
 //       parts    the parts a task's board holds, by type; built(task) those it holds that a level builds (packed parts,
-//                each with its `name`, `desc` and `opens()`: the view's `pieces`), and builder(type, task) the task that
+//                each with its `name`, `desc` and `opens()`: the view's `parts`), and builder(type, task) the task that
 //                builds one
 //       defined  the parts a task's board holds that are defined as data (shell/parts/faces.jsx: { of, defaults, ops }),
 //                where they are the task's own (its rule parts…) and not the game's alone
 //       offerIn, holdsIn, syncOwn   the course's (../course.js offer, holds; the boards the player passed with)
 //       tasksAt(level)   the tasks to find a preceding task when the new board carries one forward
 //       opening(task, progress, viewOf)   override how the board opens using the active views
-//     → { BUILT, builtBy, pieces, forTask(task) → the task's view }: BUILT, builtBy and pieces outside any task
+//     → { BUILT, builtBy, parts, forTask(task) → the task's view }: BUILT, builtBy and parts outside any task
 
 import { inheritedBoard } from '../shell/progress.js'
 
@@ -61,7 +61,7 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
     return {
       board,
       BUILT: built(task),
-      pieces: built(task),
+      parts: built(task),
       builtBy: builtBy(task),
       partOf: (type) => {
         if (Object.hasOwn(board.FIXED_PARTS, type)) return board.FIXED_PARTS[type]
@@ -89,5 +89,5 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
     if (!views.has(task)) views.set(task, view(task))
     return views.get(task)
   }
-  return { BUILT: built(null), builtBy: builtBy(null), pieces: built(null), forTask }
+  return { BUILT: built(null), builtBy: builtBy(null), parts: built(null), forTask }
 }

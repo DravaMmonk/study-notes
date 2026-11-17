@@ -29,7 +29,7 @@
     "iff-intro",
     "natInd"
   ],
-  "of": "piece",
+  "of": "part",
   "edges": [
     {
       "from": "proof-implication",

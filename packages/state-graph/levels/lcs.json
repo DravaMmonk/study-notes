@@ -898,7 +898,7 @@
       "border0": true,
       "publishes": [
         {
-          "piece": "align",
+          "part": "align",
           "variant": "base"
         }
       ]

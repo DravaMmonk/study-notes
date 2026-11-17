@@ -100,7 +100,7 @@ export default function CopyTable({ side = 'package', content, vocabulary, scope
               : Object.entries(content.tags ?? {}).filter(([, tag]) => tag.kind === 'level').map(([id, group]) => <option key={id} value={`group:${id}`}>{L(group.title) || id}</option>)}
             <option value="all">{side === 'game' ? tr('整款游戏') : tr('整个内容包', 'The whole package')}</option>
             <option value="glossary">{tr('百科')}</option>
-            {content.partDefs && <option value="pieces">{tr('件', 'Pieces')}</option>}
+            {content.partDefs && <option value="parts">{tr('元件', 'Parts')}</option>}
           </select>}
           <select value={selectedField} onChange={(event) => setField(event.target.value)} aria-label={tr('字段')}>
             <option value="">{tr('全部字段')}</option>

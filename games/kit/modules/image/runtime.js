@@ -6,10 +6,10 @@ import { imageWorks, prepareImageWorks } from './work.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
 import { partNames } from '../../engine/trays.js'
-import { builtPieces } from '../../engine/pieces.js'
+import { builtParts } from '../../engine/parts.js'
 
-/** An image game's part names, for its trays: its built pieces. */
-const names = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
+/** An image game's part names, for its trays: its built parts. */
+const names = (content) => partNames(Object.keys(builtParts(content.partDefs)))
 
 /** An image game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content, works = imageWorks(content)) {
@@ -24,10 +24,10 @@ function spec(content, works = imageWorks(content)) {
     blueprints: image.blueprints,
     kit: image.kit,
     publishedBy: image.publishedBy,
-    // The board each built piece runs, by its task's key: the screens keep it as that task's passed board.
+    // The board each built part runs, by its task's key: the screens keep it as that task's passed board.
     syncOwn: image.syncOwn,
     // The built parts that run no circuit (games/DIRECTION.md §2, 4): a part a level unlocks is the engine's own
-    // implementation; only a built piece of pieces.json (inside) runs the player's board.
+    // implementation; only a built part of parts.json (inside) runs the player's board.
     builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),
     texts: { chapters: image.CHAPTERS, intros: image.intros, glossary: content.glossary.entries },
     quotes: Object.values(content.registries?.quote ?? {}).map(quote => quote.text),

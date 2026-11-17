@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { starterPieces } from '../../engine/ops/fixture.js'
+import { starterParts } from '../../engine/ops/fixture.js'
 // The logic domain on its content: boards as blueprint text both ways, a course's data read into its levels (test
 // cases, words), and the parts the player builds running the player's board; on a course written here.
 import { test } from 'node:test'
@@ -47,23 +47,23 @@ const CONTENT = {
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
   } },
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
-  // The parts the starter defines (its pieces/<name>.json: the gates and the proof rules), and the pieces built here: a gate,
+  // The parts the starter defines (its parts/<name>.json: the gates and the proof rules), and the parts built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
   partDefs: { parts: {
-    ...Object.fromEntries(Object.entries(starterPieces(new URL('../../templates/logic/', import.meta.url).pathname).parts).filter(([, p]) => !p.inside)),
+    ...Object.fromEntries(Object.entries(starterParts(new URL('../../templates/logic/', import.meta.url).pathname).parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'logic:family-gate', inside: [{ id: 'base', reference: GATE }] },
     chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B', 'C'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'base', reference: CHAIN }] },
     half: { name: L('取一半', 'Half'), desc: L('d'), family: 'logic:family-lemma', settings: Object.fromEntries(['A', 'B'].map((key) => [key, { control: 'tree' }])), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
   } },
   eras: [{ id: 'one', machine: null, levels: [{ id: 'or' }, { id: 'chain' }, { id: 'useChain' }, { id: 'half' }, { id: 'useHalf' }, { id: 'eqSym' }, { id: 'andDef' }, { id: 'eqUse' }, { id: 'eqTerm' }, { id: 'rows' }, { id: 'negate' }], links: [{ from: 'or', to: 'chain' }, { from: 'chain', to: 'useChain' }, { from: 'useChain', to: 'half' }, { from: 'half', to: 'useHalf' }, { from: 'useHalf', to: 'eqSym' }, { from: 'eqSym', to: 'andDef' }, { from: 'andDef', to: 'eqUse' }, { from: 'eqUse', to: 'eqTerm' }, { from: 'eqTerm', to: 'rows' }, { from: 'rows', to: 'negate' }], chapter: { title: L('c'), question: L('q') } }],
   levels: [
-    one({ id: 'or', publishes: [{ piece: 'gOr', variant: 'base' }], kind: 'logic:gates', adds: ['formulaOr'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
-    proofLevel('chain', { publishes: [{ piece: 'chain', variant: 'base' }], title: L('接起来', 'Join them'), adds: ['formulaImplies', 'formulaAnd', 'formulaForall'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
+    one({ id: 'or', publishes: [{ part: 'gOr', variant: 'base' }], kind: 'logic:gates', adds: ['formulaOr'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
+    proofLevel('chain', { publishes: [{ part: 'chain', variant: 'base' }], title: L('接起来', 'Join them'), adds: ['formulaImplies', 'formulaAnd', 'formulaForall'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       solution: box('f = impI[A=A](body: m2)', ["m1 = mp(p, f.body)", "m2 = mp(q, m1)"], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
     { id: 'half', title: L('half'), tasks: [
-      { id: 'half_l', publishes: [{ piece: 'half', variant: 'left' }], kind: 'logic:proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ["e = andE(p)", 'goal <- e.left'] },
-      { id: 'half_r', publishes: [{ piece: 'half', variant: 'right' }], kind: 'logic:proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ["e = andE(p)", 'goal <- e.right'] },
+      { id: 'half_l', publishes: [{ part: 'half', variant: 'left' }], kind: 'logic:proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ["e = andE(p)", 'goal <- e.left'] },
+      { id: 'half_r', publishes: [{ part: 'half', variant: 'right' }], kind: 'logic:proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ["e = andE(p)", 'goal <- e.right'] },
     ] },
     { id: 'useHalf', title: L('useHalf'), tasks: [
       { id: 'useHalf_l', kind: 'logic:proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A ∧ A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half(p)', "c = andI(h, h)", 'goal <- c'] },
@@ -244,7 +244,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   assert.notEqual(other.proofs.chain[''].board(), own)
   assert.equal(run('useChain', 0).pass, true)
   syncOwn({ chain: { ...own, wires: [...own.wires, { from: 'missing', to: 'goal', port: 'in' }] } })
-  assert.equal(course.proofs.chain[''].board(), chain.pieceSolution)
+  assert.equal(course.proofs.chain[''].board(), chain.partSolution)
   // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', "    m1 = mp(p, f.body)", '  }', '}', 'goal <- f'], chain) })
   const broken = run('useChain', 0)
@@ -258,8 +258,8 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   const selected = (task, work = task.solution) => course.proofBoards.runtimeReferences(task, work)
   const brokenRight = empty(right)
   syncOwn({ half_r: brokenRight })
-  assert.equal(course.proofs.half.left.board(), left.pieceSolution)
-  assert.deepEqual(selected(useLeft), [{ key: 'half_l', task: left, work: left.pieceSolution }])
+  assert.equal(course.proofs.half.left.board(), left.partSolution)
+  assert.deepEqual(selected(useLeft), [{ key: 'half_l', task: left, work: left.partSolution }])
   assert.deepEqual(selected(useRight), [{ key: 'half_r', task: right, work: brokenRight }])
   assert.deepEqual(course.workReferences(useRight, useRight.solution), selected(useRight))
   const obsolete = { ...useRight.solution, nodes: useRight.solution.nodes.map((n) => n.type === 'half' ? { ...n, params: { ...n.params, form: 'obsolete' } } : n) }
@@ -282,7 +282,7 @@ test('reading a game on the domain never writes into its content', () => {
 })
 
 
-test('formula chips use the registered pieces and keep contextual names', () => {
+test('formula chips use the registered parts and keep contextual names', () => {
   const content = readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))
   const level = logicWorks(content).LEVELS.at(-1).tasks.at(-1)
   const chips = chipsOf({
@@ -290,7 +290,7 @@ test('formula chips use the registered pieces and keep contextual names', () => 
   })
   const not = chips.find((chip) => chip.key === '¬')
   const rain = chips.find((chip) => chip.key === 'P:Rain')
-  assert.equal(not.piece.type, 'starter/formulaNot')
+  assert.equal(not.part.type, 'starter/formulaNot')
   assert.equal(not.make().op, '¬')
   assert.equal(rain.make().pred, 'Rain')
   assert.ok(level.notation.symbols.includes('∨'))

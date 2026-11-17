@@ -1,4 +1,4 @@
-// The tray and section editors of the build workspace (games/DESIGN.md 6.1, 6.7): objects that gather pieces (a tray,
+// The tray and section editors of the build workspace (games/DESIGN.md 6.1, 6.7): objects that gather parts (a tray,
 // with its menus) or encyclopedia entries (a section). What they hold is their `values` (members, stages, tags of
 // them); the order they show them in is an order relation (`<tray>-order`, `<section>-order`; a menu's
 // `<tray>-<menu>-order`, or an order relation of the layer that already lists them all), dragged or moved with Alt+↑/↓. Another package's tray or section is read only until it is
@@ -94,16 +94,16 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   const editable = own || overriding
   const locked = pending || !editable
   const write = writer({ kind: 'tray', full, namespace, own, value: withoutId(value), content, onEdit, onOps })
-  const pieces = content.partDefs?.parts ?? {}
+  const parts = content.partDefs?.parts ?? {}
   const owners = stageOwners(content)
   const titleOf = (ref) => {
     if (ref.startsWith('#')) return L(content.registries?.tag?.[ref.slice(1)]?.title)
-    const piece = pieces[owners.get(ref) ?? ref]
-    return L(piece?.name) ?? ''
+    const part = parts[owners.get(ref) ?? ref]
+    return L(part?.name) ?? ''
   }
   const candidates = (taken) => [
-    ...[...owners.keys()].filter((id) => !taken.includes(id)).map((id) => ({ value: id, label: shownName(namespace, id), title: titleOf(id), group: owners.get(id) === id ? tr('件', 'Pieces') : tr('阶段', 'Stages') })),
-    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === 'piece' && !taken.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
+    ...[...owners.keys()].filter((id) => !taken.includes(id)).map((id) => ({ value: id, label: shownName(namespace, id), title: titleOf(id), group: owners.get(id) === id ? tr('元件', 'Parts') : tr('阶段', 'Stages') })),
+    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === 'part' && !taken.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
   ]
   const menus = value.menus ?? []
   const setMenus = (next) => write.set('menus', next)
@@ -112,11 +112,11 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
     onEdit({ op: 'tray.remove', tray: localName(namespace, full) })
     onSelect(null)
   }
-  // What the tray shows, in order: its pieces and menus as the kernel lays them out.
+  // What the tray shows, in order: its parts and menus as the kernel lays them out.
   const shown = content.trays?.[full]?.items ?? []
   const shownIds = [...new Set(shown.map((item) => (typeof item === 'string' ? item : item.id)))]
   const ordering = (relation, ids) => (!pending && canOrder(content, namespace, relation, full, overriding) ? (sequence) => {
-    const ops = subsetOrderOps(content, namespace, relation, ids, sequence, 'piece', full, overriding)
+    const ops = subsetOrderOps(content, namespace, relation, ids, sequence, 'part', full, overriding)
     if (ops?.length) onOps(ops)
   } : null)
   const menuOf = new Map(menus.map((menu) => [menu.id, menu]))

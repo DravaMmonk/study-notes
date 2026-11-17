@@ -1,24 +1,24 @@
-// Trays describe presentation: ordered pieces and optional menus for related pieces.
+// Trays describe presentation: ordered parts and optional menus for related parts.
 import { S } from './schema.js'
-import { pieceStages } from './piece-stages.js'
-import { editorOf } from './pieces.js'
+import { partStages } from './part-stages.js'
+import { editorOf } from './parts.js'
 
 export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
 /** The named circuit trays that may be opened in the workshop, in course order. */
-export function workshopTrayNames(trays = {}, pieces = {}) {
-  const stages = pieceStages(pieces)
+export function workshopTrayNames(trays = {}, parts = {}) {
+  const stages = partStages(parts)
   return Object.entries(trays)
-    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => stages.has(type) && editorOf(pieces[stages.get(type).piece]) === 'circuit'))
+    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => stages.has(type) && editorOf(parts[stages.get(type).part]) === 'circuit'))
     .map(([name]) => name)
 }
 
-/** Project available pieces onto the selected trays, leaving availability to the course. */
-export function trayDisplay(trays, names, shown, folded, pieceOf = id => id) {
+/** Project available parts onto the selected trays, leaving availability to the course. */
+export function trayDisplay(trays, names, shown, folded, partOf = id => id) {
   const first = new Set(shown.map(({ type }) => type))
   const remaining = new Map([...shown, ...folded].map((item) => [item.type, item]))
   const menus = names.flatMap((name) => (trays[name]?.items ?? [])
-    .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, items: entry.items.map(pieceOf), key: JSON.stringify([name, entry.id]) })))
+    .filter((entry) => typeof entry !== 'string').map((entry) => ({ ...entry, items: entry.items.map(partOf), key: JSON.stringify([name, entry.id]) })))
   const items = [], more = []
   const add = (item, visible) => (visible ? items : more).push(item)
   const done = new Set()

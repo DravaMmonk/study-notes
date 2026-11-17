@@ -180,7 +180,7 @@
       "checkAll": true,
       "publishes": [
         {
-          "piece": "sweep",
+          "part": "sweep",
           "variant": "base"
         }
       ]

@@ -11,11 +11,11 @@
   "level.1-2.tasks.1-2.brief": "Give a + b − c + d − e.",
   "level.1-2.tasks.1-2.outputs.0.label": "Result",
   "level.1-2.title": "Two numbers more",
-  "piece.add.desc": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」.",
-  "piece.add.name": "Add",
-  "piece.addSub.desc": "Gives a plus b, less c.",
-  "piece.addSub.name": "Add, then take away",
-  "piece.sub.desc": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
-  "piece.sub.name": "Subtract",
+  "part.add.desc": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」.",
+  "part.add.name": "Add",
+  "part.addSub.desc": "Gives a plus b, less c.",
+  "part.addSub.name": "Add, then take away",
+  "part.sub.desc": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
+  "part.sub.name": "Subtract",
   "section.adding.title": "Adding up"
 }

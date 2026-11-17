@@ -10,7 +10,7 @@ import TrayMenu, { trayItemCount } from './TrayMenu.jsx'
 export default function Tray({ items, folded = [], onPick, start }) {
   const [more, setMore] = useState(false)
   const host = useRef(null)
-  const piece = (item) => (
+  const part = (item) => (
     <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.onPick ? undefined : item.type} data-family={item.family} onClick={item.onPick ?? (() => onPick(item.type))} title={L(item.desc)}>
       {item.icon && <i className="family-chip"><Glyph icon={item.icon} size={13} /></i>}
       <b>{L(item.label)}</b>
@@ -18,8 +18,8 @@ export default function Tray({ items, folded = [], onPick, start }) {
     </button>
   )
   const entry = (item, hidden = false) => item.children
-    ? <TrayMenu key={item.menu} entry={item} className="pb-part" phoneHost={host} renderPiece={(child) => piece({ ...child, folded: hidden })} />
-    : piece({ ...item, folded: hidden })
+    ? <TrayMenu key={item.menu} entry={item} className="pb-part" phoneHost={host} renderPart={(child) => part({ ...child, folded: hidden })} />
+    : part({ ...item, folded: hidden })
   const count = trayItemCount(folded)
   if (!start && !items.length && !folded.length) return null
   return (

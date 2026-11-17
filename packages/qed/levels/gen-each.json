@@ -137,7 +137,7 @@
       ],
       "publishes": [
         {
-          "piece": "elimGen",
+          "part": "elimGen",
           "variant": "v2"
         }
       ]

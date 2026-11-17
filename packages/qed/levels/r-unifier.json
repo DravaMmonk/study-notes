@@ -67,7 +67,7 @@
       ],
       "publishes": [
         {
-          "piece": "unifier",
+          "part": "unifier",
           "variant": "base"
         }
       ]

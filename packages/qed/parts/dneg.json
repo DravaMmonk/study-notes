@@ -1,0 +1,96 @@
+{
+  "name": "@part.dneg.name",
+  "desc": "@part.dneg.desc",
+  "family": "logic:family-lemma",
+  "settings": {
+    "A": {
+      "control": "tree"
+    },
+    "form": {
+      "control": "select",
+      "options": [
+        {
+          "value": "elim",
+          "label": "¬¬A → A"
+        }
+      ],
+      "default": "elim"
+    }
+  },
+  "inside": [
+    {
+      "id": "elim",
+      "form": "elim",
+      "label": "¬¬A → A",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "r = raa(p)",
+          "goal <- r"
+        ],
+        "tests": [
+          {
+            "goal": "A",
+            "premises": {
+              "p": "¬¬A"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro",
+      "form": "intro",
+      "label": "A → ¬¬A",
+      "reference": {
+        "kind": "logic:proof",
+        "solution": [
+          "f = impI[A=\"~A\"](body: m) {",
+          "  body {",
+          "    m = mp(f.body, p)",
+          "  }",
+          "}",
+          "goal <- f"
+        ],
+        "tests": [
+          {
+            "goal": "¬¬A",
+            "premises": {
+              "p": "A"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "name": "p0",
+      "type": "logic:judgment"
+    }
+  ],
+  "outputType": "logic:judgment",
+  "stages": [
+    {
+      "id": "dneg-intro",
+      "settings": {
+        "form": {
+          "options": [
+            {
+              "value": "elim",
+              "label": "¬¬A → A"
+            },
+            {
+              "value": "intro",
+              "label": "A → ¬¬A"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dneg-sp-rw-desc",
+      "desc": "@part.dneg.revisions.0.desc"
+    }
+  ]
+}

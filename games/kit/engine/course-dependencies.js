@@ -1,6 +1,6 @@
 // The authored, knowledge and reference edges used to open a course. Only authored links live in the course file.
 import { dependencyCycle, eraLevels, layout } from '../course.js'
-import { pieceStages, requiredStage } from './piece-stages.js'
+import { partStages, requiredStage } from './part-stages.js'
 import { standalonePlan } from './package-play.js'
 import { parse } from '../circuit/text.js'
 
@@ -21,12 +21,12 @@ function ancestors(id, edges) {
   return seen
 }
 
-function referenceItems(task, pieces, stages) {
+function referenceItems(task, parts, stages) {
   if (!Array.isArray(task?.solution) || !task.solution.every((line) => typeof line === 'string')) return []
   try {
     return parse(task.solution.join('\n')).statements.flatMap(({ id, type, settings }) => type && !list(task.preset).includes(id) ? [
       type,
-      requiredStage(pieces, type, settings, stages),
+      requiredStage(parts, type, settings, stages),
     ] : [])
   } catch (error) {
     // The domain's blueprint check reports a syntax error with a line number.
@@ -46,10 +46,10 @@ function providersOf(content) {
     for (const [index, task] of list(level.tasks).entries()) {
       if (!task) continue
       for (const item of list(task.awards)) offer(item, level.id, index, Boolean(task.optional))
-      // A task starts with its own options, and publishes the piece after it passes.
+      // A task starts with its own options, and publishes the part after it passes.
       for (const item of list(task.opens)) offer(item, level.id, index - 1, Boolean(task.optional))
-      for (const { piece } of list(task.publishes).filter((entry) => entry?.piece)) {
-        offer(piece, level.id, index, Boolean(task.optional))
+      for (const { part } of list(task.publishes).filter((entry) => entry?.part)) {
+        offer(part, level.id, index, Boolean(task.optional))
 
       }
     }
@@ -76,14 +76,14 @@ export function courseDependencies(content) {
   }
   const assumed = layout(eras, { links })
   const providers = providersOf(content)
-  const pieces = content.partDefs?.parts ?? {}
-  const stages = pieceStages(pieces)
+  const parts = content.partDefs?.parts ?? {}
+  const stages = partStages(parts)
   for (const level of levels) {
     if (!placed.has(level.id)) continue
     const required = ancestors(level.id, assumed.required)
     const tasks = Array.isArray(level.tasks) ? level.tasks : [level]
     for (const [index, task] of tasks.entries()) {
-      const items = new Set(referenceItems(task, pieces, stages))
+      const items = new Set(referenceItems(task, parts, stages))
       const gives = new Set([...list(task?.gives ?? level.gives), ...list(task?.opens)])
       for (const item of items) {
         if (gives.has(item)) continue

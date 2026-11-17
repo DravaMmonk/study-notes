@@ -42,7 +42,7 @@ test('author checks use intermediate cells when the task grades the entire table
 });
 
 test('the robot window shows intrinsic sweep values and recorded table values', () => {
-  const world = WORLDS['table:world-pieces'];
+  const world = WORLDS['table:world-parts'];
   const picture = robotWindow({
     world, test: { s: 'cats', dict: { cats: 0, ats: 2 } }, robot: ROBOTS['table:robot-broom'],
     task: { facts: [], given: { offers: { view: ['seg', 'cost'], facts: [] } } },
@@ -133,7 +133,7 @@ const twoLevels = () => ({
   eras: [{ id: 'e', machine: 'table:robot-scout', levels: [{ id: 'build' }, { id: 'reuse' }], links: [{ from: 'build', to: 'reuse' }], chapter: { title: t('e'), desc: t('e') } }],
   levels: [
     { id: 'build', intro: [], robot: 'table:robot-scout', adds: ['table:msum', 'table:const', 'table:pass'],
-      tasks: [{ id: 'build', publishes: [{ piece: 'counter', variant: 'base' }], mode: 'table:circuit', world: 'table:world-grid', facts: ['start'], ports: counterPorts, tests: [{ R: 3, C: 4 }], expected: [10], solution: counterSolution }] },
+      tasks: [{ id: 'build', publishes: [{ part: 'counter', variant: 'base' }], mode: 'table:circuit', world: 'table:world-grid', facts: ['start'], ports: counterPorts, tests: [{ R: 3, C: 4 }], expected: [10], solution: counterSolution }] },
     { id: 'reuse', intro: [], robot: 'table:robot-scout', adds: ['table:block'],
       tasks: [{ id: 'reuse', mode: 'table:circuit', world: 'table:world-grid', facts: ['start', 'rock'],
         tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }], expected: [8, 12, 10],
@@ -186,21 +186,21 @@ test('robot workshop blueprints round-trip and restore with the same ports and s
     ticks: true,
     wiring: (_, view) => wiring(table.model, { sensors: V.sensors, outs: V.outs, offers: task.given.offers, workshop: view.workshop }),
   } };
-  const piece = {
+  const part = {
     id: 'user_value', graph: { nodes: [], wires: [] }, inputs: [], outputs: ['cell'],
     outputSignals: { cell: 'circuit:number' }, name: 'Saved value',
   };
-  const viewFor = (definition) => workshopView(base, { pieces: { [piece.id]: definition } }, () => true, table.model.partOf).view;
-  const view = viewFor(piece);
+  const viewFor = (definition) => workshopView(base, { parts: { [part.id]: definition } }, () => true, table.model.partOf).view;
+  const view = viewFor(part);
   const parts = view.board.wiring(task);
   const opening = fitted({ nodes: [], wires: [] }, task.given);
-  const source = `p = ${piece.id}()\ncell <- p`;
-  const { graph, errors } = read(source, opening, parts, [piece.id]);
+  const source = `p = ${part.id}()\ncell <- p`;
+  const { graph, errors } = read(source, opening, parts, [part.id]);
   assert.equal(errors, undefined);
-  assert.deepEqual(plainBoard(read(print(graph, parts), opening, parts, [piece.id]).graph), plainBoard(graph));
+  assert.deepEqual(plainBoard(read(print(graph, parts), opening, parts, [part.id]).graph), plainBoard(graph));
   assert.deepEqual(plainBoard(restoreRobotBoard(table.model, task, graph, { knows: view.partOf, parts })), plainBoard(graph));
-  assert.match(read(`p = ${piece.id}[value=2]()`, opening, parts, [piece.id]).errors[0].en, /has no setting/);
-  const other = viewFor({ ...piece, outputSignals: { cell: 'circuit:boolean' } });
+  assert.match(read(`p = ${part.id}[value=2]()`, opening, parts, [part.id]).errors[0].en, /has no setting/);
+  const other = viewFor({ ...part, outputSignals: { cell: 'circuit:boolean' } });
   assert.equal(restoreRobotBoard(table.model, task, graph, { knows: other.partOf, parts: other.board.wiring(task) }), null);
 });
 

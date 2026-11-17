@@ -29,8 +29,8 @@ test('the copy workspace lists texts by the file they are in', async () => {
     { file: { glossary: true, target: { entry: 'demo/proof', path: ['title'] } }, path: ['entries', 0, 'title'] },
     { file: { glossary: true, target: { tag: 'demo/basics', path: ['title'] } }, path: ['groups', 0, 'title'] },
   ]
-  assert.deepEqual(rows.map(copyFileOf), ['levels/one.json', 'levels/one.json', 'pieces/and.json', 'entries/proof.json', 'tags/entry/basics.json'])
-  assert.deepEqual(copyFiles(rows), [['levels/one.json', 2], ['pieces/and.json', 1], ['entries/proof.json', 1], ['tags/entry/basics.json', 1]])
+  assert.deepEqual(rows.map(copyFileOf), ['levels/one.json', 'levels/one.json', 'parts/and.json', 'entries/proof.json', 'tags/entry/basics.json'])
+  assert.deepEqual(copyFiles(rows), [['levels/one.json', 2], ['parts/and.json', 1], ['entries/proof.json', 1], ['tags/entry/basics.json', 1]])
   // A row goes to its field in the side panel.
   assert.deepEqual(copyFieldOf(rows[1]), { at: { level: 'demo/one' }, path: ['tasks', 0, 'brief'] })
   assert.deepEqual(copyFieldOf(rows[2]), { at: { parts: true, root: ['parts', 'demo/and'] }, path: ['parts', 'demo/and', 'name'] })

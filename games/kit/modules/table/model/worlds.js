@@ -3,7 +3,7 @@ import { qualifyItems } from '../../../engine/capabilities.js';
 // world.js; each world lives with its relatives in worlds/.
 
 import { grid, gridYes, piles, tri, lawn } from './worlds/grid.js';
-import { strip, pile, coins, pieces } from './worlds/line.js';
+import { strip, pile, coins, parts } from './worlds/line.js';
 import { rob1, rob2, prefix, heights, gains } from './worlds/street.js';
 import { ring } from './worlds/ring.js';
 import { keysMaze } from './worlds/maze.js';
@@ -18,4 +18,4 @@ import { pic } from './worlds/picture.js';
 
 export { visibleSensors, sensorsOf } from './world.js';
 
-export const WORLDS = qualifyItems('table', 'world', { grid, gridYes, piles, tri, lawn, strip, pile, coins, pieces, rob1, rob2, ring, prefix, heights, gains, keys: keysMaze, river, stock, align, local, knap, roll, interval, vgrid, tags, pic });
+export const WORLDS = qualifyItems('table', 'world', { grid, gridYes, piles, tri, lawn, strip, pile, coins, parts, rob1, rob2, ring, prefix, heights, gains, keys: keysMaze, river, stock, align, local, knap, roll, interval, vgrid, tags, pic });

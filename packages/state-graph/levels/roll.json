@@ -421,7 +421,7 @@
       },
       "publishes": [
         {
-          "piece": "roll",
+          "part": "roll",
           "variant": "base"
         }
       ]

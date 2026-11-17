@@ -1,0 +1,69 @@
+{
+  "name": "@part.elimGen.name",
+  "desc": "@part.elimGen.desc",
+  "family": "logic:family-built",
+  "inside": [
+    {
+      "id": "v1",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "r = anyR()",
+          "s = swapConcl(ways, r)",
+          "c = consFront(it, s)",
+          "m = mkRule(c, r)",
+          "out <- m"
+        ],
+        "want": "logic:want-elim",
+        "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+      }
+    },
+    {
+      "id": "v2",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "r = anyR()",
+          "e = eachOf(ways, body: s) {",
+          "  body {",
+          "    s = swapConcl(e.body, r)",
+          "  }",
+          "}",
+          "c = consFront(it, e)",
+          "m = mkRule(c, r)",
+          "out <- m"
+        ],
+        "want": "logic:want-elim",
+        "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+      }
+    },
+    {
+      "id": "v3",
+      "reference": {
+        "kind": "logic:machine",
+        "solution": [
+          "r = anyR()",
+          "e = eachOf(ways, body: a) {",
+          "  body {",
+          "    a = keepBound(e.body, body: s) {",
+          "      body {",
+          "        s = swapConcl(a.body, r)",
+          "      }",
+          "    }",
+          "  }",
+          "}",
+          "c = consFront(it, e)",
+          "m = mkRule(c, r)",
+          "out <- m"
+        ],
+        "want": "logic:want-elim",
+        "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+      }
+    }
+  ],
+  "inputs": [
+    { "name": "it", "type": "logic:machine-value" },
+    { "name": "ways", "type": "logic:machine-value" }
+  ],
+  "outputType": "logic:machine-value"
+}

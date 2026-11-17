@@ -847,7 +847,7 @@
       ],
       "publishes": [
         {
-          "piece": "choose",
+          "part": "choose",
           "variant": "base"
         }
       ]

@@ -115,7 +115,7 @@
       ],
       "publishes": [
         {
-          "piece": "inject",
+          "part": "inject",
           "variant": "base"
         }
       ]

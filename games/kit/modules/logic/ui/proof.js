@@ -1,5 +1,5 @@
 // A proof level (《证明完毕》, ../proof.js) as the kernel's circuit screen plays it (../../../shell/CircuitScreen.jsx): its
-// premises down the left, the goal on the right, the rules and the lemmas as parts (a game's pieces.json, the lemmas
+// premises down the left, the goal on the right, the rules and the lemmas as parts (a game's parts.json, the lemmas
 // registered by the course), a box's regions on the same board. Each test provides the premises and goal.
 // A card holds the schema's letters and shows them as the test's
 // sentences: its sentences are built in the language of the level's own (choices.js), its choices worked out by the
@@ -13,7 +13,7 @@ import { scriptLines } from '../script.js'
 import { runProof } from '../proof.js'
 import { proofReadout, proofTextOf as textOf } from '../circuit-readouts.js'
 
-/** The language a card's sentence is built in: the pieces of the level's sentences, each letter read as the test's. */
+/** The language a card's sentence is built in: the parts of the level's sentences, each letter read as the test's. */
 function language(task, test) {
   const offer = choicesOf(task)
   const consts = task.consts ?? []

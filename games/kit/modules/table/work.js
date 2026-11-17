@@ -16,7 +16,7 @@ import { readWorks, publicationEvents } from '../../engine/course-model.js';
 import { eraLevels, levelLabels, offer, reach } from '../../course.js';
 import { courseLayout } from '../../engine/course-dependencies.js';
 import { T, hydrate, lazy, tr } from './lang.js';
-import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
+import { builtParts, publications, settingsOf } from '../../engine/parts.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
 import { blank, fitted, portsProblem } from './model/board.js';
 import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';
@@ -106,12 +106,12 @@ export function* prepareTableWorks(content) {
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
-  // An implementation with ports is a robot circuit. Other piece entries are ideas taught by a task.
-  const pieces = builtPieces(hydrated.partDefs);
-  const PARTS = Object.fromEntries(Object.entries(pieces).map(([type, p]) => [type, { name: p.name, desc: p.desc }]));
+  // An implementation with ports is a robot circuit. Other part entries are ideas taught by a task.
+  const parts = builtParts(hydrated.partDefs);
+  const PARTS = Object.fromEntries(Object.entries(parts).map(([type, p]) => [type, { name: p.name, desc: p.desc }]));
   const levelOf = new Map(hydrated.levels.flatMap(L => L.tasks.map(t => [t.id, L])));
   const unlocking = new Map();
-  const implementations = publications(hydrated.levels, pieces);
+  const implementations = publications(hydrated.levels, parts);
   for (const entry of implementations) if (entry.task) {
     const L = levelOf.get(entry.task);
     if (unlocking.has(L.id)) say(L.id, `it unlocks both ${unlocking.get(L.id).type} and ${entry.type}`);
@@ -227,8 +227,8 @@ export function* prepareTableWorks(content) {
   function registerBuilt({ type, task, level, reference }) {
     const W = WORLDS[reference.world];
     const robot = ROBOTS[reference.robot];
-    if (!W || !robot) return say('pieces.json', `${type} needs a valid reference world and robot`);
-    if (built[type]) return say('pieces.json', `${type} defines more than one robot circuit`);
+    if (!W || !robot) return say('parts.json', `${type} needs a valid reference world and robot`);
+    if (built[type]) return say('parts.json', `${type} defines more than one robot circuit`);
     const out = W.outs[0];
     const source = levelOf.get(task)?.tasks.find(s => s.id === task);
     const labels = source?.ports?.map(c => portOf(portCall(c), W));
@@ -237,11 +237,11 @@ export function* prepareTableWorks(content) {
       return labels?.[index]?.sensor === port.sensor && labels?.[index]?.input === port.input
         ? { ...port, label: labels[index].label, short: labels[index].short } : port;
     });
-    const declaration = pieces[type];
+    const declaration = parts[type];
     if (declaration.inputs?.length !== ports.length || declaration.inputs.some((port, index) => port.type !== ports[index].type)) {
-      return say('pieces.json', `${type} input types do not match its reference ports`);
+      return say('parts.json', `${type} input types do not match its reference ports`);
     }
-    if (declaration.outputType !== out[3]) return say('pieces.json', `${type} output type does not match its reference world`);
+    if (declaration.outputType !== out[3]) return say('parts.json', `${type} output type does not match its reference world`);
     const given = {
       offers: offersOf({ ...reference, facts: reference.facts ?? [] }, robot),
       inputs: ports.filter(p => p.input).map(p => p.input),
@@ -251,7 +251,7 @@ export function* prepareTableWorks(content) {
     const artifact = { ...reference, given, ports, solution: () => (board ??= robotBlueprint(model, given, W).read(reference.solution)) };
     const index = Object.fromEntries(ports.map((p, k) => [p.sensor ?? p.input, String(k)]));
     const idle = type => (type.startsWith('circuit:boolean') ? false : null);
-    const setting = settingsOf(pieces[type]).find(x => x.key === 'value')?.default;
+    const setting = settingsOf(parts[type]).find(x => x.key === 'value')?.default;
     const running = () => ownBoard(task, artifact);
     built[type] = {
       ...PARTS[type], level, artifact, setting,
@@ -271,7 +271,7 @@ export function* prepareTableWorks(content) {
 
   for (const [type, part] of Object.entries(built)) {
     try { part.artifact.solution(); }
-    catch (error) { say('pieces.json', `${type}: ${error.en ?? error.message}`); }
+    catch (error) { say('parts.json', `${type}: ${error.en ?? error.message}`); }
   }
 
   const byId = new Map(LEVELS.map(L => [L.id, L]));

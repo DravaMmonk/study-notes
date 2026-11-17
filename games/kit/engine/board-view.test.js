@@ -34,7 +34,7 @@ test('an inherited circuit retains the public workshop ports in both task views'
     wires: [{ from: 'in', to: 'p', port: 'from' }, { from: 'p#right', to: 'out', port: 'in' }],
   }
   const saved = { ...fresh(), passed: [first.taskId], built: { [first.taskId]: graph } }
-  const library = { pieces: { user_pair: { inputs: ['from'], outputs: ['left', 'right'] } } }
+  const library = { parts: { user_pair: { inputs: ['from'], outputs: ['left', 'right'] } } }
   const base = course.forTask(next)
   const open = (available) => workshopView(base, library, () => available, base.partOf).view.opening(next, saved)
   assert.deepEqual(open(true), graph)

@@ -24,21 +24,21 @@ function bindWorkshopWork(graph, task, circuit, library, { partDefs }) {
   const include = (board) => Array.isArray(board?.nodes) && board.nodes.every(({ type }) => {
     if (versions.has(type) || embedded.has(type) || !isWorkshopType(type)) return true
     if (visiting.has(type)) return false
-    const piece = library.pieces[type]
-    if (!workshopCompatible(piece, context)) return false
+    const part = library.parts[type]
+    if (!workshopCompatible(part, context)) return false
     visiting.add(type)
-    const valid = includePiece(piece)
+    const valid = includePart(part)
     visiting.delete(type)
-    if (valid) versions.set(type, piece)
+    if (valid) versions.set(type, part)
     return valid
   })
-  const includePiece = (piece) => {
-    const children = Object.entries(piece.children ?? {})
+  const includePart = (part) => {
+    const children = Object.entries(part.children ?? {})
     for (const [key] of children) embedded.add(key)
-    return include(piece.graph) && children.every(([, child]) => includePiece(child))
+    return include(part.graph) && children.every(([, child]) => includePart(child))
   }
   if (!include(graph) || !versions.size) return graph
-  const view = workshopView(circuit, { pieces: Object.fromEntries(versions) }, () => true, runtime)
+  const view = workshopView(circuit, { parts: Object.fromEntries(versions) }, () => true, runtime)
   return withBoardRuntime({ ...graph, [captured]: view }, (partOf) => (type) => view.known(type) ? view.resolve(type) : partOf(type))
 }
 
@@ -64,9 +64,9 @@ export function courseWorkshop(game, load) {
 
 /** Add player-owned runtime parts without mutating the course's shared definitions. */
 export function workshopView(circuit, library, available, runtime) {
-  const pieces = Object.fromEntries(Object.entries(library.pieces).filter(([, piece]) => available(piece)))
-  const partOf = workshopParts({ pieces: library.pieces }, runtime, { ticks: circuit.board.ticks })
-  const indexes = workshopDefinitions({ pieces })
+  const parts = Object.fromEntries(Object.entries(library.parts).filter(([, part]) => available(part)))
+  const partOf = workshopParts({ parts: library.parts }, runtime, { ticks: circuit.board.ticks })
+  const indexes = workshopDefinitions({ parts })
   const known = (type) => indexes.has(type)
   const own = (node) => known(node.type)
   const views = new WeakMap()
@@ -76,7 +76,7 @@ export function workshopView(circuit, library, available, runtime) {
     const base = scope.board
     const view = {
       ...scope,
-      workshop: pieces,
+      workshop: parts,
       workshopPart: (type) => indexes.get(type),
       opening: (task, progress) => scope.opening(task, progress, project),
       stageChain: (task, built) => scope.stageChain(task, built, project),

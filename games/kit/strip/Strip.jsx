@@ -3,20 +3,20 @@ import { Fragment } from 'react'
 import { L, tr } from '../shell/i18n.js'
 
 // The strip: what is being built, written out as it reads, with a framed box for every place still empty, the way a
-// calculator writes a formula in natural display. A piece put in is plain text from then on, and its own empty places
-// are boxes inside it; tapping a piece's words takes the piece out (with everything inside it), tapping a box selects
+// calculator writes a formula in natural display. A part put in is plain text from then on, and its own empty places
+// are boxes inside it; tapping a part's words takes the part out (with everything inside it), tapping a box selects
 // it. The same on a desktop and a phone: one tap, no wires, and no separate read-back: the strip is the sentence.
 //
 //   line     [segment]   the whole thing in reading order
-//   segment  a string (text that belongs to no piece: a full stop, a fixed word)
+//   segment  a string (text that belongs to no part: a full stop, a fixed word)
 //          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
 //          | { region: [segment] }  a region drawn in brackets
-//          | { piece: key, family?, fixed?, dim?, bad?, parts: [segment] }  a piece put in: its strings are its words
+//          | { part: key, family?, fixed?, dim?, bad?, parts: [segment] }  a part put in: its strings are its words
 //            (`bad`: marked red, it does not belong where it stands yet)
-//   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a piece
+//   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a part
 //             that joins on after the last whole thing goes)
 //   selected  the hole picked to receive the next chip      flash  keys just refused (they shake)
-//   onSlot(key)  a hole or a piece was tapped
+//   onSlot(key)  a hole or a part was tapped
 
 export function Strip({ line, label, next = null, selected, flash = [], onSlot }) {
   return (
@@ -32,7 +32,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
     if (typeof part === 'string') {
       if (!owner) return <span key={k} className="ks-plain">{part}</span>
       return (
-        <button key={k} type="button" className={`ks-word ${owner.dim ? 'is-dim' : ''} ${part.trim() ? '' : 'is-gap'}`} data-family={owner.family} data-piece={owner.piece} disabled={owner.fixed} onClick={() => onSlot(owner.piece)} aria-label={owner.fixed ? part : tr(`${part.trim() || '空格'}：点击移除`, `${part.trim() || 'space'}: tap to remove`)}>
+        <button key={k} type="button" className={`ks-word ${owner.dim ? 'is-dim' : ''} ${part.trim() ? '' : 'is-gap'}`} data-family={owner.family} data-part={owner.part} disabled={owner.fixed} onClick={() => onSlot(owner.part)} aria-label={owner.fixed ? part : tr(`${part.trim() || '空格'}：点击移除`, `${part.trim() || 'space'}: tap to remove`)}>
           {part}
         </button>
       )
@@ -53,7 +53,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
       )
     }
     return (
-      <span key={part.piece} className={`ks-piece ${part.bad ? 'is-bad' : ''} ${flash.includes(part.piece) ? 'is-refused' : ''}`} data-family={part.family}>
+      <span key={part.part} className={`ks-part ${part.bad ? 'is-bad' : ''} ${flash.includes(part.part) ? 'is-refused' : ''}`} data-family={part.family}>
         <Segments parts={part.parts} owner={part} next={next} selected={selected} flash={flash} onSlot={onSlot} />
       </span>
     )
@@ -73,7 +73,7 @@ export function Chips({ groups, onChip }) {
           <span className="ks-chip-label">{L(g.label)}</span>
           <div className="ks-chip-row">
             {g.chips.map((c) => (
-              <button key={c.key} type="button" className="ks-chip" data-family={c.family} data-piece-type={c.piece?.type} disabled={c.used} onClick={() => onChip(c.key)} title={L(c.piece?.desc ?? c.sub)}>
+              <button key={c.key} type="button" className="ks-chip" data-family={c.family} data-part-type={c.part?.type} disabled={c.used} onClick={() => onChip(c.key)} title={L(c.part?.desc ?? c.sub)}>
                 <b>{L(c.text)}</b>
                 {c.sub && <small>{L(c.sub)}</small>}
               </button>

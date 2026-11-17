@@ -16,21 +16,21 @@ const link = (id, namespace) => new RegExp(`(<level-ref to="(?:${namespace}/)?)$
 const files = (ws, vocabulary) => [
   ['game.json', own(ws.game), vocabulary.game],
   ...[...ws.entries].map(([id, entry]) => [`entries/${id}.json`, entry, ENTRY]),
-  ...Object.entries(ws.partDefs?.parts ?? {}).map(([id, piece]) => [`pieces/${id}.json`, piece, PARTS_FILE.fields.parts.of]),
+  ...Object.entries(ws.partDefs?.parts ?? {}).map(([id, part]) => [`parts/${id}.json`, part, PARTS_FILE.fields.parts.of]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level]),
   ...Object.entries(OBJECT_SCHEMAS).flatMap(([kind, schema]) => [...(ws[kind] ?? [])].map(([id, value]) => [`${kind}/${id}.json`, value, objectReferenceSchema(ws, kind, value, schema)])),
 ]
 
-// Object registries are separate: level references never name a same-named piece or text.
+// Object registries are separate: level references never name a same-named part or text.
 function objectReferenceSchema(ws, kind, value, schema) {
   const local = (id) => id?.replace(`#${ws.packageId}/`, '').replace(`${ws.packageId}/`, '').replace(/^#/, '')
   const endpoints = [...(value.edges ?? []).flatMap(({ from, to }) => [from, to]), ...(value.sequence ?? [])]
   const first = endpoints.find((id) => id.startsWith('#')) ?? endpoints[0]
-  const of = value.of ?? (first?.startsWith('#') ? ws.tags.get(local(first))?.kind : ws.levels.has(local(first)) ? 'level' : 'piece')
-  const reference = (type) => type === 'level' ? S.level() : type === 'piece' ? S.ref('part') : S.str()
+  const of = value.of ?? (first?.startsWith('#') ? ws.tags.get(local(first))?.kind : ws.levels.has(local(first)) ? 'level' : 'part')
+  const reference = (type) => type === 'level' ? S.level() : type === 'part' ? S.ref('part') : S.str()
   if (kind === 'tags') return { ...schema, fields: { ...schema.fields, values: S.list(reference(value.kind)) } }
   if (kind === 'relations') {
-    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'piece' : of)
+    const ref = reference(value.kind === 'requires' ? 'level' : value.kind === 'replaces' ? 'part' : of)
     const edge = S.obj({ from: ref, to: ref })
     return { ...schema, fields: { ...schema.fields, edges: S.list(edge), sequence: S.list(ref) } }
   }
@@ -57,16 +57,16 @@ const partLink = (type, namespace) => new RegExp(`(<part-ref to="(?:${namespace}
 // A board line placing the part: `x = type(…)` or `x = type[settings](…)`.
 const placing = (type) => new RegExp(`(=\\s*)${escape(type)}(?=\\s*[[(])`, 'g')
 
-/** Typed item fields include references to a piece's settings and individual values. */
+/** Typed item fields include references to a part's settings and individual values. */
 const itemHits = (schema, value, vocabulary) => [
   ...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary }),
-  ...find(schema, value, 'str', { vocabulary }).filter((hit) => hit.schema.reference === 'piece'),
-].filter((hit) => hit.schema.kind === 'part' || hit.schema.reference === 'piece')
+  ...find(schema, value, 'str', { vocabulary }).filter((hit) => hit.schema.reference === 'part'),
+].filter((hit) => hit.schema.kind === 'part' || hit.schema.reference === 'part')
 
 const namesItem = (value, name, namespace) => [name, `${namespace}/${name}`].some((base) => value === base)
 
 /**
- * Every place naming part `type` (pieces/<name>.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
+ * Every place naming part `type` (parts/<name>.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
  * a field (or a map's key) its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board
  * placing it, an audit finding game.json leaves open ('part@level').
  */

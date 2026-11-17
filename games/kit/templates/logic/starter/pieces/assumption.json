@@ -1,7 +1,0 @@
-{
-  "name": "@piece.assumption.name",
-  "desc": "@piece.assumption.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:assumption"
-}

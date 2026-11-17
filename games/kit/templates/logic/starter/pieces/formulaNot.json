@@ -1,7 +1,0 @@
-{
-  "editor": "strip",
-  "mark": "logic:mark-formulaNot",
-  "icon": "Rows3",
-  "name": "¬",
-  "desc": "@piece.formulaNot.desc"
-}

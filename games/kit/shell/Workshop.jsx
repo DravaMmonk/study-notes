@@ -10,7 +10,7 @@ import { isPair, L, sideOf, tr } from './i18n.js'
 import {
   draftWorkshop, featureWorkshop, publishWorkshop, removeWorkshopPart, trayKey, trayTypes, workshopEntries, workshopInTray,
 } from '../engine/workshop.js'
-import { editorOf } from '../engine/pieces.js'
+import { editorOf } from '../engine/parts.js'
 import { sourceOf } from '../engine/wire-source.js'
 import {
   addTerminalPort, addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, MAX_TERMINAL_PORTS, sideLabels,
@@ -56,15 +56,15 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
   const trays = game.course?.trays ?? {}
   const slot = trayKey(game.id, tray)
   const base = tray ? trayTypes(trays, tray) : new Set(types)
-  const belongs = (piece) => workshopInTray(piece, slot, base)
-  const offered = workshopEntries(library).filter((piece) => belongs(piece) && available(piece))
+  const belongs = (part) => workshopInTray(part, slot, base)
+  const offered = workshopEntries(library).filter((part) => belongs(part) && available(part))
   const allowed = new Set([...types.filter((type) => base.has(type)), ...offered.map(({ id }) => id)])
   const drawn = useMemo(() => workshopTerminalParts(parts), [parts])
   const isPart = (node) => terminalRole(parts, node) === 'part'
   const ends = new Set([WORKSHOP_INPUT, WORKSHOP_OUTPUT, ...board.nodes.filter((node) => !isPart(node)).map(({ type }) => type)])
   const keptPart = (type) => {
-    const piece = library.pieces[type]
-    return allowed.has(type) || Boolean(piece?.deleted && belongs(piece) && available(piece))
+    const part = library.parts[type]
+    return allowed.has(type) || Boolean(part?.deleted && belongs(part) && available(part))
   }
   const fits = (graph) => boardFits(graph, drawn, (type) => ends.has(type) || keptPart(type))
     && graph.nodes.every((node) => isPart(node) ? keptPart(node.type) : ends.has(node.type))
@@ -84,16 +84,16 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
   }
 
   const featured = new Set(library.featured[slot])
-  const items = [...allowed].map((type) => library.pieces[type]
-    ? { type, label: library.pieces[type].name, desc: library.pieces[type].description, family: 'built', icon: CircuitBoard, packed: true }
+  const items = [...allowed].map((type) => library.parts[type]
+    ? { type, label: library.parts[type].name, desc: library.parts[type].description, family: 'built', icon: CircuitBoard, packed: true }
     : cards(type))
-  const own = (item) => Boolean(library.pieces[item.type])
-  const made = workshopEntries(library).filter((piece) => belongs(piece) && !piece.lineage)
+  const own = (item) => Boolean(library.parts[item.type])
+  const made = workshopEntries(library).filter((part) => belongs(part) && !part.lineage)
 
-  const remove = (piece) => {
-    const saved = update((current) => removeWorkshopPart(current, piece.id))
+  const remove = (part) => {
+    const saved = update((current) => removeWorkshopPart(current, part.id))
     setNotice(saved
-      ? { text: tr(`已删除「${piece.name}」。`, `Deleted “${piece.name}”.`) }
+      ? { text: tr(`已删除「${part.name}」。`, `Deleted “${part.name}”.`) }
       : { fail: true, text: tr('未能删除，浏览器存储不可用。', 'Could not delete: browser storage is unavailable.') })
   }
 
@@ -105,7 +105,7 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
     INPUT_LABEL, OUTPUT_LABEL,
   ].flatMap((label) => isPair(label) ? ['zh', 'en'].map((lang) => normal(sideOf(label, lang))) : [normal(label)]))
   const nameTaken = (name, book) => originalNames.has(normal(name)) ||
-    workshopEntries(book).some((piece) => belongs(piece) && normal(piece.name) === normal(name))
+    workshopEntries(book).some((part) => belongs(part) && normal(part.name) === normal(name))
   const beginPack = () => {
     const { graph, names, order, missing } = flattenWorkshopTerminals(draft, parts, (text) => String(L(text)).trim())
     if (!Object.keys(names.outputs).length || missing.length) {
@@ -131,19 +131,19 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
     if (!name) return tr('请输入元件名称。', 'Enter a part name.')
     const duplicate = tr('同一托盘已有这个名称的元件。', 'A part in this tray already has this name.')
     if (nameTaken(name, library)) return duplicate
-    const piece = capture(confirm.graph, {
+    const part = capture(confirm.graph, {
       name, description, tray: slot, names: confirm.names, order: confirm.order, parts: drawn,
     })
-    if (!piece) return tr('板上有不能封装的元件。', 'A part on this board cannot be packaged.')
+    if (!part) return tr('板上有不能封装的元件。', 'A part on this board cannot be packaged.')
     let taken = false
     const saved = update((current) => {
       taken = nameTaken(name, current)
-      return taken ? current : publishWorkshop(current, piece, { id: piece.id })
+      return taken ? current : publishWorkshop(current, part, { id: part.id })
     })
     if (taken) return duplicate
     if (!saved) return tr('未能保存，浏览器存储不可用。', 'Could not save: browser storage is unavailable.')
     setConfirm(false)
-    setNotice({ text: tr(`「${piece.name}」已放入托盘。`, `“${piece.name}” is in the tray.`) })
+    setNotice({ text: tr(`「${part.name}」已放入托盘。`, `“${part.name}” is in the tray.`) })
     return null
   }
   const addTerminal = (role, label) => {
@@ -158,15 +158,15 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
     <section className="ws-shelf">
       <header><h2>{tr('我的元件', 'My parts')}</h2></header>
       <ul>
-        {made.map((piece) => {
-          const on = featured.has(piece.id)
+        {made.map((part) => {
+          const on = featured.has(part.id)
           return (
-            <li key={piece.id} data-family="built">
+            <li key={part.id} data-family="built">
               <i className="family-chip"><Glyph icon={CircuitBoard} size={12} /></i>
-              <span title={piece.description || undefined}>{piece.name}</span>
-              <small>{piece.inputs.length} → {piece.outputs.length}</small>
-              <button type="button" className={`ws-tool ${on ? 'is-on' : ''}`} aria-pressed={on} aria-label={tr(`把 ${piece.name} 固定在托盘主区`, `Pin ${piece.name} to the tray`)} title={tr('固定在托盘主区', 'Pin to the tray')} onClick={() => update((current) => featureWorkshop(current, slot, piece.id, !on))}><Pin size={13} /></button>
-              <button type="button" className="ws-tool ws-remove" aria-label={tr(`删除元件 ${piece.name}`, `Delete part ${piece.name}`)} title={tr('删除元件', 'Delete part')} onClick={() => remove(piece)}><Trash2 size={13} /></button>
+              <span title={part.description || undefined}>{part.name}</span>
+              <small>{part.inputs.length} → {part.outputs.length}</small>
+              <button type="button" className={`ws-tool ${on ? 'is-on' : ''}`} aria-pressed={on} aria-label={tr(`把 ${part.name} 固定在托盘主区`, `Pin ${part.name} to the tray`)} title={tr('固定在托盘主区', 'Pin to the tray')} onClick={() => update((current) => featureWorkshop(current, slot, part.id, !on))}><Pin size={13} /></button>
+              <button type="button" className="ws-tool ws-remove" aria-label={tr(`删除元件 ${part.name}`, `Delete part ${part.name}`)} title={tr('删除元件', 'Delete part')} onClick={() => remove(part)}><Trash2 size={13} /></button>
             </li>
           )
         })}
@@ -188,7 +188,7 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
         brief={phone ? null : shelf} results={phone ? shelf : null} scope={`workshop:${slot}`}
         items={items.filter((item) => !own(item) || featured.has(item.type))} folded={items.filter((item) => own(item) && !featured.has(item.type))}
         types={[...allowed]} tabs={false} pad={dock}
-        describe={(node) => library.pieces[node.type]?.description ?? null}
+        describe={(node) => library.parts[node.type]?.description ?? null}
         terminalTitle={(node) => L(terminalRole(parts, node) === 'source' ? INPUT_LABEL : OUTPUT_LABEL)}
         terminalDetail={(node, { graph, change, close }) => <TerminalFields node={node} parts={parts} graph={graph} title={drawn.label(node)} family={drawn.family?.(node)}
           change={(terminal) => change(editWorkshopTerminal(graph, parts, node.id, terminal))}

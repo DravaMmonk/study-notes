@@ -164,7 +164,7 @@
       ],
       "publishes": [
         {
-          "piece": "addZero",
+          "part": "addZero",
           "variant": "base"
         }
       ]

@@ -1,0 +1,14 @@
+{
+  "name": "@part.each.name",
+  "desc": "@part.each.desc",
+  "icon": "Rows3",
+  "family": "logic:family-loop",
+  "regions": [
+    {
+      "name": "body",
+      "label": "@part.each.regions.0.label",
+      "opens": true
+    }
+  ],
+  "op": "logic:each"
+}

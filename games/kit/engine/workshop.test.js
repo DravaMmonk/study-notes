@@ -36,19 +36,19 @@ const take = (graph, options = {}) => captureWorkshop(graph, {
 const from = (type) => ({ nodes: [inNode('in'), { id: 'p', type }, outNode('out')], wires: [wire('in', 'p'), wire('p', 'out')] })
 
 test('a workshop snapshot is reusable wherever all its exact base settings are available', () => {
-  const piece = take(base())
-  let library = publishWorkshop(empty(), piece, { id: piece.id })
+  const part = take(base())
+  let library = publishWorkshop(empty(), part, { id: part.id })
   assert.deepEqual(workshopEntries(library).map(({ id }) => id), ['user_mul'])
   assert.equal(library.featured[trayKey('local', 'first')], undefined)
-  library = featureWorkshop(library, trayKey('local', 'first'), piece.id, true)
-  assert.deepEqual(library.featured[trayKey('local', 'first')], [piece.id])
+  library = featureWorkshop(library, trayKey('local', 'first'), part.id, true)
+  assert.deepEqual(library.featured[trayKey('local', 'first')], [part.id])
   const target = { identity, types: new Set(['multiply']), has: () => true, allows: () => true, resolve }
-  assert.ok(workshopAvailable(piece, target))
-  assert.ok(workshopInTray(piece, trayKey('other', 'first'), new Set(['multiply'])))
-  assert.ok(!workshopInTray(piece, trayKey('other', 'first'), new Set(['different'])))
-  assert.ok(!workshopAvailable(piece, { ...target, has: (_type, _key, value) => value !== '2' }))
-  assert.ok(!workshopInTray(piece, trayKey('local', 'second'), new Set(['multiply'])))
-  assert.equal(runBoard(from(piece.id), { parts: workshopParts(library, resolve), bind: { in: 5 } }).outputs.out, 10)
+  assert.ok(workshopAvailable(part, target))
+  assert.ok(workshopInTray(part, trayKey('other', 'first'), new Set(['multiply'])))
+  assert.ok(!workshopInTray(part, trayKey('other', 'first'), new Set(['different'])))
+  assert.ok(!workshopAvailable(part, { ...target, has: (_type, _key, value) => value !== '2' }))
+  assert.ok(!workshopInTray(part, trayKey('local', 'second'), new Set(['multiply'])))
+  assert.equal(runBoard(from(part.id), { parts: workshopParts(library, resolve), bind: { in: 5 } }).outputs.out, 10)
 })
 
 test('workshop compatibility follows resolved settings and executable checks across catalogs', () => {
@@ -64,8 +64,8 @@ test('workshop compatibility follows resolved settings and executable checks acr
   })
   const identityFor = (file) => (type) => workshopIdentity(file, type)
   const original = identityFor(catalog('original', setting))
-  const piece = take(base(), { identity: original })
-  const accepts = (file) => workshopAvailable(piece, {
+  const part = take(base(), { identity: original })
+  const accepts = (file) => workshopAvailable(part, {
     identity: identityFor(file), types: new Set(['multiply']), has: () => true, allows: () => true, resolve,
   })
   assert.ok(accepts(catalog('renamed', { ...setting, label: 'Gain', stepper: true }, {
@@ -91,48 +91,48 @@ test('publishing an upgrade hides the earlier automatic version and leaves saved
 })
 
 test('deleting a manual part removes its tray pins and preserves saved boards and nested versions', () => {
-  const piece = take(base())
-  const added = publishWorkshop(empty(), piece, { id: piece.id })
-  const nested = take(from(piece.id), { book: added, scope: 'user_nested' })
+  const part = take(base())
+  const added = publishWorkshop(empty(), part, { id: part.id })
+  const nested = take(from(part.id), { book: added, scope: 'user_nested' })
   const owned = publishWorkshop(added, nested, { id: nested.id })
   const anotherTray = trayKey('local', 'second')
-  const pinned = featureWorkshop(featureWorkshop(owned, piece.tray, piece.id, true), anotherTray, piece.id, true)
-  const draft = { graph: from(piece.id), names: {} }
-  const deleted = removeWorkshopPart(draftWorkshop(pinned, piece.tray, draft), piece.id)
+  const pinned = featureWorkshop(featureWorkshop(owned, part.tray, part.id, true), anotherTray, part.id, true)
+  const draft = { graph: from(part.id), names: {} }
+  const deleted = removeWorkshopPart(draftWorkshop(pinned, part.tray, draft), part.id)
   const saved = loadWorkshop({ getItem: () => JSON.stringify(deleted) })
 
   assert.deepEqual(workshopEntries(saved).map(({ id }) => id), [nested.id])
   assert.deepEqual(saved.featured, {})
-  assert.equal(featureWorkshop(saved, piece.tray, piece.id, true), saved)
-  assert.deepEqual(saved.drafts[piece.tray], draft)
+  assert.equal(featureWorkshop(saved, part.tray, part.id, true), saved)
+  assert.deepEqual(saved.drafts[part.tray], draft)
   const parts = workshopParts(saved, resolve)
-  assert.equal(runBoard(saved.drafts[piece.tray].graph, { parts, bind: { in: 5 } }).outputs.out, 10)
+  assert.equal(runBoard(saved.drafts[part.tray].graph, { parts, bind: { in: 5 } }).outputs.out, 10)
   assert.equal(runBoard(from(nested.id), { parts, bind: { in: 5 } }).outputs.out, 10)
 
-  const reward = publishWorkshop(empty(), piece, { id: piece.id, lineage: 'reward' })
-  assert.equal(removeWorkshopPart(reward, piece.id), reward)
+  const reward = publishWorkshop(empty(), part, { id: part.id, lineage: 'reward' })
+  assert.equal(removeWorkshopPart(reward, part.id), reward)
 })
 
 test('an already packed course part is captured as a snapshot with its primitive dependencies', () => {
   const nested = base()
   const coursePart = packed({ circuit: nested, inputs: ['in'], outputs: ['out'] })
   const graph = from('coursePart')
-  const piece = take(graph, {
+  const part = take(graph, {
     parts: { ...drawing, packed: ({ type }) => type === 'coursePart' },
     resolve: (type) => type === 'coursePart' ? coursePart : resolve(type),
     open: () => ({ circuit: nested, parts: drawing }),
   })
-  assert.deepEqual(piece.requirements.map(({ type }) => type), ['multiply'])
-  const library = publishWorkshop(empty(), piece, { id: piece.id })
-  assert.equal(runBoard(from(piece.id), { parts: workshopParts(library, resolve), bind: { in: 4 } }).outputs.out, 8)
+  assert.deepEqual(part.requirements.map(({ type }) => type), ['multiply'])
+  const library = publishWorkshop(empty(), part, { id: part.id })
+  assert.equal(runBoard(from(part.id), { parts: workshopParts(library, resolve), bind: { in: 4 } }).outputs.out, 8)
 })
 
 test('a packed snapshot reads its captured primitives even when the outer board does not offer them', () => {
-  const piece = take(base())
-  const library = publishWorkshop(empty(), piece, { id: piece.id })
+  const part = take(base())
+  const library = publishWorkshop(empty(), part, { id: part.id })
   const captured = workshopParts(library, resolve)
-  const parts = { in: types.in, out: types.out, [piece.id]: captured(piece.id) }
-  assert.equal(runBoard(from(piece.id), { parts, bind: { in: 6 } }).outputs.out, 12)
+  const parts = { in: types.in, out: types.out, [part.id]: captured(part.id) }
+  assert.equal(runBoard(from(part.id), { parts, bind: { in: 6 } }).outputs.out, 12)
 })
 
 test('an incomplete board and a recursive packed dependency cannot be published', () => {
@@ -189,13 +189,13 @@ test('a multiport draft packages each wired input and every output as an indepen
   const draft = flattenWorkshopTerminals(graph, drawing)
   assert.deepEqual(draft.missing, [])
   assert.deepEqual(flattenWorkshopTerminals({ ...graph, wires: graph.wires.slice(0, 1) }, drawing).missing, ['second'])
-  const piece = take(draft.graph, { parts: workshopTerminalParts(drawing), names: draft.names, order: draft.order })
-  assert.deepEqual(piece.inputs, ['left', 'right'])
-  assert.deepEqual(piece.outputs, ['first', 'second'])
-  assert.deepEqual(piece.terminals, [WORKSHOP_OUTPUT])
-  assert.equal(workshopCompatible(piece, { resolve, identity }), true)
-  const engine = workshopParts({ pieces: { [piece.id]: piece } }, resolve)
-  assert.deepEqual(runBoard(piece.graph, { parts: engine, bind: { left: 7, right: 3 } }).outputs, { first: 7, second: 3 })
+  const part = take(draft.graph, { parts: workshopTerminalParts(drawing), names: draft.names, order: draft.order })
+  assert.deepEqual(part.inputs, ['left', 'right'])
+  assert.deepEqual(part.outputs, ['first', 'second'])
+  assert.deepEqual(part.terminals, [WORKSHOP_OUTPUT])
+  assert.equal(workshopCompatible(part, { resolve, identity }), true)
+  const engine = workshopParts({ parts: { [part.id]: part } }, resolve)
+  assert.deepEqual(runBoard(part.graph, { parts: engine, bind: { left: 7, right: 3 } }).outputs, { first: 7, second: 3 })
 })
 
 test('a snapshot takes the interface\'s names and input order, and runs under them', () => {
@@ -206,14 +206,14 @@ test('a snapshot takes the interface\'s names and input order, and runs under th
     wires: [wire('second', 'sub', 'b'), wire('first', 'sub', 'a'), wire('sub', 'out')],
   }
   const lookup = (type) => type === 'sub' ? add : resolve(type)
-  const piece = take(graph, {
+  const part = take(graph, {
     parts, resolve: lookup, names: { inputs: { first: '被减数' }, outputs: { out: '差' } }, order: ['first', 'second'],
   })
-  assert.deepEqual(piece.inputs, ['被减数', 'second'])
-  assert.deepEqual(piece.outputs, ['差'])
-  const library = publishWorkshop(empty(), piece, { id: piece.id })
+  assert.deepEqual(part.inputs, ['被减数', 'second'])
+  assert.deepEqual(part.outputs, ['差'])
+  const library = publishWorkshop(empty(), part, { id: part.id })
   const board = {
-    nodes: [inNode('x'), inNode('y'), { id: 'p', type: piece.id }, outNode('out')],
+    nodes: [inNode('x'), inNode('y'), { id: 'p', type: part.id }, outNode('out')],
     wires: [wire('x', 'p', '被减数'), wire('y', 'p', 'second'), wire('p', 'out')],
   }
   assert.equal(runBoard(board, { parts: workshopParts(library, lookup), bind: { x: 9, y: 4 } }).outputs.out, 5)
@@ -224,12 +224,12 @@ test('a tray keeps one draft until it is cleared', () => {
   const kept = draftWorkshop(empty(), tray, { graph: base(), names: {} })
   assert.deepEqual(kept.drafts[tray].graph, base())
   assert.deepEqual(draftWorkshop(kept, tray, null).drafts, {})
-  assert.deepEqual(loadWorkshop({ getItem: () => JSON.stringify({ pieces: {}, published: {}, featured: {} }) }).drafts, {})
+  assert.deepEqual(loadWorkshop({ getItem: () => JSON.stringify({ parts: {}, published: {}, featured: {} }) }).drafts, {})
 })
 
-test('workshop identity follows the operation while stage progress keeps the piece identity stable', () => {
-  const piece = { op: 'toy:scale', settings: { gain: { control: 'number', default: 2 } } }
-  const signature = workshopIdentity({ parts: { scale: piece } }, 'scale')
-  assert.notEqual(workshopIdentity({ parts: { scale: { ...piece, op: 'toy:divide' } } }, 'scale'), signature)
-  assert.equal(workshopIdentity({ parts: { scale: { ...piece, stages: [{ id: 'adjustable', settings: { gain: {} } }] } } }, 'scale'), signature)
+test('workshop identity follows the operation while stage progress keeps the part identity stable', () => {
+  const part = { op: 'toy:scale', settings: { gain: { control: 'number', default: 2 } } }
+  const signature = workshopIdentity({ parts: { scale: part } }, 'scale')
+  assert.notEqual(workshopIdentity({ parts: { scale: { ...part, op: 'toy:divide' } } }, 'scale'), signature)
+  assert.equal(workshopIdentity({ parts: { scale: { ...part, stages: [{ id: 'adjustable', settings: { gain: {} } }] } } }, 'scale'), signature)
 })

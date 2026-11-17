@@ -1,7 +1,0 @@
-{
-  "name": "@piece.uCheck.name",
-  "desc": "@piece.uCheck.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:uCheck"
-}

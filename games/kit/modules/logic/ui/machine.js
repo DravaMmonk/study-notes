@@ -1,6 +1,6 @@
 // A machine level (《证明完毕》 chapter 8 on, ../machine.js) as the kernel's circuit screen plays it
 // (../../../shell/CircuitScreen.jsx): its inputs down the left, the result on the right, the machine's parts (a game's
-// pieces.json), the rule parts of its rule books (registered by the course) and the parts the player built (packed
+// parts.json), the rule parts of its rule books (registered by the course) and the parts the player built (packed
 // parts running the boards that built them). A run goes through every test step by step, each card computing a step;
 // the results show the test's inputs, what it wants and what reaches the result. Values (equations, proof states,
 // clause sets, rules) read as lines of text.

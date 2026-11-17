@@ -1,0 +1,21 @@
+{
+  "name": "@part.dg_reparam.name",
+  "desc": "@part.dg_reparam.desc",
+  "icon": "Activity",
+  "family": "image:family-learned",
+  "inputs": [
+    {
+      "name": "mu",
+      "label": "μ"
+    },
+    {
+      "name": "sigma",
+      "label": "σ"
+    },
+    {
+      "name": "eps",
+      "label": "ε"
+    }
+  ],
+  "op": "image:dg_reparam"
+}

@@ -184,7 +184,7 @@
       "arrows": true,
       "publishes": [
         {
-          "piece": "expect",
+          "part": "expect",
           "variant": "base"
         }
       ]

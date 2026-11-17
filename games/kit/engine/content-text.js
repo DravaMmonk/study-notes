@@ -9,7 +9,7 @@ const segment = (value) => String(value).replace(/[^a-zA-Z0-9_-]+/g, '-') || '_'
 
 function keyPath(value, prefix, path) {
   const [field, id, ...rest] = path
-  if (prefix === 'pieces' && field === 'parts') return ['piece', id, ...rest].map(segment).join('.')
+  if (prefix === 'parts' && field === 'parts') return ['part', id, ...rest].map(segment).join('.')
   let parent = value
   const names = path.map((step) => {
     parent = parent[step]

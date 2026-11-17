@@ -40,7 +40,7 @@ import { alignTerminals, spaceNodes } from './spacing.js'
 // (parts.refuse) is not made, and its reason shows at the top of the board for a moment.
 //
 // The game says what its cards are (`parts`, see model.js) and what a card shows under its ports (`body`); the
-// board does the rest. Moving cards goes through the kit's drag.js: cards are [data-piece] with their header as the
+// board does the rest. Moving cards goes through the kit's drag.js: cards are [data-part] with their header as the
 // [data-drag] handle, ports are [data-p] (model.js port ids). Wires run between the dots where they are drawn,
 // measured after each render.
 //
@@ -463,7 +463,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
     const from = outPort(source)
     const target = over?.dataset.p
     if (target && parsePort(target).side === 'in') addWire(ends(from, target))
-    else if (over?.dataset.piece) wireToCard(from, over.dataset.piece)
+    else if (over?.dataset.part) wireToCard(from, over.dataset.part)
   }
   // With nothing picked, clicking a wired input takes its wire off that input and leaves it in hand, still on its
   // output: click another input (or a card) to plug it in there, or anywhere else to drop it. Any other dot is picked.
@@ -539,11 +539,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
   useLayoutEffect(() => {
     handlers.current = {
       start(g) {
-        if (g.kind === 'piece') choose(byId.get(g.id))
+        if (g.kind === 'part') choose(byId.get(g.id))
         if (g.kind === 'port') pick(null)
       },
       move(g) {
-        if (g.kind === 'piece') {
+        if (g.kind === 'part') {
           redraw()
           // The region under the pointer lights up, the one the card is already in too: dropped now, it stays there.
           const region = fieldAt(g)?.dataset.region ?? null
@@ -559,7 +559,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
         setDrag(null)
         setDropInto(null)
         setDropBlock(null)
-        if (g.kind === 'piece') place(g)
+        if (g.kind === 'part') place(g)
         if (g.kind === 'port' && parsePort(g.id).side === 'out') connectTo(parsePort(g.id).id, g.over)
       },
       end() {
@@ -591,7 +591,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
       <div
         key={node.id}
         data-node={node.id}
-        data-piece={node.id}
+        data-part={node.id}
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
         className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${folded ? 'is-body-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
@@ -604,7 +604,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange, history, 
           openDetail()
         })}
         onClick={(picking || openDetail) ? (event) => {
-          if (cardAt(event.target) !== event.currentTarget || event.target.closest('.frame-regions')?.closest('[data-piece]') === event.currentTarget) return
+          if (cardAt(event.target) !== event.currentTarget || event.target.closest('.frame-regions')?.closest('[data-part]') === event.currentTarget) return
           if (picking) clickCard(node.id)
           else openDetail()
         } : undefined}

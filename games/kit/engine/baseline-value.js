@@ -41,11 +41,16 @@ export function baselineValue(input) {
 export function nameNormalizer(names) {
   // MODULES.md §10.3 explicitly makes these kind/path/key spellings equivalent.
   const kindNames = text => text
+    .replace(/(overrides\/[^/\s]+\/)tag\//g, '$1tags/')
+    .replace(/\bpieced it together\b/g, 'assembled it')
+    .replace(/\bpieced\b/g, 'assembled')
     .replace(/\btags\/(?:piece|circuit\/part)\//g, 'tags/part/')
     .replace(/\bpieces(?=\/|\.json\b)/g, 'parts')
     .replace(/\bpiece\//g, 'parts/')
     .replace(/\bcircuit\/part\b/g, 'part')
-    .replace(/\bpiece\b/g, 'part')
+    .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
+    .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
+  names = [...new Set([...names].map(kindNames))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {
@@ -58,7 +63,10 @@ export function nameNormalizer(names) {
   const pairs = [...new Set(names)].filter(name => local(name) !== name && aliases.get(local(name)).size === 1).sort((a, b) => b.length - a.length || a.localeCompare(b, 'en'))
   const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = pairs.length ? new RegExp(`(?<![\\w/-])(${pairs.map(escape).join('|')})(?![\\w-])`, 'g') : null
-  const normalize = text => kindNames(pattern ? text.replace(pattern, name => local(name)) : text)
+  const normalize = text => {
+    const named = kindNames(text)
+    return pattern ? named.replace(pattern, name => local(name)) : named
+  }
   return input => {
     const memo = new WeakMap()
     const walk = value => {

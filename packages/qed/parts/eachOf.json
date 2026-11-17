@@ -1,0 +1,14 @@
+{
+  "name": "@part.eachOf.name",
+  "desc": "@part.eachOf.desc",
+  "icon": "Box",
+  "family": "logic:family-loop",
+  "regions": [
+    {
+      "name": "body",
+      "label": "@part.eachOf.regions.0.label",
+      "opens": true
+    }
+  ],
+  "op": "logic:eachOf"
+}

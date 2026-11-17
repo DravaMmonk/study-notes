@@ -101,7 +101,7 @@
         "sum = merge(i1, w2, w3)",
         "idx <- sum"
       ],
-      "publishes": [{ "piece": "matcher", "variant": "base" }]
+      "publishes": [{ "part": "matcher", "variant": "base" }]
     }
   ]
 }

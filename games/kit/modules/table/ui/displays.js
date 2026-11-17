@@ -4,7 +4,7 @@ import Hero from './hero.jsx'
 import { sceneSVG } from './svg.js'
 import { robotScreenFor } from './circuitScreen.js'
 import { handResources } from './modes/index.js'
-import { pieceDemo } from './pieceDemo.js'
+import { partDemo } from './partDemo.js'
 import { lookIcon } from './looks.js'
 
 function IntroFigure({ fig }) {
@@ -16,5 +16,5 @@ export const displays = {
   'table:introduction': IntroFigure,
   'table:circuit': robotScreenFor,
   'table:manual': handResources,
-  'table:catalog': { pieceDemo, lookIcon },
+  'table:catalog': { partDemo, lookIcon },
 }

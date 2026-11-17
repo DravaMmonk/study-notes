@@ -9,7 +9,7 @@ import { numberText } from '../../engine/number.js'
 
 // One setting of a part, the same in every game (games/DESIGN.md 6.8): a part definition names one of the kernel controls
 // and the kernel draws it — compact on a desktop card, roomy in a sheet (`roomy`) and on a phone. The value a control
-// gives is what pieces.json says (../../engine/parts/define.js coerce): a word for a select or buttons, a number for a
+// gives is what parts.json says (../../engine/parts/define.js coerce): a word for a select or buttons, a number for a
 // number or a slider, true or false for a toggle, the values picked in order for a list, the text of a tree (a sentence
 // in the language the screen gives, `language`: the strip's builder, ../../strip/TreePick.jsx); a custom control is the
 // domain's widget (`widgets[name]`).

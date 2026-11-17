@@ -2,8 +2,8 @@
 import { packed, sink, source, withBoardRuntime } from './boards.js'
 import { canonicalJson } from './json-value.js'
 import { defaultOf } from './parts/define.js'
-import { operationPiece } from './parts/operation.js'
-import { resolveSettings } from './pieces.js'
+import { operationPart } from './parts/operation.js'
+import { resolveSettings } from './parts.js'
 import { sourceOf, splitSource } from './wire-source.js'
 import { trayMembers } from './trays.js'
 import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from './workshop-terminals.js'
@@ -11,26 +11,26 @@ import { WORKSHOP_INPUT, WORKSHOP_OUTPUT } from './workshop-terminals.js'
 export const WORKSHOP_KEY = 'games.workshop.v2'
 export const isWorkshopType = (type) => typeof type === 'string' && type.startsWith('user_')
 export const usesWorkshop = (board) => Array.isArray(board?.nodes) && board.nodes.some(({ type }) => isWorkshopType(type))
-const empty = () => ({ pieces: {}, published: {}, featured: {}, drafts: {} })
+const empty = () => ({ parts: {}, published: {}, featured: {}, drafts: {} })
 
 export function loadWorkshop(storage) {
   try {
     const value = JSON.parse(storage.getItem(WORKSHOP_KEY))
-    return value?.pieces && value?.published && value?.featured ? { ...value, drafts: value.drafts ?? {} } : empty()
+    return value?.parts && value?.published && value?.featured ? { ...value, drafts: value.drafts ?? {} } : empty()
   } catch {
     return empty()
   }
 }
 
 /** Publish a snapshot. Auto upgrades use an explicit, stable lineage, never the displayed name. */
-export function publishWorkshop(library, piece, { id, lineage = null, rank = 0, replaces = [] }) {
+export function publishWorkshop(library, part, { id, lineage = null, rank = 0, replaces = [] }) {
   if (lineage && library.published[lineage] === null) return library
-  const previous = lineage && library.pieces[library.published[lineage]]
+  const previous = lineage && library.parts[library.published[lineage]]
   if (previous && (previous.rank > rank || (previous.rank === rank
-    && JSON.stringify(previous.graph) === JSON.stringify(piece.graph)))) return library
+    && JSON.stringify(previous.graph) === JSON.stringify(part.graph)))) return library
   return {
     ...library,
-    pieces: { ...library.pieces, [id]: { ...piece, id, lineage, rank } },
+    parts: { ...library.parts, [id]: { ...part, id, lineage, rank } },
     published: lineage ? {
       ...library.published, ...Object.fromEntries(replaces.map((old) => [old, null])), [lineage]: id,
     } : library.published,
@@ -38,22 +38,22 @@ export function publishWorkshop(library, piece, { id, lineage = null, rank = 0, 
 }
 
 export function featureWorkshop(library, tray, id, enabled) {
-  if (library.pieces[id]?.deleted) return library
+  if (library.parts[id]?.deleted) return library
   const featured = new Set(library.featured[tray])
   if (enabled) featured.add(id)
   else featured.delete(id)
   return { ...library, featured: { ...library.featured, [tray]: [...featured] } }
 }
 
-/** Remove a hand-built piece from the catalogue while retaining its immutable version for existing boards. */
+/** Remove a hand-built part from the catalogue while retaining its immutable version for existing boards. */
 export function removeWorkshopPart(library, id) {
-  if (!Object.hasOwn(library.pieces, id)) return library
-  const piece = library.pieces[id]
-  if (piece.lineage || piece.deleted) return library
+  if (!Object.hasOwn(library.parts, id)) return library
+  const part = library.parts[id]
+  if (part.lineage || part.deleted) return library
   const featured = Object.fromEntries(Object.entries(library.featured)
     .map(([tray, ids]) => [tray, ids.filter((featuredId) => featuredId !== id)])
     .filter(([, ids]) => ids.length))
-  return { ...library, pieces: { ...library.pieces, [id]: { ...piece, deleted: true } }, featured }
+  return { ...library, parts: { ...library.parts, [id]: { ...part, deleted: true } }, featured }
 }
 
 /** Keep a tray's unfinished board, or nothing once it is cleared. */
@@ -62,19 +62,19 @@ export function draftWorkshop(library, tray, draft) {
   return { ...library, drafts: draft ? { ...drafts, [tray]: draft } : drafts }
 }
 
-export const workshopEntries = (library) => Object.values(library.pieces)
+export const workshopEntries = (library) => Object.values(library.parts)
   .filter(({ id, lineage, deleted }) => !deleted && (!lineage || library.published[lineage] === id))
 
 export const trayTypes = (trays, name) => new Set(trayMembers(trays[name]))
 export const trayKey = (game, name) => JSON.stringify([game, name])
-export const workshopInTray = (piece, tray, types) => piece.tray === tray
-  || ((!piece.tray || JSON.parse(piece.tray)[0] !== JSON.parse(tray)[0]) && piece.requirements.every(({ type }) => types.has(type)))
+export const workshopInTray = (part, tray, types) => part.tray === tray
+  || ((!part.tray || JSON.parse(part.tray)[0] !== JSON.parse(tray)[0]) && part.requirements.every(({ type }) => types.has(type)))
 
 /** Identify a qualified capability and its executable declaration. */
 export function workshopIdentity(definitions, type) {
   const definition = definitions?.parts?.[type]
   if (!definition) return canonicalJson([type, null])
-  const { op, keeps, nulls, inputs, outputs, outputType, regions, checks } = operationPiece(definition)
+  const { op, keeps, nulls, inputs, outputs, outputType, regions, checks } = operationPart(definition)
   // Resolve catalog references before comparing the settings used by the circuit.
   const settings = resolveSettings(definition).map((setting) => {
     const { key, control, optional, integer, min, max, options, from } = setting
@@ -124,7 +124,7 @@ export function captureWorkshop(graph, options) {
         nodes.push({ ...node, params: { ...node.params, name: face?.output?.(node.id) ?? node.params?.name ?? node.id } })
         continue
       }
-      const own = Object.hasOwn(options.book.pieces, node.type) && options.book.pieces[node.type]
+      const own = Object.hasOwn(options.book.parts, node.type) && options.book.parts[node.type]
       if (own) {
         requirements.push(...own.requirements)
         for (const type of own.terminals) nestedTerminals.add(type)
@@ -179,29 +179,29 @@ export function captureWorkshop(graph, options) {
   return JSON.parse(JSON.stringify({ ...captured, id: options.scope, name: options.name, description: options.description, tray: options.tray, rewardType: options.rewardType }))
 }
 
-export function workshopCompatible(piece, { identity, resolve }) {
-  return Array.isArray(piece?.requirements) && Array.isArray(piece.terminals)
-    && piece.requirements.every(({ type, identity: signature }) =>
+export function workshopCompatible(part, { identity, resolve }) {
+  return Array.isArray(part?.requirements) && Array.isArray(part.terminals)
+    && part.requirements.every(({ type, identity: signature }) =>
     Boolean(resolve(type)) && identity(type) === signature)
-    && piece.terminals.every((type) => (type === WORKSHOP_OUTPUT || Boolean(resolve(type))))
+    && part.terminals.every((type) => (type === WORKSHOP_OUTPUT || Boolean(resolve(type))))
 }
 
-export function workshopAvailable(piece, context) {
+export function workshopAvailable(part, context) {
   const { types, has, allows } = context
-  return workshopCompatible(piece, context) && piece.requirements.every(({ type, settings }) =>
+  return workshopCompatible(part, context) && part.requirements.every(({ type, settings }) =>
     types.has(type) && allows(type, settings)
     && Object.entries(settings).every(([key, value]) => has(type, key) && has(type, key, String(value))))
 }
 
 export function workshopDefinitions(library) {
   const entries = new Map()
-  const visit = (pieces) => {
-    for (const [id, piece] of Object.entries(pieces)) {
-      entries.set(id, piece)
-      visit(piece.children ?? {})
+  const visit = (parts) => {
+    for (const [id, part] of Object.entries(parts)) {
+      entries.set(id, part)
+      visit(part.children ?? {})
     }
   }
-  visit(library.pieces)
+  visit(library.parts)
   return entries
 }
 
@@ -232,8 +232,8 @@ export const workshopInput = (node) => node.type === WORKSHOP_INPUT
 /** Count a player wrapper by its constituent nodes when a challenge scores the board. */
 export function workshopNodes(graph, resolve, path = []) {
   return graph.nodes.flatMap((node) => {
-    const piece = resolve?.definition(node.type)
-    if (piece) return workshopNodes(piece.graph, resolve, [...path, node.id])
+    const part = resolve?.definition(node.type)
+    if (part) return workshopNodes(part.graph, resolve, [...path, node.id])
     return workshopInput(node) || node.type === WORKSHOP_OUTPUT ? [] : [{ node, path }]
   })
 }

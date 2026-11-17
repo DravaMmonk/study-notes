@@ -12,7 +12,7 @@ import { knownGames } from './cli-args.js'
 /**
  * The graph of a course (../course.js defineCourse): { eras: [{ id, title }], parts: [{ key, built, at, era,
  * optional, uses }], made: [{ from, to }], levels: [{ id, era, optional, uses, brings }] }. A part is every
- * primitive brought in and every built part, but none that stays where it is brought (local); `at` the levels bringing it in or building it, in play order; `made` a built part's pieces.
+ * primitive brought in and every built part, but none that stays where it is brought (local); `at` the levels bringing it in or building it, in play order; `made` a built part's parts.
  */
 export function dependencies(course) {
   const placed = course.levels.filter((l) => !course.plan || course.plan.place.has(l.id))

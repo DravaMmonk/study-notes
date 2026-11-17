@@ -1,0 +1,13 @@
+{
+  "name": "@part.maxpool.name",
+  "desc": "@part.maxpool.desc",
+  "icon": "Minimize2",
+  "family": "image:family-size",
+  "inputs": [
+    {
+      "name": "in",
+      "label": ""
+    }
+  ],
+  "op": "image:maxpool"
+}

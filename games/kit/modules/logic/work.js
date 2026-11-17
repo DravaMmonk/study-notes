@@ -1,14 +1,14 @@
 // A logic game's course, from its course configuration and content package ( vocabulary.js says what
 // may be in it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it
-// can really offer, its reference and naive answers as the boards they write (../../engine/board-cards.js), and its built pieces
-// (pieces.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
+// can really offer, its reference and naive answers as the boards they write (../../engine/board-cards.js), and its built parts
+// (parts.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
 // builtGates), a machine part (machine.js builtMachine), an equation proved; every one runs the player's work (a lemma,
 // the proof of each of its shapes).
-import { stripPieces } from '../../strip/pieces.js'
-import { symbolFor } from './stripPieces.js'
+import { stripParts } from '../../strip/parts.js'
+import { symbolFor } from './stripParts.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
-import { builtPieces, cardOf, pieceReferences, publications, settingsOf } from '../../engine/pieces.js'
+import { builtParts, cardOf, partReferences, publications, settingsOf } from '../../engine/parts.js'
 import { eraLevels, holds, levelLabels, met, offer, usable } from '../../course.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
@@ -17,7 +17,7 @@ import { readWorks } from '../../engine/course-model.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
-import { MACHINE_BOARD, RULE_PIECE, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, rulePieces, startMachine } from './machine.js'
+import { MACHINE_BOARD, RULE_DEFINITION, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, ruleParts, startMachine } from './machine.js'
 import { operationsOf } from '../../engine/parts/operation.js'
 import { compileParts } from '../../engine/parts/define.js'
 import { presetCardIds, presetOf, withPreset } from '../../circuit/presets.js'
@@ -45,33 +45,33 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 const asSchema = (text, metas) => metas.reduce((t, m) => t.replace(new RegExp(`\\b${m}\\(([a-z]\\w*)\\)`, 'g'), m), text)
 
 /**
- * A game's built pieces (pieces.json, ../../engine/pieces.js builtPieces) read as the course's tables. Its family says
- * what a piece is: a lemma (`lemma`: each shape the premises and goal of the proof task it refers to, its letters its
+ * A game's built parts (parts.json, ../../engine/parts.js builtParts) read as the course's tables. Its family says
+ * what a part is: a lemma (`lemma`: each shape the premises and goal of the proof task it refers to, its letters its
  * tree settings, the first reference its first shape and the rest, by `form`, shapes an upgrade adds), a gate (`gate`:
  * a port for each letter of its truth circuit, in order, named a, b, c…), a machine part (`built`) or an equation
- * proved (`rule`: its statement its task's goal; the task may say how it enters the rule book, `rule`). The level of a piece's first reference (of
+ * proved (`rule`: its statement its task's goal; the task may say how it enters the rule book, `rule`). The level of a part's first reference (of
  * every one, for a chain of upgrades) builds it; a task an equation refers to proves it. Returns { lemmas, facts,
- * gates, machines, pieces, revisions, builds: level → type, proves: task → type, lemmaRefs: [{ type, form, task }] }.
+ * gates, machines, parts, revisions, builds: level → type, proves: task → type, lemmaRefs: [{ type, form, task }] }.
  */
 function readBuilt(content) {
   const raw = new Map(content.levels.flatMap((L) => L.tasks.map((task) => [task.id, { level: L, task }])))
-  const out = { lemmas: {}, facts: {}, gates: {}, machines: [], pieces: {}, publishers: {}, references: new Map(), builds: new Map(), proves: new Map(), lemmaRefs: [], machineRefs: [] }
-  const pieces = builtPieces(content.partDefs)
-  const all = publications(content.levels, pieces)
-  for (const [type, piece] of Object.entries(pieces)) {
+  const out = { lemmas: {}, facts: {}, gates: {}, machines: [], parts: {}, publishers: {}, references: new Map(), builds: new Map(), proves: new Map(), lemmaRefs: [], machineRefs: [] }
+  const parts = builtParts(content.partDefs)
+  const all = publications(content.levels, parts)
+  for (const [type, part] of Object.entries(parts)) {
     const refs = all.filter((ref) => ref.type === type).map((ref) => ({ ...ref, ...(raw.get(ref.task) ?? {}) }))
-    out.pieces[type] = piece
+    out.parts[type] = part
     out.publishers[type] = refs.map((ref) => ref.task?.id).filter(Boolean)
     for (const ref of refs) if (ref.task) out.references.set(ref.task.id, ref.reference)
     const build = (level) => {
       if (out.builds.has(level.id) && out.builds.get(level.id) !== type) throw new Error(`level ${level.id} builds both ${out.builds.get(level.id)} and ${type}`)
       out.builds.set(level.id, type)
     }
-    // An equation is proved, not built; a shape after the first is one more form of the piece, opened where it is proved.
-    if (piece.family !== 'logic:family-rule') for (const [k, ref] of refs.entries()) if (ref.level && (!ref.form || k === 0)) build(ref.level)
-    const { name, desc } = piece
-    if (piece.family === 'logic:family-lemma') {
-      const trees = settingsOf(piece).filter((x) => x.control === 'tree')
+    // An equation is proved, not built; a shape after the first is one more form of the part, opened where it is proved.
+    if (part.family !== 'logic:family-rule') for (const [k, ref] of refs.entries()) if (ref.level && (!ref.form || k === 0)) build(ref.level)
+    const { name, desc } = part
+    if (part.family === 'logic:family-lemma') {
+      const trees = settingsOf(part).filter((x) => x.control === 'tree')
       const metas = trees.map((x) => x.key)
       const labelled = trees.filter((x) => x.label)
       const shapes = refs.map((ref) => {
@@ -83,23 +83,23 @@ function readBuilt(content) {
         name, desc, metas, ports: shapes[0].premises ?? [],
         ...(labelled.length ? { params: Object.fromEntries(labelled.map((x) => [x.key, x.label])) } : {}),
         ...(refs[0].form ? { forms: shapes } : { statement: shapes[0].statement, ...(shapes[0].premises ? { premises: shapes[0].premises } : {}) }),
-        ...(cardOf(piece) ? { card: cardOf(piece) } : {}),
+        ...(cardOf(part) ? { card: cardOf(part) } : {}),
       }
       out.lemmaRefs.push(...refs.map((ref) => ({ type, form: ref.form ?? '', task: ref.task?.id, reference: ref.reference })))
-    } else if (piece.family === 'logic:family-gate') {
+    } else if (part.family === 'logic:family-gate') {
       // A gate's ports stand for its truth circuit's letters in order, named a, b, c…: the level's sentences are its
       // own, not the gate's.
       out.gates[type] = { name, desc, ports: lettersOf([parse(refs[0].reference.target)]).map((_, k) => String.fromCharCode(97 + k)) }
     }
-    else if (piece.family === 'logic:family-built') {
+    else if (part.family === 'logic:family-built') {
       out.machines.push(type)
       out.machineRefs.push(...refs.map((ref) => ({ type, variant: ref.variant, task: ref.task?.id, reference: ref.reference })))
     }
-    else if (piece.family === 'logic:family-rule') {
+    else if (part.family === 'logic:family-rule') {
       const { task, reference } = refs[0]
       out.facts[type] = { name, desc, statement: reference.tests[0].goal, ...(reference.rule ? { rule: reference.rule } : {}) }
       if (task) out.proves.set(task.id, type)
-    } else throw new Error(`pieces.json's ${type} is a built piece of family ${piece.family}: a lemma, a gate, a built machine part or a rule (an equation)`)
+    } else throw new Error(`parts.json's ${type} is a built part of family ${part.family}: a lemma, a gate, a built machine part or a rule (an equation)`)
   }
   return out
 }
@@ -108,7 +108,7 @@ function readBuilt(content) {
  * content (../../engine/content.js assemble; the fields are vocabulary.js GAME): {
  *   eras        the course's eras, one proof machine each (games/DESIGN.md 2), each with its map chapter
  *               { title, question }; a topic has a `code` for its numbers
- *   levels      every level; a level may introduce syntax pieces (`adds`), see notation.js
+ *   levels      every level; a level may introduce syntax parts (`adds`), see notation.js
  *   words       the word sets (wordSets, by name, merged in order) every level reads its letters, predicates and
  *               names in, unless it names its own (`words`): { letter: { zh, en } } the everyday sentence each reads as
  *
@@ -117,12 +117,12 @@ function readBuilt(content) {
  * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
  * sentences as its label, so one proof is checked on all of them; a last test keeps the bare letters, the pattern
  * itself. A level opens on its first case, the one its task is written in.
- *   partDefs    pieces.json: the primitive gates, the proof rules and the machine board's parts
- *               (../../engine/parts/define.js) over the domain's engine resources (ops.js), and the built pieces
+ *   partDefs    parts.json: the primitive gates, the proof rules and the machine board's parts
+ *               (../../engine/parts/define.js) over the domain's engine resources (ops.js), and the built parts
  *               (readBuilt): the lemmas the player proves, the gates built on a truth circuit (gates.js), the machine
  *               parts built on the machine board, and the equations proved (chapter 12 on), each from then on a rule
  *               and a rewrite rule of the rule book of numbers (machine.js MATH) in every level after it (`proven`); a
- *               piece's description grows along the course (`revisions`), and an upgrade adds shapes to its card
+ *               part's description grows along the course (`revisions`), and an upgrade adds shapes to its card
  *   local       [part] parts that stay in the levels that bring them, never unlocked or carried on (../../course.js)
  *   trays       { tray: [part] } the trays (../../course.js): one per kind of circuit board (the truth circuit, the
  *               proof board, the machine board), and one for a scene that plays with its own parts alone
@@ -144,11 +144,11 @@ function readBuilt(content) {
  * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, as far as
  * its tray lists it; see ../../course.js reach and offer. What a task holds is the kernel's rule (../../course.js
  * holds), and the domain says only what is its own: a task withholds its `without`; a machine board is given the rule
- * parts of its rule book (machine.js rulePieces), which holds every rule met whatever the tray; and a lemma's
+ * parts of its rule book (machine.js ruleParts), which holds every rule met whatever the tray; and a lemma's
  * shapes after its first are values of its `form` that the upgrade proving them opens (`revisions`: by, forms).
  * Returns { LEVELS, CHAPTERS, LABELS, course, offerIn(task, flags), holdsIn(task, flags), machines, lemmas,
- * facts, pieces: the built pieces, texts: what a player reads of them, proofs,
- * gates: the gates built, defs and defaultsOf: the parts pieces.json defines and a new node's settings, truthCircuits and proofBoards: the truth circuits and
+ * facts, parts: the built parts, texts: what a player reads of them, proofs,
+ * gates: the gates built, defs and defaultsOf: the parts parts.json defines and a new node's settings, truthCircuits and proofBoards: the truth circuits and
  * the proofs as the kernel's circuit screen reads a course, wrong: what reading the content found wrong, … }: each of LEVELS { id, title, …, tasks }, its
  * tasks as read (`task` the index, `taskId` the id). Reading builds all of it anew: the content is never written to.
  */
@@ -251,15 +251,15 @@ export function* prepareLogicWorks(content) {
   const { eras } = content
   const wordSets = content.registries?.wordset ?? {}
   const wrong = []
-  const strips = stripPieces(content.partDefs)
+  const strips = stripParts(content.partDefs)
   const marks = new Set()
-  for (const piece of Object.values(strips)) {
-    if (marks.has(piece.mark)) wrong.push(`pieces.json: ${piece.type} repeats the strip mark ${piece.mark}`)
-    marks.add(piece.mark)
+  for (const part of Object.values(strips)) {
+    if (marks.has(part.mark)) wrong.push(`parts.json: ${part.type} repeats the strip mark ${part.mark}`)
+    marks.add(part.mark)
   }
   const built = readBuilt(content)
   const { lemmas, facts, gates, machines } = built
-  // The levels as the course reads them: each with the piece it builds, and each task with the equation it proves.
+  // The levels as the course reads them: each with the part it builds, and each task with the equation it proves.
   const levels = content.levels.map((l) => ({ ...l, ...(built.builds.has(l.id) ? { builds: built.builds.get(l.id) } : {}), tasks: l.tasks.map((t) => (built.proves.has(t.id) ? { ...t, fact: built.proves.get(t.id) } : t)) }))
   const words = wordsOf(content.words, wordSets)
   const tasksOf = new Map(levels.map((l) => [l.id, readTasks(l, wordSets, content.taskPositions)]))
@@ -276,7 +276,7 @@ export function* prepareLogicWorks(content) {
     ...(playFor(plays, task)?.gives === 'reference' ? [{ kind: 'function', type: task.fn, form: null, task, value: () => equations(task, task.solution) }] : []),
     ...(task.fact ? [{ kind: 'fact', type: task.fact, form: null, task }] : []),
   ])
-  const references = pieceReferences(declaredWorks, {
+  const references = partReferences(declaredWorks, {
     before: (a, b) => course.before(a, b),
     passed: (task) => Boolean(kept.board(task.taskId)),
     useLatest: true,
@@ -293,26 +293,26 @@ export function* prepareLogicWorks(content) {
   })
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
-  // read by their ports alone. A truth circuit holds those and the primitive gates (pieces.json), each with its name.
-  const gatePieces = {}
-  // The parts: pieces.json's and the lemmas', each on the board of its family.
+  // read by their ports alone. A truth circuit holds those and the primitive gates (parts.json), each with its name.
+  const gateParts = {}
+  // The parts: parts.json's and the lemmas', each on the board of its family.
   const { PARTS, defs, defaultsOf } = partsOf(content.partDefs, lemmas)
   const resourcesOf = operationsOf
   const partResources = Object.fromEntries(Object.entries(defs).map(([type, def]) => [type, resourcesOf(def)[0]]))
-  const piecesForResource = Object.fromEntries(Object.entries(defs).flatMap(([type, def]) => resourcesOf(def).map((resource) => [resource, type])))
+  const partsForResource = Object.fromEntries(Object.entries(defs).flatMap(([type, def]) => resourcesOf(def).map((resource) => [resource, type])))
   const onBoard = (...families) => Object.fromEntries(Object.entries(PARTS).filter(([type]) => families.includes(defs[type].family)))
   const primitiveGates = onBoard('logic:family-gate')
   const boardGates = Object.fromEntries(Object.entries(primitiveGates).map(([type, part]) => [type, { ...part, name: defs[type].name, desc: defs[type].desc }]))
   // A proof's parts: the proof rules and the lemmas, and the board's premises and goal.
   const proofParts = { ...PROOF_BOARD.FIXED_PARTS, ...onBoard('logic:family-rule', 'logic:family-box', 'logic:family-lemma') }
-  // A machine's parts: the machine board's pieces.json parts, the parts the player builds and the rule parts of its
-  // rule books (every rule part the same engine part, RULE_PIECE).
+  // A machine's parts: the machine board's parts.json parts, the parts the player builds and the rule parts of its
+  // rule books (every rule part the same engine part, RULE_DEFINITION).
   const machineParts = onBoard('logic:family-tactic', 'logic:family-loop')
-  const RULE_ENGINE = compileParts({ rules: RULE_PIECE }, OPS).PARTS.rules
+  const RULE_ENGINE = compileParts({ rules: RULE_DEFINITION }, OPS).PARTS.rules
   // The rule parts a task holds (none on the generator's board, which carries rules as values).
   const ruleTypes = (task) => (task.want === 'logic:want-elim' ? new Map() : rulePartsOf(task))
   // The proofs the lemmas run, filled in the same way (lemmaWorks).
-  const lemmaPieces = {}
+  const lemmaParts = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
   const proofBlueprint = primitivesOnly(PROOF_BOARD, proofParts)
   const gateBlueprint = primitivesOnly(GATE_BOARD, { ...primitiveGates, ...gatePorts })
@@ -338,12 +338,12 @@ export function* prepareLogicWorks(content) {
     try {
       return circuit.board.fromText(reference.solution, { ...task, ...reference }, circuit)
     } catch (error) {
-      wrong.push(`${task.id}: its piece implementation: ${blueprintProblem(error)}`)
+      wrong.push(`${task.id}: its part implementation: ${blueprintProblem(error)}`)
       return undefined
     }
   }
   const readAnswers = (one, circuit) => ({
-    pieceSolution: artifact(one, circuit),
+    partSolution: artifact(one, circuit),
     ...Object.fromEntries(['solution', 'naive'].filter((field) => one[field]).map((field) => [field, answer(one, field, circuit)])),
   })
   // Read a proof or gate now, and a machine once its rule book is known.
@@ -389,7 +389,7 @@ export function* prepareLogicWorks(content) {
   const standalone = (id, reference, circuit) => {
     const task = { ...reference, id, task: 0, taskId: id, ...(reference.kind === 'logic:proof' && { schema: reference.tests[0] }) }
     try {
-      return { ...task, pieceSolution: circuit.board.fromText(reference.solution, task, circuit) }
+      return { ...task, partSolution: circuit.board.fromText(reference.solution, task, circuit) }
     } catch (error) {
       if (!error.en) throw error
       throw new Error(`${id}: ${blueprintProblem(error)}`, { cause: error })
@@ -414,7 +414,7 @@ export function* prepareLogicWorks(content) {
       const stripAdds = level.tasks.filter(task => task.task <= l.task).flatMap((task) => task.adds.filter((type) => strips[type]))
       return [...level.adds.filter((type) => !strips[type]), ...stripAdds]
     },
-    parts: Object.fromEntries(Object.keys(built.pieces).filter(isBuilt).map(p => [p, { unlock: `lemma:${p}` }])),
+    parts: Object.fromEntries(Object.keys(built.parts).filter(isBuilt).map(p => [p, { unlock: `lemma:${p}` }])),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     grants: (l) => {
       const task = byId.get(l.id).tasks.find(task => task.task === l.task)
@@ -429,14 +429,14 @@ export function* prepareLogicWorks(content) {
   for (const one of TASKS) {
     // Machine rulebook parts are board gives. Fixed formula keys come from the same selected trays.
     const keys = usable(course, { id: one.id, task: one.task, editor: 'strip' }, noFlags)
-    const formulaPieces = Object.fromEntries(keys.flatMap((type) => {
-      const piece = strips[type]
-      return piece && Object.hasOwn(symbolFor, piece.mark) ? [[symbolFor[piece.mark], piece]] : []
+    const formulaParts = Object.fromEntries(keys.flatMap((type) => {
+      const part = strips[type]
+      return part && Object.hasOwn(symbolFor, part.mark) ? [[symbolFor[part.mark], part]] : []
     }))
     const notation = {
       words: one.words ?? words,
-      symbols: Object.keys(formulaPieces),
-      formulaPieces,
+      symbols: Object.keys(formulaParts),
+      formulaParts,
       propertyWords: one.propertyWords ?? one.kind === 'logic:proof',
     }
     const expanded = one.cases ? expand(one, notation) : {}
@@ -444,7 +444,7 @@ export function* prepareLogicWorks(content) {
       ...one, ...declarations(one, one.id), ...(!one.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}),
       ...(WORLD_KINDS.includes(one.kind) ? { vocab: vocabOf(one) } : {}), ...expanded,
       ...(one.kind === 'logic:machine' ? { tests: one.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}),
-      lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, notation,
+      lemmas, proofs: lemmaParts, facts, gates: boardGates, partDefs: defs, notation,
     }))
   }
   for (const level of LEVELS) level.brief = level.tasks.at(-1).brief
@@ -459,8 +459,8 @@ export function* prepareLogicWorks(content) {
     }
   }
   for (const { type, form, task } of references.entriesOf('lemma')) {
-    const shapes = lemmaPieces[type] ??= {}
-    shapes[form] = { level: task, board: () => kept.board(task.taskId) ?? task.pieceSolution }
+    const shapes = lemmaParts[type] ??= {}
+    shapes[form] = { level: task, board: () => kept.board(task.taskId) ?? task.partSolution }
   }
   // A machine level's (and a script's) rule book has every rule the level has met, whatever its tray (machine.js
   // ruleBookOf): the kernel's rules opened by chapter, the lemmas built before it, each in the shapes it has gained by
@@ -473,15 +473,15 @@ export function* prepareLogicWorks(content) {
       const later = one.task > 0
       // A task has what the tasks before it in its level proved.
       const before = references.prior('fact', one).filter(({ task }) => task.id === one.id).map(({ type }) => type)
-      one.rulePieces = piecesForResource
-      one.holds = content.standalone ? Object.keys(content.registries.piece) : met(course, { id: level.id, task: one.task })
+      one.ruleParts = partsForResource
+      one.holds = content.standalone ? Object.keys(content.registries.part) : met(course, { id: level.id, task: one.task })
       one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       const has = holds(course, { id: level.id, task: one.task }, new Set())
       one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, l.forms.map((f) => f.key).filter((key) => content.standalone || has(type, 'form', key))]))
     }
   }
   // A built machine part's ports are the inputs of the board of the first task it refers to.
-  const builtPorts = Object.fromEntries(machines.map((type) => [type, inputsOfLevel(taskById.get(built.publishers[type][0]) ?? built.pieces[type].inside[0].reference).map((i) => i.name)]))
+  const builtPorts = Object.fromEntries(machines.map((type) => [type, inputsOfLevel(taskById.get(built.publishers[type][0]) ?? built.parts[type].inside[0].reference).map((i) => i.name)]))
   const declaredMachines = Object.fromEntries(Object.entries(builtPorts).map(([type, inputs]) => [type, { inputs }]))
   const machineBlueprint = (task) => primitivesOnly(MACHINE_BOARD, {
     ...Object.fromEntries([...ruleTypes(task).keys()].map((type) => [type, RULE_ENGINE])),
@@ -491,18 +491,18 @@ export function* prepareLogicWorks(content) {
   // A machine's answers are read now that its rule book, and so its rule parts, are known.
   for (const one of TASKS.filter((t) => t.kind === 'logic:machine')) Object.assign(one, readAnswers(one, machineBlueprint(one)))
   for (const { type, variant, task, reference } of built.machineRefs) if (!taskById.has(task)) {
-    const one = { ...reference, ...declarations(reference, type), lemmas, facts, rulePieces: piecesForResource, partDefs: defs }
+    const one = { ...reference, ...declarations(reference, type), lemmas, facts, ruleParts: partsForResource, partDefs: defs }
     references.register([{ kind: 'logic:machine', type, form: null, task: standalone(`${type}:${variant}`, one, machineBlueprint(one)) }])
   }
   // The gates the levels build run their boards (gates.js builtGates).
   const gateBuilders = Object.fromEntries(references.entriesOf('gate').map(({ type, task }) => [type, task]))
   for (const type of Object.keys(gates)) if (!gateBuilders[type]) {
-    const reference = built.pieces[type].inside[0].reference
+    const reference = built.parts[type].inside[0].reference
     const task = standalone(type, reference, gateBlueprint)
     gateBuilders[type] = { ...task, tests: gateTests(task), gates: boardGates }
   }
-  Object.assign(gatePieces, builtGates(gates, gateBuilders, kept.board))
-  Object.assign(boardGates, gatePieces)
+  Object.assign(gateParts, builtGates(gates, gateBuilders, kept.board))
+  Object.assign(boardGates, gateParts)
   // Machine cards share a packed instance when their visible sequence of references is the same.
   const running = new Map()
   const machineTypes = [...new Set(references.entriesOf('logic:machine').map(({ type }) => type))]
@@ -516,7 +516,7 @@ export function* prepareLogicWorks(content) {
       const key = JSON.stringify([type, strict, reference.taskId])
       if (!running.has(key)) {
         const builder = () => has.inside(type, null, { strict, kind: 'logic:machine' }).task
-        running.set(key, builtMachine(type, builder, reference, kept.board, settingsOf(built.pieces[type]).map((x) => x.key)))
+        running.set(key, builtMachine(type, builder, reference, kept.board, settingsOf(built.parts[type]).map((x) => x.key)))
       }
       return running.get(key)
     }
@@ -527,15 +527,15 @@ export function* prepareLogicWorks(content) {
   }
   const at = (task) => ({ id: task.id, task: task.task })
   // The parts a machine task has built, named.
-  const builtOf = (task) => Object.fromEntries(Object.entries(task?.built ?? {}).filter(([, p]) => p).map(([type, p]) => [type, { ...p, name: built.pieces[type].name, desc: built.pieces[type].desc }]))
+  const builtOf = (task) => Object.fromEntries(Object.entries(task?.built ?? {}).filter(([, p]) => p).map(([type, p]) => [type, { ...p, name: built.parts[type].name, desc: built.parts[type].desc }]))
   // The parts a machine task registers itself: its rule parts, and a built part's face where it takes settings.
-  const pieces = new WeakMap()
-  const piecesOf = (task) => {
-    if (!pieces.has(task)) pieces.set(task, compileParts({ ...rulePieces(task), ...builtFaces(task) }, OPS).defs)
-    return pieces.get(task)
+  const parts = new WeakMap()
+  const taskPartsOf = (task) => {
+    if (!parts.has(task)) parts.set(task, compileParts({ ...ruleParts(task), ...builtFaces(task) }, OPS).defs)
+    return parts.get(task)
   }
-  const builtFaces = (task) => Object.fromEntries(Object.entries(task.built ?? {}).filter(([type, p]) => p && settingsOf(built.pieces[type]).length).map(([type, p]) => {
-    const { name, desc, settings } = built.pieces[type]
+  const builtFaces = (task) => Object.fromEntries(Object.entries(task.built ?? {}).filter(([type, p]) => p && settingsOf(built.parts[type]).length).map(([type, p]) => {
+    const { name, desc, settings } = built.parts[type]
     return [type, { name, desc, icon: 'CircuitBoard', family: 'logic:family-built', inputs: p.inputs.map((port) => ({ name: port, type: p.inputTypes?.[port] ?? 'logic:machine-value', ...(port === 'rules' ? { label: T('规则', 'Rules') } : {}) })), settings, outputType: p.outputType ?? 'logic:machine-value', op: 'circuit:zero' }]
   }))
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
@@ -547,19 +547,19 @@ export function* prepareLogicWorks(content) {
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)
   // The truth circuits as the kernel's circuit screen reads them (gates.js gateCourse).
-  const truthCircuits = gateCourse({ built: gatePieces, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
+  const truthCircuits = gateCourse({ built: gateParts, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
   // The proofs, the same way: their parts are the proof rules and the lemmas (proofParts).
   const proofBoards = {
     ...boardView({
       board: PROOF_BOARD, parts: () => proofParts,
-      built: () => Object.fromEntries(Object.keys(lemmaPieces).filter(type => !lemmas[type].card).map(type => [type, {
+      built: () => Object.fromEntries(Object.keys(lemmaParts).filter(type => !lemmas[type].card).map(type => [type, {
         ...proofParts[type],
         opens: params => {
-          const proof = lemmaReference({ type, params }, lemmas, lemmaPieces)
+          const proof = lemmaReference({ type, params }, lemmas, lemmaParts)
           return proof && { circuit: proof.board(), level: proof.level }
         },
       }])),
-      builder: (type, _task, params) => lemmaReference({ type, params }, lemmas, lemmaPieces)?.level ?? null,
+      builder: (type, _task, params) => lemmaReference({ type, params }, lemmas, lemmaParts)?.level ?? null,
       offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks,
     }),
     runtimeReferences: proofWorkReferences,
@@ -570,7 +570,7 @@ export function* prepareLogicWorks(content) {
     parts: (task) => ({ ...machineParts, ...Object.fromEntries([...ruleTypes(task).keys()].filter((t) => !machineParts[t]).map((t) => [t, RULE_ENGINE])), ...builtOf(task) }),
     built: builtOf,
     builder: (type, task) => task?.built?.[type]?.opens().level ?? null,
-    defined: (task) => ({ of: (type) => piecesOf(task)[type] ?? defs[type] ?? null, defaults: (type) => (piecesOf(task)[type] ? {} : defaultsOf(type)), ops: OPS }),
+    defined: (task) => ({ of: (type) => taskPartsOf(task)[type] ?? defs[type] ?? null, defaults: (type) => (taskPartsOf(task)[type] ? {} : defaultsOf(type)), ops: OPS }),
     offerIn,
     holdsIn,
     syncOwn: kept.sync,
@@ -583,7 +583,7 @@ export function* prepareLogicWorks(content) {
   function proofWorkReferences(task, work) {
     if (task.kind !== 'logic:proof') return []
     return (work?.nodes ?? []).flatMap((node) => {
-      const proof = lemmaReference(node, lemmas, lemmaPieces)
+      const proof = lemmaReference(node, lemmas, lemmaParts)
       return proof ? [{ key: proof.level.taskId, task: proof.level, work: proof.board() }] : []
     })
   }
@@ -597,10 +597,10 @@ export function* prepareLogicWorks(content) {
     ].map((entry) => {
       const source = entry.task
       const builder = LEVELS.find(({ id }) => id === source.id)?.tasks.find(task => task.task === source.task)
-      const work = entry.value?.() ?? facts[entry.type]?.statement ?? builder?.pieceSolution
+      const work = entry.value?.() ?? facts[entry.type]?.statement ?? builder?.partSolution
       return { key: source.taskId, task: builder, work }
     })
     return [...named, ...proofWorkReferences(task, work)]
   }
-  return { partResources, machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { partResources, machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, lemmas, facts, parts: built.parts, publishers: built.publishers, texts: { lemmas, facts, gates }, proofs: lemmaParts, gates: gateParts, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

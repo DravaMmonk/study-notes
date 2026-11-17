@@ -5,7 +5,7 @@
 // - T('中文', 'English') is a bilingual string: it turns into the current language's text wherever it is put in a
 //   template, joined or set as textContent (and the shell's L() reads it as a { zh, en } pair). Level data, parts
 //   and components use it, so switching language only needs a re-render.
-// - lazy(() => tr(...)) is text assembled from other localized pieces (a cell name, a part name); it is assembled
+// - lazy(() => tr(...)) is text assembled from other localized parts (a cell name, a part name); it is assembled
 //   again each time it is shown. Messages that stay on screen (fail sheets, a mode's message box) use it.
 // - hydrate(content) turns resolved display text into a value that renders in the current language.
 

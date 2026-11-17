@@ -174,7 +174,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     }
     const stage = owner.get(id)
     if (stage) blocks.open(stage)
-    requestAnimationFrame(() => board.current?.querySelector(`[data-piece="${CSS.escape(id)}"], [data-terminal="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+    requestAnimationFrame(() => board.current?.querySelector(`[data-part="${CSS.escape(id)}"], [data-terminal="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
   }
   const tags = (ids) => {
     const incoming = new Set(), outgoing = new Set()
@@ -188,7 +188,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   }
   useEffect(() => {
     if (!blocks?.active) return
-    requestAnimationFrame(() => board.current?.querySelector(`[data-piece="${CSS.escape(blocks.active)}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+    requestAnimationFrame(() => board.current?.querySelector(`[data-part="${CSS.escape(blocks.active)}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
   }, [blocks?.active])
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -304,7 +304,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     }
   }
   const cardInteraction = (node) => ({
-    'data-piece': node.id,
+    'data-part': node.id,
     'data-drag': !fixed && !partitioning && canMove(node.id) ? true : undefined,
     role: 'button',
     tabIndex: 0,
@@ -342,7 +342,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     }
     const selected=(row)=>partitioning&&startRow!==null&&row>=Math.min(startRow,hoverRow??startRow)&&row<=Math.max(startRow,hoverRow??startRow)
     const out=[]
-    const reveal=(b,id)=>{blocks.open(b.id);requestAnimationFrame(()=>board.current?.querySelector(`[data-piece="${CSS.escape(id)}"]`)?.scrollIntoView({block:'center'}))}
+    const reveal=(b,id)=>{blocks.open(b.id);requestAnimationFrame(()=>board.current?.querySelector(`[data-part="${CSS.escape(id)}"]`)?.scrollIntoView({block:'center'}))}
     for(const block of ranges){
       const first=headTrack.get(block.id),last=rowTrack.get(block.end-1)??first
       out.push(<div key={`head-${block.id}`} data-block={block.id} data-pick-row={block.start} className={`pb-block-head is-rule ${block.view==='hidden'?'is-hidden':''}`} style={{gridRow:first,gridColumn:`1 / span ${cols}`}}>

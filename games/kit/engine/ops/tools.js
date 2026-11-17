@@ -16,7 +16,7 @@ import { visibleOverrides } from '../layers.js'
 import { PROJECT_DIR, runtimeOf, isDataGame, readContent, readPackage, packageIds, readGameConfig } from '../content-node.js'
 import { gameOnPackage } from '../scaffold.js'
 import { gameOf } from '../games.mjs'
-import { pieceFlow } from '../flow.js'
+import { partFlow } from '../flow.js'
 import { fresh } from '../../shell/progress.js'
 import { taskContext } from '../../shell/played-task.js'
 import { drawDeps } from '../deps.js'
@@ -278,32 +278,32 @@ const tools = {
     },
   },
   flow: {
-    about: 'A piece’s way through a game’s course (as a changeset would leave it), read off the course, in course order: where it is at hand from the start, where a level brings it in, where a level or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its upgrade chains (the task whose work runs inside it, with its form). Each event names the level, the task (an index) and the path of the field in the level’s content that says it (null: none).',
-    params: { game: 'string', piece: 'string', changeset: 'object?', scope: 'string?' },
-    async run({ game, piece, changeset = null, scope }) {
+    about: 'A part’s way through a game’s course (as a changeset would leave it), read off the course, in course order: where it is at hand from the start, where a level brings it in, where a level or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its upgrade chains (the task whose work runs inside it, with its form). Each event names the level, the task (an index) and the path of the field in the level’s content that says it (null: none).',
+    params: { game: 'string', part: 'string', changeset: 'object?', scope: 'string?' },
+    async run({ game, part, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
       if (content.packageTarget) return { events: [] }
       const domain = await runtimeOf(content)
-      return { events: pieceFlow(domain.spec(content).course, content, piece) }
+      return { events: partFlow(domain.spec(content).course, content, part) }
     },
   },
   names: {
-    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box (with the piece it is and the level that first gives it), each encyclopedia entry’s title; and the names copy may quote rather than link.',
+    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box (with the part it is and the level that first gives it), each encyclopedia entry’s title; and the names copy may quote rather than link.',
     params: { game: 'string', changeset: 'object?', scope: 'string?' },
     async run({ game, changeset = null, scope }) {
       const content = await contentAfter(game, changeset, scope)
       if (content.packageTarget) return {
         levels: packageLevelOrder(content).map(id => ({ id, label: id, title: levelIn(content, id).title })),
-        parts: Object.entries(content.partDefs?.parts ?? {}).map(([key, p]) => ({ key, name: p.name, piece: key, at: null })),
+        parts: Object.entries(content.partDefs?.parts ?? {}).map(([key, p]) => ({ key, name: p.name, part: key, at: null })),
         entries: content.glossary.entries.map(e => ({ id: e.id, title: e.title })), quotes: [],
       }
       const shown = await gameOf(content)
       const domain = await runtimeOf(content)
       return {
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
-        // Each with the piece it is (its type in pieces/<name>.json) and the level that first gives it: a primitive's first level
+        // Each with the part it is (its type in parts/<name>.json) and the level that first gives it: a primitive's first level
         // bringing it in, a built one's level earning its flag.
-        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, piece: p.piece ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
+        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, part: p.part ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
         entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),
         quotes: domain.spec(content).quotes ?? [],
       }
@@ -392,7 +392,7 @@ const tools = {
         const text = git('show', `${tree}:${path}`)
         if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
         let value = JSON.parse(text)
-        const isObject = /^(levels|pieces|entries|tags|relations|sections|trays)\//.test(fileName)
+        const isObject = /^(levels|parts|entries|tags|relations|sections|trays)\//.test(fileName)
         if (isObject || ['game.json', 'blueprint.json'].includes(fileName)) {
           const scope = join(isObject ? path.slice(0, -fileName.length) : dirname(path), 'i18n')
           const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))

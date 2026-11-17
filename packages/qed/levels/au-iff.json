@@ -42,7 +42,7 @@
       ],
       "publishes": [
         {
-          "piece": "iff",
+          "part": "iff",
           "variant": "elim"
         }
       ]
@@ -82,7 +82,7 @@
       ],
       "publishes": [
         {
-          "piece": "iff",
+          "part": "iff",
           "variant": "intro"
         }
       ],

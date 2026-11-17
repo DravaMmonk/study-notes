@@ -1,7 +1,0 @@
-{
-  "name": "@piece.replay.name",
-  "desc": "@piece.replay.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:replay"
-}

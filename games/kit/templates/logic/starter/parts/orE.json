@@ -1,0 +1,27 @@
+{
+  "name": "@part.orE.name",
+  "desc": "@part.orE.desc",
+  "icon": "Box",
+  "family": "logic:family-box",
+  "inputs": [
+    {
+      "name": "ab",
+      "label": "@part.orE.inputs.0.label"
+    }
+  ],
+  "regions": [
+    {
+      "name": "left",
+      "label": "@part.orE.regions.0.label",
+      "opens": true,
+      "closes": true
+    },
+    {
+      "name": "right",
+      "label": "@part.orE.regions.1.label",
+      "opens": true,
+      "closes": true
+    }
+  ],
+  "op": "logic:orE"
+}

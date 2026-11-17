@@ -1,7 +1,0 @@
-{
-  "name": "@piece.defer.name",
-  "desc": "@piece.defer.desc",
-  "icon": "Sigma",
-  "family": "logic:family-tactic",
-  "op": "logic:defer"
-}

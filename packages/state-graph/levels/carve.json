@@ -250,7 +250,7 @@
       "cuts": 8,
       "publishes": [
         {
-          "piece": "seam",
+          "part": "seam",
           "variant": "base"
         }
       ]

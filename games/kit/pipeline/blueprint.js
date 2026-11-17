@@ -4,7 +4,7 @@
 //
 //   the topic, its learner and endpoint, and how far this blueprint goes (scope, deferred)
 //   the mechanisms picked from the catalogue (DESIGN 6.5), the machines and the abilities each has (the machine ladder)
-//   the knowledge the course teaches (DESIGN 1, 4.1): each point a piece of the field — its term, what it says, where
+//   the knowledge the course teaches (DESIGN 1, 4.1): each point a part of the field — its term, what it says, where
 //   the sources teach it, the question a learner cannot answer without it (`wall`), the wrong idea it replaces; how
 //   hard it is (intuitive points are only mentioned, hard ones reached by a ladder of levels), whether it is a core of
 //   its chapter, and what shallower points it is built from (the knowledge graph the levels climb); and

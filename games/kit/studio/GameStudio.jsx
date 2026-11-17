@@ -165,7 +165,7 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
     else select({ game: true })
     if (path.length) pickField(path)
   }
-  const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPiece: () => {} }
+  const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPart: () => {} }
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
   const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
@@ -315,7 +315,7 @@ function PackageCard({ id, packages, used, content, pending, onBuild, onOps }) {
       {refusal && <p className="is-error package-refusal" role="alert">{refusal}</p>}
       <dl className="package-facts">
         {uses.length > 0 && <><dt>{tr('依赖', 'Uses')}</dt><dd>{uses.map((u) => <code key={u}>{u}</code>)}</dd></>}
-        {used.includes(id) && [['level', '关卡', 'Levels'], ['piece', '件', 'Pieces'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
+        {used.includes(id) && [['level', '关卡', 'Levels'], ['part', '元件', 'Parts'], ['tag', '标签', 'Tags'], ['relation', '关系', 'Relations'], ['tray', '托盘', 'Trays'], ['section', '分组', 'Sections']].map(([kind, zh, en]) => (
           <Fragment key={kind}><dt>{tr(zh, en)}</dt><dd>{count(kind)}</dd></Fragment>
         ))}
       </dl>

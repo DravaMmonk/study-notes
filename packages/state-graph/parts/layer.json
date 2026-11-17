@@ -1,0 +1,23 @@
+{
+  "name": "@part.layer.name",
+  "desc": "@part.layer.desc",
+  "inside": [
+    {
+      "id": "base",
+      "reference": {
+        "mode": "table:circuit",
+        "solution": [
+          "n = table:mmax(view.pn, view.pr)",
+          "a = table:add(view.pn, facts.money)",
+          "b = table:mmax(n, a)",
+          "no <- n",
+          "yes <- a",
+          "best <- b"
+        ],
+        "world": "table:world-rob2",
+        "robot": "table:robot-stack",
+        "facts": ["money"]
+      }
+    }
+  ]
+}

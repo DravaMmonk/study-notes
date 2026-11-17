@@ -2,7 +2,7 @@ import { loadDisplays } from '../../engine/displays.js'
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
-import { symbolStamp } from './stripPieces.js'
+import { symbolStamp } from './stripParts.js'
 import { CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
@@ -35,14 +35,14 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'logic:
  */
 export default function logicGame(content, logic = logicWorks(content)) {
   const { LEVELS, CHAPTERS, LABELS } = logic
-  const { gates, lemmas, pieces } = logic
-  // The parts the game defines (pieces.json's and its lemmas'), as the circuit screen draws them.
+  const { gates, lemmas, parts } = logic
+  // The parts the game defines (parts.json's and its lemmas'), as the circuit screen draws them.
   const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
-  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…): a piece of
-  // pieces.json.
-  const machines = Object.fromEntries(logic.machines.map((type) => [type, pieces[type]]))
-  // The course read a built piece opens on, for the components box: a gate's truth circuit; a machine part's machine
+  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…): a part of
+  // parts.json.
+  const machines = Object.fromEntries(logic.machines.map((type) => [type, parts[type]]))
+  // The course read a built part opens on, for the components box: a gate's truth circuit; a machine part's machine
   // board, as the last task it refers to holds it; a lemma's proof of its first shape; a proved equation's task.
   const tasks = new Map(LEVELS.flatMap((L) => L.tasks).map((task) => [task.taskId, task]))
   const boardOf = (type) => {
@@ -58,24 +58,24 @@ export default function logicGame(content, logic = logicWorks(content)) {
   }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !logic.course.local(type)
-  // The parts box lists circuit pieces, each from the levels that bring it in.
+  // The parts box lists circuit parts, each from the levels that bring it in.
   // The rules a proof-board part gives as a rule part on the machine board (the kernel's rules it is), and those a
   // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
   const kernelRules = (type) => KERNEL_RULES.filter((r) => `logic:${r.part}` === logic.partResources[type]).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const introduced = [...introductions(logic.course)].map(([type, at]) => {
-    const text = logic.defs[type] ?? logic.strips[type] ?? pieces[type]
+    const text = logic.defs[type] ?? logic.strips[type] ?? parts[type]
     const rules = kernelRules(type)
-    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, part: type, name: text?.name ?? type, desc: text?.desc, icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
   })
-  const primitives = introduced.filter(({ piece }) => !logic.strips[piece])
+  const primitives = introduced.filter(({ part }) => !logic.strips[part])
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
     index,
     source: L,
     // Marked 新 where its idea is met first: not a part brought in again (a part that stays where it is brought).
-    fresh: [...fresh(logic.course, { id: L.id })].map(logic.course.pieceOf),
+    fresh: [...fresh(logic.course, { id: L.id })].map(logic.course.partOf),
     chapter: L.chapter,
     requires: L.requires,
     title: L.title,
@@ -87,7 +87,7 @@ export default function logicGame(content, logic = logicWorks(content)) {
     after: L.after,
     // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
     // its screen reading the task as the course read it (`source`).
-    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, play: t.play, step: t.step, source: t, fresh: [...fresh(logic.course, { id: L.id, task: t.task })].map(logic.course.pieceOf), brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
+    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, play: t.play, step: t.step, source: t, fresh: [...fresh(logic.course, { id: L.id, task: t.task })].map(logic.course.partOf), brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: content.id,
@@ -119,25 +119,25 @@ export default function logicGame(content, logic = logicWorks(content)) {
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [
-      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ piece: type, label: pieces[type].name })),
-      ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.piece === type)).filter(Boolean).map((p) => ({ piece: p.piece, label: p.name, icon: p.icon, family: 'logic:family-rule' })),
+      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ part: type, label: parts[type].name })),
+      ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.part === type)).filter(Boolean).map((p) => ({ part: p.part, label: p.name, icon: p.icon, family: 'logic:family-rule' })),
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
       return declared ? ui['logic:passed'](declared) : null
     },
     core: (level) => isCore(logic.course, level),
-    extraPieces: introduced.filter(({ piece }) => logic.strips[piece]),
+    extraParts: introduced.filter(({ part }) => logic.strips[part]),
     parts: {
       all: [
         ...primitives,
-        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, piece: type, name: g.name, desc: g.desc, icon: CircuitBoard })),
-        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, piece: type, name: l.name, desc: l.desc, icon: cards[type].icon, rules: lemmaRows(type) })),
-        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, piece: type, name: m.name, desc: m.desc, icon: CircuitBoard })),
+        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, part: type, name: g.name, desc: g.desc, icon: CircuitBoard })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, part: type, name: l.name, desc: l.desc, icon: cards[type].icon, rules: lemmaRows(type) })),
+        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, part: type, name: m.name, desc: m.desc, icon: CircuitBoard })),
       ],
-      // A built piece shows the board it runs: the one the player passed its task with, else the reference.
+      // A built part shows the board it runs: the one the player passed its task with, else the reference.
       preview: (part, { progress }) => {
-        const shown = part.piece && boardOf(part.piece)
+        const shown = part.part && boardOf(part.part)
         if (!shown) return null
         logic.syncOwn(progress?.built)
         return { inside: { course: shown, cards } }
