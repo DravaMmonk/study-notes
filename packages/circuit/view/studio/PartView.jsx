@@ -1,9 +1,10 @@
+import { L, T, tr, SettingsContext } from 'kernel/view'
 import { useEffect, useState } from 'react'
 import { Monitor, PanelRight, Plus, Smartphone } from 'lucide-react'
-import { L, T, tr } from '../shell/i18n.js'
-import { picker } from '../../../packages/circuit/view/index.jsx'
-import { SCENES, editorFor } from '../../../packages/circuit/view/index.jsx'
-import { partAtStage } from './stage-chain.js'
+
+import { picker } from '../parts/PartSheet.jsx'
+import { SCENES, editorFor } from '../parts/previews.js'
+import { partAtStage } from '../../core/studio-stages.js'
 
 // A part on the studio's part page (games/DESIGN.md 6.7): the scenes its editor draws (../shell/parts/previews.js),
 // several side by side over its sheet, a single detail beside it; each scene a pane with its drawing face
@@ -19,7 +20,7 @@ import { partAtStage } from './stage-chain.js'
 const PANES = { card: [Monitor, T('电脑端面板')], tile: [Smartphone, T('手机端简略视图')], detail: [PanelRight, T('详情（两端共用）')] }
 const at = (path) => JSON.stringify(path)
 
-export default function PartView({ game, type, stage = null, edit, onTask, label }) {
+function PartPreview({ game, type, stage = null, edit, onTask, label }) {
   const declared = game.partDefs?.parts?.[type]
   const raw = declared && stage ? partAtStage(type, declared, stage) : declared
   const state = useState(undefined)
@@ -54,4 +55,8 @@ export default function PartView({ game, type, stage = null, edit, onTask, label
       {sheet}
     </div>
   )
+}
+
+export default function PartView(props) {
+  return <SettingsContext.Provider value={props.game}><PartPreview {...props} /></SettingsContext.Provider>
 }

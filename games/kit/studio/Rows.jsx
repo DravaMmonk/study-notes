@@ -10,7 +10,7 @@
 import { L, tr } from '../shell/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { summaryOf } from './form.js'
-import { AddFields } from './PartFields.jsx'
+import { AddFields } from './AddFields.jsx'
 
 /** What a row says of its field: a list's length and first items, else the value in one line. */
 function sumOf(field) {

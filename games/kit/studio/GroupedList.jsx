@@ -2,6 +2,7 @@
 // group folding, its heading row opening the group's own object (a tag, a tray, a relation, a section) in the middle;
 // what no group names under the last heading. The tools above: a new object of the list, a search, then the grouping
 // row (GroupingBar.jsx).
+import { editorForType } from './editors.js'
 import { useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import SidebarListTools from './SidebarListTools.jsx'
@@ -30,7 +31,7 @@ export default function GroupedList({ kind, name = null, content, namespace, gam
   const keys = [...groups.map((group) => group.full), LEFT]
   const titleOf = (group) => L(content.registries?.[group.kind]?.[group.full]?.title) || shownName(namespace, group.full)
   return (
-    <nav className="parts-list" aria-label={tr(...(name ?? { level: ['关卡', 'Levels'], 'circuit/part': ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind] ?? [kind, kind]))}>
+    <nav className="parts-list" aria-label={tr(...(name ?? editorForType(kind)?.name ?? { level: ['关卡', 'Levels'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind] ?? [kind, kind]))}>
       <SidebarListTools addOptions={addOptions} addLabel={addLabel} onAdd={onAdd} query={query} onQuery={setQuery} />
       <GroupingBar groupings={groupings} by={by} onBy={onBy} newOptions={newOptions} onNew={onNew}
         folded={keys.every((key) => folded.has(key))} onFoldAll={(fold) => setAll(keys, fold)} />

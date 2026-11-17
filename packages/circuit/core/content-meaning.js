@@ -1,6 +1,9 @@
 import circuitModule from './mechanism/module.js'
 import { createCapabilityRegistry, registeredOperations, registeredValueTypes } from 'kernel'
 let capabilityRegistry
+import { partStages } from './part-stages.js'
+import { grantObjects } from './grants.js'
+import { RULE_TEXT } from './course.js'
 import { circuitTools } from './author-tools.js'
 import { availabilityRecords, circuitReports } from './baseline.js'
 import { dependencies, dot, mermaid } from './dependencies.js'
@@ -56,6 +59,18 @@ export function circuitNames({ name, vocabulary, objects = {}, parts = new Set()
 
 export const partMeaning = {
   capability: 'part',
+  studio: {
+    schemas: { partDefs: PARTS_FILE },
+    relations: { replaces: 'circuit/part' },
+    collections: { 'circuit/tray': { accepts: kind => grants.types.has(kind), members: value => [...(value.values ?? []), ...(value.menus ?? []).flatMap(menu => menu.values ?? [])], types: () => [...grants.types.keys()] } },
+    rules: RULE_TEXT,
+    member: (content, kind, name) => grants.types.has(kind) ? partStages(content.registries?.[kind]).get(name)?.definition : null,
+    owners(content) {
+      return Object.entries(grantObjects(content ?? {})).flatMap(([part, raw]) => [
+        [part, part], ...(raw.stages ?? []).map(stage => [stage.id.includes('/') ? stage.id : `${part.slice(0, part.indexOf('/'))}/${stage.id}`, part]),
+      ])
+    },
+  },
   configuration: { primitives: 'course.json', borrow: 'course.json' },
   tools: circuitTools,
   quotes: ({ content }) => Object.values(content.registries?.['circuit/quote'] ?? {}).map(quote => quote.text),

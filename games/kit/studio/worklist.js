@@ -1,10 +1,10 @@
 // Categorise and filter check results for the Studio audit panel.
-import { RULE_TEXT } from '../../../packages/circuit/core/index.js'
+import { editorRules } from './editors.js'
 
 export const SEVERITIES = ['fail', 'open', 'report', 'pass']
 
 /** A line's rule: the check that wrote it. */
-export function ruleOf(text) {
+export function ruleOf(text, rules = editorRules()) {
   const body = text.replace(/^(OPEN|REPORT) /, '')
   if (body.startsWith('content: ')) return 'content'
   if (body.startsWith('text ')) return 'copy'
@@ -16,7 +16,7 @@ export function ruleOf(text) {
   if (course) {
     const left = /^left open in game\.json, but met now \(([\w-]+)\)/.exec(course[1])
     if (left) return left[1]
-    return Object.entries(RULE_TEXT).find(([, says]) => course[1].startsWith(says))?.[0] ?? 'course'
+    return Object.entries(rules).find(([, says]) => course[1].startsWith(says))?.[0] ?? 'course'
   }
   if (/ links the (entry|part) /.test(body)) return 'links'
   if (/: (duplicate id|requires missing level)/.test(body)) return 'levels'

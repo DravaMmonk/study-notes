@@ -29,7 +29,7 @@ import { getLang, L, tr } from '../shell/i18n.js'
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
-import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
+import { fileSchema } from './editors.js'
 import { newTaskId } from '../engine/tasks.js'
 
 import { objectOp, objectSchema, objectValue } from './object-file.js'
@@ -648,7 +648,7 @@ export function fileForm(content, vocabulary, at, order) {
   if (at?.glossary) return { value: content.glossary, form: formOf(GLOSSARY, content.glossary, { vocabulary, levels: order }) }
   if (at?.parts) {
     const value = content.partDefs ?? { parts: {} }
-    return { value, form: formOf(PARTS_FILE, value, { vocabulary, levels: order }) }
+    return { value, form: formOf(fileSchema(vocabulary, 'partDefs'), value, { vocabulary, levels: order }) }
   }
   if (at?.level) {
     const level = content.levels.find((l) => l.id === at.level)
@@ -659,4 +659,3 @@ export function fileForm(content, vocabulary, at, order) {
   const value = gameFields(content)
   return { value, form: formOf(vocabulary.game, value, { vocabulary, levels: order }) }
 }
-

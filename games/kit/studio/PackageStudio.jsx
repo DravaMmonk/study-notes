@@ -19,15 +19,14 @@ import { BookOpen, Cpu, FileBox, Layers, ListTree, Search as SearchIcon, Shapes 
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { find, shapeAt } from '../engine/schema.js'
-import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
+import { parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { blank, copyLevelData, creationChoices, placesOf, referenceFor } from './form.js'
-import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
 import { findTask, tasksSchema } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
-import { withParts } from '../../../packages/circuit/core/index.js'
-import { DEFAULT_VIEWS } from '../../../packages/circuit/view/index.jsx'
-import PartsList, { freeName } from './PartsList.jsx'
+import { contentVocabulary } from './editors.js'
+import { editorForType } from './editors.js'
+import { freeName } from './names.js'
 import { itemOf, problemPlace } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { usePref } from './prefs.js'
@@ -42,7 +41,6 @@ import Drawer, { Debug } from './Drawer.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
 import { packageLevel } from '../engine/package-play.js'
-import Flow, { levelLabel } from './Flow.jsx'
 import StudioBar from './StudioBar.jsx'
 import { useChangeset } from './useChangeset.js'
 import { OverrideDetail, OverrideList, visibleOverrides } from './OverrideAudit.jsx'
@@ -50,17 +48,16 @@ import ObjectLinks from './ObjectLinks.jsx'
 import { CapabilityList, CapabilityView, currentCapability } from './CapabilityBrowser.jsx'
 import { EntryList } from './ObjectLists.jsx'
 import GroupedList from './GroupedList.jsx'
-import { GROUPINGS } from './list-groups.js'
-import { TrayEditor, SectionEditor } from './GatherEditor.jsx'
+import { groupingsFor, relationKind } from './list-groups.js'
+import { SectionEditor } from './GatherEditor.jsx'
 import SymbolEditor from './SymbolEditor.jsx'
-import StageChain from './StageChain.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
 import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, headingParam, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
 import { BUILT_IN_LISTS, TOOL_LISTS, isTypeList, leftLists, objectTypes, objectsOfType, typeOfList } from './object-types.js'
 import LeftTypes, { typeName } from './LeftTypes.jsx'
 import ObjectSummary from './ObjectSummary.jsx'
-import { iconOf } from '../../../packages/circuit/view/index.jsx'
+import { icons } from 'lucide-react'
 import { freeObjectName, namespaceOf, ownNames, shownName } from './objects-edit.js'
 import { newTag } from './tag-edit.js'
 import { objectFileName, objectSchema, objectValue, ownObjectData } from './object-file.js'
@@ -81,7 +78,7 @@ const LISTS = {
 }
 // The kind of object each build list holds, and the relations a new group of it can be.
 const LIST_KIND = { tree: 'level', parts: 'circuit/part', symbols: 'symbol', entries: 'entry' }
-const RELATION_KINDS = { level: [['requires', '先修', 'Requires']], 'circuit/part': [['replaces', '取代', 'Replaces']] }
+const RELATION_KINDS = { level: [['requires', '先修', 'Requires']] }
 const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
@@ -216,7 +213,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   // A part's page needs a game around it: the level played, else the package's first level.
   const pageContent = useMemo(() => playContent ?? (at?.part !== undefined && content?.levels[0] ? packageLevel(content, content.levels[0].id) : null), [playContent, at?.part, content])
   // A domain that defines its parts as data names them by the game's parts/<name>.json as the changeset leaves it.
-  const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
+  const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: contentVocabulary(domainVocab.vocabulary, content) }, [domainVocab, content])
   const partRoot = partPath(at)
   const leftKeys = useMemo(() => (content ? leftLists(content, chosenTypes) : []), [content, chosenTypes])
   const types = useMemo(() => objectTypes(content), [content])
@@ -303,7 +300,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   const relationOf = (full) => {
     const relation = content?.registries?.relation?.[full]
-    return relation?.kind === 'replaces' ? 'circuit/part' : relation?.of === 'entry' ? 'entry' : relation?.of === 'circuit/part' ? 'circuit/part' : 'level'
+    return relation ? relationKind(content, relation) ?? 'level' : 'level'
   }
   /** A new group's object for a build list of `kind` grouped `by` (a relation of `option`'s kind), opened. */
   const newSymbol = () => {
@@ -318,15 +315,15 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       edit(op)
       return openHeading({ kind: 'tag', full })
     }
-    const name = freeObjectName(ownNames(content, by, namespace), by === 'relation' ? `${option}` : `new-${by}`)
+    const name = freeObjectName(ownNames(content, by, namespace), by === 'relation' ? `${option}` : `new-${by.split('/').at(-1)}`)
     const data = by === 'relation' ? { kind: option, edges: [] }
-      : by === 'circuit/tray' ? { values: [] } : { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
-    edit(by === 'circuit/tray' ? { op: 'object.put', kind: by, name, data } : { op: `${by}.put`, [by]: name, data })
+      : editorForType(by)?.group?.initial?.() ?? { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
+    edit(content.objectKinds?.[by] ? { op: 'object.put', kind: by, name, data } : { op: `${by}.put`, [by]: name, data })
     return openHeading({ kind: by, full: `${namespace}/${name}` })
   }
   const grouping = (kind, by, onBy) => ({
-    groupings: GROUPINGS[kind] ?? ['tag'], by, onBy,
-    newOptions: by === 'relation' ? (RELATION_KINDS[kind] ?? []).map(([value, zh, en]) => ({ value, label: tr(zh, en) })) : null,
+    groupings: groupingsFor(kind), by, onBy,
+    newOptions: by === 'relation' ? (editorForType(kind)?.relations ?? RELATION_KINDS[kind] ?? []).map(([value, zh, en]) => ({ value, label: tr(zh, en) })) : null,
     onNew: (option) => newGroup(kind, by, option),
   })
   const openTreeItem = (next, keep) => {
@@ -516,32 +513,9 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   // The part page: a field of the part picked, or a block (a rule, a check) added to it; a face still drawn by default
   // is first written out as its default blocks.
   const onPartPage = (m) => {
-    const base = ['parts', m.part]
-    const def = getAt(content?.partDefs, base)
-    if (!def) return undefined
-    const [key, face] = m.path
-    if (key === 'views' && face) {
-      const path = [...base, 'views', face]
-      const pending = [...ops].reverse().find((op) => op.op === 'parts.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
-      const existing = pending?.value ?? def.views?.[face]
-      const list = existing ?? DEFAULT_VIEWS[face]
-      const write = (value) => edit({ op: 'parts.set', path, value })
-      if (!existing) write(list)
-      return pickField(m.type === 'pick' ? [...base, ...m.path] : path, m.type === 'pick', list)
-    }
-    if (m.type === 'pick' || (m.part !== undefined && key === 'settings' && m.path.length === 1)) {
-      return pickField([...base, ...m.path], true)
-    }
-    // An item added to a list of the part: blank as its schema has it (a rule and a check, one that already reads).
-    const path = [...base, ...m.path]
-    const schema = shapeAt(PARTS_FILE, content.partDefs, path, { vocabulary: vocab.vocabulary })
-    if (schema?.type !== 'list') return undefined
-    if (creationChoices(schema.of, { vocabulary: vocab.vocabulary }).length > 1) return pickField(path)
-    const list = getAt(content.partDefs, path) ?? []
-    const blankOf = { rules: { set: {} }, checks: { holds: 'circuit:eq(1, 1)', say: { en: '' } } }
-    edit({ op: 'parts.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
-    return pickField([...path, list.length], true)
+    return editorForType('circuit/part').onPage(m, { content, ops, shown, edit, pickField, vocabulary: vocab.vocabulary, playOrder })
   }
+
   // Levels dropped in the tree: into a group at a place, or out of every group.
   const move = (levels, to) => {
     addOps(treeMoves(levels, to, content, namespace))
@@ -712,7 +686,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     onOpen: (next) => openNamed(...Object.entries(next)[0]),
     onSelect: (full) => (full ? openHeading({ kind: heading.kind, full }) : select(null)),
   }
-  const GroupEditor = heading && ({ tag: TagEditor, relation: RelationBoard, 'circuit/tray': TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind] ?? ObjectSummary)
+  const GroupEditor = heading && (editorForType(heading.kind)?.component ?? { tag: TagEditor, relation: RelationBoard, section: SectionEditor, symbol: SymbolEditor }[heading.kind] ?? ObjectSummary)
+  const PartsList = editorForType('circuit/part')?.list ?? GroupedList
+  const PageEditor = at?.part !== undefined ? editorForType('circuit/part')?.page ?? ObjectSummary : GameFrame
+  const OtherList = editorForType(otherType)?.list ?? GroupedList
   // The middle: an object list's object (above), several levels picked at once, a group's own object, or the page.
   const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : heading ? 'group' : 'page'
   // The right column: a group's own object's file, the capability's description, the override's file.
@@ -740,7 +717,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
             <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
               {lists.map((list) => {
                 const info = types.find(({ type }) => type === typeOfList(list))
-                const [Icon, zh, en] = LISTS[list] ?? [iconOf(info?.icon) ?? FileBox, ...typeName(info)]
+                const [Icon, zh, en] = LISTS[list] ?? [icons[info?.icon] ?? FileBox, ...typeName(info)]
                 return (
                   <button key={list} type="button" role="tab" aria-selected={side === list} className={side === list ? 'is-on' : ''} aria-label={tr(zh, en)}
                     onClick={() => (list === 'search' ? openSearch() : showList(list))} title={list === 'search' ? `${tr(zh, en)} (${MOD}+Shift+F)` : tr(zh, en)}>
@@ -763,7 +740,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 addOptions={[{ value: 'symbol', label: tr('符号', 'Symbol') }]}
                 onAdd={newSymbol}
                 row={id => <button key={id} type="button" className={`tree-level ${heading?.full === id ? 'is-on' : ''}`} onClick={() => openHeading({ kind: 'symbol', full: id })}><code className="tree-level-id">{shownName(namespace, id)}</code><span>{L(content.registries.symbol[id].name)}</span></button>} />
-              : otherType ? <GroupedList kind={otherType} name={typeName(types.find(({ type }) => type === otherType))} content={content} namespace={namespace} game={game}
+              : otherType ? <OtherList kind={otherType} name={typeName(types.find(({ type }) => type === otherType))} content={content} namespace={namespace} game={game}
                 items={objectsOfType(content, otherType)} label={(id) => L(content.registries[otherType][id]?.title ?? content.registries[otherType][id]?.name) || ''}
                 heading={heading} onHeading={openHeading} {...grouping(otherType, 'tag', () => {})}
                 addOptions={addObjectOptions(otherType)} onAdd={(action) => addObject(otherType, action)}
@@ -809,16 +786,14 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 <GroupEditor key={`${heading.kind} ${heading.full}`} {...groupProps} />
               </div>
             )}
-            <GameFrame
+            <PageEditor
               visible={middle === 'page' && Boolean(pageContent)} content={pageContent} play={play} part={at?.part} stage={partStage} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
-              footer={at?.part !== undefined ? <>
-                <StageChain part={at.part} raw={content.partDefs?.parts?.[at.part]} operations={capabilities?.operation ?? {}} namespace={namespace} stage={partStage} pending={objectPending}
-                  editable={namespaceOf(at.part) === namespace} onStage={(id, path) => { setPartStage(id); pickField(['parts', at.part, ...path]) }}
-                  onAdd={(stages) => edit({ op: 'parts.set', path: ['parts', at.part, 'stages'], value: stages })} />
-                <Flow target={target} part={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />
-              </>
-                : level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openNamed(...Object.entries(next)[0])} />}
+              target={target} changeset={changeset} names={names} namespace={namespace} pending={objectPending} operations={capabilities?.operation ?? {}}
+              onStage={(id, path) => { setPartStage(id); pickField(['parts', at.part, ...path]) }}
+              onStages={(stages) => edit({ op: 'parts.set', path: ['parts', at.part, 'stages'], value: stages })} onFlow={onFlow}
+              footer={level && <ObjectLinks content={content} kind="level" full={level} namespace={namespace} onOpen={(next) => openNamed(...Object.entries(next)[0])} />}
+
             />
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
