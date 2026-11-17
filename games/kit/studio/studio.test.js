@@ -349,8 +349,9 @@ test('on every starter: each value a schema hint names gets its control, and eac
       }
     }
   }
-  // Chips are covered on hand-written schemas above; the starters left in kit/templates have no list of choices.
-  for (const k of ['text', 'board', 'choice', 'call', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
+  // What the starters left in kit/templates still exercise; chips, choices and calls are covered on hand-written
+  // schemas, now that the image and table starters moved into their packages.
+  for (const k of ['text', 'board', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
 })
 
 test('each control on content written here: a grid, ticks, a wave, a table read back as the value they show', () => {
@@ -424,6 +425,9 @@ test('a task is picked from the tasks of the game, grouped by level in course or
   const options = taskOptionsOf([{ value: 'b', label: '1-1', title: { en: 'B' } }, { value: 'a', label: '1-2', title: { en: 'A' }, tasks: levels[0].tasks }])
   assert.deepEqual(options.map((o) => [o.value, o.label, o.group]), [['b', '1-1', '1-1 B'], ['a', '1-2 · 1', '1-2 A'], ['a_2', '1-2 · 2', '1-2 A']])
   assert.deepEqual(formOf(S.task(), 'a_2', { vocabulary: null }).kind, 'choice')
+  // A call names an item of a kind and its parameters, shown by the item's own parameter form.
+  const calls = { kinds: { op: { add: { params: S.obj({ n: S.int() }) } } } }
+  assert.equal(formOf(S.call('op'), undefined, { vocabulary: calls }).kind, 'call')
   assert.equal(formOf(S.task(), 'a_2', { vocabulary: null }).of, 'task')
 })
 
