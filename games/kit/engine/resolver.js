@@ -1,3 +1,4 @@
+import { memoResolution } from './read-cache.js'
 import { expandNames } from './names.js'
 import { registerCircuitConsumers } from './circuit-bridge.js'
 import { projectVocabulary } from './kind-meanings.js'
@@ -169,6 +170,10 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
 
 /** Read a layer in file shape; workspaces can replace this layer before assembling. */
 function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declarations = {}) {
+  return memoResolution(`layer:${JSON.stringify([id, dir, config, declarations])}`, () => readLayerUncached(id, dir, config, declarations))
+}
+
+function readLayerUncached(id, dir, config, declarations) {
   if (id === 'kernel') throw new Error('kernel is a reserved namespace')
   if (existsSync(resolve(dir, 'glossary.json'))) throw new Error(`${dir}: glossary.json has been replaced by entries/ and tags/entry/`)
   const tagReaders = []
@@ -201,7 +206,11 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
 }
 
 /** Resolve locked dependencies into a single layer representation for every consumer. */
-export function resolveLayers({ game, package: packageId, packages, closure = false, root = contentRoot(), unlocked = false, pins, versionChoices = {}, attempted = [] }) {
+export function resolveLayers(options) {
+  return memoResolution(JSON.stringify(options), () => resolveLayersUncached(options))
+}
+
+function resolveLayersUncached({ game, package: packageId, packages, closure = false, root = contentRoot(), unlocked = false, pins, versionChoices = {}, attempted = [] }) {
   unlocked ||= process.env.GAMES_DEPENDENCY_PROBE === '1'
   const selected = game ? readGameConfig(game, root) : null
   const ids = selected?.packageIds ?? packages ?? [packageId]
@@ -257,7 +266,7 @@ export function resolveLayers({ game, package: packageId, packages, closure = fa
   const layers = initial.map(layer => layer.missing ? layer : { ...readLayer(layer.id, locations.get(layer.id), layer.config, definitions), source: layer.source })
   const schemas = layerVocabulary(layers)
   const qualified = composeLayers(layers, schemas).qualifiedLayers
-  for (const layer of layers) if (!layer.missing) layer.manifest = layerManifest(qualified.find(item => item.id === layer.id), qualified, schemas, locations.get(layer.id))
+  for (const layer of layers) if (!layer.missing) layer.manifest = memoResolution(`manifest:${JSON.stringify([locations.get(layer.id), [...locations]])}`, () => layerManifest(qualified.find(item => item.id === layer.id), qualified, schemas, locations.get(layer.id)))
   const platform = kernelIdentity()
   const config = game ? { ...selected.files['game.json'], packages: selected.packageRanges } : found.get(packageId)?.config
   for (const layer of layers) if (!layer.missing) requireRange('kernel', layer.config.kernel, layer.id)

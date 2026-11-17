@@ -26,10 +26,11 @@ export function createRegistries(objects = {}) {
 }
 
 /** Expand typed references while preserving domain syntax, local ports, variant ids and ordinary strings. */
-export function expandNames(value, namespace, { resolve, textKeys = true, schema, vocabulary, context = '', ...options } = {}) {
+export function expandNames(value, namespace, { resolve, textKeys = true, schema, vocabulary, context = '', readerCache = null, ...options } = {}) {
   const rawName = resolve ?? ((v) => fullName(namespace, v))
   const name = (v) => typeof v === 'string' && v.startsWith('#') ? `#${rawName(v.slice(1))}` : rawName(v)
-  const readers = meaningsOf(vocabulary).map(meaning => meaning.names?.({ ...options, name, vocabulary, context })).filter(Boolean)
+  const readers = readerCache?.get(context) ?? meaningsOf(vocabulary).map(meaning => meaning.names?.({ ...options, name, vocabulary, context })).filter(Boolean)
+  readerCache?.set(context, readers)
   const text = (value) => {
     if (typeof value !== 'string') return value
     return value.replace(/<([a-z][a-z0-9-]*)-ref to="([^"<>]+)">/g, (_, kind, target) => {

@@ -1,3 +1,4 @@
+import { memoResolution } from './read-cache.js'
 import { parseVersion } from './semver.js'
 export { parseVersion, compareVersions, satisfies, dependencyIds, validateConfig, dependencyProblem } from './semver.js'
 // Version ranges and reproducible release metadata shared by tools and the resolver.
@@ -12,6 +13,10 @@ export const hash = value => createHash('sha256').update(value).digest('hex')
 // Mutable author logs and generated metadata are outside a package's content identity.
 const excluded = new Set(['.DS_Store', 'node_modules', '.git', 'changes.lock', 'manifest.json'])
 export function fileHashes(dir, prefix = '') {
+  return memoResolution(`hashes:${JSON.stringify([dir, prefix])}`, () => fileHashesUncached(dir, prefix))
+}
+
+function fileHashesUncached(dir, prefix) {
   if (!existsSync(dir)) return {}
   return Object.fromEntries(readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name, 'en')).flatMap(entry => {
     if (excluded.has(entry.name)) return []

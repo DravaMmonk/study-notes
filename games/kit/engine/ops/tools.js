@@ -1,3 +1,4 @@
+import { withReadCache } from '../read-cache.js'
 import { BUILTIN_POLICIES } from '../kind-policy.js'
 import { tagName } from '../tag-identity.js'
 import { packageLevel, packageLevelOrder } from '../package-play.js'
@@ -77,8 +78,7 @@ export function levelsOfLine(line, ids) {
 }
 
 /** A game opened under ROOT: its log, the seq of its last entry (what modify's base names), the change undo would undo next, and the files changed outside the log. */
-const logOf = (game, scope, layer) => {
-  const ws = open(game, scope, layer)
+const logOf = (game, scope, layer, ws = open(game, scope, layer)) => {
   return { log: readLog(ws), head: headOf(ws), undoable: lastUndoable(ws)?.seq ?? null, drift: driftOf(ws, ws.onDisk()) }
 }
 
@@ -276,7 +276,8 @@ const tools = {
     about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
     params: { game: 'string', changeset: 'object?', check: 'boolean?', scope: 'string?', layer: 'string?' },
     async run({ game, changeset = { ops: [] }, check = true, scope, layer }) {
-      const r = await runChangeset(open(game, scope, layer), changeset, { write: false, check, cache: kept(game) })
+      const ws = open(game, scope, layer)
+      const r = await runChangeset(ws, changeset, { write: false, check, cache: kept(game) })
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).
@@ -284,7 +285,7 @@ const tools = {
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
-        changes: r.changes, ...logOf(game, scope, layer),
+        changes: r.changes, ...logOf(game, scope, layer, ws),
       }
     },
   },
@@ -468,10 +469,12 @@ tools.play_task = {
 }
 
 /** The same tools accept exactly one explicit target. Package calls share no game state or game log. */
-const toolMeanings = layerVocabulary(resolveLayers({ packages: packageIds(ROOT), closure: true, root: ROOT, unlocked: true }).layers).meanings
+const toolMeanings = withReadCache(ROOT, () => layerVocabulary(resolveLayers({ packages: packageIds(ROOT), closure: true, root: ROOT, unlocked: true }).layers).meanings)
 for (const meaning of toolMeanings) for (const [name, tool] of Object.entries(meaning.tools ?? {})) tools[name] = { ...tool, run: args => tool.run(args, { contentAfter, runtimeOf }) }
 
-export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, tool]) => {
+export const TOOLS = Object.fromEntries(Object.entries(tools).map(([name, original]) => {
+  const tool = ['preview', 'vocabulary', 'names', 'games', 'packages'].includes(name)
+    ? { ...original, run: args => withReadCache(ROOT, () => original.run(args)) } : original
   if (!tool.params.game || name === 'create_game') return [name, tool]
   return [name, {
     ...tool,

@@ -52,9 +52,10 @@ export function visibleOverrides(content, layer = content.layerOrder?.at(-1)) {
 }
 
 function contextFor(layer, layers, schemas) {
+  const readerCache = new Map()
   const name = v => fullName(layer.id, v)
   const objects = Object.fromEntries([...new Set(layer.objects.map(object => object.kind))].map(kind => [kind, Object.fromEntries(layer.objects.filter(object => object.kind === kind).map(object => [object.name, object.value]))]))
-  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { objects, schema, vocabulary: schemas, context, resolve: name })
+  const qualify = (value, schema, context = '') => expandNames(value, layer.id, { objects, schema, vocabulary: schemas, context, resolve: name, readerCache })
   return { name, objects, qualify }
 }
 

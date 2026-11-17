@@ -44,7 +44,8 @@ export { LOG, readLog } from './log.js'
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
-  let domain = given ? { ...given, vocabulary: ws.schemas } : (await runtimeOf(ws.content(), ws.root))
+  const initialContent = given ? null : ws.content()
+  let domain = given ? { ...given, vocabulary: ws.schemas } : (await runtimeOf(initialContent, ws.root))
   ws.schemas = domain.vocabulary
   const start = ws.snapshot()
   const says = []
@@ -100,8 +101,9 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   // Whatever throws from here on (a domain's spec, its checks, the whole game's check) refuses the changeset and
   // leaves the workspace as it was found: fail restores it.
   try {
-    if (!given) domain = await runtimeOf(ws.content(), ws.root)
-    return await settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache })
+    const content = given || changeset.ops?.length ? ws.content() : initialContent
+    if (!given && content !== initialContent) domain = await runtimeOf(content, ws.root)
+    return await settle({ ws, content, changeset, domain, start, says, inverse, write, check, undoes, base, cache })
   } catch (error) {
     return fail([`the changeset could not be settled: ${error.message}`])
   }
@@ -153,8 +155,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
 }
 
 // The whole game's check, and the write or the restore, after every operation of a changeset has run.
-async function settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache }) {
-  const content = ws.content()
+async function settle({ ws, content, changeset, domain, start, says, inverse, write, check, undoes, base, cache }) {
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
   const listed = ws.packaged || hubCount(ws.hub, ws.id) === null ? null : courseLevelCount(content, ws.levels.size)
   let lines
