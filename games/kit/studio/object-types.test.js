@@ -50,3 +50,13 @@ test('an object of any type is kept in the address', () => {
   assert.equal(listOfHeading('story/scene'), 'type:story/scene')
   assert.equal(listOfHeading('tray'), 'parts')
 })
+
+test('a structured problem points at the object and field that name the missing target', async () => {
+  const { itemOf, problemPlace } = await import('./worklist.js')
+  const problem = { rule: 'exists', at: 'qed/level/copy.tasks[0].solution', object: { kind: 'level', name: 'qed/copy' }, path: 'tasks[0].solution', layer: 'qed', kind: 'part', target: 'qed/gone', reason: 'missing' }
+  const item = itemOf({ text: 'content: missing target part qed/gone', fail: true, problem })
+  assert.equal(item.rule, 'exists')
+  assert.deepEqual(problemPlace(item.problem), { override: false, kind: 'level', full: 'qed/copy', path: 'tasks[0].solution' })
+  assert.deepEqual(problemPlace({ object: { kind: 'tag', name: 'qed/basics', member: 'level' }, path: 'values[0]' }).full, 'level:qed/basics')
+  assert.equal(problemPlace({ object: { kind: 'package', name: 'qed' }, path: 'uses[0]' }), null)
+})

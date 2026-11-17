@@ -64,7 +64,7 @@
       "runtimeExecutable": "sh",
       "runtimeArgs": [
         "-c",
-        "cd trace-viewer && exec node_modules/.bin/vite --mode studio --port 5190 --strictPort"
+        "cd trace-viewer && exec node_modules/.bin/vite --mode studio --port 5190 --strictPort --force"
       ],
       "port": 5190,
       "url": "http://localhost:5190"

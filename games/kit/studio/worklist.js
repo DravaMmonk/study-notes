@@ -23,10 +23,23 @@ export function ruleOf(text) {
   return 'domain'
 }
 
-/** A line of the check as a worklist item: { text, severity, rule, levels }. */
+/** A line of the check as a worklist item: { text, severity, rule, levels, problem? } — `problem` the check's own
+ * structured problem when it gives one (the existence check: { rule: 'exists', object, path, kind, target, reason }). */
 export function itemOf(line) {
   const severity = line.fail ? 'fail' : line.text.startsWith('OPEN ') ? 'open' : line.text.startsWith('REPORT ') ? 'report' : 'pass'
-  return { text: line.text, severity, rule: ruleOf(line.text), levels: line.levels ?? [] }
+  return { text: line.text, severity, rule: line.problem?.rule ?? ruleOf(line.text), levels: line.levels ?? [], ...(line.problem && { problem: line.problem }) }
+}
+
+/**
+ * Where a structured problem is: the object that names the missing target and the field in it, as the check gives them
+ * ({ object: { kind, name, member?, override? }, path }): { kind, full, path, override } — a tag's `full` its key
+ * (`<member>:<name>`), as the studio knows tags; null for a problem outside any object (a package's `uses`).
+ */
+export function problemPlace(problem) {
+  const object = problem?.object
+  if (!object || object.kind === 'package') return null
+  const full = object.kind === 'tag' && object.member ? `${object.member}:${object.name}` : object.name
+  return { kind: object.kind, full, path: problem.path ?? '', override: Boolean(object.override) }
 }
 
 /**

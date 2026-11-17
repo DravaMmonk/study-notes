@@ -28,7 +28,7 @@ import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList, { freeName } from './PartsList.jsx'
-import { itemOf } from './worklist.js'
+import { itemOf, problemPlace } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { usePref } from './prefs.js'
 import { confirmDelete } from './delete.js'
@@ -388,6 +388,14 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   }
   /** Go to what a finding of the check is about: the field it names, else its level. */
   const jumpTo = (item) => {
+    // A structured problem names the object and field that point at what is missing (worklist.js problemPlace).
+    const named = problemPlace(item.problem)
+    if (named && !named.override) {
+      if (named.kind === 'level') return jump(named.full, named.path || null)
+      if (named.kind === 'part') return select({ part: named.full })
+      if (named.kind === 'entry') return jump(null, `entries[${named.full}]`, 'glossary')
+      if (content.registries?.[named.kind]?.[named.full]) return openNamed(named.kind, named.full)
+    }
     const place = places.find((p) => item.levels.includes(p.level) && p.path && item.text.endsWith(p.says))
     if (place) return jump(place.level, place.path)
     const game = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
