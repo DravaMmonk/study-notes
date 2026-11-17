@@ -14,6 +14,7 @@ import { meaningsOf } from './kind-meanings.js'
 
 const root = contentRoot()
 const folder = resolve(root, 'output/modules-baseline')
+const sourceFolder = process.env.GAMES_BASELINE_ROOT ? resolve(process.env.GAMES_BASELINE_ROOT) : folder
 const preview = value => value && typeof value === 'object' ? (Array.isArray(value) ? `[${value.length} items]` : `{${Object.keys(value).slice(0, 4).join(', ')}}`) : JSON.stringify(value)
 const [action, ...args] = process.argv.slice(2)
 if (!['save', 'compare'].includes(action)) throw new Error('usage: npm run baseline -- save|compare [<game>|--package <package>]')
@@ -27,7 +28,7 @@ try {
   for (const target of targets) {
     const { id, kind } = target
     const packaged = kind === 'package'
-    if (action === 'compare' && packaged && !existsSync(resolve(folder, `${kind}-${id}.json`)) && existsSync(resolve(packageDirectory(id, root), 'core/index.js'))) {
+    if (action === 'compare' && packaged && !existsSync(resolve(sourceFolder, `${kind}-${id}.json`)) && existsSync(resolve(packageDirectory(id, root), 'core/index.js'))) {
       console.log(`compare package ${id}: new plugin outside the locked corpus (covered by package contracts)`)
       continue
     }
@@ -63,7 +64,7 @@ try {
     let changeCount = 0
     if (action === 'save') writeFileSync(file, JSON.stringify(packBaseline(snapshot)) + '\n')
     else {
-      const before = unpackBaseline(JSON.parse(readFileSync(file, 'utf8')))
+      const before = unpackBaseline(JSON.parse(readFileSync(resolve(sourceFolder, `${kind}-${id}.json`), 'utf8')))
       const palette = data => dependencyPaletteBaseline(data, { packaged, dependencies: content.layerOrder })
       const normalizeBefore = nameNormalizer(before.names), normalizeAfter = nameNormalizer(snapshot.names)
       // The inventory itself describes migration locations, not behaviour.

@@ -1,0 +1,8 @@
+{"target":["package","qed"],"times":[584,568,566],"median":568,"ok":[true,true,true]}
+{"target":["package","vision-complete"],"times":[806,839,783],"median":806,"ok":[true,true,true]}
+{"target":["package","state-graph"],"times":[433,440,438],"median":438,"ok":[true,true,true]}
+{"target":["package","comp90086"],"times":[177,180,177],"median":177,"ok":[true,true,true]}
+{"target":["game","qed"],"times":[581,573,575],"median":575,"ok":[true,true,true]}
+{"target":["game","vision-complete"],"times":[792,820,759],"median":792,"ok":[true,true,true]}
+{"target":["game","state-graph"],"times":[411,414,413],"median":413,"ok":[true,true,true]}
+{"target":["game","comp90086"],"times":[178,175,177],"median":177,"ok":[true,true,true]}
