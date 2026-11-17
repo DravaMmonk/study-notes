@@ -114,13 +114,13 @@ export function assemble({ id, packageId = id, schemas, contentObjects = {}, cou
   for (const { from, to } of relationEdges.replaces) (replaces[from] ??= []).push(to)
   const displayedTrays = {}
   for (const [name, tray] of Object.entries(trayMap)) {
-    const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: relationOrder(resolve(menu.values, 'part', `trays/${name}/menus/${menu.id}`), relationEdges.order, 'part') }))
+    const menus = (tray.menus ?? []).map(menu => ({ id: menu.id, title: menu.title, items: relationOrder(resolve(menu.values, 'grant', `trays/${name}/menus/${menu.id}`), relationEdges.order, 'grant') }))
     const ids = menus.map(menu => menu.id)
     if (new Set(ids).size !== ids.length) objectProblems.push({ at: `trays/${name}`, says: 'duplicate menu id' })
-    const direct = relationOrder(resolve(tray.values, 'part', `trays/${name}`), relationEdges.order, 'part')
+    const direct = relationOrder(resolve(tray.values, 'grant', `trays/${name}`), relationEdges.order, 'grant')
     const order = relationEdges.order
     displayedTrays[name] = { name: tray.title, desc: tray.desc, workshop: tray.workshop,
-      items: relationOrder([...direct, ...menus.map(menu => menu.id)], order, 'part').map(id => menus.find(menu => menu.id === id) ?? id) }
+      items: relationOrder([...direct, ...menus.map(menu => menu.id)], order, 'grant').map(id => menus.find(menu => menu.id === id) ?? id) }
   }
   const content = {
     id, ...game, ...provenance, ...(packageTarget && { packageTarget }), ...(eras && { eras, sourceChapters }), trays: displayedTrays, replaces,

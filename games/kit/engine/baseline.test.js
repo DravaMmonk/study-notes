@@ -73,3 +73,16 @@ test('migration normalization precedes registered aliases and preserves semantic
   assert.equal(old('You pieced it together.'), current('You assembled it.'))
   assert.equal(differences(old({ score: 1 }), current({ score: 2 })).length, 1)
 })
+
+test('only the eight migrated formula symbols normalize ownership and retain their definitions', () => {
+  const normalize = nameNormalizer(['qed/formulaAnd', 'qed/other'])
+  const legacy = { structure: { parts: { parts: { 'qed/formulaAnd': { editor: 'strip', name: '∧', desc: '@qed/part.formulaAnd.desc' }, 'qed/other': { editor: 'strip' } } } } }
+  const current = { structure: { parts: { parts: { 'qed/other': { editor: 'strip' } } }, symbols: { 'qed/formulaAnd': { name: '∧', desc: '@qed/symbol.formulaAnd.desc' } } } }
+  assert.deepEqual(differences(normalize(legacy), normalize(current)), [])
+  current.structure.symbols['qed/formulaAnd'].name = 'changed'
+  assert.ok(differences(normalize(legacy), normalize(current)).length)
+  assert.equal(normalize({ other: { editor: 'strip' } }).other.editor, 'strip')
+  assert.equal(normalize('part.formulaAndExtra.desc'), 'part.formulaAndExtra.desc')
+  assert.equal(normalize('other/part.formulaAnd.desc'), 'other/part.formulaAnd.desc')
+  assert.equal(normalize('other/parts/formulaAnd.json'), 'other/parts/formulaAnd.json')
+})

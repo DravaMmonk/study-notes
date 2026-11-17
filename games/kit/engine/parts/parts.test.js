@@ -3,8 +3,7 @@ import assert from 'node:assert/strict'
 import { evaluate, parse, print, problemsOf } from './expr.js'
 import { BUILTIN_ITEMS, BUILTINS } from './builtins.js'
 import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
-import { editorOf, facesOf, holesOf, insideOf, keepsOf, markOf, regionsOf, settingsOf } from '../parts.js'
-import { BLANKS, makesParts } from './schema.js'
+import { facesOf, holesOf, insideOf, keepsOf, regionsOf, settingsOf } from '../parts.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
 
@@ -148,24 +147,6 @@ test('the part readers expose the optional faces without renaming stored fields'
   assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, null])
 })
 
-test('a part of another editor has its own faces: a block on a strip marks an item of the domain’s mark kind', () => {
-  // A domain with no engine resources, whose games' parts are blocks: they are its parts all the same.
-  const marking = { domain: 'marks', version: 1, kinds: { mark: { noun: { about: 'a noun' }, verb: { about: 'a verb' } } } }
-  const block = { editor: 'strip', name: { en: '名词' }, desc: { en: 'A noun.' }, icon: 'Rows3', mark: 'noun' }
-  assert.equal(editorOf(block), 'strip')
-  assert.equal(editorOf(file.parts.sum), 'circuit')
-  assert.equal(markOf(block), 'noun')
-  assert.deepEqual(partProblems({ parts: { noun: block } }, marking), [])
-  assert.deepEqual(Object.keys(withParts(marking, { parts: { noun: block } }).kinds.part), ['noun'])
-  assert.deepEqual(partProblems({ parts: { noun: { ...block, mark: 'adverb' } } }, marking).map((p) => p.at), ['parts/noun.json.mark'])
-  // The circuit's faces are not a block's, and a block is no circuit primitive to define.
-  assert.ok(partProblems({ parts: { noun: { ...block, op: 'add' } } }, marking).length > 0)
-  assert.deepEqual(Object.keys(defineParts({ parts: { ...file.parts, noun: block } }, OPS).defs), Object.keys(file.parts))
-  // A new part of each editor where the vocabulary gives what it is made of.
-  assert.deepEqual([BLANKS.circuit(marking), BLANKS.strip(marking).mark], [null, 'noun'])
-  assert.deepEqual([BLANKS.circuit(vocabulary).op, BLANKS.strip(vocabulary)], ['add', null])
-  assert.deepEqual([makesParts(marking), makesParts(vocabulary), makesParts({ kinds: {} })], [true, true, false])
-})
 
 test('a description names only the options that are open', () => {
   const def = {

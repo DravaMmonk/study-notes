@@ -1,3 +1,4 @@
+import { grantIndex } from './grants.js'
 // A circuit game's course read from its content (games/DESIGN.md 6.3): its tasks with their tests and boards, the play
 // order and level tree from its eras, and its built parts (parts.json, ./parts.js builtParts), each running inside
 // their package reference board or the passed work supplied by a publishing task, and
@@ -123,7 +124,7 @@ export function* prepareCircuitWorks(content, { board, parts, read: readOwn = (t
   }
   // Why an item (../course.js: a part, one of its settings, one value of a setting) is none of this game's, or ''.
   const itemProblem = (item) => {
-    return content.partDefs?.parts?.[item] || parts[item] || builtDefinitions[item] || [...Object.values(content.partDefs?.parts ?? {})].some(part => part.stages?.some(stage => stage.id === item)) ? '' : `${item} is no part or stage`
+    return grantIndex({ ...content.registries, part: { ...parts, ...builtDefinitions, ...content.partDefs?.parts } }).has(item) ? '' : `${item} is no grantable object or stage`
   }
   const isBoard = (task) => !kinds[task.kind]
 

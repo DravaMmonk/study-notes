@@ -1,12 +1,6 @@
 import { resolveSettings } from './parts/settings.js'
 export { resolveSettings } from './parts/settings.js'
 
-// A part's faces are independent: its own (name, desc, icon, family) and those of the editor it is made
-// with (parts/schema.js EDITORS). The persisted circuit definitions use the established inputs and views keys.
-/** The editor a part is made with: the one it names, the circuit's when it names none. */
-export const editorOf = (part) => part.editor ?? 'circuit'
-/** What a block on a strip marks: an item of the domain's `mark` kind. */
-export const markOf = (part) => part.mark ?? null
 export const holesOf = (part) => part.inputs ?? []
 export const outletsOf = (part) => part.outputs ?? []
 export const settingsOf = (part, operations) => Array.isArray(part.settings) ? part.settings : resolveSettings(part, operations)

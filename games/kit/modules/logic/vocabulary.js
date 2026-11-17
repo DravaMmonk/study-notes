@@ -9,7 +9,7 @@
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { qualifyVocabulary } from '../../engine/capabilities.js'
-import { symbolFor } from './stripParts.js'
+import { symbolFor } from './symbols.js'
 import { COURSE_FIELDS, COURSE_OPTIONS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
@@ -184,7 +184,7 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   words: WORDS,
-  primitives: S.list(S.ref('part')),
+  primitives: S.list(ITEM_REFERENCE),
   chapters: S.list(ERA, { min: 1 }),
   ...COURSE_OPTIONS,
 })

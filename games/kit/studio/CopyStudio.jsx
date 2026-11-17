@@ -122,6 +122,7 @@ export default function CopyStudio({ opened, packages, games, onOpen, space }) {
       : groupTree(content, order).sections.filter((s) => s.group !== null).map((s) => [`group:${s.group}`, L(content.tags?.[s.group]?.title) || s.group])),
     ['glossary', tr('百科')],
     ...(content.partDefs ? [['parts', tr('元件', 'Parts')]] : []),
+    ...(Object.keys(content.registries?.symbol ?? {}).length ? [['symbols', tr('符号', 'Symbols')]] : []),
   ]
   const matches = sidebarSearch(query)
   const sideCtx = vocab && content && { vocabulary: vocab.vocabulary, levels: content.levels.map((l) => l.id), names, levelOptions, textField, lang: getLang(), onSetting: () => {}, onSettings: () => {}, onPart: () => {} }

@@ -1,7 +1,6 @@
 {
-  "editor": "strip",
   "mark": "logic:mark-formulaAnd",
   "icon": "Rows3",
   "name": "∧",
-  "desc": "@part.formulaAnd.desc"
+  "desc": "@symbol.formulaAnd.desc"
 }

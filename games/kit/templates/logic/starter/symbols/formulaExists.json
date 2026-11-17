@@ -1,7 +1,6 @@
 {
-  "editor": "strip",
   "mark": "logic:mark-formulaExists",
   "icon": "Rows3",
   "name": "∃",
-  "desc": "@part.formulaExists.desc"
+  "desc": "@symbol.formulaExists.desc"
 }

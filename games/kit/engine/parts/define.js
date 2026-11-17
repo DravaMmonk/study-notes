@@ -16,7 +16,7 @@
 import { sideOf } from '../../shell/i18n.js'
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
-import { editorOf, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerParts, resolveSettings, settingsOf } from '../parts.js'
+import { facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerParts, resolveSettings, settingsOf } from '../parts.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -34,7 +34,7 @@ const OPTIONED = new Set(['select', 'buttons'])
 const LISTED = new Set(['list'])
 const NUMERIC = new Set(['number', 'slider'])
 // A primitive of the circuit editor: it computes, or keeps an input.
-const circuitPrimitive = (part) => editorOf(part) === 'circuit' && !insideOf(part)
+const circuitPrimitive = (part) => !insideOf(part)
 
 /** Whether a vocabulary's domain defines its parts as data: it gives engine resources. */
 export const definesParts = (vocabulary) => Boolean(vocabulary?.kinds?.op)
@@ -322,8 +322,6 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
     }
     const built = Boolean(insideOf(raw))
     if ((!built || raw.icon) && !ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
-    // The rest is the circuit editor's: a strip's block has no faces beyond what it marks, which the schema checks.
-    if (editorOf(raw) !== 'circuit') continue
     const keys = settingsOf(raw).map((s) => s.key)
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')

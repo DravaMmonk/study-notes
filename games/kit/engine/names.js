@@ -64,7 +64,7 @@ export function expandNames(value, namespace, { parts = new Set(), partRules = n
       const translated = Object.fromEntries(textEntries(v).map(([lang, words]) => [lang, text(words)]))
       return textKey(v) ? withTextKey(translated, textKeys ? name(textKey(v)) : textKey(v)) : translated
     }
-    if (s?.reference) return s.reference === 'part' ? part(v) : name(v)
+    if (s?.reference) return ['part', 'grant'].includes(s.reference) ? part(v) : name(v)
     if (s?.type === 'level' || s?.type === 'task') return name(v)
     if (s?.type === 'ref' || s?.type === 'name') return ref(s.kind, v)
     if (s?.type === 'board' || s?.view === 'board') return board(v)

@@ -33,7 +33,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Content is data. `packages/<package>/package.json` declares direct `uses` and minimum `vocabulary` version.
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
   select the complete dependency closure in `game.json`'s `packages`; loading is topological, with the game last.
-- Each object has its own file: `levels/`, `parts/`, `entries/`, `tags/<level|part|entry>/`, `relations/`,
+- Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<level|part|symbol|entry>/`, `relations/`,
   `trays/`, `sections/`, or a kernel-declared content-kind folder (`wordset/`, `quote/`, `power/`, `box/`).
   File names supply object ids; task, stage, menu and chapter ids remain inside their containing objects.
   Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
@@ -41,7 +41,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   Local short references are qualified on assembly. Tags are unordered, typed development collections; they
   have no runtime teaching or presentation role. Relations (`requires`, `order`, `replaces`) load automatically.
   Use `of: "tag"` for ordering tags themselves. Trays and encyclopedia sections are separate objects.
-- Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `entries/`,
+- Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `symbols/`, `entries/`,
   `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
   Objects replace by default (`$merge` opts into merge patch); collections append (`replace` and `remove`
   control membership). Independent packages overriding the same object must establish a dependency.
@@ -58,6 +58,13 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   expressions remain for interaction rules, checks and readouts. `stages` lists later linear upgrades, with the
   part itself as stage one. Part and stage ids share a namespace. `opens` applies at task start; `awards`
   applies after passing. `gives`/`withholds` adjust only this task; `local` stays with its introducing level/task.
+- Symbols in `symbols/<name>.json` have `mark`, `name`, `desc`, `icon` and optional `stages`, with
+  `@symbol.<name>.*` copy keys and `tags/symbol/` membership. Formula connectives use symbols.
+  `engine/grants.js` centralizes registered grantable types and name/stage resolution. Circuit and logic own
+  their `part` and `symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
+  names across registered types, rejecting ambiguous names and unregistered types. `course.state(at, flags)`
+  returns separate `part` and `symbol` maps. Stages apply to every registered type, while workshops and
+  `replaces` remain part-only. Studio lists symbols separately and shares tray and stage editing.
 - Built parts use `inside` variants and reference works; tasks `publish` through the `publishes` list and
   explicitly award stages. They normally run the player's passing work, using a reference if unavailable;
   plays may explicitly choose reference works. Keep the selected variant and its dependency closure intact.

@@ -7,7 +7,7 @@ import { shownName } from './objects-edit.js'
 import GroupedList from './GroupedList.jsx'
 import { GROUPINGS } from './list-groups.js'
 
-export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], part: ['元件', 'Parts'], entry: ['词条', 'Entries'] }
+export const TAG_KIND_WORDS = { level: ['关卡', 'Levels'], part: ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }
 export const tagKindWord = (kind) => (TAG_KIND_WORDS[kind] ? tr(...TAG_KIND_WORDS[kind]) : kind)
 
 /** One row of a list: its icon, what it is called, its name. */

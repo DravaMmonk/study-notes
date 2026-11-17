@@ -5,7 +5,7 @@ import { objectFileName, objectOp, objectValue, overrideFileOf, overrideFileName
 import { fileForm, opFor } from './form.js'
 
 test('search is the last list of the package workspace; the object lists are told apart', () => {
-  assert.deepEqual(PACKAGE_LISTS, ['tree', 'parts', 'entries', 'kernel', 'overrides', 'search'])
+  assert.deepEqual(PACKAGE_LISTS, ['tree', 'parts', 'symbols', 'entries', 'kernel', 'overrides', 'search'])
   assert.deepEqual(GAME_LISTS, ['packages', 'chapters', 'overrides'])
   assert.ok(isObjectList('overrides') && isObjectList('kernel'))
   assert.ok(!isObjectList('tree') && !isObjectList('search') && !isObjectList('toString'))
@@ -24,6 +24,7 @@ test('the address keeps what is open: an object list’s object, or a group’s 
   assert.equal(readHeading(new URLSearchParams('level=demo/a')), null)
   assert.deepEqual(['tag', 'relation', 'tray', 'section'].map((k) => listOfHeading(k)), ['tree', 'tree', 'parts', 'entries'])
   assert.equal(listOfHeading('tag', 'part'), 'parts')
+  assert.equal(listOfHeading('tag', 'symbol'), 'symbols')
 })
 
 test('a capability and an override have one key each', () => {

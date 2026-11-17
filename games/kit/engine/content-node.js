@@ -18,6 +18,7 @@ export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
 export const contentVocabulary = (modules) => vocabularyFor(modules)
 export const layerVocabulary = (layers) => contentVocabulary(runtimeIds({
   levels: layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(object => object.kind === 'level').map(object => object.value)),
+  registries: { symbol: Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(object => object.kind === 'symbol').map(object => [`${layer.id}/${object.name}`, object.value]))) },
   partDefs: { parts: Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(object => object.kind === 'part').map(object => [`${layer.id}/${object.name}`, object.value]))) },
 }))
 
@@ -75,7 +76,7 @@ export function objectFiles(dir, kind) {
     const children = readdirSync(folder, { withFileTypes: true })
     if (children.some((entry) => entry.isFile() && entry.name.endsWith('.json'))) throw new Error(`${folder}: tags belong in <kind>/<name>.json`)
     return children.filter((entry) => entry.isDirectory()).sort((a, b) => a.name.localeCompare(b.name)).flatMap((entry) => {
-      if (!['level', 'part', 'entry'].includes(entry.name)) throw new Error(`${folder}: unknown tag kind ${entry.name}`)
+      if (!['level', 'part', 'symbol', 'entry'].includes(entry.name)) throw new Error(`${folder}: unknown tag kind ${entry.name}`)
       return objectFiles(folder, entry.name).map(([name, file]) => [`${entry.name}/${name}`, file])
     })
   }
@@ -96,7 +97,7 @@ export function entryValue(name, value) {
 
 /** Games arrange package objects and cannot declare objects of their own. */
 export function gameDeclarationProblems(gameDir) {
-  return ['levels', 'parts', 'parts.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas)]
+  return ['levels', 'parts', 'parts.json', 'settings', 'settings.json', 'glossary.json', 'entries', 'entries.json', 'tags', 'relations', 'sections', 'trays', 'groups', 'trays.json', ...Object.keys(contentKindSchemas).map(kind => folders[kind])]
     .filter((name) => existsSync(resolve(gameDir, name)))
     .map((name) => ({ at: name, says: 'games cannot declare objects; declare them in a package' }))
 }
@@ -135,9 +136,9 @@ function readFiles(id, files, { packageDir, gameDir, courseLocales, packageLocal
     game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [file, ownText(file)(value, file, schemas.game, schemas)]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file, schemas.level)]),
     ...Object.fromEntries(['tags', 'relations', 'sections', 'trays'].map((kind) => [kind, [
-      ...objectFiles(packageDir, kind).map(([name, file]) => [kind === 'tags' ? name.split('/')[1] : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.split('/')[0] }) }, packageId]),
+      ...objectFiles(packageDir, folders[kind] ?? kind).map(([name, file]) => [kind === 'tags' ? name.split('/')[1] : name, { ...read(packageText, file, OBJECT_SCHEMAS[kind]), ...(kind === 'tags' && { kind: name.split('/')[0] }) }, packageId]),
     ]])),
-    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(packageDir, kind).map(([name, file]) => [name, read(packageText, file, schema)]))])),
+    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, Object.fromEntries(objectFiles(packageDir, folders[kind] ?? kind).map(([name, file]) => [name, read(packageText, file, schema)]))])),
     declarationProblems: gameDir === packageDir ? [] : gameDeclarationProblems(gameDir),
     glossary: { groups: [], entries: objectFiles(packageDir, 'entries').map(([id, file]) => ({ id, ...read(packageText, file, ENTRY) })) },
     partDefs: { parts: Object.fromEntries(parts.map(([name, file]) => [name, read(packageText, file, PARTS_FILE.fields.parts.of)])) },
@@ -155,7 +156,7 @@ export function readLayer(id, dir, config = json(resolve(dir, 'package.json'))) 
   if (existsSync(resolve(dir, 'parts.json'))) throw new Error(`${dir}: parts.json has been replaced by parts/`)
   for (const [name, file] of objectFiles(dir, 'parts')) objects.push({ kind: 'part', name, value: json(file) })
   for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
-  for (const kind of Object.keys(contentKindSchemas)) for (const [name, file] of objectFiles(dir, kind)) objects.push({ kind, name, value: json(file) })
+  for (const kind of Object.keys(contentKindSchemas)) for (const [name, file] of objectFiles(dir, folders[kind])) objects.push({ kind, name, value: json(file) })
   const overrides = [], textOverrides = []
   const overrideDir = resolve(dir, 'overrides')
   for (const namespace of existsSync(overrideDir) ? readdirSync(overrideDir) : []) {

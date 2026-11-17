@@ -73,7 +73,7 @@ export function Chips({ groups, onChip }) {
           <span className="ks-chip-label">{L(g.label)}</span>
           <div className="ks-chip-row">
             {g.chips.map((c) => (
-              <button key={c.key} type="button" className="ks-chip" data-family={c.family} data-part-type={c.part?.type} disabled={c.used} onClick={() => onChip(c.key)} title={L(c.part?.desc ?? c.sub)}>
+              <button key={c.key} type="button" className="ks-chip" data-family={c.family} data-symbol-type={c.symbol?.type} disabled={c.used} onClick={() => onChip(c.key)} title={L(c.symbol?.desc ?? c.sub)}>
                 <b>{L(c.text)}</b>
                 {c.sub && <small>{L(c.sub)}</small>}
               </button>

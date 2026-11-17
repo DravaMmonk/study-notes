@@ -268,16 +268,16 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('修改某个语言的字段文本'),
-    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
-    apply(ws, { level, entry, tag, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
-      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or parts')
+    params: S.obj({ level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH, lang: S.opt(S.str({ pattern: LANGUAGE_CODE })), value: S.text() }),
+    apply(ws, { level, entry, symbol, tag, tray, section, in: where, path, lang, value: text }, { vocabulary }) {
+      if ([level, entry, symbol, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, symbol, tag, tray, section, or in: game or parts')
       if (where === 'parts' && ws.partDefs === undefined) fail('the content has no parts')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
       const keys = parsePath(path)
       const shape = shapeAt(schema, value, keys, { vocabulary })
       if (shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
-      if (old === undefined && (entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
+      if (old === undefined && (symbol !== undefined || entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
       if (lang && !isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       if (lang && typeof text !== 'string') fail('editing one language needs one string')
       if (lang && typeof old === 'string') fail('use a text field without a language to edit a shared string')
@@ -285,13 +285,14 @@ export const OPERATIONS = {
       // Keep the message identity when a whole field is edited or restored by its inverse.
       const key = textKey(next) ?? textKey(old)
       const updated = key && typeof next === 'object' ? withTextKey(next, key) : next
-      const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
-      const file = level ?? entry ?? tag ?? tray ?? section ?? where
+      const target = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
+      const file = level ?? entry ?? symbol ?? tag ?? tray ?? section ?? where
       // Restoring the complete message also removes a locale that this edit added.
-      const inverse = [entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      const inverse = [symbol !== undefined || entry !== undefined || tag !== undefined || tray !== undefined || section !== undefined || where === 'parts' ? { op: 'text.set', ...target, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, updated, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, updated)
       else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+      else if (symbol !== undefined) ws.contentObjects.symbol.set(symbol, setAt(value, keys, updated))
       else if (entry !== undefined) ws.entries.set(entry, setAt(value, keys, updated))
       else if (tag !== undefined) ws.tags.set(tag, setAt(value, keys, updated))
       else if (tray !== undefined) ws.trays.set(tray, setAt(value, keys, updated))
@@ -404,8 +405,8 @@ export const OPERATIONS = {
 }
 
 /** The text at `path` of a package file, as the package writes it (the game's own texts left out). */
-function packageText(ws, { level, entry, tag, tray, section, in: where }, keys, vocabulary) {
-  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
+function packageText(ws, { level, entry, symbol, tag, tray, section, in: where }, keys, vocabulary) {
+  const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : symbol !== undefined ? [ws.contentObjects.symbol.get(symbol) ?? fail(`no symbol ${symbol}`), contentKindSchemas.symbol] : entry !== undefined ? [ws.entries.get(entry) ?? fail(`no entry ${entry}`), ENTRY] : tag !== undefined ? [ws.tags.get(tag) ?? fail(`no tag ${tag}`), OBJECT_SCHEMAS.tags] : tray !== undefined ? [ws.trays.get(tray) ?? fail(`no tray ${tray}`), OBJECT_SCHEMAS.trays] : section !== undefined ? [ws.sections.get(section) ?? fail(`no section ${section}`), OBJECT_SCHEMAS.sections] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.game, vocabulary.game]
   if (where === 'game' && ['game.json', 'course.json'].includes(contentFileFor(keys))) fail(`${showPath(keys)} is the game's own text: edit it with text.set`)
   if (shapeAt(schema, value, keys, { vocabulary })?.type !== 'text') fail(`${showPath(keys)} is not a text`)
   const text = getAt(value, keys)
@@ -417,14 +418,14 @@ Object.assign(OPERATIONS, {
   'text.override': {
     about: t('这款游戏在包的一处文案上写它自己的（不改包里的原文）；value 为 null 时恢复原文', 'The game\'s own wording over a text of its package (the package is left as it is); value null: back to the package\'s'),
     params: S.obj({
-      level: S.opt(S.level()), entry: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH,
+      level: S.opt(S.level()), entry: S.opt(S.str()), symbol: S.opt(S.str()), tag: S.opt(S.str()), tray: S.opt(S.str()), section: S.opt(S.str()), in: S.opt(S.oneOf(['game', 'parts'])), path: PATH,
       lang: S.str({ pattern: LANGUAGE_CODE }), value: S.either(S.str(), S.oneOf([null])),
     }),
-    apply(ws, { level, entry, tag, tray, section, in: where, path, lang, value }, { vocabulary }) {
-      if ([level, entry, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, tag, tray, section, or in: game or parts')
+    apply(ws, { level, entry, symbol, tag, tray, section, in: where, path, lang, value }, { vocabulary }) {
+      if ([level, entry, symbol, tag, tray, section, where].filter((x) => x !== undefined).length !== 1) fail('name the text target: level, entry, symbol, tag, tray, section, or in: game or parts')
       if (!isLanguageCode(lang)) fail(`unknown language code ${lang}`)
       const keys = parsePath(path)
-      const key = textKey(packageText(ws, { level, entry, tag, tray, section, in: where }, keys, vocabulary))
+      const key = textKey(packageText(ws, { level, entry, symbol, tag, tray, section, in: where }, keys, vocabulary))
       const target = `overrides/${ws.packageId}/i18n/${lang}.json`
       const old = ws.overrideFiles.get(target)?.[key] ?? null
       const entries = { ...ws.overrideFiles.get(target) }
@@ -432,7 +433,7 @@ Object.assign(OPERATIONS, {
       else entries[key] = value
       if (Object.keys(entries).length) ws.overrideFiles.set(target, entries)
       else ws.overrideFiles.delete(target)
-      const file = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
+      const file = { ...(level !== undefined && { level }), ...(entry !== undefined && { entry }), ...(symbol !== undefined && { symbol }), ...(tag !== undefined && { tag }), ...(tray !== undefined && { tray }), ...(section !== undefined && { section }), ...(where !== undefined && { in: where }) }
       return { says: `${level ?? where}: ${showPath(keys)} (${lang}) ${value === null ? 'reads as its package writes it' : 'reads the game\'s own way'}`, inverse: [{ op: 'text.override', ...file, path: keys, lang, value: old }] }
     },
   },

@@ -52,6 +52,7 @@ import { EntryList } from './ObjectLists.jsx'
 import GroupedList from './GroupedList.jsx'
 import { GROUPINGS } from './list-groups.js'
 import { TrayEditor, SectionEditor } from './GatherEditor.jsx'
+import SymbolEditor from './SymbolEditor.jsx'
 import StageChain from './StageChain.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
@@ -72,12 +73,12 @@ const SAVED_VIEW = window.history.state?.studio
 const OPENED = readOpen(QUERY)
 // The left column's switcher (left-lists.js PACKAGE_LISTS): each list's icon and name.
 const LISTS = {
-  tree: [ListTree, '关卡', 'Levels'], parts: [Shapes, '元件', 'Parts'], entries: [BookOpen, '词条', 'Entries'],
+  tree: [ListTree, '关卡', 'Levels'], parts: [Shapes, '元件', 'Parts'], symbols: [Shapes, '符号', 'Symbols'], entries: [BookOpen, '词条', 'Entries'],
   kernel: [Cpu, '能力', 'Capabilities'], overrides: [Layers, '覆盖', 'Overrides'], search: [SearchIcon, '搜索', 'Search'],
 }
 // The kind of object each build list holds, and the relations a new group of it can be.
-const LIST_KIND = { tree: 'level', parts: 'part', entries: 'entry' }
-const RELATION_KINDS = { level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], part: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
+const LIST_KIND = { tree: 'level', parts: 'part', symbols: 'symbol', entries: 'entry' }
+const RELATION_KINDS = { symbol: [['order', '顺序', 'Order']], level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], part: [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
 const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
@@ -144,7 +145,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [resize, setResize] = useState(null)
   const [savedSide, setSide] = usePref('side', 'tree')
   // The list the address names wins over the one last shown.
-  useLayoutEffect(() => { if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { if (HEADING?.kind === 'symbol') setSide('symbols'); else if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => setPartStage(null), [at?.part])
   const side = PACKAGE_LISTS.includes(savedSide) ? savedSide : 'tree'
   const objectList = isObjectList(side)
@@ -296,6 +297,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     return relation?.kind === 'replaces' ? 'part' : relation?.of === 'entry' ? 'entry' : relation?.of === 'part' ? 'part' : 'level'
   }
   /** A new group's object for a build list of `kind` grouped `by` (a relation of `option`'s kind), opened. */
+  const newSymbol = () => {
+    const name = freeObjectName(ownNames(content, 'symbol', namespace), 'symbol')
+    edit({ op: 'symbol.put', symbol: name, data: { mark: Object.keys(vocab.vocabulary.kinds.mark)[0], name: { en: 'New symbol' }, desc: { en: '' }, icon: 'Rows3' } })
+    openHeading({ kind: 'symbol', full: `${namespace}/${name}` })
+  }
   const newGroup = (kind, by, option) => {
     if (saving) return
     if (by === 'tag') {
@@ -333,6 +339,12 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       return
     }
     if (level) select({ level })
+    else if (file?.startsWith('symbols/')) {
+      const full = file.slice(8, -5)
+      openHeading({ kind: 'symbol', full }, 'symbols')
+      setObjectField({ of: `symbol ${full}`, path: keys })
+      return
+    }
     else if (file === 'parts') select({ part: keys[1] })
     else select({ game: true })
     if (keys.length) pickField(keys, true)
@@ -665,14 +677,14 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
   const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
-  const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'entries' || content?.glossary?.entries?.length))
+  const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'symbols' || vocab?.vocabulary.kinds.mark) && (list !== 'entries' || content?.glossary?.entries?.length))
   const objectPending = saving || shown?.ops !== ops
   // A group's own object in the middle: its editor (a tag, a relation, a tray, a section).
   const groupProps = heading && {
-    content, namespace, full: heading.full, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
+    content, namespace, vocabulary: vocab?.vocabulary, full: heading.full, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
     onSelect: (full) => (full ? openHeading({ kind: heading.kind, full }) : select(null)),
   }
-  const GroupEditor = heading && { tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor }[heading.kind]
+  const GroupEditor = heading && { tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind]
   // The middle: an object list's object (above), several levels picked at once, a group's own object, or the page.
   const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : heading ? 'group' : 'page'
   // The right column: a group's own object's file, the capability's description, the override's file.
@@ -715,6 +727,12 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
               : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} namespace={namespace} game={game} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length}
                 heading={heading} onHeading={(next) => openHeading(next)} {...grouping('part', partsBy, setPartsBy)} onSelect={select} onOps={addOps} />
+              : side === 'symbols' ? <GroupedList kind="symbol" content={content} namespace={namespace} game={game}
+                items={Object.keys(content.registries.symbol ?? {})} label={id => L(content.registries.symbol[id].name)}
+                heading={heading} onHeading={openHeading} {...grouping('symbol', partsBy, setPartsBy)}
+                addOptions={[{ value: 'symbol', label: tr('符号', 'Symbol') }]}
+                onAdd={newSymbol}
+                row={id => <button key={id} type="button" className={`tree-level ${heading?.full === id ? 'is-on' : ''}`} onClick={() => openHeading({ kind: 'symbol', full: id })}><code className="tree-level-id">{shownName(namespace, id)}</code><span>{L(content.registries.symbol[id].name)}</span></button>} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file)} />
               : levelsBy !== 'tag' ? <GroupedList kind="level" content={content} namespace={namespace} game={game} items={playOrder} label={(id) => L(content.registries?.level?.[id]?.title)}

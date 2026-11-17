@@ -1,7 +1,6 @@
 // Trays describe presentation: ordered parts and optional menus for related parts.
 import { S } from './schema.js'
 import { partStages } from './part-stages.js'
-import { editorOf } from './parts.js'
 
 export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => typeof entry === 'string' ? [entry] : entry.items)
 
@@ -9,7 +8,7 @@ export const trayMembers = (tray) => (tray?.items ?? []).flatMap((entry) => type
 export function workshopTrayNames(trays = {}, parts = {}) {
   const stages = partStages(parts)
   return Object.entries(trays)
-    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => stages.has(type) && editorOf(parts[stages.get(type).part]) === 'circuit'))
+    .filter(([, tray]) => tray.workshop !== false && trayMembers(tray).some((type) => stages.has(type)))
     .map(([name]) => name)
 }
 

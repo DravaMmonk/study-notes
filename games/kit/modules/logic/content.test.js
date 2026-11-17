@@ -41,7 +41,7 @@ const halfOf = (form, goal) => ({
 })
 const CONTENT = {
   words: ['everyday'],
-  registries: { wordset: {
+  registries: { symbol: Object.fromEntries(Object.entries(readStarter(resolve(import.meta.dirname, '../../templates/logic')).registries.symbol).map(([name, value]) => [name.split('/').at(-1), value])), wordset: {
     everyday: { Rain: L('下雨', 'it rains'), Wind: L('刮风', 'it is windy'), Wet: L('地湿', 'the ground is wet'), Slip: L('路滑', 'the road is slippery'), Bright: L('{0}很亮', '{0} is bright'), Seen: L('{0}看得见', '{0} can be seen'), i: L('安', 'Ann'), j: L('博', 'Bo') },
     stars: { a: L('晨星', 'the Morning Star'), b: L('昏星', 'the Evening Star'), i: L('晨星', 'the Morning Star'), j: L('昏星', 'the Evening Star') },
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
@@ -282,7 +282,7 @@ test('reading a game on the domain never writes into its content', () => {
 })
 
 
-test('formula chips use the registered parts and keep contextual names', () => {
+test('formula chips use the registered symbols and keep contextual names', () => {
   const content = readStarter(resolve(import.meta.dirname, '../../templates', import.meta.dirname.split('/').at(-1)))
   const level = logicWorks(content).LEVELS.at(-1).tasks.at(-1)
   const chips = chipsOf({
@@ -290,7 +290,7 @@ test('formula chips use the registered parts and keep contextual names', () => {
   })
   const not = chips.find((chip) => chip.key === '¬')
   const rain = chips.find((chip) => chip.key === 'P:Rain')
-  assert.equal(not.part.type, 'starter/formulaNot')
+  assert.equal(not.symbol.type, 'starter/formulaNot')
   assert.equal(not.make().op, '¬')
   assert.equal(rain.make().pred, 'Rain')
   assert.ok(level.notation.symbols.includes('∨'))

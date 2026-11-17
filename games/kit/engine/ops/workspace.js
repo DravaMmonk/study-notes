@@ -12,7 +12,7 @@ import { PROJECT_DIR, readPackageLayers, packageLayers as loadPackageLayers, ass
 import { catalogReader, sourceValue } from '../catalogs.js'
 import { catalogsOf, normalizeText } from '../content-text.js'
 import { contentKindSchemas } from '../content-kinds.js'
-import { kindForFolder } from '../layers.js'
+import { folders, kindForFolder } from '../layers.js'
 import { orderPackages } from '../layers.js'
 import { ENTRY } from '../vocabulary.js'
 import { OBJECT_SCHEMAS } from '../objects.js'
@@ -86,7 +86,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
   }
   const levels = () => levelFiles(packageDir).map(([levelId]) => levelId).sort()
   const objectPaths = () => ['parts', 'entries', 'tags', 'relations', 'sections', 'trays', ...Object.keys(contentKindSchemas)].flatMap((kind) => [
-    ...objectFiles(packageDir, kind).map(([name]) => `${kind}/${name}.json`),
+    ...objectFiles(packageDir, folders[kind] ?? kind).map(([name]) => `${folders[kind] ?? kind}/${name}.json`),
   ])
   const localeFiles = () => [
     ...(packaged ? [] : catalogFiles(resolve(dir, COURSE_I18N))).map(([lang]) => `${COURSE_I18N}/${lang}.json`),
@@ -136,7 +136,7 @@ function openWorkspace(id, root, { vocabulary = null, layer = null } = {}, packa
       return [levelId, readers.package(load(file), pathFor(file), schemas.level, schemas)]
     })),
     ...Object.fromEntries(Object.keys(OBJECT_SCHEMAS).map((kind) => [kind, new Map(objectPaths().filter((p) => p.startsWith(`${kind}/`)).map((file) => [file.split('/').at(-1).slice(0, -5), { ...readers.package(load(file), pathFor(file), OBJECT_SCHEMAS[kind], schemas), ...(kind === 'tags' && { kind: file.split('/')[1] }) }]))])),
-    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, new Map(objectFiles(packageDir, kind).map(([name]) => [name, readers.package(load(`${kind}/${name}.json`), pathFor(`${kind}/${name}.json`), schema, schemas)]))])),
+    contentObjects: Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, new Map(objectFiles(packageDir, folders[kind] ?? kind).map(([name]) => [name, readers.package(load(`${folders[kind] ?? kind}/${name}.json`), pathFor(`${folders[kind] ?? kind}/${name}.json`), schema, schemas)]))])),
     declarationProblems: packaged ? [] : gameDeclarationProblems(dir),
     overrideFiles: new Map(extraOverridePaths().map((file) => [file, load(file)])),
     reservations: { course: keyed(courseCatalog), package: keyed(packageCatalog) },
@@ -181,7 +181,7 @@ const objectSnapshot = (ws) => Object.fromEntries(Object.keys(OBJECT_SCHEMAS).ma
 const objectFile = (kind, name, value) => `${kind}/${kind === 'tags' ? `${value.kind}/` : ''}${name}.json`
 const objectEntries = (ws) => [
   ...Object.keys(OBJECT_SCHEMAS).flatMap((kind) => [...ws[kind]].map(([name, value]) => [objectFile(kind, name, value), value])),
-  ...Object.entries(ws.contentObjects).flatMap(([kind, values]) => [...values].map(([name, value]) => [`${kind}/${name}.json`, value])),
+  ...Object.entries(ws.contentObjects).flatMap(([kind, values]) => [...values].map(([name, value]) => [`${folders[kind] ?? kind}/${name}.json`, value])),
 ]
 const objectPathsOf = (ws) => [...objectEntries(ws).map(([file]) => file), ...Object.keys(ws.partDefs?.parts ?? {}).map((id) => `parts/${id}.json`), ...[...ws.entries.keys()].map((id) => `entries/${id}.json`)]
 

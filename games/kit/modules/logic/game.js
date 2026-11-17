@@ -2,7 +2,7 @@ import { loadDisplays } from '../../engine/displays.js'
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
-import { symbolStamp } from './stripParts.js'
+import { symbolStamp } from './symbols.js'
 import { CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
@@ -64,11 +64,11 @@ export default function logicGame(content, logic = logicWorks(content)) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => `logic:${r.part}` === logic.partResources[type]).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const introduced = [...introductions(logic.course)].map(([type, at]) => {
-    const text = logic.defs[type] ?? logic.strips[type] ?? parts[type]
+    const text = logic.defs[type] ?? logic.symbols[type] ?? parts[type]
     const rules = kernelRules(type)
     return { key: `part:${type}`, part: type, name: text?.name ?? type, desc: text?.desc, icon: cards[type]?.icon ?? partIcon(text?.icon) ?? Cpu, at, ...(rules.length ? { rules } : {}) }
   })
-  const primitives = introduced.filter(({ part }) => !logic.strips[part])
+  const primitives = introduced.filter(({ part }) => !logic.symbols[part])
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
@@ -127,7 +127,7 @@ export default function logicGame(content, logic = logicWorks(content)) {
       return declared ? ui['logic:passed'](declared) : null
     },
     core: (level) => isCore(logic.course, level),
-    extraParts: introduced.filter(({ part }) => logic.strips[part]),
+    extraParts: introduced.filter(({ part }) => logic.symbols[part]),
     parts: {
       all: [
         ...primitives,
@@ -149,8 +149,8 @@ export default function logicGame(content, logic = logicWorks(content)) {
   })
   game.logic = logic
   game.circuit = { forTask: (task) => logic.circuitFor(task)?.forTask(task) }
-  game.stampOptions = { courseField: symbolStamp(logic.strips) }
-  game.defined = { of: (type) => logic.defs[type] ?? logic.strips[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
+  game.stampOptions = { courseField: symbolStamp(logic.symbols) }
+  game.defined = { of: (type) => logic.defs[type] ?? logic.symbols[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
   game.workReferences = ({ task, work }) => logic.workReferences(task, work)
   return game
 }

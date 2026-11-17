@@ -1,5 +1,5 @@
 // Dependency ordering, override composition and provenance shared by readers and author operations.
-import { contentKindSchemas } from './content-kinds.js'
+import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { qualifyObject, OBJECT_SCHEMAS } from './objects.js'
 import { PARTS_FILE } from './parts/schema.js'
@@ -7,7 +7,7 @@ import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 import { mergePatch } from './ops/edit.js'
 
-export const folders = { level: 'levels', part: 'parts', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }
+export const folders = { level: 'levels', part: 'parts', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', tray: 'trays', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, CONTENT_KINDS[kind].folder ?? kind])) }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
 export const schemaForKind = (kind, schemas) => ({ level: schemas.level, part: PARTS_FILE.fields.parts.of, entry: ENTRY, ...contentKindSchemas, ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]
 

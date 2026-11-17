@@ -37,38 +37,6 @@
     {
       "from": "proof-equivalences",
       "to": "natInd"
-    },
-    {
-      "from": "natInd",
-      "to": "formulaForall"
-    },
-    {
-      "from": "formulaForall",
-      "to": "formulaExists"
-    },
-    {
-      "from": "formulaExists",
-      "to": "formulaNot"
-    },
-    {
-      "from": "formulaNot",
-      "to": "formulaAnd"
-    },
-    {
-      "from": "formulaAnd",
-      "to": "formulaOr"
-    },
-    {
-      "from": "formulaOr",
-      "to": "formulaImplies"
-    },
-    {
-      "from": "formulaImplies",
-      "to": "formulaIff"
-    },
-    {
-      "from": "formulaIff",
-      "to": "formulaFalse"
     }
   ]
 }

@@ -1,12 +1,4 @@
-// The schema of a game's parts/<name>.json (games/DESIGN.md 6.8): every part the course gives, as data. A part has the
-// faces every part has (its name, what it does, its icon and family) and the
-// faces of the editor it is made with (`editor`; the circuit's when it names none), each editor declaring its own:
-//   circuit  a primitive's ports, its settings (one of the kernel controls), what it computes (an expression over the
-//            domain's engine resources, expr.js) and its three views; or a built part's independent board and interface.
-//            Its rule: a part computes (or keeps an input), or runs an inside, never both
-//   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
-// with settings declared inline. The schema is the kernel's, the same in every domain; what it names
-// (resources, families, widgets, marks) the domain's vocabulary gives.
+// Circuit part definitions specialize operations or package a reference work, with inline settings.
 import { S } from '../schema.js'
 import { PART_REFERENCE_FIELDS } from '../parts.js'
 import { T as t } from '../../shell/i18n.js'
@@ -147,31 +139,21 @@ export const BUILT = S.obj({
   family: S.opt(S.ref('family')),
   views: PAINT.views,
 })
-/** A block on a strip: what it marks, an item of the domain's closed `mark` kind. */
-export const STRIP = S.obj({
-  editor: S.oneOf(['strip']),
-  ...NAMED,
-  ...STAGES,
-  icon: ICON,
-  family: S.opt(S.ref('family')),
-  mark: S.ref('mark', { about: t('这一块标出的是什么：领域给的一项') }),
-})
 /** The faces each editor reads: the circuit's a primitive (compute) or a built part (inside), never both. */
-export const EDITORS = { circuit: S.either(PRIMITIVE, BUILT), strip: STRIP }
+export const EDITORS = { circuit: S.either(PRIMITIVE, BUILT) }
 /** A part, by the editor it is made with: one of the editors' shapes. */
 export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape.type === 'either' ? shape.of : [shape])))
 
 /** A new part of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
 export const BLANKS = {
   circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', op: Object.keys(vocabulary.kinds.op)[0] } : null),
-  strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { en: 'New block' }, desc: { en: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
 }
 /** Whether a domain's games make parts of some editor out of what its vocabulary gives: their content names them as parts. */
 export const makesParts = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))
 
 /** Part creation options read by authoring tools. A built part needs a task before it has data. */
 export function partCreationOptions(vocabulary, tasks = []) {
-  const labels = { circuit: t('电路件', 'Circuit part'), strip: t('词序条块', 'Strip part') }
+  const labels = { circuit: t('电路件', 'Circuit part') }
   const choices = Object.entries(BLANKS).flatMap(([value, blank]) => {
     const data = blank(vocabulary)
     return data ? [{ value, label: labels[value], data }] : []

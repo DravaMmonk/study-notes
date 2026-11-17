@@ -89,15 +89,19 @@
 
 ### 2.8 一关手里有什么
 
-**进度给默认，任务再增删。** `kit/course.js` 和 `engine/course-model.js` 用一个课程模型计算所有玩法的可用元件、托盘和作品，不按领域另算。
+**进度给默认，任务再增删。** `kit/course.js` 和 `engine/course-model.js` 用一个课程模型计算所有玩法的可发放对象、托盘和作品，不按领域另算。
 
 - **托盘**是 `trays/<名>.json` 的对象，关卡或任务用 `tray` 引用。实际可用的是托盘成员与已解锁能力的交集；参考解用到的元件和 `featuredParts` 进入主区，其余折进「更多」。菜单、标题和工坊开关属于托盘，不从标签猜。
-- **开放的单位是元件或阶段。** 元件本身是第一阶段，`stages` 依次列后续阶段（第 6.8 节）。引用元件就是引用第一阶段，引用后续阶段会就地升级同一张卡。没有 `元件.设置`、`元件.设置=取值` 的派生项。
-- `adds` 带来元件，`local` 让同处声明的元件只在本关或任务使用，不带到后面。`opens` 在任务开始时开放阶段；`awards` 在任务通过后开放，关卡的 `awards` 在最后一个任务通过后开放。
-- `gives` 只为当前任务多给元件或阶段，`withholds` 收起它们，已有也不给。参考解使用不可用的元件、阶段或设置会报错。
+- **开放的单位是可发放对象或阶段。** 元件和符号都已登记，对象本身是第一阶段，`stages` 依次列后续阶段（第 6.8 节）。引用元件就是引用第一阶段，引用后续阶段会就地升级同一张卡。没有 `元件.设置`、`元件.设置=取值` 的派生项。
+- `adds` 带来元件或符号，`local` 让同处声明的对象只在本关或任务使用，不带到后面。`opens` 在任务开始时开放阶段；`awards` 在任务通过后开放，关卡的 `awards` 在最后一个任务通过后开放。
+- `gives` 只为当前任务多给元件、符号或阶段，`withholds` 收起它们，已有也不给。参考解使用不可用的元件、符号、阶段或设置会报错。
 - 任务之间也有进度：能拿到先前任务发布的作品；发布哪个元件及 variant 由 `publishes` 声明，通关后保留实际判定的玩家作品。封装元件默认跑玩家的通过作品，没有才用参考作品；玩法可以明确选参考作品。
 
 托盘可引用最终阶段，让包的独立试玩取得完整能力；游戏仍按学习进度决定阶段。托盘卡片与作品按基础元件 id 保存，阶段不是另一张卡。`replaces` 用于不同元件之间的升级、合并，同一元件的升级只用阶段。
+
+**登记与查找。** `engine/grants.js` 集中保存可发放类型登记表及对象、阶段查找。`modules/circuit/grants.js` 提供元件登记，`modules/logic/grants.js` 提供符号登记，各自的 `used(work)` 读取作品使用的对象，第二参数可提供该类型的定义表。发放字段的 schema 引用种类是 `grant`，直接写对象全名，可混写类型；同名跨两种可发放类型会报歧义，未登记类型的对象不能进入发放字段或托盘。`course.state(at, flags)` 按类型交付 `{ part: { [全名]: 当前阶段定义 }, symbol: { [全名]: 当前阶段定义 } }`；证明板读取元件，填句子条读取符号。工坊和 `replaces` 只处理元件。
+
+**符号独立声明。** 《证明完毕》的八个公式连接词在 `packages/qed/symbols/`，文案键用 `@symbol.<名>.…`，标签在 `tags/symbol/`，覆盖在 `overrides/<命名空间>/symbols/`。符号只声明标记、文案、图标和可选阶段。当前 `symbol` 与 `part` 都由内核登记，后续随 logic 出内核改为 `logic/symbol`。Studio 单列符号，托盘编辑器和阶段链共用发放模型。
 
 ## 3. 基本元素和引擎里的对应
 
@@ -222,10 +226,11 @@
 |---|---|---|
 | 关卡 `level` | `levels/<名>.json` | 关卡与有独立 id 的任务 |
 | 元件 `part` | `parts/<名>.json` | 运算或封装作品、设置、阶段、外观 |
+| 符号 `symbol` | `symbols/<名>.json` | 填句子条的连接词，含 `mark`、`name`、`desc`、`icon` 和可选 `stages` |
 | 词条 `entry` | `entries/<名>.json` | 百科正文、关联和开放位置 |
-| 标签 `tag` | `tags/<level或part或entry>/<名>.json` | 同种对象的无序集合，可嵌套，不成环 |
+| 标签 `tag` | `tags/<level或part或symbol或entry>/<名>.json` | 同种对象的无序集合，可嵌套，不成环 |
 | 关系 `relation` | `relations/<名>.json` | `requires`、`order`、`replaces` 的有向边 |
-| 托盘 `tray` | `trays/<名>.json` | 元件和阶段的 `values`、二级 `menus`、标题、说明、`workshop` |
+| 托盘 `tray` | `trays/<名>.json` | 可发放对象和阶段的 `values`、二级 `menus`、标题、说明、`workshop` |
 | 百科分组 `section` | `sections/<名>.json` | 标题、说明和词条或词条标签的 `values` |
 | 内核声明的内容种类 | `<种类>/<名>.json` | `wordset`、`quote`、`power`、`box` 等数据原型 |
 
@@ -235,7 +240,7 @@
 
 **依赖。** `package.json` 写 `uses` 和最低内核 `vocabulary` 版本。包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；选择列表的位置不改变加载顺序。
 
-**覆盖。** 凡是改别人的对象，都写在覆盖者的 `overrides/<命名空间>/` 下，原声明不动。覆盖路径由 `engine/layers.js` 与操作集统一解释：关卡用 `levels/<名>.json`，元件用 `parts/<名>.json`，词条用 `entries/<名>.json`，标签用 `tags/<种类>/<名>.json`，关系、托盘、百科分组分别用 `relations/`、`trays/`、`sections/`，其它内容种类用自身目录；文案用 `i18n/<lang>.json`。
+**覆盖。** 凡是改别人的对象，都写在覆盖者的 `overrides/<命名空间>/` 下，原声明不动。覆盖路径由 `engine/layers.js` 与操作集统一解释：关卡用 `levels/<名>.json`，元件用 `parts/<名>.json`，符号用 `symbols/<名>.json`，词条用 `entries/<名>.json`，标签用 `tags/<种类>/<名>.json`，关系、托盘、百科分组分别用 `relations/`、`trays/`、`sections/`，其它内容种类用自身目录；文案用 `i18n/<lang>.json`。
 
 | 对象 | 合并规则 |
 |---|---|
@@ -348,7 +353,7 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 | 编排 | 一款游戏 | 选包、章的有序关卡列表、可选与可跳过、路线图 `rows`；依赖编辑写成包关系的覆盖 |
 | 文案 | 一个包或一款游戏 | 本层各语言、术语与引用，以及允许的文案覆盖 |
 
-**三个栏各有一件事。** 顶栏切工作区和包或游戏，并放全局命令、语言与主题。左栏是资源区，构建按关卡、元件、词条及其标签、托盘、关系、百科分组列对象，另有能力和覆盖；编排列包、章、覆盖；文案按对象或文件列文字。组可折叠，一个对象可出现多次；点组名编辑组对象，搜索放在资源种类之后。来源和覆盖链始终可查，依赖包的对象只读，要改先「在本包覆盖」。
+**三个栏各有一件事。** 顶栏切工作区和包或游戏，并放全局命令、语言与主题。左栏是资源区，构建按关卡、元件、符号、词条及其标签、托盘、关系、百科分组列对象，另有能力和覆盖；编排列包、章、覆盖；文案按对象或文件列文字。组可折叠，一个对象可出现多次；点组名编辑组对象，搜索放在资源种类之后。来源和覆盖链始终可查，依赖包的对象只读，要改先「在本包覆盖」。
 
 中栏放复杂、跨对象、需要直接看见的编辑：关卡单关试玩、元件的板、阶段链、标签、托盘、百科分组、关系板、章的接线板和路线图、能力说明、覆盖差异、语言对照。右栏随选择显示 schema 控件或原始 JSON，id 只显示。左栏按职责找资源，中栏按对象工作，右栏补任意字段，不再靠旧的「画面、字段、文案、比较、变更」顶栏页签分流程。
 
@@ -372,7 +377,7 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 
 **设置写在元件里。** 对应运算参数的设置只写差异，`{}` 恢复运算参数的完整声明；不对应参数的设置（例如拼公式的 `tree`）须写全控件与值。没有设置对象、独立设置文件或 `setting.*` 操作。设置可有 `label`、`about`、`default`、`fixed`、`when`，选项可有说明；动态选项由内核能力提供。
 
-**阶段是同一元件的线性升级。** 第一阶段就是元件自身，`stages` 只列后续阶段，每个 id 与元件共用包内命名空间。阶段相对前一阶段增量修改设置、说明和卡片；`remove` 去掉选项，`add` 加回运算声明的选项。开放阶段升级原卡，想要两种独立玩法则建两个元件。阶段 id 不可改；元件之间的升级用 `replaces` 关系。
+**阶段是同一可发放对象的线性升级。** 符号阶段可以修改 `mark`、`name`、`desc`、`icon`。元件阶段的规则如下。 第一阶段就是元件自身，`stages` 只列后续阶段，每个 id 与元件共用包内命名空间。阶段相对前一阶段增量修改设置、说明和卡片；`remove` 去掉选项，`add` 加回运算声明的选项。开放阶段升级原卡，想要两种独立玩法则建两个元件。阶段 id 不可改；元件之间的升级用 `replaces` 关系。
 
 **封装元件引用作品。** `inside` 保存 variant 及自带参考作品和接口，任务用 `publishes` 发布 `{ part, variant }`，显式 `awards` 决定通过后开放的阶段。玩家的通过作品按元件和 variant 保存，`holds().inside()` 按可用路径选择；没有玩家作品才用参考，玩法可明确选参考作品。定义、引理、门、机器等均走同一登记和课程模型，不另用 `revisions` 表。
 
@@ -422,6 +427,8 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 `engine/displays.js` resolves these names and caches each implementation bundle. Module `ui/displays.js`
 entries own their styles, map illustrations, introduction figures, circuit presentation resources and pass panels.
 Game adapters select capabilities by name and bind course data; shared shell/views never import module UI or CSS.
+Production game builds keep the virtual game entry and asynchronous module adapters together in a dedicated
+chunk, so display bundles can import work helpers without cycling through an awaiting adapter.
 Bench layouts resolve both string and parameterized display calls (including nested `with` blocks) through the
 same registry. Common bench displays are provided by the circuit module; the shared `Knob` control remains in
 `shell/bench`. Metadata-only view/family/mark entries continue to describe generic value rendering.

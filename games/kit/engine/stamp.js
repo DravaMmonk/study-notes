@@ -6,7 +6,6 @@
 import { find, sectionOf, shapeAt } from './schema.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { isText } from './i18n.js'
-import { editorOf } from './parts.js'
 import { canonicalJson } from './json-value.js'
 
 const PUZZLE = ['puzzle', 'tests']
@@ -34,12 +33,10 @@ function hash(text) {
 export function taskStamps(vocabulary, content, { courseField } = {}) {
   const localizedFields = (schema, value) => new Set(find(schema, value, 'text', { vocabulary }).map((field) => field.value).filter(isText))
   const plain = (value, texts) => JSON.stringify(value, (_k, v) => (texts.has(v) ? undefined : v))
-  // Strip labels are bound to the task's expression language. They do not change how a saved work is judged.
-  const strip = Object.values(content.partDefs?.parts ?? {}).filter((part) => editorOf(part) === 'strip')
   const file = content.partDefs
   const puzzleParts = file
   const texts = localizedFields(PARTS_FILE, puzzleParts)
-  const parts = plain(puzzleParts ?? null, new Set([...texts, ...strip]))
+  const parts = plain(puzzleParts ?? null, texts)
   return Object.fromEntries(content.levels.flatMap((level) => {
     const texts = localizedFields(vocabulary.level, level)
     const own = plain(puzzleOf(vocabulary.level, level, vocabulary, courseField), texts)

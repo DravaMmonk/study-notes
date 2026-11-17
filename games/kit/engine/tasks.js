@@ -22,7 +22,7 @@ const PUBLISHES = S.opt(S.list(S.obj({ part: S.ref('part'), variant: S.str({ pat
   section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named part variant.'),
 }))
 
-export const ITEM_REFERENCE = S.str({ reference: 'part' })
+export const ITEM_REFERENCE = S.str({ reference: 'grant' })
 export const TASK_ITEMS = Object.fromEntries(['adds', 'local', 'gives', 'withholds', 'opens', 'awards'].map((key) => [key, S.opt(S.list(ITEM_REFERENCE))]))
 
 const OWN = {

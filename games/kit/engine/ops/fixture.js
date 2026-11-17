@@ -1,3 +1,4 @@
+import { folders } from '../layers.js'
 import { contentKindSchemas } from '../content-kinds.js'
 import { objectFiles } from '../content-node.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
@@ -65,7 +66,6 @@ const GLOSSARY = {
 const PARTS = {
 
   parts: {
-    formulaImplies: { editor: 'strip', mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
     mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'logic:family-rule', outputType: 'logic:judgment', inputs: [{ name: 'imp', type: 'logic:judgment', label: T('A → B') }, { name: 'a', type: 'logic:judgment', label: T('A') }], op: 'logic:mp' },
     impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'logic:family-box', outputType: 'logic:judgment', inputs: [], settings: { 'A': { control: 'tree', label: T('假设', 'Assume') } }, regions: [{ name: 'body', type: 'logic:judgment', label: T('框内', 'Inside'), opens: true, closes: true }], op: 'logic:impI' },
   },
@@ -153,13 +153,13 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   }
   putCatalogs(course, shell, route)
   const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
-  for (const [kind, name, value] of extra) { mkdirSync(join(pkg, kind), { recursive: true }); put(join(pkg, kind, `${name}.json`), sourceValue(value)) }
+  for (const [kind, name, value] of extra) { mkdirSync(join(pkg, folders[kind]), { recursive: true }); put(join(pkg, folders[kind], `${name}.json`), sourceValue(value)) }
   putCatalogs(pkg, ...extra.map(([, , value]) => value), ...Object.values(config), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
 }
 
 export function proofsRoot() {
   const root = mkdtempSync(join(tmpdir(), 'games-'))
-  writeContentFixture(root, ID, { game: GAME, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] }, sequence: { kind: 'order', of: 'level', sequence: ['given', 'apply', 'suppose'] } } }, proofVocabulary)
+  writeContentFixture(root, ID, { game: { ...GAME, contentObjects: { ...GAME.contentObjects, symbol: { formulaImplies: { mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') } } } }, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] }, sequence: { kind: 'order', of: 'level', sequence: ['given', 'apply', 'suppose'] } } }, proofVocabulary)
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
 }

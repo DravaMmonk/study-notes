@@ -37,6 +37,54 @@ export function baselineValue(input) {
   return project(input)
 }
 
+// The eight QED connectives changed object ownership, retaining their exact identities and values.
+const FORMULA_NAMES = ['formulaAnd', 'formulaOr', 'formulaNot', 'formulaImplies', 'formulaIff', 'formulaForall', 'formulaExists', 'formulaFalse']
+const formulaName = name => typeof name === 'string' && FORMULA_NAMES.includes(name.replace(/^qed\//, ''))
+const formulaCopy = new RegExp(`(?<![\\w/])((?:qed/)?)part\\.(${FORMULA_NAMES.join('|')})(?=\\.)`, 'g')
+const formulaFile = new RegExp(`(?<![\\w/])((?:packages/qed/|qed/)?)parts/(${FORMULA_NAMES.join('|')})(?=\\.json\\b)`, 'g')
+
+export function formulaSymbolBaseline(input) {
+  const memo = new WeakMap()
+  const walk = (value, identity = null) => {
+    if (typeof value === 'string') return value.replace(formulaCopy, '$1symbol.$2').replace(formulaFile, '$1symbols/$2')
+    if (!value || typeof value !== 'object') return value
+    if (memo.has(value)) return memo.get(value)
+    if (Array.isArray(value)) {
+      const owner = formulaName(value[0]) ? value[0] : identity
+      let out = value.map(child => walk(child, owner))
+      // Ownership changes the typed order edges for these names. Preserve every unrelated edge's order.
+      if (value.some(edge => edge && typeof edge === 'object' && ['part', 'symbol', 'grant'].includes(edge.of) && (formulaName(edge.from) || formulaName(edge.to)))) {
+        const affected = edge => ['part', 'symbol', 'grant'].includes(edge?.of) && (formulaName(edge?.from) || formulaName(edge?.to))
+        out = [...out.filter(edge => !affected(edge)), ...out.filter(affected).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en'))]
+      }
+      memo.set(value, out)
+      return out
+    }
+    const owner = formulaName(value.part) ? value.part : formulaName(value.type) ? value.type : identity
+    const out = Object.fromEntries(Object.entries(value).filter(([key, child]) => !(formulaName(owner) && key === 'editor' && child === 'strip'))
+      .map(([key, child]) => [key, walk(child, formulaName(key) ? key : owner)]))
+    if (out.formulaParts && Object.keys(out.formulaParts).length && Object.values(out.formulaParts).every(symbol => formulaName(symbol.type))) {
+      out.formulaSymbols = out.formulaParts
+      delete out.formulaParts
+    }
+    if ((formulaName(out.from) || formulaName(out.to)) && ['symbol', 'grant'].includes(out.of)) out.of = 'part'
+    // Move only these eight definitions into the canonical symbol inventory on either side.
+    if (out.structure?.parts?.parts) {
+      const parts = { ...out.structure.parts.parts }
+      const symbols = { ...out.structure.symbols }
+      for (const [name, definition] of Object.entries(parts)) if (formulaName(name)) {
+        if (Object.hasOwn(symbols, name)) throw new Error(`baseline symbol collision: ${name}`)
+        symbols[name] = definition
+        delete parts[name]
+      }
+      out.structure = { ...out.structure, parts: { ...out.structure.parts, parts }, ...(Object.keys(symbols).length && { symbols }) }
+    }
+    memo.set(value, out)
+    return out
+  }
+  return walk(input)
+}
+
 /** Only registered names are aliases; prose, formulas and arbitrary slashes stay meaningful. */
 export function nameNormalizer(names) {
   // MODULES.md §10.3 explicitly makes these kind/path/key spellings equivalent.
@@ -81,7 +129,7 @@ export function nameNormalizer(names) {
       memo.set(value, out)
       return out
     }
-    return walk(input)
+    return formulaSymbolBaseline(walk(input))
   }
 }
 

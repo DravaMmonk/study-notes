@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { trayDisplay, trayMembers, workshopTrayNames } from './trays.js'
 
 test('the workshop lists enabled circuit trays and leaves exercise trays usable by the course', () => {
-  const parts = { gate: {}, word: { editor: 'strip' } }
+  const parts = { gate: {} }
   const trays = {
     main: { items: ['gate'] },
     exercise: { workshop: false, items: ['gate'] },

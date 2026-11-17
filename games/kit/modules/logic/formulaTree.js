@@ -78,8 +78,8 @@ export function chipsOf(level) {
   const preds = [...level.vocab.preds].sort(([a], [b]) => (a < b ? -1 : 1))
   const order = level.consts ?? []
   const consts = [...level.vocab.consts].sort((a, b) => order.indexOf(a) - order.indexOf(b))
-  const parts = level.notation.formulaParts
-  const ordered = (symbols) => parts ? Object.keys(parts).filter((symbol) => symbols.includes(symbol)) : symbols
+  const symbols = level.notation.formulaSymbols
+  const ordered = (marks) => symbols ? Object.keys(symbols).filter((symbol) => marks.includes(symbol)) : marks
   const quantifiers = ordered(QUANTIFIERS).filter((q) => level.notation.symbols.includes(q))
   const vars = level.vars ?? (level.kind === 'logic:query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
   const fns = level.vocab.fns ?? []
@@ -91,9 +91,9 @@ export function chipsOf(level) {
     // A function (s, plus) is a thing with a box for each of its things.
     ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
-    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'logic:query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', part: parts?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
+    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'logic:query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', symbol: symbols?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
-    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', part: parts?.[c], text: parts?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
+    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', symbol: symbols?.[c], text: symbols?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
   ]
 }
 

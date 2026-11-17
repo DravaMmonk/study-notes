@@ -31,6 +31,17 @@ export default defineConfig({
   build: {
     outDir,
     emptyOutDir: true,
-    rollupOptions: { input: { game: resolve(import.meta.dirname, 'game.html') } },
+    rollupOptions: {
+      input: { game: resolve(import.meta.dirname, 'game.html') },
+      output: {
+        // Async game adapters must not share a chunk with helpers their display loaders import.
+        onlyExplicitManualChunks: true,
+        manualChunks(id) {
+          if (id.includes('virtual:game/')) return 'game-adapter'
+          const adapter = /\/games\/kit\/modules\/([^/]+)\/game\.js$/.exec(id)
+          return adapter ? 'game-adapter' : undefined
+        },
+      },
+    },
   },
 })

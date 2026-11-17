@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "of": "grant",
+  "edges": [
+    {
+      "from": "machine-certificate",
+      "to": "formulaForall"
+    }
+  ]
+}

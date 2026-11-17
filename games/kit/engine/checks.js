@@ -1,3 +1,4 @@
+import { unavailableGrants } from './grants.js'
 // The rules every game follows, over one game's content (content.js): its content against its domain's vocabulary
 // (./vocabulary.js), the course audit (../course.js), the level count on the hub (../../games.js), unique level ids
 // that require only real levels, its links, and then its domain's own
@@ -32,7 +33,7 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
   const expand = referenceResolver(content.registries, wrong)
   for (const level of content.levels) for (const [index, entry] of [level, ...(level.tasks ?? [])].entries()) {
     const at = `levels/${level.id}.json${index ? `.tasks[${index - 1}]` : ''}`
-    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'without']) if (entry[field]) expand(entry[field], 'part', `${at}.${field}`)
+    for (const field of ['adds', 'local', 'gives', 'opens', 'withholds', 'awards', 'without']) if (entry[field]) expand(entry[field], 'grant', `${at}.${field}`)
     if (entry.tray) expand(entry.tray, 'tray', `${at}.tray`)
   }
   const lines = wrong.map(({ at, says }) => ({ fail: true, text: `content: ${at}: ${says}` }))
@@ -54,6 +55,7 @@ export async function checkPackage(content, { domain, root, mutants = false }) {
     try {
       const shell = packageLevel(content, level.id)
       const spec = domain.spec(shell)
+      lines.push(...referenceGrantChecks(spec))
       lines.push(...await domain.validate({ ...spec, memo: noMemo, ...(mutants && spec.circuit && { circuit: { ...spec.circuit, mutants: true } }) }))
     } catch (error) {
       lines.push({ fail: true, level: level.id, text: `${level.id}: ${error.message}` })
@@ -78,6 +80,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   if (wrong.length) return lines
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)
   const spec = domain.spec(content)
+  lines.push(...referenceGrantChecks(spec))
 
   // A notes course is no machine growing level by level: its course is not audited (games/DESIGN.md 12.1).
   // Trays are the package's: whether something on them is ever brought in is judged on a game placing the whole package.
@@ -137,5 +140,22 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const memo = cache && !mutants ? cache.memo(content, spec) : noMemo
   lines.push(...(await domain.validate(mutants && spec.circuit ? { ...spec, memo, circuit: { ...spec.circuit, mutants: true } } : { ...spec, memo })))
   if (cache && !mutants) cache.save()
+  return lines
+}
+
+function referenceGrantChecks(spec) {
+  const lines = []
+  for (const fragment of spec.specs ?? [spec]) {
+    const course = fragment.course
+    const works = fragment.logic ?? fragment.circuit ?? fragment.image ?? fragment.table
+    for (const level of fragment.levels) for (const [index, task] of (level.tasks ?? []).entries()) {
+      const at = { id: level.id, task: task.task ?? index }
+      const flags = new Set(course.levels.filter(prior => course.before(prior.id, level.id)).flatMap(prior => prior.unlocks ?? []))
+      const runtimeTask = works?.LEVELS?.find(entry => entry.id === level.id)?.tasks[index] ?? task
+      for (const work of [runtimeTask, ...course.boards(at)]) for (const text of unavailableGrants(course, work, at, flags)) {
+        lines.push({ fail: true, level: level.id, text: `${level.id}: ${text}` })
+      }
+    }
+  }
   return lines
 }

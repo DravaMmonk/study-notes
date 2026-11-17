@@ -10,7 +10,6 @@ import { isPair, L, sideOf, tr } from './i18n.js'
 import {
   draftWorkshop, featureWorkshop, publishWorkshop, removeWorkshopPart, trayKey, trayTypes, workshopEntries, workshopInTray,
 } from '../engine/workshop.js'
-import { editorOf } from '../engine/parts.js'
 import { sourceOf } from '../engine/wire-source.js'
 import {
   addTerminalPort, addWorkshopTerminal, editWorkshopTerminal, flattenWorkshopTerminals, MAX_TERMINAL_PORTS, sideLabels,
@@ -100,7 +99,7 @@ export default function Workshop({ screen, tray = '', board, parts, packed, card
   const normal = (name) => String(L(name) ?? '').normalize('NFKC').trim().toLowerCase()
   const catalog = game.partDefs?.parts ?? {}
   const originalNames = new Set([
-    ...[...base].flatMap((type) => Object.hasOwn(catalog, type) && editorOf(catalog[type]) === 'circuit' ? [catalog[type].name] : []),
+    ...[...base].flatMap((type) => Object.hasOwn(catalog, type) ? [catalog[type].name] : []),
     ...items.filter((item) => !own(item)).map(({ label }) => label),
     INPUT_LABEL, OUTPUT_LABEL,
   ].flatMap((label) => isPair(label) ? ['zh', 'en'].map((lang) => normal(sideOf(label, lang))) : [normal(label)]))

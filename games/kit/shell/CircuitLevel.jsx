@@ -1,4 +1,4 @@
-import { editorOf, settingsOf } from '../engine/parts.js'
+import { settingsOf } from '../engine/parts.js'
 import { defaultOf, shows } from '../engine/parts/define.js'
 import { useElementSize } from '../views/useElementSize.js'
 import { portNotes } from '../circuit/card-ports.js'
@@ -277,7 +277,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
 
   if (phone) {
     const cards = (trayNames === undefined && game.course ? fixedTray(game.course, source) : types ?? [])
-      .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
+      .filter((type) => game.isCircuitPart(type))
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     const phoneCard = { ...card, tileExtra: tileSettings ? card.tileExtra : undefined, resultNote: card.phoneRegionResult ?? card.resultNote }
     const needsSetting = (node) => {

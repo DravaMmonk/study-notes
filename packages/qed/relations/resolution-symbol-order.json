@@ -1,0 +1,10 @@
+{
+  "kind": "order",
+  "of": "grant",
+  "edges": [
+    {
+      "from": "res",
+      "to": "formulaForall"
+    }
+  ]
+}

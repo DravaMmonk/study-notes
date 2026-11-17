@@ -37,7 +37,7 @@ export default defineConfig([
   },
   {
     files: ['engine', 'circuit', 'shell', 'views', 'strip', 'studio', 'pipeline'].map((dir) => `${KIT}/${dir}/**/*.{js,jsx,mjs}`).concat(`${KIT}/*.js`),
-    ignores: ['**/*.test.js', '**/engine/kernel.js'],
+    ignores: ['**/*.test.js', '**/engine/kernel.js', '**/engine/grants.js'],
     rules: no(['**/modules/**'], 'The kernel knows no domain: it loads one by name (engine/content-node.js).'),
   },
   ...domains.map((name) => ({

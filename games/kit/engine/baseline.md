@@ -59,6 +59,15 @@ qualified identities, and normalized key collisions fail explicitly. The mechani
 are not globally rewritten. Future migrations that rename a semantic local identifier need an explicit,
 reviewed observation update; the tool must not mask arbitrary renames or collapse distinct objects.
 
+The symbol split has one additional narrow normalization for `formulaAnd`, `formulaOr`, `formulaNot`,
+`formulaImplies`, `formulaIff`, `formulaForall`, `formulaExists`, and `formulaFalse` (QED full names or their
+normalized local names). It moves those eight definitions from the old part inventory into the symbol inventory,
+normalizes only their `part.<name>.*` copy keys and `parts/<name>.json` paths, removes their retired
+`editor: "strip"` discriminator, and compares their typed order edges in a stable order with the old `part`
+ownership. All other order edges retain their order. Their formula notation inventory's field name also follows
+symbol ownership. Marks, labels, descriptions, icons, stages, availability and executed results remain compared.
+Other object names, definitions, editor fields and ownership are unaffected. Snapshots are never rewritten for this rule.
+
 ## Current evidence boundaries
 
 - This is a finite reference/naive corpus, not equivalence for every possible player work. No browser,

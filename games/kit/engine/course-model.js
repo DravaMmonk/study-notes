@@ -1,5 +1,6 @@
 // One curriculum model for all task and board mechanisms. Runtime readers supply observations about works;
 // progression, item granularity, trays, local parts and replacements are interpreted here.
+import { extendGrantIndex, grantIndex, grantObjects, grantState } from './grants.js'
 import { defineCourse } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
 import { standaloneItems, standaloneParts } from './package-play.js'
@@ -39,7 +40,7 @@ export function contentCourse(content, {
       && !content.levels.some((level) => defaultAdds(level).includes(part) && !localAt(part, level))
 
   const course = defineCourse({
-    parts: content.partDefs?.parts ?? {},
+    parts: grantObjects(content),
     awards: (at) => [...(at.task === undefined || at.task >= tasks(at).length ? level(at).awards ?? [] : []), ...tasks(at).flatMap((task, index) => at.task === undefined || index < at.task ? task.awards ?? [] : [])],
     available: content.standalone ? (at) => standaloneParts(content, at) : null,
     availableItems: content.standalone ? (at) => standaloneItems(content, at) : null,
@@ -61,6 +62,9 @@ export function contentCourse(content, {
     carries: (at) => carries?.(at) ?? (level(at).carry ? [level(at).carry] : []),
     references, notes: content.mode === 'notes',
   })
+  course.grantIndex = grantIndex({ ...content.registries, part: content.partDefs?.parts ?? content.registries?.part })
+  course.registerObjects = (type, objects) => extendGrantIndex(course.grantIndex, type, objects)
+  course.state = (at, flags, types) => grantState(course, at, flags, types)
   return course
 }
 

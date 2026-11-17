@@ -4,6 +4,7 @@
 // `<kind>.set` for a field, `<kind>.put` for the whole object (and for a field taken out). Another layer's object is
 // read here only: it is overridden from the middle (SourceMark.jsx). An override picked has its file here too, as the
 // override operation writes it.
+import { contentKindSchemas } from '../engine/content-kinds.js'
 import { folders } from '../engine/layers.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
 import { isText, textKey } from '../engine/i18n.js'
@@ -12,12 +13,12 @@ import { localName, namespaceOf } from './objects-edit.js'
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays', section: 'sections' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays', section: 'sections', symbol: 'symbols' }
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
 /** The schema of an object kind's files. */
-export const objectSchema = (kind) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags) : OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+export const objectSchema = (kind) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags) : contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
 
 /** An object as the registry holds it, for its file: without the id the registry adds (and a tag without its kind). */
 export function objectValue(content, kind, full) {

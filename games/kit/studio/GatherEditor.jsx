@@ -3,6 +3,7 @@
 // them); the order they show them in is an order relation (`<tray>-order`, `<section>-order`; a menu's
 // `<tray>-<menu>-order`, or an order relation of the layer that already lists them all), dragged or moved with Alt+↑/↓. Another package's tray or section is read only until it is
 // overridden here; its order then goes as an override of its order relation.
+import { grantObjects, grants } from '../engine/grants.js'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2, X } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
@@ -94,7 +95,7 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   const editable = own || overriding
   const locked = pending || !editable
   const write = writer({ kind: 'tray', full, namespace, own, value: withoutId(value), content, onEdit, onOps })
-  const parts = content.partDefs?.parts ?? {}
+  const parts = grantObjects(content)
   const owners = stageOwners(content)
   const titleOf = (ref) => {
     if (ref.startsWith('#')) return L(content.registries?.tag?.[ref.slice(1)]?.title)
@@ -103,7 +104,7 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   }
   const candidates = (taken) => [
     ...[...owners.keys()].filter((id) => !taken.includes(id)).map((id) => ({ value: id, label: shownName(namespace, id), title: titleOf(id), group: owners.get(id) === id ? tr('元件', 'Parts') : tr('阶段', 'Stages') })),
-    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => tag.kind === 'part' && !taken.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
+    ...Object.entries(content.registries?.tag ?? {}).filter(([name, tag]) => grants.types.has(tag.kind) && !taken.includes(`#${name}`)).map(([name]) => ({ value: `#${name}`, label: shownName(namespace, `#${name}`), title: titleOf(`#${name}`), group: tr('标签', 'Tags') })),
   ]
   const menus = value.menus ?? []
   const setMenus = (next) => write.set('menus', next)
@@ -116,7 +117,7 @@ export function TrayEditor({ content, namespace, full, pending, onSelect, onEdit
   const shown = content.trays?.[full]?.items ?? []
   const shownIds = [...new Set(shown.map((item) => (typeof item === 'string' ? item : item.id)))]
   const ordering = (relation, ids) => (!pending && canOrder(content, namespace, relation, full, overriding) ? (sequence) => {
-    const ops = subsetOrderOps(content, namespace, relation, ids, sequence, 'part', full, overriding)
+    const ops = subsetOrderOps(content, namespace, relation, ids, sequence, 'grant', full, overriding)
     if (ops?.length) onOps(ops)
   } : null)
   const menuOf = new Map(menus.map((menu) => [menu.id, menu]))

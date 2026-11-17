@@ -4,12 +4,11 @@
 // (parts.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
 // builtGates), a machine part (machine.js builtMachine), an equation proved; every one runs the player's work (a lemma,
 // the proof of each of its shapes).
-import { stripParts } from '../../strip/parts.js'
-import { symbolFor } from './stripParts.js'
+import { symbolFor } from './symbols.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
 import { builtParts, cardOf, partReferences, publications, settingsOf } from '../../engine/parts.js'
-import { eraLevels, holds, levelLabels, met, offer, usable } from '../../course.js'
+import { eraLevels, holds, levelLabels, met, offer } from '../../course.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { keyOf } from '../../shell/i18n.js'
@@ -251,10 +250,10 @@ export function* prepareLogicWorks(content) {
   const { eras } = content
   const wordSets = content.registries?.wordset ?? {}
   const wrong = []
-  const strips = stripParts(content.partDefs)
+  const symbols = Object.fromEntries(Object.entries(content.registries?.symbol ?? {}).map(([type, symbol]) => [type, { ...symbol, type }]))
   const marks = new Set()
-  for (const part of Object.values(strips)) {
-    if (marks.has(part.mark)) wrong.push(`parts.json: ${part.type} repeats the strip mark ${part.mark}`)
+  for (const part of Object.values(symbols)) {
+    if (marks.has(part.mark)) wrong.push(`symbols: ${part.type} repeats the strip mark ${part.mark}`)
     marks.add(part.mark)
   }
   const built = readBuilt(content)
@@ -361,7 +360,7 @@ export function* prepareLogicWorks(content) {
     const unlocks = level.builds ? [`lemma:${level.builds}`] : []
     const all = tasksOf.get(id).map((task) => ({
       ...task,
-      adds: [...new Set([...(level.adds ?? []).filter((type) => strips[type]), ...(task.adds ?? []),
+      adds: [...new Set([...(level.adds ?? []).filter((type) => symbols[type]), ...(task.adds ?? []),
         ...(task.kind === 'logic:machine' ? axiomPartsOf(task) : [])])],
       chapter, requires, unlocks,
     }))
@@ -375,7 +374,7 @@ export function* prepareLogicWorks(content) {
   const TASKS = LEVELS.flatMap((l) => l.tasks)
   // The rules each connective's declaration brings in, by the connective's name.
   const rules = LEVELS.filter((level) => level.declare && level.adds?.length).map((level) => ({
-    kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds.filter((type) => !strips[type]),
+    kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds.filter((type) => !symbols[type]),
   }))
   const LABELS = levelLabels(eras)
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id), rows: plan.rows.get(era.id) }))
@@ -406,19 +405,19 @@ export function* prepareLogicWorks(content) {
   ])
   const course = yield {
     levels: LEVELS, plan,
-    intrinsic: [...axioms, ...Object.keys(strips)],
+    intrinsic: [...axioms, ...Object.keys(symbols)],
     local: axioms,
     additions: (l) => {
       const level = byId.get(l.id)
       if (l.task === undefined) return level.adds
-      const stripAdds = level.tasks.filter(task => task.task <= l.task).flatMap((task) => task.adds.filter((type) => strips[type]))
-      return [...level.adds.filter((type) => !strips[type]), ...stripAdds]
+      const stripAdds = level.tasks.filter(task => task.task <= l.task).flatMap((task) => task.adds.filter((type) => symbols[type]))
+      return [...level.adds.filter((type) => !symbols[type]), ...stripAdds]
     },
     parts: Object.fromEntries(Object.keys(built.parts).filter(isBuilt).map(p => [p, { unlock: `lemma:${p}` }])),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     grants: (l) => {
       const task = byId.get(l.id).tasks.find(task => task.task === l.task)
-      return l.editor !== 'strip' && task?.kind === 'logic:machine'
+      return l.grantType !== 'symbol' && task?.kind === 'logic:machine'
         ? [...ruleTypes(task).keys()].filter((p) => !machineParts[p]) : []
     },
     machine: (l) => eras[eraOf.get(l.id)]?.machine ?? null,
@@ -428,15 +427,15 @@ export function* prepareLogicWorks(content) {
   const noFlags = new Set()
   for (const one of TASKS) {
     // Machine rulebook parts are board gives. Fixed formula keys come from the same selected trays.
-    const keys = usable(course, { id: one.id, task: one.task, editor: 'strip' }, noFlags)
-    const formulaParts = Object.fromEntries(keys.flatMap((type) => {
-      const part = strips[type]
+    const availableSymbols = course.state({ id: one.id, task: one.task }, noFlags, ['symbol']).symbol
+    const formulaSymbols = Object.fromEntries(Object.keys(availableSymbols).flatMap((type) => {
+      const part = availableSymbols[type]
       return part && Object.hasOwn(symbolFor, part.mark) ? [[symbolFor[part.mark], part]] : []
     }))
     const notation = {
       words: one.words ?? words,
-      symbols: Object.keys(formulaParts),
-      formulaParts,
+      symbols: Object.keys(formulaSymbols),
+      formulaSymbols,
       propertyWords: one.propertyWords ?? one.kind === 'logic:proof',
     }
     const expanded = one.cases ? expand(one, notation) : {}
@@ -539,9 +538,11 @@ export function* prepareLogicWorks(content) {
     return [type, { name, desc, icon: 'CircuitBoard', family: 'logic:family-built', inputs: p.inputs.map((port) => ({ name: port, type: p.inputTypes?.[port] ?? 'logic:machine-value', ...(port === 'rules' ? { label: T('规则', 'Rules') } : {}) })), settings, outputType: p.outputType ?? 'logic:machine-value', op: 'circuit:zero' }]
   }))
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
+  course.registerObjects('part', Object.fromEntries(TASKS.filter(task => task.kind === 'logic:machine').flatMap(task => [...ruleTypes(task).keys()].map(type => [type, RULE_DEFINITION]))))
   const offerIn = (task, flags) => {
     const { shown, folded, types } = offer(course, at(task), flags)
-    const circuit = (type) => !strips[type] && (task.kind !== 'logic:gates' || Object.hasOwn(task.gates, type))
+    const state = course.state(at(task), flags)
+    const circuit = (type) => Object.hasOwn(state.part, type) && (task.kind !== 'logic:gates' || Object.hasOwn(task.gates, type))
     return { shown: shown.filter(circuit), folded: folded.filter(circuit), types: types.filter(circuit) }
   }
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
@@ -602,5 +603,5 @@ export function* prepareLogicWorks(content) {
     })
     return [...named, ...proofWorkReferences(task, work)]
   }
-  return { partResources, machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, lemmas, facts, parts: built.parts, publishers: built.publishers, texts: { lemmas, facts, gates }, proofs: lemmaParts, gates: gateParts, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { partResources, machineBoards, symbols, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, lemmas, facts, parts: built.parts, publishers: built.publishers, texts: { lemmas, facts, gates }, proofs: lemmaParts, gates: gateParts, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

@@ -16,7 +16,7 @@ export const taskModule = (task) => ownerOf(task.kind) ?? ownerOf(task.mode)
 export function runtimeIds(content) {
   const tasks = (content.levels ?? []).flatMap((level) => (level.tasks ?? []).map((task) => ({ ...level, ...task })))
   if (tasks.length) return [...new Set(tasks.map(taskModule))]
-  const parts = Object.values(content.partDefs?.parts ?? {})
+  const parts = [...Object.values(content.partDefs?.parts ?? {}), ...Object.values(content.registries?.symbol ?? {})]
   const references = parts.flatMap((part) => part.inside?.map((entry) => entry.reference) ?? [])
   if (references.length) return [...new Set(references.map(taskModule))]
   const types = parts.flatMap((part) => [part.outputType, ...(part.inputs ?? []).map((port) => port.type)])

@@ -1,7 +1,6 @@
 import { earnedUnlocks, passedLevelIn, taskOpen } from './progress.js'
 import { holds } from '../course.js'
 import { stageDefinition } from '../engine/part-stages.js'
-import { editorOf } from '../engine/parts.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -172,7 +171,7 @@ export function defineGame(def) {
   }
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
-  game.isCircuitPart = (type) => Boolean(type && editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
+  game.isCircuitPart = (type) => Boolean(type && (game.course?.grantIndex.get(type)?.type === 'part' || game.partDefs?.parts?.[type]))
   // A built part is earned by solving its level; a primitive when its introducing task becomes available.
   // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
   const earned = (progress, parts) => {

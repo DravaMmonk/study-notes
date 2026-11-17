@@ -6,7 +6,7 @@
 // to it.
 
 /** The package workspace's lists, by the kind of what they list; search always last. */
-export const PACKAGE_LISTS = ['tree', 'parts', 'entries', 'kernel', 'overrides', 'search']
+export const PACKAGE_LISTS = ['tree', 'parts', 'symbols', 'entries', 'kernel', 'overrides', 'search']
 /** The game workspace's lists. */
 export const GAME_LISTS = ['packages', 'chapters', 'overrides']
 
@@ -15,7 +15,7 @@ export const OBJECT_LISTS = { kernel: 'capability', overrides: 'override' }
 export const isObjectList = (list) => Object.hasOwn(OBJECT_LISTS, list)
 
 /** The objects a group heading opens, each its own address parameter. */
-export const HEADING_KINDS = ['tag', 'relation', 'tray', 'section']
+export const HEADING_KINDS = ['tag', 'relation', 'tray', 'section', 'symbol']
 
 /** The heading the address opens: { kind, full }, or null. */
 export function readHeading(query) {
@@ -24,7 +24,7 @@ export function readHeading(query) {
 }
 
 /** The build list a heading of `kind` (of an object of list kind `of`) is in. */
-export const listOfHeading = (kind, of = 'level') => (kind === 'tray' ? 'parts' : kind === 'section' ? 'entries' : of === 'part' ? 'parts' : of === 'entry' ? 'entries' : 'tree')
+export const listOfHeading = (kind, of = 'level') => (kind === 'symbol' ? 'symbols' : kind === 'tray' ? 'parts' : kind === 'section' ? 'entries' : of === 'symbol' ? 'symbols' : of === 'part' ? 'parts' : of === 'entry' ? 'entries' : 'tree')
 
 // The old top-bar tabs that only switched to one of these lists.
 const OLD_TABS = { overrides: 'overrides', kernel: 'kernel' }

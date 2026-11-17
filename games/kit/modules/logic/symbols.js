@@ -1,4 +1,4 @@
-// Syntax is a domain resource. The game supplies the names, descriptions and IDs of the parts that use it.
+// Syntax is a domain resource. The game supplies the names, descriptions and IDs of the symbols that use it.
 export const symbolFor = Object.fromEntries(Object.entries({
   formulaNot: '¬', formulaAnd: '∧', formulaOr: '∨', formulaImplies: '→', formulaIff: '↔',
   formulaFalse: '⊥', formulaForall: '∀', formulaExists: '∃',
