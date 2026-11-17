@@ -88,3 +88,7 @@ export { SlotsContext } from '../shell/slots-context.js'
 export { playedTask, taskContext } from '../shell/played-task.js'
 export { playId } from '../engine/plays.js'
 export { CheckIcon, Dock, SkipIcon, Keypad } from '../shell/RunControls.jsx'
+
+export { treeKey } from '../strip/tree.js'
+export { playGame } from '../shell/plays/Play.jsx'
+export { default as TreeRows } from '../shell/plays/TreeRows.jsx'

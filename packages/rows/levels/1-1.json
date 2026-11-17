@@ -1,0 +1,22 @@
+{
+  "title": "@level.1-1.title",
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": "@level.1-1.tasks.1-1.brief",
+      "rows": [
+        {
+          "total": 5,
+          "chips": [
+            0,
+            2,
+            3
+          ],
+          "reference": "2 + 3",
+          "naive": "0 + 3"
+        }
+      ],
+      "play": "rows:equation"
+    }
+  ]
+}

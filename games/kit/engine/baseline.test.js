@@ -125,3 +125,11 @@ test('circuit tray relocation preserves authored data differences', () => {
   assert.deepEqual(normalize({ kind: 'circuit/tray', path: 'tags/circuit/tray/basics.json', values: ['x'] }), normalize({ kind: 'tray', path: 'tags/tray/basics.json', values: ['x'] }))
   assert.ok(differences(normalize({ kind: 'circuit/tray', values: ['x'] }), normalize({ kind: 'tray', values: ['y'] })).length)
 })
+
+test('extracting bus families retains only their former alias collisions', () => {
+  const before = nameNormalizer(['circuit:family-value', 'tick-bus:family-value', 'circuit:family-memory', 'tick-bus:family-memory'])
+  const after = nameNormalizer(['circuit:family-value', 'circuit:family-memory'])
+  assert.deepEqual(before({ family: 'circuit:family-value' }), after({ family: 'circuit:family-value' }))
+  assert.notDeepEqual(after({ family: 'circuit:family-value' }), after({ family: 'circuit:family-memory' }))
+  assert.notDeepEqual(after({ family: 'circuit:family-value' }), after({ family: 'value' }))
+})

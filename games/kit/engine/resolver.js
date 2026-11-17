@@ -41,7 +41,7 @@ export const layerVocabulary = (layers) => {
   const entries = kind => Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === kind).map(o => [o.name.includes('/') ? o.name : `${layer.id}/${o.name}`, o.value])))
   const meanings = layers.flatMap(layer => layer.meanings ?? [])
   const registries = Object.fromEntries([...new Set(layers.flatMap(layer => layer.objects.map(object => object.kind)))].map(kind => [kind, entries(kind)]))
-  const ids = runtimeIds({ levels: legacy, registries }, { meanings })
+  const ids = levels.length && !legacy.length ? [] : runtimeIds({ levels: legacy, registries }, { meanings })
   const legacyModules = ids.filter(id => vocabularyFor([]).courses[id] && !layers.some(layer => layer.id === id && layer.hasCore && !layer.nativeRuntime))
   const packageCode = layers.some(layer => layer.hasCore) || levels.some(level => level.tasks?.some(task => task.play))
   return { ...withKindDeclarations(projectVocabulary({ ...vocabularyFor(legacyModules), meanings }), layers, packageCode), legacyModules, packageCode }

@@ -136,8 +136,8 @@ export const DOMAINS = { ${domains.map((d) => {
         const entry = JSON.stringify(gameModule(DOMAINS, d))
         const vocabulary = JSON.stringify(resolve(DOMAINS, d, 'vocabulary.js'))
         const prepare = ({ image: 'prepareImageWorks', logic: 'prepareLogicWorks', table: 'prepareTableWorks' })[d] ?? 'prepareWorks'
-        const works = JSON.stringify(resolve(DOMAINS, d, d === 'rows' ? 'runtime.js' : 'work.js'))
-        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary}), import(${works})]).then(([entry, vocabulary, work]) => [entry, vocabulary, { default: { prepare: work.${d === 'rows' ? 'prepare' : prepare} } }])`
+        const works = JSON.stringify(resolve(DOMAINS, d, 'work.js'))
+        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary}), import(${works})]).then(([entry, vocabulary, work]) => [entry, vocabulary, { default: { prepare: work.${prepare} } }])`
       }).join(', ')} }`
     },
     async configureServer(server) {

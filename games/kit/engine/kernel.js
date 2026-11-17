@@ -5,10 +5,8 @@ import { createCapabilityRegistry, registeredOperations, registeredValueTypes, s
 import image from '../modules/image/module.js'
 import logic from '../modules/logic/module.js'
 import table from '../modules/table/module.js'
-import rows from '../modules/rows/module.js'
-import tickBus from '../modules/tick-bus/module.js'
 
-export const modules = [rows, tickBus, image, logic, table]
+export const modules = [image, logic, table]
 export const capabilities = createCapabilityRegistry()
 for (const module of modules) module.register(capabilities)
 registerCircuitConsumers()

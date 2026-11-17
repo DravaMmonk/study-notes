@@ -105,7 +105,8 @@ export function nameNormalizer(names) {
     .replace(/\bcircuit\/tray\b/g, 'tray')
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
-  names = [...new Set([...names].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
+  // Preserve only the two retired bus family collisions in the frozen native vocabulary inventory.
+  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {

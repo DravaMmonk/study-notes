@@ -25,7 +25,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 - After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  the five remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
+  the three remaining `kit/modules/` implementations retain explicit public circuit dependencies until their scheduled migration.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
@@ -101,7 +101,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 - Studio (§6.7) has build, arrange and copy workspaces, with resource, main editor and configuration columns.
   It uses the same preview/modify/undo tools as agents. Keep adapters thin. Follow the user's ownership boundary
   when another engineer owns Studio or frontend work; schema migrations warrant only required mechanical fixes.
-- New objects copy any existing object (own or dependency) or start from their schema; curated starts are ordinary tags, with no template tag convention. The legacy starter directory remains until MODULES.md step 7. New content currently starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
+- New objects copy any existing object (own or dependency) or start from their schema; curated starts are ordinary tags, with no template tag convention. The legacy starter directory remains until their mechanisms migrate. New content currently starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
   `npm run new-game -- <id> --template <name>`. To reuse an existing game’s packages and startup settings,
   use the `create_game` tool (`id`, `from`, `title`), then the package-selection operations.
   Package plugins can also start with `npm run new-package -- <id> --from text` or `--empty`.
@@ -220,3 +220,10 @@ Keep a change to either editor working for every game that uses the kit.
   boundary cleanup. Do not describe this checkpoint as zero circuit knowledge in the kernel.
 - Studio's dedicated editors still live in Studio until step 10. Type names, grouping keys and paths must
   stay canonical while preserving its current editing workflow.
+
+Step 7: `rows` and `tick-bus` are package plugins, each with core/view/kinds and Node/Vite contracts.
+Their starter objects live in the packages; copy with `new-package --from rows|tick-bus`. Neither package
+has a course. Both use circuit's public exports at `^0.0.0`; bus-only ticking and textual tick play live in
+`tick-bus`, not circuit. Native imports remain only for image/table/logic and the symbol bridge.
+Task declarations can scope `extends: task` fields with `play`; this creates a separate schema branch
+without redefining native fields. Keep required fields required on that branch.

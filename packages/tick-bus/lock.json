@@ -1,0 +1,13 @@
+{
+  "target": "tick-bus",
+  "dependencies": {
+    "kernel": {
+      "version": "0.0.0",
+      "hash": "1740c53fa06f9f7ca57f933f8cdb9b537f6a15c0a9dadbb3c3f26072c3a7e803"
+    },
+    "circuit": {
+      "version": "0.0.0",
+      "hash": "dae7ffda97abc041e8ef2eae02e9f31a15dc19144919db1b77d7755c03e86831"
+    }
+  }
+}

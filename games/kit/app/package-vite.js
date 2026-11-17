@@ -27,7 +27,7 @@ export function packageApp(root = contentRoot()) {
     },
     load(id) {
       if (id !== '\0virtual:package-displays') return null
-      const layers = resolveLayers({ packages: packageIds(root), closure: true, root, unlocked: true }).layers
+      const layers = [...new Map(packageIds(root).flatMap(id => resolveLayers({ package: id, root, unlocked: true }).layers).map(layer => [layer.id, layer])).values()]
       const entries = packageEntries(layers, root).filter(entry => entry.view)
       return `const bundles = { ${entries.map(entry => `${q(entry.id + '/view')}: () => import(${q(entry.view)})`).join(', ')} }; export async function loadPackageDisplays(name) { if (!bundles[name]) throw new Error('unknown display bundle ' + name); return (await bundles[name]()).displays }`
     },

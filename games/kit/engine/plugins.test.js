@@ -132,20 +132,6 @@ test('Node core imports and paired Vite entries compose two dependent plugins in
       const game = await gameOf(scope, { view: true })
       assert.deepEqual(game.levels[0].tasks.map(task => task.kind), ['alpha:answer', 'beta:answer'])
       assert.equal(typeof game.kinds['beta:answer'].Screen, 'function')
-      const { readStarter } = await import('./resolver.js')
-      const { contentSchemas } = await import('./content.js')
-      const starter = readStarter(resolve(import.meta.dirname, '../templates/rows'))
-      const mixed = { ...content, levels: [{ ...content.levels[0], tasks: [...content.levels[0].tasks, { ...starter.levels[0].tasks[0], id: 'beta/legacy' }] }] }
-      contentRoots.set(mixed, root)
-      contentSchemas.set(mixed, withKindDeclarations(vocabularyFor('rows'), [], true))
-      const mixedRuntime = await runtimeOf(mixed)
-      const mixedScope = packageLevel(mixed, 'beta/mixed')
-      const mixedSpec = mixedRuntime.spec(mixedScope)
-      assert.equal(mixedSpec.levels[0].tasks.length, 3)
-      assert.equal((await mixedRuntime.validate(mixedSpec)).filter(line => line.fail).length, 0)
-      const mixedGame = await gameOf(mixedScope, { view: true })
-      assert.equal(mixedGame.levels[0].tasks.length, 3)
-      assert.equal(typeof mixedGame.kinds['beta:answer'].Screen, 'function')
 
     } finally { await closeGames() }
   } finally { rmSync(root, { recursive: true, force: true }) }
@@ -179,4 +165,15 @@ test('Node assembly discovers code-owned tags before composing contributions', (
     assert.equal(content.sources.tag['entry:reader/picks'].reader, 'reader')
     assert.deepEqual(content.sources.tag['entry:reader/picks'].collections.values, { 'writer/example': ['writer'] })
   } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('play-scoped task fields preserve native schemas and enforce required package fields', async () => {
+  const { S, validate } = await import('./schema.js')
+  const base = { ...vocabularyFor([]), level: S.obj({ title: S.text(), tasks: S.list(S.obj({ id: S.str(), brief: S.text(), kind: S.oneOf(['native']), rows: S.str() })) }) }
+  const declaration = { extends: 'task', play: 'sample:answer', fields: { rows: S.list(S.int(), { min: 1 }) }, declares: 'package', overrides: { package: ['*'], game: ['$text'] } }
+  const schemas = withKindDeclarations(base, [{ id: 'sample', objects: [{ kind: 'kind', name: 'task', value: declaration }] }], true)
+  const level = tasks => ({ title: 'Mixed', tasks })
+  assert.deepEqual(validate(schemas.level, level([{ id: 'old', brief: 'Native', kind: 'native', rows: 'native rows' }, { id: 'new', brief: 'Package', play: 'sample:answer', rows: [1, 2] }])), [])
+  assert.ok(validate(schemas.level, level([{ id: 'new', brief: 'Package', play: 'sample:answer' }])).length)
+  assert.ok(validate(schemas.level, level([{ id: 'new', brief: 'Package', play: 'sample:answer', rows: 'wrong' }])).length)
 })

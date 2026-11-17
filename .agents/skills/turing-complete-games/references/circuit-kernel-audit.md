@@ -103,15 +103,6 @@ The remaining native modules consume circuit through its public core/view export
 
 | Consumer | Import lines | Removal |
 |---|---|---|
-| `games/kit/modules/tick-bus/work.js` | 1, 14 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/vocabulary.js` | 11 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/module.js` | 1 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/tick-bus.test.js` | 8, 11 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/run.js` | 13, 14 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/board.js` | 17, 18 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/runtime.js` | 5 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/play.js` | 5 | Move with `tick-bus`; import only public package exports. |
-| `games/kit/modules/tick-bus/game.js` | 17 | Move with `tick-bus`; import only public package exports. |
 | `games/kit/modules/table/plays.js` | 1 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/items/conditions.js` | 5 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/work.js` | 7, 8, 9, 10, 11, 12, 16, 18, 21 | Move with `table`; import only public package exports. |
@@ -130,8 +121,6 @@ The remaining native modules consume circuit through its public core/view export
 | `games/kit/modules/table/ui/board.js` | 5, 8 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/ui/partDemo.js` | 1, 2, 3, 4, 6 | Move with `table`; import only public package exports. |
 | `games/kit/modules/table/ui/circuitCourse.js` | 1 | Move with `table`; import only public package exports. |
-| `games/kit/modules/rows/module.js` | 1 | Move with `rows`; import only public package exports. |
-| `games/kit/modules/rows/runtime.js` | 1 | Move with `rows`; import only public package exports. |
 | `games/kit/modules/image/plays.js` | 1 | Move with `image`; import only public package exports. |
 | `games/kit/modules/image/engine/own.js` | 1, 2, 3 | Move with `image`; import only public package exports. |
 | `games/kit/modules/image/engine/board-view.js` | 1, 2, 3 | Move with `image`; import only public package exports. |
@@ -198,3 +187,13 @@ chapter objects, policies and contributor audit through the existing operation/t
 
 Game configuration is exposed as `registries.game["@<game>/config"]`, with collection provenance in sources.game.
 `game.json.encyclopedia` preserves former section order, and the shell consumes each section list in that order.
+
+## Step 7 bridge removal
+
+Rows and tick-bus are now ordinary packages. Their module registrations, static kernel imports and native
+Vite dispatch are removed. Package code consumes only `kernel`, `kernel/view`, `circuit` and `circuit/view`.
+The bus-only tick runner, reports, textual tick-play adapter and tick tests moved from circuit to tick-bus.
+The former native starter objects moved to the owning packages, with no package course or chapter.
+
+Remaining temporary bridges are exactly the image/table/logic public circuit imports listed above, plus
+`engine/circuit-bridge.js` for logic symbol grants. These leave in their respective extraction steps.

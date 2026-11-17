@@ -116,7 +116,7 @@ reports. Preserve snapshots and use `compare` only.
   packed parts use production reference implementations in this corpus.
 - Host Node warnings, cache status and source-file locations are not behaviour. Runtime function closures are
   represented only as markers; their executed outputs are captured. Unexecuted callbacks and code with no
-  installed content consumer are outside this corpus (including rows/tick-bus template-only consumers).
+  installed content consumer are outside this corpus (the former rows/tick-bus starter consumers are now package examples, covered separately by package contracts).
 - Determinism is checked by a second independent run. Cross-Node/CPU floating-point portability is not claimed;
   numeric comparisons are exact, without rounding or tolerance that could hide drift. Existing check output
   includes author log drift notices, so real content/log edits can change it intentionally.
@@ -151,3 +151,9 @@ other number changes remain differences. Chapter and game-configuration objects 
 so a chapter name cannot create artificial ambiguity with an entry, level or robot of the same local name.
 Missing eras are serialized undefined markers and remain unchanged. No check lines or task array order
 are suppressed by this rule. Snapshots remain unchanged.
+
+Step 7 retains exactly `tick-bus:family-value` and `tick-bus:family-memory` as alias-inventory
+reservations. Their removal from the global vocabulary must not make the existing circuit families
+newly unique and turn `circuit:family-value` into `value`. Only ambiguity bookkeeping changes; family
+values, schemas, works, checks and reports remain compared. No arbitrary removed capability is reserved,
+no output line is suppressed, and snapshots are unchanged.

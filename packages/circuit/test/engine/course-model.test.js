@@ -75,39 +75,6 @@ test('runtime selection follows task declarations when the historical domain is 
   }
 })
 
-test('circuit and row task capabilities share a course, checks and progress without a domain switch', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../../../../games/kit/templates/circuit'))
-  const row = { id: 'sums/one', title: 'Addition', tasks: [{ id: 'sums/task', kind: 'rows:equation', brief: 'Make five.', rows: [{ total: 5, chips: [2, 3], reference: '2 + 3', naive: '2 + 2' }] }] }
-  content.levels.push(row)
-  content.eras.push({ id: 'sums', levels: [{ id: row.id }], links: [{ from: content.levels[0].id, to: row.id }] })
-  const runtime = await runtimeOf(content)
-  const spec = runtime.spec(content)
-  assert.equal(spec.specs.length, 2)
-  assert.equal(spec.specs[0].course, spec.specs[1].course)
-  assert.equal(spec.course.before(content.levels[0].id, row.id), true)
-  assert.deepEqual((await runtime.validate(spec)).filter((line) => line.fail), [])
-  const ctx = { level: { source: row.tasks[0] } }
-  assert.equal(runtime.play.attempt(ctx, '2 + 3').pass, true)
-  assert.equal(runtime.play.attempt(ctx, '5 + 0').pass, false)
-})
-
-
-test('tasks of different mechanisms retain their positions inside one level', async () => {
-  const content = readStarter(resolve(import.meta.dirname, '../../../../games/kit/templates/circuit'))
-  const row = { id: 'starter/addition', kind: 'rows:equation', brief: 'Make five.', rows: [{ total: 5, chips: [2, 3], reference: '2 + 3', naive: '2 + 2' }] }
-  content.levels[0].tasks.push(row)
-  const runtime = await runtimeOf(content)
-  const spec = runtime.spec(content)
-  assert.equal(spec.course.levels.length, content.levels.length)
-  assert.deepEqual(spec.levels[0].tasks.map(task => task.taskId ?? task.key ?? task.id), content.levels[0].tasks.map(task => task.id))
-  assert.equal(spec.specs[0].course, spec.specs[1].course)
-  const rows = spec.specs[1].levels[0].tasks[0].source
-  assert.equal(rows.task, 1)
-  assert.deepEqual((await runtime.validate(spec)).filter(line => line.fail), [])
-})
-
-
-
 test('local belongs to the introducing level and does not suppress a later permanent introduction', () => {
   const content = sample()
   content.levels[1].adds = ['local']

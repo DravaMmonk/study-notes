@@ -3,7 +3,7 @@ import { runBoard } from "./boards.js"
 import { isGrid } from 'kernel'
 
 
-import { inOrder, sameAs, ticks } from 'kernel'
+import { inOrder, sameAs } from 'kernel'
 
 
 import { runTests } from 'kernel'
@@ -23,18 +23,6 @@ export function outputJudge(ports, expect, { same, show = valueText, says = () =
     at: port.name,
     why: (want, got) => says(port, want, got) ?? { relation: 'output', subject: port.label, show },
   })))
-}
-
-export function tickJudge({ show = valueText, ...options }) {
-  return ticks({
-    ...options,
-    why: (port) => ({ relation: 'output', subject: port.label, show }),
-  })
-}
-
-export function tickReport(steps, fail) {
-  if (!fail) return { ticks: steps }
-  return { ticks: steps.map((step) => step.tick === fail.at.tick ? { ...step, failed: fail } : step), fail }
 }
 
 export function onceRun({ same = (a, b) => a === b, show = valueText, tolerance, says } = {}) {

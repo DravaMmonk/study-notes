@@ -39,7 +39,7 @@ export async function gameOf(content, { view = false } = {}) {
   await serve()
   const root = contentRoots.get(content) ?? contentRoot()
   const plugins = (await import('./plugin-node.js')).loadPlugins
-  const kernel = await plugins(content, root, file => server.ssrLoadModule(file), view)
+  const kernel = await plugins(content, root, file => server.ssrLoadModule(file), true)
   const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
   const vocabulary = contentSchemas.get(content)
   const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))

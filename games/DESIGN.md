@@ -202,13 +202,14 @@
 
 ## 6. 引擎：内核与内容
 
-包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，其余五个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
+包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–7 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，`rows`、`tick-bus` 已成为依赖 `circuit` 的独立包，其余三个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
 
 | 位置 | 职责 |
 |---|---|
 | `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
-| `kit/modules/<模块>/` | 尚未迁出的 rows、tick-bus、image、logic、table |
+| `kit/modules/<模块>/` | 尚未迁出的 image、logic、table |
 | `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
+| `packages/rows/`、`packages/tick-bus/` | 等式行、逐拍总线的核心、视图、字段声明和普通起步对象 |
 | `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
 | `kit/strip/`、`kit/shell/`、`kit/views/` | 外壳、通用呈现，以及尚待所属模块迁出的编辑部件 |
 | `kit/templates/<模板>/starter/` | 复制起步的内容，不被依赖 |
@@ -376,7 +377,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 - 外壳通过游戏的 `shell`、`settings`、`mapBadges`、`referenceName`、`describeObservation`、`composeModules` 接口挂载包行为，引用显示器由 `display` 登记元数据定义。元件册、工坊、元件奖励、连接标签设置和元件样式归包。`Workbench`、`Library`、运行控件、存档上下文和输入交互是共享布局部件。
 - 基线观察由含义对象的 `baselineCourse`、`baselineStructure`、`baselineRecords`、`baselineReports` 提供，继续比较完整作品、顺序、结果和轨迹。引擎工具保存通用快照与差异算法。
 
-临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/{rows,tick-bus,image,table,logic}` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
+临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/{image,table,logic}` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
 包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
 
 ### 6.4 参数台
@@ -417,7 +418,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 |---|---|---|---|---|---|
 | 数据流电路 | 把元件接成一块板，输入一次流到输出 | 输入定了结果就定了的东西：图像处理的流水线、逻辑门、公式变换、协议头的字段 | `packages/circuit/core/circuit.js`、`packages/circuit/core/boards.js`（封装元件）、`packages/circuit/core/board/`、`view/board/`（蓝图文本和编辑器）、`packages/circuit/view/CircuitLevel.jsx` | 《证明完毕》的真值电路、《视觉完备》和 COMP90086 的图像电路；脚手架的 `circuit` 模板 | 机器人电路也使用 `CircuitScreen`，见逐步机器 |
 | 逐步机器 | 搭一块板，机器按顺序在每一格、每一行、每一轮上跑它一遍 | 一张表一格格填（动态规划）、逐行处理、一轮轮调用（agent 循环） | `packages/circuit/core/machine.js`（`walk`）、`CircuitScreen`、`shell/usePlayback.jsx` | 《状态之图》（机器人填表） | 内核负责装配与步进。表格模块提供世界、传感器选项和状态，作者检查与玩家共用逐格判定 |
-| 逐拍总线 | 搭一块每拍跑一遍的板，几个节点共用一根线，寄存卡跨拍保存 | 状态随时间变：时序逻辑、总线和链路协议、计时和重传 | `packages/circuit/core/ticks.js`、`boards.js` 的 `holds`、`shell/Timeline.jsx`、`CircuitLevel`；脚手架 `tick-bus` | `tick-bus` 入门游戏 | 有脚手架覆盖基本收发和寄存器 |
+| 逐拍总线 | 搭一块每拍跑一遍的板，几个节点共用一根线，寄存卡跨拍保存 | 状态随时间变：时序逻辑、总线和链路协议、计时和重传 | `packages/tick-bus/core/ticks.js`、`boards.js` 的 `holds`、`shell/Timeline.jsx`、`CircuitLevel`；脚手架 `tick-bus` | `tick-bus` 入门游戏 | 有脚手架覆盖基本收发和寄存器 |
 | 框 | 在元件的区域里摆元件，区域给出局部的值，只能在框里用 | 局部假设与作用域：假设推理、函数体、循环体 | `packages/circuit/core/board/frames.js`（`framePart`），两个编辑器和 `model.js` 管区域 | 《证明完毕》的假设框、消去框 | 只在一个模块用过；它是电路上的一项，不单独成模板 |
 | 词序条 / 分析 | 往一排类型化的位置里点词，或把一行词折成结构 | 写出或拆开一段有结构的文字：公式、证明项、句子 | `kit/strip/`（词序条） | 《证明完毕》拼公式、`rows` 入门游戏写等式 | 界面共用，内容由模块的语言与判定给出 |
 | 填表 | 逐行写一张表，每格一个编辑器 | 写清单式的规格：检验条例、情形、规则行 | `shell/RowTable.jsx`、`shell/FormFields.jsx` | 《证明完毕》的检验条例 | 内核按模块提供的列与值编辑器装配 |
@@ -438,7 +439,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 7. 要练的是不是判断别人的东西对不对？是：用纠错玩法，在给定的几块板上运行自己写的检验。
 8. 机器出现之前，玩家是不是该先自己当一回机器？是：手动关，放在机器那一章之前。
 
-以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有模板为 `circuit`、`rows`、`tick-bus`、`image`、`logic`、`table`。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
+以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有模板为 `circuit`、`image`、`logic`、`table`。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
 
 ### 6.6 play 钩子（盲玩暂停）
 
@@ -1106,3 +1107,17 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 包与平台的版本统一为 `0.0.0`，包、游戏和起步内容中的依赖范围统一为 `^0.0.0`。工作区源目录是当前实现的唯一版本。解析器检查依赖集合和范围，源目录及本地平台的锁定哈希变化不阻止检查、组装或构建。从发布库解析的归档继续检查锁定的版本与内容哈希，归档本身继续校验归档哈希。`deps -- lock` 显式刷新锁定快照。
 
 `publish` 默认拒绝执行，首发时显式使用 `npm run publish -- <包|kernel> --launch`。这个开关启用已有的检查、契约验证和发布流程，第一次发布自动选择 `1.0.0`。兼容性预览继续返回改动级别、受影响的包和游戏及候选版本 `proposed`，`next` 为 `null`，预览不写版本。
+
+### Step 7 package boundary
+
+`rows` owns addition work parsing, judging and tree presentation. `tick-bus` owns line arbitration,
+the two-phase tick runner, tick reports, textual tick play and bus cards. Both depend directly on
+`circuit` at `^0.0.0`; no installed game or other content package currently consumes either mechanism.
+The package examples retain their local object/task ids and use `play: rows:equation` or `tick-bus:board`.
+The copied examples have no package course. Remaining native templates migrate with their mechanisms.
+
+Task field declarations may specify `play` with `extends: task`. These fields extend only that play's
+generic task branch; required fields remain required. Unscoped extensions still apply to every task and
+reject redefinitions. This lets a native task and a package task use different schemas for a field such as
+`rows`. Display discovery resolves each package independently, rather than combining unrelated schemas.
+Node's package preload installs the same public dependency map used by content loading.

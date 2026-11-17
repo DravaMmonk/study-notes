@@ -5,3 +5,5 @@ registerHooks({ resolve(specifier, context, next) { return next(entries[specifie
 // Child check and contract processes inherit the same public import environment.
 const preload = `--import=${new URL(import.meta.url).pathname}`
 if (!(process.env.NODE_OPTIONS ?? '').includes(preload)) process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} ${preload}`.trim()
+const { installPackageImports } = await import('./plugin-boundaries.js')
+installPackageImports()

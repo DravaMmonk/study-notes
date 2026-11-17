@@ -2,7 +2,7 @@
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { dirname, join } from 'node:path'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { cpSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { proofsRoot } from './ops/fixture.js'
 import { openGame } from './ops/workspace.js'
 import { runChangeset } from './ops/changeset.js'
@@ -33,13 +33,15 @@ test('three packages compose across logic, image and rows, retain layered text a
     tasks: [{ id: 'same', kind: 'image:graph', brief: '@brief', scene: 'image:scene-filter', setup: { target: 'image:target-same' },
       tests: [{ label: 'Square', in: 'image:picture-square' }], hidden: [{ label: 'Disk', in: 'image:picture-disk' }], solution: ['out <- in'] }],
   })
-  put('packages/sums/package.json', { version: '1.0.0', kernel: '^0.0.0', uses: { 'z-pictures': '^1.0.0' } })
+  for (const side of ['core', 'view', 'kinds']) cpSync(new URL(`../../../packages/rows/${side}`, import.meta.url), join(root, 'packages/rows', side), { recursive: true })
+  put('packages/rows/package.json', { version: '0.0.0', kernel: '^0.0.0', uses: { circuit: '^0.0.0' } })
+  put('packages/sums/package.json', { version: '1.0.0', kernel: '^0.0.0', uses: { 'z-pictures': '^1.0.0', rows: '^0.0.0' } })
   put('packages/sums/i18n/en.json', { title: 'A sum', brief: 'Complete the sum.' })
   put('packages/sums/overrides/z-pictures/i18n/en.json', { brief: 'Keep every pixel.' })
-  put('packages/sums/levels/add.json', { title: '@title', tasks: [{ id: 'add', kind: 'rows:equation', brief: '@brief', rows: [{ total: 5, chips: [0, 2, 3], reference: '2 + 3', naive: '0 + 3' }] }] })
+  put('packages/sums/levels/add.json', { title: '@title', tasks: [{ id: 'add', play: 'rows:equation', brief: '@brief', rows: [{ total: 5, chips: [0, 2, 3], reference: '2 + 3', naive: '0 + 3' }] }] })
   // Select packages through the public operation boundary; no image-only game fields are needed.
   const selected = await runChangeset(openGame(id, root), { ops: [
-    { op: 'game.package.add', package: 'z-pictures', range: '^1.0.0' }, { op: 'game.package.add', package: 'sums', range: '^1.0.0' },
+    { op: 'game.package.add', package: 'rows', range: '^0.0.0' }, { op: 'game.package.add', package: 'z-pictures', range: '^1.0.0' }, { op: 'game.package.add', package: 'sums', range: '^1.0.0' },
     { op: 'chapter.set', chapter: 'ground', path: 'levels', value: [`${id}/given`, `${id}/apply`, `${id}/suppose`, 'z-pictures/same', 'sums/add'] },
   ] }, { write: true })
   assert.equal(selected.ok, true, selected.problems.join('\n'))

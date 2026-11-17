@@ -109,9 +109,6 @@ export { placement } from './board/model.js'
 export { feeding } from './board/model.js'
 export { columnDepths } from './board/layout.js'
 export { INPUTS } from './board-cards.js'
-export { tickPlay } from './play.js'
-export { tickJudge } from './circuit-run.js'
-export { tickReport } from './circuit-run.js'
 export { circuitRuntime } from './circuit-preset.js'
 export { preparePartsWorks } from './board-works.js'
 export { workshopTrayNames } from './trays.js'
@@ -257,7 +254,6 @@ export { paramsOf, formOf, formed } from './forms.js'
 export { traceSteps, viewAt, insideAt } from './trace.js'
 export { curve } from './wires.js'
 
-export { drive, hearing, boardNode, runTicks } from './ticks.js'
 
 export { tableAt, MAX_ROUNDS, walk } from './machine.js'
 

@@ -11,7 +11,7 @@ export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 
 export const KIND_DECLARATION = S.obj({
   folder: S.opt(S.str({ pattern: '^[a-z][a-z0-9-]*$' })),
   schema: S.opt(S.any()), extends: S.opt(S.oneOf(['level', 'task'])),
-  fields: S.opt(S.map(S.any())), references: S.opt(S.list(S.str())),
+  fields: S.opt(S.map(S.any())), play: S.opt(S.str({ reference: 'play' })), references: S.opt(S.list(S.str())),
   relations: S.opt(S.map(S.obj({ from: S.str(), to: S.str() }))),
   declares: S.oneOf(['package', 'game']),
   overrides: S.map(S.list(S.str()), { keys: '^(package|game)$' }),
@@ -44,6 +44,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
   for (const [name, d] of Object.entries(raw)) {
     const errors = validate(KIND_DECLARATION, d)
     if (errors.length) throw new Error(`${name}: ${JSON.stringify(errors)}`)
+    if (d.play && d.extends !== 'task') throw new Error(`${name}: play scopes a task extension`)
     if (d.extends ? !d.fields || d.schema || d.folder : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
     if (!d.extends && Object.values(definitions).some(other => other.folder === d.folder)) throw new Error(`${name}: duplicate object folder ${d.folder}`)
     if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'chapters', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
@@ -73,12 +74,39 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     if (!level) level = generic
     else level = S.obj({ ...generic.fields, ...level.fields, tasks: S.list(S.either(level.fields.tasks.of, task), { min: 1 }) })
   }
-  for (const d of Object.values(definitions).filter(d => d.extends)) {
+  const extensions = Object.values(definitions).filter(d => d.extends)
+  for (const d of extensions.filter(d => !d.play)) {
     if (d.extends === 'level') level = extend(level, d.fields)
     else {
       const tasks = s => s.type === 'either' ? { ...s, of: s.of.map(tasks) } : !s.fields.tasks ? s : { ...s, fields: { ...s.fields, tasks: { ...s.fields.tasks, of: extend(s.fields.tasks.of, d.fields) } } }
       level = tasks(level)
     }
   }
+  // Scoped task fields form their own play branch, so unrelated plays may use the same field name.
+  for (const d of extensions.filter(d => d.play)) {
+    const tasks = s => {
+      if (s.type === 'either') return { ...s, of: s.of.map(tasks) }
+      if (!s.fields.tasks) return s
+      const shape = s.fields.tasks.of
+      const branches = shape.type === 'either' ? shape.of : [shape]
+      const generic = branches.find(branch => branch.fields?.play?.type === 'str')
+      if (!generic) throw new Error(`${d.play}: task extension needs a generic play task`)
+      const own = extend({ ...generic, fields: { ...generic.fields, play: S.oneOf([d.play], { reference: 'play' }) } }, d.fields)
+      return { ...s, fields: { ...s.fields, tasks: { ...s.fields.tasks, of: S.either(...branches, own) } } }
+    }
+    level = tasks(level)
+  }
+
+  const scoped = extensions.filter(d => d.play).map(d => d.play)
+  if (scoped.length) {
+    const exclude = schema => {
+      if (schema.type === 'either') return { ...schema, of: schema.of.map(exclude) }
+      if (schema.fields?.play?.type === 'str') return { ...schema, fields: { ...schema.fields, play: { ...schema.fields.play, pattern: `^(?!(?:${scoped.join('|')})$).+` } } }
+      if (!schema.fields?.tasks) return schema
+      return { ...schema, fields: { ...schema.fields, tasks: { ...schema.fields.tasks, of: exclude(schema.fields.tasks.of) } } }
+    }
+    level = exclude(level)
+  }
+
   return { ...vocabulary, level, kindPolicies: { ...BUILTIN_POLICIES, ...definitions }, objectKinds: definitions }
 }

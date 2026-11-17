@@ -26,7 +26,7 @@
 - No short-name conventions or `templates` reader exist. Any object can be copied as a new object;
   curated starts are ordinary tags. Studio must connect typed tag selection/URLs and the single merged
   `kernel/studio-left` collection; an empty collection falls back to all populated object types.
-  Leave that UI integration to its owner. Legacy `kit/templates/` remains until step 7; its data uses collection fields and standalone chapters.
+  Leave that UI integration to its owner. Remaining native `kit/templates/` entries migrate with their mechanisms; rows/tick-bus examples now live in their packages.
 - Use `text` as the smallest working example. Create an independent package with `new-package --from text`;
   new code and registration names need review, copied content still follows the operation workflow.
 - Package core contracts run in Node and check their own examples and blind-play agents. View contracts run
@@ -59,7 +59,7 @@ supplies shell panels/actions, settings, map rewards, reference display metadata
 A view receives `context` and `phone` alongside task/work state. Studio's current editors remain usable through
 the same schemas and operation metadata; moving the specialized editors into the package is step 11.
 
-Only `engine/circuit-bridge.js` (logic symbol grants) and the five remaining native modules' public circuit
+Only `engine/circuit-bridge.js` (logic symbol grants) and the three remaining native modules' public circuit
 imports are temporary bridges. Remove them as their consumers move in steps 7–10. Synthetic kernel tests
 install explicit circuit fixtures. Baseline observers are provided by kind meanings and compare full reports.
 
@@ -79,3 +79,14 @@ tag-move assertion were mechanically updated in Studio tests.
 
 Game configuration collections have the same audit shape in `sources.game["@<game>/config"].collections`.
 The shell reads section member lists directly so list order reaches the displayed encyclopedia.
+
+## Step 7 extracted mechanisms
+
+`rows` and `tick-bus` register their plays through package core/view entries. Their ordinary sample levels
+and bus parts live at package root, with no chapters or course. Both declare `uses.circuit: ^0.0.0`.
+Only image, table and logic retain native circuit import bridges.
+
+`kinds/*.json` task extensions can include `play: <package>:<play>`. Scoped fields form their own generic
+play-task branch after common extensions; unscoped fields retain strict no-redefinition behavior.
+This preserves distinct native/package schemas for the same field name. Display discovery resolves each
+package separately; public package imports are available in Node through `package-imports.mjs`.

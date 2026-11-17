@@ -40,3 +40,5 @@ export { centerIn, pointIn } from './coordinates.js'
 import { displays as screenDisplays } from './mechanism/displays.js'
 import { displays as layoutDisplays } from './mechanism/bench.jsx'
 export const displays = { ...screenDisplays, ...layoutDisplays }
+export { default as PartFace } from './parts/PartFace.jsx'
+export { circuitSettings } from './settings.js'

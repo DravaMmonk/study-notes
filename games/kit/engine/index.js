@@ -69,3 +69,9 @@ export { getAt, parsePath, showPath } from './ops/edit.js'
 export { assertStableIds, setAt, unsetAt } from './ops/identity.js'
 export { taskModule } from './runtime-model.js'
 export { TASK_BOARD_SECTIONS } from './plays.js'
+
+export { judgeWorks } from './authoring.js'
+export { judgeFor, playFor, definePlays } from './plays.js'
+export { holeTree } from '../strip/tree.js'
+
+export { callOf } from "./schema.js"
