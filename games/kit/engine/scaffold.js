@@ -4,7 +4,7 @@ import { packageDirectory } from './resolver.js'
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { contentRoot, gameDirectory, readContent, readPackage, contentVocabulary } from './resolver.js'
+import { contentRoot, gameDirectory, isDataGame, resolveLayers, readContent, readPackage, contentVocabulary } from './resolver.js'
 import { vocabulary } from './kernel.js'
 import { runtimeIds } from './runtime.js'
 import { expandNames } from './names.js'
@@ -12,10 +12,10 @@ import { firstText } from './i18n.js'
 import { courseLevelCount } from './content.js'
 import { writeJson } from './ops/json.js'
 
-const TEMPLATES = (root) => resolve(root, 'games/kit/templates')
+const TEMPLATES = resolve(import.meta.dirname, '../templates')
 
 /** The mechanisms the scaffold has a template for (games/DESIGN.md 6.5 says what each suits). */
-export const templates = (root = contentRoot()) => readdirSync(TEMPLATES(root)).filter(name => existsSync(resolve(TEMPLATES(root), name, 'starter/package.json')))
+export const templates = () => readdirSync(TEMPLATES).filter(name => existsSync(resolve(TEMPLATES, name, 'starter/package.json')))
 
 const fail = (text) => {
   throw new Error(text)
@@ -36,7 +36,7 @@ function fill(from, to, words) {
 const gameText = (value, lang) => value?.[lang] ?? firstText(value)
 
 function register(root, id, content) {
-  const file = resolve(root, 'games', 'games.js')
+  const file = resolve(gameDirectory('', root), 'games.js')
   const text = readFileSync(file, 'utf8')
   const end = text.lastIndexOf('];')
   if (end < 0) fail(`${file} has no list of games to add to`)
@@ -65,7 +65,7 @@ function gameRefused(root, id) {
   const dir = gameDirectory(id, root)
   if (existsSync(dir) && readdirSync(dir).some((name) => !isDocs(name))) return `games/${id} is there already`
   if (existsSync(packageDirectory(id, root))) return `packages/${id} is there already`
-  if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
+  if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
   return null
 }
 
@@ -83,8 +83,8 @@ export function newPackage({ root = contentRoot(), id, template, from, empty = f
     }
     return target
   }
-  if (!templates(root).includes(template)) fail(`no template ${template} in kit/templates`)
-  const starter = resolve(TEMPLATES(root), template, 'starter')
+  if (!templates().includes(template)) fail(`no template ${template} in kit/templates`)
+  const starter = resolve(TEMPLATES, template, 'starter')
   const packageDir = packageDirectory(id, root)
   if (existsSync(packageDir)) fail(`packages/${id} is there already`)
   mkdirSync(packageDir, { recursive: true })
@@ -100,7 +100,7 @@ export function newGame({ root = contentRoot(), id, template, title = id }) {
   const refused = gameRefused(root, id)
   if (refused) fail(refused)
   newPackage({ root, id, template, title })
-  const starter = resolve(TEMPLATES(root), template, 'starter')
+  const starter = resolve(TEMPLATES, template, 'starter')
   const dir = gameDirectory(id, root)
   mkdirSync(dir, { recursive: true })
   const words = { 'starter/': `${id}/`, __title__: JSON.stringify(title).slice(1, -1) }
@@ -135,19 +135,17 @@ export function gameOnPackage({ root = contentRoot(), id, from, title }) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a game id is lowercase letters, digits and dashes: ${id}`)
   const dir = gameDirectory(id, root)
   if (existsSync(resolve(dir, 'game.json'))) fail(`games/${id} is there already`)
-  if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
-  const source = gameDirectory(from ?? '', root)
-  if (!from || !existsSync(resolve(source, 'game.json'))) fail(`no game ${from} to take the course settings from`)
-  const { packages } = JSON.parse(readFileSync(resolve(source, 'game.json'), 'utf8'))
-  const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = JSON.parse(readFileSync(resolve(source, 'course.json'), 'utf8'))
+  if (readFileSync(resolve(gameDirectory('', root), 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
+  if (!from || !isDataGame(from, root)) fail(`no game ${from} to take the course settings from`)
+  const { packageIds: packages, files, layers } = resolveLayers({ game: from, root })
+  const { chapters = [], optional: _optional, skippable: _skippable, ...settings } = files['course.json']
   const { levels: _, rows: __, ...chapter } = chapters[0] ?? { id: 1 }
   const course = { ...settings, chapters: [{ ...chapter, levels: [] }] }
   const words = { zh: typeof title === 'string' ? title : title?.zh ?? id, en: typeof title === 'string' ? title : title?.en ?? id }
   mkdirSync(dir, { recursive: true })
   mkdirSync(resolve(dir, 'i18n'), { recursive: true })
   const keys = refs(course)
-  for (const [lang, file] of readdirSync(resolve(source, 'i18n')).filter((f) => f.endsWith('.json')).map((f) => [f.slice(0, -5), resolve(source, 'i18n', f)])) {
-    const theirs = JSON.parse(readFileSync(file, 'utf8'))
+  for (const [lang, theirs] of Object.entries(layers.at(-1).catalogs)) {
     const own = Object.fromEntries([...keys].filter((key) => Object.hasOwn(theirs, key)).map((key) => [key, theirs[key]]))
     own['game.title'] = words[lang] ?? words.en
     own['game.kicker'] = lang === 'zh' ? '开发中' : 'In development'
