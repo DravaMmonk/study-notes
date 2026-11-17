@@ -3,6 +3,7 @@
 // fails one, and every part a level builds is that level's last board: it reads exactly the part's ports, and the part
 // alone, wired to the level's sensors, passes the task's tests and fills the same table, cell by cell.
 
+import { handExamples, judgeHand } from './model/hand-verdict.js';
 import { sameJson } from '../../engine/json-value.js';
 import { inspectRobotCase, robotConstraint, runRobotCase } from './model/verdict.js';
 import { playOf } from './plays.js';
@@ -34,6 +35,11 @@ export function validate({ levels, table }) {
         runs++;
         if (s.tests.every((_, i) => inspectRobotCase(run, s, s.naive, i).ok) && !robotConstraint(s, s.naive)) bad(L.id, `${where}: its naive board passes every test`);
       }
+    }
+    for (const s of tasks.filter(x => playOf(x).editor !== 'circuit')) {
+      const examples = handExamples(s);
+      const reference = judgeHand(s, examples.reference), naive = judgeHand(s, examples.naive);
+      out.push({ level: L.id, text: `${L.id} task ${s.taskId}: ${s.mode} reference ${reference.pass ? 'PASS' : 'FAIL'}, naive ${naive.pass ? 'PASSES (bad)' : 'fails'}`, fail: !reference.pass || naive.pass });
     }
     const builder = L.builds && tasks.find(s => s.taskId === L.builds.task);
     if (builder?.solution && playOf(builder).editor === 'circuit') checkBuilt(L, builder);
