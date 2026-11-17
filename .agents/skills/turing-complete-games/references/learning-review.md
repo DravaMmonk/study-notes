@@ -30,7 +30,7 @@ model. Inspect desktop and phone flows when visual presentation or interaction m
 `npm run pipeline -- <game> pedagogy` reports machine-observable candidates; a clean exit does not establish
 teaching quality. `npm run pipeline -- <game> terminology --json` checks the existing registry and reports literal
 matches for review. Explain findings with the affected task and evidence; route an absent display or model capability
-to the domain rather than assuming copy alone can provide it.
+to the owning package for implementation.
 
 For a complex task, an optional worksheet records: task, prior knowledge, new meaning or representation,
 observable action, support available before use and a transfer case. When an existing pipeline asks for findings,

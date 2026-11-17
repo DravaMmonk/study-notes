@@ -1,43 +1,14 @@
-# Circuit and logic extraction audit
+# 内核与机制边界核对
 
-## Step 10 boundary
+当前架构见 `games/DESIGN.md` 第 6 节。
 
-All gameplay providers are packages: circuit, rows, tick-bus, image, table and logic.
-State-graph owns its concrete table worlds/robots; QED owns reading dictionaries and its illustration.
-Every package imports only public kernel/dependency exports. Core never imports view.
+- 机制提供者均为包，核心与视图分目录，外部只使用公开导出。
+- `circuit` 持有元件、发放、阶段、托盘、工坊、电路与编辑器。
+- `logic` 持有符号、公式、证明与符号编辑器，使用 `grants.register` 登记可发放符号。
+- `state-graph` 持有具体世界、机器人与课程玩法，`table` 提供通用表格模型和注入式场景绘制。
+- `qed` 持有词典对象、投影与插画。
+- 内核维护平台、流程、注册表和 Studio 外壳。包专用 schema、运行时、编辑器、分组与预览经登记进入。
+- 小示例归包的测试夹具，内核测试显式安装机制；新包复制已有包或从空包起步。
+- 历史基线的归一化规则只适用于冻结语料，按 `engine/baseline.md` 维护。
 
-Removed native paths and entries:
-
-- `games/kit/modules/logic/**` and the now-empty modules directory.
-- `engine/circuit-bridge.js`, including kernel/resolver invocation.
-- `engine/content-kinds.js`, its native symbol/wordset catalog and dedicated symbol authoring/search.
-- Kernel's logic module/vocabulary registration, native runtime/game/Studio preparation dispatch,
-  native display bundle glob, `game-module.js`, and logic baseline report dispatch.
-- Circuit's symbol observation and logic-family-specific symbol handling. Generic grant registration
-  handles all provider types; logic owns symbol work readers and baseline structure.
-
-Logic registers `logic/symbol` with circuit's public `grants.register` inside its own register.
-QED's kind is `qed/wordset`; symbol/tag file paths follow their declared folders and full kind names.
-
-## Remaining bridges
-
-None in kernel production code. `engine/baseline-value.js` retains only documented frozen-corpus
-name/type/palette normalization. Synthetic tests may install package entries explicitly.
-Copy starters remain under templates until the authoring/template migration; they are data, not native runtimes.
-
-## Studio handoff
-
-`games/kit/studio/**` is untouched, including tests. Its imports of retired `content-kinds.js`
-and its native symbol selectors/types must migrate to package declarations/editors in step 11.
-The owner must update `copy.js`, `object-types.js`, `object-file.js`, `SymbolEditor.jsx` and dependent tests.
-Kernel/application bridges now load only package core/view entries.
-
-## Reproducible scan
-
-```sh
-rg -n 'modules/logic|circuit-bridge|content-kinds|registerCircuitConsumers|legacyModules' games/kit/engine games/kit/app -g '*.js' -g '*.jsx' -g '*.mjs'
-find games/kit/modules -type f
-```
-
-The production scan should have no matches, apart from synthetic test inputs if explicitly retained.
-The modules directory should not exist. Studio's retired imports are recorded separately, never patched here.
+在 `trace-viewer/` 运行 `npm run test:zero`，确认内容根隔离、全部内核测试、空内容检查、Studio 空状态、独立包工作区与最小文字游戏的桌面和手机流程。

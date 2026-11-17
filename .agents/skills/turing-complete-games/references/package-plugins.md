@@ -1,143 +1,46 @@
-# Package plugins
+# 包插件
 
-`games/MODULES.md` is the migration authority. Handbook §6.3.1 describes the implemented protocol.
+当前协议以 `games/DESIGN.md` 第 6.3、6.3.1 节为准。
 
-- `core/index.js` and `view/index.jsx` each export `register(kernel)`. Check, baseline and blind play load
-  only core; Vite game and Studio loaders load both in `uses` order. Never import view code from core.
-- Core registers `play`, `kind`, `state`, `check`, `agent`, arbitrary typed objects with `object(kind, fullName, value = {})`, and named tag readers with `tag(fullName, member)`; tag names use `<package>/<name>`, with one member type.
-  View registers paired `play`, `editor`, `display`. Other protocol names are `<package>:<name>`; duplicate entries fail.
-  Play core owns `initial/read/write/normalize/run/judge`; view owns `component/preview/modes`.
-- Public imports are `kernel` and `kernel/view`; direct dependency exports are `<package>` and
-  `<package>/view`. Package-local imports remain inside that side, or view may import its own core.
-  No dependency internals, transitive dependency authority, computed imports, JSX/CSS/UI libraries in core.
-- Object declarations are data in `kinds/<name>.json`: `folder`, JSON `schema`, optional `references`,
-  `relations`, `declares`, `overrides`, `text`, `studio`. Field extensions use `extends: level|task` and `fields`.
-  Use `kind.put/set/remove` and `object.put/set/remove`; never write content JSON by hand.
-  Kind full names use `<package>/<kind>`; tags use `tags/<package>/<kind>/<name>.json`.
-- Tags use the composite key `<member>:<namespace>/<name>` in `registries.tag`, `content.tags`,
-  `sources.tag`, and `kernel.tables.tag`; `overrideHistory` tag events carry `name` and `member`.
-  Use public `tagKey(member, fullName)` or `objectOf(content, 'tag', fullName, member)`.
-  References stay `#<namespace>/<name>` and resolve in the field's member type; unconstrained collisions fail.
-- Core registers `kernel/studio-left` with member `kind`. Packages contribute through
-  `overrides/kernel/tags/kind/studio-left.json`; `kernel` cannot name a package. Own declarations use
-  `tags/<member>/<name>.json`, foreign contributions use `overrides/<namespace>/tags/<member>/<name>.json`.
-  Use `values: { add: [...] }` to union contributions, `remove` to subtract, and an array to replace.
-  Member provenance lives in `sources.tag[key].collections.values`. A contribution needs an exact typed owner declaration or registered reader.
-- No short-name conventions or `templates` reader exist. Any object can be copied as a new object;
-  curated starts are ordinary tags. Studio must connect typed tag selection/URLs and the single merged
-  `kernel/studio-left` collection; an empty collection falls back to all populated object types.
-  Leave that UI integration to its owner. Remaining native `kit/templates/` entries migrate with their mechanisms; rows/tick-bus examples now live in their packages.
-- Use `text` as the smallest working example. Create an independent package with `new-package --from text`;
-  new code and registration names need review, copied content still follows the operation workflow.
-- Package core contracts run in Node and check their own examples and blind-play agents. View contracts run
-  through Vite, including assembly with another package. Kernel tests use synthetic content. Run `npm test`,
-  `npm run lint:kit`, `npm run words -- --check`, builds, and `baseline -- compare` for migration work.
-  Never save over the locked migration corpus. Workspace source changes do not invalidate locks. Refresh locks to record current snapshots. Archive dependencies retain strict version/hash pins. Publication requires `publish -- <package|kernel> --launch`; compatibility previews expose a proposed version without writing it. Versions remain `0.0.0` and ranges `^0.0.0` before launch. Publication computes semantic versions from manifests and dependent check observations; vocabulary has no separate version line. See DESIGN.md 6.1.1 for release metadata and Studio data sources.
-- Installed layers enter through `engine/resolver.js:resolveLayers`; content roots and source/code locations belong
-  to that resolver. Game consumers use resolved public data. The workspace existence projection is
-  `engine/existence.js:publicSurfaces`, backed by installed declarations and registered object readers. The same check covers schema refs,
-  overrides, tag contributions, relation endpoints, trays/grants and package selections; code registrations count
-  for every object type. Preserve `{ rule: "exists", at, layer, kind, target, member?, reason, says }` in reports.
-  Missing targets are diagnostics, not separate loader exceptions. Tag copy uses `@tag.<name>.title/desc`.
-- Native consumers use the public circuit work reader until their extraction in steps 7–10.
-  Keep a single implementation of each reader and judge.
+## 入口与登记
 
+| 入口 | 登记 |
+|---|---|
+| `core/index.js` | `play`、`kind`、`state`、`check`、`agent`、`object`、`tag` |
+| `view/index.jsx` | 配对 `play`、`editor`、`display` |
 
-Circuit owns its content semantics through `kind` meanings. The kernel stores typed registries and interprets
-schemas. Meanings supply qualification, nested identities, reference indexes/matching, assembly/source serialization,
-validation and stamps. `derived` fields are excluded from source serialization. Custom relation endpoints
-come from declaration `relations`. Circuit declares `circuit/part`, `circuit/tray` and `circuit/quote`.
+两边导出 `register(kernel)`，按直接 `uses` 的拓扑顺序加载。检查、基线与文字试玩只加载核心；游戏和 Studio 加载两边。玩法核心提供 `initial/read/write/normalize/run/judge`，视图提供 `component/preview/modes`。视图组件接收 `task/work/onChange/state/context/phone`。
 
-Course dependency inference, supplies, native work readers and runtime selection are meaning hooks.
-`state`, `check` and paired `play` registrations own derived availability, verdicts and work execution.
-Kernel progress only performs task/level transitions. Authoring projections, part operations, flow/dependency
-and rendering tools live in circuit and enter the shared operation/tool framework through meaning hooks.
-The public grant registry remains `grants.register({ type, used })` for its native consumers.
+公开导入为 `kernel`、`kernel/view`、`<包>`、`<包>/view`。核心仅访问无界面接口与本核心，视图可访问本核心。包不能访问依赖的内部文件或传递依赖。核心的 import、re-export、动态导入、require 由同一 AST 规则检查。判定保持确定性。
 
-Shared shell components own layout, interaction, run controls and save-slot context. Circuit's game definition
-supplies shell panels/actions, settings, map rewards, reference display metadata and observation descriptions.
-A view receives `context` and `phone` alongside task/work state. Studio's current editors remain usable through
-the same schemas and operation metadata; moving the specialized editors into the package is step 11.
+## 数据与含义
 
-No native circuit consumer bridge remains after step 10. Synthetic kernel tests
-install explicit circuit fixtures. Baseline observers are provided by kind meanings and compare full reports.
+`kinds/<名>.json` 声明 `folder/schema/declares/overrides/references/relations/text/studio`。结构、字段扩展、层权限属于数据，含义通过 `kind` 登记。
 
-## Step 6 collection and Studio handoff
+字段扩展用 `extends: level|task`。任务可用 `play` 限定分支，也可提供共用 `fields` 与 `schema` 判别树。展开到各分支后检查重复与必填字段。
 
-Schemas use `{ type: "set"|"list", of: { type: "str", reference: "<kind-or-group>" } }`.
-`edges` uses `of: { type: "obj", fields: { from: <reference>, to: <reference>, ... } }` as produced by `S.edges`.
-The kernel composes fields, checks references and cycles, and records contributors. There are no per-kind merge hooks.
-Package kinds require `declares` and `overrides`; vocabulary returns `kindPolicies` for workspace filtering.
+标签使用 `tagKey(member, fullName)`，注册表与来源表均使用相同复合键。代码读者登记本包标签及成员类型，内核登记 `kernel/studio-left` 的 `kind` 集合。贡献沿 `overrides/<命名空间>/tags/<成员类型>/` 写入。所有外部目标须由声明或代码登记提供，统一存在性检查报告。
 
-Read `registries.game["@<game>/config"]`, `registries.chapter` and `content.chapters` for authoring; `eras` remains the runtime route projection.
-Use `chapter.put/set/remove` for chapter files, `text.set` with a chapter selector for chapter copy, `game.set` for chapter order and encyclopedia section order, `tag.set` for set values,
-`section.set` or `object.set` for ordered members, and `relation.set` for edges.
-`override.put` writes field patches in its data. Use list arrays for drag reorder and collection patches for foreign contributions.
-Dedicated Studio controls remain with the Studio owner. Only schema fixtures, sorted expectations and the retired
-tag-move assertion were mechanically updated in Studio tests.
+`set/list/edges` 按字段 schema 合并、检查并记录来源。`list` 拖动写数组，外部贡献可用增删与定位插入补丁。章和游戏配置使用同一注册表，章序、关序与百科顺序分别存于自己的列表。
 
-Game configuration collections have the same audit shape in `sources.game["@<game>/config"].collections`.
-The shell reads section member lists directly so list order reaches the displayed encyclopedia.
+## 含义钩子
 
-## Step 7 extracted mechanisms
+- 内容生命周期包括 `vocabulary/names/identities/indexes/matches/assemble/source/override/validate/stamp`。`derived` 列出派生字段，序列化只写声明。
+- 课程含义提供 `dependencies/plan/supplies/readWorks/taskModule/runtimeIds/scope`。内核推进任务与关卡，包派生可用状态、读取作品并判定。
+- 作者适配提供 `workspace/operations/selector/textTarget/sourceArguments/search/tools/dependencyGraph/renderWork`。操作集按类型 CRUD，包扩展自己的操作与工具。
+- 外壳扩展通过 `shell/settings/mapBadges/referenceName/describeObservation/composeModules` 提供。元件册、工坊、奖励与电路设置由 `circuit` 持有。
+- 基线观察通过 `baselineCourse/baselineStructure/baselineRecords/baselineReports` 提供。平台保留通用快照和差异算法。
 
-`rows` and `tick-bus` register their plays through package core/view entries. Their ordinary sample levels
-and bus parts live at package root, with no chapters or course. Both declare `uses.circuit: ^0.0.0`.
-Logic now registers through its own core/view entries; no native import bridge remains.
+## Studio
 
-`kinds/*.json` task extensions can include `play: <package>:<play>`. Scoped fields form their own generic
-play-task branch after common extensions; unscoped fields retain strict no-redefinition behavior.
-This preserves distinct native/package schemas for the same field name. Display discovery resolves each
-package separately; public package imports are available in Node through `package-imports.mjs`.
+包的 `view/register` 用 `editor` 提供对象类型的分组、编辑器与独立预览；玩法视图提供关卡预览与编辑模式。内核维护工作区、三栏、辅助抽屉、通用 schema/JSON 编辑、章、路线图、文案、覆盖审计和日志。列表默认类型来自合成后的 `kernel/studio-left`，个人选择存在浏览器。
 
+`circuit/view` 提供元件、托盘和阶段链，`logic/view` 提供符号编辑器并复用阶段链。文案定位和对象路径依 schema、声明目录与全名处理。
 
-## Step 8 extracted image mechanism
+## 检查与发布
 
-`image/core` registers graph, probe and parameter-bench plays and shares the existing production
-work readers with checks, package play, blind play and baseline observations. `image/view` pairs
-all three plays and registers their displays. View definitions receive `{ kernel, vocabulary }`
-as their third argument so bench layouts use the assembled display registry.
-Vision-specific scenes, bench models and displays register through vision-complete's core/view
-entries. Its catalog is an assembly-derived value, never a process-global extension of image.
-Comp90086 and vision-complete own independent power/box kinds and namespaced folders.
-Circuit and logic copy starters remain separate from runtime registration. Package contracts use synthetic levels.
+`resolveLayers` 是内容的唯一加载入口。`GAMES_ROOT` 指定独立内容工作区。公开身份由 manifest 与代码登记提供，问题保留 `object`、`path` 等结构化位置。
 
-The vocabulary tool sends object declarations once in `objectKinds`, policy fields in `kindPolicies`,
-and the projected vocabulary separately. Schema alternatives try matching literal discriminators
-first and stop after a valid branch. Invalid values retain the complete original diagnostic selection.
-Configuration-file ownership is validated after selected core entries register their fields.
+包契约在 Node 检查核心、观察和动作，通过 Vite 检查视图配对及跨包组装。内核使用小夹具，真实内容各自独立 `check`。`npm run test:zero` 检查空内容、空 Studio 与最小文字游戏；首次安装 Chromium。
 
-
-Scoped task declarations may combine shared `fields` with a `schema` discriminator tree.
-The platform extends every branch with those fields and the common task identity/play fields,
-rejecting redefinitions. Image graph scenes use this to retain correlated setup/test schemas
-without repeating common graph fields in every declaration.
-
-State-graph also selects image explicitly to preserve its historical standalone package palette,
-which exposed the global image primitive inventory before extraction. This dependency preserves
-the locked package observations. The corresponding game selects the complete closure.
-
-
-Kind-declaration discriminator schemas may provide shared `fields` beside `cases`.
-Registration expands them into every object branch and rejects collisions. Bench declarations
-share their layout, knob and goal schemas this way. Source declarations retain their compact form.
-Resolved layers are reused when listing games and loading package code. Unchanged source files
-reuse parsed import metadata while dependency authority is checked on every call. Quick previews
-reuse their computed changes when rendering a diff and preserve unchanged JSON containers directly.
-
-
-Step 9 moves the table model and injected scene renderer to table, and all concrete worlds, robots,
-course/manual plays and observers to state-graph. Both import only public circuit/kernel exports.
-State-graph task schemas select registered `play` names and use `panel` for demonstrations. The
-core circuit adapter accepts explicit wiring/placement functions, shared by Node agents and the view.
-Nested schema alternatives are flattened before selecting the generic task fields for scoped declarations.
-Table provides no course-specific play or extra object kind; its tests run a synthetic world directly.
-
-## Step 10: logic provider
-
-Logic's core registers its plays, checks, agent hooks, vocabulary meaning and `logic/symbol` grants.
-Its view registers the matching play components; all imports use `kernel`, `kernel/view`, `circuit`
-or `circuit/view`. QED owns its dictionary kind (`qed/wordset`), reading projection, hero registration
-and illustration generator. The kernel has no native module list, schema catalog, dynamic module
-loader or baseline logic branch. The generic single-level shell obtains defaults from kind meanings.
-Only direct, used dependencies belong in `uses`; games explicitly select their full closure.
+迁移对比用 `baseline -- compare`。上线前版本为 `0.0.0`，范围为 `^0.0.0`。源目录锁定允许哈希变化，归档严格校验。发布须显式 `--launch`，版本由工具计算。发布格式与边界见手册第 6.1.1 节。

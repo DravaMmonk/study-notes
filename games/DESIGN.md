@@ -1,6 +1,6 @@
 # 类图灵完备游戏设计手册
 
-这份手册适用于建在共享 kit（`games/kit`）上的所有游戏，包括已有的《视觉完备》《状态之图》《证明完毕》、COMP90086 笔记交互及以后的新游戏。各游戏自己的设计文档（例如 `games/vision-complete/DESIGN.md`）记录本专题的内容；本手册汇总设计经验、现有引擎结构和自动检查；教学设计建议供判断参考，具体实现及检查行为单独说明。
+这份手册适用于建在共享 kit（`games/kit`）上的所有游戏，包括已有的《视觉完备》《状态之图》《证明完毕》、COMP90086 笔记交互及以后的新游戏。各游戏自己的设计文档（例如 `games/vision-complete/DESIGN.md`）记录本专题的内容；本手册是当前架构的唯一手册，汇总设计经验、引擎结构和自动检查；教学设计建议供判断参考，具体实现及检查行为单独说明。
 
 **目标**：引擎和视图做好以后，作者只需填入一个专题的教学内容，学习者就能用《图灵完备》的方式学会它：从少量能力起步，用预设承载固定计算，亲手设计有实现选择的组合，逐层建立可复用的机器。
 
@@ -12,7 +12,7 @@
 
 这些是辅助判断的经验，不是关卡的验收模板。面向具体主题、玩家和用户要求选择合适的形式；不要为了满足条目制造关卡、限制解法或掩盖更好的设计。自动检查的现有行为见第 5 节：检查结果是需要理解和处理的工程事实，并不代替教学判断。
 
-- **让玩家在行动中理解问题。** 从领域目标和学习者已有知识出发，选择构建、实验、观察、调试、推理或其他适合的互动；让玩家能从材料和反馈得到作答所需的证据。
+- **让玩家在行动中理解问题。** 从专题目标和学习者已有知识出发，选择构建、实验、观察、调试、推理或其他适合的互动；让玩家能从材料和反馈得到作答所需的证据。
 - **把复杂问题拆到可理解。** 看实际的概念、表示、约定和推理负担，再决定一个任务、一组任务还是几关。简单内容可以直接说明；难点可用对比、支架、反例和逐步组合引入。数量和顺序由学习价值决定。
 - **让课程有方向。** 按依赖组织能力和应用；对于确实独立的内容，可用并行路线。让玩家理解为什么需要新能力，以及以前学到的东西在哪里继续有用；不强求每个主题都表现成一台机器。
 - **保留有意义的选择。** 规格和测试描述要解决的问题，让不同正确方案成立。工具、预设和提示服务于知识目标，是否让玩家自行实现、实验或直接使用，要看它带来的学习价值。
@@ -42,9 +42,9 @@
 
 游戏只检查它选入的关；没选入的关和在那里打开的百科不进入这款游戏。托盘上的元件或阶段有没有关带来，只在完整选入相关包的游戏上判断。`primitives`、`views`、`words`、`open` 等开局设置归游戏；`adds`、`local` 归关卡或任务，`replaces` 归包的关系。游戏只能覆盖文案和关卡关系，不能改关卡内容、元件、阶段、标签或托盘；行为不同就建一个依赖原包的新包。
 
-**包没有课程。** 它可以只有元件，也可以只有依赖别包的关卡。包检查逐关独立运行；单关试玩使用这一关的托盘和任务，没有章、解锁和进度。不写托盘时提供全部件和阶段。内核的 `package-play.js` 提供临时单关运行壳，不生成可保存的包课程。
+**包没有课程。** 它可以只有元件，也可以只有依赖别包的关卡。包检查逐关独立运行；单关试玩使用这一关的托盘和任务，没有章、解锁和进度。电路玩法不写托盘时提供全部可发放对象和阶段。内核的 `package-play.js` 提供临时单关运行壳，不生成可保存的包课程。
 
-**存档按任务记。** `kit/shell/progress.js` 保存关卡通过记录和成绩，以及按任务全名保存的板、存档槽、通过记录和发布作品。任务可以重排、移到另一关，记录仍跟着任务走；id 一经建立不能改。`kit/engine/stamp.js` 按任务的谜题、测试及元件定义计算戳，文案和版面不参与；谜题改变时清理对应任务，元件定义变化可使全部任务失效。开发阶段不要求存档迁移。
+**存档按任务记。** `kit/shell/progress.js` 保存关卡通过记录和成绩，以及按任务全名保存的作品、存档槽、通过记录和发布作品。任务可以重排、移到另一关，记录仍跟着任务走；id 一经建立不能改。`kit/engine/stamp.js` 按任务数据和包提供的 `stamp` 计算戳，文案和版面不参与；谜题改变时清理对应任务，玩法定义变化按包的戳规则使任务失效。开发阶段不要求存档迁移。
 
 ### 2.1 机体与时代
 
@@ -88,7 +88,7 @@
 
 ### 2.8 一关手里有什么
 
-**进度给默认，任务再增删。** `packages/circuit/core/course.js` 和 `course-model.js` 用一个课程模型计算所有玩法的可发放对象、托盘和作品，不按领域另算。
+**进度给默认，任务再增删。** `packages/circuit/core/course.js` 和 `course-model.js` 按登记的对象类型计算可发放对象、托盘和作品。
 
 - **托盘**是 `trays/<名>.json` 的对象，关卡或任务用 `tray` 引用。实际可用的是托盘成员与已解锁能力的交集；参考解用到的元件和 `featuredParts` 进入主区，其余折进「更多」。菜单、标题和工坊开关属于托盘，不从标签猜。
 - **开放的单位是可发放对象或阶段。** 元件和符号都已登记，对象本身是第一阶段，`stages` 依次列后续阶段（第 6.8 节）。引用元件就是引用第一阶段，引用后续阶段会就地升级同一张卡。没有 `元件.设置`、`元件.设置=取值` 的派生项。
@@ -110,12 +110,12 @@
 | 输入元件 | 电路板上固定的输入，按传感器的种类分（《状态之图》：视野、本格信息），不能放也不能删。元件一开始没有输出口；学习者点一个传感器（在元件上，或在输入窗口里），元件就多一个读它的输出口，再点一下就去掉 | `packages/table/core/model/parts.js` 的输入元件（读到的传感器存在 `params.picks`）；kit 的 `parts.outputs` 支持一个元件多个输出 |
 | 原始元件 | 课程起点，内部不在本专题关心的范围 | 课程声明的 `primitives`（`games/kit/course.js`） |
 | 中层元件 / 封装元件 | 学习者搭出、解锁后当一个元件用，打开能看里面 | `parts/<名>.json` 的 `inside` 存自带参考作品的版本，任务通过 `publishes` 声明它发布的元件版本（课程钩子 `needs` / `builds`）；`packages/circuit/core/boards.js` 的 `packed` 把通关时记下的电路当一个元件跑 |
-| 规格 | 传感器、输出、测试、隐藏测试 | 各游戏的关卡数据（数据游戏：`levels/<id>.json`，字段由内核词汇表给出 schema） |
-| 参考解 / naive 解 | 证明规格可解 / 证明直觉解法不够 | 数据游戏写成蓝图文本；`npm run check` 运行它们（各模块的 `validate`） |
+| 规格 | 传感器、输出、测试、隐藏测试 | 各游戏的关卡数据（数据游戏：`levels/<id>.json`，字段由内核和包声明的 schema 校验） |
+| 参考解 / naive 解 | 证明规格可解 / 证明直觉解法不够 | 数据游戏写成蓝图文本；`npm run check` 运行它们（包的 `check` 和运行时判定） |
 | 反例 | 失败时具体的那组输入、期望、实际，以及第一处偏离 | 各游戏的失败面板（《状态之图》能定位到第一格算错） |
 | 代价 | 元件数、求值步数、读取次数、表的大小 | `kit/engine/test-run.js` 的 `score` 钩子；《视觉完备》算计算量 |
 | 世界 | 机体工作的地方：一张图、一张表、一排房子 | `packages/state-graph/core/model/worlds/`；《视觉完备》测试数据 |
-| 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | 内核提供空注册表，各包经 kind meaning 投影自身的能力声明 |
+| 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | 内核提供空注册表，各包经 `kind` 含义投影自身的能力声明 |
 
 ---
 
@@ -135,24 +135,24 @@
 
 #### 关卡数据与玩法
 
-以下字段和玩法描述当前实现；具体字段由内核词汇表决定：
+以下字段和玩法描述当前实现；基本字段由内核 schema 定义，玩法字段由包声明：
 
 **常见内容：**
 
 - **目标**：描述任务及所需条件。
 - **传感器和输出**：读什么，写什么。
-- **测试**：选取有代表性的例子和边界；领域可支持隐藏测试。
+- **测试**：选取有代表性的例子和边界；玩法可支持隐藏测试。
 - **参考解和 naive 解**：当前检查会运行参考解及提供的 naive 解；检查行为见第 5 节。
-- **新元件和托盘**：不写可用元件（之前出现或搭出的元件自动带过来）；只写这一关新带来的原始元件（`adds`），游戏有几套托盘时用 `tray` 写这一关选用的分组，单个名称或按顺序排列的名称列表。参考解用到的元件和 `featuredParts` 指定的可用元件放在主区，其余可用元件折叠。一个任务要比默认多拿或少拿几项（元件、设置、取值），写 `grants`、`withhold`；一项设置或取值要到某一关才出现，在那一关的任务上写 `opens`（第 2.8 节）。
+- **新元件和托盘**：不写可用元件（之前出现或搭出的元件自动带过来）；只写这一关新带来的原始元件（`adds`），游戏有几套托盘时用 `tray` 写这一关选用的分组，单个名称或按顺序排列的名称列表。参考解用到的元件和 `featuredParts` 指定的可用元件放在主区，其余可用元件折叠。一个任务要比默认多拿或少拿几项（元件、设置、取值），写 `gives`、`withholds`；一项设置或取值要到某一关才出现，在那一关的任务上写 `opens`（第 2.8 节）。
 - **预置**（可选）：板上一开始就摆好的元件，或拼好的一段电路（`preset`，取参考解里的几个元件及其外层框：它们之间、它们和关卡给的输入输出之间的线一起摆上）。玩家能挪动这些元件（只在它所在的区域里），不能删，也不能改这些线；预置元件空着的口由玩家接。元件上的设置默认由玩家改，每个预置元件可以单独固定它的设置：全部（`{ id, fixed: true }`），或其中几项（`fixed: [设置名]`），固定的设置在元件上只显示、不能改。用在一关的谜题围着一块现成的东西转的时候：别人给的证明器，摆在板上让玩家接上核去查它。
 - **产出**（如果有）：通过后解锁的元件和它的接口（板上的输入就是它的输入口）。
 - **提示**：按需要提供观察方向、支架或示例。
 - **过关点题**：解释玩家理解的领域知识、作用及适用范围，参照下方文案建议。
 - **按电路图检验**（可选的玩法，所有游戏都能用，和拼电路并列）：关卡不让玩家从空板拼起，而是给出几块电路（`play` 加 `boards: [{ label?, board }]`），每块就是一个测试案例，测试条上的标签就是它们，点一个标签，画布上就换成那一块；运行时逐块检验。标签用共用的 `TestTabs`，放在和拼电路关的测试一样的位置：桌面在测试条的头部，手机在界面顶部（滚动区之外）。
-  - **纠错**（`play: 'audit'`）：每块电路固定、不能改，各错在一处。玩家改的是这一关的一份配置（领域给出它的编辑器：《证明完毕》是一张检验条例表，写下手里有哪些证明、按需求该不该证得出），一块电路在这份配置上暴露出错误，这个测试就通过。配置本身要合需求（期望写错时停下并指出哪一条不符），所以不能靠乱填过关；配置越小越好。判定有三种（关卡的 `want`）：默认是**抓住**（至少一处和预期不符）；**相符**（`want: 'agree'`：每一处的结果都和预期相符，用来练「怎样检验一块对的电路」）；**全部暴露**（`want: 'expose'`：每一处都和预期不符）。配置可以事先摆好几条（《证明完毕》的 `slots: [条例]`），每条写明哪些格子已经填好、不能改（`fixed`），或者一格里哪几项必须留着、玩家还能再加（《证明完毕》条例的 `keep`：前提里固定有某一句），玩家只填空着的格子；全部填好的那几条不用运行，一开始就显示结果。电路也可以是玩家在先修关里自己拼的那块（`carry`：那一关的 id；没有存档时用那一关的参考解）。
-  内核的 `kit/shell/plays/BoardChecks.jsx` 组合规则行、检验条例表、作品保存、测试标签（`TestTabs`）和逐块回放（`usePlayback`）。领域给出被检验作品的展示、条例字段和判定报告。作者检查和界面回放使用同一份报告，先检查条例有没有写完、预期是否正确，再检验给出的声明。恢复作品时，固定格与必保留前提以关卡为准；参考条例按同样的字段约束检查。题目可以直接取参考解的 naive 解，或参考解各改错一处（变异）。
+  - **纠错**（`play: "logic:audit"`）：每块电路固定、不能改，各错在一处。玩家改的是这一关的一份配置（包提供它的编辑器：《证明完毕》是一张检验条例表，写下手里有哪些证明、按需求该不该证得出），一块电路在这份配置上暴露出错误，这个测试就通过。配置本身要合需求（期望写错时停下并指出哪一条不符），所以不能靠乱填过关；配置越小越好。判定有三种（关卡的 `want`）：默认是**抓住**（至少一处和预期不符）；**相符**（`want: 'agree'`：每一处的结果都和预期相符，用来练「怎样检验一块对的电路」）；**全部暴露**（`want: 'expose'`：每一处都和预期不符）。配置可以事先摆好几条（《证明完毕》的 `slots: [条例]`），每条写明哪些格子已经填好、不能改（`fixed`），或者一格里哪几项必须留着、玩家还能再加（《证明完毕》条例的 `keep`：前提里固定有某一句），玩家只填空着的格子；全部填好的那几条不用运行，一开始就显示结果。电路也可以是玩家在先修关里自己拼的那块（`carry`：那一关的 id；没有存档时用那一关的参考解）。
+  `logic` 包的检验界面 组合规则行、检验条例表、作品保存、测试标签（`TestTabs`）和逐块回放（`usePlayback`）。包提供被检验作品的展示、条例字段和判定报告。作者检查和界面回放使用同一份报告，先检查条例有没有写完、预期是否正确，再检验给出的声明。恢复作品时，固定格与必保留前提以关卡为准；参考条例按同样的字段约束检查。题目可以直接取参考解的 naive 解，或参考解各改错一处（变异）。
 - **填表格**（可选的玩法部件，所有游戏共用）：玩家逐行填写的表（《证明完毕》的检验条例）用 `kit/shell/RowTable.jsx`。桌面上直接在表格里改：能改的列给出就地编辑器（列的 `edit(row, set, k)`：游戏自己的编辑器，或 `FormFields.jsx` 里的小号字段 `InlineChoice`；《证明完毕》的前提和目标是一句话，点开后在旁边的提示框里用填句子条拼），行尾 × 删除，表下的小按钮添一行空的。手机上表格本身只显示，列表式的列（`align: 'start'`）靠左，其余列和列头居中，放在固定窗口里可以左右滚动，每列按文字撑宽、超过约 16 个字才换行，每行加高便于点按，添加按钮是表下一个大按钮。桌面上是紧凑的表，添加按钮是表下一个小的虚线按钮。手机上点一行就弹出这一行的底部单子，和别的弹窗（假设框等）一样：改了立即生效，没有保存按钮，× 或点遮罩关闭，底部一个「删除」；「添加」先添一行空的再打开它的单子。游戏只给出列（`columns`）和表单的字段（`form(row, set, k)`、新行 `blank()`），字段用共用的 `kit/shell/FormFields.jsx`：`Field`（带标签的一块，里面放游戏自己的编辑器）、`ChoiceField`（几项并排的按钮选一项）。`fixed`：行数事先定好（关卡预先摆好几行空的），不能添加也不能删除，只能填写。手机上表格下方提示一句「点按任意一行即可修改」（`tip` 可以换成游戏自己的说法）。运行结果这类只读的列，由游戏在单元格里显示，表单不管。
-- **一关是一串任务。** 一关说一次的东西（标题、引言、点题、带来和搭出的元件）写在关上，谜题（目标、提示、板的口、测试、参考解和 naive 解）是它的任务（`tasks`，至少一个），按顺序做：前一个通过才能做下一个，最后一个过了才算过关。只有一个任务的关就是普通的一关，任务条不显示；关长出第二个任务，就是在列表里加一个。词汇表用 `kit/engine/tasks.js` 的 `taskLevel(一次的字段, 任务的字段)` 写一关的 schema，模块读一关时用 `taskLevels(关)` 一个任务一个任务地读（每个任务是关的字段上盖着任务自己的字段），外壳也这样玩（`kit/shell/GameShell.jsx`）；搭出的元件跑它发布的 variant 所指的通过作品。拆成几个任务用在同一个问题换一种机器再做一遍的时候，比如骑士与无赖先把岛民的话翻译成真值电路，再用证明器证出来；也用在同一个想法用到两处的时候，比如《视觉完备》的补边，先给平移补边，再给滤波补边，不拆成两关。每个任务有 id（`id`）：整款游戏里唯一，也不能是别的关的 id；只有一个任务的关通常就用关的 id，新任务由操作集起名（`<关>_<n>`，建立后 id 不再更改）。玩家存下的东西按任务 id 记（`kit/shell/progress.js`：每个任务的板、通过了哪些任务），所以任务在关内换位置、插进新的、挪进别的关，板和通过与否都跟着它走；几关合成一关就是把任务挪过去、删掉空了的关。任务有名字（`step`，写在任务条上）；前一个任务搭出的能力，后一个可按发布和奖励取得（`publishes`、`awards`），整关通过才作为解锁列出；从上一个任务的板接着做的写 `carries`。每个任务的点题（任务的 `after`）只说这一个任务得到了什么，可以带出下一个要做的事，但不透露它的做法。一个任务要交代新东西（新元件、新规则、上一个任务留下的问题）时，写自己的引言（任务的 `intro`）：第一次做到它时弹出，之后随时能从引言按钮重看；第一个任务的引言接在整关引言后面。各模块的关卡都是这个形状，内核里只有这一种关卡遍历（`taskLevel` 是内核词汇表里唯一的关卡 schema，契约检查）：一关的玩法（`kind`、`mode`）写在任务上，几种玩法就是任务的 `S.by`，判别可以再套一层（《视觉完备》先按 `kind` 再按 `scene`，《状态之图》先按 `mode` 再按 `world`）。《状态之图》原来的「阶段」就是任务：一个阶段一个任务，接着上一阶段的板做的写 `carries`。模块读课程时不往内容里写（检查、操作集和开发页面都把内容深冻结了再读），它推出来的东西另起对象。
+- **一关是一串任务。** 一关说一次的东西（标题、引言、点题、带来和搭出的元件）写在关上，谜题（目标、提示、板的口、测试、参考解和 naive 解）是它的任务（`tasks`，至少一个），按顺序做：前一个通过才能做下一个，最后一个过了才算过关。只有一个任务的关就是普通的一关，任务条不显示；关长出第二个任务，就是在列表里加一个。词汇表用 `kit/engine/tasks.js` 的 `taskLevel(一次的字段, 任务的字段)` 写一关的 schema，包读一关时用 `taskLevels(关)` 一个任务一个任务地读（每个任务是关的字段上盖着任务自己的字段），外壳也这样玩（`kit/shell/GameShell.jsx`）；搭出的元件跑它发布的 variant 所指的通过作品。拆成几个任务用在同一个问题换一种机器再做一遍的时候，比如骑士与无赖先把岛民的话翻译成真值电路，再用证明器证出来；也用在同一个想法用到两处的时候，比如《视觉完备》的补边，先给平移补边，再给滤波补边，不拆成两关。每个任务有 id（`id`）：整款游戏里唯一，也不能是别的关的 id；只有一个任务的关通常就用关的 id，新任务由操作集起名（`<关>_<n>`，建立后 id 不再更改）。玩家存下的东西按任务 id 记（`kit/shell/progress.js`：每个任务的板、通过了哪些任务），所以任务在关内换位置、插进新的、挪进别的关，板和通过与否都跟着它走；几关合成一关就是把任务挪过去、删掉空了的关。任务有名字（`step`，写在任务条上）；前一个任务搭出的能力，后一个可按发布和奖励取得（`publishes`、`awards`），整关通过才作为解锁列出；从上一个任务的板接着做的写 `carries`。每个任务的点题（任务的 `after`）只说这一个任务得到了什么，可以带出下一个要做的事，但不透露它的做法。一个任务要交代新东西（新元件、新规则、上一个任务留下的问题）时，写自己的引言（任务的 `intro`）：第一次做到它时弹出，之后随时能从引言按钮重看；第一个任务的引言接在整关引言后面。所有包的关卡都是这个形状，内核里只有这一种关卡遍历（`taskLevel` 是内核词汇表里唯一的关卡 schema，契约检查）：任务用 `play: "<包>:<玩法>"` 选择玩法；包在任务字段声明中用 `play` 限定 schema，也可用判别树描述不同配置。《状态之图》原来的「阶段」就是任务：一个阶段一个任务，接着上一阶段的板做的写 `carries`。包读课程时不往内容里写（检查、操作集和开发页面都把内容深冻结了再读），它推出来的东西另起对象。
 
 **文案建议。** 引言交代情境、必要的术语和假设，任务说明目标，提示依据玩家需要提供观察方向或适当支架。通关文字围绕问题的原理、名称、作用和边界展开；对多解问题，不把一种参考解说成玩家的做法。深度和篇幅按内容决定，适度示例或公式可服务于理解。
 
@@ -170,19 +170,21 @@
 
 ## 5. 规则与自动检查
 
-内核检查技术正确性和课程能否玩通：schema、引用、依赖和覆盖、端口与运算的值类型、设置、参考解通过、naive 解失败、作品实现无环、解锁可达和托盘上的元件或阶段有关带来。教学质量由关卡作者和评审判断。
+内核检查内容结构、依赖和课程可达性；玩法包检查作品、参考解与 naive 解。教学质量由作者和评审判断。
 
-| 检查 | 实现 |
+| 提供者 | 检查 |
 |---|---|
-| 元件存在，非原始元件在可用之前已由先修关搭出 | `not-built`、`own-level`、`built-later` |
-| 可选关的作品只供依赖它的关使用，重复发布遵守先修链 | `optional-built`、`upgrade-order` |
-| 关卡有课程位置，机体已可用且能执行所需机制 | `unplaced`、`machine`、`mechanism` |
-| 沿用作品的来源关是先修，托盘成员和阶段确实被引入 | `carry-unseen`、`tray-unmet` |
-| 引用存在、标签和关系无环、覆盖来源明确、游戏仅覆盖文案和关卡关系 | 对象和内容检查 |
-| 章的路线图一行最多三个位置，后置关在前置关之后 | 游戏 `chapter` 对象的 `rows` 检查 |
-| 元件的行为与签名一致，参考解通过、naive 解失败 | 元件契约和逐任务检查 |
+| 内核 | schema、引用、直接依赖、锁定、覆盖冲突、层权限、id 不变、包代码边界 |
+| 内核 | `set`、`list` 不重复，`edges` 和标签嵌套无环，标签成员类型与消歧 |
+| 内核 | 任务与关卡解锁可达，章的 `rows` 一行至多三个位置，后置关排在前置关之后 |
+| 包 | 参考解通过、naive 解失败、作品和玩法的一致性 |
+| `circuit` | 端口与运算类型、设置、封装作品、发放、阶段、托盘引入来源与沿用依赖 |
 
-`npm run check` 在 `trace-viewer` 目录运行。技术问题可暂记在游戏 `course.json` 的 `open` 工作单；新问题或已解决但未移除的工作单项目使检查失败。包检查不生成课程，逐关独立验证。教学建议不进入 `open`，也不影响 check 的通过与否。
+**存在性检查只有一份。** `engine/existence.js` 按 schema 收集字段引用、覆盖目标、集合补丁的成员与边、标签、包登记的发放引用及依赖选择，对照 manifest 的公开身份与代码登记表检查。目标须由所属命名空间声明或由代码登记。加载和引用展开只处理结构、集合与成环，存在性问题统一汇总。
+
+问题保留 `rule`、`layer`、`kind`、`target`、`member?`、`reason`、`at`、`says`，另有 `object: { kind, name, member?, override? }` 与 `path`。存在性问题的 `rule` 为 `exists`，`reason` 为 `missing`、`ambiguous` 或 `undeclared dependency`。`name` 是对象全名，标签带成员类型；覆盖位置设 `override: true`，覆盖目标本身的 `path` 为空串。字段路径如 `tasks[0].solution`；配置位置如 `{ kind: "package", name: "example" }` 与 `uses[0]`。同一原始字段只报告一次，不同对象、成员类型和字段分别报告。Studio 直接使用结构化位置。
+
+在 `trace-viewer/` 运行 `npm run check -- <游戏>` 或 `npm run check -- --package <包>`。包逐关独立检查，游戏另查编排和进度。省略目标时查全部游戏及未被游戏选用的包。空内容工作区也能执行。技术问题可记入游戏 `course.json` 的 `open` 工作单，新问题和已解决而未移除的项目使检查失败；教学建议由评审处理。
 
 ### 5.1 关卡开发规范
 
@@ -202,26 +204,31 @@
 
 ## 6. 引擎：内核与内容
 
-包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–10 步已完成。所有玩法均由包提供，内核没有玩法模块、原生词汇表登记或跨包桥接。`circuit`、`rows`、`tick-bus`、`image`、`table`、`logic` 通过公开接口组合；课程专用部分分别属于各内容包。Studio 的专用编辑器交接属于第 11 步。
+| 层 | 职责 | 位置 |
+|---|---|---|
+| 内核 | 平台、游戏流程、插件协议 | `games/kit/`，`trace-viewer/` 的命令和页面 |
+| 包 | 机制与内容，可带代码 | `packages/<包>/` |
+| 游戏 | 选包、章、路线图、文案和允许的关系覆盖 | `games/<游戏>/`，纯数据 |
+
+**内核留平台和流程。** 平台负责命名空间、对象注册表、读写、组装、覆盖、来源、操作集、日志与撤销、检查框架、兼容性、文案和 Studio 外壳。游戏流程负责地图、任务导航、主区挂载点、检验与结果、通关解锁、任务和关卡进度、存档槽位、试玩入口、主题、语言和手机布局。作品格式、派生状态、运行与判定由包提供。
+
+**机制归包。** 板、元件、接线、值类型、运算、证明、表格、实验台、托盘、阶段、工坊及其视图都由包实现。一个包可同时提供机制和内容。被依赖的包承担库的角色。只有一个包使用的实现留在该包，出现第二个消费者时再提到被依赖的包。包之间通过 `uses` 和覆盖组合。
 
 | 位置 | 职责 |
 |---|---|
-| `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
-| `packages/logic/core/`、`view/`、`kinds/` | 公式、证明核、合一、证明机、规则书、符号与对应视图 |
-| `packages/qed/core/`、`view/`、`kinds/` | QED 词典配置、地图插画及专用对象类型 |
-| `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
-| `packages/rows/`、`packages/tick-bus/` | 等式行、逐拍总线的核心、视图、字段声明和普通起步对象 |
-| `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
-| `kit/strip/`、`kit/shell/`、`kit/views/` | 外壳、通用呈现，以及尚待所属模块迁出的编辑部件 |
-| `kit/templates/<模板>/starter/` | 复制起步的内容，不被依赖 |
-| `packages/<包>/` | 对象、依赖、文案、覆盖；可带 `core/`、`view/` 机制代码 |
-| `games/<游戏>/` | 选包、课程、入口文案和允许的覆盖 |
+| `kit/engine/`、`kit/course.js` | 内容、解析器、注册表、通用路线拓扑、检查和操作集 |
+| `kit/shell/`、`kit/views/`、`kit/strip/` | 外壳、布局、表单、通用显示和输入组件 |
+| `kit/studio/` | 工作区、资源列表、schema 编辑、文案、编排、审计与日志 |
+| `kit/app/` | Node/Vite 加载、构建、内容资源、Studio HTTP 适配 |
+| `packages/<包>/core/` | 玩法、作品格式、含义、派生状态、检查、盲玩和无界面导出 |
+| `packages/<包>/view/` | 主区、预览、专用编辑器、显示、样式与图标 |
+| `packages/<包>/kinds/` 及对象目录 | 对象类型、字段扩展和内容数据 |
 
-参考解、naive 解、预置板和玩家蓝图共用 `packages/circuit/core/board/text.js`。端口名、设置值和蓝图标识用 ASCII，符号放在标签里；内容全名接受 `/`，能力名用 `:`。框与区域、端口接线、电路运行报告、封装作品和失败位置由 `circuit` 处理。判定使用播种的随机数，不读时钟或未播种随机数；模块实现走代码审查，内容不能写函数或计算脚本。
+添加玩法或专题时在包中实现。内核随平台或游戏流程的需要修改。仓库目前保持合一，平台独立成仓库待定。
 
 ### 6.1 内容：对象、依赖和覆盖
 
-**命名空间和全名。** 包的对象全名是 `<包>/<名>`；游戏自有文案用 `@<游戏>/<键>` 的命名空间，避免同名游戏和包混淆。在声明文件内引用本包可写短名，引用别包写全名；标签引用前加 `#`。文案字段的 `@` 是引用标记，例如游戏文案组装为 `@@qed/chapter.paper.title`。组装后模块、检查、页面和存档都读全名。
+**命名空间和全名。** 包的对象全名是 `<包>/<名>`；游戏自有文案用 `@<游戏>/<键>` 的命名空间，避免同名游戏和包混淆。在声明文件内引用本包可写短名，引用别包写全名；标签引用前加 `#`。文案字段的 `@` 是引用标记，例如游戏文案组装为 `@@qed/chapter.paper.title`。组装后包、检查、页面和存档都读全名。
 
 每种对象一张注册表，名字在同种里唯一。标签的成员种类写进路径；标签身份是「成员类型 + 全名」，不同成员类型可以同名。组装后用 `registries.tag[tagKey(member, fullName)]`（键为 `<成员类型>:<全名>`）读取；`content.tags`、`sources.tag` 同键，`overrideHistory` 的标签事件携带 `member`。引用仍写 `#<命名空间>/<名>`，在字段期望的成员类型里查找；不限成员类型时，同名多类型报歧义。元件和它的阶段也共用名字空间。
 
@@ -247,13 +254,13 @@
 
 关系文件写 `{ kind, edges: [{ from, to, required?, game? }] }`。`requires` 的 `edges` 是 `edges<level>`，`replaces` 是 `edges<circuit/part>`。先修关系的标签端点按集合边界连接。内核统一检查集合成员引用、重复、标签嵌套环和有向环。Studio 用 `orderedMembers(content, ids, kind)` 按先修和名字排列分组成员，标签名称按全名排列。
 
-**依赖。** `package.json` declares `version`, a `kernel` range, and direct `uses` as a range map. 包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；The first key in the ordered `packages` map selects the primary package. Selection order does not change topological loading.
+**依赖。** `package.json` 声明 `version`、`kernel` 范围和直接 `uses` 范围表。 包只可引用自身和直接依赖的对象，依赖不传递授权、不成环。游戏 `game.json` 的 `packages` 必须列全依赖闭包，至少一个包。加载按依赖拓扑排序，平局按包名，游戏最后；`packages` 的第一项是主包，选择顺序与拓扑加载顺序分别保存。
 
 **解析和公开面。** `engine/resolver.js` 的 `resolveLayers` 是读取游戏、包和依赖的唯一入口，产出拓扑排序的层；检查、操作集、Studio 服务端、构建、单关试玩、基线和 MCP 共用。内容根目录由解析器解释：默认当前工作区（从 `trace-viewer/` 运行时取其父目录），可传 `root` 或用 `GAMES_ROOT` 覆盖。平台的安装位置不决定内容位置。游戏工作区只消费解析后的公开数据，依赖并发校验也重新解析层，不扫描包的内部文件。Vite 从已解析层取得代码入口。
 
-**要先存在。** `engine/existence.js` 按 schema 的 `ref`、`name`、`level`、`task`、`call`、`reference` 类型遍历字段、分支、列表和映射键，再收集覆盖目标、标签及其增删成员、关系端点、托盘与发放成员、`uses` 和游戏 `packages`。展开前保留贡献目标，检查对照 `publicSurfaces` 中所属命名空间的声明和代码登记身份；覆盖本身不能证明目标存在。公开面现在来自工作区层，第 4 步由 manifest 提供，检查不访问文件系统。缺失、歧义、未声明依赖共用 `{ rule: "exists", at, layer, kind, target, member?, reason, says }`，`reason` 为 `missing`、`ambiguous` 或 `undeclared dependency`；`says` 如 `missing target tag library/all (member level)`。加载负责解析与必要的结构判断，引用展开只做集合、类型和成环处理，不另报目标不存在。
+**要先存在。** 目标由拥有命名空间的包声明，或由读者代码登记。解析器提供 manifest 公开身份，存在性检查统一消费（第 5 节）。
 
-**覆盖。** 凡是改别人的对象，都写在覆盖者的 `overrides/<命名空间>/` 下，原声明不动。覆盖路径由 `engine/layers.js` 与操作集统一解释：关卡用 `levels/<名>.json`，元件用 `parts/<名>.json`，符号用 `symbols/<名>.json`，词条用 `entries/<名>.json`，标签用 `tags/<种类>/<名>.json`，关系、托盘、百科分组分别用 `relations/`、`trays/`、`sections/`，其它内容种类用自身目录；文案用 `i18n/<lang>.json`。
+**覆盖。** 凡是改别人的对象，都写在覆盖者的 `overrides/<命名空间>/` 下，原声明不动。覆盖路径由 `engine/layers.js` 与操作集统一解释：关卡用 `levels/<名>.json`，元件用 `parts/<名>.json`，符号用 `symbols/<名>.json`，词条用 `entries/<名>.json`，标签用 `tags/<种类>/<名>.json`，关系、托盘、百科分组分别用 `relations/`、`trays/`、`sections/`，其它对象类型用自身目录；文案用 `i18n/<lang>.json`。
 
 | 字段类型 | 覆盖补丁 |
 |---|---|
@@ -277,123 +284,96 @@
 
 包和游戏各有 `i18n/<lang>.json`、`changes.jsonl`。游戏另有 `game.json`、`course.json`、`chapters/`，可有作者侧 `blueprint.json`、`pipeline.json`。`resolver.js` 读盘，`content.js` 组装；页面加载构建出的 `content.json` 和语言文件，`publish:content` 检查后只发布内容。文件按职责放，开发按对象做：Studio 聚合对象的定义、文案、标签、关系和覆盖，不要求作者来回找文件。
 
-### 6.1.1 Versions, locks and releases
+### 6.1.1 版本、锁定、发布与解析器
 
-All commands run in `trace-viewer/`.
+**上线前保持 `0.0.0`。** 平台版本在 `kit/platform.json`，包版本在 `package.json`；依赖范围统一为 `^0.0.0`。工作区源目录代表当前实现。源目录与本地平台的哈希变化允许继续检查、组装与构建，锁定仍检查范围和依赖集合。兼容性预览给出 `proposed`，`next` 为 `null`。
+
+**锁定按目标保存。** 每个包和游戏的 `lock.json` 记录依赖闭包与平台的确切版本、内容 SHA-256；包的锁定排除自身。目标锁定决定本次组装，包锁定用于本包独立检查。范围不符、缺少或多余条目、归档依赖哈希变化报告结构化 `dependency` 问题，导出和构建拒绝这些问题。升级依赖是显式操作，完成后运行目标检查。
 
 ```sh
+# trace-viewer/
 npm run deps -- lock --package arithmetic
 npm run deps -- lock --game qed
 npm run deps -- upgrade --game qed [package]
-npm run publish -- arithmetic --launch
-npm run publish -- kernel --launch
 ```
 
-Before launch, packages declare `{ "version": "0.0.0", "kernel": "^0.0.0", "uses": {} }`. All dependency ranges remain `^0.0.0`. Publication is disabled unless `--launch` is explicitly supplied.
-Games declare `kernel` and an ordered `packages` range map. The first key is the primary package.
-Ranges accept full `x.y.z`, `^x.y.z`, and `~x.y.z` only, with SemVer zero-major caret boundaries.
-`lock.json` belongs to each target and pins the entire selected dependency graph plus `kernel` to
-`{ "version": "0.0.0", "hash": "<sha256>" }`. Package locks exclude the package itself.
-The target lock is authoritative for that assembly. Package locks govern independent package checks.
-A range mismatch, missing/extra lock entry or changed archive dependency hash is a structured `dependency`
-problem with `layer`, `kind`, `target`, `reason`, `object`, `path`, `at` and `says`. Export/build refuses
-these problems. Lock updates are explicit. `upgrade` updates selections and runs the target check.
-A named upgrade retains the other exact archive pins. Workspace source changes do not invalidate retained pins.
-Package selection operations take a required `range`; adding/removing a selection updates the game lock.
+**解析器是唯一加载入口。** `resolveLayers` 按范围、锁定和依赖拓扑选择层。工作区有源目录时读取源目录并现算 manifest；否则从本地发布库选择归档、校验归档哈希、解压，再经同一个层读取函数加载。归档层只读。检查、操作集、Studio、构建、单关试玩、基线和 MCP 使用同一入口。存在性检查读取 manifest 的对象、类型、标签与代码登记身份；待定编辑使用重算的公开面。
 
-`resolveLayers` is the only content loading entry. It prefers a workspace source directory, treated as
-the unpublished next revision, and computes its manifest. Otherwise it validates the indexed zip hash,
-extracts the selected locked release and uses the same layer reader. Archive packages are read-only.
-Existence checking consumes manifest identities, including typed tags and code registrations.
-Pending author edits use their recalculated public surface. Workspace source and local platform hash drift does not invalidate locks.
+内容根只由解析器解释，默认当前工作区，从 `trace-viewer/` 运行时取父目录；可传 `root` 或设置 `GAMES_ROOT`。发布库默认在内容根的 `releases/`，可用 `GAMES_RELEASES` 指定。`index.json` 索引包的版本、内容及归档哈希。`releases/` 排除在 Git 外。远程发布库和平台安装尚待实现。
 
-The local release store is `releases/` at the resolved workspace root, overridable with
-`GAMES_RELEASES`. `index.json` indexes exact versions and archive/content SHA-256 hashes.
-The first release of every package and platform is `1.0.0`, enabled explicitly with `--launch`.
-The release store is outside Git.
-Remote URL stores and platform installation belong to the later repository split.
+**公开面包括数据与代码。** 包的对象、任务、阶段、文案键、类型声明、标签、关系、代码登记名字和两份导出接口均参与比较。平台公开面包括 `kernel`、`kernel/view`、登记协议、声明格式、内核对象 schema、文件布局和操作集。增加身份、可选字段或放宽选择计为增加；删除、收窄或使依赖方失效计为破坏。依赖方在上次归档与当前源目录上的检查输出变化计为行为变化。这是有限检查观察。平台目前只比较结构，行为探测待补。
 
-Publication checks the package in an isolated package workspace and runs its `test/*.test.js`
-contracts. Code packages require contracts. The manifest records qualified objects and hashes,
-object-type declarations, typed tags, code names, core/view exported interface names, file hashes,
-compatibility findings and affected dependents. All source files are archived except generated
-`manifest.json`, transient author locks, OS metadata and dependency/VCS directories. `lock.json`
-is included and hashed. Author history `changes.jsonl` is archived and file-verified, but excluded
-from content identity so adopting an unchanged authoring state does not invalidate dependency locks.
+**发布时自动算版本。** 默认 `publish` 拒绝执行。明确首发时运行 `npm run publish -- <包|kernel> --launch`，首次定为 `1.0.0`。此后破坏或行为变化升主版本，只增加升次版本，公开面和观察都不变升修订版本。包发布前在独立工作区检查本包并运行 `test/*.test.js` 契约，带代码的包须提供契约；工具报告受影响的传递依赖方。
 
-Structural comparison permits new identities, optional schema fields and widening alternatives.
-Removal or narrowed contracts conservatively count as breaking, including unreferenced identities.
-Dependent package/game checks run against the previous archive and current source with lock freshness
-excluded only in those internal probes. Their exit status/stdout/stderr are compared. A break or changed
-observation increments major, additions increment minor, and unchanged public/observed behavior increments
-patch. First publication starts at `1.0.0`. Publication reports all installed transitive dependents on
-breaking/behavior changes. These check observations are finite evidence. Platform behavior probes remain
-pending; its current publication compares structure only.
+归档是源目录加生成的 `manifest.json`，文件名 `<包>-<版本>.zip`。manifest 记录版本、范围、公开面、文件哈希、代码与视图导出、兼容性和受影响的依赖方。`lock.json` 随包保存，作者日志归档并校验文件哈希，日志不参与内容身份。依赖目录、版本库、OS 元数据和临时锁排除。词汇表随平台版本发布。
 
-Studio consumes `packages` and `games` tool metadata for ranges and lock status. Package records include
-`manifest` and `compatibility` (`type`, `changes`, `added`, `previous`, `next`, `proposed`, `affected`,
-`behaviorStatus`). Before launch, `next` is null and `proposed` is informational. Preview is structural and marks behavior `pending-publication`; published manifests
-store completed comparison results. Direct Node consumers may use `packageCompatibility` and
-`resolveLayers().lockStatus`. Version/status/compatibility presentation remains Studio work.
+Studio 从工具元数据读取范围、锁定、manifest 与兼容性。包记录含 `compatibility` 的 `type`、`changes`、`added`、`previous`、`next`、`proposed`、`affected`、`behaviorStatus`；预览只比较结构，行为状态为 `pending-publication`。
 
-### 6.2 一份词汇表与 schema
+### 6.2 对象类型、标签与新建对象
 
-模块向 `engine/capabilities.js` 注册能力，`engine/kernel.js` 拼成**一份词汇表**。能力按种类分表：值类型、运算、原始元件、板、任务、内容项、显示、语言、内容种类；名字为 `<模块>:<名>`，与内容对象的 `/` 区分。`describe` 打印完整声明，运行按内容所用能力选择模块和 schema 投影，不把包绑定到模块。
+**对象类型的结构是数据。** 包在 `kinds/<名>.json` 声明 `folder`、JSON `schema`、`references`、`relations`、`declares`、`overrides`、`text` 和 `studio`。对象类型全名是 `<包>/<名>`，实例使用声明目录。结构参与普通的覆盖、引用、文案、来源与兼容性流程；含义由 `kind` 协议挂载。有些类型只用于组织资料，可以只有数据。
 
-- **值类型决定能不能接。** 运算声明输入、输出、可选输入、区域的类型和参数；元件的端口与调用须匹配。数、图像、公式、表等类型由模块注册；当前一个运算全名只登记一个实现，重复注册拒绝，不按值类型自动挑同名实现。实现可声明联合类型或动态值。`arithmetic` 的四则元件使用数值运算；跨模块共享不表示同一元件可直接处理图像，仍看运算和板的类型契约。
-- **schema 是数据。** `engine/schema.js` 的 `S.text()`、`S.obj()`、`S.ref()`、`S.call()`、`S.level()`、`S.task()`、`S.board()`、`S.syntax()` 描述字段、引用、蓝图和小语言。提示 `view`、`step`、`section` 只帮助编辑器选通用控件。语言由模块注册读法，不把函数塞进内容。
-- **文字只带内核标记。** `engine/markup.js` 校验强调和引用等允许的标记，外壳绘制，不把内容当 HTML 插入；自画 SVG 的模块仍须转义。
-- **Platform and package versions.** `kit/platform.json` owns the platform semantic version. Vocabulary declarations remain the schema/capability API, with no separate version number or historical vocabulary snapshots. Release manifests record the public surface. `npm run publish -- kernel --launch` explicitly enables publication, compares platform structure and computes its version. Before launch all versions stay at `0.0.0`. Package publication also compares dependent check observations.
-- 内容只选择能力、填参数和组织对象。新机制经包的 `core/`、`view/` 代码提交和契约测试提供，不通过内容表达式绕过协议。旧模块词汇表在迁出期间保留。
+内核自带关卡、任务、标签、关系、词条、百科分组、文案、对象类型、章和游戏配置。包可给关卡、任务扩展字段，声明 `{ extends: "level" | "task", fields }`；任务可用 `play` 限定分支，或用 `schema` 判别树。共用字段展开到各分支，字段须遵守原有必填和防重定义规则。
 
-### 6.3 模块契约与一个课程模型
+所有类型用 `declares: "package" | "game"` 声明归属，`overrides` 按覆盖层列出允许字段。包也可声明游戏层类型。包层引用包层，游戏层可引用包层与自己的对象；检查与 Studio 工作区共同读取这一份权限。字段合并统一按第 6.1 节的 `set`、`list`、`edges` 执行。
 
-`packages/<包>/core/index.js` 经 `register` 协议注册能力；包运行时提供 `vocabulary`、`prepare`、`spec`、`validate`、`play`，可提供名字与语言读法。`engine/contract.js` 检查声明、实现和工具入口，页面侧通过注册的显示能力加载实现，通用渲染器不直接引用模块 UI 或 CSS。
+**标签是带成员类型的无序集合。** 每个对象类型都能打标签。标签成员可含对象或同类型的 `#标签`，支持嵌套与成环检查；身份是「成员类型 + 全名」。它用于分组浏览、批量引用和被代码按名字读取的标记。托盘、百科分组和章分别保存自己的属性与有序列表。Studio 分组内成员按先修顺序、再按名字排列。
 
-`kit/course.js` 保留路线拓扑。`packages/circuit/core/course-model.js` 与 `core/course.js` 负责元件、阶段、托盘、`local`、`replaces`、`gives`、`opens`、`awards`、`withholds` 和发布状态。`kit/shell/progress.js` 记录任务、关卡和作品槽位，包通过显式回调保存自己的扩展状态。模块负责读自己的任务和作品、运行和反馈，适配层不再重写课程。引理、等式、函数和训练等行为由元件与任务声明触发，不按包所属模块开关。
+代码读者登记标签全名与成员类型。内核登记 `kernel/studio-left`，成员类型为 `kind`，`kernel` 是保留命名空间。各包在 `overrides/kernel/tags/kind/studio-left.json` 贡献默认资源类型。默认顺序为内核类型在前，其余按全名；集合为空时列出有对象的全部类型。个人选择保存在浏览器。标签文案用 `@tag.<名>.title`、`@tag.<名>.desc`。
 
-契约还检查蓝图读写往返不变、参考解通过和 naive 解失败；封装元件运行交来的玩家作品，明确声明内置实现的例外须有理由。失败保留结构化位置、应得、实得和原因，界面、作者检查和文字试玩共用判定及运行报告。
+**新对象复制已有对象或从 schema 起步。** 来源可为本包或直接依赖，复制后分配新 id 与独立文案键。空白关卡、任务的最小玩法内容由包的核心提供。精选起点用普通标签组织。对象类型定义通过 `kind.put/set/remove` 编辑，实例通过 `object.put/set/remove` 编辑；变更类型时同时迁移受影响对象。
 
-**技术层与规范层分开。** 内核只查 schema、引用、类型、答案和课程能否玩通。怎样引入新想法、何时复用、首次遭遇能否观察清楚、手机操作负担是否合理，由第 5.1 节的关卡开发规范评审。没有概念标签、`concept()` 或对应的教学元数据；技术检查通过不证明教学质量。作者流水线的蓝图与教学 lint 是另外的评审辅助，不恢复成课程模型的硬规则。
+新包用 `npm run new-package -- <新包> --from <已有包>` 或 `--empty`。新游戏用 `npm run new-game -- <新游戏> --from <已有游戏>`，或工具 `create_game` 的 `id`、`from`、`title`；复制选包与开局设置，从空章开始编排。需要持续共用的内容由库包提供。
 
-**测试不认识真实游戏。** 单元测试用测试内的小内容或 `kit/templates/<模板>/starter/`，不读真实关卡、任务 id 或关卡数。真实内容由操作集和 `npm run check` 检查。改内核跑 `npm test`、`npm run lint:kit`、`npm run words -- --check`；Public-surface changes are versioned automatically during publication.行为重构对比游戏的检查输出，只接受事先说明的差异。
+### 6.3 内核与包的边界
 
-### 6.3.1 包插件协议（第 2 步）
+检查、基线和文字试玩只加载 `core/index.js`；游戏与 Studio 同时加载 `core/index.js`、`view/index.jsx`。两边各导出 `register(kernel)`，按直接依赖拓扑登记。包通过 `<包>` 导出核心，通过 `<包>/view` 导出界面；内核分别导出 `kernel`、`kernel/view`。
+
+- 包只实现登记协议，通过内核公开 API 和直接 `uses` 的公开接口组合。
+- `core/` 只引用本核心、内核无界面 API 和依赖的核心导出；`view/` 可引用本核心、内核界面 API 与依赖视图导出。作品格式由核心定义。
+- import 边界按 AST 检查静态导入、re-export、动态导入和 require。核心禁用 JSX、CSS、界面库、Node I/O 及计算导入路径。
+- 判定保持确定性，同一作品和输入得到同一结果，随机来自传入种子。
+- 数据经操作集、MCP、Studio 修改；代码经提交和审查修改。
+- 带代码的包提供 Node 核心契约、视图配对及跨包组装契约。参考解、naive 解和玩家作品使用同一份运行与判定报告。
+
+**零内容验收。** `trace-viewer/` 执行 `npm run test:zero`。首次需 `npx playwright install chromium`。脚本创建临时内容根，通过 `GAMES_ROOT` 运行全部内核测试文件和空工作区 `check`，无头 Chromium 打开空 Studio；随后仅安装文字玩法代码和测试现写的一关，检查包、打开无游戏的包工作区，再检查游戏并在桌面与手机尺寸作答通关。测试结束关闭服务器和浏览器、删除临时目录。真实内容由每个包和游戏的独立 `check` 验证。
+
+### 6.3.1 包插件协议
 
 `packages/<包>/core/index.js` 和 `view/index.jsx` 均导出 `register(kernel)`，按直接 `uses` 的拓扑顺序登记。检查、基线与 `play_task`（`game` 或 `package`、`level`、可选 `task`、`work`）只加载包的核心；游戏与 Studio 的 Vite 入口同时加载两份。公开导出使用 `kernel`（`kit/engine/index.js`）、`kernel/view`（`kit/app/view.jsx`），依赖包用 `<包>` 与 `<包>/view`，禁止深入依赖内部路径。
 
 - 核心可调 `object(kind, fullName, value = {})`（登记代码持有的任意对象类型实例）、`play(name, { initial, read, write, normalize, run, judge })`、`kind(name, { type, read })`、`state(name, derive)`、`check(name, check)`、`agent(name, { observe, act })`、`tag(fullName, member)`。标签读者登记本包的 `<包>/<名>` 与单个成员类型；其它登记名字必须是本包的 `<包>:<名>`；每张协议表内重名报错。`kernel.meanings(type, value, context)` 调用该类型登记的含义；`judge` 返回 `{ pass, score? }`，`evaluatePlay(kernel, task, work, context)` 统一读取、规范化、运行、判定、保存。
 - 视图可调 `play(name, { component, preview, modes? })`、`editor(name, { type, ...editor })`、`display(name, display)`。核心与视图的玩法名配对；孤立视图报错，游戏实际用到只有核心的玩法时报错。主区组件接收 `{ task, work, onChange, state, context, phone }`，内核负责保存、检验与通关。Studio 可直接读取 `kernel.tables.playView` 的预览、编辑模式，以及 `editor`、`display` 表。
 - 新任务用 `play: "text:answer"` 选择玩法。`text` 是无元件依赖的最小插件：五关分别演示精确匹配、忽略大小写与空白、正则、带非负容差的数值、多个可接受答案。配置为 `answerRule`、`referenceAnswer`、`wrongAnswers`、可选 `choices`；检查参考答案通过且全部错误答案失败。正则每次创建，拒绝有状态的 `g`/`y` 标志。
-- `kinds/<名>.json` 的对象声明是 `{ folder, schema, references?, relations?, override?, text?, studio? }`。`schema` 使用 `S` 的 JSON 结构；`references` 列出允许引用它的对象类型；`relations` 将关系名映射为 `{ from, to }` 对象类型；`override` 是 `replace`（默认）或 `append`（合并 `values`）；`text` 列出文案字段路径（列表元素用 `*`）；`studio` 是 `{ name, icon, group? }`。对象类型全名 `<包>/<名>`，实例全名 `<包>/<对象名>`。实例标签在 `tags/<对象类型全名>/<名>.json`，覆盖沿声明目录写入 `overrides/<命名空间>/`。
+- `kinds/<名>.json` 的对象声明是 `{ folder, schema, declares, overrides, references?, relations?, text?, studio? }`。`schema` 使用 `S` 的 JSON 结构；`references` 列出允许引用它的对象类型；`relations` 将关系名映射为 `{ from, to }` 对象类型；合并方式由字段类型决定；`text` 列出文案字段路径（列表元素用 `*`）；`studio` 是 `{ name, icon, group? }`。对象类型全名 `<包>/<名>`，实例全名 `<包>/<对象名>`。实例标签在 `tags/<对象类型全名>/<名>.json`，覆盖沿声明目录写入 `overrides/<命名空间>/`。
 - 字段扩展用 `{ extends: "level" | "task", fields: { 字段: schema } }`，不能重定义已有字段。内核类型与保留目录不能用包声明替换。`kind.put/set/remove` 编辑定义，`object.put/set/remove` 用 `{ kind, name, data? }` 编辑声明实例；代码目录不属于操作集。
-- 代码读取的标签归读者所有。内核登记 `kernel/studio-left`，成员类型为 `kind`；`kernel` 是保留命名空间，不能用作包名。包用 `kernel.tag("包/名字", "成员类型")` 登记，登记表 `kernel.tables.tag` 使用相同的复合键。自己声明写 `tags/<成员类型>/<名>.json`，贡献给读者或依赖标签写 `overrides/<命名空间>/tags/<成员类型>/<名>.json`。所有对象类型的目标都必须由所属包声明或由代码登记；标签还须匹配成员类型。不存在的目标统一由存在性检查报告。标签文案键使用 `@tag.<名>.title`、`@tag.<名>.desc`，托盘继续使用 `@tray.`。没有短名跨包合并或 `templates` 约定标签。新对象复制任意已有对象或从 schema 起步；精选起点可用普通标签。Studio 的左栏读取、标签打开与地址携带成员类型的界面接入另行完成。
+- 代码读取的标签归读者所有。内核登记 `kernel/studio-left`，成员类型为 `kind`；`kernel` 是保留命名空间，不能用作包名。包用 `kernel.tag("包/名字", "成员类型")` 登记，登记表 `kernel.tables.tag` 使用相同的复合键。自己声明写 `tags/<成员类型>/<名>.json`，贡献给读者或依赖标签写 `overrides/<命名空间>/tags/<成员类型>/<名>.json`。所有对象类型的目标都必须由所属包声明或由代码登记；标签还须匹配成员类型。不存在的目标统一由存在性检查报告。标签文案键使用 `@tag.<名>.title`、`@tag.<名>.desc`，托盘继续使用 `@tray.`。新对象复制任意已有对象或从 schema 起步；精选起点可用普通标签。Studio 的左栏、标签选择与地址均保留成员类型。
 - `plugin-boundaries.js` 用 AST 同时检查静态 import、re-export、动态 import 和 require，拒绝计算出的导入路径。核心只能引用公开无界面接口与本核心，禁止界面库、JSX、CSS、Node I/O；视图可读本核心。`npm run check` 加载代码前检查，`lint:kit` 使用同一规则覆盖包代码。核心判定应保持确定性，只使用传入种子，不访问时间、文件或网络。
 
 对象类型的含义由 `kind` 登记提供。内核依 schema 读取、覆盖、展开引用和检查字段，调用含义对象完成派生。`circuit:part` 解释元件、阶段、发放和 `replaces`，`circuit:tray` 解释托盘及菜单，`circuit:quote` 读取引语。它们的文件类型分别是 `circuit/part`、`circuit/tray`、`circuit/quote`。`relations` 声明给出自定义关系的端点类型。
 
 - 内容生命周期包括 `vocabulary`、`names`、`identities`、`indexes`、`matches`、`assemble`、`source`、`override`、`validate` 和 `stamp`。派生字段由 `derived` 列明，`source` 给出派生注册表对应的源对象，写回时只序列化声明。`configuration` 为扩展字段声明所属配置文件。内核无需理解元件和发放字段。
-- 课程含义通过 `dependencies`、`plan`、`supplies`、`readWorks`、`taskModule`、`runtimeIds` 和 `scope` 参与通用课程组装。`state` 返回包的派生状态，`check` 判定作品，`play` 负责作品读写、运行和盲玩。现有五个原生消费者使用包的两阶段读者适配。内核进度只推进任务和关卡。
+- 课程含义通过 `dependencies`、`plan`、`supplies`、`readWorks`、`taskModule`、`runtimeIds` 和 `scope` 参与通用课程组装。`state` 返回包的派生状态，`check` 判定作品，`play` 负责作品读写、运行和盲玩。运行时通过包的作品读者与课程投影适配。内核进度只推进任务和关卡。
 - 创作适配使用 `workspace`、`operations`、`selector`、`textTarget`、`sourceArguments`、`search`、`tools`、`dependencyGraph` 和 `renderWork`，共享操作集保持通用对象 CRUD。`part.*`、`parts.*`、`level.blueprint`、`level.adds` 和 `flow` 实现在包内。类型 schema 和文案定位由包提供。
 - 外壳通过游戏的 `shell`、`settings`、`mapBadges`、`referenceName`、`describeObservation`、`composeModules` 接口挂载包行为，引用显示器由 `display` 登记元数据定义。元件册、工坊、元件奖励、连接标签设置和元件样式归包。`Workbench`、`Library`、运行控件、存档上下文和输入交互是共享布局部件。
+- 浏览器重建声明与 schema 时保留包的代码登记身份，存在性检查与 Node 共用公开身份投影。
 - 基线观察由含义对象的 `baselineCourse`、`baselineStructure`、`baselineRecords`、`baselineReports` 提供，继续比较完整作品、顺序、结果和轨迹。引擎工具保存通用快照与差异算法。
 
-第 10 步已删除全部临时桥接。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
-包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
+包的测试在 `packages/<包>/test/`。内核测试使用现写的小内容；需要组合包协议的测试显式安装机制夹具。包的示例数据由包自己的测试目录持有，经普通解析器安装到临时工作区。历史基线按 `engine/baseline.md` 比较完整作品、顺序、结果和轨迹，迁移验收只运行 `compare`。
 
 ### 6.4 参数台
 
 **电路拼不出来的机制用参数台**（机体的物理传感器、连续信号的采样、几万步的训练、几百次随机试验、一场对抗）：玩家不接线，只转旋钮、按按钮，看模拟怎么变。所有参数台是同一个界面（`packages/image/view/bench/Bench.jsx`），数据和判定在 `packages/image/core/bench.js`（node 下也能跑，`npm run check` 用它）。当前参数台由两个图像内容包使用，随图像机制放在 `image`；新消费者通过包依赖复用。
 
-《视觉完备》2-3、2-4 的频率探针是图像模块的参数台模型 `bench.model: probe`。0-2、0-6 的黑箱探针是 `kind: probe` 玩法，玩家通过切换测试图和检查输入输出选择黑箱操作。两种玩法共用 `workshop` 的页面和内核的像素显示，分别用参数目标和选择答案判定。
+《视觉完备》2-3、2-4 的频率探针是图像包的参数台模型 `bench.model: probe`。0-2、0-6 的黑箱探针是 `kind: probe` 玩法，玩家通过切换测试图和检查输入输出选择黑箱操作。两种玩法共用 `workshop` 的页面和`image` 的像素显示，分别用参数目标和选择答案判定。
 
-波形参数台、频率探针、电路波形元件和测试场景从图像模块的 `engine/waves.js` 取波形和采样点。频率探针从画出的乘积曲线取样计算平均值。采样台用 `engine/fourier.js` 里的逐轴变换重建曲线，图像频谱的行与列也用这个变换。
+波形参数台、频率探针、电路波形元件和测试场景从`packages/image/core/engine/waves.js` 取波形和采样点。频率探针从画出的乘积曲线取样计算平均值。采样台用 `packages/image/core/engine/fourier.js` 里的逐轴变换重建曲线，图像频谱的行与列也用这个变换。
 
-一关的参数台全是数据，选模块的项、填参数：
+一关的参数台全是数据，选包的项、填参数：
 
 | 字段 | 内容 |
 |---|---|
-| `model`、`setup` | 模拟：模块词汇表 `benchModel` 里的一项和它的参数。模型是代码：由旋钮算出一组有名字的量（`view`），会自己走的（训练、对抗、限时的轮）还有状态和动作（`start`、`act`，`after` 要求隔多久自动做一个动作，比如倒计时） |
+| `model`、`setup` | 模拟：包词汇表 `benchModel` 里的一项和它的参数。模型是代码：由旋钮算出一组有名字的量（`view`），会自己走的（训练、对抗、限时的轮）还有状态和动作（`start`、`act`，`after` 要求隔多久自动做一个动作，比如倒计时） |
 | `knobs` | 旋钮：一段刻度（`min`、`max`、`step`）、一张表里的第几个（`values`）、几个选项之一（`choices`，`look: dot` 画成大小不同的圆点）、开关（`toggle`）、一列东西（`list`，在图上点出来）；`fixed` 只显示，`drawn` 在图上拖、不另画控件，`perCase` 每个情形一个值；`format`、`unit` 定读数怎么写 |
 | `cases` | 几个情形，同一组旋钮要在每个上都过（几张图、几种外点比例）；头上一排切换，每个带对错 |
 | `stages` | 一步一步走：每步的标题、说明、开哪几个旋钮（`opens`）、起点（`start`）、目标、过了说什么（`win`）、没过说什么（`status`），加上模型要的字段；过了才有「下一步」，走过的步可以回去。一个量有几个参数时一步开一个旋钮（第 1 节） |
@@ -404,66 +384,51 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 
 **显示项是封闭的。** `image` 包给：步骤说明、旋钮、按钮、结论（分步的带「下一步」）、目标、步骤列表、情形切换、曲线图（指向一处读数）、像素行、一段字、读数块、标签、小曲线、表、进度点。字可以写定，也可以是模型算出的（`{ of: 名字 }`）。每一项都可以 `when`、`unless` 一个模型的量（限时的轮在玩和不在玩时显示不同的东西），`with` 把别的项嵌进它里面。内容包补共享显示项画不出来的图和交互，每一项要说得出为什么通用的不行：《视觉完备》的暗箱侧视图（在图上拖孔板和屏幕）、屏幕正面、霍夫的点和累加器（栅格加叠层）、RANSAC 的一次试验和每种比例一张卡、封面配点（在两张图之间拖）和点对列表、GAN 的分布图、对比学习的嵌入圆和选择表、核速判的一轮和四张核卡（限时作答）。GAN、嵌入圆和暗箱共用 `views/useTween.js` 调度动画。嵌入圆给出沿圆周短弧的插值，减少动态时各视图直接显示最新值。
 
-`npm run check` 对每个参数台跑模型项的 `verify`。检查某组旋钮能否过关时，用界面也调用的 `benchRun`，按当前阶段和每个情形计算模型结果及目标判定。`passingSettings` 用相同的判定逐个试设定。模块可以额外验证课程要求，例如霍夫粗分箱把两条线合并、RANSAC 的天真设置未达标。
+`npm run check` 对每个参数台跑模型项的 `verify`。检查某组旋钮能否过关时，用界面也调用的 `benchRun`，按当前阶段和每个情形计算模型结果及目标判定。`passingSettings` 用相同的判定逐个试设定。包可以额外验证课程要求，例如霍夫粗分箱把两条线合并、RANSAC 的天真设置未达标。
 
-霍夫和 RANSAC 共用图像模块里的直线坐标与有种子的点噪声。RANSAC 的点是否着色为内点由拟合使用的距离决定。内核的 `views/canvas.js` 提供像素画布和主题颜色，网格预览、霍夫累加器与图像配准共用像素写入。图像电路只在点样本足够时开始抽样。
+霍夫和 RANSAC 共用图像包里的直线坐标与有种子的点噪声。RANSAC 的点是否着色为内点由拟合使用的距离决定。内核的 `views/canvas.js` 提供像素画布和主题颜色，网格预览、霍夫累加器与图像配准共用像素写入。图像电路只在点样本足够时开始抽样。
 
 
-### 6.5 机制目录
+### 6.5 玩法包与共用实现
 
-词序条、规则行、真值表和造世界共用作品的读取与保存。《证明完毕》的规则板按顺序读完所有引入规则，参考解与玩家作品共用可填写性检查和推导判定。规则板和证明助手用同一套规则与任取变量的写法（`schematic.js`）。证明与合一共用公式比较（`formula.js`），从各自最近的量词或函数参数确定每个变量的绑定位置。定义和改写也使用同一套项比较。规则板实例化和证明助手代入函数参数使用 `substMany`，只替换自由变量并保留代入项本身的作用域。命题实例化会给可能捕获代入式自由名字的量词换名。单次判定的玩法共用检查与清除上次判定的流程。结论行由 `Verdict` 显示，反例等详细反馈由玩法各自排版。玩法资源负责各自作品的形状、判定和反馈内容。
+| 包 | 提供 |
+|---|---|
+| `circuit` | 数据流电路、框、元件、阶段、托盘、发放、蓝图、工坊、编辑器和电路屏 |
+| `rows` | 等式行、加法作品的读取、判定和词序条呈现 |
+| `tick-bus` | 总线仲裁、逐拍运行、寄存状态、报告、文字试玩和总线卡片 |
+| `image` | 图像运算、电路、探针、参数台及共用场景、模型、显示 |
+| `table` | 表格信号、世界协议、逐格求值、板作品和注入场景绘制器 |
+| `logic` | 公式、证明核、合一、证明机、规则板、符号与编辑器 |
+| `text` | 文字作答、匹配规则、答案判定和输入视图 |
 
-一个专题先选机制和已有能力，再建包。机制是玩家手上的动作和运行方式；同一机制可以用不同包里的元件。下表是 kit 现有的全部机制。
+`vision-complete` 持有专用实验台、场景和显示；与 `comp90086` 共用的 filter 场景、obscura/wave 模型及暗箱显示由 `image` 提供。两个内容包分别声明自己的 power、box 对象类型。`state-graph` 持有具体世界、机器人、手动玩法、课程判定和插画，任务使用 `state-graph:*`，示范面板用 `panel`。`qed` 持有 `qed/wordset`、词典投影和地图插画。
 
-| 机制 | 玩家做什么 | 适合 | 内核里的元件 | 例子 | 缺什么 |
-|---|---|---|---|---|---|
-| 数据流电路 | 把元件接成一块板，输入一次流到输出 | 输入定了结果就定了的东西：图像处理的流水线、逻辑门、公式变换、协议头的字段 | `packages/circuit/core/circuit.js`、`packages/circuit/core/boards.js`（封装元件）、`packages/circuit/core/board/`、`view/board/`（蓝图文本和编辑器）、`packages/circuit/view/CircuitLevel.jsx` | 《证明完毕》的真值电路、《视觉完备》和 COMP90086 的图像电路；脚手架的 `circuit` 模板 | 机器人电路也使用 `CircuitScreen`，见逐步机器 |
-| 逐步机器 | 搭一块板，机器按顺序在每一格、每一行、每一轮上跑它一遍 | 一张表一格格填（动态规划）、逐行处理、一轮轮调用（agent 循环） | `packages/circuit/core/machine.js`（`walk`）、`CircuitScreen`、`shell/usePlayback.jsx` | 《状态之图》（机器人填表） | 内核负责装配与步进。表格模块提供世界、传感器选项和状态，作者检查与玩家共用逐格判定 |
-| 逐拍总线 | 搭一块每拍跑一遍的板，几个节点共用一根线，寄存卡跨拍保存 | 状态随时间变：时序逻辑、总线和链路协议、计时和重传 | `packages/tick-bus/core/ticks.js`、`boards.js` 的 `holds`、`shell/Timeline.jsx`、`CircuitLevel`；脚手架 `tick-bus` | `tick-bus` 入门游戏 | 有脚手架覆盖基本收发和寄存器 |
-| 框 | 在元件的区域里摆元件，区域给出局部的值，只能在框里用 | 局部假设与作用域：假设推理、函数体、循环体 | `packages/circuit/core/board/frames.js`（`framePart`），两个编辑器和 `model.js` 管区域 | 《证明完毕》的假设框、消去框 | 只在一个模块用过；它是电路上的一项，不单独成模板 |
-| 词序条 / 分析 | 往一排类型化的位置里点词，或把一行词折成结构 | 写出或拆开一段有结构的文字：公式、证明项、句子 | `kit/strip/`（词序条） | 《证明完毕》拼公式、`rows` 入门游戏写等式 | 界面共用，内容由模块的语言与判定给出 |
-| 填表 | 逐行写一张表，每格一个编辑器 | 写清单式的规格：检验条例、情形、规则行 | `shell/RowTable.jsx`、`shell/FormFields.jsx` | 《证明完毕》的检验条例 | 内核按模块提供的列与值编辑器装配 |
-| 规则行 + 一次判定 | 给几行各写出它的空位（一句话、一个式子），再检查一次；检验用的条例不给看，只说第一处不对 | 声明和定义：一个连接词的几种造法、一个函数在每种造法上的等式 | `shell/RuleRows.jsx`、`shell/useCheckOnce.js`，空位的编辑器用词序条 | 《证明完毕》的规则板和定义、`rows` 入门游戏（均通过 `plays.js` 配置） | 模块提供行的形状、编辑资源和判定 |
-| 参数台 | 转旋钮、按按钮，看模拟怎么变 | 拼不出电路的机制：连续量、采样、几万步训练、随机试验、物理传感器、对抗 | `packages/image/core/bench.js`、`packages/image/view/bench/`（第 6.4 节） | 《视觉完备》的暗箱、波、训练、RANSAC 等 | 只有一个模块用过；没有脚手架模板 |
-| 黑箱探针 | 切换示例、对照输入和输出的像素读数，再选出黑箱做了什么 | 从几组输入输出推断同一个操作 | `packages/image/core/grid-probe.js`、`packages/image/view/GridProbe.jsx`、`views/grid/` | 《视觉完备》0-2、0-6 | 模块提供示例、黑箱运算和答案 |
-| 纠错 | 拿到几块别人的板，写一份检验条例去暴露错误 | 检验和评审：找出错的证明、错的规格、错的实现 | `shell/plays/BoardChecks.jsx`、`shell/Checks.jsx`、`shell/TestTabs.jsx` | 《证明完毕》的 `play: 'audit'` | 模块提供每块板的判定 |
-| 手动关 | 玩家自己当机器，一步步做机器以后要做的事 | 机器出现之前的前因：先手做，再搭 | `shell/plays/ManualBoardPlay.jsx`（棋盘、任务卡、动作栏、容量选择、数字键盘和对照图） | 《状态之图》的填格、走路、连图、背包、找破绽、策略与剪缝 | 模块提供动作和判定数据 |
+按专题需要选择已有包；新的机制放进包的核心与视图。依赖只声明实际使用的提供者。值类型、运算、读写与判定由相应包维护，共用界面组件通过公开导出复用。
 
-**给新专题选机制。** 按专题的核心动作逐条问，一个专题常常用到几种，各放在需要它的章里：
+### 6.6 文字试玩与盲玩
 
-1. 答案是不是输入定了就定了、算一次就出来？是：数据流电路（脚手架 `circuit`）。
-2. 时间是不是专题的一部分：有状态、有先后、几方共用一条通道、要等、要超时？是：逐拍总线。
-3. 是不是同一块小机器在一个结构上一格格、一轮轮重复？是：逐步机器。
-4. 推理里要不要"先假设、再收回"，或者有局部的作用域？要：在电路上加框。
-5. 产物是不是一段有结构的文字？是：词序条或分析。
-6. 要发现的是不是连续的参数、统计规律，或者步数多到接不出来？是：参数台。
-7. 要练的是不是判断别人的东西对不对？是：用纠错玩法，在给定的几块板上运行自己写的检验。
-8. 机器出现之前，玩家是不是该先自己当一回机器？是：手动关，放在机器那一章之前。
+包的 `agent` 提供观察和动作，作品检查与玩家界面共用核心判定。文字观察只含玩家可见信息。`play_task` 接受 `game` 或 `package`、`level`、可选 `task` 与 `work`；`run_tests` 通过包的运行入口检查作品。
 
-以计算机网络专题为例，线上的位、帧、冲突和重传都是时间里的事，主体是逐拍总线；报文头的解析是数据流电路；窗口大小、丢包率和吞吐量的关系是参数台；路由表的收敛是逐步机器。选定以后用 `npm run new-package -- <包> --template <模板>` 起步；需要同时建游戏用 `npm run new-game -- <游戏> --template <模板>`，复用已有游戏的包和开局设置用 MCP/Studio 的 `create_game`（`id`、`from`、`title`），再通过选包操作调整。现有原生模板仅为 `logic`，其他机制复用包。`rows`、`tick-bus` 的起步关卡和逐拍元件已成为对应包里的普通对象，用 `new-package --from rows` 或 `--from tick-bus` 复制；包没有课程或章。模板复制起步包；模板中的游戏和课程样例只供建游戏使用，不成为包课程。共享并持续更新的元件做成库包，由 `uses` 依赖，例如 `arithmetic`，不靠反复复制模板。新机制在包中实现并过核心、视图契约测试。新包也可用 `npm run new-package -- <包> --from text` 复制现有插件；`--empty` 只建立包清单。
+完整盲玩会话暂时停用，代码在 `kit/engine/play/`；目前由契约测试覆盖观察和判定，流水线、`check` 和 MCP 使用现有作者工具。
 
-### 6.6 play 钩子（盲玩暂停）
-
-**盲玩暂时停用，也不出现在流水线、npm 命令、`check` 和 MCP 里。** 它的代码留在 `kit/engine/play/`（一局的记录、统计、CLI、盲玩 agent），恢复时再写回这一节和流水线。
-
-留下来在用的是模块的 `play` 钩子（`runtime.js`）：它把输入、输出、托盘里的元件和可见测试写成文字，并按关卡界面的规则判定尝试。图像电路、机器人电路、门电路、证明板、机器板和逐拍总线脚手架的页面与文字入口共用 `game.circuit` 的任务入口。打开时先校验当前任务的存档，再用起始板或继承板。元件和端口取自同一个任务视图。作者工具 `run_tests` 靠它在不开浏览器的情况下跑一块板。新运行模块照样给出这个钩子。它给出的文字只包含玩家当前可见的内容。
-
-### 6.7 studio
+### 6.7 Studio 外壳与包编辑器
 
 Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`kit/studio/Studio.jsx`）：
 
 | 工作区 | 打开什么 | 改什么 |
 |---|---|---|
-| 构建 | 一个包 | 元件、关卡、词条、标签、关系、托盘、百科分组、内容种类及覆盖；文案只作参考 |
+| 构建 | 一个包 | 元件、关卡、词条、标签、关系、托盘、百科分组、对象类型及覆盖；文案只作参考 |
 | 编排 | 一款游戏 | 选包、章的有序关卡列表、可选与可跳过、路线图 `rows`；依赖编辑写成包关系的覆盖 |
 | 文案 | 一个包或一款游戏 | 本层各语言、术语与引用，以及允许的文案覆盖 |
 
-**三个栏各有一件事。** 顶栏切工作区和包或游戏，并放全局命令、语言与主题。左栏是资源区，构建按关卡、元件、符号、词条及其标签、托盘、关系、百科分组列对象，另有能力和覆盖；编排列包、章、覆盖；文案按对象或文件列文字。组可折叠，一个对象可出现多次；点组名编辑组对象，搜索放在资源种类之后。来源和覆盖链始终可查，依赖包的对象只读，要改先「在本包覆盖」。
+**三个栏各有一件事。** 顶栏切工作区和包或游戏，并放全局命令、语言与主题。左栏是资源区，构建按内核类型和所有已加载包声明的类型列对象，默认集合由 `kernel/studio-left` 决定，另有能力和覆盖；编排列包、章、覆盖；文案按对象或文件列文字。组可折叠，一个对象可出现多次；点组名编辑组对象，搜索放在资源种类之后。来源和覆盖链始终可查，依赖包的对象只读，要改先「在本包覆盖」。
 
 中栏放复杂、跨对象、需要直接看见的编辑：关卡单关试玩、元件的板、阶段链、标签、托盘、百科分组、关系板、章的接线板和路线图、能力说明、覆盖差异、语言对照。右栏随选择显示 schema 控件或原始 JSON，id 只显示。左栏按职责找资源，中栏按对象工作，右栏补任意字段，不再靠旧的「画面、字段、文案、比较、变更」顶栏页签分流程。
 
-**关系和路线图分开。** 包关系板编辑 `requires`、`replaces` 的 `edges`，编排板增删先修边写成游戏覆盖。章内编号顺序编辑 `registries.chapter` 中对应对象的 `levels`，路线图编辑 `rows`，章序编辑游戏配置的 `chapters`。集合来源来自 `sources` 的 `collections`。Studio 的新列表、勾选和关系板控件由 Studio 会话接入这套数据与操作协议。
+**关系和路线图分开。** 包关系板编辑 `requires`、`replaces` 的 `edges`，编排板增删先修边写成游戏覆盖。章内编号顺序编辑 `registries.chapter` 中对应对象的 `levels`，路线图编辑 `rows`，章序编辑游戏配置的 `chapters`。集合来源来自 `sources` 的 `collections`。列表排序、集合勾选与关系板使用同一套字段和操作协议。
 
+
+**专用编辑器由包提供。** `view/register` 的 `editor` 按对象类型提供资源分组、编辑器与独立预览，玩法的视图登记提供关卡预览和编辑模式。元件、托盘、阶段链归 `circuit/view`，符号编辑器归 `logic/view`，共享阶段链经 `circuit/view` 导出。内核维护工作区、三栏和辅助抽屉、内核对象编辑、schema/JSON 编辑、文案、章、路线图、覆盖审计和日志。缺少专用编辑器的类型显示字段，由右栏编辑。空内容工作区显示空状态；包工作区可以独立于游戏打开。
 
 **修改只有一份待定变更集。** 画面、配置、检查、文案和 diff 都读 `preview` 的同一份结果；应用调用 `modify`，撤销调用日志 `undo`。画面上的内容字段可点进右栏，包画面使用单关试玩，不借任何游戏的课程。审计、变更集和日志放在中栏的辅助抽屉。桌面可调栏宽，窄屏按工作区现有响应式呈现；样式和交互由 Studio 共用组件维护。
 
@@ -475,9 +440,9 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 
 `circuit` 导出 `grants.register({ type, used })`。元件自行登记，`logic/core/index.js` 在自己的 `register` 中登记 `logic/symbol`。派生状态按 `circuit/part`、`logic/symbol` 等登记类型分别返回。
 
-Studio 的资源分组、地址参数和文件路径已跟随对象类型名做机械调整。左栏按包声明类型动态生成、专用编辑器和阶段链的 `editor` 挂载由第 10 步完成。
+Studio 按对象类型的声明生成资源列表，按包登记的 `editor` 挂载专用编辑器和阶段链。
 
-**元件是能力、参数和外观。** `packages/<包>/parts/<名>.json` 选择内核运算 `op`，不写 `compute`。端口、参数和值类型来自运算声明，元件只收窄范围、默认值、选项或固定状态，补上名字、图标、端口标签和视图；每个输出分别选运算时写 `op: { 输出: 运算名 }`。元件属于包，可以放在库包里共用，游戏不复制或覆盖它的行为。
+**元件是能力、参数和外观。** `packages/<包>/parts/<名>.json` 选择包登记的运算 `op`，不写 `compute`。端口、参数和值类型来自运算声明，元件只收窄范围、默认值、选项或固定状态，补上名字、图标、端口标签和视图；每个输出分别选运算时写 `op: { 输出: 运算名 }`。元件属于包，可以放在库包里共用，游戏不复制或覆盖它的行为。
 
 ```json
 {
@@ -487,13 +452,13 @@ Studio 的资源分组、地址参数和文件路径已跟随对象类型名做�
 }
 ```
 
-**设置写在元件里。** 对应运算参数的设置只写差异，`{}` 恢复运算参数的完整声明；不对应参数的设置（例如拼公式的 `tree`）须写全控件与值。没有设置对象、独立设置文件或 `setting.*` 操作。设置可有 `label`、`about`、`default`、`fixed`、`when`，选项可有说明；动态选项由内核能力提供。
+**设置写在元件里。** 对应运算参数的设置只写差异，`{}` 恢复运算参数的完整声明；不对应参数的设置（例如拼公式的 `tree`）须写全控件与值。没有设置对象、独立设置文件或 `setting.*` 操作。设置可有 `label`、`about`、`default`、`fixed`、`when`，选项可有说明；动态选项由包的能力声明提供。
 
 **阶段是同一可发放对象的线性升级。** 符号阶段可以修改 `mark`、`name`、`desc`、`icon`。元件阶段的规则如下。 第一阶段就是元件自身，`stages` 只列后续阶段，每个 id 与元件共用包内命名空间。阶段相对前一阶段增量修改设置、说明和卡片；`remove` 去掉选项，`add` 加回运算声明的选项。开放阶段升级原卡，想要两种独立玩法则建两个元件。阶段 id 不可改；元件之间的升级用 `replaces` 关系。
 
 **封装元件引用作品。** `inside` 保存 variant 及自带参考作品和接口，任务用 `publishes` 发布 `{ part, variant }`，显式 `awards` 决定通过后开放的阶段。玩家的通过作品按元件和 variant 保存，`holds().inside()` 按可用路径选择；没有玩家作品才用参考，玩法可明确选参考作品。定义、引理、门、机器等均走同一登记和课程模型，不另用 `revisions` 表。
 
-**设置的控件只有八种**，都是内核的（`packages/circuit/view/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
+**设置的控件只有八种**，由 `circuit` 提供（`packages/circuit/view/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 
 | `control` | 是什么 | 自己的字段 | 值 |
 |---|---|---|---|
@@ -504,7 +469,7 @@ Studio 的资源分组、地址参数和文件路径已跟随对象类型名做�
 | `toggle` | 开关 | `on`、`off`（两端的字） | 真假 |
 | `list` | 依次选几项 | `options`，或 `from` | 选了的选项，按选的先后 |
 | `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
-| `custom` | 自定义 | `widget`（模块 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
+| `custom` | 自定义 | `widget`（包 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
 卡片的数字输入和卷积核权重直接传递数字。桌面的方向键、配置的加减按钮与 Studio 数字字段使用同一套步进和边界规则。桌面手输与手机小键盘也共用分数和科学计数的解析。
 
@@ -515,7 +480,7 @@ Studio 的资源分组、地址参数和文件路径已跟随对象类型名做�
 
 | 块 | 画什么 | 字段 |
 |---|---|---|
-| `value` | 输出上的值，模块画（`defined.value(node, ctx, output, face)`：卡片上一个数、一张小图，详情里逐个输出细看） | `output`（几个输出时选一个） |
+| `value` | 输出上的值，包画（`defined.value(node, ctx, output, face)`：卡片上一个数、一张小图，详情里逐个输出细看） | `output`（几个输出时选一个） |
 | `settings` | 设置的控件 | `keys`（只画这几个，默认全部） |
 | `setting` | 一个设置：控件，或它此刻的值的字（`as: 'label'`） | `key`、`as` |
 | `summary` | 一行设置摘要 | `text`：带 `{设置}` 的一句话；不写就是各设置的值的字，用「·」隔开 |
@@ -524,28 +489,19 @@ Studio 的资源分组、地址参数和文件路径已跟随对象类型名做�
 | `text` | 一段固定的字 | `text` |
 | `desc` | 元件的说明 | |
 | `ports` | 输入口和输出口，带名字 | |
-| `widget` | 模块的显示项 | `widget`、`params` |
+| `widget` | 包的显示项 | `widget`、`params` |
 | `row` | 几个块排成一行 | `blocks: [块…]` |
 
 例：一张「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
 
-`packages/circuit/core/parts/define.js` 把组装后的元件定义编成运行元件；`packages/circuit/view/parts/` 共用控件和视图，模块仅注册内核尚无的值显示或 widget。`partDefs.parts` 是内存投影，`parts.set`、`parts.unset` 的路径仍从 `parts.<元件>` 开始，写盘会落回单个元件文件。新增、删除用 `part.add`、`part.remove`；文案用带对象路径和语言的 `text.set`。
+`packages/circuit/core/parts/define.js` 把组装后的元件定义编成运行元件；`packages/circuit/view/parts/` 共用控件和视图，包通过公开接口提供值显示或 widget。`partDefs.parts` 是内存投影，`parts.set`、`parts.unset` 的路径仍从 `parts.<元件>` 开始，写盘会落回单个元件文件。新增、删除用 `part.add`、`part.remove`；文案用带对象路径和语言的 `text.set`。
 
 ### 6.9 界面
 
-**Registered displays (DESIGN.md §6.2–6.3).** Modules declare printable display capabilities in
-`module.js` under qualified names and register lazy implementation loaders with `implementDisplays`.
-`engine/displays.js` resolves these names and caches each implementation bundle. Module `ui/displays.js`
-entries own their styles, map illustrations, introduction figures, circuit presentation resources and pass panels.
-Game adapters select capabilities by name and bind course data; shared shell/views never import module UI or CSS.
-Production game builds keep the virtual game entry and asynchronous module adapters together in a dedicated
-chunk, so display bundles can import work helpers without cycling through an awaiting adapter.
-Bench layouts resolve both string and parameterized display calls (including nested `with` blocks) through the
-same registry. Common bench displays and `Knob` are provided by `image/view` in `packages/image/view/bench`. Metadata-only view/family/mark entries continue to describe generic value rendering.
+**显示由包登记。** 包在核心声明显示能力，在视图登记实现与延迟加载器。显示包持有样式、地图插画、引言图、读数和通关面板。通用外壳通过注册表加载，游戏适配层绑定组装后的内容。参数台的字符串和带参数调用共用显示解析；共用参数台显示与 `Knob` 从 `image/view` 导出。构建将虚拟游戏入口与异步适配器放在独立 chunk，保持显示包和作品工具的加载顺序。
 
-**Unlock all.** The progress dialog can open all levels, tasks, parts and encyclopedia entries without marking any task
-passed. Clearing play progress turns off Unlock all and restores the normal prerequisites. Normally a level is complete once every required task has passed. With all content unlocked, passing the last required task completes the level without returning to earlier tasks. A carried circuit opens on the prerequisite's passed board; if all content is unlocked and that prerequisite has not been passed, it opens on the reference board instead. A later pass replaces this starting point with the player's passing board, while a board already edited in the destination remains the player's own. Optional tasks are only recorded and grant their own rewards when actually completed.
+**全部解锁。** 进度面板可开放全部关卡、任务和百科，包扩展同时开放自己的对象，任务通过记录保持按实际完成写入。清除进度会关闭全部解锁。正常按全部必做任务完成关卡；全部解锁时通过最后一个必做任务即可完成关卡。沿用电路读取先修任务的通过作品；全部解锁且尚无通过作品时读取参考作品，玩家编辑后的目标板继续保存自己的内容。
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
@@ -567,7 +523,7 @@ passed. Clearing play progress turns off Unlock all and restores the normal prer
 
 **手机浏览器缩放。** 原生双指缩放时，关卡外壳仍按布局视口定高，浏览器负责平移放大后的页面。正常比例下，软件键盘打开时，外壳用可视视口调整运行栏位置。
 
-**卡片多宽。** 共用编辑器按元件的口、区域、设置、内部作品和值视图的声明计算宽度。手机格位用 `game.json` 中这块板所选的整套托盘取样，包含声明过的自搭元件。没有命名托盘的课程用全课程的原语和声明过的自搭元件作为一套。以出现最多的宽度选列数，并列取窄的。列数在 2、3、4 中取放得下该宽度与列缝的最多列数，至少两列，每格的计算下限是一个端口触区加两侧内边距。在同一可用宽度下，同一托盘的每一关列数和格宽一致。框内沿用外层格线，框默认占整行。较窄的元件拉满一格，较宽的元件按声明宽度分格，端口也必须排得下。卡面句子最多两行，余下以省略号表示，详情显示全文。 手机格位、分组和新增元件共用整块占位检查。新增元件跳过已占的格位和分组的插入行。《状态之图》只提供桌面起始位置，手机格位由内核按实际宽度分配。
+**卡片多宽。** 共用编辑器按元件的口、区域、设置、内部作品和值视图的声明计算宽度。手机格位用 `game.json` 中这块板所选的整套托盘取样，包含声明过的自搭元件。没有命名托盘的课程用全课程的原语和声明过的自搭元件作为一套。以出现最多的宽度选列数，并列取窄的。列数在 2、3、4 中取放得下该宽度与列缝的最多列数，至少两列，每格的计算下限是一个端口触区加两侧内边距。在同一可用宽度下，同一托盘的每一关列数和格宽一致。框内沿用外层格线，框默认占整行。较窄的元件拉满一格，较宽的元件按声明宽度分格，端口也必须排得下。卡面句子最多两行，余下以省略号表示，详情显示全文。 手机格位、分组和新增元件共用整块占位检查。新增元件跳过已占的格位和分组的插入行。《状态之图》只提供桌面起始位置，手机格位由 `circuit` 按实际宽度分配。
 
 **手机落位。** 新增、拖动和点选移动共用同一套放置逻辑。框落入空格时可收窄到目标行可用的列数，较宽的卡片会占用包含目标格的连续列。与落位重叠的元件顺延到后面的空格，其他元件保留原位。进出框时按作用域规则保留接线。受保护的元件和同一区域的交换仍遵守原有约束。
 
@@ -579,83 +535,21 @@ passed. Clearing play progress turns off Unlock all and restores the normal prer
 
 **顶部栏。** 游戏导航页、地图和关卡共用 `kit/shell/TopBar.jsx`：设置按钮始终靠右，打开同一个设置面板；导航页提供语言和主题，游戏中再提供该游戏适用的设备设置。
 
-**Mathematical text.** Shared markup accepts `\( … \)` for inline LaTeX and `\[ … \]` for display
-LaTeX. The math renderer and fonts load on demand. KaTeX renders mathematical fonts and accessible MathML; prose is never treated
-as HTML. Math delimiters are parsed before markup tags, so inequalities inside formulas are not tags. Code
-spans remain literal. Long formulas use explicit aligned/gathered lines and contained horizontal scrolling
-when needed; they must not widen the phone page. Formula syntax is checked with the installed KaTeX version.
+**数学文本。** 共用标记支持 `\( … \)` 行内 LaTeX 与 `\[ … \]` 独立公式。KaTeX 与字体按需加载，输出数学字体和可访问 MathML。先识别数学分隔符，再识别正文标记；代码片段保持字面内容。长公式显式分行，需要时在自己的窗口横向滚动。公式语法由已安装的 KaTeX 检查。
 
-**Circuit blocks.** Course provenance (`packages/circuit/core/stages.js`) supplies block presets and the `open-crowded`
-audit. Board layout stores `blocks: [{ id, note?, view, nodes }]`, with node identities rather than row dividers.
-Each root component belongs to at most one block; fixed input/output cards and current ungrouped work stay
-outside. A newly selected block takes its members from previous blocks; empty blocks disappear. Explicit empty
-lists remain empty. Presets apply only before blocks have been written: prior course groups use `ports`, with
-the course stage name as their note. Blocks, slots and desktop coordinates never affect blueprint text, execution
-or judging. There is no divider model or Arrange command.
+**电路分组。** `circuit` 按课程来源给出初始分组。板保存 `blocks: [{ id, note?, view, nodes }]`，每个根元件至多属于一组，固定输入输出与未分组作品留在外面。新组接收所选成员，旧空组删除；明确保存的空列表保持为空。分组、格位与桌面坐标只影响布局。
 
-Every block uses the single `packages/circuit/view/board/BlockHeader.jsx` component: note, component count and full/ports/hidden
-controls, with words from the shared registry. Full shows the original cards; ports omits their bodies while
-retaining heads and actual ports. Hidden shows only a narrow header with boundary port stubs. Clicking a stub or
-paired label restores the prior visible mode and reveals the component. Optional layout metadata `lastView`
-remembers that mode across reloads. A running step inside a hidden block temporarily reveals it without changing
-the stored mode. Notes, modes and deletion use the same header on both devices. Deleting a block keeps its nodes.
+桌面与手机共用 `packages/circuit/view/board/BlockHeader.jsx` 的说明、数量和三种显示控制。完整模式画卡片，端口模式保留卡头和实际端口，隐藏模式保留组头和边界端点。点边界端点恢复前一显示模式并揭示元件；运行时可临时揭示当前组。删除分组保留元件。
 
-Desktop Partition is always available in the canvas tools. A dragged rectangle selects component centres; Escape
-or a second press cancels. Passive token-based backdrops follow member bounds, with no independent block drag
-surface. A desktop header drag handle moves every member by the same canvas-space delta in all three views.
-The move is one undoable layout edit, preserves internal frame-local positions and wiring, and is unavailable
-in read-only boards. Escape cancels the preview. Individual desktop component drops use the same pointer-inside
-container hit testing and border highlight as assumption-frame regions. Dropping inside a block assigns that
-membership; dropping outside all blocks removes it, deleting an emptied block. A semantic frame region takes
-priority when both containers overlap. Only root editable components belong to blocks; fixed I/O stays outside.
-Position and membership commit as one undoable edit, with graph wires preserved for ordinary block transfers.
-Membership changes reuse the existing phone regrouping layout so both views retain the same members.
-Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
-inclusive. A bottom instruction banner names the current step and offers Cancel; choosing the start row changes
-the prompt to the end row. Phones always use two edge-to-edge horizontal rules with the header on the first,
-without block backdrops or container padding. There is no separate compact-view switch or device preference.
-Full shows complete cards; ports shows heads and actual ports in place. Hidden reduces a block to its header,
-retaining the grey header background with no padding. Actual endpoint stubs use the upper/lower edges on phones
-and left/right edges on desktop. Phone title buttons open a rename sheet with an explicit Save action. Its input uses the touch-input type
-token (at least 16 px) to avoid Safari focus zoom while preserving browser zoom controls.
+桌面可矩形选择分组，用组头拖动整组，三种模式下都按同一边界命中。移动保留框内坐标与接线，是一次可撤销布局修改，Escape 取消。元件落入组内时加入，落到组外时脱离；与语义框区域重叠时先按框处理。
 
-Compact placement has two layers in `packages/circuit/core/board/layout.js`: dependency columns within a block, upstream barycentre
-ordering and actual-port alignment; then block/loose units wrap by viewport width, with independent branches
-stacked and private constants/sources beside their consumer. Phone blocks act as slot containers: every internal
-hole is an add/drop slot and one complete empty row follows the last occupied row. Layout metadata `slot` and
-`rows` records the container origin and reserved extent. Dropping or adding inside a container assigns membership;
-dropping outside detaches it rather than extending the old block. Swaps transfer both memberships with their
-positions. Preset-block members cannot be moved on phones while Manual partitioning is off, including moves
-from the detail sheet; their ports remain operable. Hidden phone headers retain the shared grey group background without container padding.
-Phone members occupy contiguous two-column rows.
-Tapping a tray part fills the topmost, leftmost visible root-board slot. If none is visible, nothing is placed and
-no message is shown. Explicit drops still choose their destination, including slots within frames.
-Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
-placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
-holding its anchor, without saving those shifts. The headless SVG renderer retains its original column layout.
-Synthetic layout tests bound area, longest wire, crossings and total wire length.
+手机手动分组按起始行与结束行选择，底部显示当前操作和取消。组用两条横线与组头呈现，完整与端口模式保留格位，隐藏时只留组头。标题点开重命名单子，保存后写入；输入字体使用触屏字号。关闭手动分组时，预设组的元件保持原位，端口仍可操作。
 
-Wiring is unchanged: graph connections, port interaction, ordinary port placement and the original curve renderer
-are preserved. Block presentation may substitute boundary stubs only while hidden. The shared existing label
-policy and the player's label preference remain in force; this revision does not reroute or bundle the wires.
+`packages/circuit/core/board/layout.js` 先按依赖、重心与实际端口排列组内元件，再按视口放置分组和松散元件。手机组保存 `slot`、`rows`，保留内部空位和末尾完整空行；移动、交换、新增同步更新位置与归属。已有保存坐标保留，展开临时让位，接线与判定保持原有规则。无头 SVG 使用自己的列布局，合成测试检查面积、最长线、交叉与总线长。
 
-**Player settings.** A gear in the shared game bar opens a desktop popover or phone sheet on both maps
-and levels. Language and theme are choices inside this panel, retaining the site-wide `fieldnotes.lang` and
-`fieldnotes.theme` preferences. Their separate top-bar menus are removed from games. The kit alone registers presentation/editing
-preferences in `shell/settings.js`; `useSetting` supplies reactive reads and writes. `when(game)` hides irrelevant
-options. Device preferences share one `games.settings` localStorage key, partitioned by game, outside puzzle
-progress and stamps. Storage access is guarded; unavailable or invalid preferences use defaults.
+**玩家设置。** 地图和关卡共用齿轮入口，桌面弹出面板，手机打开底部单子。语言与主题沿用站点存储键。外壳通过 `shell/settings.js` 管理呈现与编辑偏好，包通过公开外壳扩展提供适用设置，`when(game)` 控制可见性。设置按游戏保存在 `games.settings`，存储不可用时使用默认值。
 
-The panel separates display and editing with a rule, uses one short name and control per row, and ends with
-Restore defaults. Manual partitioning starts off and appears only on phones where circuit grouping is meaningful. The phone
-Partition button follows this setting; desktop Partition is independent of it. Existing blocks
-and their view controls remain available. Connection labels
-default off on desktop, where the real ports and continuous wires preserve the data flow without duplicate name
-tags, and on on phones, where long wires cross many scrolling rows. An explicit device preference overrides both
-defaults. Grid display offers the game's available choices only when there is more than one, sharing its stored
-choice with every value and results row through `views/choice.js`. Results view switches use a single button that
-cycles the available views. Defaults give the simplest experience. New settings may alter presentation or editing,
-never the puzzle, judging or amount of hints. Content and domains cannot register settings.
+面板按显示与编辑分组，每项一个短名称和控件，末尾恢复默认。手动分组默认关闭，仅在适用的手机电路中出现；桌面的分组按钮始终可用。连接标签默认桌面关闭、手机打开，设备选择覆盖默认。网格显示仅在有多种读法时出现，与值和结果区共用选择。设置影响呈现和编辑体验。
 
 **版本更新**：发布版游戏在打开、回到前台和停留期间检查页面资源与内容；发现新版本就提示刷新，刷新后去关卡导航页，不沿用网址里的关卡参数。网络错误不当作更新。发布版启动失败时会请求最新页面。若页面引用了新版入口资源，就保留原链接自动重载一次。开发服务器不检查发布版本。游戏进度仍由存档版本规则管理。
 
@@ -663,7 +557,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 - **布局自己说话。** 不加次要的标签和说明：一块东西是什么，由它的位置和样子说清楚。结果区不加「测试 N」之类的标题，测试标签已经说了是哪一个；同一件事不说两遍：预期和结果里一样的输入只写一次。说明只在不写就看不懂时才写。
 - **信息要密。** 能写在一行的不拆成两栏，不留只为对齐的空白；空间先给玩的地方和结果。
-- **所有游戏一样。** 基本的界面和交互都由 kit 的共用件给（本节最后的「共用的件」），模块只交内容，不另排版面、不另做一套控件；改一个共用件就是改所有游戏，要在每种用到它的玩法上看一遍。
+- **所有游戏一样。** 外壳布局与基础控件由 kit 提供；玩法界面由包组合，共用实现从相应包导出；改一个共用件就是改所有游戏，要在每种用到它的玩法上看一遍。
 - **手机上的可操作性先于画面完整性。** 核心检查按钮使用共用运行栏；画面不能挤出控件，也不能把不可横向滚动的输入表藏在屏外。需要横向阅读的表明确提供滚动区域；彩色图编辑一次选择一个像素，再显示带通道名称的输入。输入与主要按钮至少有 44px 的触摸范围，并实际检查窄屏、滚动和键盘弹出后的操作。
 - **浮层操作。** 可点外部关闭的菜单、选项列表和编辑浮层共用层级判定。按在最上层浮层或其触发按钮内时，保留下方浮层。存档菜单因外部点按关闭时先保存正在编辑的名称。Escape 只交给当前画在最上面的浮层。引言上的百科或前往确认关掉后，引言仍停在原页。引言在最上层时，方向键用来翻页。浮层挡住的工作区暂停快捷键，正在进行的拖动优先响应 Escape 并取消。
 - **兼容手机浏览器。** 不用较新的 JavaScript API（例如 `Map.groupBy`），旧版 iOS Safari 上会整页白屏；手机上点开元件也要试一遍。拖着手机格位上的元件或框时（连同贴边自动滚动），每挪一下都重画连着它的线，线头跟着口此刻的位置；放下或取消时回到排好的版面，拖的过程中不改任何接线。自动滚动只在原来的区域里滚，挪动中的元件和线不会把可滚动的画布永久撑大。
@@ -694,15 +588,15 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 - **手机端输入口不显示接入来源标签。** 连线和端口名称照常显示，端口的无障碍名称保留来源与拆线提示；跨段连线标签仍按玩家设置显示。
 - **手机上点托盘里的元件，放进眼前的空格位。** 电路编辑器把板上和各层框内的空格一起按屏幕上的位置排序，先从上到下，再从左到右。它沿用放置时的区域和格位检查，跳过放不进的空格，把第一个可用格及其区域交给放置操作。当前视野没有能放这个元件的空格时，板上显示提示。
 - **输入就是输入元件。** 机体读到的东西（视野、本格信息、手臂）直接画在画布的输入元件里，点一下就接上或断开，桌面和手机同一个模型；不另设一块输入面板。输入元件可以比其他元件宽（`parts.cardWidth`），默认摆放位置要按元件宽度留出间距，不能叠在一起。手机格位的行、列之间留出间隔，减少相邻空格误触；输入元件和输出元件按里面的东西定宽、居中排：一个数、一张图或一条函数是紧凑的一块，一句长命题宽到整排再折行；放得下就并排（有很多输出口的宽元件独占一行）。
-- **预置的元件和线锁在板上。** 关卡的预置（第 4 节）由外壳放进新板和旧存档里（`packages/circuit/core/board/presets.js` 的 `withPreset`），标成 `locked`。共用的两个编辑器都守着它：每次改动都保护锁住的元件和线（`keepLocked`，蓝图导入、撤销也一样）；锁住的线不能拆、不能换（`lockedRefusal`，在板上说明原因）；锁住的元件、预置线两端的元件以及包住它们的外层框只能在原区域内挪动，删除按钮不会出现；固定的设置项沿用预置值，元件上的控件禁用，联动规则也跳过这些项。清空回到关卡的起点，预置还在。
-- **手机上点开一个元件**，弹出的单子只有：它是什么、它的设置、它在当前测试上的结果，最后是「拿掉这一块」（`circuit/RemoveButton.jsx`）。接线只在板上点圆点完成，单子里不再给"读哪个结果"之类改接线的入口，所有游戏一样。
+- **预置的元件和线锁在板上。** 关卡的预置（第 4 节）由 `circuit` 放进新板和旧存档里（`packages/circuit/core/board/presets.js` 的 `withPreset`），标成 `locked`。共用的两个编辑器都守着它：每次改动都保护锁住的元件和线（`keepLocked`，蓝图导入、撤销也一样）；锁住的线不能拆、不能换（`lockedRefusal`，在板上说明原因）；锁住的元件、预置线两端的元件以及包住它们的外层框只能在原区域内挪动，删除按钮不会出现；固定的设置项沿用预置值，元件上的控件禁用，联动规则也跳过这些项。清空回到关卡的起点，预置还在。
+- **手机上点开一个元件**，弹出的单子只有：它是什么、它的设置、它在当前测试上的结果，最后是「拿掉这一块」。接线只在板上点圆点完成，单子里不再给"读哪个结果"之类改接线的入口，所有游戏一样。
 - **元件详情弹窗**共用 `kit/shell/Sheet.jsx`。点按元件打开详情。手机上从底部弹出，电脑上居中显示。
 
 **点一个按钮填一样东西**（一句话、一个值）用 `kit/shell/Popover.jsx`：桌面上在按钮旁弹出一个指着它的框，像装着编辑器的提示框，点框外或按 Esc 关掉；手机上是底部单子。改了立即生效，没有保存按钮。整关就是填这一样东西的（翻译关）不用它，编辑器直接摆在台面上。
 - **撤销和重做**在桌面画布和手机格位上都有。**清空**也是画布自己的工具（`onClear`：桌面在右下角工具条最前面，手机在撤销、重做左侧），点了先弹窗确认，清空后仍可撤销；不放在运行栏里。手机格位和词序条上的清空按钮一直在，板上没有可清空的东西时变灰、不能点（kit 的 `ClearButton` 不给 `onClear` 就是这样）。
 - **手机电路工具条**随板滚动并吸顶，初始布局在工具条下方为输入卡顶部的标签预留空间。
-- **一关可以存多块电路。** 每个拼电路的关卡都能新建（空白或复制当前）、切换、重命名、删除几块电路图（`shell/slots.js`）。正在玩的那块就是这一关的存档（`progress.data`），其余的等在 `progress.slots` 里；切换时外壳让关卡界面从选中的那块重新开始。切换器由外壳经 `SlotsContext` 交给编辑器，不经过各模块的界面：桌面在画布左下角（游戏自己的角落工具，如《视觉完备》的「全部画成」，用 `corner` 放在它右边），手机在撤销、重做那一行的最左端。
-- **电路的文本形式就是蓝图。** 多存档菜单里有「以文本查看 / 复制」和「从文本导入」（`packages/circuit/core/board/text.js`、`BlueprintDialog.jsx`）：把当前这块板写成纯 ASCII 文本，可以复制、存成 .txt，在任何记事本里改，再粘贴或打开文件导入；导入替换当前这块板，可以撤销。文本只写电路算什么（元件、设置、接线、框的嵌套），不写版面：同名同类型的元件留在原位，新元件由编辑器排开。写法：`名字 = 类型[设置](输入, …)`，按输入口顺序写来源，`_` 留空，`来源.键` 指多个输出里的一个；框写成按区域分开的代码块，区域给出的值读作 `框.区域`；接到关卡给的节点写 `out <- a`。蓝图可省略关卡已经放好的元件和线。导入先保留这些预置，再校验新接线。写出预置的原样可以导入，改动预置的类型、区域、固定设置或接线会按行报错。桌面、手机和蓝图用同一套接线判定，检查两端是否存在、预置线、环路、区域和模块的类型规则。设置让已选端口消失时，编辑器清掉这次选中。 重新打开存档、继承板或封装元件时，按该任务的元件和端口重新检查整块板。存档不合时打开关卡起点，搭出的元件使用参考作品。机器人先按当前任务的传感器配置调整电路。导入时按编辑器的规则逐条检查（只能用这一关托盘里的元件、不成环、框里的东西不带出框、口的类型相容），出错按行列出。**元件的类型、口名和设置值都要是 ASCII**：新元件的口名和设置值直接用 ASCII 起名，显示用的符号放在标签里（《视觉完备》的平移方向是 `right`、`down`，按钮上画箭头；重参数化的口是 `mu`、`sigma`、`eps`，标签是 μ、σ、ε）。展示用的记号本来就是符号的（《证明完毕》的公式），由模块的 `parts.text` 在写出和读回时换成 ASCII 拼法（`->`、`&`、`|`、`~`、`forall x.`）；关卡给的节点上玩家能改的东西（《状态之图》输入元件读哪几格）由 `parts.text.sets` 列出，随蓝图一起写出；蓝图里的线读到一个还没打开的格子时，由 `parts.text.opens` 替它打开（只要这一关给了那一格）：蓝图写了读哪一格，就不用先在机器人视野里点开。
+- **一关可以存多块电路。** 每个拼电路的关卡都能新建（空白或复制当前）、切换、重命名、删除几块电路图（`shell/slots.js`）。正在玩的那块就是这一关的存档（`progress.data`），其余的等在 `progress.slots` 里；切换时外壳让关卡界面从选中的那块重新开始。切换器由外壳经 `SlotsContext` 交给编辑器，不经过各包的界面：桌面在画布左下角（游戏自己的角落工具，如《视觉完备》的「全部画成」，用 `corner` 放在它右边），手机在撤销、重做那一行的最左端。
+- **电路的文本形式就是蓝图。** 多存档菜单里有「以文本查看 / 复制」和「从文本导入」（`packages/circuit/core/board/text.js`、`BlueprintDialog.jsx`）：把当前这块板写成纯 ASCII 文本，可以复制、存成 .txt，在任何记事本里改，再粘贴或打开文件导入；导入替换当前这块板，可以撤销。文本只写电路算什么（元件、设置、接线、框的嵌套），不写版面：同名同类型的元件留在原位，新元件由编辑器排开。写法：`名字 = 类型[设置](输入, …)`，按输入口顺序写来源，`_` 留空，`来源.键` 指多个输出里的一个；框写成按区域分开的代码块，区域给出的值读作 `框.区域`；接到关卡给的节点写 `out <- a`。蓝图可省略关卡已经放好的元件和线。导入先保留这些预置，再校验新接线。写出预置的原样可以导入，改动预置的类型、区域、固定设置或接线会按行报错。桌面、手机和蓝图用同一套接线判定，检查两端是否存在、预置线、环路、区域和包的类型规则。设置让已选端口消失时，编辑器清掉这次选中。 重新打开存档、继承板或封装元件时，按该任务的元件和端口重新检查整块板。存档不合时打开关卡起点，搭出的元件使用参考作品。机器人先按当前任务的传感器配置调整电路。导入时按编辑器的规则逐条检查（只能用这一关托盘里的元件、不成环、框里的东西不带出框、口的类型相容），出错按行列出。**元件的类型、口名和设置值都要是 ASCII**：新元件的口名和设置值直接用 ASCII 起名，显示用的符号放在标签里（《视觉完备》的平移方向是 `right`、`down`，按钮上画箭头；重参数化的口是 `mu`、`sigma`、`eps`，标签是 μ、σ、ε）。展示用的记号本来就是符号的（《证明完毕》的公式），由包的 `parts.text` 在写出和读回时换成 ASCII 拼法（`->`、`&`、`|`、`~`、`forall x.`）；关卡给的节点上玩家能改的东西（《状态之图》输入元件读哪几格）由 `parts.text.sets` 列出，随蓝图一起写出；蓝图里的线读到一个还没打开的格子时，由 `parts.text.opens` 替它打开（只要这一关给了那一格）：蓝图写了读哪一格，就不用先在机器人视野里点开。
 - 蓝图、桌面和手机的排版以及图像网络约束共用连线的依赖遍历。蓝图保留同层的元件顺序，手机格位保留按接线发现同层元件的顺序。图像的层数和瓶颈约束按来源元件追踪每个命名输出。
 
 **运行和结果**
@@ -713,14 +607,14 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 - **最后一次运行留在板上，直到离开这一关。** 一块板跑完以后（通过或失败，或停在单步的某一步），在关内切换任务、换一块存档再换回来，看到的都还是那次运行：每个测试的状态、停下的那一步、元件上的值、步骤列表。通关后玩家要能在关内回头查看结果。离开这一关（回地图或去别的关）运行就清空，不进存档，刷新页面也不留。完整游戏页和笔记嵌入页共用 `useLevelRuns`，在内存里按「任务 · 存档」给当前关的每块板记一个标记，关卡界面从 `lastRun` 读、用 `keepRun` 写（用 `CircuitLevel` 的电路关自动接上）：`usePlayback` 记走到了第几步（传 `kept`、`onKeep`），一次性检查的界面记「检查过」（`shell/useCheckOnce.js`），《状态之图》记跑到了哪个测试。打开时界面照当前这块板把运行重放到那里，不再弹通关或失败的窗口；板一改标记就清掉，删掉的存档连同它的标记一起删。关内重新打开关卡界面的只有换任务和换存档（外壳按「任务 · 存档」给界面换 key），所以有任务或有存档切换器的玩法才要接 `lastRun`；两样都没有的（《状态之图》的手动玩法、《视觉完备》的探针关和参数台）运行就留在界面自己的状态里，它正好活到离开这一关。关内别的事（关卡抽屉、引言、百科、窗口跨过手机宽度）都不能重新打开关卡界面。跑完后板上显示整块板的运行结果：输入的值、没接到结果上的元件给出什么或缺什么，和运行前一样，只多了测试的状态。
 - 电路编辑器、蓝图、存档和封装元件共用 `packages/circuit/core/board/regions.js` 的区域地址和嵌套检查。卡片只能放进现存的区域，框不能直接或间接放进自己的区域。区域布局、折叠与证明中的假设层数沿用同一份父子关系。 元件设置会增减区域时，计算和画面按同一条件显示区域。有元件的区域要先移出元件，关卡锁住的接线保持原样。空区域关闭时，设置和断开的普通线作为一次编辑保存，可一起撤销。
 - 桌面电路、手机电路和封装元件示意图共用卡片端口与读数接入（`packages/circuit/core/board/card-ports.js`）。框的假设与结论接线口放在对应区域，点卡片接线按卡片对外的第一个输出处理。
-- **封装元件能打开看里面。** 一块封装元件跑的是学习者的电路（第 1 节），它里面的每个元件也是运行的一步，步骤写明它在哪几块元件里（外层在前），主板上点亮最外面那块元件。画布里不套画布。桌面和手机都点按封装元件打开详情。详情窗（手机上是单子）里贴出这块电路的示意图，桌面和手机一样（`packages/circuit/view/board/Schematic.jsx`，只看不改：小元件自上而下按数据流分行，每个只有名字、设置和值，细线接在上下边缘，没有端口圆点、空格位和工具；跨行的线在经过的行里留出过孔，从元件之间穿过，不压在元件上；板自己的输入和结果是顶上和底下的一行小标签；框是套着各区域的一块底色，区域里又是一张示意图。还没运行到的元件不显示值。超出窗口高度才滚动，当前这一步所在的元件滚到眼前；里面的封装元件可以点开，在上面再弹出它自己的详情，里面又是它的电路，标题栏关闭按钮旁是一个小的「编辑」）。板上元件的单子在手机上把「编辑」和「移动」「删除」并排放在底下；桌面的详情窗按桌面排：「编辑」是标题栏里关闭按钮旁的一个小按钮，不占一整行。封装元件在桌面画布、手机格位、元件列表和托盘上用自己的标记和原始元件分开（`parts.packed`）：类别小方块是实心的（类别的颜色作底，图标反白），图标由游戏给（《证明完毕》是电路板），说的是「里面是一块电路」。电路上每个元件显示这块元件到当前这一步为止最近一次运行里的值，当前这一步所在或正在算的元件亮起并滚到眼前。步骤多（一次 auto 几百上千步）时，靠运行的快进和步进看；性能不够时，宁可去掉改板时的即时预览或「跳到结果」，也保留逐步运行。真值电路上的门显示当前这一行的值，逐拍电路里的元件显示当前这一拍的值。这些都由 circuit 包处理（`packages/circuit/view/board/Inside.jsx`，`packages/circuit/core/trace.js` 的 `insideAt`）：模块只说一块封装元件跑哪块板、此刻的轨迹是哪一条（`packages/circuit/core/boards.js` 的 `packed` 在轨迹里给里面每个元件记下 `path`；逐拍世界的板节点传 `traced` 就每拍留一条），用的是 `CircuitLevel` 的 `packed`；元件箱里的封装元件用同一套（`PackedBoard`，只读，没有值）。详情窗和步骤日志通过 `packages/circuit/core/board/packed-boards.js` 逐层查找封装元件，按各层所在关卡和该元件的设置解析内部作品及编辑去向。
-- **多条目的值是一个能滚动的窗口。** 一个值有很多条（子句集、证明状态的目标、等式、模型的上下文……）时，一律用 kit 的 `shell/Entries.jsx` 显示：条目在一个能滚动的窗口里，一条一行，窗口下面固定一行写共有多少条，不跟着滚；不到这么多行时窗口跟着变矮。窗口多少行（含共计那一行）、最多列多少条，按用的地方配：默认板上（桌面画布、手机格位、运行过程）5 行、20 条，单子里（`Sheet` 经 `EntriesSize` 给出）13 行、50 条；别的地方用 `EntriesSize` 给它里面的一切另定，单个列表也可以直接写 `lines`、`max`。行高默认是 12px 字一行，模块的行更高时在样式里设 `--entry-row`。
+- **封装元件能打开看里面。** 一块封装元件跑的是学习者的电路（第 1 节），它里面的每个元件也是运行的一步，步骤写明它在哪几块元件里（外层在前），主板上点亮最外面那块元件。画布里不套画布。桌面和手机都点按封装元件打开详情。详情窗（手机上是单子）里贴出这块电路的示意图，桌面和手机一样（`packages/circuit/view/board/Schematic.jsx`，只看不改：小元件自上而下按数据流分行，每个只有名字、设置和值，细线接在上下边缘，没有端口圆点、空格位和工具；跨行的线在经过的行里留出过孔，从元件之间穿过，不压在元件上；板自己的输入和结果是顶上和底下的一行小标签；框是套着各区域的一块底色，区域里又是一张示意图。还没运行到的元件不显示值。超出窗口高度才滚动，当前这一步所在的元件滚到眼前；里面的封装元件可以点开，在上面再弹出它自己的详情，里面又是它的电路，标题栏关闭按钮旁是一个小的「编辑」）。板上元件的单子在手机上把「编辑」和「移动」「删除」并排放在底下；桌面的详情窗按桌面排：「编辑」是标题栏里关闭按钮旁的一个小按钮，不占一整行。封装元件在桌面画布、手机格位、元件列表和托盘上用自己的标记和原始元件分开（`parts.packed`）：类别小方块是实心的（类别的颜色作底，图标反白），图标由游戏给（《证明完毕》是电路板），说的是「里面是一块电路」。电路上每个元件显示这块元件到当前这一步为止最近一次运行里的值，当前这一步所在或正在算的元件亮起并滚到眼前。步骤多（一次 auto 几百上千步）时，靠运行的快进和步进看；性能不够时，宁可去掉改板时的即时预览或「跳到结果」，也保留逐步运行。真值电路上的门显示当前这一行的值，逐拍电路里的元件显示当前这一拍的值。这些都由 circuit 包处理（`packages/circuit/view/board/Inside.jsx`，`packages/circuit/core/trace.js` 的 `insideAt`）：包只说一块封装元件跑哪块板、此刻的轨迹是哪一条（`packages/circuit/core/boards.js` 的 `packed` 在轨迹里给里面每个元件记下 `path`；逐拍世界的板节点传 `traced` 就每拍留一条），用的是 `CircuitLevel` 的 `packed`；元件箱里的封装元件用同一套（`PackedBoard`，只读，没有值）。详情窗和步骤日志通过 `packages/circuit/core/board/packed-boards.js` 逐层查找封装元件，按各层所在关卡和该元件的设置解析内部作品及编辑去向。
+- **多条目的值是一个能滚动的窗口。** 一个值有很多条（子句集、证明状态的目标、等式、模型的上下文……）时，一律用 kit 的 `shell/Entries.jsx` 显示：条目在一个能滚动的窗口里，一条一行，窗口下面固定一行写共有多少条，不跟着滚；不到这么多行时窗口跟着变矮。窗口多少行（含共计那一行）、最多列多少条，按用的地方配：默认板上（桌面画布、手机格位、运行过程）5 行、20 条，单子里（`Sheet` 经 `EntriesSize` 给出）13 行、50 条；别的地方用 `EntriesSize` 给它里面的一切另定，单个列表也可以直接写 `lines`、`max`。行高默认是 12px 字一行，包的行更高时在样式里设 `--entry-row`。
 - **读数放在预览里。** 指针在图上时，数值显示在输入输出的预览里，不在元件上浮出坐标。
 - 点选网格时，读数固定在该格旁。格子随页面滚动移位、改变窗口尺寸或点到网格外时收起读数。
 
 **值怎么显示：数据形状 × 显示方式 × 场景**
 
-游戏里显示一个值的每一处——板上的元件、元件详情、结果区、引言和点题旁的图、文字里的一个值——都经 kit 的显示组件（`kit/views/`，和 `circuit/`、`studio/` 平级；形状、显示方式、场景的数据在 `kit/engine/views.js`）。
+游戏里显示一个值的每一处——板上的元件、元件详情、结果区、引言和点题旁的图、文字里的一个值——都经 kit 的显示组件（`kit/views/`；形状、显示方式、场景的数据在 `kit/engine/views.js`）。
 
 电路板和参数台通过 `views/useElementSize.js` 读取容器尺寸。像素图按原比例直接排版，数值网格在可滚动的框里保留可读的格宽。
 
@@ -734,10 +628,10 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 图像判分和结果区用每格最大的通道误差来计数、着色和标记。曲线和箭头也共用包含边界的容差判定。非有限值计入误差，曲线在该采样点断开，用失败标记显示位置。
 
-黑箱探针和电路结果区通过 `engine/grid.js` 的 `readCell` 联动读数。选中格的中心按图像相对位置换算到另一张图，返回对应格的坐标和原始值。探针用同一结果画标记和写读数。结果区的像素、剖面和频谱读数集中显示在图下方。剖面按同一相对高度选扫描行，再按所选列的相对位置读每张图。频谱按以零频为中心的有符号频率索引读同类频谱，缺少该频率时显示「—」。二维频谱的数值采用图上各自的对数归一化强度。桌面悬停和手机点按均可读取。数值网格和读数共用 RGB 标签，文字试玩和作者工具通过同一个像素读取按行写出灰度值或 `(R,G,B)` 三元组。
+黑箱探针和电路结果区通过 `kit/engine/grid.js` 的 `readCell` 联动读数。选中格的中心按图像相对位置换算到另一张图，返回对应格的坐标和原始值。探针用同一结果画标记和写读数。结果区的像素、剖面和频谱读数集中显示在图下方。剖面按同一相对高度选扫描行，再按所选列的相对位置读每张图。频谱按以零频为中心的有符号频率索引读同类频谱，缺少该频率时显示「—」。二维频谱的数值采用图上各自的对数归一化强度。桌面悬停和手机点按均可读取。数值网格和读数共用 RGB 标签，文字试玩和作者工具通过同一个像素读取按行写出灰度值或 `(R,G,B)` 三元组。
 
 - **形状**：`scalar`（一个值，写成字：数、是或否、向量）、`grid`（`{ w, h, c, data }`：矩阵、图像、一行数）、`bits`（每拍一个 0 或 1）、`ticks`（每拍一个值）、`list`（按顺序的几个值）。
-- **显示方式**：一种显示方式画一种或几种形状，同一种形状可以有几种。现有 `value`；`grid` 的 `numbers`（每格写出数）、`pixels`（画成图）、平面上的箭头三种读法，各是一种显示方式，由内容写明、不按列数猜（两行的网格每列是一支箭头，画在淡淡的整数格上；应得画成虚线箭头，差的箭头标红；不写尺寸）：`plane`（每列从原点出发）、`carried`（正好两列，读作 2 × 2 矩阵：整张格子跟着两支箭头推过去，单位正方形的像按是否翻面着两种底色）、`chain`（各列首尾相接，后一支从前一支的箭头尖出发，再从原点画出它们的和）；一块板上和它的结果区里的箭头共用一个画框（`PlaneExtent`，取这个测试的值和整次运行的值里伸得最远的），长一倍的箭头在每张卡片上都画得长一倍、`plot`（函数图像：每行是列号的函数，样本是从零起的竖线和点，应得是同一坐标上的圈，差的点标红，指着一列在图上方读数；按一个绘图单位一像素画，宽度随样本数走，样本少就窄，框窄了才缩小）、`profile`（剖面：图上一条能拖的扫描线，下面是那一行的函数图像，每个样本对着它那一列）、`surface`（地形：每格的值是高度，画成立体的面）、`slope`（坡度：淡化的图上画等值线，箭头是梯度，指向变大最快的方向，越长越陡）、`spectrum`（频谱：零频在中间；一两行画成各频率幅度 |F|/n 的函数图像，应得画在同一坐标上；一张图画成对数强度图，均值不参与缩放）；`bits` 的 `wave`、`bits`/`ticks` 的 `bands`、`ticks` 的 `terms`（逐项：每拍一列写出数，几条泳道合起来像一张表；有它或 `dots` 的时间轴把列放宽到写得下最长的数）和 `dots`（数列图：较高的一条泳道，每项一个点，应得是同一刻度上的圈，零在范围内时画一条虚线）；`list` 的 `sequence`。新的显示方式加进库里，所有游戏、所有场景都能用；模块不写自己的显示方式。
+- **显示方式**：一种显示方式画一种或几种形状，同一种形状可以有几种。现有 `value`；`grid` 的 `numbers`（每格写出数）、`pixels`（画成图）、平面上的箭头三种读法，各是一种显示方式，由内容写明、不按列数猜（两行的网格每列是一支箭头，画在淡淡的整数格上；应得画成虚线箭头，差的箭头标红；不写尺寸）：`plane`（每列从原点出发）、`carried`（正好两列，读作 2 × 2 矩阵：整张格子跟着两支箭头推过去，单位正方形的像按是否翻面着两种底色）、`chain`（各列首尾相接，后一支从前一支的箭头尖出发，再从原点画出它们的和）；一块板上和它的结果区里的箭头共用一个画框（`PlaneExtent`，取这个测试的值和整次运行的值里伸得最远的），长一倍的箭头在每张卡片上都画得长一倍、`plot`（函数图像：每行是列号的函数，样本是从零起的竖线和点，应得是同一坐标上的圈，差的点标红，指着一列在图上方读数；按一个绘图单位一像素画，宽度随样本数走，样本少就窄，框窄了才缩小）、`profile`（剖面：图上一条能拖的扫描线，下面是那一行的函数图像，每个样本对着它那一列）、`surface`（地形：每格的值是高度，画成立体的面）、`slope`（坡度：淡化的图上画等值线，箭头是梯度，指向变大最快的方向，越长越陡）、`spectrum`（频谱：零频在中间；一两行画成各频率幅度 |F|/n 的函数图像，应得画在同一坐标上；一张图画成对数强度图，均值不参与缩放）；`bits` 的 `wave`、`bits`/`ticks` 的 `bands`、`ticks` 的 `terms`（逐项：每拍一列写出数，几条泳道合起来像一张表；有它或 `dots` 的时间轴把列放宽到写得下最长的数）和 `dots`（数列图：较高的一条泳道，每项一个点，应得是同一刻度上的圈，零在范围内时画一条虚线）；`list` 的 `sequence`。新的显示方式加进库里，所有游戏、所有场景都能用；包不写自己的显示方式。
 - **一种显示方式可以只画它形状里的一部分值**（`VIEWS` 的 `fits`）：`plane` 只画两行、至多六列的灰度网格，`carried` 只画其中正好两列的，`chain` 只画至少两列的，`plot` 只画一两行的灰度网格，`profile`、`surface` 只画至少两行两列的灰度网格，`slope` 只画至少三行三列的，`spectrum` 只画至多 128 × 128 的灰度网格。一处能用的显示方式是列出的里面画得了这个值的（`usable`；结果区按应得、给出的值判断）：默认列表里画不了的不出现，内容明写在 `results` 里的画不了算检查问题。
 - **场景**是封闭的几种，决定画多大、有没有坐标轴、能不能指着读数、能不能切换，调用的地方不传这些：
   - `card` 板上元件里：缩略，网格在数值格下且格子少时写出数，否则画成小图；
@@ -745,29 +639,29 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
   - `results` 结果区：结果对应得，并排或上下对齐，不同的地方标出来，逐拍的几行共用一根时间轴（`Results.jsx`）；可在标题旁切换。图像结果行提供相同画法时，共用一排画法按钮；
   - `figure` 引言和点题旁的图：框按值的大小定，可以标出一格、点选一格；示例不能切换显示方式，用玩家选的，或作者只列出的一种；样本取自已知函数时（波形之类）把函数一起给出（`curve`），函数图像照常把样本连线，整条函数曲线画成灰色背景；
   - `inline` 文字里：一行高。
-- **显示方式按每一个值记**（`views/picks.js`）：一个值是任务的一个输入或输出、板上一个元件的一个输出（`id#口`），或封装元件里的一个值（前面加上它所在的几层元件）。在元件详情里换，元件上的缩略图跟着换（逐拍运行的板上，详情里是元件每个值到这一拍为止的一条时间线，模块不另给详情时由 kit 画）；输入、输出元件和结果区里它那一行是同一个值，在哪边换两边都跟着变。别的值不受影响。选择按游戏和任务记在这台设备上，不进存档和蓝图：换显示方式不改板，也不清掉上一次运行。没选过的值，用任务的口写的 `view`，没写就用列出的第一种。引言图不切换。
+- **显示方式按每一个值记**（`views/picks.js`）：一个值是任务的一个输入或输出、板上一个元件的一个输出（`id#口`），或封装元件里的一个值（前面加上它所在的几层元件）。在元件详情里换，元件上的缩略图跟着换（逐拍运行的板上，详情里是元件每个值到这一拍为止的一条时间线，包不另给详情时由 kit 画）；输入、输出元件和结果区里它那一行是同一个值，在哪边换两边都跟着变。别的值不受影响。选择按游戏和任务记在这台设备上，不进存档和蓝图：换显示方式不改板，也不清掉上一次运行。没选过的值，用任务的口写的 `view`，没写就用列出的第一种。引言图不切换。
 - 所有给玩家读的数都按同一种写法（`kit/engine/number.js`）：最多几位小数，去掉二进制浮点的尾巴和末尾的 0，−0 写成 0。
 - 图表、灰度图、网格读数和 Studio 矩阵底色经 `finiteExtent` 读取有限数值的范围。各视图按自己的刻度和亮度规则显示这些值。
 
-模块只交两样：值，以及一个值写成字的写法（`show`）。模块自己画的东西只剩不是值的画面：渲染出的场景照片、几何示意、参数台的模型显示项。
+包只交两样：值，以及一个值写成字的写法（`show`）。包自己画的东西只剩不是值的画面：渲染出的场景照片、几何示意、参数台的模型显示项。
 
 **编排是内容**
 
 - `game.json` 的 `views` 给每种形状默认的显示方式（`{ "grid": ["numbers", "pixels"] }`），没写的形状用库里的第一种。
 - 任务的 `views`（同样的写法）换掉它写到的形状的默认显示方式，管这个任务的板上元件、详情和结果区。
 - 任务的一个输入或输出可以写 `view`：它的值起初画成哪种（在列出的里面才算）。在工作室的画面编辑模式里，换一个输入、输出元件或它结果行的显示方式，就是写它的 `view`（作为一条待定的变更），不记成设备上的选择。
-- **结果区**：模块只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是模块给的默认几行：输出；逐拍的板在前面再加进线和输入。
+- **结果区**：包只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是包给的默认几行：输出；逐拍的板在前面再加进线和输入。
 - **电路玩法的显示配置。** `plays.js` 可用 `results: 'hidden'` 隐藏结果区，用 `output: 'target'` 让输出元件显示当前测试的应得值。颜色取自同一份逐输出判定。单次判定的电路在有输出时更新颜色，检查过但没有输出也显示失败色。测试选择和运行栏仍可用。
 - **手机电路卡片。** `tileSettings: 'hidden'` 把配置摘要收进详情，格位保留元件名称和运行读数。
-- **Module screen resources.** Circuit modules provide display resources such as port labels, readouts and figures through registered display capabilities. `packages/circuit/view/CircuitScreen.jsx` composes the shared screen; game adapters bind the registered resources to course data. Module contracts check registration and loading, and shared renderers may not import module UI or CSS directly (DESIGN.md §6.2–6.3).
-- **修改给定的电路**：任务照常写 `tests`、`solution`。`starter` 是打开时摆在板上的蓝图，玩家编辑电路，内核按任务的测试判定。玩家编写检验来找错误的关卡走第 6.5 节的纠错玩法。
+- **电路屏资源。** 包通过登记显示能力提供端口标签、读数与附图。`packages/circuit/view/CircuitScreen.jsx` 组合电路屏，适配层绑定课程数据。契约检查登记与加载，通用渲染器经公开接口使用包的界面和样式。
+- **修改给定的电路**：任务照常写 `tests`、`solution`。`starter` 是打开时摆在板上的蓝图，玩家编辑电路，玩法按任务的测试判定。玩家编写检验来找错误的关卡走第 6.5 节的纠错玩法。
 - **一个测试的附图**。电路屏可从 `figure({ task, test, run, at })` 取得附图，桌面排在结果旁，手机排在结果上方。附图可按当前运行步骤更新。
 - **引言和点题**：引言的一页可以带 `show`，一关可以带 `afterShow`（显示在点题旁），写一个值：`{ shape, value, views?, label? }`，值按内容的写法写（网格写成一行行的数或 [R, G, B]，位写成 0、1、. 组成的字符串），kit 在 `figure` 场景里画它。
 - **一处列一种显示方式，玩家就不能换；列几种，第一种是起始，玩家可以切换。** 结果区里几行可选的显示方式相同时，头部只有一个切换，切一次全都换；不同的行各自在标签旁切换。
 - `npm run check` 查：结果区每一行的 `of` 是这个任务能显示的东西；每一处列出的显示方式画得了它的形状和它的值（结果区按参考解跑出的值），每一行至少有一种画得了；内容写的值合它的形状。
 - **判定是结果区的第一行**，桌面和手机一样，一次判完的关判完就有，逐步运行的停下时有。
 
-**用词**（`kit/shell/words.js`，模块不另起说法）
+**用词**（`kit/shell/words.js`，包不另起说法）
 
 | 意思 | 写法 |
 |---|---|
@@ -779,14 +673,14 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 **读数**：左栏任务下面的几个数（元件数、代价、步数、调用数……）用 `packages/circuit/view/Readouts.jsx`：一行几格，数在上、名字在下，样子和位置所有游戏一样；不加「评分」之类的标题。
 
-**样式只取 tokens。** 字号、颜色、圆角、间距用 `kit/tokens.css` 的变量。直接写出的字号（样式表里的 px）、间距和圆角（样式表里超过 1px 的 px）、颜色（样式表和代码里的色值）由 `npm run styles` 数出来（`kit/engine/styles.js`）：kit 自己的样式表、共用件（`shell`、`circuit`、`views`、`strip`）、每个模块和模板各一项；`npm test` 给每一项设上限（`styles.test.js`），只降不升，间距和圆角处处是零，新模块全是零。studio 有自己更紧的一组值（第 6.7 节），不在其内。笔记站（`docs/stylesheets`）和 Fieldnotes（`trace-viewer/src`）用同一套间距和圆角，但不在这项统计里。
+**样式只取 tokens。** 字号、颜色、圆角、间距用 `kit/tokens.css` 的变量。直接写出的字号（样式表里的 px）、间距和圆角（样式表里超过 1px 的 px）、颜色（样式表和代码里的色值）由 `npm run styles` 数出来（`kit/engine/styles.js`）：kit 自己的样式表、共用件（`shell`、`circuit`、`views`、`strip`）、各包自行检查；`npm test` 给每一项设上限（`styles.test.js`），只降不升，间距和圆角处处是零，新包全是零。studio 有自己更紧的一组值（第 6.7 节），不在其内。笔记站（`docs/stylesheets`）和 Fieldnotes（`trace-viewer/src`）用同一套间距和圆角，但不在这项统计里。
 
-**共用的件**
+**共用组件**
 
-关卡界面只交各块内容，版面和交互由下面这几样给（第 6.3 节说明模块如何接注册能力）。版面是 `kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`：关卡给 `results` 就有结果区（还没有内容时传 `null`：桌面上留着空的结果区，手机上不显示），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
+关卡界面只交各块内容，版面和交互由下面这几样给（第 6.3 节说明包如何接注册能力）。版面是 `kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`：关卡给 `results` 就有结果区（还没有内容时传 `null`：桌面上留着空的结果区，手机上不显示），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
 
-- **电路关由 circuit 包提供界面。** 拼电路的关卡用 `packages/circuit/view/CircuitLevel.jsx`：`useLevelBoard(屏幕, { open, fresh, clearable? })` 管板（打开时用哪块：存档合不合、升级、带过来的板由模块的 `open` 决定；清空回到 `fresh()`；`change(板, { keep })` 里 `keep` 的改动——挪元件、换显示——只存档，不算改了板，运行和结论留着）；`useLevelRun(屏幕, 板, { tests, steps | judge, hidden?, score?, onSolve?, onFail?, guard? })` 管运行和判定：测试标签后面可以跟一个「样张」（`tests` 里 `sample: true` 的一项，只用于一次判完的关）：一张较大的图，板也在上面跑，只看效果、不判定，不计入通过数；`steps`（每个测试的步骤、检查、`final`）逐步跑（`usePlayback`），`judge` 一次判完（`useCheckOnce`），两种都把最后一次运行留在板上。**默认一次判完、直接出结果**；只有一步一步的运算过程本身就是要看的东西时才用 `steps`（证明的推导、一拍一拍的总线、一轮一轮的循环），逐像素算一整张图的电路关用 `judge`；隐藏测试每次一并跑。公开测试和整板约束通过后，桌面和手机的结果区说明有几个隐藏测试失败。通过后按玩法配置公开；`onSolve` 让模块在全过时另做打算（还有下一段、板还不能做成元件），`onFail` 在逐步运行停在失败上时调用，`guard` 在还不能运行时拦下。`<CircuitLevel>` 管版面和其余一切：桌面工作台（元件栏、画布、存档切换、测试标签、通过情况、结果条、运行栏）和手机页（格位板、板下的结果区、托盘、元件的单子和空格的单子、清空、撤销）、框的区域里加元件、简介和提示、封装元件的「编辑」和详情。模块只交：元件描述（`parts`）、元件目录（`items`、`folded`）、新元件的设置（`defaults`，或整个 `create`）、此刻板上的值（`view`）、元件的几面（`card`：`body`、`head`、`cardClass`、`outNote`、`wireState`、`regionNote`、`resultNote`，手机上 `thumb`、`tileExtra`、`sinkBody`、`sinkClass`、`nodeClass`，每面都拿 `(node, ctx)`，`ctx` 是 `{ view, board, path, readOnly }`：同一套画法既画关卡的板，也画封装元件里面的板）、结果区（`results` 等）、手机上板下面的东西（`below`，`follow` 让页面跟着跑到底）、单子里的说明和内容（`describe`、`sheet`，或整个 `addSheet`）、封装元件（`packed`：`open(node, board)` 给出它跑的那块板和画它的 `parts`，`edit` 去搭它的那一关，`trace()` 给出板上此刻显示的那次求值的轨迹）和运行键的字。模块自己的面板放进任务板（由 `taskBoard` 选取）、结果区或单子里，不另排版面。
-- **步进运行用共用的 kit。** React 界面的关卡用 `shell/usePlayback.jsx`：给它每个测试的步骤和检查，它管运行、步进、暂停/继续、跳到结果、第一个测试慢后面快、遇到失败的一步或不对的测试立刻停、全过才通关，并生成运行栏的控制按钮（`dock()`，手机上小按钮只剩图标，和运行键同一行）。当前这一步的元件加 `is-step` 类（桌面画布和手机格位都有样式，出错时加 `is-step-fail`），输出区用 `shell/StepLog.jsx` 列出每一步的结果，列表和每条结果都限高、超出滚动。电路类的板用 `packages/circuit/core/circuit.js` 的轨迹直接得到步骤。步骤日志是电路屏的一项功能：屏的声明写 `log: true`，跑一次的板就在结果下面列出到当前为止的每一步（`packages/circuit/core/trace.js` 的 `traceSteps`）：元件按它所在的板取名，搭出的元件里的一步前面依次写上它所在的元件（`自建 auto › 回溯搜索 · 第 1 轮`），框进入的轮次和元件自己说的动作（轨迹项的 `round`、`inner`）接在名字后面，算不出的一步标红并说明原因。板上的设置怎么写成蓝图文本由板自己给（`circuitBoard` 的 `text`），所以导入的蓝图和内容里的读法一致。现在用它的：《证明完毕》的机器板（规则与元变量一章起）和真值电路板，都经 `CircuitLevel`。《状态之图》的机器人电路和自动剪缝都用 `usePlayback`，由 `paceOf` 计算节奏；自动剪缝一开始就标出第一条缝，每帧从模块读出图像、缝和累计条数。顶部栏的「设置」可选自动步进速度（`0.5×`、`1×`、`2×`），按游戏保存在当前浏览器里，默认 `1×`，下一次运行时生效。倍率只缩放自动步进的等待时间。参数台的动作间隔和限时由关卡和模型定义。
+- **电路关由 circuit 包提供界面。** 拼电路的关卡用 `packages/circuit/view/CircuitLevel.jsx`：`useLevelBoard(屏幕, { open, fresh, clearable? })` 管板（打开时用哪块：存档合不合、升级、带过来的板由包的 `open` 决定；清空回到 `fresh()`；`change(板, { keep })` 里 `keep` 的改动——挪元件、换显示——只存档，不算改了板，运行和结论留着）；`useLevelRun(屏幕, 板, { tests, steps | judge, hidden?, score?, onSolve?, onFail?, guard? })` 管运行和判定：测试标签后面可以跟一个「样张」（`tests` 里 `sample: true` 的一项，只用于一次判完的关）：一张较大的图，板也在上面跑，只看效果、不判定，不计入通过数；`steps`（每个测试的步骤、检查、`final`）逐步跑（`usePlayback`），`judge` 一次判完（`useCheckOnce`），两种都把最后一次运行留在板上。**默认一次判完、直接出结果**；只有一步一步的运算过程本身就是要看的东西时才用 `steps`（证明的推导、一拍一拍的总线、一轮一轮的循环），逐像素算一整张图的电路关用 `judge`；隐藏测试每次一并跑。公开测试和整板约束通过后，桌面和手机的结果区说明有几个隐藏测试失败。通过后按玩法配置公开；`onSolve` 让包在全过时另做打算（还有下一段、板还不能做成元件），`onFail` 在逐步运行停在失败上时调用，`guard` 在还不能运行时拦下。`<CircuitLevel>` 管版面和其余一切：桌面工作台（元件栏、画布、存档切换、测试标签、通过情况、结果条、运行栏）和手机页（格位板、板下的结果区、托盘、元件的单子和空格的单子、清空、撤销）、框的区域里加元件、简介和提示、封装元件的「编辑」和详情。包只交：元件描述（`parts`）、元件目录（`items`、`folded`）、新元件的设置（`defaults`，或整个 `create`）、此刻板上的值（`view`）、元件的几面（`card`：`body`、`head`、`cardClass`、`outNote`、`wireState`、`regionNote`、`resultNote`，手机上 `thumb`、`tileExtra`、`sinkBody`、`sinkClass`、`nodeClass`，每面都拿 `(node, ctx)`，`ctx` 是 `{ view, board, path, readOnly }`：同一套画法既画关卡的板，也画封装元件里面的板）、结果区（`results` 等）、手机上板下面的东西（`below`，`follow` 让页面跟着跑到底）、单子里的说明和内容（`describe`、`sheet`，或整个 `addSheet`）、封装元件（`packed`：`open(node, board)` 给出它跑的那块板和画它的 `parts`，`edit` 去搭它的那一关，`trace()` 给出板上此刻显示的那次求值的轨迹）和运行键的字。包自己的面板放进任务板（由 `taskBoard` 选取）、结果区或单子里，不另排版面。
+- **步进运行用共用的 kit。** React 界面的关卡用 `shell/usePlayback.jsx`：给它每个测试的步骤和检查，它管运行、步进、暂停/继续、跳到结果、第一个测试慢后面快、遇到失败的一步或不对的测试立刻停、全过才通关，并生成运行栏的控制按钮（`dock()`，手机上小按钮只剩图标，和运行键同一行）。当前这一步的元件加 `is-step` 类（桌面画布和手机格位都有样式，出错时加 `is-step-fail`），输出区用 `shell/StepLog.jsx` 列出每一步的结果，列表和每条结果都限高、超出滚动。电路类的板用 `packages/circuit/core/circuit.js` 的轨迹直接得到步骤。步骤日志是电路屏的一项功能：屏的声明写 `log: true`，跑一次的板就在结果下面列出到当前为止的每一步（`packages/circuit/core/trace.js` 的 `traceSteps`）：元件按它所在的板取名，搭出的元件里的一步前面依次写上它所在的元件（`自建 auto › 回溯搜索 · 第 1 轮`），框进入的轮次和元件自己说的动作（轨迹项的 `round`、`inner`）接在名字后面，算不出的一步标红并说明原因。板上的设置怎么写成蓝图文本由板自己给（`circuitBoard` 的 `text`），所以导入的蓝图和内容里的读法一致。现在用它的：《证明完毕》的机器板（规则与元变量一章起）和真值电路板，都经 `CircuitLevel`。《状态之图》的机器人电路和自动剪缝都用 `usePlayback`，由 `paceOf` 计算节奏；自动剪缝一开始就标出第一条缝，每帧从包读出图像、缝和累计条数。顶部栏的「设置」可选自动步进速度（`0.5×`、`1×`、`2×`），按游戏保存在当前浏览器里，默认 `1×`，下一次运行时生效。倍率只缩放自动步进的等待时间。参数台的动作间隔和限时由关卡和模型定义。
 
 ### 元件工坊
 
@@ -800,7 +694,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 工坊数据保存在同站点的浏览器存档中，独立于关卡存档。玩家可从「我的元件」删除手动封装，托盘随即移除该元件，已有电路和嵌套封装保留原版本。任务通过后，`publishes` 用同一个封装入口生成作品，使用内容预填的名称和描述。新版本取代工坊里的旧自动版本，已放置到电路的实例保留创建时的版本。不同游戏在运行方式兼容且目标任务提供所需基础元件和设置时，可以放置同一个封装。关卡判定中的元件数和计算量按封装内部的组成计算。
 
-兼容性由模块、基础元件的端口、区域、运算、校验条件和引用所指向的实际设置决定。内联设置的显示文案和控件排版可各自修改。
+兼容性由包、基础元件的端口、区域、运算、校验条件和引用所指向的实际设置决定。内联设置的显示文案和控件排版可各自修改。
 
 关卡把工坊元件的端口和信号类型加入当前电路，蓝图导入、接线和恢复存档据此检查整张板。托盘上合并显示的型号仍保留各自的蓝图类型。
 
@@ -808,7 +702,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 课程奖励从 `progress.built` 读取各自任务的通关作品。完整页面、笔记嵌入和文字试玩都按实际判定的作品写入，直接运行任务的起始板也会保存它。通关后切换槽位或编辑草稿时，课程奖励仍使用最近通过的作品。
 
-通关板包含工坊元件时，内核在通关及载入时按板上保存的版本从同站点工坊取得它们。课程奖励的求值、回放和内部示意图都解析这些版本。后来发布新版或在另一关限制托盘，只影响可新放置的元件。
+通关板包含工坊元件时，`circuit` 在通关及载入时按板上保存的版本从同站点工坊取得它们。课程奖励的求值、回放和内部示意图都解析这些版本。后来发布新版或在另一关限制托盘，只影响可新放置的元件。
 
 ### 6.10 多语言文案
 
@@ -827,7 +721,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 { "part.counter.name": "路线计数器" }
 ```
 
-`en.json` 中同一键的值为 `Route Counter`。`inside[].id`、端口 ID、公式和解题蓝图等玩法数据按各自的 schema 读取。内核和模块的通用界面用语由自己的词表维护。发布时，`content.json` 引用独立的语言文件。页面打开时载入这些文件，切换语言时用同一个语言代码更新界面和内容。
+`en.json` 中同一键的值为 `Route Counter`。`inside[].id`、端口 ID、公式和解题蓝图等玩法数据按各自的 schema 读取。内核和包的通用界面用语由自己的词表维护。发布时，`content.json` 引用独立的语言文件。页面打开时载入这些文件，切换语言时用同一个语言代码更新界面和内容。
 
 **编辑和预览。** Studio 根据 schema 枚举可翻译字段，用字段路径定位控件，再用该字段的键读取两列文本。每次编辑继续提交带 `lang` 的 `text.set`；操作集按字段归属更新对应的语言文件。待定变更集同时提供配置和文案给预览，配置源码面板显示键，文案表和试玩画面显示解析后的文本。某语言缺词时，文案表留空，预览标明缺失。流水线按所选范围和语言报告缺少的键。
 
@@ -843,49 +737,36 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 内容经第 7.1 节的操作集修改；新专题可使用第 7.2 节流水线。检查的范围按第 7.0 节选择；改动界面或交互时观察相应桌面、手机流程。对流水线和自动检查报告，结合实现及教学目标判断，并说明仍未解决的限制。
 
-### Task-scoped capability introduction
+### 按任务引入能力
 
-评估任务边界时，留意玩家在每条先修路线实际见过的概念、工具和设置。必要时先提供观察、解释或练习，避免多个陌生表示同时成为障碍；工具的开放和存档行为按相应领域与内核实现核对。
+评估每条先修路线实际见过的概念、工具和设置，按任务提供观察、解释或练习。开放和存档行为对照提供机制的包与内核流程核对。
 
-### 7.0 Verification by impact
+### 7.0 按影响范围验证
 
-Start with the smallest meaningful check of the changed behaviour and its direct consumers. File count alone
-does not determine impact: a shared evaluator can affect many games, while a long copy edit may affect no execution.
+从变更行为和直接消费者选择检查，范围随实际依赖扩展。
 
-| Changed scope | Required verification | Broaden when |
-| --- | --- | --- |
-| Documentation or process instructions | Diff/format review and changed references | An executable command or contract is also changed |
-| Game copy or curriculum data | Operation-set validation of that game; copy or topology gates only for the changed concern | New dependencies, references, task contracts or built-part consumers are affected |
-| Game UI, CSS or interaction | Changed-JS lint, that game's build, and the changed desktop/phone flow | Shared widgets or layouts have additional consumers |
-| Domain calculation or evaluation | Relevant domain test files, affected-game checks, and direct packed-part/consumer cases | Evaluation or representation contracts change across domains |
-| Shared shell, circuit or engine module | That module's tests and affected consumer checks; representative UI flows for interaction changes | The shared API changes or affected consumers cannot be bounded confidently |
-| Save stamp, schema, registry or dependencies | Relevant stamp/schema/replay/contract tests and all identified consumers | A repository-wide contract or dependency is affected; then run the full relevant suite |
-
-Commands use existing entry points; no new validation runner is needed:
+| 改动范围 | 验证 |
+|---|---|
+| 文档与流程约定 | diff、格式和改动引用 |
+| 游戏文案、课程数据 | 对应目标的操作集校验与内容检查，按改动选择文案或拓扑检查 |
+| 游戏 UI、CSS、交互 | 改动 JS 的 lint、对应构建、桌面和手机实际流程 |
+| 包计算、求值 | 相关测试、受影响游戏检查、直接封装作品与消费者 |
+| 共用外壳或内核 | 对应测试和已识别消费者；交互变化观察代表流程 |
+| 存档戳、schema、注册表与依赖 | 相关契约、回放和全部已识别消费者；仓库级接口变化运行完整相关套件 |
 
 ```sh
-# From the repository root: run only the relevant test file(s).
+# Repository root
 node --import games/kit/engine/package-imports.mjs --test packages/image/test/image.test.js
 
-# From trace-viewer/: name the game for checks and builds.
+# trace-viewer/
 npm run check -- vision-complete
 GAME=vision-complete npm run build:game
+npm run test:zero
 ```
 
-A successful operation-set check counts as the affected game's content check until relevant content or validation
-code changes. Reuse passed results for an unchanged scope; committing, amending or pushing alone does not invalidate
-them. A failure expands verification along the failing dependency, rather than automatically selecting every suite.
-Linux syscall conformance belongs to Unix model changes, not unrelated domain or interface edits.
+范围相关代码或内容未变时复用已通过的结果。失败沿对应依赖扩展检查。界面验证与构建、测试分别记录。
 
-Finish implementation and necessary review before submitting one release. Add late changes only when they block
-correctness or the requested behaviour. Report the selected checks and any unverified boundary accurately.
-
-Local verification and deployment are separate scopes. `deploy-games.yml` only builds and publishes the complete
-site; `test-kit.yml` runs the kit's unit tests when kit code changes. Neither replays a game. Content changes are
-gated only by the studio and the operation set, and the compatibility corpus (`npm run check` over every game,
-`games/DIRECTION.md` decision 17), which shows a kit change that broke a game's reference solutions, is run on the
-platform by whoever develops a game or the kit (`npm run check`, the MCP `audit`), never by a GitHub workflow.
-A documentation-only local change does not require a deployment.
+本地验证与部署分别执行。`deploy-games.yml` 构建和发布完整站点，`test-kit.yml` 在内核代码变化时运行单元测试；内容校验由 Studio、操作集和开发者的独立包、游戏 `check` 执行。行为重构对比锁定基线。交付时报告实际范围与未验证项。
 
 ### 7.1 内容只经操作修改
 
@@ -903,17 +784,17 @@ A documentation-only local change does not require a deployment.
 | `level.add/remove`、`task.add/remove/move` | 创建、删除关卡；按稳定任务 id 拆合、重排或移动任务 |
 | `part.add/remove`、`parts.set/unset` | 编辑本包元件及其设置、阶段和外观 |
 | `entry.put/set/patch/remove` | 编辑词条 |
-| `tag.put/set/remove`、`relation.put/set/remove`、`tray.put/set/remove`、`section.put/set/remove` | 编辑集合、关系和呈现对象；内容种类也有同名操作族 |
-| `game.set/unset` | 编辑入口或课程字段，章顺序写 `chapters[].levels`，布局写 `rows` |
-| `game.package.add/remove` | 修改选包；参数 `package`，可选 `at` 只控制选择列表位置 |
+| `tag.put/set/remove`、`relation.put/set/remove`、`tray.put/set/remove`、`section.put/set/remove` | 编辑集合、关系和呈现对象；对象类型也有同名操作族 |
+| `game.set/unset`、`chapter.put/set/remove` | 编辑游戏配置与章对象；章序写 `chapters`，章内顺序写 `levels`，布局写 `rows` |
+| `game.package.add/remove` | 修改选包；参数 `package`、`range`，可选 `at` 只控制选择列表位置 |
 | `override.put/remove` | 在当前 `layer` 覆盖或移除覆盖；`kind`、`name` 指向被覆盖的全名 |
 | `text.set`、`text.override` | 按对象字段路径和 `lang` 写本层文案或游戏覆盖；`value: null` 恢复原文 |
 
 **按层写入。** `opScope` 划分包和游戏职责；打开包只改本包声明和覆盖，打开游戏只改游戏编排和允许的覆盖。`openPackage` 不借游戏。构建和文案工作区可以打开同一包，分工不同，归属相同；依赖包的声明始终只读。
 
-选包、覆盖也参与预览、失败恢复、日志、撤销和并发校验。加包前须选全直接依赖，去包时仍有编排关卡或别包依赖它就拒绝，不能移除最后一个包。改变选包立即重新组装内容并选择运行模块，写入只动游戏层，写盘前还核对所读包是否被并发修改。
+选包、覆盖也参与预览、失败恢复、日志、撤销和并发校验。加包前须选全直接依赖，去包时仍有编排关卡或别包依赖它就拒绝，不能移除最后一个包。改变选包立即重新组装内容并选择运行包，写入只动游戏层，写盘前还核对所读包是否被并发修改。
 
-**一个变更集怎么跑**（`ops/changeset.js`）：每个操作先按它参数的 schema 查（提到的关必须存在），再依次改内存里的内容，哪一个失败整个变更集作废；然后按打开的包或游戏跑对应的 `npm run check` 检查（词汇表、课程审计、文案和链接、领域检查：参考解跑测试、naive 解失败）。全部清零才写盘，否则什么都不写，并列出每一处问题。写盘时只动改了的行（两格缩进，112 列内的简单对象或列表紧凑写入），游戏 `games.js` 里的关卡数跟着改，修改日志 `changes.jsonl` 加一行，记下撤销它的变更集。写盘、记日志在当前层的锁里做（`changes.lock`，写着持有它的进程；进程死了留下的锁会被接手）：盘上的文件和打开游戏时读到的不一样就拒绝（另一个写者先改了）；调用方给了 `base`（它看到的日志最后一条的序号，`preview`、`log` 给出 `head`；studio 总是给）而日志已经往前走了，也拒绝。撤销只从那一条留下的状态往回改：它改过的文件此后又变了（手改、后来的修改），就拒绝。文件在操作集之外被改过，`log`、`npm run check` 报出来（不算失败），`npm run op -- <游戏> adopt --why …` 把现状收进日志。
+**一个变更集怎么跑**（`ops/changeset.js`）：每个操作先按它参数的 schema 查（提到的关必须存在），再依次改内存里的内容，哪一个失败整个变更集作废；然后按打开的包或游戏跑对应的 `npm run check` 检查（词汇表、课程审计、文案和链接、包检查：参考解跑测试、naive 解失败）。全部清零才写盘，否则什么都不写，并列出每一处问题。写盘时只动改了的行（两格缩进，112 列内的简单对象或列表紧凑写入），游戏 `games.js` 里的关卡数跟着改，修改日志 `changes.jsonl` 加一行，记下撤销它的变更集。写盘、记日志在当前层的锁里做（`changes.lock`，写着持有它的进程；进程死了留下的锁会被接手）：盘上的文件和打开游戏时读到的不一样就拒绝（另一个写者先改了）；调用方给了 `base`（它看到的日志最后一条的序号，`preview`、`log` 给出 `head`；studio 总是给）而日志已经往前走了，也拒绝。撤销只从那一条留下的状态往回改：它改过的文件此后又变了（手改、后来的修改），就拒绝。文件在操作集之外被改过，`log`、`npm run check` 报出来（不算失败），`npm run op -- <游戏> adopt --why …` 把现状收进日志。
 
 **命令行**（`trace-viewer` 目录下）：
 
@@ -936,15 +817,15 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 | `vocabulary` | 统一内核词汇表（`describe`）及当前内容所用的 schema 投影和全部操作的参数 schema：写内容之前先读它 |
 | `audit` | 和 `npm run check -- <游戏>` 一样的检查 |
 | `modify` | 跑一个变更集；`dryRun` 只看 diff |
-| `run_reference` | 一关的参考解和 naive 解经模块检查跑测试，给出提到这一关的那几行（《状态之图》的模块只在失败时提到一关） |
+| `run_reference` | 一关的参考解和 naive 解经包检查跑测试，给出提到这一关的那几行（《状态之图》的包只在失败时提到一关） |
 | `blueprint` | 读一关的每块板的蓝图文本；给了 `text` 就经 `level.blueprint` 写进去 |
-| `render` | 一关或它的一块板写成文字（给了什么、要做什么、各块板的蓝图）；`format: svg` 把各块板画成 SVG（`packages/circuit/core/board/svg.js`），模块给 `scene` 的再画这一关（第 6.7 节）；给 `changeset` 就画变更集留下的样子。PNG 画不了，直说 |
+| `render` | 一关或它的一块板写成文字（给了什么、要做什么、各块板的蓝图）；`format: svg` 把各块板画成 SVG（`packages/circuit/core/board/svg.js`），包给 `scene` 的再画这一关（第 6.7 节）；给 `changeset` 就画变更集留下的样子。PNG 画不了，直说 |
 | `deps` | 元件依赖图（Mermaid 或 DOT） |
 | `preview` | 一个变更集留下的整款游戏，不写盘：内容、`check` 的每一行和它说的是哪几关、每个文件改前改后、失败的是第几个操作、修改日志（`check: false` 只按词汇表查内容，快）。studio 靠它显示一切 |
 | `seed` | 按字段路径读取一块板（默认第一个任务的参考解），以该任务的端口和元件生成存档数据。Studio 打开该任务并在板上载入它。 等待期间切换任务或修改内容会作废这次载入。 |
 | `names` | 链接显示的名字：每关的关号和标题、元件箱里每个元件的名字（和它是哪个元件、在哪一关拿到）、每个词条的标题，和文案里可以照字面引用的名字（studio 的链接小块、文案检查和元件列表的排序用它） |
 | `flow` | 一个元件在课程里的流转（`packages/circuit/core/flow.js` 的 `partFlow`，从课程推出，不加数据）：一开始就在手上、哪一关带来、哪一关（或它的哪个任务）只在那里给或扣下、哪一关来了取代它的元件、升级链每一步在哪个任务；每一项给出关、任务和内容里说这件事的字段路径 |
-| `run_tests` | 按字段路径定位蓝图和任务（默认第一个任务的参考解），经模块的 `play` 钩子跑该任务的可见测试和隐藏测试：每个测试关卡界面怎么画（给了什么、应当是什么）、过没过、界面说了什么；钩子不支持的玩法说明原因 |
+| `run_tests` | 按字段路径定位蓝图和任务（默认第一个任务的参考解），经包的 `play` 钩子跑该任务的可见测试和隐藏测试：每个测试关卡界面怎么画（给了什么、应当是什么）、过没过、界面说了什么；钩子不支持的玩法说明原因 |
 | `log`、`undo` | 修改日志；撤销最后一次还没撤销的修改（和 `npm run op -- <游戏> undo` 一样）；给了 `seq`（调用方看到的那一次），日志在那之后又变了就拒绝 |
 | `search` | 在整款游戏里搜索（变更集留下的样子）：文字的每一面（链接标签里面不算）、板的每一行、关卡和词条的 id；每处给出文件、关、路径和匹配的位置（`kit/engine/ops/search.js`） |
 | `replace` | 把搜索到的换掉，写成一个变更集，不写盘：一段文字一个 `text.set`、一块板一个 `level.blueprint`，每处改前改后，和找到但不换的 id；再交给 `modify`（先 `dryRun`） |
@@ -961,23 +842,23 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 | 步 | 谁做 | 读 | 写 | 闸门 |
 |---|---|---|---|---|
 | `blueprint` | 课程设计 agent | 课程资料（讲义、笔记、游戏文件夹里的设计文档）、手册第 1、2、4.1、6.5、8 节、内核词汇表 | `blueprint.json`（`blueprint.put`、`blueprint.set`）：先是知识点，再是 slot | 蓝图审计（`bp-…`，下面） |
-| `domain` | 工程师（代码，决策三的内核权限） | 蓝图的 `requests`、`mechanisms` | 内核模块代码；每条需求的状态（`done`，或 `declined` 带 `note`） | 没有还开着的需求；模块契约（第 6.3 节）；`check`；模块的单元测试 |
+| `domain` | 工程师（代码） | 蓝图的 `requests`、`mechanisms` | 包的 `core/`、`view/` 与字段声明；每条需求的状态（`done`，或 `declined` 带 `note`） | 没有还开着的需求；包契约（第 6.3 节）；`check`；包的单元测试 |
 | `levels` | 关卡设计 agent | 蓝图（每个 slot 的问题和思维链）、词汇表、手册第 2、4、5 节 | 包内关卡和游戏的 `chapters`、`primitives`（`level.add`、`game.set`……） | `check` 清零（参考解通过、naive 解失败、审计全开）；关卡合蓝图（术语链接除外）；教学 lint（`pd-…`，下面） |
 | `copy` | 文案 agent | 蓝图（每个知识点的术语、出处、墙，每个 slot 的问题）、关卡、手册第 1、4 节 | 全部文字和百科（`text.set`、`entry.put`……） | `check`；合蓝图（含术语链接）；文案 lint（`copy-…`）；教学 lint |
 | `review` | 评审 agent | 手册和 skill 的两张核对单、整款游戏 | 只写发现（它最后交出的 JSON：在哪、归哪一步、违反哪一条、`fix` 要不要改） | 最后一次评审没有还没解决的 `fix` |
 | `queue` | — | — | 评审队列里的一项（`pipeline.json` 的 `review`：这款游戏修改日志里的变更集） | 上面每一道闸门此刻都还清零 |
 
-流水线仍保留 `domain` 这个步骤名，表示内核能力需求处理，不再生成领域目录；旧 brief 中关于领域路径和脚手架的说明不能作为当前写盘依据。
+流水线的 `domain` 步骤处理机制能力需求，由工程师在包中实现。平台或游戏流程的需求才进入内核。
 
 **一个 agent 只拿到它这一步的东西。** `npm run pipeline -- <游戏> run <步>` 起一个新的 `claude -p`，在一个空的临时目录里：brief 加上这一步的输入（文件的路径、上一次没过的闸门、评审留给这一步要改的发现、这一次的范围 `--scope`），能读任何文件，只能在自己的目录里写，只能运行这一步的几个命令（`./op` 跑变更集，`./check`，`./gate` 这一步的闸门，`./deps`，`./eras` 蓝图排出的内部 `eras` 投影（写课程时转换为 `chapters` 与关系），`./lint`；评审没有 `./op`）。跑完记下用量、每个命令跑了几次和失败了几次、写进去的变更集（修改日志的序号）和它的报告，再跑一遍闸门；全部记进 `pipeline.json`。没过就再跑一次：上一次的闸门失败和评审的发现成了下一次的输入。`domain` 这一步是代码，不由内容 agent 做；评审的发现修好以后，用 `npm run pipeline -- <游戏> resolve <k> --why "…"` 记下是哪个变更集修的，或者再评审一次。`status` 列出每一步的闸门和跑过几次，`brief <步>` 打出一个 agent 会拿到的全部文字。
 
-**课程蓝图**（`blueprint.json`，schema 是 `kit/pipeline/blueprint.js` 的 `BLUEPRINT`）：专题、学习者、终点和这一次做到哪（`scope`，往后的写进 `deferred`）；从机制目录里选的机制；机体阶梯（每台机体会什么、缺什么）；**知识点**（`knowledge`：本领域的术语、说的是什么、出处、撞上的墙、纠正的错误、是讲义的理论还是技术内容；第 4.1 节）；原始元件（每个写明为什么接不出来）和搭出的元件（由什么搭成），原始元件是工具，不是知识点；每一章是一串系列（地基、练习、专题、挑战；同一个 `parallel` 的几个系列是一个并行组），每个系列是一串 slot：一个 slot 就是将来的一关，写它的 id、做什么（`task`）、玩家要回答的问题（`question`）、从问题到答案的思维链（`chain`，至少两步）、带来的那一个知识点（`teaches`；主线上只能是讲义的理论）或练习露出的侧面（`facet`）、加的原始元件、搭出的元件、参考解站在哪些元件和知识点上（`uses`）、练习变化的是哪个维度（第 2.3 节），挑战写 naive 解；最后是向领域和内核提的需求（决策三的需求通道）。`erasOf` 生成旧的内部章节、编号与连线投影；它仍是流水线蓝图比对的格式，不是 `course.json` 的写盘格式，不能直接把它写成课程。
+**课程蓝图**（`blueprint.json`，schema 是 `kit/pipeline/blueprint.js` 的 `BLUEPRINT`）：专题、学习者、终点和这一次做到哪（`scope`，往后的写进 `deferred`）；从机制目录里选的机制；机体阶梯（每台机体会什么、缺什么）；**知识点**（`knowledge`：本领域的术语、说的是什么、出处、撞上的墙、纠正的错误、是讲义的理论还是技术内容；第 4.1 节）；原始元件（每个写明为什么接不出来）和搭出的元件（由什么搭成），原始元件是工具，不是知识点；每一章是一串系列（地基、练习、专题、挑战；同一个 `parallel` 的几个系列是一个并行组），每个系列是一串 slot：一个 slot 就是将来的一关，写它的 id、做什么（`task`）、玩家要回答的问题（`question`）、从问题到答案的思维链（`chain`，至少两步）、带来的那一个知识点（`teaches`；主线上只能是讲义的理论）或练习露出的侧面（`facet`）、加的原始元件、搭出的元件、参考解站在哪些元件和知识点上（`uses`）、练习变化的是哪个维度（第 2.3 节），挑战写 naive 解；最后是向机制包和平台提的需求（决策三的需求通道）。`erasOf` 生成旧的内部章节、编号与连线投影；它仍是流水线蓝图比对的格式，不是 `course.json` 的写盘格式，不能直接把它写成课程。
 
 **蓝图审计**（`auditBlueprint`）在一关都还没有的时候就按第 1、2、4.1 节查编排：`bp-refs`、`bp-unique` 名字都有定义、不重复；`bp-source` 每个知识点注出处，出处是 `sources` 里的一份材料；`bp-part-point` 知识点不是原始元件（id 或术语不是原始元件的 id 或名字：工具不是知识；搭出的元件可以就是知识点）；`bp-knowledge` 每个 slot 都在做某个知识点（带来一个，或在 `uses` 里练一个），什么知识点也不做的 slot 是凑数；`bp-taught` 每个要练的知识点有一处带来；`bp-trivial` 一句话就懂的点（`intuitive`）不做成关、不当练习的内容，`bp-mentioned` 它们只由某一关提到（`mentions`）；`bp-depends` 一个点搭在其上的点，在每条通向它的路上都先出现；`bp-shallow` 难点（`hard`）之前至少有两关在教它依赖的点；`bp-core-none` 每章标出核心；只报告的 `bp-ladder`：主线上通往核心的关不到一半；`bp-main-tech` 主线（地基、练习）上的关不带来、不用技术内容的知识点，它们只在可选专题里；`bp-adds-teaches` 加原始元件的 slot 带来需要它的那个知识点；`bp-facet` 练习 slot 写出它露出的新侧面；`bp-question` 每个 slot 写出问题和至少两步的思维链；`bp-point` 每个知识点写出术语、出处和 `basis`（schema 只管能写什么，好让这些字段出现之前写成的蓝图仍然读得进来；必须写全由审计要求）；`bp-placed` 每个原始元件、搭出的元件恰好有一处带来；`bp-order` 一个 slot（和一个搭出的元件）站在的东西，在通向它的每条路上都已经有了（按先修关系，并行组的另一路不算）；`bp-first-use` 知识点在带来它的那一关用上；`bp-unused` 搭出的元件后面有人站在它上面；`bp-practice` 一组练习不重复维度、以组合或辨真伪收尾；`bp-branch` 主线上前后两个系列，后一个用不着前一个的任何东西时，该是并行组；`bp-parallel` 并行组两到三路、互不依赖；`bp-abstraction` 一章最后一个系列站在这一章搭出的元件上；`bp-machine` 用到的能力机体会；`bp-challenge` 挑战不带新东西、有 naive 解；`bp-tray` 有几套托盘时每一章都写它用哪一套。只报告、由人判断的：`bp-reuse`（一个知识点在再来两个知识点之前没有再用上，或主线后面再没用到：它是不是通过部件复用、或由后面的关链回来）、`bp-bare`（只放它带来的东西）、`bp-lonely`（一个知识点后面没有练习关：它的测试和任务够不够，看第 2.3 节）、`bp-heavy`（一个知识点占了四关以上：每关都是新侧面吗）、`bp-open`（还开着的需求）。
 
 **关卡合蓝图**（`conformance`）：每个 slot 恰好一关、内部 `eras` 投影和 `primitives` 与蓝图一致、每关的 `adds`、`builds` 是它的 slot 的、参考解用到 slot 的 `uses` 里的每一个元件、slot 有 naive 解的关也有（某个任务有）；`bp-entry` 每个知识点有同 id 的百科词条，在带来它的那一关打开；`bp-term` 带来知识点的那一关在玩家读到的文字里链接这个词条；`bp-main-link` 主线上的关不链接技术内容的词条。
 
-**教学 lint**（`lintPedagogy`，`kit/pipeline/pedagogy.js`，第 4.1 节里能机械看出的几种）：`pd-repeat-board` 两关的参考解是同一块板（不管元件叫什么名字，比的是元件、设置和接法）；`pd-repeat-text` 玩家读到的一段话（引言的一页、目标、提示、点题、naive 解为什么错）一字不差地出现在两处；只报告的 `pd-slide`：实验台的一步只开一个旋钮、目标读数实时显示，拖到变绿就能过；`pd-quiz`：一个任务只是点选答案（选择题）。它们看得见形式，看不见意思：是不是工具关、判断题是不是不看材料就能答、思维链有没有落在屏幕上，由评审逐关读。
+**教学 lint**（`lintPedagogy`，`kit/pipeline/pedagogy.js`，第 4.1 节里能机械看出的几种）：`pd-repeat-board` 比较包提供的作品指纹；电路包按元件、设置和接法生成指纹；`pd-repeat-text` 玩家读到的一段话（引言的一页、目标、提示、点题、naive 解为什么错）一字不差地出现在两处；只报告的 `pd-slide`：实验台的一步只开一个旋钮、目标读数实时显示，拖到变绿就能过；`pd-quiz`：一个任务只是点选答案（选择题）。它们看得见形式，看不见意思：是不是工具关、判断题是不是不看材料就能答、思维链有没有落在屏幕上，由评审逐关读。
 
 **文案 lint**（`lintCopy`，`check` 已经查链接和按位置指关卡，这里补手册第 4 节能机械看出的）：`copy-banned` 口语、翻译腔和「卡片」「方块」；`copy-ahead` 往后透露；`copy-length` 目标、引言一段、提示、点题的长度上限；`copy-intro-part` 引言一开口就是新元件；`copy-after-part` 点题链接了元件（多半在复述接法）；`copy-brief-why` 目标里讲理由。
 
@@ -1055,7 +936,7 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 
 ## 12. 笔记版：嵌在笔记里的交互
 
-游戏从零搭一台逐层长大的机器；笔记版只做一件事：读者读完一段，马上在这一段讲的那个点上动手，看见它的核心思想。两者共用内核能力，内容各自编排（`games/DIRECTION.md` 决策十二）。第一门课是 COMP90086，逐个知识点的设计见 `games/comp90086/DESIGN.md`。 笔记里的图像电路从 `packages/comp90086/parts/` 取一维三点核和相加，计算共用图像模块的能力。
+游戏从零搭一台逐层长大的机器；笔记版只做一件事：读者读完一段，马上在这一段讲的那个点上动手，看见它的核心思想。两者共用包提供的机制和内核流程，内容各自编排（`games/DIRECTION.md` 决策十二）。第一门课是 COMP90086，逐个知识点的设计见 `games/comp90086/DESIGN.md`。 笔记里的图像电路从 `packages/comp90086/parts/` 取一维三点核和相加，计算共用图像包的能力。
 
 ### 12.1 形状
 
@@ -1078,9 +959,9 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 
 ### 12.3 交互原型
 
-一个知识点只用一个主交互。原型是内核的元件（交互和判定），模块补注册的显示能力和模型，知识点只写数据：用哪个原型、哪张图、开哪个控件、先预测什么。
+一个知识点只用一个主交互。原型由包提供交互、判定、显示和模型，知识点只写数据：用哪个原型、哪张图、开哪个控件、先预测什么。
 
-| 原型 | 读者动什么 → 看到什么 | 适合的核心思想 | 在内核里 |
+| 原型 | 读者动什么 → 看到什么 | 适合的核心思想 | 实现 |
 |---|---|---|---|
 | 仪器台 `bench` | 拨参数 → 实物和读数跟着变 | 连续的因果关系 | 已有：参数台（第 6.4 节），`check: 'submit'` 就是先预测 |
 | 局部窗口 | 在真实图上移动一个窗口 → 旁边放大窗口里的数和算出的响应 | 局部运算在整图上的效果 | 待实现：随指针移动的窗口和旁边的放大计算。现有 `probe` 是第 6.5 节的黑箱探针 |
@@ -1094,93 +975,10 @@ npm run op -- --package <包> adopt --why "…"                将外部迁移�
 
 ### 12.4 现实锚点与检查
 
-- **真实照片**：自己拍的或许可明确的公开图（数据集按其许可，出处写进百科）。笔记关跑领域的内置实现，不跑读者的电路，图可以比游戏的样张大；上限按实测定，不凭估计。
+- **真实照片**：自己拍的或许可明确的公开图（数据集按其许可，出处写进百科）。笔记关跑包的内置实现，不跑读者的电路，图可以比游戏的样张大；上限按实测定，不凭估计。
 - **真实设备参数**：手机主摄、双目相机这类，写明是哪一类设备、数是量级还是规格书的值。
 - **真实模型输出**：注意力图、CLIP 相似度、SAM 掩码、扩散的轨迹这类在浏览器里跑不动的，预先算好存成数据，只能在这组数据里选；交互不假装能接受任意输入。
 - **每个交互都有一个检查**：判定由数据算出（参数台的目标、选择判定的判据、电路的测试），不由作者逐条写死；先预测的答案和读者交的答案按同一个判定走。只演示、没有检查的不算做完。先预测常常是这一关的第一个任务（选择判定），动手是第二个。
 - **检查问的是要推理的东西**：答案要从核心思想推出来，最好是直觉会答错的情形（只许挪孔板时暗箱的像怎样放大一倍、拆不开的拉普拉斯能不能由一维核算出、两道波只差哪一个数）。看一眼就知道的事（图里有没有红箱子）、照着题面就能答的不算。
 - **按笔记词条设计互动**：每个互动围绕所在词条的核心思想设计。
 - **布局自己说话**：交互里只有一句先预测的问题，不加标题和说明；它是什么、在讲什么，由上下文的正文说。
-
-### 上线前的版本与发布
-
-包与平台的版本统一为 `0.0.0`，包、游戏和起步内容中的依赖范围统一为 `^0.0.0`。工作区源目录是当前实现的唯一版本。解析器检查依赖集合和范围，源目录及本地平台的锁定哈希变化不阻止检查、组装或构建。从发布库解析的归档继续检查锁定的版本与内容哈希，归档本身继续校验归档哈希。`deps -- lock` 显式刷新锁定快照。
-
-`publish` 默认拒绝执行，首发时显式使用 `npm run publish -- <包|kernel> --launch`。这个开关启用已有的检查、契约验证和发布流程，第一次发布自动选择 `1.0.0`。兼容性预览继续返回改动级别、受影响的包和游戏及候选版本 `proposed`，`next` 为 `null`，预览不写版本。
-
-### Step 7 package boundary
-
-`rows` owns addition work parsing, judging and tree presentation. `tick-bus` owns line arbitration,
-the two-phase tick runner, tick reports, textual tick play and bus cards. Both depend directly on
-`circuit` at `^0.0.0`; no installed game or other content package currently consumes either mechanism.
-The package examples retain their local object/task ids and use `play: rows:equation` or `tick-bus:board`.
-The copied examples have no package course. Remaining native templates migrate with their mechanisms.
-
-Task field declarations may specify `play` with `extends: task`. These fields extend only that play's
-generic task branch; required fields remain required. Unscoped extensions still apply to every task and
-reject redefinitions. This lets a native task and a package task use different schemas for a field such as
-`rows`. Display discovery resolves each package independently, rather than combining unrelated schemas.
-Node's package preload installs the same public dependency map used by content loading.
-
-
-### Step 8 image package boundary
-
-`image` 直接依赖 `circuit`，提供图像运算、接线图、探针、参数台、判定、盲玩和配对的显示入口。
-`vision-complete` 保存专用场景、实验台和显示项；两包共用的 filter 场景、obscura/wave 模型和暗箱显示项留在 `image`。
-`vision-complete` 与 `comp90086` 各自声明 `<包>/power`、`<包>/box`，对象目录也以包名区分。
-两个内容包及对应游戏都直接选用 `image`，版本保持 `0.0.0`。
-参数台显示项使用 `image:display-*`。包显示定义接收组装后的插件注册表，按同一套显示登记渲染版面。
-图像任务使用 `play`；核心作品仍共用同一份读写和运行实现。Studio 的专用编辑器适配由其负责人继续处理。
-
-
-Scoped task declarations may combine shared `fields` with a `schema` discriminator tree.
-The platform extends every branch with those fields and the common task identity/play fields,
-rejecting redefinitions. Image graph scenes use this to retain correlated setup/test schemas
-without repeating common graph fields in every declaration.
-
-State-graph also selects image explicitly to preserve its historical standalone package palette,
-which exposed the global image primitive inventory before extraction. This dependency preserves
-the locked package observations. The corresponding game selects the complete closure.
-
-
-Kind-declaration discriminator schemas may provide shared `fields` beside `cases`.
-Registration expands them into every object branch and rejects collisions. Bench declarations
-share their layout, knob and goal schemas this way. Source declarations retain their compact form.
-Resolved layers are reused when listing games and loading package code. Unchanged source files
-reuse parsed import metadata while dependency authority is checked on every call. Quick previews
-reuse their computed changes when rendering a diff and preserve unchanged JSON containers directly.
-
-
-### Table extraction (MODULES step 9)
-
-`packages/table/core/` owns table signals and primitives, cell readers, the world protocol, board works,
-blueprint wiring and deterministic cell-by-cell evaluation. `table/view` exports a scene-renderer factory;
-its trusted robot/icon catalogs are passed by the consumer. Table reuses `circuit/part` and the kernel
-level/task kinds, so it declares no extra object identity. `kinds/README.md` records this ownership.
-
-`packages/state-graph/core/` owns concrete worlds, robot models, course preparation, manual-play judges,
-checks, blind play and baseline observers. Its `view/` owns the existing screens, robot presentation,
-figures and mascot; `kinds/` declares its eight task schemas. Tasks select `state-graph:*` with `play`;
-the former task `after` panel is now `panel`, while generic pass copy retains `after`. Packed circuit
-references use the same `play` discriminator. State-graph directly uses table, circuit and image;
-the game explicitly selects their full closure. All mechanisms now register through package entries.
-
-The retired table starter is now synthetic package test material. Reuse the state-graph package through
-`new-package --from state-graph`; no table template or native dispatch remains. Core and view contracts
-exercise synthetic data, including a headless circuit adapter shared with the UI through explicit
-wiring and placement functions. Studio files remain owned by its maintainer; package-specific editor
-integration and the starter-control coverage assertion are handled there.
-
-The comp90086, qed and vision-complete packages also directly select table to preserve their locked standalone primitive palettes; all four games select that dependency explicitly.
-
-### Logic extraction checkpoint (MODULES step 10)
-
-`logic` depends directly on `circuit`; QED selects both. Symbols retain their files and copy keys,
-while their type is `logic/symbol` and tag folder is `tags/logic/symbol/`. QED owns `qed/wordset`
-and projects its dictionaries into `wordSets`; logic reads inline dictionaries or that consumer projection.
-The QED map/hub illustration and its generator live in `packages/qed/view` and `scripts`.
-
-A dependency must supply something the consumer actually references. QED, vision-complete and comp90086
-no longer select table merely to preserve the historical standalone palette. Baseline normalization covers
-only the absent provider's exact primitive palette entries, as specified in `kit/engine/baseline.md`.
-Studio source and tests remain with their owner; native schema imports require their package-editor migration.

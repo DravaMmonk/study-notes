@@ -3,250 +3,96 @@ name: turing-complete-games
 description: Design, extend or review the learning games in study-notes (games/ and packages/, built on games/kit) — curricula, chapters, levels, parts, stages, and component-wiring interaction.
 ---
 
-# Turing-Complete-style learning games
+# 类图灵完备学习游戏
 
-## Scope and source of truth
+## 范围与依据
 
-Use this skill for the learning games under `games/`, their content in `packages/`, and their shared kernel.
-Before work, read the relevant parts of:
+用于 `games/` 的游戏、`packages/` 的内容与机制，以及共享内核。
 
-1. [`games/DESIGN.md`](../../../games/DESIGN.md): principles (§1), course structure (§2), level design (§4),
-   technical checks and authoring standards (§5), implemented architecture (§6), author workflow (§7).
-   This handbook describes the current structure; source code settles implementation details when prose is stale.
-2. [`games/DIRECTION.md`](../../../games/DIRECTION.md) and [`games/PLAN.md`](../../../games/PLAN.md): future
-   direction and remaining work. They do not override the handbook's implemented package model.
-3. `games/<game>/DESIGN.md` or `CURRICULUM.md`: the topic's own choices and intended learning route.
-4. The selected packages and game data, and the kernel vocabulary (`engine/kernel.js`, module declarations,
-   or the `vocabulary` tool). Read `npm run op -- list` before selecting operations.
+工作前阅读相关内容。
 
-Keep the affected design and implemented content aligned. Preserve unrelated work and follow the user's task scope.
+1. `games/DESIGN.md` 是当前架构的唯一手册。第 1、2、4 节讲课程和任务，第 5 节讲检查与开发规范，第 6 节讲实现，第 7 节讲作者流程。
+2. `games/DIRECTION.md`、`games/PLAN.md` 记录方向与待办。
+3. 对应游戏的 `DESIGN.md`、`CURRICULUM.md` 记录专题选择。
+4. 相关包与游戏数据、`vocabulary` 工具。选操作前读 `npm run op -- list`。
 
-## Implementation contracts
+实现变化同步写回手册和受影响的游戏设计。保留无关修改，遵守用户指定的工作边界。
 
-- After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
-  `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  all mechanisms now live in packages and consume only public dependency exports.
-- Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
-  import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
-  game/Studio Vite entries register both sides in topological `uses` order.
-- Load installed game/package layers only through `engine/resolver.js:resolveLayers`. The resolver owns content
-  roots, `GAMES_ROOT`, source directories and code-entry locations; the default is the current content workspace.
-  Game consumers, builds and arrange workspaces consume resolved public data, never dependency files.
-  `engine/existence.js` collects schema references, override/contribution targets, relation endpoints, grants and
-  dependency selections, then checks `publicSurfaces` and manifest code identities. Never add another missing-target guard
-  to loading, collection expansion or an object-specific checker. Keep `{ rule: "exists", at, layer, kind, target,
-  member?, reason, says }` intact for consumers; manifest identities now provide the public surface in step 4.
-- There is one capability vocabulary (`kit/engine/kernel.js`) and one platform version (`kit/platform.json`),
-  and one course model (`packages/circuit/core/course-model.js`, `kit/course.js`). Capability names are `<module>:<name>`;
-  typed operations declare ports, optional inputs, regions and parameters. Wiring and part checks use value types.
-- Content is data. `packages/<package>/package.json` declares its semantic `version`, a `kernel` range, and a direct `uses` range map.
-  A package can use its own objects and direct dependencies, without transitive reference authorization. Games
-  select the complete dependency closure in `game.json`'s ordered `packages` range map and declare `kernel`; the first key is primary; loading is topological, with the game last.
-- Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
-  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) (`qed/wordset` uses `wordset/`).
-  File names supply object ids; task, stage and menu ids remain inside their containing objects. Chapters are game objects in chapters/<name>.json.
-  Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
-- Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
-  Local short references are qualified on assembly. Tags are unordered, typed development collections; they
-  have no runtime teaching or presentation role. Relations use typed `edges` fields (`requires`, `replaces`).
-  Tag identity is member type plus full name. Read `registries.tag[tagKey(member, name)]`.
-  Studio members use `orderedMembers(content, ids, kind)` for prerequisite order, then names.
-  Trays and encyclopedia sections are separate objects with their own ordered lists.
-- Overrides belong to the authoring layer in `overrides/<namespace>/`: `levels/`, `parts/`, `symbols/`, `entries/`,
-  `tags/<kind>/`, `relations/`, `trays/`, `sections/`, content-kind folders, or `i18n/<lang>.json`.
-  Collection semantics follow field schemas, implemented in `engine/collections.js`. `set<T>` and `edges<T>`
-  accept `{ add, remove }`; `list<T>` also accepts `{ insert: [{ before|after, values }] }`. Arrays replace
-  the entire field. Omitted fields remain. Nested identified lists use `id`; edge identity uses endpoints and game.
-  Independent typed tag contributions use `values: { add: [...] }`. Provenance is
-  `sources[kind][identity].collections[fieldPath][memberKey] = [layer, ...]`; edge keys serialize `[from,to,game|null]`.
-  Independent collection patches compose by field type; replacements and scalar overrides require a dependency. Every foreign target needs a declaration or code registration.
-  Core registers `kernel/studio-left` (`kind`); `kernel` is reserved. Preserve override history.
-- All object types declare `declares: package|game` and `overrides: { package?: [fieldPath], game?: [fieldPath] }`.
-  `*` permits every field; `$text` permits schema text fields. The common `layerProblems` check enforces these
-  attributes. Native level/task/tag/relation/entry/section kinds declare at package level; chapter/game at game level.
-  Game overrides may change requires.edges and all localized copy. Package-declared game kinds use the same registry.
-- A game arranges `game.json`'s `chapters: list<chapter>`. Chapter objects are `games/<game>/chapters/<id>.json`,
-  named `@<game>/<id>`, with concrete `levels: list<level>` and map `rows`. Chapter copy and machine settings stay
-  on the chapter; optional/skippable and other startup settings stay in course.json. `number` preserves authored
-  numeric chapter labels; `game.json.encyclopedia: list<section>` preserves section display order. Importing a tag is a one-time expansion into the chapter list.
-- A package has no course, chapters, unlock graph or learning progress. `check -- --package` checks objects,
-  parts and each level separately; package play opens a single level with its tray (all parts/stages when
-  omitted). Never generate a package course to reuse a game-only check or UI path.
-- Circuit owns content meanings, availability state, work readers, authoring operations and shell extensions through package protocols. Kernel progression only unlocks tasks and levels. Circuit-specific editors remain in Studio until step 11. See `references/package-plugins.md`.
-- Parts in `parts/<name>.json` choose `op` (or one operation per output) and narrow its settings, then add
-  presentation. Settings are inline, not independent objects. No `compute` expressions implement calculations;
-  expressions remain for interaction rules, checks and readouts. `stages` lists later linear upgrades, with the
-  part itself as stage one. Part and stage ids share a namespace. `opens` applies at task start; `awards`
-  applies after passing. `gives`/`withholds` adjust only this task; `local` stays with its introducing level/task.
-- Symbols in `symbols/<name>.json` have `mark`, `name`, `desc`, `icon` and optional `stages`, with
-  `@symbol.<name>.*` copy keys and `tags/logic/symbol/` membership. Formula connectives use symbols.
-  `packages/circuit/core/grants.js` centralizes registered grantable types and name/stage resolution. Circuit and logic own
-  their `circuit/part` and `logic/symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
-  names across registered types, rejecting ambiguous names and unregistered types. `course.state(at, flags)`
-  returns separate `circuit/part` and `logic/symbol` maps. Stages apply to every registered type, while workshops and
-  `replaces` remain part-only. Studio lists symbols separately and shares tray and stage editing.
-- Built parts use `inside` variants and reference works; tasks `publish` through the `publishes` list and
-  explicitly award stages. They normally run the player's passing work, using a reference if unavailable;
-  plays may explicitly choose reference works. Keep the selected variant and its dependency closure intact.
-- Ids never change after creation, including task, stage and chapter ids. Rename visible text, not identity.
-  There is no rename operation. New identity requires explicit creation and deletion. Task moves preserve ids.
-- Tag title/description keys use `@tag.<name>.title` and `@tag.<name>.desc`; tray keys retain `@tray.`.
-- Copy fields reference stable `@key` values. Each layer owns `i18n/<lang>.json`; overrides use
-  `overrides/<namespace>/i18n/<lang>.json`. Edit with `text.set` or the applicable override operation,
-  using object selectors and field paths. Text keys and blueprints accept qualified names.
-- Content changes only go through operations: `npm run op -- <game> --file <changeset.json>`, or
-  `npm run op -- --package <package> --file <changeset.json>`, MCP `modify`, or Studio. A changeset is
-  `{ "why": "...", "ops": [...] }`; preview and validate before writing. Bulk migrations may use a temporary
-  script followed by `adopt --why "..."` for each affected game/package; do not retain migration scripts.
-- Studio (§6.7) has build, arrange and copy workspaces, with resource, main editor and configuration columns.
-  It uses the same preview/modify/undo tools as agents. Keep adapters thin. Follow the user's ownership boundary
-  when another engineer owns Studio or frontend work; schema migrations warrant only required mechanical fixes.
-- New objects copy any existing object (own or dependency) or start from their schema; curated starts are ordinary tags, with no template tag convention. The legacy starter directory remains until their mechanisms migrate. New content currently starts from `kit/templates/<template>/starter/`: `npm run new-package -- <id> --template <name>`,
-  `npm run new-game -- <id> --template <name>`. To reuse an existing game’s packages and startup settings,
-  use the `create_game` tool (`id`, `from`, `title`), then the package-selection operations.
-  Package plugins can also start with `npm run new-package -- <id> --from text` or `--empty`.
-  Templates are copied, not depended upon. Shared evolving parts belong in library packages such as `arithmetic`.
-- Tests use content written in the test or template `starter/`, never real game levels, ids or counts. Actual
-  game/package correctness belongs to `npm run check -- <game>` and `npm run check -- --package <package>`.
-  All commands here run in `trace-viewer/`. Kernel changes require `npm test`, `npm run lint:kit`, and
-  `npm run words -- --check`. Use `deps -- lock <target>` to update dependency hashes, `deps -- upgrade <target> [package]` for explicit upgrades,
-  and `publish -- <package> --launch` only for the explicit first launch and later checked releases in `releases/`. Before launch, package/platform versions stay at `0.0.0` and dependency ranges at `^0.0.0`; publication without `--launch` is rejected. Platform structure uses
-  `publish -- kernel --launch`; platform behavior probing remains pending. Do not hand-edit versions or recreate vocabulary snapshots. For behavior refactors, capture affected game
-  check output before the change and compare afterwards, reporting only explicitly authorized differences.
-- For bounded copy, UI or local behavior changes, select checks from handbook §7.0; inspect desktop and phone
-  when interaction changes. Passing tests or a build do not establish visual or teaching quality.
-- The optional author pipeline (§7.2, `kit/pipeline/`) retains the CLI step name `domain` for kernel capability
-  requests. It does not create a domain layer or grant content agents code ownership. Pipeline gates and
-  teaching lint are authoring aids, distinct from kernel technical checks and §5.1 review duties.
+## 三层与插件
 
-## Level authoring standards
+- 内核负责内容系统、操作集、检查框架、Studio 外壳，以及地图、任务、检验、通关、解锁和存档流程。
+- 包提供机制与内容，可带 `core/index.js` 和 `view/index.jsx`，两边均导出 `register(kernel)`。游戏只用数据选包、编排章、路线图、文案与允许的覆盖。
+- 新玩法放进包。只供一个包使用的实现留在该包，第二个包需要时再提到被依赖的包。
+- 核心登记 `play`、`kind`、`state`、`check`、`agent`、对象与标签读者；视图登记配对 `play`、`editor`、`display`。作品格式由核心定义。
+- 检查、基线、文字试玩只加载核心；游戏与 Studio 按 `uses` 拓扑加载两边。
+- 公开导入为 `kernel`、`kernel/view`、直接依赖的 `<包>`、`<包>/view`。核心只读本核心与无界面导出；视图可读本核心。包内部路径、传递依赖、计算导入、核心中的 JSX/CSS/界面库与 Node I/O 均由边界检查拒绝。
+- 判定确定，随机使用传入种子。数据经操作集修改，代码经提交与审查修改。
+- 专用 Studio 编辑器由包的视图登记。内核保留三工作区、三栏、辅助抽屉、通用 schema/JSON 编辑、文案、编排、覆盖审计和日志。
 
-Read `games/DESIGN.md` §5.1 when authoring or reviewing levels. These are human and agent review duties,
-not kernel gates or content fields. The implemented package and kernel structure is in handbook §6.1–6.3.
+协议与当前包职责见 [references/package-plugins.md](references/package-plugins.md) 和手册第 6.3.1、6.5、6.7 节。
 
-- Introduce a main idea through a real problem, judging cognitive load rather than counting parts. Do not create
-  concept tags or a `concept()` mapping; tags are development collections with no runtime behavior.
-- Put a new capability to work when it appears and reuse it soon in subsequent tasks or packed works. Reconsider
-  early introductions instead of adding filler to satisfy counts or intervals (`many-new`, `idle-idea`).
-- Make first encounters observable and meaningful. A tool that a sentence explains should enter a real task;
-  an abstract tool may warrant a focused encounter with intermediate states and contrasting cases. Explain this in
-  design notes, never a `showcase` exception field (`bare-intro`).
-- Review reuse of built works and repeated structures. Prefer an appropriate abstraction where it serves the task;
-  terminal works may stand on their own (`unused`, `bypass`).
-- Review loose parts and the actual phone workflow after staging. Eight loose parts is a review prompt, not an
-  enforced limit; split tasks or build intermediate works when the observed load warrants it (`open-crowded`).
-- Prefer meaningful construction, but lend tools or givens through `gives` where appropriate. Avoid redundant
-  introduction declarations when they add no clarity (`granted`, `carried`).
-- Interpret attempts, hints, abandonment and time with player context and sample size. Difficulty thresholds do not
-  decide pedagogical correctness (`difficulty-spike`).
-- Check still enforces schemas, references, types, passing references, failing naive works, reachable unlocks,
-  prerequisites and introduced tray parts/stages. A passing check does not establish teaching quality.
-- New badges follow the first introduction of each part or stage on the prerequisite route; a new stage marks its
-  existing part card. They are independent of how the author explains the underlying ideas.
+## 内容与对象
 
-## Learning design and copy
+- `engine/resolver.js:resolveLayers` 是已安装内容的唯一加载入口。内容根、`GAMES_ROOT`、源目录、代码入口、归档位置归解析器。游戏、构建和编排只读解析后的公开数据。
+- `package.json` 声明版本、`kernel` 范围和直接 `uses` 范围表。引用只授权本包与直接依赖。游戏 `game.json.packages` 选全依赖闭包，第一项是主包；加载按拓扑，游戏最后。
+- 一个对象一个文件。关卡在 `levels/`，词条在 `entries/`，关系在 `relations/`，百科分组在 `sections/`；其余目录由类型声明。文件名给 id，任务、阶段和菜单保留内部 id。
+- 对象全名为 `<包>/<名>`，游戏命名空间为 `@<游戏>`，标签引用为 `#<全名>`。本包短引用在组装时限定全名。
+- `kinds/<名>.json` 用数据声明对象结构、目录、关系端点、文案和 Studio 元数据。含义由代码 `kind` 登记。字段扩展使用 `extends: level|task`，任务可用 `play` 限定 schema 分支；共用字段与判别树展开后仍保持必填和防重定义约束。
+- 所有类型声明 `declares: package|game` 与 `overrides: { package?: [字段路径], game?: [字段路径] }`。`*` 允许全部字段，`$text` 允许文案。包可声明游戏层类型，同一注册表与 `layerProblems` 处理两层。
+- 关卡、任务、标签、关系、词条、百科分组和包类型在包层声明。章和游戏配置在游戏层声明。游戏覆盖按声明权限执行，通常为文案与 `requires.edges`。
+- 章在 `games/<游戏>/chapters/<名>.json`，全名 `@<游戏>/<名>`，保存具体 `levels: list<level>` 与路线图 `rows`。游戏配置的 `chapters: list<chapter>` 给章序，`encyclopedia: list<section>` 给百科分组顺序。导入标签一次性展开。
+- 包逐关独立检查与试玩。包没有课程、章、解锁图或学习进度。电路单关试玩使用自身托盘，省略时提供全部可发放对象与阶段。
 
-The handbook's teaching guidance is advisory: apply expert judgment to the subject, players and user request,
-not a fixed number of concepts, steps, branches or levels. Distinguish these design choices from actual schema,
-engine and automated-check behavior; report a check or implementation constraint without claiming it proves
-pedagogical quality.
+## 集合、标签与覆盖
 
-- Start with the field problem and what players know; select meaningful construction, exploration, observation,
-  reasoning or feedback. Scale scaffolding and task boundaries to the real conceptual load.
-- Review dependencies, reusable abilities, tests, meaningful decisions, counterexamples and transfer where useful.
-  Preserve support for multiple correct solutions. For parameter benches, verify what learners can observe and
-  how they can reason about their choice, not merely that a solver finds a passing setting.
-- Write clear context, goals, hints and explanations in the game's language. Pass text explains the principle and its scope
-  without assuming a particular reference solution. Link to available terms when helpful and compatible with
-  the content's validation; glossary access does not replace instructional evidence.
-- Check the actual desktop and phone flow when it changes. Use the optional review prompts in
-  [references/learning-review.md](references/learning-review.md) for complex curricula or interactions.
+- 字段 schema 决定集合语义。`set<T>` 无序且不重复，`list<T>` 有序且不重复，`edges<T>` 为无环有向边。合并、引用、来源与编辑共用 `engine/collections.js`。
+- `set`、`edges` 覆盖用 `{ add, remove }`；`list` 另支持 `{ insert: [{ before|after, values }] }`。数组整份替换，省略的字段保留。嵌套对象列表按 `id`，边按端点和 `game` 定位。
+- 标签身份是成员类型加全名，存于 `tags/<成员类型>/<名>.json`。包类型目录使用全类型名，例如 `tags/logic/symbol/`。注册表用 `tagKey(member, name)` 读取。
+- 标签用于分组、批量引用和代码读者标记。托盘、百科分组与章用自己的有序列表。Studio 分组成员由 `orderedMembers(content, ids, kind)` 按先修与名字排列。
+- 覆盖位于当前层的 `overrides/<命名空间>/`，沿被覆盖对象的原目录。文案覆盖用 `i18n/<lang>.json`。集合增量可独立贡献，替换和普通字段覆盖要求依赖顺序。
+- 成员来源在 `sources[kind][identity].collections[fieldPath][memberKey]`，值为贡献层列表。标签用复合键，边键序列化 `[from,to,game|null]`，覆盖历史保留。
+- 内核登记 `kernel/studio-left`，成员类型 `kind`，各包向它贡献默认资源类型。`kernel` 保留。个人显示选择存在浏览器。
+- 任何外部目标都须有声明或代码登记。统一存在性检查收集 schema 引用、覆盖目标、集合补丁、标签、关系、发放引用和依赖选择，对照 manifest 公开面与登记表。保持问题的 `rule/layer/kind/target/member?/reason/at/says/object/path`。Studio 使用结构化位置。
 
-## Interface checklist
+## 新建与修改
 
-Read `games/DESIGN.md` §6.9 before changing any interface, and §2.6 for the map's level tree. Above all: let the
-layout speak — no secondary labels or descriptions, nothing said twice, dense use of space; every game gets the same
-layout and interactions from the shared kit; on phone, operability comes before a complete picture. Also: a left
-drawer of level trees inside a level; the pass dialog returns to the map and the map lands on that level; input cards
-hold what they read and are clicked to wire; card values repaint on every step of a run; a board's last run stays on
-it while the level is open (`lastRun` / `keepRun`, in memory); no newer JS APIs that break older iOS Safari.
+- 新对象复制本包或依赖的任意对象，或从 schema 起步；最小任务内容由玩法核心提供。精选起点用普通标签组织。
+- 新包用 `npm run new-package -- <id> --from <包>` 或 `--empty`。新游戏用 `npm run new-game -- <id> --from <游戏>` 或 `create_game`，再通过选包与章操作编排。
+- id 创建后保持不变，包含任务、阶段与章。显示名称通过文案修改；新身份通过明确新增与删除表达。移动任务保持 id。
+- 可翻译字段用稳定 `@键`，本层语言表为 `i18n/<lang>.json`。用 `text.set` 与对象字段路径修改，标签键用 `@tag.<名>.title/desc`。
+- 内容修改用 CLI、MCP `modify` 或 Studio 的变更集 `{ "why": "...", "ops": [...] }`，先预览、校验再写入。批量迁移可用临时脚本，随后对每个受影响目标执行 `adopt --why`，脚本不保留。
 
-## Verification
+## 发放与电路
 
-Before calling a change done (`games/DESIGN.md` §7.0):
+- `circuit` 持有发放、阶段、托盘、工坊、电路求值、蓝图、元件编辑器与课程派生状态。内核进度只推进任务和关卡。
+- `grants.register({ type, used })` 登记可发放类型与作品读者。元件为 `circuit/part`，符号为 `logic/symbol`，各自登记。发放字段和托盘可混合对象全名，同名跨类型报歧义。
+- `course.state(at, flags)` 按类型返回状态。`adds` 带来对象，`local` 限在引入处，`opens` 在任务开始开放阶段，`awards` 在通过后开放，`gives/withholds` 只调整当前任务。工坊与 `replaces` 归元件。
+- 对象本身是第一阶段，`stages` 列后续线性升级。元件在 `parts/` 选包登记的 `op` 并收窄设置；设置内联，表达式用于交互、约束与读数。
+- 封装元件以 `inside` 保存参考作品和 variant，任务用 `publishes` 发布实际通过的玩家作品，`awards` 决定阶段。选择与依赖闭包保持一致。
+- 桌面和手机编辑器在 `packages/circuit/view/board/`，共用图、接线拒绝、区域和保存检查。框由 `framePart(own, regions)` 定义，区域按 `key` 求值。修改共用编辑器时检查实际消费者。
 
-1. The design docs say what the change did (docs first, see above), with nothing outdated left in them.
-2. Select tests, content checks and builds from the impact matrix in handbook §7.0. Documentation-only edits need
-   no executable checks. Name the affected game and test files explicitly; broaden only for demonstrated dependency
-   effects, failures or changes whose consumers cannot be bounded. Do not repeat a passed check without a relevant change.
-3. For visual or interaction changes, inspect the changed flow on desktop and phone; add representative consumers
-   only when shared UI is affected. Pure model changes need browser review only if their displayed behaviour changes.
-   To watch a run, write the reference solution into the save, then step and run.
-4. New package plays register core `agent`, `check` and paired view `play` hooks (handbook §6.3.1).
-   Existing unmigrated modules give their `play` hook in `runtime.js` (circuit play through `packages/circuit/core/play.js`): the
-   level in words and an attempt judged, which `run_tests` uses; its play tests run in `npm test`. Blind play is
-   paused (`games/DESIGN.md` §6.6).
-5. Report what was checked and what was not.
+## 关卡与文案
 
-## Interaction
+按手册第 5.1 节评审。
 
-The shared editors are in `packages/circuit/view/board/`:
+- 从真实问题与已有知识引入能力，按实际认知负担拆任务。
+- 新能力在引入任务中发挥作用，并在后续任务或封装作品中使用；调整引入位置时保留课程动机。
+- 首次体验通过中间状态、对照或失败展示抽象机制。说明写进设计文档。
+- 重复结构考虑抽象，结合终局任务的独立价值判断复用。
+- 实际查看松散元件、手机操作与任务负担，按需要拆分或形成中间作品。
+- 文案交代情境、条件、目标与必要术语。通关文字解释原理与适用范围，多解任务保持措辞适用于不同解法。
+- 中文和英文分别自然准确；跨手机与桌面共享文案用控件名定位。
+- 检查证明技术性质，教学判断结合内容与试玩证据。复杂课程可参照 [references/learning-review.md](references/learning-review.md)。
 
-- Desktop: free canvas of cards, wires dragged from an output port (dropping on a card wires its first free
-  input); clicking a wired input takes its wire off and leaves it in hand on its output, to click onto another
-  input or drop on the board; Delete removes the selection, pan / pinch / Ctrl-wheel zoom, fit-to-board.
-- Phone: slot grid with inputs on top and outputs at the bottom, no pan or zoom; tap a port, compatible ports
-  light up, tap another to wire; drags start after a short hold so swipes still scroll; tray doubles as delete.
-- Both edit the same graph; illegal wires are refused at connection time with a reason
-  (`parts.refuse`); wire colour follows its source.
+## 界面与验证
 
-- Frames (`packages/circuit/core/board/frames.js`, first used by 《证明完毕》's assumption box) are shared: a module makes a frame
-  part with `framePart(own, regions)` and evaluates each region's value by `key`; the editors, scoping and save
-  checks (`regionsFit`) come from the kit. Dragging a card over a region it can go into lights that region up.
-
-Keep a change to either editor working for every game that uses the kit.
-
-## Circuit extraction checkpoint
-
-- `packages/circuit/core/index.js` and `view/index.jsx` are the public circuit entries. Core owns grants,
-  stages, trays, evaluation, text blueprints, workshop works and circuit progress. View owns the editors,
-  circuit screens, part book, readouts, training controls and styles. Use canonical `circuit/part` and
-  `circuit/tray` identities and `tags/circuit/part/`; file folders and `@part.*` / `@tray.*` keys stay stable.
-- Node command/test processes preload `engine/package-imports.mjs` before linking package dependencies.
-  The direct `check.js` entry establishes that import environment itself.
-- No native mechanism import, schema registration or symbol bridge remains after step 10.
-  Logic registers `logic/symbol` grants itself; QED owns its reading dictionaries and illustration.
-- Studio's dedicated editors remain with their owner for step 11. Do not edit that directory when
-  another session owns it; report failures caused by retired native schemas.
-
-Step 7: `rows` and `tick-bus` are package plugins, each with core/view/kinds and Node/Vite contracts.
-Their starter objects live in the packages; copy with `new-package --from rows|tick-bus`. Neither package
-has a course. Both use circuit's public exports at `^0.0.0`; bus-only ticking and textual tick play live in
-`tick-bus`, not circuit. All providers use package registration.
-Task declarations can scope `extends: task` fields with `play`; this creates a separate schema branch
-without redefining native fields. Keep required fields required on that branch.
-
-
-## Image extraction (MODULES step 8)
-
-`image` depends on `circuit` and owns image operations, graph/probe/bench works, judges, blind-play
-adapters, scoped task declarations, parameter benches, displays and previews. Image registration and workshop dispatch load through
-package entries. Consumers select `image` directly.
-`vision-complete` owns its scenes and dedicated bench models/displays. Only the filter scene,
-obscura/wave models and obscura displays are shared by vision-complete and comp90086.
-Both content packages declare their own namespaced power/box kinds and folders.
-Keep Studio source and tests with its owner when the user assigns that boundary.
-
-
-After MODULES step 9, table is a reusable model and scene renderer in `packages/table`; concrete worlds,
-robots and all eight course plays are owned by `packages/state-graph`. Use `play: state-graph:<name>`;
-task demonstration panels use `panel`, not the shell's `after` copy. Packed references also use `play`.
-Table/state-graph contracts use synthetic data; do not restore native dispatch paths.
-
-## Logic extraction (MODULES step 10)
-
-`packages/logic` owns the proof/formula/machine mechanisms, Node/Vite contracts and `logic/symbol`.
-QED owns `qed/wordset`, its dictionary projection and the map/hub illustration. All kernel native
-mechanism dispatch, content-kind catalogs and circuit bridges are removed. `games/kit/modules/` is absent.
-Declare dependencies only for referenced providers; never add table or another provider solely to keep a
-standalone palette equal to a historical global palette. Use the exact baseline rules in `engine/baseline.md`.
+- 改界面前读手册第 6.9 节，地图读第 2.6 节。保持紧凑布局，必要信息只说一次，手机先保证可操作。
+- 外壳共用任务导航、运行栏、结果和通关流程。包提供主区，基础控件与已有包组件通过公开接口复用。
+- 任务内最后一次运行保存在内存，按任务和存档切换恢复；离关清除。兼容旧版 iOS Safari。
+- 按第 7.0 节选择验证范围。纯文档检查 diff 和引用；界面或交互变化检查桌面与手机实际流程。
+- 内核测试用测试现写的小内容，机制组合显式安装夹具；真实包与游戏分别 `check`。带代码的包提供核心、视图配对与跨包契约。
+- 内核改动运行 `npm test`、`npm run lint:kit`、`npm run words -- --check`。零内容验收运行 `npm run test:zero`，首次先 `npx playwright install chromium`。命令均在 `trace-viewer/`。
+- 行为迁移运行 `npm run baseline -- compare`，保留锁定语料。报告检查范围、结果和未验证项。
+- 上线前版本保持 `0.0.0`，范围 `^0.0.0`。源目录哈希漂移允许继续工作，归档保持严格校验。`deps -- lock` 刷新快照，`deps -- upgrade` 显式升级。
+- 首发须明确执行 `publish -- <包|kernel> --launch`，自动定为 `1.0.0`。版本随后由公开面与依赖方检查观察计算，平台行为探测待补。`releases/` 排除在 Git 外。
+- 可选流水线保留 `domain` 步骤名，由工程师实现包机制需求。教学闸门与内核技术检查分别按各自职责使用。
