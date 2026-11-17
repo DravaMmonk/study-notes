@@ -433,9 +433,14 @@ const tools = {
     params: { game: 'string' },
     async run({ game }) {
       const content = readTarget(game)
+      const { vocabulary } = await runtimeOf(content)
       return {
         modules: runtimeIds(content),
-        vocabulary: describe((await runtimeOf(content)).vocabulary),
+        // What the studio needs to rebuild the same vocabulary in the browser: the kernel's modules still in use and
+        // the object types packages declare (kinds/).
+        legacyModules: vocabulary.legacyModules ?? runtimeIds(content), packageCode: Boolean(vocabulary.packageCode),
+        objectKinds: vocabulary.objectKinds ?? {},
+        vocabulary: describe(vocabulary),
         operations: Object.fromEntries(Object.entries(OPERATIONS).map(([name, op]) => [name, { about: op.about, params: op.params }])),
       }
     },

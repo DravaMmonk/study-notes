@@ -15,7 +15,7 @@
 // prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Cpu, Layers, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
+import { BookOpen, Cpu, FileBox, Layers, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { find, shapeAt } from '../engine/schema.js'
@@ -56,10 +56,14 @@ import SymbolEditor from './SymbolEditor.jsx'
 import StageChain from './StageChain.jsx'
 import TagEditor from './TagEditor.jsx'
 import RelationBoard from './RelationBoard.jsx'
-import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
+import { HEADING_KINDS, OBJECT_LISTS, PACKAGE_LISTS, capabilityKey, headingParam, isObjectList, listOfHeading, openParams, overrideKey, readHeading, readOpen } from './left-lists.js'
+import { BUILT_IN_LISTS, TOOL_LISTS, isTypeList, leftLists, objectTypes, objectsOfType, ownTemplatesTag, templatesOf, typeOfList } from './object-types.js'
+import LeftTypes, { typeName } from './LeftTypes.jsx'
+import ObjectSummary from './ObjectSummary.jsx'
+import { iconOf } from '../shell/parts/icons.js'
 import { freeObjectName, namespaceOf, ownNames, shownName } from './objects-edit.js'
 import { newTag } from './tag-edit.js'
-import { objectFileName, objectValue, ownObjectData } from './object-file.js'
+import { objectFileName, objectSchema, objectValue, ownObjectData } from './object-file.js'
 import { groupOf, levelTags, treeMoves } from './groups.js'
 import { memberOrderOps, tagMoveOps } from './tag-order.js'
 import Inspector from './Inspector.jsx'
@@ -91,9 +95,9 @@ const remember = (pkg, at, field, playLevel, task, opened, heading) => {
   const url = new URL(window.location.href)
   url.searchParams.set('package', pkg)
   url.searchParams.set('space', 'build')
-  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', ...Object.values(OBJECT_LISTS), ...HEADING_KINDS]) url.searchParams.delete(k)
+  for (const k of ['game', 'scope', 'file', 'level', 'group', 'era', 'part', 'glossary', 'object', ...Object.values(OBJECT_LISTS), ...HEADING_KINDS]) url.searchParams.delete(k)
   for (const [k, v] of opened) url.searchParams.set(k, v)
-  if (heading && at?.group === undefined) url.searchParams.set(heading.kind, heading.full)
+  if (heading && at?.group === undefined) url.searchParams.set(...headingParam(heading))
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.group !== undefined) url.searchParams.set('group', at.group)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
@@ -145,9 +149,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const [resize, setResize] = useState(null)
   const [savedSide, setSide] = usePref('side', 'tree')
   // The list the address names wins over the one last shown.
-  useLayoutEffect(() => { if (HEADING?.kind === 'symbol') setSide('symbols'); else if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { if (HEADING && !['tag', 'relation', 'tray', 'section'].includes(HEADING.kind)) setSide(listOfHeading(HEADING.kind)); else if (OPENED.list) setSide(OPENED.list) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => setPartStage(null), [at?.part])
-  const side = PACKAGE_LISTS.includes(savedSide) ? savedSide : 'tree'
+  const side = PACKAGE_LISTS.includes(savedSide) || isTypeList(savedSide) ? savedSide : 'tree'
+  // The object types the left column lists: the author's own choice, else what the packages' studio-left tags say.
+  const [chosenTypes, setChosenTypes] = usePref('left-types', null)
   const objectList = isObjectList(side)
   // The level list last shown, which a level picked elsewhere goes back to.
   const [levelList, setLevelList] = usePref('level-side', 'tree')
@@ -213,6 +219,10 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   // A domain that defines its parts as data names them by the game's parts/<name>.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const partRoot = partPath(at)
+  const leftKeys = useMemo(() => (content ? leftLists(content, chosenTypes) : []), [content, chosenTypes])
+  const types = useMemo(() => objectTypes(content), [content])
+  // A list no longer shown (another package's types, or the author's choice) falls back to the first one listed.
+  useEffect(() => { if (leftKeys.length && !leftKeys.includes(side)) setSide(leftKeys[0]) }, [leftKeys, side]) // eslint-disable-line react-hooks/exhaustive-deps
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
   const names = useMemo(() => rawNames && {
@@ -316,8 +326,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
     return openHeading({ kind: by, full: `${namespace}/${name}` })
   }
   const grouping = (kind, by, onBy) => ({
-    groupings: GROUPINGS[kind], by, onBy,
-    newOptions: by === 'relation' ? RELATION_KINDS[kind].map(([value, zh, en]) => ({ value, label: tr(zh, en) })) : null,
+    groupings: GROUPINGS[kind] ?? ['tag'], by, onBy,
+    newOptions: by === 'relation' ? (RELATION_KINDS[kind] ?? []).map(([value, zh, en]) => ({ value, label: tr(zh, en) })) : null,
     onNew: (option) => newGroup(kind, by, option),
   })
   const openTreeItem = (next, keep) => {
@@ -549,17 +559,62 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const newLevelContext = { vocabulary: vocab?.vocabulary, levels: playOrder, lang }
   const firstTaskSchema = vocab && tasksSchema(vocab.vocabulary)
   const levelChoices = vocab ? creationChoices(firstTaskSchema ?? vocab.vocabulary.level, newLevelContext) : []
+  // Templates (games/MODULES.md 5.4): any object is one once it is in its type's `templates` tag; a new object can start
+  // as a copy of one from this package or a package it uses.
+  const declaredType = (type) => (content?.objectKinds?.[type] && !content.objectKinds[type].extends ? content.objectKinds[type] : null)
+  const templateOptions = (type, label) => {
+    const templates = templatesOf(content, type)
+    return templates.length ? [{ value: 'templates', label: tr('从模板新建', 'From template'), children: templates.map((full) => ({ value: `template:${full}`, label: label(full) })) }] : []
+  }
+  const isTemplate = (type, full) => templatesOf(content, type).includes(full)
+  const templateToggle = (type, full) => (isTemplate(type, full)
+    ? { value: `untemplate:${full}`, label: tr('移出模板', 'Remove from templates') }
+    : { value: `template-save:${full}`, label: tr('存为模板', 'Save as template') })
+  /** The operation that puts `full` into (or takes it out of) this package's templates tag of `type`. */
+  const templateOp = (type, full, keep) => {
+    const tag = ownTemplatesTag(content, type, namespace)
+    const values = content.registries.tag[tag]?.values ?? []
+    if (!tag) return keep ? { op: 'tag.put', tag: 'templates', data: { kind: type, values: ownObjectData(namespace, [full]) } } : null
+    const next = keep ? [...values.filter((v) => v !== full), full] : values.filter((v) => v !== full)
+    return { op: 'tag.set', tag: tag.slice(tag.indexOf('/') + 1), path: ['values'], value: ownObjectData(namespace, next) }
+  }
+  /** A template action of a list's add menu, done; false when `action` is not one. */
+  const templateAction = (type, action) => {
+    const [verb, full] = [action.slice(0, action.indexOf(':')), action.slice(action.indexOf(':') + 1)]
+    if (verb !== 'template-save' && verb !== 'untemplate') return false
+    const op = templateOp(type, full, verb === 'template-save')
+    if (op) edit(op)
+    return true
+  }
+  /** The add menu of a list of another type: a blank object, one from a template, the one open saved as a template. */
+  const addObjectOptions = (type) => [
+    { value: 'blank', label: tr('空白对象', 'Blank object') },
+    ...templateOptions(type, (full) => L(content.registries?.[type]?.[full]?.title ?? content.registries?.[type]?.[full]?.name) || shownName(namespace, full)),
+    ...(heading?.kind === type && namespaceOf(heading.full) === namespace ? [templateToggle(type, heading.full)] : []),
+  ]
+  const addObject = (type, action) => {
+    if (saving || templateAction(type, action)) return
+    const source = action.startsWith('template:') ? action.slice('template:'.length) : null
+    const base = source ? source.slice(source.indexOf('/') + 1) : type.split('/').pop()
+    const name = freeObjectName(ownNames(content, type, namespace), base)
+    const declared = declaredType(type)
+    const data = source ? ownObjectData(namespace, objectValue(content, type, source)) : blank(objectSchema(type, { declared }), { vocabulary: vocab.vocabulary }) ?? {}
+    edit(declared ? { op: 'object.put', kind: type, name, data } : { op: `${type}.put`, [type]: name, data })
+    openHeading({ kind: type, full: `${namespace}/${name}` })
+  }
   const addLevel = (action) => {
+    if (templateAction('level', action)) return
     const taken = new Set([...Object.keys(content.tags), ...content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)])])
-    const source = content.levels.find((entry) => entry.id === at?.level)
-    const level = freeName([...taken], 'level')
+    const template = action.startsWith('template:') ? action.slice('template:'.length) : null
+    const source = content.levels.find((entry) => entry.id === (template ?? at?.level))
+    const level = freeName([...taken].map((id) => id.slice(id.indexOf('/') + 1)), template ? template.slice(template.indexOf('/') + 1) : 'level')
     const make = levelChoices[action]?.make
-    const draft = action === 'copy' ? source : {
+    const draft = action === 'copy' || template ? source : {
       ...(firstTaskSchema ? { ...blank(vocab.vocabulary.level, newLevelContext), tasks: [make()] } : make()),
       title: T('新关卡', 'New level'),
     }
     edit({ op: 'level.add', level, data: copyLevelData(draft, level, content.levels) })
-    openTreeItem({ level })
+    openTreeItem({ level: `${namespace}/${level}` })
   }
   const duplicate = (level, id) => {
     const source = content.levels.find((l) => l.id === level)
@@ -677,23 +732,26 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
   const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
   const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
-  const lists = PACKAGE_LISTS.filter((list) => (list !== 'parts' || content?.partDefs) && (list !== 'symbols' || vocab?.vocabulary.kinds.mark) && (list !== 'entries' || content?.glossary?.entries?.length))
+  const lists = leftKeys
+  // The type a list shows that is not one of the kernel's own (those have their own lists below).
+  const otherType = typeOfList(side) && !BUILT_IN_LISTS[typeOfList(side)] ? typeOfList(side) : null
   const objectPending = saving || shown?.ops !== ops
   // A group's own object in the middle: its editor (a tag, a relation, a tray, a section).
   const groupProps = heading && {
-    content, namespace, vocabulary: vocab?.vocabulary, full: heading.full, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
+    kind: heading.kind, content, namespace, vocabulary: vocab?.vocabulary, full: heading.full, pending: objectPending, onEdit: edit, onOps: addOps, onPick: pickObjectField,
+    onOpen: (next) => openNamed(...Object.entries(next)[0]),
     onSelect: (full) => (full ? openHeading({ kind: heading.kind, full }) : select(null)),
   }
-  const GroupEditor = heading && { tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind]
+  const GroupEditor = heading && ({ tag: TagEditor, relation: RelationBoard, tray: TrayEditor, section: SectionEditor, symbol: SymbolEditor }[heading.kind] ?? ObjectSummary)
   // The middle: an object list's object (above), several levels picked at once, a group's own object, or the page.
   const middle = objectList ? 'objects' : pickedIds.length > 1 ? 'bulk' : heading ? 'group' : 'page'
   // The right column: a group's own object's file, the capability's description, the override's file.
-  const objectFile = heading ? { object: { kind: heading.kind, full: heading.full, namespace, own: namespaceOf(heading.full) === namespace } }
+  const objectFile = heading ? { object: { kind: heading.kind, full: heading.full, namespace, own: namespaceOf(heading.full) === namespace, declared: declaredType(heading.kind) } }
     : openCapability ? { capability: openCapability } : openEvent ? { override: { event: openEvent, layer: namespace } } : { game: true }
   // The file the fold bar's compare shows: the object open in the middle (as its layer writes it), else a level.
   const compared = objectFile.object
   const compareFile = compared && {
-    name: objectFileName(compared.kind, compared.full, content.registries?.tag?.[compared.full]?.kind, namespace),
+    name: objectFileName(compared.kind, compared.full, content.registries?.tag?.[compared.full]?.kind, namespace, compared.declared),
     now: ownObjectData(namespace, objectValue(content, compared.kind, compared.full)),
     before: base && (objectValue(base, compared.kind, compared.full) ?? undefined) && ownObjectData(namespace, objectValue(base, compared.kind, compared.full)),
     git: compared.own,
@@ -711,7 +769,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist" aria-label={tr('列表', 'Lists')}>
               {lists.map((list) => {
-                const [Icon, zh, en] = LISTS[list]
+                const info = types.find(({ type }) => type === typeOfList(list))
+                const [Icon, zh, en] = LISTS[list] ?? [iconOf(info?.icon) ?? FileBox, ...typeName(info)]
                 return (
                   <button key={list} type="button" role="tab" aria-selected={side === list} className={side === list ? 'is-on' : ''} aria-label={tr(zh, en)}
                     onClick={() => (list === 'search' ? openSearch() : showList(list))} title={list === 'search' ? `${tr(zh, en)} (${MOD}+Shift+F)` : tr(zh, en)}>
@@ -719,6 +778,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                   </button>
                 )
               })}
+              <LeftTypes types={types} shown={lists.filter((list) => !TOOL_LISTS.includes(list)).map(typeOfList)} chosen={chosenTypes !== null} onChoose={setChosenTypes} />
             </div>
             {side === 'kernel' ? <CapabilityList capabilities={capabilities} current={openCapability} onOpen={(kind, name) => openIn('kernel', capabilityKey(kind, name))} />
               : side === 'overrides' ? <OverrideList events={events} layer={namespace} current={openKey} onOpen={(key) => openIn('overrides', key)} />
@@ -733,6 +793,11 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                 addOptions={[{ value: 'symbol', label: tr('符号', 'Symbol') }]}
                 onAdd={newSymbol}
                 row={id => <button key={id} type="button" className={`tree-level ${heading?.full === id ? 'is-on' : ''}`} onClick={() => openHeading({ kind: 'symbol', full: id })}><code className="tree-level-id">{shownName(namespace, id)}</code><span>{L(content.registries.symbol[id].name)}</span></button>} />
+              : otherType ? <GroupedList kind={otherType} name={typeName(types.find(({ type }) => type === otherType))} content={content} namespace={namespace} game={game}
+                items={objectsOfType(content, otherType)} label={(id) => L(content.registries[otherType][id]?.title ?? content.registries[otherType][id]?.name) || ''}
+                heading={heading} onHeading={openHeading} {...grouping(otherType, 'tag', () => {})}
+                addOptions={addObjectOptions(otherType)} onAdd={(action) => addObject(otherType, action)}
+                row={(id) => <button key={id} type="button" className={`tree-level ${heading?.kind === otherType && heading.full === id ? 'is-on' : ''}`} onClick={() => openHeading({ kind: otherType, full: id })}><code className="tree-level-id">{shownName(namespace, id)}</code><span>{L(content.registries[otherType][id]?.title ?? content.registries[otherType][id]?.name)}</span></button>} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file)} />
               : levelsBy !== 'tag' ? <GroupedList kind="level" content={content} namespace={namespace} game={game} items={playOrder} label={(id) => L(content.registries?.level?.[id]?.title)}
@@ -749,7 +814,9 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                       label: tr('空白关卡', 'Blank level'),
                       ...(levelChoices.length > 1 && { children: levelChoices }),
                     }] : []),
+                    ...templateOptions('level', (full) => L(content.registries?.level?.[full]?.title) || shownName(namespace, full)),
                     ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
+                    ...(at?.level && content.levels.some((level) => level.id === at.level) ? [templateToggle('level', at.level)] : []),
                   ]} onAdd={addLevel} /> }
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />

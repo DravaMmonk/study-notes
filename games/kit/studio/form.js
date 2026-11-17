@@ -642,7 +642,7 @@ export const gameFields = (content) => Object.fromEntries(Object.entries(content
 export function fileForm(content, vocabulary, at, order) {
   if (at?.object) {
     const value = objectValue(content, at.object.kind, at.object.full)
-    return value && { value, form: formOf(objectSchema(at.object.kind), value, { vocabulary, levels: order }) }
+    return value && { value, form: formOf(objectSchema(at.object.kind, at.object), value, { vocabulary, levels: order }) }
   }
   if (at?.glossary) return { value: content.glossary, form: formOf(GLOSSARY, content.glossary, { vocabulary, levels: order }) }
   if (at?.parts) {

@@ -18,7 +18,7 @@ const LEFT = '\0rest'
  * (searched); `row(id)` draws one; `by`/`onBy` the grouping; `heading` the group open ({ kind, full }), `onHeading`;
  * `newGroup` as GroupingBar takes it; `addOptions`/`onAdd` a new object of the list.
  */
-export default function GroupedList({ kind, content, namespace, game, items, label, row, groupings, by, onBy, heading, onHeading, newOptions, onNew, addOptions = [], addLabel, onAdd = () => {} }) {
+export default function GroupedList({ kind, name = null, content, namespace, game, items, label, row, groupings, by, onBy, heading, onHeading, newOptions, onNew, addOptions = [], addLabel, onAdd = () => {} }) {
   const [query, setQuery] = useState('')
   const { folded, toggle, setAll } = useSidebarFolds(`folded-${kind}-${by}`, game)
   const matches = sidebarSearch(query)
@@ -30,7 +30,7 @@ export default function GroupedList({ kind, content, namespace, game, items, lab
   const keys = [...groups.map((group) => group.full), LEFT]
   const titleOf = (group) => L(content.registries?.[group.kind]?.[group.full]?.title) || shownName(namespace, group.full)
   return (
-    <nav className="parts-list" aria-label={tr(...{ level: ['关卡', 'Levels'], part: ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind])}>
+    <nav className="parts-list" aria-label={tr(...(name ?? { level: ['关卡', 'Levels'], part: ['元件', 'Parts'], symbol: ['符号', 'Symbols'], entry: ['词条', 'Entries'] }[kind] ?? [kind, kind]))}>
       <SidebarListTools addOptions={addOptions} addLabel={addLabel} onAdd={onAdd} query={query} onQuery={setQuery} />
       <GroupingBar groupings={groupings} by={by} onBy={onBy} newOptions={newOptions} onNew={onNew}
         folded={keys.every((key) => folded.has(key))} onFoldAll={(fold) => setAll(keys, fold)} />

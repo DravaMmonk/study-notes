@@ -33,7 +33,7 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
   const source = sourceValue(before)
   const edited = setAt(source, path, value)
   if (sameJson(source, edited)) return []
-  const schema = file.object ? objectSchema(file.object.kind) : file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
+  const schema = file.object ? objectSchema(file.object.kind, file.object) : file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
   const existingLiterals = new Set(find(schema, before, 'text', { vocabulary })
     .map(({ value }) => value).filter((value) => typeof value === 'string'))
   const inline = find(schema, edited, 'text', { vocabulary }).find(({ path, value }) =>

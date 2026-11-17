@@ -17,8 +17,15 @@ export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', tray: 'trays',
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
-/** The schema of an object kind's files. */
-export const objectSchema = (kind) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags) : contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+/**
+ * The schema of an object kind's files; `object` (the object open, { declared?: { schema } }) gives a type a package
+ * declares in kinds/ its own.
+ */
+export const objectSchema = (kind, object = null) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags)
+  : object?.declared?.schema ?? contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+
+/** The folder an object kind's files are in: a declared type's own (`declared.folder`), a content kind's its name. */
+const folderOf = (kind, declared) => declared?.folder ?? OBJECT_KINDS[kind] ?? (contentKindSchemas[kind] ? kind : null)
 
 /** An object as the registry holds it, for its file: without the id the registry adds (and a tag without its kind). */
 export function objectValue(content, kind, full) {
@@ -43,9 +50,9 @@ export function ownObjectData(namespace, value) {
 }
 
 /** The file an object is written in: in `namespace`'s own package by its path there, another's prefixed with it. */
-export function objectFileName(kind, full, tagKind = null, namespace = null) {
+export function objectFileName(kind, full, tagKind = null, namespace = null, declared = null) {
   const name = full.slice(full.indexOf('/') + 1)
-  const folder = kind === 'tag' ? `tags/${tagKind ?? 'level'}` : OBJECT_KINDS[kind]
+  const folder = kind === 'tag' ? `tags/${tagKind ?? 'level'}` : folderOf(kind, declared)
   const owner = namespaceOf(full) ?? ''
   return owner === namespace ? `${folder}/${name}.json` : `${owner}/${folder}/${name}.json`
 }
@@ -56,12 +63,14 @@ export function objectFileName(kind, full, tagKind = null, namespace = null) {
  * object is not the layer's own, or for an edit no operation makes (the whole object taken out: the list removes it).
  */
 export function objectOp(object, path, edit, type = null) {
-  const { kind, full, namespace, value } = object
+  const { kind, full, namespace, value, declared } = object
   const name = localName(namespace, full)
-  if (!name || !OBJECT_KINDS[kind]) return null
+  if (!name || !folderOf(kind, declared)) return null
   const keys = parsePath(path)
-  const set = (data) => ({ op: `${kind}.set`, [kind]: name, path: keys, value: data })
-  const put = (data) => ({ op: `${kind}.put`, [kind]: name, data: ownObjectData(namespace, kind === 'tag' ? { kind: object.tagKind, ...data } : data) })
+  // A declared type's objects are edited through the one object operation family; the kernel's through their own.
+  const set = (data) => (declared ? { op: 'object.set', kind, name, path: keys, value: data } : { op: `${kind}.set`, [kind]: name, path: keys, value: data })
+  const put = (data) => (declared ? { op: 'object.put', kind, name, data: ownObjectData(namespace, data) }
+    : { op: `${kind}.put`, [kind]: name, data: ownObjectData(namespace, kind === 'tag' ? { kind: object.tagKind, ...data } : data) })
   if (type === 'text' && !edit.unset) {
     if (!keys.length) return null
     return set(edit.lang ? textWith(namespace, getAt(value, keys), edit.lang, edit.set) : edit.set)

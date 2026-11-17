@@ -266,7 +266,7 @@ function Head({ path, trail, file, root, onPick, json, onToggleJson, about, pinn
   // A part is a file of its own (parts/<name>.json): its crumbs start at the part.
   const part = file.parts && root?.length === 2 && root.every((key, i) => key === path[i] && key === trail[i]) ? root : null
   const base = part ?? []
-  const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.tagKind, file.object.namespace)
+  const name = file.object ? objectFileName(file.object.kind, file.object.full, file.object.tagKind, file.object.namespace, file.object.declared)
     : file.level ? `levels/${file.level.slice(file.level.indexOf('/') + 1)}.json`
     : part ? `parts/${part[1].slice(part[1].indexOf('/') + 1)}.json` : file.parts ? 'parts/'
     : file.glossary ? glossaryFile(file.glossary, path) : contentFileFor(path)

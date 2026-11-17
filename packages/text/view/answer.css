@@ -1,0 +1,9 @@
+/* The text answer play: one field, or a row of choices, centred on the stage. */
+.plugin-stage { min-height: 100%; display: grid; place-items: center; padding: 24px 16px; box-sizing: border-box; }
+.text-answer { width: min(420px, 100%); }
+.text-answer input { width: 100%; box-sizing: border-box; height: 44px; padding: 0 14px; border: 1px solid var(--hairline); border-radius: 8px; color: var(--ink); background: var(--paper); font: 18px/1.2 var(--sans); }
+.text-answer input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.text-answer-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.text-answer-choices button { min-width: 64px; height: 44px; padding: 0 18px; border: 1px solid var(--hairline); border-radius: 8px; color: var(--ink); background: var(--paper); font: 600 18px/1 var(--sans); cursor: pointer; }
+.text-answer-choices button:hover { border-color: var(--faint); }
+.text-answer-choices button.is-on { border-color: var(--accent); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
