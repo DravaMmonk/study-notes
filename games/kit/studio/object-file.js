@@ -7,13 +7,15 @@
 import { contentKindSchemas } from '../engine/content-kinds.js'
 import { folders } from '../engine/layers.js'
 import { OBJECT_SCHEMAS } from '../engine/objects.js'
+import { CHAPTER } from '../engine/course-schema.js'
 import { isText, textKey } from '../engine/i18n.js'
 import { getAt, parsePath, unsetAt } from '../engine/ops/edit.js'
 import { localName, namespaceOf, splitTagKey, tagTarget } from './objects-edit.js'
 import { edgesOf, relationPatch, tagPatch } from './override-edit.js'
 import { textWith } from './tag-edit.js'
+import { objectOverride } from './collection-edit.js'
 
-export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', 'circuit/tray': 'trays', 'circuit/part': 'parts', section: 'sections', symbol: 'symbols' }
+export const OBJECT_KINDS = { tag: 'tags', relation: 'relations', 'circuit/tray': 'trays', 'circuit/part': 'parts', section: 'sections', symbol: 'symbols', chapter: 'chapters' }
 // A tag's kind is in its file's path (tags/<kind>/<name>.json), not in the file.
 const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.entries(schema.fields).filter(([key]) => key !== 'kind')) })
 
@@ -22,7 +24,7 @@ const withoutKind = (schema) => ({ ...schema, fields: Object.fromEntries(Object.
  * declares in kinds/ its own.
  */
 export const objectSchema = (kind, object = null) => (kind === 'tag' ? withoutKind(OBJECT_SCHEMAS.tags)
-  : object?.declared?.schema ?? contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
+  : kind === 'chapter' ? CHAPTER : object?.declared?.schema ?? contentKindSchemas[kind] ?? OBJECT_SCHEMAS[OBJECT_KINDS[kind]] ?? null)
 
 /** The folder an object kind's files are in: a declared type's own (`declared.folder`), a content kind's its name. */
 const folderOf = (kind, declared) => declared?.folder ?? OBJECT_KINDS[kind] ?? (contentKindSchemas[kind] ? kind : null)
@@ -84,6 +86,7 @@ export function objectOp(object, path, edit, type = null) {
   return set(ownObjectData(namespace, edit.set))
 }
 
+const withoutIds = (value) => without(value, ['id'])
 const without = (value, keys) => Object.fromEntries(Object.entries(value ?? {}).filter(([k]) => !keys.includes(k)))
 const changed = (before, after, skip) => Object.fromEntries(Object.entries(without(after, skip)).filter(([k, v]) => JSON.stringify(before?.[k]) !== JSON.stringify(v)))
 
@@ -95,6 +98,8 @@ const changed = (before, after, skip) => Object.fromEntries(Object.entries(witho
 export function overrideFileOf(event) {
   if (event.kind === 'tag') return { ...changed(event.before, event.after, ['kind', 'values']), ...tagPatch(event.before, event.after?.values ?? []) }
   if (event.kind === 'relation') return { ...changed(event.before, event.after, ['edges', 'sequence']), ...relationPatch(event.before, edgesOf(event.after)) }
+  // A gathering object's lists go as patches too (games/MODULES.md 5.3.1); anything else whole.
+  if (event.kind === 'section' || event.kind === 'circuit/tray') return objectOverride(withoutIds(event.before), withoutIds(event.after), { values: 'list', menus: 'list' }) ?? {}
   return event.after ?? {}
 }
 

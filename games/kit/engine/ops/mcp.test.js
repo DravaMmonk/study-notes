@@ -45,7 +45,7 @@ test('the server speaks MCP over stdio', async () => {
   assert.equal((await ask('nothing/here')).error.code, -32601)
 
   const { tools } = (await ask('tools/list')).result
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'create_game', 'deps', 'flow', 'games', 'history', 'log', 'modify', 'names', 'objects', 'overrides', 'packages', 'play_level', 'play_task', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'create_game', 'deps', 'flow', 'games', 'history', 'log', 'modify', 'names', 'objects', 'overrides', 'package_compatibility', 'packages', 'play_level', 'play_task', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
   assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['changeset'])
   assert.equal((await call('modify', { game: GAME })).isError, true)
 })

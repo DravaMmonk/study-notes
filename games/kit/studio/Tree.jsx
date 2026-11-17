@@ -1,6 +1,6 @@
-// The package workspace's sidebar projects level tags and the levels outside them. A group dragged (or moved with
-// Alt+↑/↓ on its name) reorders the level tags, a level moved with Alt+↑/↓ its group: the order relations the
-// workspace writes (tag-order.js).
+// The package workspace's sidebar projects level tags and the levels outside them, tags and their levels in the
+// kernel's order (prerequisites, then names: a tag is a set). A level dragged into another group changes the tags'
+// members; when the workspace passes onGroupMove/onReorder, groups and levels can also be reordered by drag or Alt+↑/↓.
 import { Fragment, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import { groupTree, levelTags, stays } from './groups.js'
@@ -9,7 +9,7 @@ import SidebarSection, { useSidebarFolds } from './SidebarSection.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 import { shownName } from './objects-edit.js'
-import { shifted } from './tag-order.js'
+import { shifted } from './list-order.js'
 import { useDragOrder } from './useDragOrder.js'
 import GroupingBar from './GroupingBar.jsx'
 

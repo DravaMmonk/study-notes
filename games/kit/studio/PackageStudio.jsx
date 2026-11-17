@@ -65,7 +65,6 @@ import { freeObjectName, namespaceOf, ownNames, shownName } from './objects-edit
 import { newTag } from './tag-edit.js'
 import { objectFileName, objectSchema, objectValue, ownObjectData } from './object-file.js'
 import { groupOf, levelTags, treeMoves } from './groups.js'
-import { memberOrderOps, tagMoveOps } from './tag-order.js'
 import Inspector from './Inspector.jsx'
 import { inspectorTabKey } from './InspectorTabs.jsx'
 import { textField } from './copy.js'
@@ -82,7 +81,7 @@ const LISTS = {
 }
 // The kind of object each build list holds, and the relations a new group of it can be.
 const LIST_KIND = { tree: 'level', parts: 'circuit/part', symbols: 'symbol', entries: 'entry' }
-const RELATION_KINDS = { symbol: [['order', '顺序', 'Order']], level: [['requires', '先修', 'Requires'], ['order', '顺序', 'Order']], 'circuit/part': [['replaces', '取代', 'Replaces'], ['order', '顺序', 'Order']], entry: [['order', '顺序', 'Order']] }
+const RELATION_KINDS = { level: [['requires', '先修', 'Requires']], 'circuit/part': [['replaces', '取代', 'Replaces']] }
 const HEADING = readHeading(QUERY)
 const SETTLE = 700 // ms after the last edit before the names are asked again
 const SCOPE = 'package'
@@ -227,8 +226,8 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
-    part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
-    wiki: new Map(rawNames.entries.map((e) => [e.id, e.title])),
+    part: new Map((rawNames.parts ?? []).map((p) => [p.key, p.name])),
+    wiki: new Map((rawNames.entries ?? []).map((e) => [e.id, e.title])),
     quotes: rawNames.quotes,
     stamp: rawNames.stamp,
     onLevel: (id) => select({ level: id }),
@@ -320,9 +319,9 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
       return openHeading({ kind: 'tag', full })
     }
     const name = freeObjectName(ownNames(content, by, namespace), by === 'relation' ? `${option}` : `new-${by}`)
-    const data = by === 'relation' ? { kind: option, ...(option === 'order' && { of: kind }), edges: [] }
+    const data = by === 'relation' ? { kind: option, edges: [] }
       : by === 'circuit/tray' ? { values: [] } : { title: { [getLang()]: T('新的分组', 'New section') }, values: [] }
-    edit({ op: `${by}.put`, [by]: name, data })
+    edit(by === 'circuit/tray' ? { op: 'object.put', kind: by, name, data } : { op: `${by}.put`, [by]: name, data })
     return openHeading({ kind: by, full: `${namespace}/${name}` })
   }
   const grouping = (kind, by, onBy) => ({
@@ -547,15 +546,6 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
   const move = (levels, to) => {
     addOps(treeMoves(levels, to, content, namespace))
     setMoving(null)
-  }
-  // A group dragged among the groups: the layer's level-tags-order; a level moved in its group: the group's order.
-  const moveGroup = (group, to) => {
-    const ops = tagMoveOps(content, namespace, 'level', group, to)
-    if (ops?.length) addOps(ops)
-  }
-  const reorderGroup = (group, sequence) => {
-    const ops = memberOrderOps(content, namespace, group, sequence)
-    if (ops?.length) addOps(ops)
   }
   // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
   const moveTask = (task, to) => {
@@ -787,7 +777,7 @@ export default function PackageStudio({ pkg, packages, onPackage, space }) {
                     <code className="tree-level-id" title={id}>{shownName(namespace, id)}</code><span>{L(content.registries?.level?.[id]?.title)}</span>
                   </button>
                 )} />
-              : <Tree game={game} grouping={grouping('level', levelsBy, setLevelsBy)} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} onGroupMove={moveGroup} onReorder={reorderGroup} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
+              : <Tree game={game} grouping={grouping('level', levelsBy, setLevelsBy)} namespace={namespace} content={content} order={playOrder} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
                     ...(levelChoices.length ? [{
                       value: levelChoices.length === 1 ? levelChoices[0].value : 'blank',

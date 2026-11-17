@@ -17,8 +17,8 @@ import MapEditor from './MapEditor.jsx'
 import { addEdgeOps, removeEdgeOps } from './override-edit.js'
 import { usePref } from './prefs.js'
 import { objectsOf, tagByRef, tagMembers, tagName } from './objects-edit.js'
-import { chapterOrderRefusal, importLevels } from './course-edit.js'
-import { reordered } from './tag-order.js'
+import { chapterOrderRefusal, chapterSet, chapterUnset, importLevels } from './course-edit.js'
+import { reordered } from './list-order.js'
 import { useDragOrder } from './useDragOrder.js'
 
 const MODES = [['links', '依赖', 'Links'], ['map', '路线图', 'Map']]
@@ -44,7 +44,7 @@ export default function ChapterBoard({ content, course, e, at, pending, onSelect
   const [refusal, setRefusal] = useState(null)
   const setMembers = (next) => {
     setRefusal(null)
-    onEdit({ op: 'game.set', path: ['chapters', e, 'levels'], value: next })
+    onEdit(chapterSet(chapter.id, ['levels'], next))
   }
   // The chapter's levels are its play order: a move that puts a level before its prerequisite is refused.
   const reorder = (id, to) => {
@@ -165,12 +165,12 @@ function ChapterMap({ chapter, played, e, at, pending, titleOf, onSelect, onEdit
   return (
     <div className="map-layout">
       {own && <div className="arrange-actions">
-        <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onEdit({ op: 'game.unset', path: ['chapters', e, 'rows'] })}>
+        <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onEdit(chapterUnset(chapter, 'rows'))}>
           <RotateCcw size={13} aria-hidden="true" />{tr('按规则排', 'By the rules')}
         </button>
       </div>}
       <MapEditor rows={own ? chapter.rows : ruled} members={ids} edges={edges} titleOf={titleOf} pending={pending}
-        onRows={(rows) => onEdit({ op: 'game.set', path: ['chapters', e, 'rows'], value: rows })}
+        onRows={(rows) => onEdit(chapterSet(chapter.id, ['rows'], rows))}
         onPick={(id) => onSelect({ era: e, level: id })} picked={at?.level} />
     </div>
   )

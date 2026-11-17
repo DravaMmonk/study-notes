@@ -3,7 +3,7 @@
 // entries). An object shows under every group that names it; what no group names is left over. A group is an object of
 // its own, opened in the middle from its heading row.
 import { grantObjects } from '../../../packages/circuit/core/index.js'
-import { orderedTags, relationOrder } from '../engine/objects.js'
+import { orderedTags } from '../engine/objects.js'
 import { tagKey, tagKeyOfRef, tagMembers, tagName } from './objects-edit.js'
 import { edgesOf } from './override-edit.js'
 
@@ -50,8 +50,8 @@ export function groupsOf(content, kind, by) {
   if (by === 'tag') return orderedTags(content, kind).map((name) => tagKey(kind, name)).map((full) => ({ kind: 'tag', full, members: [...new Set(tagMembers(content, full).map(owner))] }))
   if (by === 'circuit/tray' || by === 'section') {
     const names = Object.keys(registries[by] ?? {}).sort(byName)
-    return relationOrder(names, (content?.relationEdges?.order ?? []).map((e) => ({ ...e, from: e.from.replace(/^#/, ''), to: e.to.replace(/^#/, '') })), by)
-      .map((full) => {
+    // Trays and sections in a package are listed by name; a game orders its encyclopedia's sections itself.
+    return names.map((full) => {
         const value = registries[by][full]
         return { kind: by, full, members: expanded(content, [...(value.values ?? []), ...(value.menus ?? []).flatMap((menu) => menu.values ?? [])], owner, by === 'section' ? ['entry'] : ['circuit/part', 'symbol']) }
       })

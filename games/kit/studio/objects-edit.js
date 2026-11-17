@@ -1,6 +1,6 @@
 // Names and lists for the studio's object editors (games/DESIGN.md 6.1, 6.7): the registries hold full names
 // (`<namespace>/<name>`), the operations write a layer's own objects by their short names.
-import { referenceResolver, relationOrder } from '../engine/objects.js'
+import { orderedMembers, referenceResolver } from '../engine/objects.js'
 import { tagKey, tagName } from '../engine/tag-identity.js'
 import { edgesOf } from './override-edit.js'
 
@@ -50,12 +50,12 @@ export function objectsOf(content, kind, namespace) {
     .sort((a, b) => (a[2] === b[2] ? a[0].localeCompare(b[0]) : a[2] ? -1 : 1))
 }
 
-/** The members a tag stands for once nested tags are expanded, in effective order. */
+/** The members a tag stands for once nested tags are expanded, in the order their prerequisites give, then names (a tag is a set). */
 export function tagMembers(content, full) {
   const tag = content?.registries?.tag?.[full]
   if (!tag) return []
   const expand = referenceResolver(content.registries)
-  return relationOrder(expand(`#${tagName(full)}`, tag.kind), content.relationEdges?.order ?? [], tag.kind)
+  return orderedMembers(content, expand(`#${tagName(full)}`, tag.kind), tag.kind)
 }
 
 /** The candidates a tag of `kind` may take: every object of that kind and every tag of the same kind but itself. */

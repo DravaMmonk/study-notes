@@ -154,14 +154,29 @@ export function expandRelations(relations, expand, scheduled, problems = [], opt
 
 /** Stable topological order: satisfy edges first, then compare full names by code point. */
 export function relationOrder(ids, edges) {
-  const pending = new Set(ids), out = []
-  while (pending.size) {
-    const ready = [...pending].filter((id) => !edges.some((e) => e.to === id && pending.has(e.from))).sort()
-    if (!ready.length) return [...out, ...pending].sort()
-    const id = ready[0]
-    pending.delete(id); out.push(id)
+  // Kahn's order, always taking the ready id that sorts first; a cycle leaves the rest, sorted after what came out.
+  const pending = new Set(ids), after = new Map(), waiting = new Map([...pending].map((id) => [id, 0]))
+  for (const { from, to } of edges) {
+    if (!pending.has(from) || !pending.has(to)) continue
+    after.set(from, [...(after.get(from) ?? []), to])
+    waiting.set(to, waiting.get(to) + 1)
   }
-  return out
+  const ready = [...pending].filter((id) => waiting.get(id) === 0).sort()
+  const insert = (id) => {
+    let lo = 0, hi = ready.length
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (ready[mid] < id) lo = mid + 1; else hi = mid }
+    ready.splice(lo, 0, id)
+  }
+  const out = []
+  while (ready.length) {
+    const id = ready.shift()
+    pending.delete(id); out.push(id)
+    for (const to of after.get(id) ?? []) {
+      waiting.set(to, waiting.get(to) - 1)
+      if (waiting.get(to) === 0) insert(to)
+    }
+  }
+  return pending.size ? [...out, ...pending].sort() : out
 }
 
 /** Studio groups derive member order from prerequisites, then full names. */

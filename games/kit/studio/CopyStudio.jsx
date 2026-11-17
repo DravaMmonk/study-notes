@@ -87,8 +87,8 @@ export default function CopyStudio({ opened, packages, games, onOpen, space }) {
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
-    part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
-    wiki: new Map(rawNames.entries.map((e) => [e.id, e.title])),
+    part: new Map((rawNames.parts ?? []).map((p) => [p.key, p.name])),
+    wiki: new Map((rawNames.entries ?? []).map((e) => [e.id, e.title])),
     quotes: rawNames.quotes,
     onLevel: () => {},
   }, [rawNames])

@@ -4,15 +4,14 @@
 // Another layer's tags are read only. The list of tags is the left column's
 // (ObjectLists.jsx); its file the right's.
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, GripVertical, Layers, Trash2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Layers, Trash2, X } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { confirmDelete } from './delete.js'
 import { localName, namespaceOf, shownName, tagCandidates, tagKey, tagMembers, tagTarget } from './objects-edit.js'
 import { tagKindWord } from './ObjectLists.jsx'
-import { canOrder, memberOrderName, memberOrderOps, reordered, valuesInOrder } from './tag-order.js'
-import { useDragOrder } from './useDragOrder.js'
+import { orderedMembers } from '../engine/objects.js'
 import SourceMark from './SourceMark.jsx'
 import { overridesIt, tagOverrideOps } from './override-edit.js'
 import { memberKnown, memberTitle, tagValuesOp, textWith, withMember, withoutMember } from './tag-edit.js'
@@ -69,24 +68,9 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
     if (next.has(member)) next.delete(member); else next.add(member)
     return next
   })
-  // The members' order is the relation <tag>-order (games/DESIGN.md 6.1): dragged, or moved with Alt+↑/↓.
-  const ordered = valuesInOrder(content, full)
-  const movable = !pending && canOrder(content, namespace, memberOrderName(full), full, overriding)
-  const moveMember = (member, to) => {
-    const ops = memberOrderOps(content, namespace, full, reordered(ordered, [member], to), overriding)
-    if (ops?.length) onOps(ops)
-  }
-  const { item } = useDragOrder({ ids: ordered, onMove: moveMember, disabled: !movable })
-  const movesAt = movable && ordered.length > 1
-  const grip = movesAt && <span className="member-grip" aria-hidden="true"><GripVertical size={12} /></span>
-  const mover = (member) => movesAt && (
-    <span className="member-move">
-      <button type="button" className="kit-btn editor-tool" disabled={ordered[0] === member} aria-label={tr('上移', 'Move up')} title={tr('上移', 'Move up') + ' (Alt+↑)'}
-        onClick={(e) => { e.stopPropagation(); moveMember(member, { before: ordered[ordered.indexOf(member) - 1] }) }}><ArrowUp size={12} aria-hidden="true" /></button>
-      <button type="button" className="kit-btn editor-tool" disabled={ordered.at(-1) === member} aria-label={tr('下移', 'Move down')} title={tr('下移', 'Move down') + ' (Alt+↓)'}
-        onClick={(e) => { e.stopPropagation(); moveMember(member, { after: ordered[ordered.indexOf(member) + 1] }) }}><ArrowDown size={12} aria-hidden="true" /></button>
-    </span>
-  )
+  // A tag is a set (games/MODULES.md 5.4): its nested tags first, then its members in the order their prerequisites
+  // give, then names. Nothing here writes an order.
+  const ordered = [...tag.values.filter((v) => v.startsWith('#')).sort(), ...orderedMembers(content, tag.values.filter((v) => !v.startsWith('#')), tag.kind)]
   const options = tagCandidates(content, tag.kind, full).filter((v) => !tag.values.includes(v)).map((v) => ({
     value: v, label: shownName(namespace, v), title: titleOf(v) ?? undefined, group: v.startsWith('#') ? tr('标签', 'Tags') : tagKindWord(tag.kind),
   }))
@@ -112,17 +96,15 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
       </div>
       <ul className="tag-members" aria-label={tr('成员', 'Members')}>
         {ordered.map((member) => [member, tag.values.indexOf(member)]).map(([member, k]) => member.startsWith('#')
-          ? <li key={member} {...item(member)}>
+          ? <li key={member}>
             <div className={`tag-member is-tag ${known(member) ? '' : 'is-unknown'}`}>
-              {grip}
               <button type="button" className="kit-btn editor-tool" aria-expanded={open.has(member)} aria-label={tr('展开', 'Expand')} onClick={() => toggle(member)}>
                 {open.has(member) ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
               </button>
-              <button type="button" className="tag-link" onClick={() => { onPick?.(['values', k]); onSelect(member.slice(1)) }}>
+              <button type="button" className="tag-link" onClick={() => { onPick?.(['values', k]); onSelect(tagKey(tag.kind, member.slice(1))) }}>
                 <Layers size={13} aria-hidden="true" /><code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
                 <small className="object-count">{tagMembers(content, tagKey(tag.kind, member.slice(1))).length}</small>
               </button>
-              {mover(member)}
               {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
             </div>
             {open.has(member) && <ul className="tag-members">
@@ -131,10 +113,8 @@ function OneTag({ full, tag, own, content, namespace, pending, onSelect, onEdit,
               </li>)}
             </ul>}
           </li>
-          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])} {...item(member)}>
-            {grip}
+          : <li key={member} className={`tag-member ${known(member) ? '' : 'is-unknown'}`} onClick={() => onPick?.(['values', k])}>
             <code>{shownName(namespace, member)}</code><span>{titleOf(member)}</span>
-            {mover(member)}
             {editable && <button type="button" className="kit-btn editor-tool" disabled={pending} aria-label={tr('去掉')} title={tr('去掉')} onClick={() => drop(member)}><X size={12} aria-hidden="true" /></button>}
           </li>)}
       </ul>

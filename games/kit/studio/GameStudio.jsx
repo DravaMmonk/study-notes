@@ -18,7 +18,7 @@ import { itemOf } from './worklist.js'
 import { usePref } from './prefs.js'
 import { confirmDelete } from './delete.js'
 import { textField } from './copy.js'
-import { blankChapter, moveChapter } from './course-edit.js'
+import { blankChapter, chapterName, chaptersOrder, moveChapter, newChapterName } from './course-edit.js'
 import { missingDependencies, packageAddOps, packageRemoveOps } from './game-packages.js'
 import { useChangeset } from './useChangeset.js'
 import StudioBar from './StudioBar.jsx'
@@ -97,8 +97,8 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
   const course = useMemo(() => content && { ...content, chapters: content.sourceChapters ?? [] }, [content])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
-    part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
-    wiki: new Map(rawNames.entries.map((e) => [e.id, e.title])),
+    part: new Map((rawNames.parts ?? []).map((p) => [p.key, p.name])),
+    wiki: new Map((rawNames.entries ?? []).map((e) => [e.id, e.title])),
     quotes: rawNames.quotes,
     onLevel: () => {},
   }, [rawNames])
@@ -123,6 +123,8 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
   }
   const eras = course?.chapters ?? []
   const e = at?.era !== undefined && eras[at.era] ? at.era : null
+  // The chapter picked, as the right column edits it: its own file (object-file.js).
+  const chapterFile = !at?.game && e !== null ? { object: { kind: 'chapter', full: eras[e].id, namespace: layer, own: true } } : null
   const select = (next) => {
     setSide('chapters')
     setAt(next)
@@ -132,18 +134,20 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
     setField({ path })
   }
-  const setEras = (value) => edit({ op: 'game.set', path: ['chapters'], value })
+  // A chapter is its own object (course-edit.js); the game's `chapters` list orders them.
   const newChapter = () => {
-    setEras([...eras, blankChapter(eras, eras.at(-1) ?? {}, (fields) => retitled(fields))])
+    const name = newChapterName(eras)
+    const { id: _, ...fields } = blankChapter(eras, eras.at(-1) ?? {}, (fields) => retitled(fields))
+    addOps([{ op: 'chapter.put', chapter: name, data: fields }, chaptersOrder([...eras, { id: `${layer}/${name}` }])])
     select({ era: eras.length })
   }
   const removeChapter = (k) => {
     if (eras[k].levels.length || eras.length === 1 || !confirmDelete(L(eras[k].title ?? eras[k].chapter?.title) ?? String(eras[k].id))) return
-    setEras(eras.filter((_, i) => i !== k))
+    addOps([chaptersOrder(eras.filter((_, i) => i !== k)), { op: 'chapter.remove', chapter: chapterName(eras[k].id) }])
     select({ era: Math.max(0, k - 1) })
   }
   const shift = (k, by) => {
-    setEras(moveChapter(eras, k, by))
+    edit(chaptersOrder(moveChapter(eras, k, by)))
     select({ era: k + by })
   }
   const make = async () => {
@@ -215,7 +219,7 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
               {eras.map((chapter, k) => (
                 <div key={k} className={`chapter-item ${e === k && !at?.game ? 'is-on' : ''}`}>
                   <button type="button" className="tree-level" onClick={() => select({ era: k })}>
-                    <code className="tree-level-id">{chapter.id}</code><span>{L(chapter.title ?? chapter.chapter?.title)}</span>
+                    <code className="tree-level-id">{chapterName(chapter.id)}</code><span>{L(chapter.title ?? chapter.chapter?.title)}</span>
                   </button>
                   <span className="chapter-tools">
                     <button type="button" className="kit-btn editor-tool" disabled={busyEditing || k === 0} onClick={() => shift(k, -1)} title={tr('上移', 'Move up')}><ArrowUp size={12} /></button>
@@ -235,8 +239,8 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
               {!overridesShown && !packagesShown && (at?.game || e === null
                 ? <article className="editor"><header className="editor-head"><h1>{L(content.title)}</h1></header></article>
                 : <>
-                  <header className="editor-head chapter-head" onClick={() => pickField(['chapters', e])}>
-                    <code className="editor-id is-static">{eras[e].id}</code><h1>{L(eras[e].title ?? eras[e].chapter?.title) ?? ''}</h1>
+                  <header className="editor-head chapter-head" onClick={() => pickField([])}>
+                    <code className="editor-id is-static">{chapterName(eras[e].id)}</code><h1>{L(eras[e].title ?? eras[e].chapter?.title) ?? ''}</h1>
                   </header>
                   <ChapterBoard content={content} course={course} e={e} at={at} pending={busyEditing} onSelect={select} onEdit={edit} onOps={addOps} />
                 </>)}
@@ -244,7 +248,7 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : { game: true }} field={openEvent ? { path: [] } : packagesShown ? null : field ?? (at?.game ? { path: [] } : e !== null ? { path: ['chapters', e] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
+            {sideCtx && <Inspector content={course} vocab={vocab} at={openEvent ? { override: { event: openEvent, layer } } : chapterFile ?? { game: true }} field={openEvent ? { path: [] } : packagesShown ? null : field ?? (at?.game || e !== null ? { path: [] } : null)} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={pickField}
               onLevel={() => {}} onRemoveLevel={() => {}} onRemoveSelection={() => setField(null)}
               tabs={[]} selection={at?.game ? { game: true } : { era: e }} onToggleTab={() => {}} onOpenTab={() => {}} onCloseTab={() => {}}
               onNavigate={(path) => pickField(path)} />}

@@ -76,11 +76,11 @@ test('an edit of the layer’s own object is its object operation; another layer
 
 test('an override’s file is what the override operation writes: a patch of a tag or relation, anything else whole', () => {
   const tag = { layer: 'demo', kind: 'tag', name: 'other/far', before: { kind: 'level', values: ['other/b', 'other/c'] }, after: { kind: 'level', title: { en: 'Far' }, values: ['other/b', 'demo/a'] } }
-  assert.deepEqual(overrideFileOf(tag), { title: { en: 'Far' }, values: ['demo/a'], remove: ['other/c'] })
+  assert.deepEqual(overrideFileOf(tag), { title: { en: 'Far' }, values: { add: ['demo/a'], remove: ['other/c'] } })
   const relation = { layer: 'demo', kind: 'relation', name: 'other/r', before: { kind: 'requires', edges: [{ from: 'x', to: 'y' }] }, after: { kind: 'requires', edges: [{ from: 'x', to: 'y' }, { from: 'y', to: 'z' }] } }
-  assert.deepEqual(overrideFileOf(relation), { edges: [{ from: 'y', to: 'z' }] })
+  assert.deepEqual(overrideFileOf(relation), { edges: { add: [{ from: 'y', to: 'z' }] } })
   const layout = { layer: '@game', kind: 'section', name: 'demo/map', before: { of: '#demo/t', rows: [] }, after: { of: '#demo/t', rows: [['demo/a']] } }
-  assert.deepEqual(overrideFileOf(layout), { of: '#demo/t', rows: [['demo/a']] })
+  assert.deepEqual(overrideFileOf(layout), { rows: [['demo/a']] }, 'a section’s override writes what changed')
   assert.deepEqual(overrideOp(layout, '@game', { rows: [] }), { op: 'override.put', layer: '@game', kind: 'section', name: 'demo/map', data: { rows: [] } })
   assert.equal(overrideOp(layout, 'demo', { rows: [] }), null)
 })

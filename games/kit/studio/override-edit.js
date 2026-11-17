@@ -1,7 +1,7 @@
 // What a layer writes when it overrides a package's object from the studio (games/DESIGN.md 6.1, 2, 6.7). A game
 // overrides only copy and level relations: a relation by the edges it adds and removes.
-import { sameJson } from '../engine/json-value.js'
 import { splitTagKey } from './objects-edit.js'
+import { edgesPatch, objectOverride, setPatch } from './collection-edit.js'
 
 /** How an override names an object: a tag (studio key `<member>:<full>`) by its full name and member type. */
 const named = (kind, name) => {
@@ -27,11 +27,8 @@ export const edgesOf = (relation) => [...(relation?.edges ?? []), ...(relation?.
 /** The override patch that turns `before`'s edges into `wanted`: the edges added, and the ones taken out; null when
  * nothing differs (the override file goes). */
 export function relationPatch(before, wanted) {
-  const had = edgesOf(before).map(plain)
-  const edges = wanted.map(plain).filter((edge) => !had.some((old) => sameJson(old, edge)))
-  const remove = had.filter((old) => !wanted.some((edge) => sameJson(plain(edge), old))).map(({ from, to }) => ({ from, to }))
-  if (!edges.length && !remove.length) return null
-  return { ...(edges.length && { edges }), ...(remove.length && { remove }) }
+  const patch = edgesPatch(edgesOf(before).map(plain), wanted.map(plain))
+  return patch && { edges: patch }
 }
 
 /** The ops a layer writes so relation `name` ends with `wanted` edges. */
@@ -74,11 +71,20 @@ export function removeEdgeOps(content, layer, from, to) {
 
 /** The override patch that turns `before`'s members into `wanted`: the members added and the ones taken out. */
 export function tagPatch(before, wanted) {
-  const had = before?.values ?? []
-  const values = wanted.filter((v) => !had.includes(v))
-  const remove = had.filter((v) => !wanted.includes(v))
-  if (!values.length && !remove.length) return null
-  return { ...(values.length && { values }), ...(remove.length && { remove }) }
+  const patch = setPatch(before?.values ?? [], wanted)
+  return patch && { values: patch }
+}
+
+/**
+ * The ops a layer writes so another package's object `name` (of `kind`) reads `desired`: its override of what changed
+ * since before the layer — collection fields (`fields`) by their patches — or the override taken out when nothing has.
+ */
+export function objectOverrideOps(content, layer, kind, name, desired, fields) {
+  const { id: _, ...base } = beforeLayer(content, layer, kind, name) ?? {}
+  const data = objectOverride(base, desired, fields)
+  const had = overrideEvent(content, layer, kind, name)
+  if (!data) return had ? [{ op: 'override.remove', layer, kind, ...named(kind, name) }] : []
+  return [{ op: 'override.put', layer, kind, ...named(kind, name), data }]
 }
 
 /** The ops a layer writes so tag `name` ends with `wanted` members. */

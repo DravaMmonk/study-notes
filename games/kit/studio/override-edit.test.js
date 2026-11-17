@@ -8,7 +8,6 @@ const content = (history = []) => ({
   registries: {
     relation: {
       'p/route': { kind: 'requires', edges: [{ from: 'p/a', to: 'p/b' }, { from: '#p/t', to: 'p/c' }] },
-      'p/steps': { kind: 'order', sequence: ['p/a', 'p/b'] },
     },
   },
   overrideHistory: history,
@@ -17,7 +16,7 @@ const content = (history = []) => ({
 test('a relation patch names the edges added and the ones taken out', () => {
   const before = { kind: 'requires', edges: [{ from: 'p/a', to: 'p/b' }, { from: 'p/b', to: 'p/c' }] }
   assert.deepEqual(relationPatch(before, [{ from: 'p/a', to: 'p/b' }, { from: 'p/x', to: 'p/c' }]),
-    { edges: [{ from: 'p/x', to: 'p/c' }], remove: [{ from: 'p/b', to: 'p/c' }] })
+    { edges: { add: [{ from: 'p/x', to: 'p/c' }], remove: [{ from: 'p/b', to: 'p/c' }] } })
   assert.equal(relationPatch(before, before.edges), null)
 })
 
@@ -25,12 +24,12 @@ test('a new prerequisite goes into the relation that already leads into its leve
   assert.equal(relationForEdge(content(), 'p/b'), 'p/route')
   assert.equal(relationForEdge(content(), 'p/z'), 'p/route')
   assert.equal(relationForEdge(content(), 'q/z'), null)
-  assert.deepEqual(addEdgeOps(content(), '@g', 'p/c', 'p/b'), [{ op: 'override.put', layer: '@g', kind: 'relation', name: 'p/route', data: { edges: [{ from: 'p/c', to: 'p/b' }] } }])
+  assert.deepEqual(addEdgeOps(content(), '@g', 'p/c', 'p/b'), [{ op: 'override.put', layer: '@g', kind: 'relation', name: 'p/route', data: { edges: { add: [{ from: 'p/c', to: 'p/b' }] } } }])
 })
 
 test('a prerequisite through a tag cannot be taken out from the game', () => {
   assert.equal(removeEdgeOps(content(), '@g', 'p/x', 'p/c'), null)
-  assert.deepEqual(removeEdgeOps(content(), '@g', 'p/a', 'p/b'), [{ op: 'override.put', layer: '@g', kind: 'relation', name: 'p/route', data: { remove: [{ from: 'p/a', to: 'p/b' }] } }])
+  assert.deepEqual(removeEdgeOps(content(), '@g', 'p/a', 'p/b'), [{ op: 'override.put', layer: '@g', kind: 'relation', name: 'p/route', data: { edges: { remove: [{ from: 'p/a', to: 'p/b' }] } } }])
 })
 
 test('undoing a game’s change to a relation removes its override', () => {
@@ -45,9 +44,9 @@ test('undoing a game’s change to a relation removes its override', () => {
 
 test('a tag override names the members added and taken out, and goes when nothing differs', async () => {
   const { tagOverrideOps, tagPatch } = await import('./override-edit.js')
-  assert.deepEqual(tagPatch({ values: ['p/a', 'p/b'] }, ['p/a', 'p/c']), { values: ['p/c'], remove: ['p/b'] })
+  assert.deepEqual(tagPatch({ values: ['p/a', 'p/b'] }, ['p/a', 'p/c']), { values: { add: ['p/c'], remove: ['p/b'] } })
   assert.equal(tagPatch({ values: ['p/a'] }, ['p/a']), null)
   const c = { registries: { tag: { 'p/t': { kind: 'level', values: ['p/a', 'p/b'] } } }, overrideHistory: [] }
-  assert.deepEqual(tagOverrideOps(c, 'q', 'p/t', ['p/a']), [{ op: 'override.put', layer: 'q', kind: 'tag', name: 'p/t', data: { remove: ['p/b'] } }])
+  assert.deepEqual(tagOverrideOps(c, 'q', 'p/t', ['p/a']), [{ op: 'override.put', layer: 'q', kind: 'tag', name: 'p/t', data: { values: { remove: ['p/b'] } } }])
   assert.deepEqual(tagOverrideOps(c, 'q', 'p/t', ['p/a', 'p/b']), [])
 })

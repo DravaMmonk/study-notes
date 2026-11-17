@@ -886,7 +886,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .gather-refs .editor-tool { width: 20px; height: 20px; }
 .gather-order { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; }
 .gather-menu-order { display: grid; gap: 4px; margin: 6px 0 0 16px; }
-.gather-add { justify-self: start; }
+.gather-add { justify-self: start; align-self: flex-start; }
 
 /* A part's stages under its page (StageChain.jsx). */
 .stage-chain { display: grid; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--hairline); background: var(--paper); max-height: 40vh; overflow: auto; }

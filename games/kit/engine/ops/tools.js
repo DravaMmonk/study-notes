@@ -130,9 +130,16 @@ const tools = {
       return Promise.all(packageIds(ROOT).map(async (id) => {
         const resolved = resolveLayers({ package: id, closure: true, root: ROOT })
         const layer = resolved.layers.find(layer => layer.id === id)
-        const { packageCompatibility } = await import('../releases.js')
-        return { id, ...layer.config, manifest: layer.manifest, lock: resolved.lock, lockStatus: resolved.lockStatus, compatibility: packageCompatibility(id, ROOT) }
+        return { id, ...layer.config, manifest: layer.manifest, lock: resolved.lock, lockStatus: resolved.lockStatus }
       }))
+    },
+  },
+  package_compatibility: {
+    about: 'Compare a package with its last release: what changed in its public surface, the version it would get, and the packages and games it affects. Slow: asked for one package, not with the list.',
+    params: { package: 'string' },
+    async run({ package: id }) {
+      const { packageCompatibility } = await import('../releases.js')
+      return packageCompatibility(id, ROOT)
     },
   },
   overrides: {
