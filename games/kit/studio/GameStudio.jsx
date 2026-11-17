@@ -9,7 +9,7 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, Hammer, Layers, ListTree, Minus, Package, Plus, Settings2, Trash2 } from 'lucide-react'
 import { L, T, getLang, tr } from '../shell/i18n.js'
-import { withParts } from '../../../packages/circuit/core/index.js'
+import { contentVocabulary } from './editors.js'
 import { parsePath } from '../engine/ops/edit.js'
 import { isText, textEntries } from '../engine/i18n.js'
 import { call } from './api.js'
@@ -92,7 +92,7 @@ export default function GameStudio({ game, games, onGame, onMade, packages = [],
     const timer = window.setTimeout(() => call('names', { game, scope: SCOPE, changeset: { ops: JSON.parse(naming) } }).then((r) => no === namesSeq.current && setRawNames(r)).catch(() => {}), naming === '[]' ? 0 : SETTLE)
     return () => window.clearTimeout(timer)
   }, [game, naming, rev, loaded])
-  const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
+  const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: contentVocabulary(domainVocab.vocabulary, content) }, [domainVocab, content])
   // The course as course.json writes it: the forms and the side panel edit it so.
   const course = useMemo(() => content && { ...content, chapters: content.sourceChapters ?? [] }, [content])
   const names = useMemo(() => rawNames && {

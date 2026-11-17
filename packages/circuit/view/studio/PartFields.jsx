@@ -1,3 +1,4 @@
+import { L, tr, validate, usePickerPopup, useDraft } from 'kernel/view'
 // The studio's controls for a part definition's own fields (games/DESIGN.md 6.7, 6.8): an expression — what a part
 // computes, a rule's or a check's logic, a readout — and an icon of the kernel's table. An expression is code over the
 // engine's resources and nothing else: it is read and checked as it is typed (where it is wrong, the resources, inputs
@@ -5,16 +6,13 @@
 // part's inputs and its settings, each put in at the caret with a click.
 import { useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { L, tr } from '../shell/i18n.js'
-import { ExprError, parse, problemsOf } from '../../../packages/circuit/core/index.js'
-import { resolveSettings } from '../../../packages/circuit/core/index.js'
-import { BUILTIN_ITEMS } from '../../../packages/circuit/core/index.js'
-import { ICON_NAMES } from '../../../packages/circuit/core/index.js'
-import { validate } from '../engine/schema.js'
-import { ICONS } from '../../../packages/circuit/view/index.jsx'
-import { creationChoices } from './form.js'
-import { AddMenu, usePickerPopup } from './Picker.jsx'
-import { useDraft } from './draft.js'
+
+import { ExprError, parse, problemsOf } from '../../core/index.js'
+import { resolveSettings } from '../../core/index.js'
+import { BUILTIN_ITEMS } from '../../core/index.js'
+import { ICON_NAMES } from '../../core/index.js'
+
+import { ICONS } from '../parts/icons.js'
 
 /** The part an expression at `path` belongs to in parts/<name>.json, and whether it may read the part's inputs. */
 function partAt(file, path) {
@@ -117,29 +115,4 @@ function IconOptions({ anchor, icon, label, onClose, onOutside, onPick }) {
       </div>
     </div>
   )
-}
-
-/** Add an optional field offered by the current engine schema. */
-export function AddFields({ fields, ctx, onAdd }) {
-  const label = tr('添加字段', 'Add field')
-  const entries = new Map()
-  const options = fields.flatMap((field) => {
-    const choices = creationChoices(field.schema, ctx)
-    if (!choices.length) return []
-    const { key, about } = field
-    if (choices.length === 1) {
-      entries.set(key, { field, make: choices[0].make })
-      return [{ value: key, about }]
-    }
-    const children = choices.map((choice) => {
-      const value = `${key}:${choice.value}`
-      entries.set(value, { field, make: choice.make })
-      return { ...choice, value }
-    })
-    return [{ value: key, about, children }]
-  })
-  return <AddMenu options={options} onPick={(key) => {
-    const { field, make } = entries.get(key)
-    onAdd(field, make())
-  }} label={label} />
 }

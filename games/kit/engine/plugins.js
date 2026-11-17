@@ -21,6 +21,11 @@ export function createPluginKernel() {
         if (!name.startsWith(`${id}:`) || !/^[a-z][a-z0-9-]*:[A-Za-z][A-Za-z0-9_-]*$/.test(name)) throw new Error(`${id}: invalid ${type} name ${name}`)
         const required = side === 'core' ? REQUIRED[type] ?? [] : type === 'play' ? ['component', 'preview'] : []
         for (const key of required) if (typeof value?.[key] !== 'function') throw new Error(`${name}: ${type} needs ${key}()`)
+        if (type === 'editor') {
+          if (typeof value?.component !== 'function') throw new Error(`${name}: editor needs component()`)
+          for (const slot of ['list', 'page', 'preview', 'stages', 'onPage']) if (value[slot] !== undefined && typeof value[slot] !== 'function') throw new Error(`${name}: editor ${slot} needs a function`)
+          if ([...tables.editor.values()].some(editor => editor.type === value.type)) throw new Error(`${name}: duplicate editor type ${value.type}`)
+        }
         if (['kind', 'editor'].includes(type) && typeof value?.type !== 'string') throw new Error(`${name}: ${type} needs an object type`)
         if (['check', 'state'].includes(type) && typeof value !== 'function') throw new Error(`${name}: ${type} needs a function`)
         if (type === 'kind') registerMeaning(value)

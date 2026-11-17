@@ -6,7 +6,7 @@ import { glossaryTarget } from './form.js'
 // field it is) and whose it is (`own`: the package's, or the game's own). A workspace (`side`) sees its own: the package
 // workspace the package's texts; the game workspace the game's and the package's, which it puts its own wording over.
 import { languagesOf } from '../engine/i18n.js'
-import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
+import { fileSchema } from './editors.js'
 import { find } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { showPath } from '../engine/ops/edit.js'
@@ -39,7 +39,7 @@ export function copyRows(content, vocabulary, scope, order, side = 'package') {
     return rows
   }
   if (scope === 'parts') {
-    find(PARTS_FILE, content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'parts.json', 'parts'))
+    find(fileSchema(vocabulary, 'partDefs'), content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'parts.json', 'parts'))
     return rows
   }
   if (scope === 'glossary') {

@@ -1,21 +1,13 @@
+import { L, tr, GroupedList, groupingsFor, shownName, taskOptionsOf, findTask } from 'kernel/view'
+import { freeName } from 'kernel/view'
 // The package's parts in the build workspace's left column. The kernel supplies creation options.
-import { L, tr } from '../shell/i18n.js'
-import { iconOf } from '../../../packages/circuit/view/index.jsx'
-import GroupedList from './GroupedList.jsx'
-import { GROUPINGS } from './list-groups.js'
-import { shownName } from './objects-edit.js'
-import { taskOptionsOf } from './form.js'
-import { partGroups } from './parts.js'
-import { builtPart, partCreationOptions } from '../../../packages/circuit/core/index.js'
-import { findTask } from '../engine/tasks.js'
-import { partReference } from '../../../packages/circuit/core/index.js'
 
-/** A name for a new part not taken yet. */
-export const freeName = (taken, stem) => {
-  let k = 1
-  while (taken.includes(`${stem}${k}`)) k += 1
-  return `${stem}${k}`
-}
+import { iconOf } from '../parts/icons.js'
+
+import { partGroups } from '../../core/studio-parts.js'
+import { builtPart, partCreationOptions } from '../../core/index.js'
+
+import { partReference } from '../../core/index.js'
 
 /**
  * The package's parts (games/DESIGN.md 6.7), in the order the course first gives them, grouped by their tags, the
@@ -65,7 +57,7 @@ export default function PartsList({ content, vocabulary, namespace, game, levelO
   }
   return (
     <GroupedList kind="circuit/part" content={content} namespace={namespace} game={game} items={items} label={(id) => L(file.parts[id]?.name)} row={row}
-      groupings={GROUPINGS['circuit/part']} by={by} onBy={onBy} heading={heading} onHeading={onHeading} newOptions={newOptions} onNew={onNew}
+      groupings={groupingsFor('circuit/part')} by={by} onBy={onBy} heading={heading} onHeading={onHeading} newOptions={newOptions} onNew={onNew}
       addOptions={choices} addLabel={tr('新的元件', 'New part')} onAdd={create} />
   )
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { S } from '../engine/schema.js'
-import { newStageId, partAtStage, stageChain, stageChanges, stageId } from './stage-chain.js'
+import { S } from 'kernel'
+import { newStageId, partAtStage, stageChain, stageChanges, stageId } from '../core/studio-stages.js'
 
 const operations = { 'demo:blur': { params: S.obj({ sigma: S.num({ min: 0, max: 5, default: 1 }), border: S.oneOf(['zero', 'edge']) }) } }
 const raw = {

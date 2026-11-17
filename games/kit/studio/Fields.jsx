@@ -10,10 +10,10 @@
 //   ctx: { vocabulary, levels, levelOptions, names, onBoard(path), findings: Map(showPath → [says]),
 //          before(path) → [had, value] (the field before the pending changes) }
 import { useEffect, useRef, useState } from 'react'
-import { ChevronRight, Copy, GripVertical, Minus, Pencil, Plus, RotateCcw, X } from 'lucide-react'
+import { ChevronRight, Copy, GripVertical, Minus, Plus, RotateCcw, X } from 'lucide-react'
 import { getLang, L, tr } from '../shell/i18n.js'
 import { stepNumber } from '../shell/number-entry.js'
-import { boardSvg } from '../../../packages/circuit/core/index.js'
+import { fieldEditor } from './editors.js'
 import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { textIn, textKey } from '../engine/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
@@ -21,13 +21,13 @@ import { creationChoices, moved, revertOf, summaryOf, taskOptionsOf } from './fo
 import { AddKey, AddMenu, Chips, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
-import { AddFields, ExprField, IconField } from './PartFields.jsx'
+import { AddFields } from './AddFields.jsx'
 import { useDraft } from './draft.js'
 import { confirmDelete } from './delete.js'
 
 
 /** Grows with what it holds. */
-function Area({ value, onChange, bind, className = '', ...rest }) {
+export function Area({ value, onChange, bind, className = '', ...rest }) {
   const ref = useRef(null)
   useEffect(() => {
     const el = ref.current
@@ -92,33 +92,6 @@ function AnyField({ field, onSet, label }) {
   )
 }
 
-/** A board: its drawing (open it in the game's circuit editor, in place), and its blueprint text. */
-function BoardField({ field, onSet, ctx, label }) {
-  const lines = Array.isArray(field.value) ? field.value : []
-  const [text, setText] = useState(false)
-  const [draft, setDraft, bind] = useDraft(lines.join('\n'))
-  let svg = null
-  let wrong = null
-  try {
-    svg = boardSvg(lines)
-  } catch (error) {
-    wrong = tr(error.zh, error.en) ?? error.message
-  }
-  return (
-    <div className="field-board">
-      {svg && (
-        <button type="button" className="board-svg is-thumb" onClick={() => ctx.onBoard?.(field.path)} aria-label={tr(`在电路编辑器里改 ${label}`, `Edit ${label} in the circuit editor`)} disabled={!ctx.onBoard}>
-          <span dangerouslySetInnerHTML={{ __html: svg }} />
-          {ctx.onBoard && <span className="board-edit"><Pencil size={13} aria-hidden="true" /></span>}
-        </button>
-      )}
-      {wrong && <p className="field-bad">{wrong}</p>}
-      <button type="button" className={`kit-btn is-label board-text ${text ? 'is-on' : ''}`} onClick={() => setText(!text)}>{tr('蓝图文本')}</button>
-      {text && <Area className="is-code" value={draft} aria-label={label} spellCheck={false} bind={{ ...bind, onBlur: () => { bind.onBlur(); if (draft !== lines.join('\n')) onSet(draft.replace(/\n+$/, '').split('\n')) } }} onChange={setDraft} />}
-    </div>
-  )
-}
-
 const CONTAINERS = ['list', 'map', 'obj', 'call']
 
 /** A field's control, title tooltip, findings, and undo. */
@@ -134,6 +107,8 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const revert = () => onEdit(field.path, localeEdit ? { set: textIn(before, lang), lang } : revertOf(had ? before : undefined), field.kind)
   const name = label ?? ''
   const body = (() => {
+    const Registered = fieldEditor(field.kind)
+    if (Registered) return <Registered field={field} onSet={set} ctx={ctx} label={name} />
     switch (field.kind) {
       case 'text': return <TextField key={lang} lang={lang} value={field.value}
         onSet={(value) => onEdit(field.path, { set: value, lang: typeof field.value === 'string' ? undefined : lang }, 'text')}
@@ -141,12 +116,9 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'num': return <NumberField field={field} onSet={set} label={name} />
       case 'bool': return <input type="checkbox" className="field-check" checked={Boolean(field.value)} onChange={(e) => set(e.target.checked)} aria-label={name} />
       case 'str': return <StringField field={field} onSet={set} label={name} />
-      case 'expr': return <ExprField field={field} onSet={set} ctx={ctx} label={name} />
-      case 'icon': return <IconField field={field} onSet={set} label={name} />
       case 'choice':
         return <Picker options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
-      case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />
       case 'grid': return <GridField field={field} onSet={set} label={name} />
       case 'numbers': return <NumbersField field={field} onSet={set} label={name} />
       case 'table': return <TableField field={field} onSet={set} label={name} />

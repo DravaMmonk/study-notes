@@ -3,7 +3,7 @@ import { isText, textKey } from '../engine/i18n.js'
 import { sameJson } from '../engine/json-value.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { setAt } from '../engine/ops/identity.js'
-import { PARTS_FILE } from '../../../packages/circuit/core/index.js'
+import { fileSchema } from './editors.js'
 import { find, validate } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { tr } from '../shell/i18n.js'
@@ -33,7 +33,7 @@ export function sourceOps(file, before, path, value, vocabulary, content) {
   const source = sourceValue(before)
   const edited = setAt(source, path, value)
   if (sameJson(source, edited)) return []
-  const schema = file.object ? objectSchema(file.object.kind, file.object) : file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
+  const schema = file.object ? objectSchema(file.object.kind, file.object) : file.level ? vocabulary.level : file.parts ? fileSchema(vocabulary, 'partDefs') : file.glossary ? GLOSSARY : vocabulary.game
   const existingLiterals = new Set(find(schema, before, 'text', { vocabulary })
     .map(({ value }) => value).filter((value) => typeof value === 'string'))
   const inline = find(schema, edited, 'text', { vocabulary }).find(({ path, value }) =>

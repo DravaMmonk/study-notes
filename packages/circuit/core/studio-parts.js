@@ -2,7 +2,7 @@
 // (`trays`, in its order; a part in several goes in the first), then one of the parts no tray holds; in a group, the
 // order the course gives them in. A game without trays has one group, in that order. Domain-free: only the content
 // and where the course first gives each part.
-import { trayMembers } from '../../../packages/circuit/core/index.js'
+import { trayMembers } from './index.js'
 
 /**
  * [{ tray (null: none), types: [type] }]. `types` the parts of parts.json; `trays` game.json's; `at(type)` the level

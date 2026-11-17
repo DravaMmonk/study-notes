@@ -20,16 +20,14 @@
 //                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
 //                  (file 'glossary', in the encyclopedia; an entry by its id) picked;
 //                  { type: 'task-go', task } a step of a built part's upgrade chain clicked: go to that task
-import {  } from '../../../packages/circuit/view/index.jsx'
 import '../shell/shell.css'
 import '../views/views.css'
-import {  } from '../../../packages/circuit/view/index.jsx'
 import { Component, useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang, tr } from '../shell/index.js'
 import { useLang } from '../shell/useLang.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { defineContent } from 'virtual:studio-domains'
-import PartView from './PartView.jsx'
+import { editorForType } from './editors.js'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
 
@@ -150,6 +148,7 @@ export default function Play() {
       const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
       return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
     }
+    const PartView = editorForType('circuit/part').preview
     return <PartView game={part.game} type={part.type} stage={part.stage} edit={parts} onTask={toTask} label={taskLabel} />
   }
   if (!shown) return null

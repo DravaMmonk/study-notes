@@ -130,7 +130,7 @@ export function studioApp() {
       const domains = readdirSync(DOMAINS).filter((d) => existsSync(gameModule(DOMAINS, d)))
       const code = packageEntries(packageIds(root).map(id => ({ id })), root)
       return `import { loadGame } from ${JSON.stringify(resolve(import.meta.dirname, 'load-game.js'))}
-const PACKAGES = { ${code.filter(entry => entry.core || entry.view).map(entry => `${JSON.stringify(entry.id)}: async () => ({ ${['core', 'view'].filter(side => entry[side]).map(side => `${side}: await import(${JSON.stringify(entry[side])})`).join(', ')} })`).join(', ')} }
+export const PACKAGES = { ${code.filter(entry => entry.core || entry.view).map(entry => `${JSON.stringify(entry.id)}: async () => ({ ${['core', 'view'].filter(side => entry[side]).map(side => `${side}: await import(${JSON.stringify(entry[side])})`).join(', ')} })`).join(', ')} }
 export const defineContent = content => loadGame(content, DOMAINS, PACKAGES)
 export const DOMAINS = { ${domains.map((d) => {
         const entry = JSON.stringify(gameModule(DOMAINS, d))

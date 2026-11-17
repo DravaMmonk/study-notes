@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { GROUPINGS, groupsOf, relationKind, stageOwners, ungrouped } from './list-groups.js'
+import { groupingsFor, groupsOf, relationKind, stageOwners, ungrouped } from '../../../games/kit/studio/list-groups.js'
 
 const content = {
   partDefs: { parts: { 'p/add': { stages: [{ id: 'add-carry' }] }, 'p/mul': {}, 'p/neg': {} } },
@@ -27,7 +27,7 @@ const content = {
 }
 
 test('each list groups by the tags of its kind, or by the objects that gather it', () => {
-  assert.deepEqual(GROUPINGS['circuit/part'], ['tag', 'circuit/tray', 'relation'])
+  assert.deepEqual(groupingsFor('circuit/part'), ['tag', 'circuit/tray', 'relation'])
   assert.deepEqual(groupsOf(content, 'level', 'tag').map((g) => [g.full, g.members]), [['level:p/basics', ['p/a', 'p/b']], ['level:p/more', ['p/a', 'p/c']]])
   // A stage stands for its part; a tray's menus count as its members.
   assert.deepEqual(stageOwners(content).get('p/add-carry'), 'p/add')
@@ -41,3 +41,10 @@ test('each list groups by the tags of its kind, or by the objects that gather it
   assert.equal(relationKind(content, content.registries.relation['p/level-tags-order']), null)
   assert.deepEqual(ungrouped(['p/a', 'p/b', 'p/c'], groupsOf(content, 'level', 'relation')), ['p/c'])
 })
+
+import { registerPlugins } from '../../../games/kit/engine/plugins.js'
+import { installStudioPlugins } from '../../../games/kit/studio/editors.js'
+import * as core from '../core/index.js'
+const plugins = await registerPlugins([{ id: 'circuit', core }])
+plugins.forPackage('circuit', 'view').editor('circuit:part', { type: 'circuit/part', component() {}, groupings: ['tag', 'circuit/tray', 'relation'] })
+installStudioPlugins(plugins)
