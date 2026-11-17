@@ -224,7 +224,16 @@ export function introductions(course, keyOf = (p) => p) {
 }
 
 /** Chapter starts and levels introducing parts or stages are drawn as milestones. */
+// Whether a level is a milestone depends only on the course, so it is worked out once per course and level.
+const cores = new WeakMap()
 export function isCore(course, level) {
+  let known = cores.get(course)
+  if (!known) cores.set(course, known = new Map())
+  if (!known.has(level.id)) known.set(level.id, milestone(course, level))
+  return known.get(level.id)
+}
+
+function milestone(course, level) {
   const at = course.plan?.place.get(level.id)
   if (!at) return true
   const own = course.levels[course.index.get(level.id)]
