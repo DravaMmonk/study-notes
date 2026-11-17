@@ -1,5 +1,4 @@
 import { expandNames } from './names.js'
-import { registerCircuitConsumers } from './circuit-bridge.js'
 import { projectVocabulary } from './kind-meanings.js'
 import { validateConfig, kernelIdentity, readJSON, dependencyProblem, satisfies } from './release-data.js'
 import { layerManifest, viewRegistrations } from './manifests.js'
@@ -18,8 +17,6 @@ import { OBJECT_SCHEMAS } from './objects.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { composeLayers, orderPackages, folders, kindForFolder } from './layers.js'
 import { catalogReader } from './catalogs.js'
-import { runtimeIds } from './runtime.js'
-import { contentKindSchemas } from './content-kinds.js'
 import { withKindDeclarations, kindSchemas } from './plugin-kinds.js'
 import { vocabularyFor } from './kernel.js'
 
@@ -34,17 +31,11 @@ export function contentRoot(root) {
 export const packageDirectory = (id = '', root) => resolve(contentRoot(root), 'packages', id)
 export const gameDirectory = (id = '', root) => resolve(contentRoot(root), 'games', id)
 
-export const contentVocabulary = (modules) => vocabularyFor(modules)
-export const layerVocabulary = (layers) => {
-  const levels = layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === 'level').map(o => o.value))
-  const legacy = levels.flatMap(level => (level.tasks ?? []).filter(task => !task.play || !layers.some(layer => layer.hasCore && task.play.startsWith(`${layer.id}:`))).map(task => ({ ...level, tasks: [task] })))
-  const entries = kind => Object.fromEntries(layers.flatMap(layer => [...layer.objects, ...(layer.overrides ?? [])].filter(o => o.kind === kind).map(o => [o.name.includes('/') ? o.name : `${layer.id}/${o.name}`, o.value])))
+export const contentVocabulary = () => vocabularyFor()
+export const layerVocabulary = layers => {
   const meanings = layers.flatMap(layer => layer.meanings ?? [])
-  const registries = Object.fromEntries([...new Set(layers.flatMap(layer => layer.objects.map(object => object.kind)))].map(kind => [kind, entries(kind)]))
-  const ids = levels.length && !legacy.length ? [] : runtimeIds({ levels: legacy, registries }, { meanings })
-  const legacyModules = ids.filter(id => vocabularyFor([]).courses[id] && !layers.some(layer => layer.id === id && layer.hasCore && !layer.nativeRuntime))
-  const packageCode = layers.some(layer => layer.hasCore) || levels.some(level => level.tasks?.some(task => task.play))
-  return { ...withKindDeclarations(projectVocabulary({ ...vocabularyFor(legacyModules), meanings }), layers, packageCode), legacyModules, packageCode }
+  const packageCode = layers.some(layer => layer.hasCore || layer.objects.some(object => object.kind === 'level' && object.value.tasks?.some(task => task.play)))
+  return { ...withKindDeclarations(projectVocabulary({ ...vocabularyFor(), meanings }), layers, packageCode), packageCode }
 }
 
 const json = (file) => {
@@ -178,7 +169,6 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
     installPackageImports()
     const api = kernel.forPackage(id, 'core')
     const registration = createRequire(import.meta.url)(core)
-    registerCircuitConsumers(registration)
     const result = registration.register({ ...api, tag(name, member) {
       api.tag(name, member)
       tagReaders.push({ name, member, reader: id })
@@ -188,7 +178,6 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
   const objects = levelFiles(dir).map(([name, file]) => ({ kind: 'level', name, value: json(file) }))
   for (const folder of ['tags', 'relations', 'sections', 'chapters']) for (const [name, file] of objectFiles(dir, folder)) objects.push({ kind: kindForFolder[folder], name: folder === 'tags' ? name.split('/').at(-1) : name, value: folder === 'tags' ? tagValue(name, json(file)) : json(file) })
   for (const [name, file] of objectFiles(dir, 'entries')) objects.push({ kind: 'entry', name, value: entryValue(name, json(file)) })
-  for (const kind of Object.keys(contentKindSchemas)) for (const [name, file] of objectFiles(dir, folders[kind])) objects.push({ kind, name, value: json(file) })
   for (const [name, file] of objectFiles(dir, 'kinds')) objects.push({ kind: 'kind', name, value: json(file) })
   for (const [kind, definition] of Object.entries(declarations)) if (!definition.extends) for (const [name, file] of objectFiles(dir, definition.folder)) objects.push({ kind, name, value: json(file) })
   const overrides = [], textOverrides = []
@@ -197,7 +186,7 @@ function readLayer(id, dir, config = json(resolve(dir, 'package.json')), declara
     for (const [kind, folder] of Object.entries({ ...folders, kind: 'kinds', ...Object.fromEntries(Object.entries(declarations).filter(([, d]) => !d.extends).map(([k, d]) => [k, d.folder])) })) for (const [name, file] of objectFiles(resolve(overrideDir, namespace), folder)) overrides.push({ kind, name: `${namespace}/${kind === 'tag' ? name.split('/').at(-1) : name}`, value: kind === 'tag' ? tagValue(name, json(file)) : json(file) })
     for (const [lang, entries] of Object.entries(readCatalogs(resolve(overrideDir, namespace, 'i18n')))) textOverrides.push({ namespace, lang, entries })
   }
-  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, nativeRuntime: [...kernel.tables.play.values()].some(play => play.runtime), meanings: [...kernel.tables.kind.values()], codeObjects: [...viewRegistrations(existsSync(resolve(dir, 'view/index.jsx')) ? resolve(dir, 'view/index.jsx') : null), ...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
+  return { id, config, entryPaths: Object.fromEntries([['core', 'core/index.js'], ['view', 'view/index.jsx']].filter(([, path]) => existsSync(resolve(dir, path))).map(([side, path]) => [side, resolve(dir, path)])), tagReaders, meanings: [...kernel.tables.kind.values()], codeObjects: [...viewRegistrations(existsSync(resolve(dir, 'view/index.jsx')) ? resolve(dir, 'view/index.jsx') : null), ...kernel.objects, ...Object.entries(kernel.tables).filter(([kind]) => kind !== 'tag').flatMap(([kind, table]) => [...table].map(([name, value]) => ({ kind, name, value: value?.type ? { type: value.type } : {} })))], objects, overrides, textOverrides, hasCore: existsSync(resolve(dir, 'core/index.js')), hasView: existsSync(resolve(dir, 'view/index.jsx')), catalogs: readCatalogs(resolve(dir, 'i18n')) }
 }
 
 /** Resolve locked dependencies into a single layer representation for every consumer. */

@@ -3,15 +3,15 @@
   "dependencies": {
     "kernel": {
       "version": "0.0.0",
-      "hash": "894d3e6836ed4ad819f9d37131855763bf59f708bb5c05b60d2d89401003dd2a"
+      "hash": "95db36a132c4967cd95951787461aa894968edef93a466502e6596886916596c"
     },
     "circuit": {
       "version": "0.0.0",
-      "hash": "f7b63d5a81d5dcef109402c1b8a8efbab9e3c2e97cd5989e9e383d4cf2e537e9"
+      "hash": "f107ed2e6a595c2bd182f38b003f476fcb913e5919d60e354e8a954d7c1553e2"
     },
-    "table": {
+    "logic": {
       "version": "0.0.0",
-      "hash": "fea8e26fd0d6be73bbe3822f08abccbc8caa5cc60edd140211de5a35508b5d71"
+      "hash": "e93ee8d21b2444735d24ea8d7f63df1f0f6db544a7006a77292c568d65ce0096"
     }
   }
 }

@@ -18,15 +18,12 @@ import { packageIds } from '../engine/resolver.js'
 // seconds), a run of a level's tests — go to a second lane, a worker thread with its own copy of the tools, so a quick
 // preview never waits behind them; a call that writes waits for both lanes. GAMES_ROOT points the tools at a copy of
 // the games folder.
-import { readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
-import { gameModule } from '../engine/game-module.js'
 import { eraLevels } from '../course.js'
 import { contentRoot, contentTargets, readContent } from '../engine/resolver.js'
 
 const PREFIX = '/studio/api/'
-const DOMAINS = resolve(import.meta.dirname, '../modules')
 const MODULE = 'virtual:studio-domains'
 
 const courseCatalog = {
@@ -127,18 +124,10 @@ export function studioApp() {
     resolveId: (id) => (id === MODULE ? `\0${id}` : packages.resolveId(id)),
     load(id) {
       if (id !== `\0${MODULE}`) return null
-      const domains = readdirSync(DOMAINS).filter((d) => existsSync(gameModule(DOMAINS, d)))
       const code = packageEntries(packageIds(root).map(id => ({ id })), root)
       return `import { loadGame } from ${JSON.stringify(resolve(import.meta.dirname, 'load-game.js'))}
 const PACKAGES = { ${code.filter(entry => entry.core || entry.view).map(entry => `${JSON.stringify(entry.id)}: async () => ({ ${['core', 'view'].filter(side => entry[side]).map(side => `${side}: await import(${JSON.stringify(entry[side])})`).join(', ')} })`).join(', ')} }
-export const defineContent = content => loadGame(content, DOMAINS, PACKAGES)
-export const DOMAINS = { ${domains.map((d) => {
-        const entry = JSON.stringify(gameModule(DOMAINS, d))
-        const vocabulary = JSON.stringify(resolve(DOMAINS, d, 'vocabulary.js'))
-        const prepare = ({ logic: 'prepareLogicWorks' })[d] ?? 'prepareWorks'
-        const works = JSON.stringify(resolve(DOMAINS, d, 'work.js'))
-        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary}), import(${works})]).then(([entry, vocabulary, work]) => [entry, vocabulary, { default: { prepare: work.${prepare} } }])`
-      }).join(', ')} }`
+export const defineContent = content => loadGame(content, PACKAGES)`
     },
     async configureServer(server) {
       const { TOOLS, lacking } = await import('../engine/ops/tools.js')

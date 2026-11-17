@@ -21,7 +21,7 @@
     "studio": "node --import ../games/kit/engine/package-imports.mjs node_modules/vite/bin/vite.js --mode studio --open /studio.html",
     "build:games": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/app/build.mjs",
     "publish:content": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/app/content.mjs",
-    "test": "node --import ../games/kit/engine/package-imports.mjs --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/shell/*.test.js ../games/kit/views/*.test.js ../games/kit/modules/*/*.test.js ../games/kit/pipeline/*.test.js ../packages/*/test/*.test.js ../packages/circuit/test/*/*.test.js ../packages/circuit/test/*/*/*.test.js",
+    "test": "node --import ../games/kit/engine/package-imports.mjs --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/shell/*.test.js ../games/kit/views/*.test.js ../games/kit/pipeline/*.test.js ../packages/*/test/*.test.js ../packages/circuit/test/*/*.test.js ../packages/circuit/test/*/*/*.test.js",
     "pipeline": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/pipeline/pipeline.mjs",
     "new-package": "node --import ../games/kit/engine/package-imports.mjs ../games/kit/engine/scaffold.js package",
     "baseline": "node --import ../games/kit/engine/package-imports.mjs --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ../games/kit/engine/baseline.mjs",

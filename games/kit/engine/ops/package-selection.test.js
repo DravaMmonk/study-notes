@@ -16,7 +16,7 @@ test('CLI lists and applies game package operations through the shared registry'
   assert.match(operations, /game\.package\.remove/)
   const original = readFileSync(join(root, 'games', id, 'game.json'), 'utf8')
   cli(id, 'game.package.add', 'package=library', 'range=^1.0.0', '--why', 'Select test library')
-  assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(root, 'games', id, 'game.json'))).packages), [id, 'circuit', 'library'])
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(root, 'games', id, 'game.json'))).packages), [id, 'circuit', 'logic', 'qed', 'library'])
   cli(id, 'game.package.remove', 'package=library', '--why', 'Remove test library')
   assert.equal(readFileSync(join(root, 'games', id, 'game.json'), 'utf8'), original)
 })

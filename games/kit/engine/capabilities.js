@@ -54,7 +54,7 @@ export function createCapabilityRegistry() {
       for (const name of names) {
         if (!tables.display[name]) throw new Error(`undeclared display ${name}`)
         if (displayLoaders[name]) throw new Error(`duplicate display implementation ${name}`)
-        if (typeof load !== 'string' || !load.startsWith('../modules/') && !/^[a-z][a-z0-9-]*\/view$/.test(load)) throw new Error(`display ${name} needs a module UI entry`)
+        if (typeof load !== 'string' || !/^[a-z][a-z0-9-]*\/view$/.test(load)) throw new Error(`display ${name} needs a module UI entry`)
         displayLoaders[name] = load
       }
     },
@@ -88,10 +88,3 @@ export function createCapabilityRegistry() {
 // Runtime implementations share the same qualified names as their declarations.
 export const registeredOperations = Object.create(null)
 export const registeredValueTypes = Object.create(null)
-
-/** Select a module schema projection while sharing all capability tables. */
-export function selectModuleVocabulary(vocabulary, course) {
-  const schemas = vocabulary.courses[course]
-  if (!schemas) throw new Error(`unknown module schema ${course}`)
-  return { ...vocabulary, ...schemas, module: course }
-}

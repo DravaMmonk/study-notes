@@ -9,7 +9,7 @@
 //   rawStyles(paths) → { sizes, colours, spacing, radii }   counted over the .css, .jsx and .js files at `paths`
 //                                                           (files, or directories walked whole)
 //   measure(kit) → { key: counts }   the kit's own sheets (key `kit`), each shared part of the interface (`shell`,
-//                                    `views`, `strip`), every kernel module (modules/<name>). The studio keeps its own denser scale (DESIGN.md 6.7).
+//                                    `views`, `strip`), with package styles owned by their providers. The studio keeps its own denser scale (DESIGN.md 6.7).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -48,11 +48,9 @@ export function rawStyles(paths) {
 }
 
 export function measure(kit) {
-  const dirs = (top) => readdirSync(resolve(kit, top)).filter((name) => statSync(resolve(kit, top, name)).isDirectory())
   const areas = [
     ['kit', readdirSync(kit).filter((name) => name.endsWith('.css') && name !== 'tokens.css').map((name) => resolve(kit, name))],
     ...SHARED.filter((name) => existsSync(resolve(kit, name))).map((name) => [name, resolve(kit, name)]),
-    ...dirs('modules').map((name) => [name, resolve(kit, 'modules', name)]),
   ]
   return Object.fromEntries(areas.map(([key, paths]) => [key, rawStyles(paths)]))
 }

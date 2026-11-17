@@ -146,3 +146,18 @@ test('table extraction normalizes only its declared play fields and migrated cap
  assert.equal(normalize('state-graph:world-new'), 'state-graph:world-new')
  assert.equal(normalize('state-graph:circuit-extra'), 'state-graph:circuit-extra')
 })
+
+test('absent providers change only standalone primitive availability, preserving executions and declared content', async () => {
+  const { dependencyPaletteBaseline } = await import('./baseline-value.js')
+  const availability = { usable: ['table:add', 'consumer/add'], emptyProgress: ['table:add'], definitions: { 'table:add': { $undefined: true }, 'consumer/add': { op: 'table:add' } }, tray: { types: ['table:add', 'consumer/add'], folded: ['table:add'], shown: ['consumer/add'] } }
+  const report = { reference: { work: ['n = table:add(a, b)'], report: { pass: true } } }
+  const data = { structure: { parts: ['table:add'] }, records: [{ availability }, { report }] }
+  assert.equal(dependencyPaletteBaseline(data, { packaged: false }), data)
+  const kept = dependencyPaletteBaseline(data, { packaged: true, dependencies: ['table'] })
+  assert.deepEqual(kept, data)
+  const projected = dependencyPaletteBaseline(data, { packaged: true, dependencies: [] })
+  assert.deepEqual(projected.records[0].availability.usable, ['consumer/add'])
+  assert.equal(projected.records[0].availability.definitions['consumer/add'].op, 'table:add')
+  assert.equal(projected.records[1], data.records[1])
+  assert.equal(projected.structure, data.structure)
+})

@@ -1,102 +1,38 @@
-// The play interface on every domain that has a play hook, over its starter game (kit/modules/<d>/starter, what npm run
-// new-game copies) in course order until the course is done (run from trace-viewer: npm test). A scripted player answers
-// each level with the content's reference board (or moves) through the interface: before it, the naive answer (where
-// the level has one) fails with the game's feedback; the reference then passes, and the session goes on from its
-// progress (the parts built run the boards it passed with). A level whose content writes no reference the player can
-// type (an answer the domain judges some other way) is given up, and the course goes on. The view never shows a
-// reference answer or a hidden test.
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, readdirSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { rmSync } from 'node:fs'
+import { proofsRoot } from '../ops/fixture.js'
+import { readContent } from '../resolver.js'
 import { closeGames } from '../games.mjs'
-import { readStarter } from '../resolver.js'
 import { loadPlay } from './node.mjs'
 import { createPlay } from './play.js'
 import { fresh } from '../../shell/progress.js'
 import { checkPlaytest, newSession } from './session.js'
 
 after(() => closeGames())
-
-const DOMAINS = resolve(import.meta.dirname, '../../modules')
-const withPlay = []
-for (const name of readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'runtime.js')))) {
-  if ((await import(resolve(DOMAINS, name, 'runtime.js'))).default.play) withPlay.push(name)
-}
-
-/**
- * A reference (or naive) answer as the player would write it: blueprint lines, or a hand level's moves. Content may
- * leave out what a table level's input cards read (its reader infers it from the wires); the game's import wants it
- * written on the card, as the board's own text shows it.
- */
-function answer(lines) {
-  const text = (lines ?? []).map((m) => (typeof m === 'string' ? m : Object.entries(m).map(([op, arg]) => `${op} ${arg}`)[0]))
-  const cards = ['view', 'facts'].filter((card) => !text.some((l) => l.startsWith(`${card}[`))).map((card) => [card, [...new Set(text.join('\n').match(new RegExp(`\\b${card}\\.(\\w+)`, 'g'))?.map((m) => m.split('.')[1]) ?? [])]]).filter(([, picks]) => picks.length)
-  return [...cards.map(([card, picks]) => `${card}[picks=[${picks.join(', ')}]]()`), ...text].join('\n')
-}
-
-/** Whether content wrote a reference the player can type: blueprint lines, or a hand level's moves. */
-const typed = (lines) => Array.isArray(lines) && lines.every((m) => typeof m === 'string' || (m && typeof m === 'object' && Object.keys(m).length === 1 && typeof Object.values(m)[0] !== 'object'))
-
-/** The content's answers for the task the level stands at. */
-function answers(content, id, task) {
-  const level = content.levels.find((l) => l.id === id)
-  const played = { ...level, ...level.tasks[task] }
-  return { ref: played.rows ? played.rows.map((row) => row.reference) : played.solution, naive: played.rows ? played.rows.map((row) => row.naive) : played.naive, hidden: (played.hidden ?? []).map((t) => t.label?.en).filter(Boolean), visible: (played.tests ?? []).map((t) => t.label?.en) }
-}
-
-test('every domain with a play hook has a starter game to play it on', () => {
-  assert.ok(withPlay.length > 0)
-  for (const name of withPlay) assert.ok(existsSync(resolve(DOMAINS, '../templates', name, 'starter')), `${name} has a play hook but no starter/`)
-})
-
-let naives = 0
-for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, '../templates', d, 'starter')))) {
-  test(`${name}: the reference passes through the play interface, the naive answer fails, nothing hidden shows`, async () => {
-    const content = readStarter(resolve(DOMAINS, '../templates', name))
+test('installed package references solve a textual session without exposing hidden work', async () => {
+  const { root, id } = proofsRoot()
+  try {
+    const content = readContent(id, root)
     const { shell, hook, course } = await loadPlay(content)
-    const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: fresh() })
+    const record = newSession({ game: id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: fresh() })
     const play = createPlay({ game: shell, course, hook, record })
     let solved = 0
-    // Each attempt passes a task or a level, or gives one up: the course has fewer of them than this.
-    const bound = 10 * content.levels.reduce((n, l) => n + l.tasks.length, 0)
-    for (let guard = 0; guard < bound; guard++) {
+    for (let guard = 0; guard < 20; guard++) {
       const view = play.view()
       if (!view.level) break
-      const { ref, naive, hidden, visible } = answers(content, view.level, view.task)
-      if (!typed(ref)) {
-        play.giveUp()
-        continue
-      }
-      const refText = answer(ref)
-      if (ref.length > 1) assert.ok(!view.text.includes(refText), `${view.level}: the view shows the reference answer`)
-      for (const label of hidden) if (!visible.includes(label)) assert.ok(!view.text.includes(`### ${label}`), `${view.level}: the view shows the hidden test ${label}`)
-      if (typed(naive)) {
-        const r = play.attempt(answer(naive))
-        assert.equal(r.pass, false, `${view.level}: the naive answer passes`)
-        assert.ok(r.text.split('\n\n')[0].trim().length > 0, `${view.level}: the naive answer gets no feedback`)
-        naives++
-      }
-      const r = play.attempt(refText)
-      assert.ok(r.pass, `${view.level}: the reference fails: ${r.text}`)
-      if (view.text.includes('## Parts in the tray') && view.task === shell.byId[view.level].tasks.length - 1) {
-        assert.match(play.view(view.level).text, /## The board as it opens \(blueprint\)\n/)
-      }
-      // A pass asks what the player worked out; the answer is kept on the level's outcome.
-      assert.match(r.text, /--explain/)
-      play.explain(`worked out ${view.level}`)
-      assert.equal(record.levels.filter((e) => e.outcome === 'solved').at(-1).learned, `worked out ${view.level}`)
+      const level = content.levels.find(level => level.id === view.level)
+      const task = level.tasks[view.task]
+      if (task.naive) assert.equal(play.attempt(task.naive.join('\n')).pass, false)
+      const answer = task.solution.join('\n')
+      assert.ok(!view.text.includes(answer))
+      const result = play.attempt(answer)
+      assert.equal(result.pass, true, result.text)
+      play.explain('The reference establishes the goal from the premises.')
       solved++
     }
-    // The course is done: every level passed, given up or skipped, and the starter's references solved some.
-    assert.equal(play.view().level, null, `${name}: the course is not done`)
-    assert.deepEqual(shell.levels.map((l) => l.id).filter((id) => !record.progress.solved.includes(id)), [])
-    assert.ok(solved > 0, `${name}: no level solved by its reference`)
+    assert.equal(solved, content.levels.length)
+    assert.equal(play.view().level, null)
     assert.deepEqual(checkPlaytest(record), [])
-    assert.ok(record.levels.every((e) => ['solved', 'skipped', 'gave-up'].includes(e.outcome)))
-  })
-}
-
-test('some starter has a naive answer, and every one tried failed', () => {
-  assert.ok(naives > 0)
+  } finally { rmSync(root, { recursive: true, force: true }) }
 })

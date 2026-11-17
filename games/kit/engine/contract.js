@@ -163,7 +163,7 @@ export function moduleProblems(module, registry, runtime = null) {
     if (kind === 'display' && (item.role || ['display', 'widget'].includes(item.kind))) {
       const entry = registry.displayLoaders[name]
       if (!entry) out.push(`${name}: no display implementation`)
-      else if (!entry.startsWith(`../modules/${module.id}/ui/`) && entry !== `${module.id}/view`) out.push(`${name}: display implementation is outside its module UI`)
+      else if (entry !== `${module.id}/view`) out.push(`${name}: display implementation is outside its module UI`)
     }
     if (kind === 'operation' && !registry.operations[name]) out.push(`${name}: no runtime implementation`)
     if (kind === 'operation' && item.signatures && !item.signatures.length) out.push(`${name}: no signatures`)

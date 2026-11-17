@@ -1,15 +1,13 @@
+import { moduleProblems } from './contract.js'
+import { register } from '../../../packages/circuit/core/index.js'
+import { createPluginKernel } from './plugins.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { modules, capabilities, vocabulary } from './kernel.js'
-import { moduleProblems } from './contract.js'
+import { vocabulary } from './kernel.js'
 import { createCapabilityRegistry } from './capabilities.js'
 import { typeProblems } from '../../../packages/circuit/core/index.js'
 import { S } from './schema.js'
 import { parse, print } from '../../../packages/circuit/core/index.js'
-
-for (const module of modules) test(`${module.id}: registered capabilities satisfy the module contract`, () => {
-  assert.deepEqual(moduleProblems(module, capabilities), [])
-})
 
 test('each kind rejects duplicate names and permits a name shared across kinds', () => {
   const registry = createCapabilityRegistry()
@@ -61,6 +59,7 @@ test('module contracts reject missing implementations and incomplete signatures'
 })
 
 test('operations from another module execute through the normal part compiler', async () => {
+  register(createPluginKernel().forPackage('circuit', 'core'))
   const { defineParts } = await import('../../../packages/circuit/core/parts/define.js')
   const { PARTS } = defineParts({ parts: { sample: {
     inputs: [{ name: 'a', type: 'circuit:number' }], outputType: 'circuit:number', op: 'circuit:add',
@@ -83,6 +82,6 @@ test('module contracts require a display implementation owned by that module', (
   const registry = createCapabilityRegistry()
   registry.add('display', 'toy:hero', { about: 'Map illustration', role: 'hero' })
   assert.ok(moduleProblems({ id: 'toy', register() {} }, registry).some((problem) => problem.includes('no display implementation')))
-  registry.implementDisplays(['toy:hero'], '../modules/other/ui/displays.js')
+  registry.implementDisplays(['toy:hero'], 'other/view')
   assert.ok(moduleProblems({ id: 'toy', register() {} }, registry).some((problem) => problem.includes('outside its module UI')))
 })

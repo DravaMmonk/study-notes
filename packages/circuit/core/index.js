@@ -1,3 +1,4 @@
+import { circuitVocabulary } from './content-meaning.js'
 import { courseChecks, referenceChecks } from './content-checks.js'
 import circuitRuntime from './mechanism/runtime.js'
 import { partMeaning, trayMeaning } from './content-meaning.js'
@@ -227,6 +228,8 @@ import { grantIndex } from './grants.js'
 export { boardPlay, boardContext } from './board-play.js'
 
 export function register(kernel) {
+  // Install operations before any consumer compiles its part definitions.
+  circuitVocabulary({ kinds: {}, capabilities: {}, game: { fields: {} } })
   kernel.kind('circuit:part', partMeaning)
   kernel.kind('circuit:tray', trayMeaning)
   kernel.kind('circuit:quote', { type: 'circuit/quote', read: value => value, selector: 'quote' })

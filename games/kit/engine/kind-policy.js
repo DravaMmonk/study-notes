@@ -1,9 +1,7 @@
-import { CONTENT_KINDS } from './content-kinds.js'
 // All content layers are governed by the same declaration and override policy.
 const packaged = { declares: 'package', overrides: { package: ['*'], game: ['$text'] } }
 const game = { declares: 'game', overrides: { game: ['*'] } }
 export const BUILTIN_POLICIES = {
-  ...Object.fromEntries(Object.keys(CONTENT_KINDS).map(kind => [kind, packaged])),
   level: packaged, task: packaged, tag: packaged, relation: { ...packaged, variants: { requires: { overrides: { package: ['*'], game: ['edges', '$text'] } } } },
   entry: packaged, section: packaged, kind: packaged, i18n: { declares: 'package', overrides: { package: ['*'], game: ['*'] } }, chapter: game, game,
 }

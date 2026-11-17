@@ -4,13 +4,12 @@ import { layerProblems } from './kind-policy.js'
 import { dependencyIds, validateConfig } from './semver.js'
 import { tagKey, kernelTags } from './tag-identity.js'
 import { kindSchemas } from './plugin-kinds.js'
-import { CONTENT_KINDS, contentKindSchemas } from './content-kinds.js'
 import { expandNames, fullName, OBJECT_KINDS } from './names.js'
 import { OBJECT_SCHEMAS } from './objects.js'
 import { ENTRY } from './vocabulary.js'
 import { catalogReader, sourceValue } from './catalogs.js'
 
-export const folders = { level: 'levels', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', chapter: 'chapters', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, CONTENT_KINDS[kind].folder ?? kind])) }
+export const folders = { level: 'levels', entry: 'entries', tag: 'tags', relation: 'relations', section: 'sections', chapter: 'chapters' }
 export const kindForFolder = Object.fromEntries(Object.entries(folders).map(([kind, folder]) => [folder, kind]))
 export const schemaForKind = (kind, schemas = {}, value) => {
   const schema = ({ level: schemas.level, game: schemas.game, entry: ENTRY, ...kindSchemas(schemas), ...Object.fromEntries(Object.entries(OBJECT_SCHEMAS).map(([folder, schema]) => [kindForFolder[folder], schema])) })[kind]

@@ -15,7 +15,7 @@ export function pluginSource(layers, root = contentRoot()) {
     `import { pluginGame } from ${q(resolve(KIT, 'app/plugin-game.jsx'))}`,
     `const kernel = await registerPlugins([${entries.map((entry, index) => `{ id: ${q(entry.id)}, ${['core', 'view'].filter(side => entry[side]).map(side => `${side}: ${side}${index}`).join(', ')} }`).join(', ')}], { view: true })`,
     `import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`,
-    `const vocabulary = { ...vocabularyFor(${q(schemas.legacyModules)}), legacyModules: ${q(schemas.legacyModules)}, packageCode: ${q(schemas.packageCode)}, meanings: [...kernel.tables.kind.values()] }`,
+    `const vocabulary = { ...vocabularyFor(), packageCode: ${q(schemas.packageCode)}, meanings: [...kernel.tables.kind.values()] }`,
   ].join('\n')
 }
 export function packageApp(root = contentRoot()) {

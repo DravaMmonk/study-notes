@@ -1,0 +1,150 @@
+// A formula built from chips (《证明完毕》 chapter 5's translations and queries), shown on the shared strip
+// (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one part of it, a
+// predicate with a hole per place, a name, a variable, a quantifier with its variable, or a connective with a hole
+// per side, or ⊥, a whole sentence of its own. Putting a chip in a hole fills it; taking a part out empties its hole, with everything inside it. A thing may
+// be put where a sentence goes (it is marked as not yet a sentence): a predicate put next takes it as its first place.
+//
+//   chip   { key, kind: 'formula' | 'term', group, text, make() }
+//   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
+import { BOT, all, atom, bin, ex, fn, freeVars, not, signature, tvar } from './formula.js'
+import { holeTree } from 'kernel'
+
+// The supported connective marks. The course's selected trays decide which of these are present.
+const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '⊥']
+const QUANTIFIERS = ['∀', '∃']
+
+/** The children of a node, each with the kind of thing its hole takes. */
+export function kidsOf(node) {
+  if (!node || node.op === '⊥') return []
+  if (node.t) return node.t === 'fn' ? node.args.map((a) => ({ kind: 'term', value: a })) : []
+  switch (node.op) {
+    case 'atom': return node.args.map((a) => ({ kind: 'term', value: a }))
+    case '¬': return [{ kind: 'formula', value: node.a }]
+    case '∀': case '∃': return [{ kind: 'formula', value: node.body }]
+    default: return [{ kind: 'formula', value: node.a }, { kind: 'formula', value: node.b }]
+  }
+}
+// The node with its child k replaced.
+function withKid(node, k, value) {
+  if (node.t === 'fn') return { ...node, args: node.args.map((a, i) => (i === k ? value : a)) }
+  switch (node.op) {
+    case 'atom': return { ...node, args: node.args.map((a, i) => (i === k ? value : a)) }
+    case '¬': return { ...node, a: value }
+    case '∀': case '∃': return { ...node, body: value }
+    default: return k === 0 ? { ...node, a: value } : { ...node, b: value }
+  }
+}
+
+const tree = holeTree({ kids: kidsOf, withKid, root: 'formula' })
+export const { nodeAt, setAt, holesOf, kindAt, complete } = tree
+
+/** Whether a variable is introduced on the path to the edited slot. */
+export function bindsAt(node, path, name) {
+  for (const slot of path) {
+    if ((node.op === '∀' || node.op === '∃') && node.v === name) return true
+    node = kidsOf(node)[slot].value
+  }
+  return false
+}
+
+const PREC = { '→': 1, '∨': 2, '∧': 3 }
+/**
+ * What a connective `op` put after a whole sentence takes as its first side: the last whole sentence, widened as the
+ * written formula would read (¬ and a tighter connective are taken in; → groups to the right, ∧ and ∨ to the left; a
+ * quantifier reaches to the end, so it is never climbed out of). Null when the line ends with a box.
+ */
+export function joinsOnto(root, key) {
+  const last = tree.trailing(root, 'formula')
+  if (!last) return null
+  // A predicate takes a thing left where a sentence goes, as its first place: 安, then ①是②的父母, is 安是②的父母.
+  if (key.startsWith('P:')) return nodeAt(root, last).t ? last : null
+  return tree.outward(root, last, (parent) => parent.op === '¬' || (PREC[parent.op] !== undefined && (PREC[parent.op] > PREC[key] || (parent.op === key && key !== '→'))))
+}
+
+/** Where a thing (a name or a variable) stands in a sentence's place: put there, it is not yet a sentence. */
+export function straysOf(root, path = [], kind = 'formula') {
+  if (!root) return []
+  if (root.t) return kind === 'formula' ? [path] : []
+  return kidsOf(root).flatMap((kid, k) => straysOf(kid.value, [...path, k], kid.kind))
+}
+
+/**
+ * The chips a sentence is built from: the level's predicates and names, the quantifiers the course has introduced
+ * (`notation.symbols`) with each variable, those variables, and the connectives. A query keeps x free, so it has
+ * variables even before a quantifier is in hand.
+ */
+export function chipsOf(level) {
+  // In a fixed order, the same for every task of a level, so the order gives nothing away.
+  const preds = [...level.vocab.preds].sort(([a], [b]) => (a < b ? -1 : 1))
+  const order = level.consts ?? []
+  const consts = [...level.vocab.consts].sort((a, b) => order.indexOf(a) - order.indexOf(b))
+  const symbols = level.notation.formulaSymbols
+  const ordered = (marks) => symbols ? Object.keys(symbols).filter((symbol) => marks.includes(symbol)) : marks
+  const quantifiers = ordered(QUANTIFIERS).filter((q) => level.notation.symbols.includes(q))
+  const vars = level.vars ?? (level.kind === 'logic:query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
+  const fns = level.vocab.fns ?? []
+  const connectives = ordered(level.connectives ?? CONNECTIVES)
+  return [
+    // A predicate (`leads`) can take a thing the line ends with as its first place.
+    ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, leads: n > 0, make: () => atom(p, Array(n).fill(null)) })),
+    ...consts.map((c) => ({ key: `c:${c}`, kind: 'term', group: 'name', name: c, make: () => fn(c) })),
+    // A function (s, plus) is a thing with a box for each of its things.
+    ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
+    ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
+    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'logic:query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', symbol: symbols?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
+    // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
+    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', symbol: symbols?.[c], text: symbols?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
+  ]
+}
+
+/** The chip a node was made from. */
+export function chipKeyOf(node) {
+  if (node.t === 'var') return `v:${node.name}`
+  if (node.t === 'fn') return node.args.length ? `f:${node.f}` : `c:${node.f}`
+  if (node.op === 'atom') return `P:${node.pred}`
+  if (node.op === '∀' || node.op === '∃') return `${node.op}${node.v}`
+  return node.op
+}
+
+/** The chips a whole formula is built from. */
+export const chipKeysOf = (node) => [...new Set([chipKeyOf(node), ...kidsOf(node).flatMap((k) => chipKeysOf(k.value))])]
+
+/** The chips a whole formula needs that are not on offer (none: it can be built). */
+export function missingChips(formula, chips) {
+  const offered = new Set(chips.map((c) => c.key))
+  return chipKeysOf(formula).filter((k) => !offered.has(k))
+}
+
+/**
+ * The chips some sentences are built from, and nothing more: their predicates, names, variables, quantifiers and
+ * connectives (a premise on the rule table, a test case's sentences, a proof card's setting). `consts`: the names the
+ * level reads; `notation`: its words.
+ */
+export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
+  const needed = new Set(formulas.flatMap(chipKeysOf))
+  const { preds, fns } = signature(formulas)
+  // Equality is no predicate of the signature; a sentence with = offers it as one of two places.
+  const equal = needed.has('P:=') ? [['=', 2]] : []
+  const vocab = { preds: [...preds, ...equal], consts: [...fns].filter(([, n]) => n === 0).map(([c]) => c), fns: [...fns].filter(([, n]) => n > 0) }
+  const vars = [...needed].filter((k) => k.startsWith('v:')).map((k) => k.slice(2))
+  const parts = { kind: 'logic:translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] } }
+  const free = new Set(formulas.flatMap((formula) => [...freeVars(formula)]))
+  return chipsOf(parts).filter((c) => needed.has(c.key)).map((chip) => chip.group === 'var' && free.has(chip.text) ? { ...chip, free: true } : chip)
+}
+
+/**
+ * The chips some terms are built from, and nothing more (a right side on the definition board): their functions, each
+ * with a box for every argument, their names and their variables, each kind in the order of its names.
+ */
+export function termChips(terms, notation = {}) {
+  const fns = new Map()
+  const vars = new Set()
+  const walk = (t) => {
+    if (t.t === 'var') return vars.add(t.name)
+    fns.set(t.f, t.args.length)
+    t.args.forEach(walk)
+  }
+  terms.forEach(walk)
+  const named = [...fns].sort(([a], [b]) => (a < b ? -1 : 1))
+  return chipsOf({ kind: 'logic:translate', consts: [], vars: [...vars].sort(), vocab: { preds: [], consts: named.filter(([, n]) => n === 0).map(([c]) => c), fns: named.filter(([, n]) => n > 0) }, notation: { ...notation, symbols: [] }, connectives: [] })
+}

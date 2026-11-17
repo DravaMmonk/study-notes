@@ -1,3 +1,4 @@
+import { logicVocabulary as circuitVocabulary } from './ops/fixture.js'
 import { lockFixture } from './ops/fixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -83,7 +84,7 @@ test('data kinds use the normal operation, namespace, copy, tag, relation and ov
 
 test('kind declarations cannot change built-in structure or hide malformed schemas', () => {
   const layer = data => [{ id: 'story', objects: [{ kind: 'kind', name: 'thing', value: data }] }]
-  const base = vocabularyFor('circuit')
+  const base = circuitVocabulary
   assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'levels', schema: { type: 'str' } })), /reserved/)
   assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, extends: 'level', fields: { title: { type: 'str' } } })), /redefine/)
   assert.throws(() => withKindDeclarations(base, layer({ declares: 'package', overrides: { package: ['*'], game: ['$text'] }, folder: 'scenes', schema: { type: 'invalid' } })), /schema/)

@@ -25,7 +25,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
 
 - After `games/MODULES.md` step 3, packages may provide `core/index.js` and `view/index.jsx`, both exporting
   `register(kernel)`. Follow MODULES.md over older architecture prose. New mechanisms belong in packages;
-  the remaining `kit/modules/logic` implementation retains explicit public circuit dependencies until its scheduled migration.
+  all mechanisms now live in packages and consume only public dependency exports.
 - Read [references/package-plugins.md](references/package-plugins.md) for package registration, data kinds,
   import boundaries, contracts and the remaining Studio integration. Core runs independently in Node;
   game/Studio Vite entries register both sides in topological `uses` order.
@@ -43,7 +43,7 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   A package can use its own objects and direct dependencies, without transitive reference authorization. Games
   select the complete dependency closure in `game.json`'s ordered `packages` range map and declare `kernel`; the first key is primary; loading is topological, with the game last.
 - Each object has its own file: `levels/`, `parts/`, `symbols/`, `entries/`, `tags/<kind>/` (package kinds use `tags/<package>/<kind>/`), `relations/`,
-  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) or an unmigrated content-kind folder (`wordset/`).
+  `trays/`, `sections/`, or a package-declared kind folder (`kinds/<name>.json`) (`qed/wordset` uses `wordset/`).
   File names supply object ids; task, stage and menu ids remain inside their containing objects. Chapters are game objects in chapters/<name>.json.
   Do not recreate `groups/`, `parts.json`, `glossary.json`, `trays.json`, or package layouts/courses.
 - Object full names are `<package>/<name>`, game copy uses the `@<game>` namespace, and tag references use `#`.
@@ -79,11 +79,11 @@ Keep the affected design and implemented content aligned. Preserve unrelated wor
   part itself as stage one. Part and stage ids share a namespace. `opens` applies at task start; `awards`
   applies after passing. `gives`/`withholds` adjust only this task; `local` stays with its introducing level/task.
 - Symbols in `symbols/<name>.json` have `mark`, `name`, `desc`, `icon` and optional `stages`, with
-  `@symbol.<name>.*` copy keys and `tags/symbol/` membership. Formula connectives use symbols.
+  `@symbol.<name>.*` copy keys and `tags/logic/symbol/` membership. Formula connectives use symbols.
   `packages/circuit/core/grants.js` centralizes registered grantable types and name/stage resolution. Circuit and logic own
-  their `circuit/part` and `symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
+  their `circuit/part` and `logic/symbol` registrations and `used(work)` readers. Grant fields and trays accept mixed full
   names across registered types, rejecting ambiguous names and unregistered types. `course.state(at, flags)`
-  returns separate `circuit/part` and `symbol` maps. Stages apply to every registered type, while workshops and
+  returns separate `circuit/part` and `logic/symbol` maps. Stages apply to every registered type, while workshops and
   `replaces` remain part-only. Studio lists symbols separately and shares tray and stage editing.
 - Built parts use `inside` variants and reference works; tasks `publish` through the `publishes` list and
   explicitly award stages. They normally run the player's passing work, using a reference if unavailable;
@@ -214,17 +214,15 @@ Keep a change to either editor working for every game that uses the kit.
   `circuit/tray` identities and `tags/circuit/part/`; file folders and `@part.*` / `@tray.*` keys stay stable.
 - Node command/test processes preload `engine/package-imports.mjs` before linking package dependencies.
   The direct `check.js` entry establishes that import environment itself.
-- The remaining native modules use circuit public exports. `engine/circuit-bridge.js` temporarily registers
-  the logic symbol provider. Move that call into the logic package at step 9.
-- Native capability/reader dispatch and content/authoring projections still need the remaining step-5
-  boundary cleanup. Do not describe this checkpoint as zero circuit knowledge in the kernel.
-- Studio's dedicated editors still live in Studio until step 10. Type names, grouping keys and paths must
-  stay canonical while preserving its current editing workflow.
+- No native mechanism import, schema registration or symbol bridge remains after step 10.
+  Logic registers `logic/symbol` grants itself; QED owns its reading dictionaries and illustration.
+- Studio's dedicated editors remain with their owner for step 11. Do not edit that directory when
+  another session owns it; report failures caused by retired native schemas.
 
 Step 7: `rows` and `tick-bus` are package plugins, each with core/view/kinds and Node/Vite contracts.
 Their starter objects live in the packages; copy with `new-package --from rows|tick-bus`. Neither package
 has a course. Both use circuit's public exports at `^0.0.0`; bus-only ticking and textual tick play live in
-`tick-bus`, not circuit. Native imports remain only for logic and the symbol bridge.
+`tick-bus`, not circuit. All providers use package registration.
 Task declarations can scope `extends: task` fields with `play`; this creates a separate schema branch
 without redefining native fields. Keep required fields required on that branch.
 
@@ -243,5 +241,12 @@ Keep Studio source and tests with its owner when the user assigns that boundary.
 After MODULES step 9, table is a reusable model and scene renderer in `packages/table`; concrete worlds,
 robots and all eight course plays are owned by `packages/state-graph`. Use `play: state-graph:<name>`;
 task demonstration panels use `panel`, not the shell's `after` copy. Packed references also use `play`.
-Only logic retains a native implementation/starter and the symbol grant bridge. Table/state-graph
-contracts use synthetic data; do not restore the removed native table starter or dispatch paths.
+Table/state-graph contracts use synthetic data; do not restore native dispatch paths.
+
+## Logic extraction (MODULES step 10)
+
+`packages/logic` owns the proof/formula/machine mechanisms, Node/Vite contracts and `logic/symbol`.
+QED owns `qed/wordset`, its dictionary projection and the map/hub illustration. All kernel native
+mechanism dispatch, content-kind catalogs and circuit bridges are removed. `games/kit/modules/` is absent.
+Declare dependencies only for referenced providers; never add table or another provider solely to keep a
+standalone palette equal to a historical global palette. Use the exact baseline rules in `engine/baseline.md`.

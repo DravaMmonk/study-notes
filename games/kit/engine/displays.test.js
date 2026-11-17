@@ -1,19 +1,17 @@
-import { test, after } from 'node:test'
+import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createCapabilityRegistry } from './capabilities.js'
 import { createDisplayResolver } from './displays.js'
-import { loadModule, closeGames } from './games.mjs'
 import { capabilities } from './kernel.js'
 
-after(() => closeGames())
 
 test('display implementations require declarations and reject duplicate registration', () => {
   const registry = createCapabilityRegistry()
-  assert.throws(() => registry.implementDisplays(['toy:card'], '../modules/toy/ui/displays.js'), /undeclared display/)
+  assert.throws(() => registry.implementDisplays(['toy:card'], 'toy/view'), /undeclared display/)
   registry.add('display', 'toy:card', { about: 'A card' })
   assert.throws(() => registry.implementDisplays(['toy:card'], null), /needs a module UI entry/)
-  registry.implementDisplays(['toy:card'], '../modules/toy/ui/displays.js')
-  assert.throws(() => registry.implementDisplays(['toy:card'], '../modules/toy/ui/displays.js'), /duplicate display/)
+  registry.implementDisplays(['toy:card'], 'toy/view')
+  assert.throws(() => registry.implementDisplays(['toy:card'], 'toy/view'), /duplicate display/)
 })
 
 test('display resolution mixes modules, loads each bundle once and rejects missing implementations', async () => {
@@ -22,9 +20,9 @@ test('display resolution mixes modules, loads each bundle once and rejects missi
   const card = () => null
   const load = async () => { loads++; return { 'toy:card': card, 'toy:panel': { text: 'panel' } } }
   for (const name of ['toy:card', 'toy:panel', 'toy:missing', 'other:figure']) registry.add('display', name, { about: name })
-  registry.implementDisplays(['toy:card', 'toy:panel', 'toy:missing'], '../modules/toy/ui/displays.js')
-  registry.implementDisplays(['other:figure'], '../modules/other/ui/displays.js')
-  const resolve = createDisplayResolver(registry, (entry) => entry.includes('/toy/') ? load() : { 'other:figure': card })
+  registry.implementDisplays(['toy:card', 'toy:panel', 'toy:missing'], 'toy/view')
+  registry.implementDisplays(['other:figure'], 'other/view')
+  const resolve = createDisplayResolver(registry, (entry) => entry === 'toy/view' ? load() : { 'other:figure': card })
   const [first, second] = await Promise.all([resolve(['toy:card', 'other:figure']), resolve(['toy:panel'])])
   assert.equal(first['toy:card'], card)
   assert.equal(first['other:figure'], card)
@@ -34,14 +32,7 @@ test('display resolution mixes modules, loads each bundle once and rejects missi
   await assert.rejects(resolve(['toy:undeclared']), /no registered implementation/)
 })
 
-test('every registered module display loads through the browser module graph', async () => {
-  const browser = await loadModule('/../games/kit/engine/displays.js')
-  const names = Object.keys(capabilities.displayLoaders)
-  const items = await browser.loadDisplays(names)
-  assert.deepEqual(Object.keys(items).sort(), names.sort())
-  for (const [name, item] of Object.entries(items)) {
-    const role = capabilities.tables.display[name].role
-    if (['hero', 'figure', 'widget', 'passed', 'rows'].includes(role) || capabilities.tables.display[name].kind === 'display') assert.equal(typeof item, 'function', name)
-    else assert.ok(typeof item === 'function' || typeof item === 'object', name)
-  }
+test('the kernel installs no gameplay display implementations', () => {
+  assert.deepEqual(Object.keys(capabilities.displayLoaders), [])
+  assert.deepEqual(Object.keys(capabilities.tables.display), [])
 })

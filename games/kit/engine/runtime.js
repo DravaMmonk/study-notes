@@ -1,7 +1,7 @@
 import { pluginRuntime } from './plugin-runtime.js'
 import { contentRoots, contentSchemas } from './content.js'
 // Server-side capability implementations are loaded only for checks and textual play.
-import { vocabularyFor, modules } from './kernel.js'
+import { vocabularyFor } from './kernel.js'
 import { runtimeIds, taskModule, runtimeSpec } from './runtime-model.js'
 export { runtimeIds, taskModule, runtimeWorks, runtimeSpec } from './runtime-model.js'
 
@@ -12,8 +12,8 @@ export async function runtimeOf(content, root) {
   root ??= contentRoots.get(content) ?? contentRoot()
   const plugins = await loadPlugins(content, root)
   const pluginIds = new Set([...plugins.tables.play.keys()].map(name => name.split(':')[0]))
-  const vocabulary = contentSchemas.get(content) ?? vocabularyFor(runtimeIds(content).filter(id => !pluginIds.has(id)))
-  const runtimes = await Promise.all(runtimeIds(content).filter(id => pluginIds.has(id) || modules.some(module => module.id === id)).map(async (id) => ({ id, runtime: pluginIds.has(id) ? pluginRuntime(id, plugins, vocabulary) : (await import(`../modules/${id}/runtime.js`)).default })))
+  const vocabulary = contentSchemas.get(content) ?? vocabularyFor()
+  const runtimes = runtimeIds(content).filter(id => pluginIds.has(id)).map(id => ({ id, runtime: pluginRuntime(id, plugins, vocabulary) }))
   const provided = id => [...plugins.tables.play].find(([name, play]) => name.startsWith(`${id}:`) && play.runtime)?.[1].runtime
   for (const entry of runtimes) if (provided(entry.id)) entry.runtime = provided(entry.id)
   if (!runtimes.length) runtimes.push({ id: 'kernel', runtime: pluginRuntime('kernel', plugins, vocabulary) })

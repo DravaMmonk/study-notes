@@ -44,6 +44,6 @@ test('browser assembly resolves kind metadata from the published package catalog
   }
   const content = await pageContent(manifest, 'https://example.test/sample/',
     () => new Response(JSON.stringify({ 'sample/kind.picture.name': 'Picture' })),
-    { legacyModules: [], packageCode: true })
+    { packageCode: true })
   assert.equal(content.objectKinds['sample/picture'].studio.name.en, 'Picture')
 })

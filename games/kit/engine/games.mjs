@@ -7,12 +7,10 @@ import { packageApp } from '../app/package-vite.js'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { gameModule } from './game-module.js'
 import { runtimeIds } from './runtime.js'
 
 const ROOT = resolve(import.meta.dirname, '../../../trace-viewer')
 const KIT_DIR = resolve(import.meta.dirname, '..')
-const DOMAINS = resolve(import.meta.dirname, '../modules')
 
 const noop = () => {}
 const memory = new Map()
@@ -42,11 +40,7 @@ export async function gameOf(content, { view = false } = {}) {
   const kernel = await plugins(content, root, file => server.ssrLoadModule(file), true)
   const { pluginGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/plugin-game.jsx'))
   const vocabulary = contentSchemas.get(content)
-  const pluginIds = new Set([...kernel.tables.play.keys()].map(name => name.split(':')[0]))
-  const modules = await Promise.all(runtimeIds(content).map(async id => pluginIds.has(id) ? pluginGame(id, kernel, vocabulary, { view }) : ({
-    id, define: (await server.ssrLoadModule(gameModule(DOMAINS, id))).default,
-    runtime: (await server.ssrLoadModule(resolve(DOMAINS, id, 'runtime.js'))).default,
-  })))
+  const modules = runtimeIds(content).map(id => pluginGame(id, kernel, vocabulary, { view }))
   const { composeGame } = await server.ssrLoadModule(resolve(KIT_DIR, 'app/compose-game.js'))
   const game = composeGame(content, modules)
   game.pluginKernel = kernel

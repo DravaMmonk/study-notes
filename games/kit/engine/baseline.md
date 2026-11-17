@@ -211,9 +211,7 @@ names listed in `nameNormalizer` map from state-graph ownership to historical ta
 before building the alias inventory. Unknown names and suffixed names are not rewritten.
 
 Exactly `table:not`, `table:robot-loop` and `table:circuit` retain their historical alias collisions
-when a consumer does not install the course-specific vocabulary. Package primitive palettes are
-preserved by explicit table dependencies in comp90086, qed, state-graph and vision-complete, not
-by suppressing missing entries. Snapshots are unchanged; only `compare` is used.
+when a consumer does not install the course-specific vocabulary. The step-9 palette-only table dependencies are removed in step 10; see the narrow rule below. Snapshots are unchanged; only `compare` is used.
 
 Studio HTTP timings (sequential requests, seconds, HTTP 200): packages 0.909 -> 1.010;
 games 1.048 -> 1.110; state-graph vocabulary 0.196 -> 0.239 and quick preview (`check:false`)
@@ -230,3 +228,52 @@ vocabulary took 2.005/1.111/3.230/6.784 s; qed 1.958/1.089/4.536/4.880 s. These 
 are distinct from the sequential HTTP service measurements above. No Studio implementation was edited.
 The remaining Studio-owned failure is studio/studio.test.js:353, `some field is choice`: its native
 starter traversal no longer includes the extracted table controls.
+
+## Step 10 logic extraction
+
+Logic supplies its own report observer and symbol structure. `logic/symbol` normalizes only to the
+historical symbol type spelling. The exact historical `logic:` names listed in `nameNormalizer`
+reserve alias collisions when logic is absent. They change alias bookkeeping only; no runtime names,
+work, verdict, text, trace, port type or numeric result is dropped.
+
+`dependencyPaletteBaseline` applies only to package single-level availability records, before alias
+normalization. If the selected package closure does not contain table, it removes exactly table's ten
+primitive names (`msum`, `mmin`, `mmax`, `many`, `not`, `add`, `mul`, `const`, `pass`, `block`, all
+qualified `table:`) from `usable`, `emptyProgress`, `definitions`, and `tray.types`/`tray.folded`.
+The same extraction removes exactly the former global primitive `logic:hyp` at those positions when
+logic is absent. A present provider keeps all entries. This does not touch games, authored part/tray
+objects, course grants, reports, reference/naive work, other palette names or ordering of retained items.
+Packages depend only on providers they reference; never keep a false dependency for baseline equality.
+Snapshots remain unchanged; use compare only.
+
+### Step 10 validation and Studio handoff
+
+All locked game/package comparisons report zero differences; no snapshots were saved. All 12 installed
+packages and four games pass independent fresh checks. Node/Vite logic contracts also cover a mixed task
+level. Full npm test: 730 pass, six Studio test files fail on the removed native schema module:
+`form.test.js`, `left-lists.test.js`, `object-types.test.js`, `studio.test.js`, `tools.test.js`,
+`translations.test.js`. Studio source and tests were not edited.
+
+Sequential local HTTP measurements (seconds, all HTTP 200):
+
+| Request | Before | After |
+|---|---:|---:|
+| packages | 1.804 | 1.512 |
+| games | 4.816 | 1.402 |
+| qed vocabulary | 0.414 | 0.463 |
+| qed preview, check false | 5.027 | 6.249 |
+| vision-complete vocabulary / quick preview | — | 0.634 / 7.318 |
+| comp90086 vocabulary / quick preview | — | 0.159 / 6.150 |
+| state-graph vocabulary / quick preview | — | 0.302 / 4.905 |
+
+An earlier concurrent verification run measured QED vocabulary/preview at 3.194/42.373 seconds;
+parallel test/build/baseline processes competed for host resources. A direct tool sample recorded
+2.447 seconds wall / 0.919 seconds CPU for vocabulary and 24.210 wall / 9.796 CPU for preview.
+Logic/QED vocabulary projections now preserve existing projections instead of stacking duplicate schemas.
+The lower-load HTTP repeat above remains below twice the before timings for the measured QED target.
+These are service measurements, not browser-load times.
+
+The Studio server and HTML entry start successfully, but required modules (`copy.js`, `SymbolEditor.jsx`,
+plus the object type/file modules) still import the removed `engine/content-kinds.js`; Vite returns HTTP 500.
+The four package pages therefore cannot complete the 20-second acceptance until the Studio owner migrates
+those imports and editors. Browser host access was unavailable in this run; no visual success is claimed.

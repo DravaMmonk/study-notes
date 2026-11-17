@@ -1,5 +1,6 @@
 // A single-level runtime shell. It is never authored, persisted or checked as a course.
 import { contentRoots, contentSchemas } from './content.js'
+import { meaningsOf } from './kind-meanings.js'
 import { layout } from '../course.js'
 import { relationOrder } from './objects.js'
 
@@ -11,11 +12,7 @@ export function packageLevel(content, level) {
   const shell = {
     ...content, title: selected.title, levels: [selected], libraryLevels: content.levels,
     standalone: { level }, eras: [],
-    words: Object.keys(content.registries.wordset ?? {}),
-    ...Object.fromEntries(['power', 'box'].flatMap(kind => {
-      const name = Object.keys(content.registries[kind] ?? {}).sort()[0]
-      return name ? [[kind, name]] : []
-    })),
+    ...Object.assign({}, ...meaningsOf(contentSchemas.get(content)).map(meaning => meaning.packageConfiguration?.({ content }))),
   }
   if (content.resolvedDependencies) Object.defineProperty(shell, 'resolvedDependencies', { value: content.resolvedDependencies })
   if (contentRoots.has(content)) contentRoots.set(shell, contentRoots.get(content))

@@ -1,3 +1,4 @@
+import { packageApp } from '../games/kit/app/package-vite.js'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -14,7 +15,7 @@ export default defineConfig({
       { find: 'lucide-react', replacement: resolve(import.meta.dirname, 'node_modules/lucide-react') },
     ],
   },
-  plugins: [react()],
+  plugins: [react(), packageApp()],
   build: {
     outDir: resolve(import.meta.dirname, 'dist-games'),
     emptyOutDir: true,

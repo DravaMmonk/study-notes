@@ -1,0 +1,6 @@
+{
+  "folder": "wordset",
+  "declares": "package",
+  "overrides": { "package": ["*"], "game": ["$text"] },
+  "schema": { "type": "map", "of": { "type": "text" } }
+}

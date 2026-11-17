@@ -2,7 +2,11 @@ import { CHAPTER } from '../course-schema.js'
 import { kernelIdentity } from '../release-data.js'
 import { lockTarget } from '../releases.js'
 import { folders } from '../layers.js'
-import { contentKindSchemas } from '../content-kinds.js'
+import { meaning as logicMeaning } from '../../../../packages/logic/core/catalog.js'
+import { register as registerQED } from '../../../../packages/qed/core/index.js'
+import { createPluginKernel } from '../plugins.js'
+import { projectVocabulary, registerMeaning } from '../kind-meanings.js'
+import { withKindDeclarations, kindSchemas } from '../plugin-kinds.js'
 import { objectFiles, packageIds, contentTargets, resolveLayers } from '../resolver.js'
 // A games folder written for the tools' end-to-end tests (../../app/studio.test.js, mcp.test.js): a hub list
 // (games.js) and one small data game on the logic domain, three proof levels of its own, so the tests never touch a
@@ -35,7 +39,7 @@ const GAME = {
   kicker: T('Test'),
   lede: T('Proofs built from Apply and the assumption box.'),
   words: ['everyday'],
-  contentObjects: { wordset: {
+  contentObjects: { 'qed/wordset': {
     everyday: {
       Rain: T('it rains'),
       Wet: T('the ground is wet'),
@@ -52,7 +56,12 @@ const GAME = {
     chapter: { title: T('The foundation'), question: T('What can be built from Apply and the assumption box alone?') },
   }],
 }
-const proofVocabulary = contentVocabulary('logic')
+const qedKernel = createPluginKernel()
+registerQED(qedKernel.forPackage('qed', 'core'))
+registerMeaning(logicMeaning)
+const fixtureKinds = Object.fromEntries(['logic/symbol', 'qed/wordset'].map(name => [name, JSON.parse(readFileSync(new URL(`../../../../packages/${name.split('/')[0]}/kinds/${name.split('/')[1]}.json`, import.meta.url)))]))
+export const logicVocabulary = withKindDeclarations(projectVocabulary({ ...contentVocabulary([]), meanings: [...contentMeanings, logicMeaning, ...qedKernel.tables.kind.values()] }), Object.entries(fixtureKinds).map(([name, value]) => ({ id: name.split('/')[0], resolved: true, objects: [{ kind: 'kind', name: name.split('/')[1], value }] })))
+const proofVocabulary = logicVocabulary
 
 const GLOSSARY = {
   groups: [{ id: 'logic', title: T('Logic') }],
@@ -131,6 +140,8 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
     for (const [lang, entries] of Object.entries(catalogsOf(dir, ...values))) put(join(dir, 'i18n', `${lang}.json`), entries)
   }
   if (id !== 'circuit') installCircuitFixture(root)
+  const logic = Object.values(levels).some(level => level.tasks?.some(task => (task.play ?? task.kind)?.startsWith('logic:')))
+  if (logic) installLogicFixture(root)
   const vocabulary = withParts(circuitFixtureSchema(domainVocabulary), partDefs)
   const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
   const chapterValues = game.chapters ?? []
@@ -140,12 +151,12 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
   const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
   const partsText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'parts')
   const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
-  const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kind === 'trays' ? JSON.parse(readFileSync(new URL('../../../../packages/circuit/kinds/tray.json', import.meta.url))).schema : OBJECT_SCHEMAS[kind], `${kind}.${name}`)]))
-  put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^0.0.0', circuit: '^0.0.0' }, ...sourceValue(shell) })
+  const objectText = Object.entries({ tags, relations, sections, trays }).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kind === 'trays' ? JSON.parse(readFileSync(new URL('../../../../packages/circuit/kinds/tray.json', import.meta.url))).schema : OBJECT_SCHEMAS[kind], `${kind.split('/').at(-1)}.${name}`)]))
+  put(join(course, 'game.json'), { kernel: `^${kernelIdentity().version}`, packages: { [id]: '^0.0.0', circuit: '^0.0.0', ...(logic && { logic: '^0.0.0', qed: '^0.0.0' }) }, ...sourceValue(shell) })
   mkdirSync(join(course, 'chapters'), { recursive: true })
   for (const [name, value] of chapterText) put(join(course, 'chapters', `${name}.json`), sourceValue(expandNames(value, id, { schema: CHAPTER, vocabulary, textKeys: false })))
   put(join(course, 'course.json'), sourceValue(expandNames(route, id, { parts: new Set(Object.keys(partDefs?.parts ?? {})), schema: vocabulary.game, vocabulary, context: 'configuration', textKeys: false })))
-  put(join(pkg, 'package.json'), { version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^0.0.0' } })
+  put(join(pkg, 'package.json'), { version: '0.0.0', kernel: `^${kernelIdentity().version}`, uses: { circuit: '^0.0.0', ...(logic && { logic: '^0.0.0', qed: '^0.0.0' }) } })
   mkdirSync(join(pkg, 'entries'), { recursive: true })
   for (const { id, group: _group, ...entry } of glossaryText.entries) put(join(pkg, 'entries', `${id}.json`), sourceValue(entry))
   mkdirSync(join(pkg, 'tags/entry'), { recursive: true })
@@ -160,8 +171,8 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
     put(join(pkg, folder, `${name}.json`), sourceValue(kind === 'tags' ? tag : value))
   }
   putCatalogs(course, shell, route, ...chapterText.map(([, value]) => value))
-  const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, contentKindSchemas[kind], `${kind}.${name}`)]))
-  for (const [kind, name, value] of extra) { mkdirSync(join(pkg, folders[kind]), { recursive: true }); put(join(pkg, folders[kind], `${name}.json`), sourceValue(value)) }
+  const extra = Object.entries(contentObjects).flatMap(([kind, values]) => Object.entries(values).map(([name, value]) => [kind, name, normalize(value, kindSchemas(vocabulary)[kind], `${kind.split('/').at(-1)}.${name}`)]))
+  for (const [kind, name, value] of extra) { mkdirSync(join(pkg, vocabulary.objectKinds?.[kind]?.folder ?? folders[kind]), { recursive: true }); put(join(pkg, vocabulary.objectKinds?.[kind]?.folder ?? folders[kind], `${name}.json`), sourceValue(value)) }
   putCatalogs(pkg, ...extra.map(([, , value]) => value), glossaryText, partsText, ...levelText.map(([, value]) => value), ...objectText.map(([, , value]) => value))
   lockTarget({ kind: 'package', id }, root)
   lockTarget({ kind: 'game', id }, root)
@@ -169,7 +180,7 @@ export function writeContentFixture(root, id, { game: sourceGame, glossary, part
 
 export function proofsRoot() {
   const root = mkdtempSync(join(tmpdir(), 'games-'))
-  writeContentFixture(root, ID, { game: { ...GAME, contentObjects: { ...GAME.contentObjects, symbol: { formulaImplies: { mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') } } } }, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] } } }, proofVocabulary)
+  writeContentFixture(root, ID, { game: { ...GAME, contentObjects: { ...GAME.contentObjects, 'logic/symbol': { formulaImplies: { mark: 'logic:mark-formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') } } } }, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS, relations: { path: { kind: 'requires', edges: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }] } } }, proofVocabulary)
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
 }
@@ -188,6 +199,8 @@ export function lockFixture(root) {
     const config = JSON.parse(readFileSync(file))
     const dir = join(root, 'packages', id)
     const legacy = ['parts', 'trays'].some(folder => existsSync(join(dir, folder))) || objectFiles(dir, 'levels').some(([, file]) => JSON.parse(readFileSync(file)).tasks?.some(task => !task.play))
+    const logic = ['parts', 'levels', 'symbols'].some(folder => objectFiles(dir, folder).some(([, file]) => /logic:/.test(readFileSync(file, 'utf8'))))
+    if (logic) { installLogicFixture(root); config.uses = { ...config.uses, logic: '^0.0.0', qed: '^0.0.0' }; writeFileSync(file, JSON.stringify(config, null, 2) + '\n') }
     if (legacy) { config.uses = { ...config.uses, circuit: '^0.0.0' }; writeFileSync(file, JSON.stringify(config, null, 2) + '\n') }
   }
   const games = join(root, 'games')
@@ -195,7 +208,7 @@ export function lockFixture(root) {
     const file = join(games, id, 'game.json')
     if (!existsSync(file)) continue
     const game = JSON.parse(readFileSync(file))
-    game.packages = { ...game.packages, circuit: '^0.0.0' }; game.kernel = `^${kernelIdentity().version}`
+    game.packages = { ...game.packages, ...Object.fromEntries(packageIds(root).filter(id => ['logic', 'qed'].includes(id)).map(id => [id, '^0.0.0'])), circuit: '^0.0.0' }; game.kernel = `^${kernelIdentity().version}`
     writeFileSync(file, JSON.stringify(game, null, 2) + '\n')
   }
   for (const id of packageIds(root)) {
@@ -225,7 +238,7 @@ export const circuitFixtureKinds = {
     } } },
   } }, declares: 'package', overrides: { package: ['*'], game: ['$text'] } },
 }
-export const circuitFixtureSchema = schemas => ({ ...schemas, meanings: contentMeanings, objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })
+export const circuitFixtureSchema = schemas => ({ ...schemas, meanings: [...contentMeanings, ...(schemas.meanings ?? []).filter(meaning => !contentMeanings.includes(meaning))], objectKinds: { ...circuitFixtureKinds, ...schemas.objectKinds } })
 
 /** Synthetic circuit inputs enter the same typed registries as installed packages. */
 export function assembleCircuitFixture({ partDefs, trays = [], ...options }) {
@@ -255,6 +268,19 @@ export function installTableFixture(root) {
   installImageFixture(root)
   for (const id of ['state-graph']) {
     const dir = join(root, 'packages', id)
+    mkdirSync(dir, { recursive: true })
+    for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/${id}/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
+    cpSync(new URL(`../../../../packages/${id}/package.json`, import.meta.url), join(dir, 'package.json'))
+  }
+}
+
+/** Install logic and QED declarations without any authored course objects. */
+export function installLogicFixture(root) {
+  installCircuitFixture(root)
+  cpSync(new URL('../../../../packages/circuit/view', import.meta.url), join(root, 'packages/circuit/view'), { recursive: true })
+  for (const id of ['logic', 'qed']) {
+    const dir = join(root, 'packages', id)
+    if (existsSync(join(dir, 'package.json'))) continue
     mkdirSync(dir, { recursive: true })
     for (const folder of ['core', 'view', 'kinds']) cpSync(new URL(`../../../../packages/${id}/${folder}`, import.meta.url), join(dir, folder), { recursive: true })
     cpSync(new URL(`../../../../packages/${id}/package.json`, import.meta.url), join(dir, 'package.json'))

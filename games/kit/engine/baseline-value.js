@@ -102,13 +102,14 @@ export function nameNormalizer(names) {
     .replace(/\btags\/(?:piece|circuit\/part)\//g, 'tags/part/')
     .replace(/\bpieces(?=\/|\.json\b)/g, 'parts')
     .replace(/\bpiece\//g, 'parts/')
+    .replace(/\blogic\/symbol\b/g, 'symbol')
     .replace(/\bcircuit\/part\b/g, 'part')
     .replace(/\btags\/circuit\/tray\//g, 'tags/tray/')
     .replace(/\bcircuit\/tray\b/g, 'tray')
     .replace(/pieces/g, 'parts').replace(/Pieces/g, 'Parts').replace(/PIECES/g, 'PARTS')
     .replace(/piece/g, 'part').replace(/Piece/g, 'Part').replace(/PIECE/g, 'PART')
   // Preserve the exact retired bus and image collisions in the frozen native vocabulary inventory.
-  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory', 'image:add', 'image:board', 'image:const', 'image:family-search', 'image:merge', 'image:mul', 'image:sub', 'table:not', 'table:robot-loop', 'table:circuit'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
+  names = [...new Set([...names, 'tick-bus:family-value', 'tick-bus:family-memory', 'image:add', 'image:board', 'image:const', 'image:family-search', 'image:merge', 'image:mul', 'image:sub', 'table:not', 'table:robot-loop', 'table:circuit', 'table:const', 'table:add', 'table:mul', 'logic:allE', 'logic:allI', 'logic:andE', 'logic:andI', 'logic:anyR', 'logic:append', 'logic:assumption', 'logic:audit', 'logic:botE', 'logic:consFront', 'logic:defer', 'logic:define', 'logic:each', 'logic:eachOf', 'logic:exE', 'logic:exI', 'logic:family-box', 'logic:family-built', 'logic:family-gate', 'logic:family-lemma', 'logic:family-loop', 'logic:family-rule', 'logic:family-tactic', 'logic:gates', 'logic:hyp', 'logic:impI', 'logic:instances', 'logic:iso', 'logic:judgment', 'logic:keepBound', 'logic:lemma', 'logic:machine', 'logic:machine-value', 'logic:mark-formulaAnd', 'logic:mark-formulaExists', 'logic:mark-formulaFalse', 'logic:mark-formulaForall', 'logic:mark-formulaIff', 'logic:mark-formulaImplies', 'logic:mark-formulaNot', 'logic:mark-formulaOr', 'logic:mkRule', 'logic:model', 'logic:mp', 'logic:names', 'logic:natInd', 'logic:occurrences', 'logic:options', 'logic:orE', 'logic:orI', 'logic:oracle', 'logic:proof', 'logic:query', 'logic:raa', 'logic:refl', 'logic:repeat', 'logic:replay', 'logic:res', 'logic:resolve', 'logic:rewrite', 'logic:rule', 'logic:ruleChoices', 'logic:rules', 'logic:rw', 'logic:script', 'logic:search', 'logic:skolem', 'logic:swapConcl', 'logic:things', 'logic:toClauses', 'logic:translate', 'logic:truth', 'logic:uCheck', 'logic:uConflict', 'logic:uDecompose', 'logic:uDelete', 'logic:uEliminate', 'logic:uPattern', 'logic:uSwap', 'logic:want-agree', 'logic:want-answers', 'logic:want-becomes', 'logic:want-clauses', 'logic:want-decide', 'logic:want-elim', 'logic:want-expose', 'logic:want-fails', 'logic:want-proved', 'logic:want-refuted', 'logic:want-unify'].map(name => kindNames(name.replace(/^[^:]+:(@?[a-z][a-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_-]*)$/, '$1'))))]
   const local = name => kindNames(name).replace(/^@?[^/:]+[/:]/, '').replace(/^(world|robot|port|want|family)-/, '')
   const aliases = new Map()
   for (const name of names) {
@@ -281,4 +282,23 @@ export function tableFieldsBaseline(value) {
   return result
  }
  return walk(value)
+}
+
+/** Standalone palettes contain only primitives installed by the selected package closure. */
+export function dependencyPaletteBaseline(input, { packaged, dependencies = [] } = {}) {
+  if (!packaged) return input
+  const absent = new Set([
+    ...(!dependencies.includes('table') ? ['table:msum', 'table:mmin', 'table:mmax', 'table:many', 'table:not', 'table:add', 'table:mul', 'table:const', 'table:pass', 'table:block'] : []),
+    ...(!dependencies.includes('logic') ? ['logic:hyp'] : []),
+  ])
+  const keep = name => !absent.has(name)
+  return { ...input, records: input.records.map(record => {
+    if (!record.availability) return record
+    const a = record.availability
+    return { ...record, availability: { ...a,
+      usable: a.usable.filter(keep), emptyProgress: a.emptyProgress.filter(keep),
+      definitions: Object.fromEntries(Object.entries(a.definitions).filter(([name]) => keep(name))),
+      tray: { ...a.tray, types: a.tray.types.filter(keep), folded: a.tray.folded.filter(keep) },
+    } }
+  }) }
 }

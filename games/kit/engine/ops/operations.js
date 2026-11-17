@@ -4,7 +4,6 @@ import { meaningsOf } from '../kind-meanings.js'
 import { satisfies, dependencyIds } from '../semver.js'
 import { tagKey, tagName } from '../tag-identity.js'
 import { KIND_DECLARATION } from '../plugin-kinds.js'
-import { contentKindSchemas } from '../content-kinds.js'
 // The operation set (games/DIRECTION.md decision 4): every change to a data game's content is one of these. The CLI
 // (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
 //
@@ -360,7 +359,7 @@ export function opScope({ op, path, in: where, layer, chapter }) {
 // The same operations edit entries, tags, relations and sections. Reads use ws.content().registries[kind][fullName].
 function objectOperations(kind, plural, objectKind, vocabulary) {
   const operations = {}
-  const objects = (ws) => kind === 'chapter' ? ws.contentObjects.chapter : objectKind ? ws.contentObjects[objectKind] : (kind === 'kind' || contentKindSchemas[kind]) ? ws.contentObjects[kind] : ws[plural]
+  const objects = (ws) => kind === 'chapter' ? ws.contentObjects.chapter : objectKind ? ws.contentObjects[objectKind] : (kind === 'kind') ? ws.contentObjects[kind] : ws[plural]
   const selector = { [kind]: S.str({ pattern: OBJECT_NAME }), ...(kind === 'tag' && { member: S.str() }) }
   const target = (ws, name, member) => {
     if (name.includes('/') || name.startsWith('@')) fail('declare objects in this package using its local name')
@@ -371,7 +370,7 @@ function objectOperations(kind, plural, objectKind, vocabulary) {
   Object.assign(operations, {
     [`${kind}.put`]: {
       about: t('写入对象', 'Write an object'),
-      params: S.obj({ ...selector, data: kind === 'chapter' ? CHAPTER : objectKind ? vocabulary.objectKinds[objectKind].schema : kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : contentKindSchemas[kind]) ?? (kind === 'tag' ? S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), values: OBJECT_SCHEMAS.tags.fields.values }) : OBJECT_SCHEMAS[plural] ?? S.any()) }),
+      params: S.obj({ ...selector, data: kind === 'chapter' ? CHAPTER : objectKind ? vocabulary.objectKinds[objectKind].schema : kind === 'entry' ? ENTRY : (kind === 'kind' ? KIND_DECLARATION : null) ?? (kind === 'tag' ? S.obj({ title: S.opt(S.text()), desc: S.opt(S.text()), values: OBJECT_SCHEMAS.tags.fields.values }) : OBJECT_SCHEMAS[plural] ?? S.any()) }),
       apply(ws, args) {
         const name = target(ws, args[kind], args.member), old = objects(ws).get(name)
         if (kind === 'tag' && args.data.kind !== undefined) fail('tag member belongs in the member selector')
@@ -403,7 +402,7 @@ function objectOperations(kind, plural, objectKind, vocabulary) {
   return operations
 }
 
-for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['chapter', 'chapters'], ['kind', 'kinds'], ...Object.keys(contentKindSchemas).map(kind => [kind, kind])]) Object.assign(OPERATIONS, objectOperations(kind, plural))
+for (const [kind, plural] of [['entry', 'entries'], ['tag', 'tags'], ['relation', 'relations'], ['section', 'sections'], ['chapter', 'chapters'], ['kind', 'kinds']]) Object.assign(OPERATIONS, objectOperations(kind, plural))
 
 OPERATIONS['entry.patch'] = {
   about: t('修改对象字段', 'Set an object field'),
@@ -487,7 +486,6 @@ function textTarget(ws, args, vocabulary) {
     ...mapTarget('tag', ws.tags, OBJECT_SCHEMAS.tags, tagKey(args.member, args.tag)),
     ...mapTarget('section', ws.sections, OBJECT_SCHEMAS.sections),
     ...(args.in !== 'game' ? [] : [{ id: 'game', value: ws.game, schema: vocabulary.game, selector: { in: 'game' }, operation: 'game', set: value => { ws.game = value } }]),
-    ...Object.entries(contentKindSchemas).flatMap(([kind, schema]) => mapTarget(kind, ws.contentObjects[kind], schema)),
     ...meaningsOf(vocabulary).flatMap(meaning => meaning.textTarget?.({ workspace: ws, args, vocabulary }) ?? []),
   ]
   if (choices.length !== 1) fail('name exactly one text target')
@@ -498,6 +496,6 @@ function textTarget(ws, args, vocabulary) {
 export function operationsFor(vocabulary) {
   const meanings = meaningsOf(vocabulary)
   const extra = Object.assign({}, ...meanings.map(meaning => meaning.operations), ...meanings.filter(meaning => meaning.selector && vocabulary.objectKinds?.[meaning.type]).map(meaning => objectOperations(meaning.selector, undefined, meaning.type, vocabulary)))
-  const fields = Object.assign({ chapter: S.opt(S.str()) }, ...Object.keys(contentKindSchemas).map(kind => ({ [kind]: S.opt(S.str()) })), ...meanings.map(meaning => meaning.textParameters))
+  const fields = Object.assign({ chapter: S.opt(S.str()) }, ...meanings.map(meaning => meaning.textParameters))
   return { ...OPERATIONS, ...extra, ...Object.fromEntries(['text.set', 'text.override'].map(name => [name, { ...OPERATIONS[name], params: { ...OPERATIONS[name].params, fields: { ...OPERATIONS[name].params.fields, ...fields } } }])) }
 }

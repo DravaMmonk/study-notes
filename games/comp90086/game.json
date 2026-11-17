@@ -3,8 +3,7 @@
   "packages": {
     "comp90086": "^0.0.0",
     "circuit": "^0.0.0",
-    "image": "^0.0.0",
-    "table": "^0.0.0"
+    "image": "^0.0.0"
   },
   "title": "@course.title",
   "kicker": "@course.kicker",

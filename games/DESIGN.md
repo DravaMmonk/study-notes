@@ -98,9 +98,9 @@
 
 托盘可引用最终阶段，让包的独立试玩取得完整能力；游戏仍按学习进度决定阶段。托盘卡片与作品按基础元件 id 保存，阶段不是另一张卡。`replaces` 用于不同元件之间的升级、合并，同一元件的升级只用阶段。
 
-**登记与查找。** `packages/circuit/core/grants.js` 集中保存可发放类型登记表及对象、阶段查找。`packages/circuit/core/mechanism/grants.js` 提供元件登记，`modules/logic/grants.js` 提供符号登记，各自的 `used(work)` 读取作品使用的对象，第二参数可提供该类型的定义表。发放字段的 schema 引用种类是 `grant`，直接写对象全名，可混写类型；同名跨两种可发放类型会报歧义，未登记类型的对象不能进入发放字段或托盘。`course.state(at, flags)` 按类型交付 `{ "circuit/part": { [全名]: 当前阶段定义 }, symbol: { [全名]: 当前阶段定义 } }`；证明板读取元件，填句子条读取符号。工坊和 `replaces` 只处理元件。
+**登记与查找。** `packages/circuit/core/grants.js` 集中保存可发放类型登记表及对象、阶段查找。`packages/circuit/core/mechanism/grants.js` 提供元件登记，`packages/logic/core/grants.js` 提供符号登记，各自的 `used(work)` 读取作品使用的对象，第二参数可提供该类型的定义表。发放字段的 schema 引用种类是 `grant`，直接写对象全名，可混写类型；同名跨两种可发放类型会报歧义，未登记类型的对象不能进入发放字段或托盘。`course.state(at, flags)` 按类型交付 `{ "circuit/part": { [全名]: 当前阶段定义 }, "logic/symbol": { [全名]: 当前阶段定义 } }`；证明板读取元件，填句子条读取符号。工坊和 `replaces` 只处理元件。
 
-**符号独立声明。** 《证明完毕》的八个公式连接词在 `packages/qed/symbols/`，文案键用 `@symbol.<名>.…`，标签在 `tags/symbol/`，覆盖在 `overrides/<命名空间>/symbols/`。符号只声明标记、文案、图标和可选阶段。元件由 `circuit` 登记为 `circuit/part`；`symbol` 仍由内核的逻辑模块声明，第 9 步迁为 `logic/symbol`。Studio 单列符号，托盘编辑器和阶段链共用发放模型。
+**符号独立声明。** 《证明完毕》的八个公式连接词在 `packages/qed/symbols/`，文案键用 `@symbol.<名>.…`，标签在 `tags/logic/symbol/`，覆盖在 `overrides/<命名空间>/symbols/`。符号只声明标记、文案、图标和可选阶段。元件由 `circuit` 登记为 `circuit/part`；`logic/symbol` 由 `logic` 声明并在自己的 `register` 中调用 `circuit` 公开的 `grants.register` 登记。Studio 单列符号，托盘编辑器和阶段链共用发放模型。
 
 ## 3. 基本元素和引擎里的对应
 
@@ -115,7 +115,7 @@
 | 反例 | 失败时具体的那组输入、期望、实际，以及第一处偏离 | 各游戏的失败面板（《状态之图》能定位到第一格算错） |
 | 代价 | 元件数、求值步数、读取次数、表的大小 | `kit/engine/test-run.js` 的 `score` 钩子；《视觉完备》算计算量 |
 | 世界 | 机体工作的地方：一张图、一张表、一排房子 | `packages/state-graph/core/model/worlds/`；《视觉完备》测试数据 |
-| 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | `kit/engine/kernel.js` 汇总 `modules/<模块>/vocabulary.js` 的能力声明 |
+| 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | 内核提供空注册表，各包经 kind meaning 投影自身的能力声明 |
 
 ---
 
@@ -202,12 +202,13 @@
 
 ## 6. 引擎：内核与内容
 
-包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–8 步已完成。`circuit` 的内容含义、运行和外壳扩展位于 `packages/circuit`，`rows`、`tick-bus` 已成为依赖 `circuit` 的独立包，其余两个既有模块继续通过公开导出使用它。新增玩法使用包协议。Studio 的元件、托盘和阶段链编辑器交接属于第 11 步。
+包提供机制和内容，游戏以纯数据编排。包可有无界面的 `core/index.js` 和界面的 `view/index.jsx`，两者导出 `register(kernel)`；内容仍经操作集写入。`MODULES.md` 第 5–10 步已完成。所有玩法均由包提供，内核没有玩法模块、原生词汇表登记或跨包桥接。`circuit`、`rows`、`tick-bus`、`image`、`table`、`logic` 通过公开接口组合；课程专用部分分别属于各内容包。Studio 的专用编辑器交接属于第 11 步。
 
 | 位置 | 职责 |
 |---|---|
 | `kit/engine/`、`kit/course.js` | 平台注册表、组装、路线拓扑、检查框架、操作集 |
-| `kit/modules/<模块>/` | 尚未迁出的 logic |
+| `packages/logic/core/`、`view/`、`kinds/` | 公式、证明核、合一、证明机、规则书、符号与对应视图 |
+| `packages/qed/core/`、`view/`、`kinds/` | QED 词典配置、地图插画及专用对象类型 |
 | `packages/circuit/core/` | 电路求值、蓝图、元件、阶段、托盘、发放状态、工坊和原生读者 |
 | `packages/rows/`、`packages/tick-bus/` | 等式行、逐拍总线的核心、视图、字段声明和普通起步对象 |
 | `packages/circuit/view/` | 画板、电路屏、读数、元件册、工坊、训练控件和专用样式 |
@@ -228,7 +229,7 @@
 |---|---|---|
 | 关卡 `level` | `levels/<名>.json` | 关卡与有独立 id 的任务 |
 | 元件 `circuit/part` | `parts/<名>.json` | 运算或封装作品、设置、阶段、外观 |
-| 符号 `symbol` | `symbols/<名>.json` | 填句子条的连接词，含 `mark`、`name`、`desc`、`icon` 和可选 `stages` |
+| 符号 `logic/symbol` | `symbols/<名>.json` | 填句子条的连接词，含 `mark`、`name`、`desc`、`icon` 和可选 `stages` |
 | 词条 `entry` | `entries/<名>.json` | 百科正文、关联和开放位置 |
 | 标签 `tag` | `tags/<对象类型>/<名>.json` | 同种对象的无序集合，可嵌套，不成环 |
 | 关系 `relation` | `relations/<名>.json` | `requires`、`replaces` 的有向边 |
@@ -238,7 +239,7 @@
 | 章 `chapter` | 游戏 `chapters/<名>.json` | `levels: list<level>`、`rows`、文案与显示配置 |
 | 游戏配置 `game` | 游戏 `game.json` | 选包、`chapters: list<chapter>`、入口文案 |
 | 包声明的对象 | `<声明目录>/<名>.json` | 自动参与引用、标签、关系、覆盖、来源、文案和操作集 |
-| 尚待迁出的内容种类 | `<种类>/<名>.json` | `wordset`、`quote`、`power`、`box` 暂随旧模块 |
+| 包声明的内容类型 | 声明指定的目录 | 例如 `qed/wordset`、`circuit/quote`，以及图像内容包各自的 power、box |
 
 一个对象一个文件，文件名提供 id，文件不再重复存对象 id。任务、阶段、菜单等对象内部的身份仍写在内部。标签只提供集合和 Studio 的名字、说明，不承担托盘、百科分组或概念功能；同一个词条可进几个分组，未分组的归「其它」。组装后的 `glossary`、`partDefs` 和 `eras` 是运行与显示投影，不是可写文件。
 
@@ -347,7 +348,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 
 ### 6.3 模块契约与一个课程模型
 
-`kit/modules/<模块>/module.js` 注册能力；`runtime.js` 提供 `vocabulary`、`prepare`、`spec`、`validate`、`play`，可提供名字与语言读法。`engine/contract.js` 检查声明、实现和工具入口，页面侧通过注册的显示能力加载实现，通用渲染器不直接引用模块 UI 或 CSS。
+`packages/<包>/core/index.js` 经 `register` 协议注册能力；包运行时提供 `vocabulary`、`prepare`、`spec`、`validate`、`play`，可提供名字与语言读法。`engine/contract.js` 检查声明、实现和工具入口，页面侧通过注册的显示能力加载实现，通用渲染器不直接引用模块 UI 或 CSS。
 
 `kit/course.js` 保留路线拓扑。`packages/circuit/core/course-model.js` 与 `core/course.js` 负责元件、阶段、托盘、`local`、`replaces`、`gives`、`opens`、`awards`、`withholds` 和发布状态。`kit/shell/progress.js` 记录任务、关卡和作品槽位，包通过显式回调保存自己的扩展状态。模块负责读自己的任务和作品、运行和反馈，适配层不再重写课程。引理、等式、函数和训练等行为由元件与任务声明触发，不按包所属模块开关。
 
@@ -377,7 +378,7 @@ store completed comparison results. Direct Node consumers may use `packageCompat
 - 外壳通过游戏的 `shell`、`settings`、`mapBadges`、`referenceName`、`describeObservation`、`composeModules` 接口挂载包行为，引用显示器由 `display` 登记元数据定义。元件册、工坊、元件奖励、连接标签设置和元件样式归包。`Workbench`、`Library`、运行控件、存档上下文和输入交互是共享布局部件。
 - 基线观察由含义对象的 `baselineCourse`、`baselineStructure`、`baselineRecords`、`baselineReports` 提供，继续比较完整作品、顺序、结果和轨迹。引擎工具保存通用快照与差异算法。
 
-临时桥接仅有 `engine/circuit-bridge.js` 的逻辑符号发放登记，以及 `kit/modules/logic` 经 `circuit` 公开导出的调用。前者在 logic 迁包时删除，后者随第 7–10 步各自迁出时删除。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
+第 10 步已删除全部临时桥接。内核测试的 `ops/fixture.js` 显式安装 circuit 测试夹具。Studio 保留现有专用编辑界面，读取包声明和通用操作的契约，后续由第 11 步交接编辑器。
 包的测试在 `packages/<包>/test/`：核心在 Node 中单独登记、检查自己的关卡、观察和提交盲玩作品；视图用 Vite 配对并挂载外壳，另测跨包组装。内核测试只构造小夹具。新代码包不在已锁定的旧基线语料中时明确报告，由契约测试覆盖，旧基线缺失仍报错，禁止用 `save` 更新迁移验收结果。
 
 ### 6.4 参数台
@@ -472,7 +473,7 @@ Studio 是操作集上的编辑器，按作者的职责分成三个工作区（`
 
 `circuit/part` 与 `circuit/tray` 的结构分别声明在 `packages/circuit/kinds/part.json`、`tray.json`。关卡和任务的发放字段由 `level-grants.json`、`task-grants.json` 扩展，`replaces` 在元件类型声明中定义。元件标签使用 `tags/circuit/part/`，覆盖保留 `overrides/<namespace>/parts/`、`trays/` 以及相同的标签路径。
 
-`circuit` 导出 `grants.register({ type, used })`。元件自行登记；暂留内核的逻辑模块通过 `engine/circuit-bridge.js` 登记 `symbol`。第 9 步迁出逻辑时，将登记放进 `logic/core/register` 并删除此桥接。派生可用状态按 `circuit/part`、`symbol` 等登记类型分别返回。
+`circuit` 导出 `grants.register({ type, used })`。元件自行登记，`logic/core/index.js` 在自己的 `register` 中登记 `logic/symbol`。派生状态按 `circuit/part`、`logic/symbol` 等登记类型分别返回。
 
 Studio 的资源分组、地址参数和文件路径已跟随对象类型名做机械调整。左栏按包声明类型动态生成、专用编辑器和阶段链的 `editor` 挂载由第 10 步完成。
 
@@ -1162,7 +1163,7 @@ checks, blind play and baseline observers. Its `view/` owns the existing screens
 figures and mascot; `kinds/` declares its eight task schemas. Tasks select `state-graph:*` with `play`;
 the former task `after` panel is now `panel`, while generic pass copy retains `after`. Packed circuit
 references use the same `play` discriminator. State-graph directly uses table, circuit and image;
-the game explicitly selects their full closure. Only logic remains native in `kit/modules/`.
+the game explicitly selects their full closure. All mechanisms now register through package entries.
 
 The retired table starter is now synthetic package test material. Reuse the state-graph package through
 `new-package --from state-graph`; no table template or native dispatch remains. Core and view contracts
@@ -1171,3 +1172,15 @@ wiring and placement functions. Studio files remain owned by its maintainer; pac
 integration and the starter-control coverage assertion are handled there.
 
 The comp90086, qed and vision-complete packages also directly select table to preserve their locked standalone primitive palettes; all four games select that dependency explicitly.
+
+### Logic extraction checkpoint (MODULES step 10)
+
+`logic` depends directly on `circuit`; QED selects both. Symbols retain their files and copy keys,
+while their type is `logic/symbol` and tag folder is `tags/logic/symbol/`. QED owns `qed/wordset`
+and projects its dictionaries into `wordSets`; logic reads inline dictionaries or that consumer projection.
+The QED map/hub illustration and its generator live in `packages/qed/view` and `scripts`.
+
+A dependency must supply something the consumer actually references. QED, vision-complete and comp90086
+no longer select table merely to preserve the historical standalone palette. Baseline normalization covers
+only the absent provider's exact primitive palette entries, as specified in `kit/engine/baseline.md`.
+Studio source and tests remain with their owner; native schema imports require their package-editor migration.

@@ -22,7 +22,7 @@ const sourceContents = new WeakSet()
 export const hasCatalogSource = (content) => sourceContents.has(content)
 
 const gameFields = new Set(['title', 'kicker', 'lede', 'chapters', 'encyclopedia'])
-const courseFields = new Set(['optional', 'skippable', 'mode', 'open', 'views', 'words'])
+const courseFields = new Set(['optional', 'skippable', 'mode', 'open', 'views'])
 
 /** The owner of a field in the assembled game configuration. */
 export function contentFileFor([field]) {

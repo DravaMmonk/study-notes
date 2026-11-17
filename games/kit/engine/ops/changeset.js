@@ -2,7 +2,6 @@ import { kindPolicy } from '../kind-policy.js'
 import { meaningsOf } from '../kind-meanings.js'
 import { tagKey } from '../tag-identity.js'
 import { kindSchemas } from '../plugin-kinds.js'
-import { contentKindSchemas } from '../content-kinds.js'
 // A changeset: several operations (operations.js) applied to a game together, as one change.
 //
 //   { why?: text, by?: who, ops: [{ op: 'tag.set', …its arguments }] }
@@ -112,7 +111,7 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   const prefix = `${ws.packageId}/`
   const layerPrefix = `${ws.layer}/`
   const local = (value) => typeof value === 'string' && value.startsWith(layerPrefix) ? value.slice(layerPrefix.length) : typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value
-  const selectors = [...Object.keys(contentKindSchemas), ...meaningsOf(vocabulary).flatMap(meaning => meaning.selectors ?? []), 'level', 'entry', 'tag', 'relation', 'section', 'chapter', 'task', 'to', 'after']
+  const selectors = [...meaningsOf(vocabulary).flatMap(meaning => meaning.selectors ?? []), 'level', 'entry', 'tag', 'relation', 'section', 'chapter', 'task', 'to', 'after']
   const selected = Object.fromEntries(Object.entries(supplied).map(([key, value]) => [key, selectors.includes(key) ? local(value) : value]))
   const gameObject = operation.startsWith('chapter.') || operation.startsWith('object.') && kindPolicy(supplied.kind, vocabulary).declares === 'game' || supplied.chapter !== undefined
   const gameLocal = value => typeof value === 'string' && value.startsWith(layerPrefix) ? value.slice(layerPrefix.length) : value
@@ -124,7 +123,6 @@ function sourceArguments(ws, operation, supplied, vocabulary) {
   if (args.tag !== undefined) args.tag = local(args.tag)
   for (const meaning of meaningsOf(vocabulary)) meaning.sourceArguments?.({ args, operation, local })
   const targets = {
-    ...Object.fromEntries(Object.entries(contentKindSchemas).map(([kind, schema]) => [kind, [schema, ws.contentObjects[kind].get(args[kind])]])),
     level: [vocabulary.level, ws.levels.get(args.level)],
     task: [tasksSchema(vocabulary), undefined],
     entry: [ENTRY, ws.entries.get(args.entry)],

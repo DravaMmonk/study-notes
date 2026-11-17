@@ -1,3 +1,6 @@
+import circuitModule from './mechanism/module.js'
+import { createCapabilityRegistry, registeredOperations, registeredValueTypes } from 'kernel'
+let capabilityRegistry
 import { circuitTools } from './author-tools.js'
 import { availabilityRecords, circuitReports } from './baseline.js'
 import { dependencies, dot, mermaid } from './dependencies.js'
@@ -15,12 +18,12 @@ import { partProblems, withParts } from './parts/define.js'
 import { shapeAt } from 'kernel'
 import { mapBlueprintNames } from './board/text.js'
 import { grantIndex, grants } from './grants.js'
-import { makesParts, PARTS_FILE } from './parts/schema.js'
+import { PARTS_FILE } from './parts/schema.js'
 
 /** Package-owned qualification of references embedded in circuit works and grant fields. */
 export function circuitNames({ name, vocabulary, objects = {}, parts = new Set(), partRules = new Set(), context }) {
   parts = new Set([...parts, ...Object.keys(objects['circuit/part'] ?? {}).map(id => id.split('/').at(-1))])
-  partRules = new Set([...partRules, ...Object.entries(objects['circuit/part'] ?? {}).filter(([, part]) => part.inside && ['logic:family-lemma', 'logic:family-rule'].includes(part.family)).map(([id]) => id.split('/').at(-1))])
+  partRules = new Set([...partRules, ...(vocabulary?.meanings ?? []).flatMap(meaning => meaning.blueprintRules?.({ objects }) ?? [])])
   const part = value => {
     if (typeof value !== 'string' || value.includes(':')) return value
     if (value.includes('/')) return name(value)
@@ -58,7 +61,7 @@ export const partMeaning = {
   quotes: ({ content }) => Object.values(content.registries?.['circuit/quote'] ?? {}).map(quote => quote.text),
   catalogKey: ({ prefix, path: [field, id, ...rest], segment }) => prefix === 'parts' && field === 'parts' ? ['part', id, ...rest].map(segment).join('.') : null,
   baselineCourse: ({ fragment }) => ({ publications: fragment.course.publications, stages: fragment.course.stages }),
-  baselineStructure: ({ content }) => ({ parts: content.partDefs, ...(Object.keys(content.registries.symbol ?? {}).length && { symbols: content.registries.symbol }), trays: content.trays }),
+  baselineStructure: ({ content }) => ({ parts: content.partDefs, trays: content.trays }),
   baselineRecords: availabilityRecords,
   baselineReports: circuitReports,
   search({ content, texts }) {
@@ -105,7 +108,7 @@ export const partMeaning = {
   taskModule: () => 'circuit',
   runtimeIds({ content, tasks, taskModule }) {
     if (tasks.length) return tasks.some(task => !taskModule(task)) ? ['circuit'] : []
-    const parts = [...Object.values(content.partDefs?.parts ?? content.registries?.['circuit/part'] ?? {}), ...Object.values(content.registries?.symbol ?? {})]
+    const parts = [...Object.values(content.partDefs?.parts ?? content.registries?.['circuit/part'] ?? {}), ...Object.entries(content.registries ?? {}).filter(([kind]) => kind !== 'circuit/part' && grants.types.has(kind)).flatMap(([, objects]) => Object.values(objects))]
     const references = parts.flatMap(part => part.inside?.map(entry => entry.reference) ?? [])
     if (references.length) return [...new Set(references.map(task => taskModule(task) ?? 'circuit'))]
     const owner = name => typeof name === 'string' && name.includes(':') ? name.split(':')[0] : null
@@ -123,7 +126,7 @@ export const partMeaning = {
       const problems = partProblems(content.partDefs, vocabulary, { tasks: taskIdsOf(content.levels) })
       return problems.length ? problems : implementationProblems(content.partDefs)
     }
-    return makesParts(vocabulary) && !vocabulary.kinds.part ? [{ at: 'parts', says: `the ${vocabulary.module} module's parts are data: the game needs parts` }] : []
+    return []
   },
   type: 'circuit/part', read: value => value,
   names: circuitNames,
@@ -172,6 +175,19 @@ export const trayMeaning = {
 }
 
 export function circuitVocabulary(vocabulary) {
+  if (!capabilityRegistry) {
+    capabilityRegistry = createCapabilityRegistry()
+    circuitModule.register(capabilityRegistry)
+    Object.assign(registeredOperations, capabilityRegistry.operations)
+    Object.assign(registeredValueTypes, capabilityRegistry.tables.valueType)
+  }
+  const own = capabilityRegistry.schemas.circuit
+  vocabulary = { ...vocabulary,
+    level: vocabulary.level ?? own.level,
+    game: S.obj({ ...Object.fromEntries(Object.entries(own.game.fields).map(([key, field]) => [key, S.opt(field)])), ...vocabulary.game.fields }),
+    kinds: Object.fromEntries([...new Set([...Object.keys(vocabulary.kinds), ...Object.keys(capabilityRegistry.kinds)])].map(kind => [kind, { ...capabilityRegistry.kinds[kind], ...vocabulary.kinds[kind] }])),
+    capabilities: Object.fromEntries(Object.entries(capabilityRegistry.tables).map(([kind, items]) => [kind, { ...items, ...vocabulary.capabilities?.[kind] }])),
+  }
   const grantFields = new Set(['tray', 'adds', 'gives', 'withholds', 'opens', 'awards', 'local', 'featuredParts', 'publishes'])
   const strip = schema => {
     if (!schema) return schema

@@ -4,9 +4,8 @@ import { catalogReader, sourceValue } from './catalogs.js'
 // Data declarations extend an assembly, never process-wide content registries.
 import { S, validate } from './schema.js'
 import { mergeFields } from './collections.js'
-import { contentKindSchemas } from './content-kinds.js'
 
-export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', 'chapter', 'game', ...Object.keys(contentKindSchemas)]
+export const BUILTIN_KIND_NAMES = ['level', 'task', 'entry', 'tag', 'relation', 'section', 'kind', 'chapter', 'game']
 
 export const KIND_DECLARATION = S.obj({
   folder: S.opt(S.str({ pattern: '^[a-z][a-z0-9-]*$' })),
@@ -18,7 +17,7 @@ export const KIND_DECLARATION = S.obj({
   text: S.opt(S.list(S.str())),
   studio: S.opt(S.obj({ name: S.text(), icon: S.str(), group: S.opt(S.text()) })),
 })
-export const kindSchemas = schemas => ({ ...contentKindSchemas, chapter: CHAPTER, kind: KIND_DECLARATION,
+export const kindSchemas = schemas => ({ chapter: CHAPTER, kind: KIND_DECLARATION,
   ...Object.fromEntries(Object.entries(schemas?.objectKinds ?? {}).filter(([, d]) => !d.extends).map(([name, d]) => [name, d.schema])) })
 
 const extend = (schema, fields) => {
@@ -63,7 +62,7 @@ export function withKindDeclarations(vocabulary, layers, plugin = false) {
     if (d.play && d.extends !== 'task') throw new Error(`${name}: play scopes a task extension`)
     if (d.extends ? !d.fields || d.folder || d.schema && !d.play : !d.schema || !d.folder || d.fields) throw new Error(`${name}: declare folder + schema, or extends + fields`)
     if (!d.extends && Object.values(definitions).some(other => other.folder === d.folder)) throw new Error(`${name}: duplicate object folder ${d.folder}`)
-    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'chapters', 'kinds', 'symbols', 'core', 'view', 'i18n', 'overrides', ...Object.keys(contentKindSchemas)].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
+    if (!d.extends && ['levels', 'tasks', 'entries', 'tags', 'relations', 'sections', 'chapters', 'kinds', 'core', 'view', 'i18n', 'overrides'].includes(d.folder)) throw new Error(`${name}: reserved object folder ${d.folder}`)
     const inspect = schema => {
       const types = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'set', 'edges', 'map', 'obj', 'either', 'by', 'ref', 'name', 'level', 'task', 'board', 'syntax', 'call']
       if (!schema || !types.includes(schema.type)) throw new Error(`${name}: invalid field schema`)

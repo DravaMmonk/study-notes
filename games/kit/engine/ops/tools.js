@@ -438,9 +438,8 @@ const tools = {
       const vocabulary = contentSchemas.get(content)
       return {
         modules: runtimeIds(content),
-        // What the studio needs to rebuild the same vocabulary in the browser: the kernel's modules still in use and
-        // the object types packages declare (kinds/).
-        legacyModules: vocabulary.legacyModules ?? runtimeIds(content), packageCode: Boolean(vocabulary.packageCode),
+        // Package declarations and their projected public vocabulary drive authoring.
+        packageCode: Boolean(vocabulary.packageCode),
         objectKinds: vocabulary.objectKinds ?? {},
         kindPolicies: Object.fromEntries(Object.entries({ ...BUILTIN_POLICIES, ...vocabulary.objectKinds }).map(([name, { declares, overrides, variants }]) => [name, { declares, overrides, ...(variants && { variants }) }])),
         vocabulary: describe({ ...vocabulary, objectKinds: undefined, kindPolicies: undefined }),

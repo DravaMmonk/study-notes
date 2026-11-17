@@ -1,11 +1,10 @@
 import { BUILTIN_KIND_NAMES } from './plugin-kinds.js'
 // Content names are resolved at the file boundary. Ports, settings keys, variant ids and domain resources stay local.
-import { CONTENT_KINDS } from './content-kinds.js'
 import { meaningsOf } from './kind-meanings.js'
 import { textEntries, textKey, withTextKey } from './i18n.js'
 import { shapeAt } from './schema.js'
 
-export const OBJECT_KINDS = ['level', 'entry', 'tag', 'relation', 'section', 'chapter', 'game', ...Object.keys(CONTENT_KINDS)]
+export const OBJECT_KINDS = ['level', 'entry', 'tag', 'relation', 'section', 'chapter', 'game']
 
 export { fullName } from './object-name.js'
 import { fullName } from './object-name.js'
@@ -41,7 +40,7 @@ export function expandNames(value, namespace, { resolve, textKeys = true, schema
     const replacement = readers.map(reader => reader.rewrite?.({ value: v, schema: { type: 'ref', kind, reference: kind }, path: [] })).find(result => result && Object.hasOwn(result, 'value'))
     if (replacement) return replacement.value
     if (kind === 'kind' && BUILTIN_KIND_NAMES.includes(v)) return v
-    return ['entry', 'group', 'tag', 'relation', 'section', 'chapter', ...Object.keys(CONTENT_KINDS), ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
+    return ['entry', 'group', 'tag', 'relation', 'section', 'chapter', ...Object.keys(vocabulary?.objectKinds ?? {}), 'kind'].includes(kind) ? name(v) : v
   }
   const walk = (v, s, path = []) => {
     if (v === undefined || v === null) return v

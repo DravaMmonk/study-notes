@@ -10,7 +10,6 @@ import { contentLayers } from '../engine/resolver.js'
 import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
 import { isDataGame, readContent } from '../engine/resolver.js'
-import { gameModule as domainEntry } from '../engine/game-module.js'
 import { runtimeIds } from '../engine/runtime.js'
 import { CONTENT_FILE, contentAssets } from './content-assets.js'
 
@@ -23,18 +22,11 @@ const q = JSON.stringify
 function gameModule(id) {
   const content = readContent(id)
   const layers = contentLayers(content).filter(layer => !layer.id.startsWith('@'))
-  const hasCode = layers.some(layer => layer.hasCore || layer.hasView)
   const pluginIds = runtimeIds(content).filter(id => layers.some(layer => layer.id === id && layer.hasCore))
-  const modules = runtimeIds(content).filter(id => !pluginIds.includes(id))
   return [
-    ...(hasCode ? [pluginSource(layers)] : []),
-    ...modules.flatMap((id, index) => [
-      `import define${index} from ${q(domainEntry(resolve(KIT, 'modules'), id))}`,
-      `import { ${({ logic: 'prepareLogicWorks' })[id] ?? 'prepareWorks'} as prepare${index} } from ${q(resolve(KIT, 'modules', id, 'work.js'))}`,
-    ]),
+    pluginSource(layers),
     `import { composeGame } from ${q(resolve(KIT, 'app/compose-game.js'))}`,
-    `const define = content => { const game = composeGame(content, [${modules.map((id, index) => `{ id: ${q(id)}, define: define${index}, runtime: { prepare: prepare${index} } }`).join(', ')}${modules.length && pluginIds.length ? ',' : ''}${pluginIds.map(id => `pluginGame(${q(id)}, kernel, vocabulary)`).join(', ')}]); ${hasCode ? 'game.pluginKernel = kernel;' : ''} return game }`,
-    ...(!hasCode ? [`import { vocabularyFor } from ${q(resolve(KIT, 'engine/kernel.js'))}`, `const vocabulary = { ...vocabularyFor(${q(modules)}), legacyModules: ${q(modules)}, packageCode: false }`] : []),
+    `const define = content => { const game = composeGame(content, [${pluginIds.map(id => `pluginGame(${q(id)}, kernel, vocabulary)`).join(', ')}]); game.pluginKernel = kernel; return game }`,
     'export default { define, vocabulary }',
   ].join('\n')
 }

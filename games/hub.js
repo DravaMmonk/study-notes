@@ -9,7 +9,7 @@ import { applyTheme, currentTheme } from './kit/theme.js';
 import { solvedCount } from './kit/shell/progress.js';
 import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
-import { mountDetach } from './detach/detach.js';
+import { mountDetach } from 'qed/view';
 
 // Card art: each game's illustration, mounted live into its row. The anatomy-kit figures are built into plain modules
 // for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s Detach

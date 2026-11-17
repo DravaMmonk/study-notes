@@ -1,7 +1,6 @@
 import { tagKey, tagName } from './tag-identity.js'
 import { meaningsOf, kindMatches } from './kind-meanings.js'
 export const registryVocabularies = new WeakMap()
-import { contentKindSchemas } from './content-kinds.js'
 // Typed collections, presentation objects and directed relations share one reference resolver.
 import { S, shapeAt } from './schema.js'
 import { fullName } from './names.js'
@@ -71,7 +70,7 @@ export function referenceResolver(registries, problems = [], vocabulary = regist
   return expand
 }
 
-export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? (schema.kind?.includes('/') ? schema.kind : { entry: 'entry', ...Object.fromEntries(Object.keys(contentKindSchemas).map(kind => [kind, kind])) }[schema.kind]) : null)
+export const referenceKind = (schema) => schema?.type === 'either' ? schema.of.map(referenceKind).find(Boolean) : schema?.reference ?? (schema?.type === 'level' ? 'level' : ['ref', 'name'].includes(schema?.type) ? (schema.kind?.includes('/') ? schema.kind : { entry: 'entry' }[schema.kind]) : null)
 
 /** Expand tags structurally, using schema types rather than a list of field names. */
 export function expandReferences(value, schema, expand, vocabulary, at = 'content') {
@@ -99,7 +98,7 @@ export function expandReferences(value, schema, expand, vocabulary, at = 'conten
       : [expandReferences(child, schema?.of, expand, vocabulary, `${at}[${i}]`)])
     return tagged ? [...new Set(list)] : list
   }
-  if (typeof value === 'string' && (schema?.reference || contentKindSchemas[schema?.kind] || schema?.kind?.includes('/')) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
+  if (typeof value === 'string' && (schema?.reference || schema?.kind?.includes('/')) && !value.startsWith('#')) expand(value, schema.reference ?? schema.kind, at)
   if (typeof value === 'string' && value.startsWith('#') && referenceKind(schema)) {
     const ids = expand(value, referenceKind(schema), at)
     if (ids.length === 0) return value

@@ -1,3 +1,4 @@
+import { contentSchemas } from './content.js'
 import { kernelIdentity } from './release-data.js'
 import { packageDirectory } from './resolver.js'
 /* global process */
@@ -5,9 +6,8 @@ import { packageDirectory } from './resolver.js'
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { contentRoot, gameDirectory, isDataGame, resolveLayers, readContent, readPackage, contentVocabulary } from './resolver.js'
+import { contentRoot, gameDirectory, isDataGame, resolveLayers, readContent, readPackage } from './resolver.js'
 import { lockTarget } from './releases.js'
-import { runtimeIds } from './runtime.js'
 import { expandNames } from './names.js'
 import { firstText } from './i18n.js'
 import { courseLevelCount } from './content.js'
@@ -114,7 +114,7 @@ export function newGame({ root = contentRoot(), id, template, title = id }) {
   // Template-local selections belong to the copied package, while chapter wording belongs to the game.
   for (const kind of ['power', 'box']) if (source[kind]) source[kind] = `${id}/${source[kind]}`
   const contentPackage = readPackage(id, root)
-  const vocabulary = contentVocabulary(runtimeIds(contentPackage))
+  const vocabulary = contentSchemas.get(contentPackage)
   const course = expandNames(source, id, { objects: contentPackage.registries, vocabulary, schema: vocabulary.game, context: 'configuration', textKeys: false })
   writeFileSync(resolve(dir, 'course.json'), writeJson(course, null))
   if (existsSync(resolve(starter, 'i18n/course'))) fill(resolve(starter, 'i18n/course'), resolve(dir, 'i18n'), words)

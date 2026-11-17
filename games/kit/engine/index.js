@@ -54,7 +54,6 @@ export { eraLevels } from '../course.js'
 export { checkWorks } from './authoring.js'
 export { scoreWorks } from './authoring.js'
 export { isGrid } from './grid.js'
-export { registerContentKinds } from './content-kinds.js'
 export { dependencyCycle } from '../course.js'
 export { failureText } from './failure-text.js'
 export { layout } from '../course.js'
@@ -101,3 +100,13 @@ export { isText } from './i18n.js'
 export { levelLabels } from '../course.js'
 
 export { reportRuns } from './test-run.js'
+
+export { property } from './judge.js'
+
+export { WORDS } from '../shell/words.js'
+
+export { reportedFailure } from './failure-text.js'
+
+export { hidden } from './judge.js'
+
+export { treeKey } from '../strip/tree.js'
